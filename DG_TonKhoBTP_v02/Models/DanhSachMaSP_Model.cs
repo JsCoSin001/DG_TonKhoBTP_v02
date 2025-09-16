@@ -18,6 +18,9 @@ public class DanhSachMaSP_Model
         [Column("Ma")]
         public string Ma { get; set; }
 
+        [Column("DonVi")]
+        public string DonVi { get; set; }
+
         [Column("KieSP")]
         public string KieSP { get; set; }
 

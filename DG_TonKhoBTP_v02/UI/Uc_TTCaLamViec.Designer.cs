@@ -1,6 +1,6 @@
 ﻿namespace DG_TonKhoBTP_v02.UI
 {
-    partial class Uc_TTCaLamViec
+    partial class UC_TTCaLamViec
     {
         /// <summary> 
         /// Required designer variable.
@@ -62,12 +62,12 @@
             // 
             this.groupBox1.Controls.Add(this.tableLayoutPanel1);
             this.groupBox1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.groupBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.groupBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.groupBox1.Location = new System.Drawing.Point(10, 52);
             this.groupBox1.Margin = new System.Windows.Forms.Padding(4);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Padding = new System.Windows.Forms.Padding(10);
-            this.groupBox1.Size = new System.Drawing.Size(1329, 74);
+            this.groupBox1.Size = new System.Drawing.Size(1329, 65);
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Thông tin ca làm việc";
@@ -100,11 +100,11 @@
             this.tableLayoutPanel1.Controls.Add(this.dtpNgay, 1, 0);
             this.tableLayoutPanel1.Controls.Add(this.cbMay, 3, 0);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanel1.Location = new System.Drawing.Point(10, 27);
+            this.tableLayoutPanel1.Location = new System.Drawing.Point(10, 25);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 1;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(1309, 37);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(1309, 30);
             this.tableLayoutPanel1.TabIndex = 0;
             // 
             // textBox3
@@ -119,10 +119,10 @@
             // label6
             // 
             this.label6.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label6.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label6.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label6.Location = new System.Drawing.Point(1111, 0);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(114, 37);
+            this.label6.Size = new System.Drawing.Size(114, 30);
             this.label6.TabIndex = 16;
             this.label6.Text = "Quản đốc";
             this.label6.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -139,10 +139,10 @@
             // label5
             // 
             this.label5.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label5.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label5.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label5.Location = new System.Drawing.Point(912, 0);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(114, 37);
+            this.label5.Size = new System.Drawing.Size(114, 30);
             this.label5.TabIndex = 14;
             this.label5.Text = "Tổ trưởng";
             this.label5.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -159,10 +159,10 @@
             // label4
             // 
             this.label4.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label4.Location = new System.Drawing.Point(713, 0);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(114, 37);
+            this.label4.Size = new System.Drawing.Size(114, 30);
             this.label4.TabIndex = 12;
             this.label4.Text = "Người làm";
             this.label4.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -185,10 +185,10 @@
             // label3
             // 
             this.label3.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label3.Location = new System.Drawing.Point(573, 0);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(64, 37);
+            this.label3.Size = new System.Drawing.Size(64, 30);
             this.label3.TabIndex = 4;
             this.label3.Text = "Ca";
             this.label3.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -196,10 +196,10 @@
             // label2
             // 
             this.label2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label2.Location = new System.Drawing.Point(273, 0);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(94, 37);
+            this.label2.Size = new System.Drawing.Size(94, 30);
             this.label2.TabIndex = 2;
             this.label2.Text = "Máy";
             this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -207,10 +207,10 @@
             // label1
             // 
             this.label1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label1.Location = new System.Drawing.Point(3, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(64, 37);
+            this.label1.Size = new System.Drawing.Size(64, 30);
             this.label1.TabIndex = 0;
             this.label1.Text = "Ngày";
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -238,7 +238,7 @@
             this.cbMay.Size = new System.Drawing.Size(194, 28);
             this.cbMay.TabIndex = 3;
             // 
-            // Uc_TTCaLamViec
+            // UC_TTCaLamViec
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -246,9 +246,9 @@
             this.Controls.Add(this.lblTieuDe);
             this.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Margin = new System.Windows.Forms.Padding(4);
-            this.Name = "Uc_TTCaLamViec";
+            this.Name = "UC_TTCaLamViec";
             this.Padding = new System.Windows.Forms.Padding(10);
-            this.Size = new System.Drawing.Size(1349, 136);
+            this.Size = new System.Drawing.Size(1349, 127);
             this.groupBox1.ResumeLayout(false);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();

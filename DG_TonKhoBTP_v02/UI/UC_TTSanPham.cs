@@ -23,6 +23,24 @@ namespace DG_TonKhoBTP_v02.UI
 
         private void StartForm()
         {
+            UC_CaiDatMay uC_CaiDatMay = new UC_CaiDatMay();
+            uC_CaiDatMay.Dock = DockStyle.Top;
+
+            UC_DieuKienBoc uC_DieuKienBoc = new UC_DieuKienBoc();
+            uC_DieuKienBoc.Dock = DockStyle.Top;
+
+
+            UC_CDKeoRut uc_CongDoan = new UC_CDKeoRut();
+            uc_CongDoan.Dock = DockStyle.Top;
+
+            UC_SubmitForm uC_SubmitForm = new UC_SubmitForm();
+            uC_SubmitForm.Dock = DockStyle.Top;
+
+            this.panel1.Controls.Add(uC_SubmitForm);
+            this.panel1.Controls.Add(uc_CongDoan);
+            this.panel1.Controls.Add(uC_DieuKienBoc);
+            this.panel1.Controls.Add(uC_CaiDatMay);
+
         }
 
 

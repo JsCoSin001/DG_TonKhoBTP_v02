@@ -24,11 +24,21 @@ namespace DG_TonKhoBTP_v02
             this.ResumeLayout(true);
             this.Shown += (_, __) => this.Visible = true; // hiện khi đã xong
 
+            this.startScreen();
+
+
+
+            //UC_TTNVL uc_TTThanhPham = new UC_TTNVL();
+            //uc_TTThanhPham.Dock = DockStyle.Top;
+            //this.pnShow.Controls.Add(uc_TTThanhPham);
+
+
+
         }
 
-        private void btnKeoRut_Click(object sender, EventArgs e)
+        private void startScreen()
         {
-            pnShow.Controls.Clear();
+            //#region Tạo UI cho Công đoạn kéo rút
             List<string> dsMay = new List<string>()
             {
                 "MAY01", "MAY02", "MAY03", "MAY04", "MAY05",
@@ -38,29 +48,65 @@ namespace DG_TonKhoBTP_v02
             };
 
             string tieuDe = "BÁO CÁO CÔNG ĐOẠN KÉO - RÚT";
-
-            Uc_TTCaLamViec uc_caLamViec = new Uc_TTCaLamViec(dsMay, _URL, tieuDe);
+            UC_TTCaLamViec uc_caLamViec = new UC_TTCaLamViec(dsMay, _URL, tieuDe);
             uc_caLamViec.Dock = DockStyle.Top;
+            //#endregion
 
-            ColumnDef[] schemaChiTiet = new[]
-            {
-                new ColumnDef("ĐK trục X",   typeof(decimal), true,  "N2"),
-                new ColumnDef("ĐK trục Y",   typeof(decimal), true,  "N2"),
-                new ColumnDef("Ngoại Quan",  typeof(Boolean), true, null, new[] { "Yes", "No" }),
-                new ColumnDef("Tốc độ",      typeof(decimal), true, "N2"),
-                new ColumnDef("Điện áp Ủ",   typeof(decimal), true, "N2"),
-                new ColumnDef("Dòng điện Ủ", typeof(decimal), true, "N2"),
-                new ColumnDef("Trọng lượng", typeof(decimal), true, "N2"),
-            };
+            //#region Tạo UI cho Thành Phẩm
+            UC_TTThanhPham uC_TTThanhPham = new UC_TTThanhPham();
+            uC_TTThanhPham.Dock = DockStyle.Top;
+            //#endregion
 
+            Panel pnLeft = new Panel();
 
-            UC_TTSanPham uC_TTSanPham = new UC_TTSanPham(schemaChiTiet);
+            UC_TTSanPham uC_TTSanPham = new UC_TTSanPham();
             uC_TTSanPham.Dock = DockStyle.Top;
-            this.pnShow.Controls.Add(uC_TTSanPham);
 
-            this.pnShow.Controls.Add(uc_caLamViec);
+            UC_Edit uC_Edit = new UC_Edit();
+            uC_Edit.Dock = DockStyle.Left;
+            uC_Edit.Width = 500;
+
+            UC_Report uC_Report = new UC_Report();
+            uC_Report.Dock = DockStyle.Fill;
+
+            Panel pnEdit_Report = new Panel();
+            pnEdit_Report.Dock = DockStyle.Top;
+            pnEdit_Report.Height = 120;
+            pnEdit_Report.Controls.Add(uC_Report);
+            pnEdit_Report.Controls.Add(uC_Edit);
+
+            pnLeft.Controls.Add(pnEdit_Report);
+            pnLeft.Controls.Add(uC_TTSanPham);
+
+            pnLeft.Dock = DockStyle.Fill;
+
+            Panel pn = new Panel();
+            pn.Dock = DockStyle.Fill;
+
+            UC_TTNVL uC_TTNVL = new UC_TTNVL();
+            uC_TTNVL.Dock = DockStyle.Left;
+
+            pn.Controls.Add(pnLeft);
+            pn.Controls.Add(uC_TTNVL);
+
+
+            Panel pnTop = new Panel();
+            pnTop.Dock = DockStyle.Top;
+            pnTop.AutoSize = true;
+
+            pnTop.Controls.Add(uC_TTThanhPham);
+            pnTop.Controls.Add(uc_caLamViec);
+
+            pnShow.Controls.Add(pn);
+            pnShow.Controls.Add(pnTop);
 
         }
-        
+
+        private void btnKeoRut_Click(object sender, EventArgs e)
+        {
+            pnShow.Controls.Clear();
+
+        }
+
     }
 }

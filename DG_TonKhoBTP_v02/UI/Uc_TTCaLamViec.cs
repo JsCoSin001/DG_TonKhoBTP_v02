@@ -10,15 +10,15 @@ using System.Windows.Forms;
 
 namespace DG_TonKhoBTP_v02.UI
 {
-    public partial class Uc_TTCaLamViec : UserControl
+    public partial class UC_TTCaLamViec : UserControl
     {
         private string _URL;
-        public Uc_TTCaLamViec()
+        public UC_TTCaLamViec()
         {
             InitializeComponent();
         }
 
-        public Uc_TTCaLamViec(List<string> dsMay, string uRL, string tieuDe)
+        public UC_TTCaLamViec(List<string> dsMay, string uRL, string tieuDe)
         {
             InitializeComponent();
             this.StartForm(dsMay, uRL, tieuDe);

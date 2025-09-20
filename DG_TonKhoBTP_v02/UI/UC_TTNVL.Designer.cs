@@ -43,7 +43,7 @@
             this.groupBox1.Controls.Add(this.dtgTTNVL);
             this.groupBox1.Controls.Add(this.tableLayoutPanel1);
             this.groupBox1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.groupBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.groupBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.groupBox1.Location = new System.Drawing.Point(10, 10);
             this.groupBox1.Margin = new System.Windows.Forms.Padding(0);
             this.groupBox1.Name = "groupBox1";
@@ -55,10 +55,12 @@
             // 
             // dtgTTNVL
             // 
+            this.dtgTTNVL.AllowUserToAddRows = false;
             this.dtgTTNVL.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dtgTTNVL.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dtgTTNVL.Location = new System.Drawing.Point(10, 60);
             this.dtgTTNVL.Name = "dtgTTNVL";
+            this.dtgTTNVL.RowHeadersVisible = false;
             this.dtgTTNVL.Size = new System.Drawing.Size(756, 384);
             this.dtgTTNVL.TabIndex = 1;
             // 

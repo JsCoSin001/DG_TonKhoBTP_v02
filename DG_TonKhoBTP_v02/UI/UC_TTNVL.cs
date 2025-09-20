@@ -1,5 +1,5 @@
 ﻿
-using DG_TonKhoBTP_v02.Data;
+using DG_TonKhoBTP_v02.Database;
 using DocumentFormat.OpenXml.Wordprocessing;
 using System;
 using System.Collections.Generic;
@@ -110,7 +110,7 @@ namespace DG_TonKhoBTP_v02.UI
             dgv.Columns[0].Width = 50;
             dgv.Columns[0].ReadOnly = true;
 
-            dgv.Columns[1].Width = 170;
+            dgv.Columns[1].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
             dgv.Columns[1].ReadOnly = true;
         }
 
@@ -194,23 +194,23 @@ namespace DG_TonKhoBTP_v02.UI
                   AND t.KhoiLuongConLai <> 0
                   AND t.Lot NOT LIKE 'Z_%';";
 
-            DataTable tonKho = DatabaseHelper.GetData(keyword, query, para);
+            //DataTable tonKho = DatabaseHelper.GetData(keyword, query, para);
 
-            cbx.DroppedDown = false;
+            //cbx.DroppedDown = false;
 
-            cbx.SelectionChangeCommitted -= cbx_SelectionChangeCommitted; // tránh trùng event
-            // check data return
-            if (tonKho.Rows.Count == 0) return;
+            //cbx.SelectionChangeCommitted -= cbx_SelectionChangeCommitted; // tránh trùng event
+            //// check data return
+            //if (tonKho.Rows.Count == 0) return;
 
-            cbx.DataSource = tonKho;
-            cbx.DisplayMember = "Lot";
+            //cbx.DataSource = tonKho;
+            //cbx.DisplayMember = "Lot";
 
-            string currentText = keyword;
+            //string currentText = keyword;
 
-            cbx.DroppedDown = true;
-            cbx.Text = currentText;
-            cbx.SelectionStart = cbx.Text.Length;
-            cbx.SelectionLength = 0;
+            //cbx.DroppedDown = true;
+            //cbx.Text = currentText;
+            //cbx.SelectionStart = cbx.Text.Length;
+            //cbx.SelectionLength = 0;
 
             cbx.SelectionChangeCommitted += cbx_SelectionChangeCommitted;
 
@@ -219,34 +219,34 @@ namespace DG_TonKhoBTP_v02.UI
 
         private void cbx_SelectionChangeCommitted(object sender, EventArgs e)
         {
-            //ResetController_TimLOT();
+            ////ResetController_TimLOT();
 
 
-            //if (cbTimLot.SelectedItem == null || !(cbTimLot.SelectedItem is DataRowView)) return;
+            ////if (cbTimLot.SelectedItem == null || !(cbTimLot.SelectedItem is DataRowView)) return;
 
-            DataRowView row = (DataRowView)cbxTimKiem.SelectedItem;
+            //DataRowView row = (DataRowView)cbxTimKiem.SelectedItem;
 
-            string id = row["ID"].ToString();
+            //string id = row["ID"].ToString();
 
-            //DataRowView dong = (DataRowView)row;
+            ////DataRowView dong = (DataRowView)row;
 
-            bool isDuplicate = dtgTTNVL.Rows.Cast<DataGridViewRow>()
-                .Any(r => r.Cells["ID"].Value?.ToString() == id);
+            //bool isDuplicate = dtgTTNVL.Rows.Cast<DataGridViewRow>()
+            //    .Any(r => r.Cells["ID"].Value?.ToString() == id);
 
-            if (!isDuplicate)
-            {
-                int index = dtgTTNVL.Rows.Add();
-                DataGridViewRow newRow = dtgTTNVL.Rows[index];
-                newRow.Cells["ID"].Value = row["ID"];
-                newRow.Cells["lot"].Value = row["Lot"];
-                newRow.Cells["conLai"].Value = row["ConLai"];
-                newRow.Cells["ten"].Value = row["TenSP"];
-                newRow.Cells["kl"].Value = row["KL"];
-            }
-            else MessageBox.Show("Lô này đã được thêm vào danh sách.");
+            //if (!isDuplicate)
+            //{
+            //    int index = dtgTTNVL.Rows.Add();
+            //    DataGridViewRow newRow = dtgTTNVL.Rows[index];
+            //    newRow.Cells["ID"].Value = row["ID"];
+            //    newRow.Cells["lot"].Value = row["Lot"];
+            //    newRow.Cells["conLai"].Value = row["ConLai"];
+            //    newRow.Cells["ten"].Value = row["TenSP"];
+            //    newRow.Cells["kl"].Value = row["KL"];
+            //}
+            //else MessageBox.Show("Lô này đã được thêm vào danh sách.");
 
-            cbxTimKiem.SelectedIndex = -1;  
-            cbxTimKiem.Text = string.Empty; 
+            //cbxTimKiem.SelectedIndex = -1;  
+            //cbxTimKiem.Text = string.Empty; 
         }
 
         private void label1_Click(object sender, EventArgs e)

@@ -225,6 +225,7 @@
             this.btnBenRuot.TabIndex = 1;
             this.btnBenRuot.Text = "CĐ BỆN RUỘT";
             this.btnBenRuot.UseVisualStyleBackColor = false;
+            this.btnBenRuot.Click += new System.EventHandler(this.btnBenRuot_Click);
             // 
             // btnGhepLoiQB
             // 
@@ -238,6 +239,7 @@
             this.btnGhepLoiQB.TabIndex = 2;
             this.btnGhepLoiQB.Text = "CĐ GHÉP LÕI - QB";
             this.btnGhepLoiQB.UseVisualStyleBackColor = false;
+            this.btnGhepLoiQB.Click += new System.EventHandler(this.btnGhepLoiQB_Click);
             // 
             // btnBocLot
             // 
@@ -251,6 +253,7 @@
             this.btnBocLot.TabIndex = 3;
             this.btnBocLot.Text = "CĐ BỌC LÓT";
             this.btnBocLot.UseVisualStyleBackColor = false;
+            this.btnBocLot.Click += new System.EventHandler(this.btnBocLot_Click);
             // 
             // btnBocMach
             // 
@@ -264,6 +267,7 @@
             this.btnBocMach.TabIndex = 4;
             this.btnBocMach.Text = "CĐ BỌC MẠCH";
             this.btnBocMach.UseVisualStyleBackColor = false;
+            this.btnBocMach.Click += new System.EventHandler(this.btnBocMach_Click);
             // 
             // btnBocVo
             // 
@@ -277,6 +281,7 @@
             this.btnBocVo.TabIndex = 5;
             this.btnBocVo.Text = "CĐ BỌC VỎ";
             this.btnBocVo.UseVisualStyleBackColor = false;
+            this.btnBocVo.Click += new System.EventHandler(this.btnBocVo_Click);
             // 
             // panel3
             // 

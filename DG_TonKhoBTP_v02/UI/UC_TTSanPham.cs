@@ -1,5 +1,5 @@
 ﻿using DG_TonKhoBTP_v02.Helper;
-using DG_TonKhoBTP_v02.Models;
+using DocumentFormat.OpenXml.Spreadsheet;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -9,37 +9,25 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Control = System.Windows.Forms.Control;
 
 namespace DG_TonKhoBTP_v02.UI
 {
     public partial class UC_TTSanPham : UserControl
     {
-       
-        public UC_TTSanPham()
+        public UC_TTSanPham(params Control[] controls)
         {
             InitializeComponent();
-            this.StartForm();
+            this.StartForm(controls);
         }
 
-        private void StartForm()
+        private void StartForm(params Control[] controls)
         {
-            UC_CaiDatMay uC_CaiDatMay = new UC_CaiDatMay();
-            uC_CaiDatMay.Dock = DockStyle.Top;
-
-            UC_DieuKienBoc uC_DieuKienBoc = new UC_DieuKienBoc();
-            uC_DieuKienBoc.Dock = DockStyle.Top;
-
-
-            UC_CDKeoRut uc_CongDoan = new UC_CDKeoRut();
-            uc_CongDoan.Dock = DockStyle.Top;
-
-            UC_SubmitForm uC_SubmitForm = new UC_SubmitForm();
-            uC_SubmitForm.Dock = DockStyle.Top;
-
-            this.panel1.Controls.Add(uC_SubmitForm);
-            this.panel1.Controls.Add(uc_CongDoan);
-            this.panel1.Controls.Add(uC_DieuKienBoc);
-            this.panel1.Controls.Add(uC_CaiDatMay);
+            foreach (var ctrl in controls)
+            {
+                ctrl.Dock = DockStyle.Top;
+                this.panel1.Controls.Add(ctrl);
+            }
 
         }
 

@@ -56,7 +56,7 @@
             this.tableLayoutPanel1.RowCount = 2;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 35F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(882, 65);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(868, 65);
             this.tableLayoutPanel1.TabIndex = 0;
             // 
             // label1
@@ -66,7 +66,7 @@
             this.label1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.label1.Location = new System.Drawing.Point(3, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(244, 30);
+            this.label1.Size = new System.Drawing.Size(240, 30);
             this.label1.TabIndex = 0;
             this.label1.Text = "Độ dày TB lót";
             this.label1.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
@@ -77,7 +77,7 @@
             this.numericUpDown1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.numericUpDown1.Location = new System.Drawing.Point(3, 33);
             this.numericUpDown1.Name = "numericUpDown1";
-            this.numericUpDown1.Size = new System.Drawing.Size(119, 24);
+            this.numericUpDown1.Size = new System.Drawing.Size(117, 24);
             this.numericUpDown1.TabIndex = 1;
             // 
             // UC_CDBocLot
@@ -88,7 +88,7 @@
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.Controls.Add(this.tableLayoutPanel1);
             this.Name = "UC_CDBocLot";
-            this.Size = new System.Drawing.Size(882, 65);
+            this.Size = new System.Drawing.Size(868, 65);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).EndInit();

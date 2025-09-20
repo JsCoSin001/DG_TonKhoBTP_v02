@@ -125,7 +125,7 @@
             this.label6.Size = new System.Drawing.Size(114, 30);
             this.label6.TabIndex = 16;
             this.label6.Text = "Quản đốc";
-            this.label6.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.label6.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // textBox2
             // 
@@ -145,7 +145,7 @@
             this.label5.Size = new System.Drawing.Size(114, 30);
             this.label5.TabIndex = 14;
             this.label5.Text = "Tổ trưởng";
-            this.label5.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.label5.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // textBox1
             // 
@@ -165,7 +165,7 @@
             this.label4.Size = new System.Drawing.Size(114, 30);
             this.label4.TabIndex = 12;
             this.label4.Text = "Người làm";
-            this.label4.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.label4.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // cbCa
             // 

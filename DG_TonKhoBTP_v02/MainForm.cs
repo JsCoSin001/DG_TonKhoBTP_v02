@@ -1,5 +1,6 @@
 ﻿
 using DG_TonKhoBTP_v02.Dictionary;
+using DG_TonKhoBTP_v02.Models;
 using DG_TonKhoBTP_v02.UI;
 using System;
 using System.Collections.Generic;
@@ -34,7 +35,7 @@ namespace DG_TonKhoBTP_v02
             return pnTop;
         }
 
-        private Panel UI_BottomPanel(Control productInfoControl)
+        private Panel UI_BottomPanel(List<ColumnDefinition> columns, Control productInfoControl)
         {
             Panel pnBottom = new Panel();
             pnBottom.Dock = DockStyle.Fill;
@@ -42,7 +43,7 @@ namespace DG_TonKhoBTP_v02
 
             // pn Bottom - Left
             #region Tạo UI panel ở dưới - bên trái  - Đặt size = 800
-            Panel pnLeft = UI_BottomLeftPanel();
+            Panel pnLeft = UI_BottomLeftPanel(columns);
             #endregion
 
             // pn Bottom - Right
@@ -98,14 +99,14 @@ namespace DG_TonKhoBTP_v02
             return pnEdit_Report;
         }
 
-        private Panel UI_BottomLeftPanel()
+        private Panel UI_BottomLeftPanel(List<ColumnDefinition> columns)
         {
             Panel pnLeft = new Panel();
             pnLeft.Dock = DockStyle.Left;
             pnLeft.AutoSize = false;
             pnLeft.Width = 800;
 
-            UC_TTNVL uC_TTNVL = new UC_TTNVL();
+            UC_TTNVL uC_TTNVL = new UC_TTNVL(columns);
             uC_TTNVL.Dock = DockStyle.Fill;
             pnLeft.Controls.Add(uC_TTNVL);
             return pnLeft;
@@ -121,46 +122,54 @@ namespace DG_TonKhoBTP_v02
 
         private void btnKeoRut_Click(object sender, EventArgs e)
         {
-            var thongTinCD = ThongTinChungCongDoan.KeoRut;
+            CongDoan thongTinCD = ThongTinChungCongDoan.KeoRut;
+            List<ColumnDefinition> columns = thongTinCD.Columns;
 
             var ucSanPham = new UC_TTSanPham(
                 new UC_CDKeoRut()
             );            
 
-            Panel pnBottom = UI_BottomPanel(ucSanPham);
+            Panel pnBottom = UI_BottomPanel(columns, ucSanPham);
 
             this.ShowUI(thongTinCD, pnBottom);
         }
 
         private void btnBenRuot_Click(object sender, EventArgs e)
         {
-            var thongTinCD = ThongTinChungCongDoan.BenRuot;
+            CongDoan thongTinCD = ThongTinChungCongDoan.BenRuot;
+
+            List<ColumnDefinition> columns = thongTinCD.Columns;
+
 
             var ucSanPham = new UC_TTSanPham(
                 new UC_CDBenRuot()
             );
 
-            Panel pnBottom = UI_BottomPanel(ucSanPham);
+            Panel pnBottom = UI_BottomPanel(columns, ucSanPham);
 
             this.ShowUI(thongTinCD, pnBottom);
         }
 
         private void btnGhepLoiQB_Click(object sender, EventArgs e)
         {
-            var thongTinCD = ThongTinChungCongDoan.GhepLoi_QB;
+            CongDoan thongTinCD = ThongTinChungCongDoan.GhepLoi_QB;
+
+            List<ColumnDefinition> columns = thongTinCD.Columns;
 
             var ucSanPham = new UC_TTSanPham(
                 new UC_CDGhepLoiQB()
             );
 
-            Panel pnBottom = UI_BottomPanel(ucSanPham);
+            Panel pnBottom = UI_BottomPanel(columns, ucSanPham);
 
             this.ShowUI(thongTinCD, pnBottom);
         }
 
         private void btnBocLot_Click(object sender, EventArgs e)
         {
-            var thongTinCD = ThongTinChungCongDoan.BocLot;
+            CongDoan thongTinCD = ThongTinChungCongDoan.BocLot;
+
+            List<ColumnDefinition> columns = thongTinCD.Columns;
 
             var ucSanPham = new UC_TTSanPham(
                 new UC_CDBocLot(),
@@ -168,14 +177,16 @@ namespace DG_TonKhoBTP_v02
                 new UC_CaiDatMay()
             );
 
-            Panel pnBottom = UI_BottomPanel(ucSanPham);
+            Panel pnBottom = UI_BottomPanel(columns, ucSanPham);
 
             this.ShowUI(thongTinCD, pnBottom);
         }
 
         private void btnBocMach_Click(object sender, EventArgs e)
         {
-            var thongTinCD = ThongTinChungCongDoan.BocMach;
+            CongDoan thongTinCD = ThongTinChungCongDoan.BocMach;
+
+            List<ColumnDefinition> columns = thongTinCD.Columns;
 
             var ucSanPham = new UC_TTSanPham(
                 new UC_CDBocMach(),
@@ -183,14 +194,16 @@ namespace DG_TonKhoBTP_v02
                 new UC_CaiDatMay()
             );
 
-            Panel pnBottom = UI_BottomPanel(ucSanPham);
+            Panel pnBottom = UI_BottomPanel(columns, ucSanPham);
 
             this.ShowUI(thongTinCD, pnBottom);
         }
 
         private void btnBocVo_Click(object sender, EventArgs e)
         {
-            var thongTinCD = ThongTinChungCongDoan.BocVo;
+            CongDoan thongTinCD = ThongTinChungCongDoan.BocVo;
+
+            List<ColumnDefinition> columns = thongTinCD.Columns;
 
             var ucSanPham = new UC_TTSanPham(
                 new UC_CDBocVo(),
@@ -198,7 +211,7 @@ namespace DG_TonKhoBTP_v02
                 new UC_CaiDatMay()
             );
 
-            Panel pnBottom = UI_BottomPanel(ucSanPham);
+            Panel pnBottom = UI_BottomPanel(columns, ucSanPham);
 
             this.ShowUI(thongTinCD, pnBottom);
         }

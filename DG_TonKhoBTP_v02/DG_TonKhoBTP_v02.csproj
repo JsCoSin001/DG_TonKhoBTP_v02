@@ -109,6 +109,7 @@
     <Compile Include="Models\CDBocVo.cs" />
     <Compile Include="Models\CDGhepLoiQuanBang.cs" />
     <Compile Include="Models\CDKeoRut.cs" />
+    <Compile Include="Models\OtherClass.cs" />
     <Compile Include="Models\DanhSachMaSP.cs" />
     <Compile Include="Models\ThongTinCaLamViec.cs" />
     <Compile Include="Models\ThongTinNVL.cs" />

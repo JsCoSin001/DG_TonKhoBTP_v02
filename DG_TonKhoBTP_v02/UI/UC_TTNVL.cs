@@ -1,5 +1,6 @@
 ﻿
 using DG_TonKhoBTP_v02.Database;
+using DG_TonKhoBTP_v02.Models;
 using DocumentFormat.OpenXml.Wordprocessing;
 using System;
 using System.Collections.Generic;
@@ -16,10 +17,13 @@ namespace DG_TonKhoBTP_v02.UI
 {
     public partial class UC_TTNVL : UserControl
     {
-        public UC_TTNVL()
+        public UC_TTNVL(List<ColumnDefinition> columns)
         {
             InitializeComponent();
-            this.TaoBang();
+
+            
+
+            TaoBang(columns);
 
             // Bắt lỗi nhập sai định dạng
             dtgTTNVL.DataError += dtgTTNVL_DataError;
@@ -28,40 +32,25 @@ namespace DG_TonKhoBTP_v02.UI
             dtgTTNVL.EditingControlShowing += dtgTTNVL_EditingControlShowing;
         }
 
-        private void TaoBang()
+        private void TaoBang(List<ColumnDefinition> columns)
         {
-            // Tạo "database" trong bộ nhớ bằng DataTable
             DataTable dt = new DataTable("ThongTin");
 
-            // Khai báo cột với kiểu dữ liệu
-            dt.Columns.Add("id", typeof(int));                    // INTEGER
-            dt.Columns.Add("BinNVL", typeof(string));             // TEXT
-            dt.Columns.Add("DuongKinhSoiDong", typeof(double));   // REAL
-            dt.Columns.Add("SoSoi", typeof(double));              // REAL
-            dt.Columns.Add("KetCauLoi", typeof(double));          // REAL
-            dt.Columns.Add("DuongKinhSoiMang", typeof(double));   // REAL
-            dt.Columns.Add("BanRongBang", typeof(double));        // REAL
-            dt.Columns.Add("DoDayBang", typeof(double));          // REAL
+            // Tạo cột từ danh sách
+            foreach (var col in columns)
+            {
+                dt.Columns.Add(col.Name, col.DataType);
+            }
 
-            // Gán vào DataGridView
             dtgTTNVL.DataSource = dt;
 
-            // Đổi tên hiển thị của cột (HeaderText)
-            string[] headers = {
-                "ID",
-                "Nguyên liệu",
-                "ĐK sợi đồng",
-                "Số sợi",
-                "Kết cấu lõi",
-                "ĐK sợi mạch",
-                "Bản rộng băng",
-                "Độ dày băng"
-            };
+            // Tạo mảng headers từ danh sách truyền vào
+            string[] headers = columns.Select(c => c.Header).ToArray();
 
+            // Gọi lại hàm SetColumnHeaders để cấu hình
             SetColumnHeaders(dtgTTNVL, headers);
 
-
-            //dtgTTNVL.AllowUserToAddRows = false; // Tắt tự thêm dòng
+            // Tuỳ chỉnh style
             dtgTTNVL.DefaultCellStyle.Font = new System.Drawing.Font("Microsoft Sans Serif", 12, FontStyle.Regular);
             dtgTTNVL.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
             dtgTTNVL.RowTemplate.Height = 30;
@@ -78,7 +67,6 @@ namespace DG_TonKhoBTP_v02.UI
                 dtgTTNVL.Columns.Add(btnDelete);
             }
 
-            // Bắt sự kiện click
             dtgTTNVL.CellClick += dtgTTNVL_CellClick;
         }
 
@@ -99,8 +87,15 @@ namespace DG_TonKhoBTP_v02.UI
             }
         }
 
-        private void SetColumnHeaders(DataGridView dgv, string[] headers, int defaultWidth = 70)
+        private void SetColumnHeaders(DataGridView dgv, string[] headers)
         {
+
+            int defaultWidth = 100;
+            if (headers.Length < 6) defaultWidth = 120;
+
+            dgv.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
+            dgv.ColumnHeadersHeight = 40; 
+
             for (int i = 0; i < headers.Length && i < dgv.Columns.Count; i++)
             {
                 dgv.Columns[i].HeaderText = headers[i];
@@ -112,6 +107,10 @@ namespace DG_TonKhoBTP_v02.UI
 
             dgv.Columns[1].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
             dgv.Columns[1].ReadOnly = true;
+
+            dgv.EnableHeadersVisualStyles = false;
+            dgv.ColumnHeadersDefaultCellStyle.Font = new System.Drawing.Font("Microsoft Sans Serif", 11, FontStyle.Regular);
+            dgv.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
         }
 
         private void dtgTTNVL_DataError(object sender, DataGridViewDataErrorEventArgs e)
@@ -259,4 +258,7 @@ namespace DG_TonKhoBTP_v02.UI
 
         }
     }
+
+    // Class mô tả cột
+    
 }

@@ -8,11 +8,9 @@ namespace DG_TonKhoBTP_v02.Models
     public class CDKeoRut
 {
     [Column("id")]
-        [Required]
         public int Id { get; set; }
 
     [Column("ThongTinSP_ID")]
-        [Required]
         public int ThongTinSPID { get; set; }
 
     [Column("DKTrucX")]

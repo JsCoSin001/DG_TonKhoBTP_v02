@@ -54,7 +54,6 @@
             this.label7 = new System.Windows.Forms.Label();
             this.numericUpDown3 = new System.Windows.Forms.NumericUpDown();
             this.label8 = new System.Windows.Forms.Label();
-            this.may = new System.Windows.Forms.ComboBox();
             this.soBin = new System.Windows.Forms.NumericUpDown();
             this.panel3 = new System.Windows.Forms.Panel();
             this.tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
@@ -66,6 +65,7 @@
             this.label5 = new System.Windows.Forms.Label();
             this.comboBox2 = new System.Windows.Forms.ComboBox();
             this.label3 = new System.Windows.Forms.Label();
+            this.tbMay = new System.Windows.Forms.TextBox();
             this.groupBox1.SuspendLayout();
             this.panel1.SuspendLayout();
             this.tableLayoutPanel3.SuspendLayout();
@@ -252,8 +252,8 @@
             this.tableLayoutPanel1.Controls.Add(this.label7, 5, 1);
             this.tableLayoutPanel1.Controls.Add(this.numericUpDown3, 6, 1);
             this.tableLayoutPanel1.Controls.Add(this.label8, 7, 1);
-            this.tableLayoutPanel1.Controls.Add(this.may, 0, 1);
             this.tableLayoutPanel1.Controls.Add(this.soBin, 8, 1);
+            this.tableLayoutPanel1.Controls.Add(this.tbMay, 0, 1);
             this.tableLayoutPanel1.Location = new System.Drawing.Point(3, 3);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 2;
@@ -409,37 +409,6 @@
             this.label8.Text = "-";
             this.label8.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
-            // may
-            // 
-            this.may.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.may.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.may.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.may.FormattingEnabled = true;
-            this.may.Items.AddRange(new object[] {
-            "B1",
-            "B2",
-            "B3",
-            "B4",
-            "B5",
-            "B6",
-            "B7",
-            "B8",
-            "B9",
-            "B10",
-            "B11",
-            "B12",
-            "B13",
-            "B14",
-            "B15",
-            "B16",
-            "R6",
-            "R10",
-            "R12"});
-            this.may.Location = new System.Drawing.Point(3, 23);
-            this.may.Name = "may";
-            this.may.Size = new System.Drawing.Size(94, 28);
-            this.may.TabIndex = 31;
-            // 
             // soBin
             // 
             this.soBin.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -577,6 +546,15 @@
             this.label3.Text = "Tìm Tên";
             this.label3.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
+            // tbMay
+            // 
+            this.tbMay.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tbMay.Enabled = false;
+            this.tbMay.Location = new System.Drawing.Point(3, 23);
+            this.tbMay.Name = "tbMay";
+            this.tbMay.Size = new System.Drawing.Size(94, 26);
+            this.tbMay.TabIndex = 33;
+            // 
             // UC_TTThanhPham
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -593,6 +571,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown4)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown5)).EndInit();
             this.tableLayoutPanel1.ResumeLayout(false);
+            this.tableLayoutPanel1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown3)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.soBin)).EndInit();
@@ -619,7 +598,6 @@
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.NumericUpDown numericUpDown3;
         private System.Windows.Forms.Label label8;
-        private System.Windows.Forms.ComboBox may;
         private System.Windows.Forms.NumericUpDown soBin;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
         private System.Windows.Forms.Label label10;
@@ -642,5 +620,6 @@
         private System.Windows.Forms.Label label16;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.ComboBox comboBox2;
+        private System.Windows.Forms.TextBox tbMay;
     }
 }

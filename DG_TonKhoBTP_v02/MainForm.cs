@@ -10,11 +10,14 @@ namespace DG_TonKhoBTP_v02
 {
     public partial class MainForm : Form
     {
-        private string _URL = "D:\\Database\\QLSX_DG_v2.db"; 
+        private string _URL = "D:\\Database\\QLSX_DG_v2.db";
+        UC_TTCaLamViec uc_caLamViec;
+
         public MainForm()
         {
-            InitializeComponent();  
+            InitializeComponent();
         }
+
 
 
         private Panel UI_TopPanel(CongDoan cd)
@@ -26,10 +29,13 @@ namespace DG_TonKhoBTP_v02
             UC_TTCaLamViec uc_caLamViec = new UC_TTCaLamViec(cd.DanhSachMay, _URL, cd.TenCongDoan);
             uc_caLamViec.Dock = DockStyle.Top;
 
-            UC_TTThanhPham uC_TTThanhPham = new UC_TTThanhPham();
-            uC_TTThanhPham.Dock = DockStyle.Top;
+            UC_TTThanhPham uc_TTThanhPham = new UC_TTThanhPham();
+            uc_TTThanhPham.Dock = DockStyle.Top;
 
-            pnTop.Controls.Add(uC_TTThanhPham);
+
+            uc_caLamViec.Event_ChonMay += (value) => uc_TTThanhPham.ChonMay(value); ;
+
+            pnTop.Controls.Add(uc_TTThanhPham);
             pnTop.Controls.Add(uc_caLamViec);
 
             return pnTop;

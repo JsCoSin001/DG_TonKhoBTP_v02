@@ -237,6 +237,7 @@
             this.cbMay.Name = "cbMay";
             this.cbMay.Size = new System.Drawing.Size(194, 28);
             this.cbMay.TabIndex = 3;
+            this.cbMay.SelectedIndexChanged += new System.EventHandler(this.cbMay_SelectedIndexChanged);
             // 
             // UC_TTCaLamViec
             // 

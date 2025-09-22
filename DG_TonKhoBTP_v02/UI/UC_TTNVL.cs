@@ -37,10 +37,7 @@ namespace DG_TonKhoBTP_v02.UI
             DataTable dt = new DataTable("ThongTin");
 
             // Tạo cột từ danh sách
-            foreach (var col in columns)
-            {
-                dt.Columns.Add(col.Name, col.DataType);
-            }
+            foreach (var col in columns) dt.Columns.Add(col.Name, col.DataType);
 
             dtgTTNVL.DataSource = dt;
 
@@ -63,7 +60,7 @@ namespace DG_TonKhoBTP_v02.UI
                 btnDelete.HeaderText = "";
                 btnDelete.Text = "Xoá";
                 btnDelete.UseColumnTextForButtonValue = true;
-                btnDelete.Width = 70;
+                btnDelete.Width = 60;
                 dtgTTNVL.Columns.Add(btnDelete);
             }
 
@@ -90,8 +87,7 @@ namespace DG_TonKhoBTP_v02.UI
         private void SetColumnHeaders(DataGridView dgv, string[] headers)
         {
 
-            int defaultWidth = 100;
-            if (headers.Length < 6) defaultWidth = 120;
+            int defaultWidth = 105;
 
             dgv.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
             dgv.ColumnHeadersHeight = 40; 
@@ -102,7 +98,7 @@ namespace DG_TonKhoBTP_v02.UI
                 dgv.Columns[i].Width = defaultWidth;
             }           
 
-            dgv.Columns[0].Width = 50;
+            dgv.Columns[0].Width = 40;
             dgv.Columns[0].ReadOnly = true;
 
             dgv.Columns[1].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;

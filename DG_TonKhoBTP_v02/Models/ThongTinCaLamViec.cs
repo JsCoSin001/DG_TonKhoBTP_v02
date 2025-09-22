@@ -8,11 +8,9 @@ namespace DG_TonKhoBTP_v02.Models
     public class ThongTinCaLamViec
 {
     [Column("id")]
-        [Required]
         public int Id { get; set; }
 
     [Column("Ngay")]
-        [Required]
         [DataType(DataType.DateTime)]
         public DateTime Ngay { get; set; }
 

@@ -16,5 +16,10 @@ namespace DG_TonKhoBTP_v02.UI
         {
             InitializeComponent();
         }
+
+        public void ChonMay(string value)
+        {
+            tbMay.Text = value;
+        }
     }
 }

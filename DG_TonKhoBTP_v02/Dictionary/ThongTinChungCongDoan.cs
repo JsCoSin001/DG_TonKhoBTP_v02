@@ -39,7 +39,7 @@ namespace DG_TonKhoBTP_v02.Dictionary
                 new ColumnDefinition { Name = "binNVL", DataType = typeof(string), Header = "LOT nguyên liệu" },
                 new ColumnDefinition { Name = "DuongKinhSoiDong", DataType = typeof(double), Header = "ĐK sợi đồng" },
                 new ColumnDefinition { Name = "DuongKinhSoiMach", DataType = typeof(double), Header = "ĐK sợi mạch" },
-                new ColumnDefinition { Name = "BanRongBang", DataType = typeof(double), Header = "Bản rộng băng" },
+                new ColumnDefinition { Name = "BanRongBang", DataType = typeof(double), Header = "Độ rộng băng" },
                 new ColumnDefinition { Name = "DoDayBang", DataType = typeof(double), Header = "Độ dày băng" },
             }
         );

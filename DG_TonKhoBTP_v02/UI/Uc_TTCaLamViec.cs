@@ -13,6 +13,8 @@ namespace DG_TonKhoBTP_v02.UI
     public partial class UC_TTCaLamViec : UserControl
     {
         private string _URL;
+
+        public event Action<string> Event_ChonMay;
         public UC_TTCaLamViec()
         {
             InitializeComponent();
@@ -37,6 +39,11 @@ namespace DG_TonKhoBTP_v02.UI
             cbCa.SelectedItem = ca;
 
             dtpNgay.Value = DateTime.Parse(Helper.Helper.GetNgayHienTai());
+        }
+
+        private void cbMay_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            Event_ChonMay?.Invoke(cbMay.SelectedItem?.ToString());
         }
     }
 }

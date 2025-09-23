@@ -55,6 +55,7 @@
             this.numericUpDown3 = new System.Windows.Forms.NumericUpDown();
             this.label8 = new System.Windows.Forms.Label();
             this.soBin = new System.Windows.Forms.NumericUpDown();
+            this.tbMay = new System.Windows.Forms.TextBox();
             this.panel3 = new System.Windows.Forms.Panel();
             this.tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
             this.label20 = new System.Windows.Forms.Label();
@@ -65,7 +66,6 @@
             this.label5 = new System.Windows.Forms.Label();
             this.comboBox2 = new System.Windows.Forms.ComboBox();
             this.label3 = new System.Windows.Forms.Label();
-            this.tbMay = new System.Windows.Forms.TextBox();
             this.groupBox1.SuspendLayout();
             this.panel1.SuspendLayout();
             this.tableLayoutPanel3.SuspendLayout();
@@ -423,6 +423,15 @@
             this.soBin.Size = new System.Drawing.Size(98, 27);
             this.soBin.TabIndex = 32;
             // 
+            // tbMay
+            // 
+            this.tbMay.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tbMay.Enabled = false;
+            this.tbMay.Location = new System.Drawing.Point(3, 23);
+            this.tbMay.Name = "tbMay";
+            this.tbMay.Size = new System.Drawing.Size(94, 26);
+            this.tbMay.TabIndex = 33;
+            // 
             // panel3
             // 
             this.panel3.Controls.Add(this.tableLayoutPanel4);
@@ -545,15 +554,6 @@
             this.label3.TabIndex = 23;
             this.label3.Text = "Tìm Tên";
             this.label3.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // tbMay
-            // 
-            this.tbMay.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tbMay.Enabled = false;
-            this.tbMay.Location = new System.Drawing.Point(3, 23);
-            this.tbMay.Name = "tbMay";
-            this.tbMay.Size = new System.Drawing.Size(94, 26);
-            this.tbMay.TabIndex = 33;
             // 
             // UC_TTThanhPham
             // 

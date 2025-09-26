@@ -29,41 +29,40 @@
         private void InitializeComponent()
         {
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
-            this.richTextBox2 = new System.Windows.Forms.RichTextBox();
-            this.numericUpDown10 = new System.Windows.Forms.NumericUpDown();
+            this.ghiChuDayPhe = new System.Windows.Forms.RichTextBox();
+            this.DiemMongLan2 = new System.Windows.Forms.NumericUpDown();
             this.label11 = new System.Windows.Forms.Label();
-            this.numericUpDown6 = new System.Windows.Forms.NumericUpDown();
-            this.numericUpDown5 = new System.Windows.Forms.NumericUpDown();
+            this.dayPhe = new System.Windows.Forms.NumericUpDown();
+            this.DiemMongLan1 = new System.Windows.Forms.NumericUpDown();
             this.label10 = new System.Windows.Forms.Label();
             this.label9 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
             this.label12 = new System.Windows.Forms.Label();
-            this.numericUpDown7 = new System.Windows.Forms.NumericUpDown();
-            this.numericUpDown8 = new System.Windows.Forms.NumericUpDown();
-            this.numericUpDown9 = new System.Windows.Forms.NumericUpDown();
+            this.KtDkLan1 = new System.Windows.Forms.NumericUpDown();
+            this.KtDkLan2 = new System.Windows.Forms.NumericUpDown();
+            this.KtDkLan3 = new System.Windows.Forms.NumericUpDown();
             this.label7 = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
-            this.numericUpDown4 = new System.Windows.Forms.NumericUpDown();
-            this.numericUpDown3 = new System.Windows.Forms.NumericUpDown();
-            this.numericUpDown2 = new System.Windows.Forms.NumericUpDown();
+            this.nhuaPhe = new System.Windows.Forms.NumericUpDown();
+            this.dkKhuon2 = new System.Windows.Forms.NumericUpDown();
             this.label5 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
-            this.numericUpDown1 = new System.Windows.Forms.NumericUpDown();
-            this.richTextBox1 = new System.Windows.Forms.RichTextBox();
+            this.dkKhuon1 = new System.Windows.Forms.NumericUpDown();
+            this.ghiChuNhuaPhe = new System.Windows.Forms.RichTextBox();
+            this.ttNhua = new System.Windows.Forms.RichTextBox();
             this.tableLayoutPanel1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown10)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown6)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown5)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown7)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown8)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown9)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown4)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown3)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.DiemMongLan2)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dayPhe)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.DiemMongLan1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.KtDkLan1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.KtDkLan2)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.KtDkLan3)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nhuaPhe)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dkKhuon2)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dkKhuon1)).BeginInit();
             this.SuspendLayout();
             // 
             // tableLayoutPanel1
@@ -78,30 +77,30 @@
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 14.28F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 14.28F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 14.32F));
-            this.tableLayoutPanel1.Controls.Add(this.richTextBox2, 6, 1);
-            this.tableLayoutPanel1.Controls.Add(this.numericUpDown10, 4, 3);
+            this.tableLayoutPanel1.Controls.Add(this.ghiChuDayPhe, 6, 1);
+            this.tableLayoutPanel1.Controls.Add(this.DiemMongLan2, 4, 3);
             this.tableLayoutPanel1.Controls.Add(this.label11, 4, 2);
-            this.tableLayoutPanel1.Controls.Add(this.numericUpDown6, 4, 1);
-            this.tableLayoutPanel1.Controls.Add(this.numericUpDown5, 3, 3);
+            this.tableLayoutPanel1.Controls.Add(this.dayPhe, 4, 1);
+            this.tableLayoutPanel1.Controls.Add(this.DiemMongLan1, 3, 3);
             this.tableLayoutPanel1.Controls.Add(this.label10, 3, 2);
             this.tableLayoutPanel1.Controls.Add(this.label9, 2, 2);
             this.tableLayoutPanel1.Controls.Add(this.label6, 5, 0);
             this.tableLayoutPanel1.Controls.Add(this.label12, 6, 0);
-            this.tableLayoutPanel1.Controls.Add(this.numericUpDown7, 0, 3);
-            this.tableLayoutPanel1.Controls.Add(this.numericUpDown8, 1, 3);
-            this.tableLayoutPanel1.Controls.Add(this.numericUpDown9, 2, 3);
+            this.tableLayoutPanel1.Controls.Add(this.KtDkLan1, 0, 3);
+            this.tableLayoutPanel1.Controls.Add(this.KtDkLan2, 1, 3);
+            this.tableLayoutPanel1.Controls.Add(this.KtDkLan3, 2, 3);
             this.tableLayoutPanel1.Controls.Add(this.label7, 0, 2);
             this.tableLayoutPanel1.Controls.Add(this.label8, 1, 2);
-            this.tableLayoutPanel1.Controls.Add(this.numericUpDown4, 3, 1);
-            this.tableLayoutPanel1.Controls.Add(this.numericUpDown3, 2, 1);
-            this.tableLayoutPanel1.Controls.Add(this.numericUpDown2, 1, 1);
+            this.tableLayoutPanel1.Controls.Add(this.nhuaPhe, 3, 1);
+            this.tableLayoutPanel1.Controls.Add(this.dkKhuon2, 1, 1);
             this.tableLayoutPanel1.Controls.Add(this.label5, 4, 0);
             this.tableLayoutPanel1.Controls.Add(this.label4, 3, 0);
             this.tableLayoutPanel1.Controls.Add(this.label3, 2, 0);
             this.tableLayoutPanel1.Controls.Add(this.label2, 1, 0);
             this.tableLayoutPanel1.Controls.Add(this.label1, 0, 0);
-            this.tableLayoutPanel1.Controls.Add(this.numericUpDown1, 0, 1);
-            this.tableLayoutPanel1.Controls.Add(this.richTextBox1, 5, 1);
+            this.tableLayoutPanel1.Controls.Add(this.dkKhuon1, 0, 1);
+            this.tableLayoutPanel1.Controls.Add(this.ghiChuNhuaPhe, 5, 1);
+            this.tableLayoutPanel1.Controls.Add(this.ttNhua, 2, 1);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(4);
@@ -111,84 +110,99 @@
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 35F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(1376, 130);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(1418, 130);
             this.tableLayoutPanel1.TabIndex = 0;
             // 
-            // richTextBox2
+            // ghiChuDayPhe
             // 
-            this.richTextBox2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.richTextBox2.Location = new System.Drawing.Point(1179, 38);
-            this.richTextBox2.Name = "richTextBox2";
-            this.tableLayoutPanel1.SetRowSpan(this.richTextBox2, 3);
-            this.richTextBox2.Size = new System.Drawing.Size(194, 89);
-            this.richTextBox2.TabIndex = 40;
-            this.richTextBox2.Text = "";
+            this.ghiChuDayPhe.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.ghiChuDayPhe.Location = new System.Drawing.Point(1215, 38);
+            this.ghiChuDayPhe.Name = "ghiChuDayPhe";
+            this.tableLayoutPanel1.SetRowSpan(this.ghiChuDayPhe, 3);
+            this.ghiChuDayPhe.Size = new System.Drawing.Size(200, 89);
+            this.ghiChuDayPhe.TabIndex = 40;
+            this.ghiChuDayPhe.Text = "";
             // 
-            // numericUpDown10
+            // DiemMongLan2
             // 
-            this.numericUpDown10.DecimalPlaces = 1;
-            this.numericUpDown10.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.numericUpDown10.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.numericUpDown10.Increment = new decimal(new int[] {
+            this.DiemMongLan2.DecimalPlaces = 1;
+            this.DiemMongLan2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.DiemMongLan2.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.DiemMongLan2.Increment = new decimal(new int[] {
             1,
             0,
             0,
             65536});
-            this.numericUpDown10.Location = new System.Drawing.Point(787, 103);
-            this.numericUpDown10.Name = "numericUpDown10";
-            this.numericUpDown10.Size = new System.Drawing.Size(190, 26);
-            this.numericUpDown10.TabIndex = 38;
+            this.DiemMongLan2.Location = new System.Drawing.Point(811, 103);
+            this.DiemMongLan2.Maximum = new decimal(new int[] {
+            1569325055,
+            23283064,
+            0,
+            0});
+            this.DiemMongLan2.Name = "DiemMongLan2";
+            this.DiemMongLan2.Size = new System.Drawing.Size(196, 26);
+            this.DiemMongLan2.TabIndex = 38;
             // 
             // label11
             // 
             this.label11.AutoSize = true;
             this.label11.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label11.Location = new System.Drawing.Point(788, 65);
+            this.label11.Location = new System.Drawing.Point(812, 65);
             this.label11.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(188, 35);
+            this.label11.Size = new System.Drawing.Size(194, 35);
             this.label11.TabIndex = 37;
             this.label11.Text = "Mỏng vỏ 2";
             this.label11.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
             // 
-            // numericUpDown6
+            // dayPhe
             // 
-            this.numericUpDown6.DecimalPlaces = 1;
-            this.numericUpDown6.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.numericUpDown6.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.numericUpDown6.Increment = new decimal(new int[] {
+            this.dayPhe.DecimalPlaces = 1;
+            this.dayPhe.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dayPhe.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.dayPhe.Increment = new decimal(new int[] {
             1,
             0,
             0,
             65536});
-            this.numericUpDown6.Location = new System.Drawing.Point(787, 38);
-            this.numericUpDown6.Name = "numericUpDown6";
-            this.numericUpDown6.Size = new System.Drawing.Size(190, 26);
-            this.numericUpDown6.TabIndex = 35;
+            this.dayPhe.Location = new System.Drawing.Point(811, 38);
+            this.dayPhe.Maximum = new decimal(new int[] {
+            1569325055,
+            23283064,
+            0,
+            0});
+            this.dayPhe.Name = "dayPhe";
+            this.dayPhe.Size = new System.Drawing.Size(196, 26);
+            this.dayPhe.TabIndex = 35;
             // 
-            // numericUpDown5
+            // DiemMongLan1
             // 
-            this.numericUpDown5.DecimalPlaces = 1;
-            this.numericUpDown5.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.numericUpDown5.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.numericUpDown5.Increment = new decimal(new int[] {
+            this.DiemMongLan1.DecimalPlaces = 1;
+            this.DiemMongLan1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.DiemMongLan1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.DiemMongLan1.Increment = new decimal(new int[] {
             1,
             0,
             0,
             65536});
-            this.numericUpDown5.Location = new System.Drawing.Point(591, 103);
-            this.numericUpDown5.Name = "numericUpDown5";
-            this.numericUpDown5.Size = new System.Drawing.Size(190, 26);
-            this.numericUpDown5.TabIndex = 33;
+            this.DiemMongLan1.Location = new System.Drawing.Point(609, 103);
+            this.DiemMongLan1.Maximum = new decimal(new int[] {
+            1569325055,
+            23283064,
+            0,
+            0});
+            this.DiemMongLan1.Name = "DiemMongLan1";
+            this.DiemMongLan1.Size = new System.Drawing.Size(196, 26);
+            this.DiemMongLan1.TabIndex = 33;
             // 
             // label10
             // 
             this.label10.AutoSize = true;
             this.label10.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label10.Location = new System.Drawing.Point(592, 65);
+            this.label10.Location = new System.Drawing.Point(610, 65);
             this.label10.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(188, 35);
+            this.label10.Size = new System.Drawing.Size(194, 35);
             this.label10.TabIndex = 31;
             this.label10.Text = "Mỏng vỏ 1";
             this.label10.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
@@ -197,10 +211,10 @@
             // 
             this.label9.AutoSize = true;
             this.label9.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label9.Location = new System.Drawing.Point(396, 65);
+            this.label9.Location = new System.Drawing.Point(408, 65);
             this.label9.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(188, 35);
+            this.label9.Size = new System.Drawing.Size(194, 35);
             this.label9.TabIndex = 30;
             this.label9.Text = "ĐK Lần 3";
             this.label9.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
@@ -210,10 +224,10 @@
             this.label6.AutoSize = true;
             this.label6.Dock = System.Windows.Forms.DockStyle.Fill;
             this.label6.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label6.Location = new System.Drawing.Point(984, 0);
+            this.label6.Location = new System.Drawing.Point(1014, 0);
             this.label6.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(188, 35);
+            this.label6.Size = new System.Drawing.Size(194, 35);
             this.label6.TabIndex = 28;
             this.label6.Text = "Ghi chú nhựa phế";
             this.label6.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
@@ -223,58 +237,73 @@
             this.label12.AutoSize = true;
             this.label12.Dock = System.Windows.Forms.DockStyle.Fill;
             this.label12.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label12.Location = new System.Drawing.Point(1180, 0);
+            this.label12.Location = new System.Drawing.Point(1216, 0);
             this.label12.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(192, 35);
+            this.label12.Size = new System.Drawing.Size(198, 35);
             this.label12.TabIndex = 26;
             this.label12.Text = "Ghi chú dây phế";
             this.label12.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
             // 
-            // numericUpDown7
+            // KtDkLan1
             // 
-            this.numericUpDown7.DecimalPlaces = 1;
-            this.numericUpDown7.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.numericUpDown7.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.numericUpDown7.Increment = new decimal(new int[] {
+            this.KtDkLan1.DecimalPlaces = 1;
+            this.KtDkLan1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.KtDkLan1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.KtDkLan1.Increment = new decimal(new int[] {
             1,
             0,
             0,
             65536});
-            this.numericUpDown7.Location = new System.Drawing.Point(3, 103);
-            this.numericUpDown7.Name = "numericUpDown7";
-            this.numericUpDown7.Size = new System.Drawing.Size(190, 26);
-            this.numericUpDown7.TabIndex = 23;
+            this.KtDkLan1.Location = new System.Drawing.Point(3, 103);
+            this.KtDkLan1.Maximum = new decimal(new int[] {
+            1569325055,
+            23283064,
+            0,
+            0});
+            this.KtDkLan1.Name = "KtDkLan1";
+            this.KtDkLan1.Size = new System.Drawing.Size(196, 26);
+            this.KtDkLan1.TabIndex = 23;
             // 
-            // numericUpDown8
+            // KtDkLan2
             // 
-            this.numericUpDown8.DecimalPlaces = 1;
-            this.numericUpDown8.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.numericUpDown8.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.numericUpDown8.Increment = new decimal(new int[] {
+            this.KtDkLan2.DecimalPlaces = 1;
+            this.KtDkLan2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.KtDkLan2.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.KtDkLan2.Increment = new decimal(new int[] {
             1,
             0,
             0,
             65536});
-            this.numericUpDown8.Location = new System.Drawing.Point(199, 103);
-            this.numericUpDown8.Name = "numericUpDown8";
-            this.numericUpDown8.Size = new System.Drawing.Size(190, 26);
-            this.numericUpDown8.TabIndex = 22;
+            this.KtDkLan2.Location = new System.Drawing.Point(205, 103);
+            this.KtDkLan2.Maximum = new decimal(new int[] {
+            1569325055,
+            23283064,
+            0,
+            0});
+            this.KtDkLan2.Name = "KtDkLan2";
+            this.KtDkLan2.Size = new System.Drawing.Size(196, 26);
+            this.KtDkLan2.TabIndex = 22;
             // 
-            // numericUpDown9
+            // KtDkLan3
             // 
-            this.numericUpDown9.DecimalPlaces = 1;
-            this.numericUpDown9.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.numericUpDown9.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.numericUpDown9.Increment = new decimal(new int[] {
+            this.KtDkLan3.DecimalPlaces = 1;
+            this.KtDkLan3.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.KtDkLan3.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.KtDkLan3.Increment = new decimal(new int[] {
             1,
             0,
             0,
             65536});
-            this.numericUpDown9.Location = new System.Drawing.Point(395, 103);
-            this.numericUpDown9.Name = "numericUpDown9";
-            this.numericUpDown9.Size = new System.Drawing.Size(190, 26);
-            this.numericUpDown9.TabIndex = 21;
+            this.KtDkLan3.Location = new System.Drawing.Point(407, 103);
+            this.KtDkLan3.Maximum = new decimal(new int[] {
+            1569325055,
+            23283064,
+            0,
+            0});
+            this.KtDkLan3.Name = "KtDkLan3";
+            this.KtDkLan3.Size = new System.Drawing.Size(196, 26);
+            this.KtDkLan3.TabIndex = 21;
             // 
             // label7
             // 
@@ -283,7 +312,7 @@
             this.label7.Location = new System.Drawing.Point(4, 65);
             this.label7.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(188, 35);
+            this.label7.Size = new System.Drawing.Size(194, 35);
             this.label7.TabIndex = 17;
             this.label7.Text = "ĐK Lần 1";
             this.label7.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
@@ -292,67 +321,62 @@
             // 
             this.label8.AutoSize = true;
             this.label8.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label8.Location = new System.Drawing.Point(200, 65);
+            this.label8.Location = new System.Drawing.Point(206, 65);
             this.label8.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(188, 35);
+            this.label8.Size = new System.Drawing.Size(194, 35);
             this.label8.TabIndex = 16;
             this.label8.Text = "ĐK Lần 2";
             this.label8.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
             // 
-            // numericUpDown4
+            // nhuaPhe
             // 
-            this.numericUpDown4.DecimalPlaces = 1;
-            this.numericUpDown4.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.numericUpDown4.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.numericUpDown4.Increment = new decimal(new int[] {
+            this.nhuaPhe.DecimalPlaces = 1;
+            this.nhuaPhe.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.nhuaPhe.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.nhuaPhe.Increment = new decimal(new int[] {
             1,
             0,
             0,
             65536});
-            this.numericUpDown4.Location = new System.Drawing.Point(591, 38);
-            this.numericUpDown4.Name = "numericUpDown4";
-            this.numericUpDown4.Size = new System.Drawing.Size(190, 26);
-            this.numericUpDown4.TabIndex = 9;
+            this.nhuaPhe.Location = new System.Drawing.Point(609, 38);
+            this.nhuaPhe.Maximum = new decimal(new int[] {
+            1569325055,
+            23283064,
+            0,
+            0});
+            this.nhuaPhe.Name = "nhuaPhe";
+            this.nhuaPhe.Size = new System.Drawing.Size(196, 26);
+            this.nhuaPhe.TabIndex = 9;
             // 
-            // numericUpDown3
+            // dkKhuon2
             // 
-            this.numericUpDown3.DecimalPlaces = 1;
-            this.numericUpDown3.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.numericUpDown3.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.numericUpDown3.Increment = new decimal(new int[] {
+            this.dkKhuon2.DecimalPlaces = 1;
+            this.dkKhuon2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dkKhuon2.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.dkKhuon2.Increment = new decimal(new int[] {
             1,
             0,
             0,
             65536});
-            this.numericUpDown3.Location = new System.Drawing.Point(395, 38);
-            this.numericUpDown3.Name = "numericUpDown3";
-            this.numericUpDown3.Size = new System.Drawing.Size(190, 26);
-            this.numericUpDown3.TabIndex = 8;
-            // 
-            // numericUpDown2
-            // 
-            this.numericUpDown2.DecimalPlaces = 1;
-            this.numericUpDown2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.numericUpDown2.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.numericUpDown2.Increment = new decimal(new int[] {
-            1,
+            this.dkKhuon2.Location = new System.Drawing.Point(205, 38);
+            this.dkKhuon2.Maximum = new decimal(new int[] {
+            1569325055,
+            23283064,
             0,
-            0,
-            65536});
-            this.numericUpDown2.Location = new System.Drawing.Point(199, 38);
-            this.numericUpDown2.Name = "numericUpDown2";
-            this.numericUpDown2.Size = new System.Drawing.Size(190, 26);
-            this.numericUpDown2.TabIndex = 7;
+            0});
+            this.dkKhuon2.Name = "dkKhuon2";
+            this.dkKhuon2.Size = new System.Drawing.Size(196, 26);
+            this.dkKhuon2.TabIndex = 7;
             // 
             // label5
             // 
             this.label5.AutoSize = true;
             this.label5.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label5.Location = new System.Drawing.Point(788, 0);
+            this.label5.Location = new System.Drawing.Point(812, 0);
             this.label5.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(188, 35);
+            this.label5.Size = new System.Drawing.Size(194, 35);
             this.label5.TabIndex = 4;
             this.label5.Text = "Dây phế";
             this.label5.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
@@ -361,10 +385,10 @@
             // 
             this.label4.AutoSize = true;
             this.label4.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label4.Location = new System.Drawing.Point(592, 0);
+            this.label4.Location = new System.Drawing.Point(610, 0);
             this.label4.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(188, 35);
+            this.label4.Size = new System.Drawing.Size(194, 35);
             this.label4.TabIndex = 3;
             this.label4.Text = "Nhựa phế";
             this.label4.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
@@ -373,10 +397,10 @@
             // 
             this.label3.AutoSize = true;
             this.label3.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label3.Location = new System.Drawing.Point(396, 0);
+            this.label3.Location = new System.Drawing.Point(408, 0);
             this.label3.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(188, 35);
+            this.label3.Size = new System.Drawing.Size(194, 35);
             this.label3.TabIndex = 2;
             this.label3.Text = "Thông tin nhựa";
             this.label3.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
@@ -385,10 +409,10 @@
             // 
             this.label2.AutoSize = true;
             this.label2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label2.Location = new System.Drawing.Point(200, 0);
+            this.label2.Location = new System.Drawing.Point(206, 0);
             this.label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(188, 35);
+            this.label2.Size = new System.Drawing.Size(194, 35);
             this.label2.TabIndex = 1;
             this.label2.Text = "Đk Khuôn 2";
             this.label2.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
@@ -400,35 +424,49 @@
             this.label1.Location = new System.Drawing.Point(4, 0);
             this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(188, 35);
+            this.label1.Size = new System.Drawing.Size(194, 35);
             this.label1.TabIndex = 0;
             this.label1.Text = "Đk Khuôn 1";
             this.label1.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
             // 
-            // numericUpDown1
+            // dkKhuon1
             // 
-            this.numericUpDown1.DecimalPlaces = 1;
-            this.numericUpDown1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.numericUpDown1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.numericUpDown1.Increment = new decimal(new int[] {
+            this.dkKhuon1.DecimalPlaces = 1;
+            this.dkKhuon1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dkKhuon1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.dkKhuon1.Increment = new decimal(new int[] {
             1,
             0,
             0,
             65536});
-            this.numericUpDown1.Location = new System.Drawing.Point(3, 38);
-            this.numericUpDown1.Name = "numericUpDown1";
-            this.numericUpDown1.Size = new System.Drawing.Size(190, 26);
-            this.numericUpDown1.TabIndex = 6;
+            this.dkKhuon1.Location = new System.Drawing.Point(3, 38);
+            this.dkKhuon1.Maximum = new decimal(new int[] {
+            1569325055,
+            23283064,
+            0,
+            0});
+            this.dkKhuon1.Name = "dkKhuon1";
+            this.dkKhuon1.Size = new System.Drawing.Size(196, 26);
+            this.dkKhuon1.TabIndex = 6;
             // 
-            // richTextBox1
+            // ghiChuNhuaPhe
             // 
-            this.richTextBox1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.richTextBox1.Location = new System.Drawing.Point(983, 38);
-            this.richTextBox1.Name = "richTextBox1";
-            this.tableLayoutPanel1.SetRowSpan(this.richTextBox1, 3);
-            this.richTextBox1.Size = new System.Drawing.Size(190, 89);
-            this.richTextBox1.TabIndex = 39;
-            this.richTextBox1.Text = "";
+            this.ghiChuNhuaPhe.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.ghiChuNhuaPhe.Location = new System.Drawing.Point(1013, 38);
+            this.ghiChuNhuaPhe.Name = "ghiChuNhuaPhe";
+            this.tableLayoutPanel1.SetRowSpan(this.ghiChuNhuaPhe, 3);
+            this.ghiChuNhuaPhe.Size = new System.Drawing.Size(196, 89);
+            this.ghiChuNhuaPhe.TabIndex = 39;
+            this.ghiChuNhuaPhe.Text = "";
+            // 
+            // ttNhua
+            // 
+            this.ttNhua.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.ttNhua.Location = new System.Drawing.Point(407, 38);
+            this.ttNhua.Name = "ttNhua";
+            this.ttNhua.Size = new System.Drawing.Size(196, 24);
+            this.ttNhua.TabIndex = 41;
+            this.ttNhua.Text = "";
             // 
             // UC_DieuKienBoc
             // 
@@ -439,19 +477,18 @@
             this.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "UC_DieuKienBoc";
-            this.Size = new System.Drawing.Size(1376, 130);
+            this.Size = new System.Drawing.Size(1418, 130);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown10)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown6)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown5)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown7)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown8)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown9)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown4)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown3)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.DiemMongLan2)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dayPhe)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.DiemMongLan1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.KtDkLan1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.KtDkLan2)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.KtDkLan3)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nhuaPhe)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dkKhuon2)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dkKhuon1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -465,24 +502,24 @@
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.NumericUpDown numericUpDown7;
-        private System.Windows.Forms.NumericUpDown numericUpDown8;
+        private System.Windows.Forms.NumericUpDown KtDkLan1;
+        private System.Windows.Forms.NumericUpDown KtDkLan2;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Label label8;
-        private System.Windows.Forms.NumericUpDown numericUpDown4;
-        private System.Windows.Forms.NumericUpDown numericUpDown3;
-        private System.Windows.Forms.NumericUpDown numericUpDown2;
-        private System.Windows.Forms.NumericUpDown numericUpDown1;
+        private System.Windows.Forms.NumericUpDown nhuaPhe;
+        private System.Windows.Forms.NumericUpDown dkKhuon2;
+        private System.Windows.Forms.NumericUpDown dkKhuon1;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Label label12;
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.Label label10;
-        private System.Windows.Forms.NumericUpDown numericUpDown9;
-        private System.Windows.Forms.NumericUpDown numericUpDown10;
+        private System.Windows.Forms.NumericUpDown KtDkLan3;
+        private System.Windows.Forms.NumericUpDown DiemMongLan2;
         private System.Windows.Forms.Label label11;
-        private System.Windows.Forms.NumericUpDown numericUpDown6;
-        private System.Windows.Forms.NumericUpDown numericUpDown5;
-        private System.Windows.Forms.RichTextBox richTextBox2;
-        private System.Windows.Forms.RichTextBox richTextBox1;
+        private System.Windows.Forms.NumericUpDown dayPhe;
+        private System.Windows.Forms.NumericUpDown DiemMongLan1;
+        private System.Windows.Forms.RichTextBox ghiChuDayPhe;
+        private System.Windows.Forms.RichTextBox ghiChuNhuaPhe;
+        private System.Windows.Forms.RichTextBox ttNhua;
     }
 }

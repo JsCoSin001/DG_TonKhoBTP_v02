@@ -33,14 +33,14 @@
             this.label3 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
-            this.numericUpDown1 = new System.Windows.Forms.NumericUpDown();
-            this.comboBox2 = new System.Windows.Forms.ComboBox();
-            this.numericUpDown2 = new System.Windows.Forms.NumericUpDown();
-            this.numericUpDown3 = new System.Windows.Forms.NumericUpDown();
+            this.buocBen = new System.Windows.Forms.NumericUpDown();
+            this.ChieuXoan = new System.Windows.Forms.ComboBox();
+            this.soSoi = new System.Windows.Forms.NumericUpDown();
+            this.dkSoi = new System.Windows.Forms.NumericUpDown();
             this.tableLayoutPanel1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown3)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.buocBen)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.soSoi)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dkSoi)).BeginInit();
             this.SuspendLayout();
             // 
             // tableLayoutPanel1
@@ -59,10 +59,10 @@
             this.tableLayoutPanel1.Controls.Add(this.label3, 2, 0);
             this.tableLayoutPanel1.Controls.Add(this.label2, 1, 0);
             this.tableLayoutPanel1.Controls.Add(this.label1, 0, 0);
-            this.tableLayoutPanel1.Controls.Add(this.numericUpDown1, 3, 1);
-            this.tableLayoutPanel1.Controls.Add(this.comboBox2, 2, 1);
-            this.tableLayoutPanel1.Controls.Add(this.numericUpDown2, 1, 1);
-            this.tableLayoutPanel1.Controls.Add(this.numericUpDown3, 0, 1);
+            this.tableLayoutPanel1.Controls.Add(this.buocBen, 3, 1);
+            this.tableLayoutPanel1.Controls.Add(this.ChieuXoan, 2, 1);
+            this.tableLayoutPanel1.Controls.Add(this.soSoi, 1, 1);
+            this.tableLayoutPanel1.Controls.Add(this.dkSoi, 0, 1);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
@@ -70,16 +70,16 @@
             this.tableLayoutPanel1.RowCount = 2;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 35F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(882, 65);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(868, 65);
             this.tableLayoutPanel1.TabIndex = 0;
             // 
             // label4
             // 
             this.label4.AutoSize = true;
             this.label4.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label4.Location = new System.Drawing.Point(378, 0);
+            this.label4.Location = new System.Drawing.Point(372, 0);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(119, 30);
+            this.label4.Size = new System.Drawing.Size(117, 30);
             this.label4.TabIndex = 18;
             this.label4.Text = "Bước bện";
             this.label4.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
@@ -88,9 +88,9 @@
             // 
             this.label3.AutoSize = true;
             this.label3.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label3.Location = new System.Drawing.Point(253, 0);
+            this.label3.Location = new System.Drawing.Point(249, 0);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(119, 30);
+            this.label3.Size = new System.Drawing.Size(117, 30);
             this.label3.TabIndex = 2;
             this.label3.Text = "Chiều xoắn";
             this.label3.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
@@ -99,9 +99,9 @@
             // 
             this.label2.AutoSize = true;
             this.label2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label2.Location = new System.Drawing.Point(128, 0);
+            this.label2.Location = new System.Drawing.Point(126, 0);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(119, 30);
+            this.label2.Size = new System.Drawing.Size(117, 30);
             this.label2.TabIndex = 1;
             this.label2.Text = "Số sợi TP";
             this.label2.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
@@ -112,49 +112,64 @@
             this.label1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.label1.Location = new System.Drawing.Point(3, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(119, 30);
+            this.label1.Size = new System.Drawing.Size(117, 30);
             this.label1.TabIndex = 0;
             this.label1.Text = "ĐK sợi TP";
             this.label1.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
             // 
-            // numericUpDown1
+            // buocBen
             // 
-            this.numericUpDown1.DecimalPlaces = 1;
-            this.numericUpDown1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.numericUpDown1.Location = new System.Drawing.Point(378, 33);
-            this.numericUpDown1.Name = "numericUpDown1";
-            this.numericUpDown1.Size = new System.Drawing.Size(119, 24);
-            this.numericUpDown1.TabIndex = 17;
+            this.buocBen.DecimalPlaces = 1;
+            this.buocBen.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.buocBen.Location = new System.Drawing.Point(372, 33);
+            this.buocBen.Maximum = new decimal(new int[] {
+            1569325055,
+            23283064,
+            0,
+            0});
+            this.buocBen.Name = "buocBen";
+            this.buocBen.Size = new System.Drawing.Size(117, 24);
+            this.buocBen.TabIndex = 17;
             // 
-            // comboBox2
+            // ChieuXoan
             // 
-            this.comboBox2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.comboBox2.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.comboBox2.FormattingEnabled = true;
-            this.comboBox2.Items.AddRange(new object[] {
+            this.ChieuXoan.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.ChieuXoan.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.ChieuXoan.FormattingEnabled = true;
+            this.ChieuXoan.Items.AddRange(new object[] {
             "Z",
             "S"});
-            this.comboBox2.Location = new System.Drawing.Point(253, 33);
-            this.comboBox2.Name = "comboBox2";
-            this.comboBox2.Size = new System.Drawing.Size(119, 26);
-            this.comboBox2.TabIndex = 16;
+            this.ChieuXoan.Location = new System.Drawing.Point(249, 33);
+            this.ChieuXoan.Name = "ChieuXoan";
+            this.ChieuXoan.Size = new System.Drawing.Size(117, 26);
+            this.ChieuXoan.TabIndex = 16;
             // 
-            // numericUpDown2
+            // soSoi
             // 
-            this.numericUpDown2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.numericUpDown2.Location = new System.Drawing.Point(128, 33);
-            this.numericUpDown2.Name = "numericUpDown2";
-            this.numericUpDown2.Size = new System.Drawing.Size(119, 24);
-            this.numericUpDown2.TabIndex = 19;
+            this.soSoi.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.soSoi.Location = new System.Drawing.Point(126, 33);
+            this.soSoi.Maximum = new decimal(new int[] {
+            1569325055,
+            23283064,
+            0,
+            0});
+            this.soSoi.Name = "soSoi";
+            this.soSoi.Size = new System.Drawing.Size(117, 24);
+            this.soSoi.TabIndex = 19;
             // 
-            // numericUpDown3
+            // dkSoi
             // 
-            this.numericUpDown3.DecimalPlaces = 1;
-            this.numericUpDown3.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.numericUpDown3.Location = new System.Drawing.Point(3, 33);
-            this.numericUpDown3.Name = "numericUpDown3";
-            this.numericUpDown3.Size = new System.Drawing.Size(119, 24);
-            this.numericUpDown3.TabIndex = 20;
+            this.dkSoi.DecimalPlaces = 1;
+            this.dkSoi.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dkSoi.Location = new System.Drawing.Point(3, 33);
+            this.dkSoi.Maximum = new decimal(new int[] {
+            1569325055,
+            23283064,
+            0,
+            0});
+            this.dkSoi.Name = "dkSoi";
+            this.dkSoi.Size = new System.Drawing.Size(117, 24);
+            this.dkSoi.TabIndex = 20;
             // 
             // UC_CDBenRuot
             // 
@@ -164,12 +179,12 @@
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.Controls.Add(this.tableLayoutPanel1);
             this.Name = "UC_CDBenRuot";
-            this.Size = new System.Drawing.Size(882, 65);
+            this.Size = new System.Drawing.Size(868, 65);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown3)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.buocBen)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.soSoi)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dkSoi)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -181,10 +196,10 @@
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.ComboBox comboBox2;
-        private System.Windows.Forms.NumericUpDown numericUpDown1;
+        private System.Windows.Forms.ComboBox ChieuXoan;
+        private System.Windows.Forms.NumericUpDown buocBen;
         private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.NumericUpDown numericUpDown2;
-        private System.Windows.Forms.NumericUpDown numericUpDown3;
+        private System.Windows.Forms.NumericUpDown soSoi;
+        private System.Windows.Forms.NumericUpDown dkSoi;
     }
 }

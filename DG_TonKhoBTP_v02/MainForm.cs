@@ -4,6 +4,7 @@ using DG_TonKhoBTP_v02.Models;
 using DG_TonKhoBTP_v02.UI;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace DG_TonKhoBTP_v02
@@ -126,6 +127,42 @@ namespace DG_TonKhoBTP_v02
             pnShow.Controls.Add(pnTop);
         }
 
+
+        private void LogNamesGroupedByLevel(Control root)
+        {
+            // Gom tên control theo level
+            var map = new Dictionary<int, List<string>>();
+            CollectByLevel(root, level: 0, map);
+
+            Console.WriteLine("=== Control Names Grouped by Level ===");
+            foreach (var kv in map.OrderBy(k => k.Key))
+            {
+                var level = kv.Key;
+                var names = kv.Value;
+                Console.WriteLine($"Note {level}: {string.Join(", ", names)}");
+            }
+        }
+
+        private void CollectByLevel(Control ctrl, int level, Dictionary<int, List<string>> map)
+        {
+            string name = string.IsNullOrWhiteSpace(ctrl.Name) ? "(no name)" : ctrl.Name;
+
+            if (!map.TryGetValue(level, out var list))
+            {
+                list = new List<string>();
+                map[level] = list;
+            }
+            list.Add(name);
+
+            foreach (Control child in ctrl.Controls)
+            {
+                CollectByLevel(child, level + 1, map);
+            }
+        }
+
+
+
+
         private void btnKeoRut_Click(object sender, EventArgs e)
         {
             CongDoan thongTinCD = ThongTinChungCongDoan.KeoRut;
@@ -138,6 +175,7 @@ namespace DG_TonKhoBTP_v02
             Panel pnBottom = UI_BottomPanel(columns, ucSanPham);
 
             this.ShowUI(thongTinCD, pnBottom);
+
         }
 
         private void btnBenRuot_Click(object sender, EventArgs e)
@@ -186,6 +224,10 @@ namespace DG_TonKhoBTP_v02
             Panel pnBottom = UI_BottomPanel(columns, ucSanPham);
 
             this.ShowUI(thongTinCD, pnBottom);
+
+
+            // Log cấu trúc control sau khi ShowUI
+            LogNamesGroupedByLevel(pnShow);
         }
 
         private void btnBocMach_Click(object sender, EventArgs e)

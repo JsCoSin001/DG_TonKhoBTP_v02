@@ -36,9 +36,9 @@ namespace DG_TonKhoBTP_v02.UI
             cbMay.Items.AddRange(dsMay.ToArray());
 
             string ca = Helper.Helper.GetShiftValue();
-            cbCa.SelectedItem = ca;
+            this.ca.SelectedItem = ca;
 
-            dtpNgay.Value = DateTime.Parse(Helper.Helper.GetNgayHienTai());
+            ngay.Value = DateTime.Parse(Helper.Helper.GetNgayHienTai());
         }
 
         private void cbMay_SelectedIndexChanged(object sender, EventArgs e)

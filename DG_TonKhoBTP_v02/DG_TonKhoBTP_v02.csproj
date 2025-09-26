@@ -102,19 +102,7 @@
     <Compile Include="MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Models\CaiDatCDBoc.cs" />
-    <Compile Include="Models\CDBenRuot.cs" />
-    <Compile Include="Models\CDBocLot.cs" />
-    <Compile Include="Models\CDBocMach.cs" />
-    <Compile Include="Models\CDBocVo.cs" />
-    <Compile Include="Models\CDGhepLoiQuanBang.cs" />
-    <Compile Include="Models\CDKeoRut.cs" />
     <Compile Include="Models\OtherClass.cs" />
-    <Compile Include="Models\DanhSachMaSP.cs" />
-    <Compile Include="Models\ThongTinCaLamViec.cs" />
-    <Compile Include="Models\ThongTinNVL.cs" />
-    <Compile Include="Models\ThongTinSP.cs" />
-    <Compile Include="Models\TTSanPham.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UI\UC_CaiDatMay.cs">

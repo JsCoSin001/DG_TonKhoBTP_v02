@@ -58,6 +58,7 @@
             this.btnLuu.TabIndex = 0;
             this.btnLuu.Text = "LƯU";
             this.btnLuu.UseVisualStyleBackColor = false;
+            this.btnLuu.Click += new System.EventHandler(this.btnLuu_Click);
             // 
             // btnClear
             // 
@@ -70,6 +71,7 @@
             this.btnClear.TabIndex = 1;
             this.btnClear.Text = "Xoá";
             this.btnClear.UseVisualStyleBackColor = false;
+            this.btnClear.Click += new System.EventHandler(this.btnClear_Click);
             // 
             // UC_SubmitForm
             // 

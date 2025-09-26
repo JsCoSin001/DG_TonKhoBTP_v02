@@ -29,18 +29,18 @@
         private void InitializeComponent()
         {
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
-            this.numericUpDown4 = new System.Windows.Forms.NumericUpDown();
+            this.dkBTP = new System.Windows.Forms.NumericUpDown();
             this.label4 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
-            this.numericUpDown1 = new System.Windows.Forms.NumericUpDown();
-            this.comboBox2 = new System.Windows.Forms.ComboBox();
-            this.numericUpDown2 = new System.Windows.Forms.NumericUpDown();
+            this.buocXoan = new System.Windows.Forms.NumericUpDown();
+            this.chieuXoan = new System.Windows.Forms.ComboBox();
+            this.goiCachMep = new System.Windows.Forms.NumericUpDown();
             this.tableLayoutPanel1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown4)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dkBTP)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.buocXoan)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.goiCachMep)).BeginInit();
             this.SuspendLayout();
             // 
             // tableLayoutPanel1
@@ -55,14 +55,14 @@
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 14.28F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 14.28F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 14.32F));
-            this.tableLayoutPanel1.Controls.Add(this.numericUpDown4, 3, 1);
+            this.tableLayoutPanel1.Controls.Add(this.dkBTP, 3, 1);
             this.tableLayoutPanel1.Controls.Add(this.label4, 3, 0);
             this.tableLayoutPanel1.Controls.Add(this.label3, 2, 0);
             this.tableLayoutPanel1.Controls.Add(this.label2, 1, 0);
             this.tableLayoutPanel1.Controls.Add(this.label1, 0, 0);
-            this.tableLayoutPanel1.Controls.Add(this.numericUpDown1, 0, 1);
-            this.tableLayoutPanel1.Controls.Add(this.comboBox2, 1, 1);
-            this.tableLayoutPanel1.Controls.Add(this.numericUpDown2, 2, 1);
+            this.tableLayoutPanel1.Controls.Add(this.buocXoan, 0, 1);
+            this.tableLayoutPanel1.Controls.Add(this.chieuXoan, 1, 1);
+            this.tableLayoutPanel1.Controls.Add(this.goiCachMep, 2, 1);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
@@ -70,30 +70,35 @@
             this.tableLayoutPanel1.RowCount = 2;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 35F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(875, 65);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(861, 65);
             this.tableLayoutPanel1.TabIndex = 0;
             // 
-            // numericUpDown4
+            // dkBTP
             // 
-            this.numericUpDown4.DecimalPlaces = 1;
-            this.numericUpDown4.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.numericUpDown4.Increment = new decimal(new int[] {
+            this.dkBTP.DecimalPlaces = 1;
+            this.dkBTP.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dkBTP.Increment = new decimal(new int[] {
             1,
             0,
             0,
             65536});
-            this.numericUpDown4.Location = new System.Drawing.Point(375, 33);
-            this.numericUpDown4.Name = "numericUpDown4";
-            this.numericUpDown4.Size = new System.Drawing.Size(118, 24);
-            this.numericUpDown4.TabIndex = 10;
+            this.dkBTP.Location = new System.Drawing.Point(369, 33);
+            this.dkBTP.Maximum = new decimal(new int[] {
+            1569325055,
+            23283064,
+            0,
+            0});
+            this.dkBTP.Name = "dkBTP";
+            this.dkBTP.Size = new System.Drawing.Size(116, 24);
+            this.dkBTP.TabIndex = 10;
             // 
             // label4
             // 
             this.label4.AutoSize = true;
             this.label4.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label4.Location = new System.Drawing.Point(375, 0);
+            this.label4.Location = new System.Drawing.Point(369, 0);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(118, 30);
+            this.label4.Size = new System.Drawing.Size(116, 30);
             this.label4.TabIndex = 3;
             this.label4.Text = "ĐKính BTP";
             this.label4.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
@@ -102,9 +107,9 @@
             // 
             this.label3.AutoSize = true;
             this.label3.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label3.Location = new System.Drawing.Point(251, 0);
+            this.label3.Location = new System.Drawing.Point(247, 0);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(118, 30);
+            this.label3.Size = new System.Drawing.Size(116, 30);
             this.label3.TabIndex = 2;
             this.label3.Text = "Gối cách mép";
             this.label3.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
@@ -113,9 +118,9 @@
             // 
             this.label2.AutoSize = true;
             this.label2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label2.Location = new System.Drawing.Point(127, 0);
+            this.label2.Location = new System.Drawing.Point(125, 0);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(118, 30);
+            this.label2.Size = new System.Drawing.Size(116, 30);
             this.label2.TabIndex = 1;
             this.label2.Text = "Chiều xoắn";
             this.label2.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
@@ -126,50 +131,60 @@
             this.label1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.label1.Location = new System.Drawing.Point(3, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(118, 30);
+            this.label1.Size = new System.Drawing.Size(116, 30);
             this.label1.TabIndex = 0;
             this.label1.Text = "Bước xoắn";
             this.label1.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
             // 
-            // numericUpDown1
+            // buocXoan
             // 
-            this.numericUpDown1.DecimalPlaces = 1;
-            this.numericUpDown1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.numericUpDown1.Increment = new decimal(new int[] {
+            this.buocXoan.DecimalPlaces = 1;
+            this.buocXoan.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.buocXoan.Increment = new decimal(new int[] {
             1,
             0,
             0,
             65536});
-            this.numericUpDown1.Location = new System.Drawing.Point(3, 33);
-            this.numericUpDown1.Name = "numericUpDown1";
-            this.numericUpDown1.Size = new System.Drawing.Size(118, 24);
-            this.numericUpDown1.TabIndex = 7;
+            this.buocXoan.Location = new System.Drawing.Point(3, 33);
+            this.buocXoan.Maximum = new decimal(new int[] {
+            1569325055,
+            23283064,
+            0,
+            0});
+            this.buocXoan.Name = "buocXoan";
+            this.buocXoan.Size = new System.Drawing.Size(116, 24);
+            this.buocXoan.TabIndex = 7;
             // 
-            // comboBox2
+            // chieuXoan
             // 
-            this.comboBox2.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.comboBox2.FormattingEnabled = true;
-            this.comboBox2.Items.AddRange(new object[] {
+            this.chieuXoan.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.chieuXoan.FormattingEnabled = true;
+            this.chieuXoan.Items.AddRange(new object[] {
             "Z",
             "S"});
-            this.comboBox2.Location = new System.Drawing.Point(127, 33);
-            this.comboBox2.Name = "comboBox2";
-            this.comboBox2.Size = new System.Drawing.Size(118, 26);
-            this.comboBox2.TabIndex = 15;
+            this.chieuXoan.Location = new System.Drawing.Point(125, 33);
+            this.chieuXoan.Name = "chieuXoan";
+            this.chieuXoan.Size = new System.Drawing.Size(116, 26);
+            this.chieuXoan.TabIndex = 15;
             // 
-            // numericUpDown2
+            // goiCachMep
             // 
-            this.numericUpDown2.DecimalPlaces = 1;
-            this.numericUpDown2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.numericUpDown2.Increment = new decimal(new int[] {
+            this.goiCachMep.DecimalPlaces = 1;
+            this.goiCachMep.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.goiCachMep.Increment = new decimal(new int[] {
             1,
             0,
             0,
             65536});
-            this.numericUpDown2.Location = new System.Drawing.Point(251, 33);
-            this.numericUpDown2.Name = "numericUpDown2";
-            this.numericUpDown2.Size = new System.Drawing.Size(118, 24);
-            this.numericUpDown2.TabIndex = 16;
+            this.goiCachMep.Location = new System.Drawing.Point(247, 33);
+            this.goiCachMep.Maximum = new decimal(new int[] {
+            1569325055,
+            23283064,
+            0,
+            0});
+            this.goiCachMep.Name = "goiCachMep";
+            this.goiCachMep.Size = new System.Drawing.Size(116, 24);
+            this.goiCachMep.TabIndex = 16;
             // 
             // UC_CDGhepLoiQB
             // 
@@ -179,12 +194,12 @@
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.Controls.Add(this.tableLayoutPanel1);
             this.Name = "UC_CDGhepLoiQB";
-            this.Size = new System.Drawing.Size(875, 65);
+            this.Size = new System.Drawing.Size(861, 65);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown4)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dkBTP)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.buocXoan)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.goiCachMep)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -193,13 +208,13 @@
         #endregion
 
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
-        private System.Windows.Forms.NumericUpDown numericUpDown4;
+        private System.Windows.Forms.NumericUpDown dkBTP;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.NumericUpDown numericUpDown1;
-        private System.Windows.Forms.ComboBox comboBox2;
-        private System.Windows.Forms.NumericUpDown numericUpDown2;
+        private System.Windows.Forms.NumericUpDown buocXoan;
+        private System.Windows.Forms.ComboBox chieuXoan;
+        private System.Windows.Forms.NumericUpDown goiCachMep;
     }
 }

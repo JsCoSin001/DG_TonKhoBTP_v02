@@ -29,20 +29,20 @@
         private void InitializeComponent()
         {
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
-            this.numericUpDown11 = new System.Windows.Forms.NumericUpDown();
-            this.numericUpDown10 = new System.Windows.Forms.NumericUpDown();
-            this.numericUpDown9 = new System.Windows.Forms.NumericUpDown();
-            this.numericUpDown8 = new System.Windows.Forms.NumericUpDown();
-            this.numericUpDown7 = new System.Windows.Forms.NumericUpDown();
-            this.numericUpDown6 = new System.Windows.Forms.NumericUpDown();
-            this.numericUpDown5 = new System.Windows.Forms.NumericUpDown();
-            this.numericUpDown4 = new System.Windows.Forms.NumericUpDown();
-            this.numericUpDown3 = new System.Windows.Forms.NumericUpDown();
-            this.numericUpDown2 = new System.Windows.Forms.NumericUpDown();
-            this.comboBox3 = new System.Windows.Forms.ComboBox();
-            this.comboBox2 = new System.Windows.Forms.ComboBox();
-            this.comboBox1 = new System.Windows.Forms.ComboBox();
-            this.comboBox4 = new System.Windows.Forms.ComboBox();
+            this.binhSay = new System.Windows.Forms.NumericUpDown();
+            this.khuon = new System.Windows.Forms.NumericUpDown();
+            this.dau2 = new System.Windows.Forms.NumericUpDown();
+            this.dau1 = new System.Windows.Forms.NumericUpDown();
+            this.co = new System.Windows.Forms.NumericUpDown();
+            this.v6 = new System.Windows.Forms.NumericUpDown();
+            this.v5 = new System.Windows.Forms.NumericUpDown();
+            this.v4 = new System.Windows.Forms.NumericUpDown();
+            this.v3 = new System.Windows.Forms.NumericUpDown();
+            this.v2 = new System.Windows.Forms.NumericUpDown();
+            this.boDemMet = new System.Windows.Forms.ComboBox();
+            this.puliDanDay = new System.Windows.Forms.ComboBox();
+            this.mangNuoc = new System.Windows.Forms.ComboBox();
+            this.mayIn = new System.Windows.Forms.ComboBox();
             this.label11 = new System.Windows.Forms.Label();
             this.label12 = new System.Windows.Forms.Label();
             this.label13 = new System.Windows.Forms.Label();
@@ -58,19 +58,19 @@
             this.label3 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
-            this.numericUpDown1 = new System.Windows.Forms.NumericUpDown();
+            this.v1 = new System.Windows.Forms.NumericUpDown();
             this.tableLayoutPanel1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown11)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown10)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown9)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown8)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown7)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown6)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown5)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown4)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown3)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.binhSay)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.khuon)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dau2)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dau1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.co)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.v6)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.v5)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.v4)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.v3)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.v2)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.v1)).BeginInit();
             this.SuspendLayout();
             // 
             // tableLayoutPanel1
@@ -81,20 +81,20 @@
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
-            this.tableLayoutPanel1.Controls.Add(this.numericUpDown11, 4, 5);
-            this.tableLayoutPanel1.Controls.Add(this.numericUpDown10, 3, 5);
-            this.tableLayoutPanel1.Controls.Add(this.numericUpDown9, 2, 5);
-            this.tableLayoutPanel1.Controls.Add(this.numericUpDown8, 1, 5);
-            this.tableLayoutPanel1.Controls.Add(this.numericUpDown7, 0, 5);
-            this.tableLayoutPanel1.Controls.Add(this.numericUpDown6, 4, 3);
-            this.tableLayoutPanel1.Controls.Add(this.numericUpDown5, 3, 3);
-            this.tableLayoutPanel1.Controls.Add(this.numericUpDown4, 2, 3);
-            this.tableLayoutPanel1.Controls.Add(this.numericUpDown3, 1, 3);
-            this.tableLayoutPanel1.Controls.Add(this.numericUpDown2, 0, 3);
-            this.tableLayoutPanel1.Controls.Add(this.comboBox3, 2, 1);
-            this.tableLayoutPanel1.Controls.Add(this.comboBox2, 1, 1);
-            this.tableLayoutPanel1.Controls.Add(this.comboBox1, 0, 1);
-            this.tableLayoutPanel1.Controls.Add(this.comboBox4, 3, 1);
+            this.tableLayoutPanel1.Controls.Add(this.binhSay, 4, 5);
+            this.tableLayoutPanel1.Controls.Add(this.khuon, 3, 5);
+            this.tableLayoutPanel1.Controls.Add(this.dau2, 2, 5);
+            this.tableLayoutPanel1.Controls.Add(this.dau1, 1, 5);
+            this.tableLayoutPanel1.Controls.Add(this.co, 0, 5);
+            this.tableLayoutPanel1.Controls.Add(this.v6, 4, 3);
+            this.tableLayoutPanel1.Controls.Add(this.v5, 3, 3);
+            this.tableLayoutPanel1.Controls.Add(this.v4, 2, 3);
+            this.tableLayoutPanel1.Controls.Add(this.v3, 1, 3);
+            this.tableLayoutPanel1.Controls.Add(this.v2, 0, 3);
+            this.tableLayoutPanel1.Controls.Add(this.boDemMet, 2, 1);
+            this.tableLayoutPanel1.Controls.Add(this.puliDanDay, 1, 1);
+            this.tableLayoutPanel1.Controls.Add(this.mangNuoc, 0, 1);
+            this.tableLayoutPanel1.Controls.Add(this.mayIn, 3, 1);
             this.tableLayoutPanel1.Controls.Add(this.label11, 0, 4);
             this.tableLayoutPanel1.Controls.Add(this.label12, 1, 4);
             this.tableLayoutPanel1.Controls.Add(this.label13, 2, 4);
@@ -110,7 +110,7 @@
             this.tableLayoutPanel1.Controls.Add(this.label3, 2, 0);
             this.tableLayoutPanel1.Controls.Add(this.label2, 1, 0);
             this.tableLayoutPanel1.Controls.Add(this.label1, 0, 0);
-            this.tableLayoutPanel1.Controls.Add(this.numericUpDown1, 4, 1);
+            this.tableLayoutPanel1.Controls.Add(this.v1, 4, 1);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Top;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
@@ -124,261 +124,261 @@
             this.tableLayoutPanel1.Size = new System.Drawing.Size(858, 195);
             this.tableLayoutPanel1.TabIndex = 1;
             // 
-            // numericUpDown11
+            // binhSay
             // 
-            this.numericUpDown11.DecimalPlaces = 1;
-            this.numericUpDown11.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.numericUpDown11.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.numericUpDown11.Increment = new decimal(new int[] {
+            this.binhSay.DecimalPlaces = 1;
+            this.binhSay.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.binhSay.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.binhSay.Increment = new decimal(new int[] {
             1,
             0,
             0,
             65536});
-            this.numericUpDown11.Location = new System.Drawing.Point(687, 168);
-            this.numericUpDown11.Maximum = new decimal(new int[] {
+            this.binhSay.Location = new System.Drawing.Point(687, 168);
+            this.binhSay.Maximum = new decimal(new int[] {
             -469762049,
             -590869294,
             5421010,
             0});
-            this.numericUpDown11.Name = "numericUpDown11";
-            this.numericUpDown11.Size = new System.Drawing.Size(168, 26);
-            this.numericUpDown11.TabIndex = 47;
+            this.binhSay.Name = "binhSay";
+            this.binhSay.Size = new System.Drawing.Size(168, 26);
+            this.binhSay.TabIndex = 47;
             // 
-            // numericUpDown10
+            // khuon
             // 
-            this.numericUpDown10.DecimalPlaces = 1;
-            this.numericUpDown10.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.numericUpDown10.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.numericUpDown10.Increment = new decimal(new int[] {
+            this.khuon.DecimalPlaces = 1;
+            this.khuon.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.khuon.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.khuon.Increment = new decimal(new int[] {
             1,
             0,
             0,
             65536});
-            this.numericUpDown10.Location = new System.Drawing.Point(516, 168);
-            this.numericUpDown10.Maximum = new decimal(new int[] {
+            this.khuon.Location = new System.Drawing.Point(516, 168);
+            this.khuon.Maximum = new decimal(new int[] {
             -469762049,
             -590869294,
             5421010,
             0});
-            this.numericUpDown10.Name = "numericUpDown10";
-            this.numericUpDown10.Size = new System.Drawing.Size(165, 26);
-            this.numericUpDown10.TabIndex = 46;
+            this.khuon.Name = "khuon";
+            this.khuon.Size = new System.Drawing.Size(165, 26);
+            this.khuon.TabIndex = 46;
             // 
-            // numericUpDown9
+            // dau2
             // 
-            this.numericUpDown9.DecimalPlaces = 1;
-            this.numericUpDown9.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.numericUpDown9.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.numericUpDown9.Increment = new decimal(new int[] {
+            this.dau2.DecimalPlaces = 1;
+            this.dau2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dau2.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.dau2.Increment = new decimal(new int[] {
             1,
             0,
             0,
             65536});
-            this.numericUpDown9.Location = new System.Drawing.Point(345, 168);
-            this.numericUpDown9.Maximum = new decimal(new int[] {
+            this.dau2.Location = new System.Drawing.Point(345, 168);
+            this.dau2.Maximum = new decimal(new int[] {
             -469762049,
             -590869294,
             5421010,
             0});
-            this.numericUpDown9.Name = "numericUpDown9";
-            this.numericUpDown9.Size = new System.Drawing.Size(165, 26);
-            this.numericUpDown9.TabIndex = 45;
+            this.dau2.Name = "dau2";
+            this.dau2.Size = new System.Drawing.Size(165, 26);
+            this.dau2.TabIndex = 45;
             // 
-            // numericUpDown8
+            // dau1
             // 
-            this.numericUpDown8.DecimalPlaces = 1;
-            this.numericUpDown8.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.numericUpDown8.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.numericUpDown8.Increment = new decimal(new int[] {
+            this.dau1.DecimalPlaces = 1;
+            this.dau1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dau1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.dau1.Increment = new decimal(new int[] {
             1,
             0,
             0,
             65536});
-            this.numericUpDown8.Location = new System.Drawing.Point(174, 168);
-            this.numericUpDown8.Maximum = new decimal(new int[] {
+            this.dau1.Location = new System.Drawing.Point(174, 168);
+            this.dau1.Maximum = new decimal(new int[] {
             -469762049,
             -590869294,
             5421010,
             0});
-            this.numericUpDown8.Name = "numericUpDown8";
-            this.numericUpDown8.Size = new System.Drawing.Size(165, 26);
-            this.numericUpDown8.TabIndex = 44;
+            this.dau1.Name = "dau1";
+            this.dau1.Size = new System.Drawing.Size(165, 26);
+            this.dau1.TabIndex = 44;
             // 
-            // numericUpDown7
+            // co
             // 
-            this.numericUpDown7.DecimalPlaces = 1;
-            this.numericUpDown7.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.numericUpDown7.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.numericUpDown7.Increment = new decimal(new int[] {
+            this.co.DecimalPlaces = 1;
+            this.co.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.co.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.co.Increment = new decimal(new int[] {
             1,
             0,
             0,
             65536});
-            this.numericUpDown7.Location = new System.Drawing.Point(3, 168);
-            this.numericUpDown7.Maximum = new decimal(new int[] {
+            this.co.Location = new System.Drawing.Point(3, 168);
+            this.co.Maximum = new decimal(new int[] {
             -469762049,
             -590869294,
             5421010,
             0});
-            this.numericUpDown7.Name = "numericUpDown7";
-            this.numericUpDown7.Size = new System.Drawing.Size(165, 26);
-            this.numericUpDown7.TabIndex = 43;
+            this.co.Name = "co";
+            this.co.Size = new System.Drawing.Size(165, 26);
+            this.co.TabIndex = 43;
             // 
-            // numericUpDown6
+            // v6
             // 
-            this.numericUpDown6.DecimalPlaces = 1;
-            this.numericUpDown6.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.numericUpDown6.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.numericUpDown6.Increment = new decimal(new int[] {
+            this.v6.DecimalPlaces = 1;
+            this.v6.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.v6.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.v6.Increment = new decimal(new int[] {
             1,
             0,
             0,
             65536});
-            this.numericUpDown6.Location = new System.Drawing.Point(687, 103);
-            this.numericUpDown6.Maximum = new decimal(new int[] {
+            this.v6.Location = new System.Drawing.Point(687, 103);
+            this.v6.Maximum = new decimal(new int[] {
             -469762049,
             -590869294,
             5421010,
             0});
-            this.numericUpDown6.Name = "numericUpDown6";
-            this.numericUpDown6.Size = new System.Drawing.Size(168, 26);
-            this.numericUpDown6.TabIndex = 42;
+            this.v6.Name = "v6";
+            this.v6.Size = new System.Drawing.Size(168, 26);
+            this.v6.TabIndex = 42;
             // 
-            // numericUpDown5
+            // v5
             // 
-            this.numericUpDown5.DecimalPlaces = 1;
-            this.numericUpDown5.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.numericUpDown5.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.numericUpDown5.Increment = new decimal(new int[] {
+            this.v5.DecimalPlaces = 1;
+            this.v5.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.v5.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.v5.Increment = new decimal(new int[] {
             1,
             0,
             0,
             65536});
-            this.numericUpDown5.Location = new System.Drawing.Point(516, 103);
-            this.numericUpDown5.Maximum = new decimal(new int[] {
+            this.v5.Location = new System.Drawing.Point(516, 103);
+            this.v5.Maximum = new decimal(new int[] {
             -469762049,
             -590869294,
             5421010,
             0});
-            this.numericUpDown5.Name = "numericUpDown5";
-            this.numericUpDown5.Size = new System.Drawing.Size(165, 26);
-            this.numericUpDown5.TabIndex = 41;
+            this.v5.Name = "v5";
+            this.v5.Size = new System.Drawing.Size(165, 26);
+            this.v5.TabIndex = 41;
             // 
-            // numericUpDown4
+            // v4
             // 
-            this.numericUpDown4.DecimalPlaces = 1;
-            this.numericUpDown4.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.numericUpDown4.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.numericUpDown4.Increment = new decimal(new int[] {
+            this.v4.DecimalPlaces = 1;
+            this.v4.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.v4.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.v4.Increment = new decimal(new int[] {
             1,
             0,
             0,
             65536});
-            this.numericUpDown4.Location = new System.Drawing.Point(345, 103);
-            this.numericUpDown4.Maximum = new decimal(new int[] {
+            this.v4.Location = new System.Drawing.Point(345, 103);
+            this.v4.Maximum = new decimal(new int[] {
             -469762049,
             -590869294,
             5421010,
             0});
-            this.numericUpDown4.Name = "numericUpDown4";
-            this.numericUpDown4.Size = new System.Drawing.Size(165, 26);
-            this.numericUpDown4.TabIndex = 40;
+            this.v4.Name = "v4";
+            this.v4.Size = new System.Drawing.Size(165, 26);
+            this.v4.TabIndex = 40;
             // 
-            // numericUpDown3
+            // v3
             // 
-            this.numericUpDown3.DecimalPlaces = 1;
-            this.numericUpDown3.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.numericUpDown3.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.numericUpDown3.Increment = new decimal(new int[] {
+            this.v3.DecimalPlaces = 1;
+            this.v3.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.v3.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.v3.Increment = new decimal(new int[] {
             1,
             0,
             0,
             65536});
-            this.numericUpDown3.Location = new System.Drawing.Point(174, 103);
-            this.numericUpDown3.Maximum = new decimal(new int[] {
+            this.v3.Location = new System.Drawing.Point(174, 103);
+            this.v3.Maximum = new decimal(new int[] {
             -469762049,
             -590869294,
             5421010,
             0});
-            this.numericUpDown3.Name = "numericUpDown3";
-            this.numericUpDown3.Size = new System.Drawing.Size(165, 26);
-            this.numericUpDown3.TabIndex = 39;
+            this.v3.Name = "v3";
+            this.v3.Size = new System.Drawing.Size(165, 26);
+            this.v3.TabIndex = 39;
             // 
-            // numericUpDown2
+            // v2
             // 
-            this.numericUpDown2.DecimalPlaces = 1;
-            this.numericUpDown2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.numericUpDown2.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.numericUpDown2.Increment = new decimal(new int[] {
+            this.v2.DecimalPlaces = 1;
+            this.v2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.v2.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.v2.Increment = new decimal(new int[] {
             1,
             0,
             0,
             65536});
-            this.numericUpDown2.Location = new System.Drawing.Point(3, 103);
-            this.numericUpDown2.Maximum = new decimal(new int[] {
+            this.v2.Location = new System.Drawing.Point(3, 103);
+            this.v2.Maximum = new decimal(new int[] {
             -469762049,
             -590869294,
             5421010,
             0});
-            this.numericUpDown2.Name = "numericUpDown2";
-            this.numericUpDown2.Size = new System.Drawing.Size(165, 26);
-            this.numericUpDown2.TabIndex = 38;
+            this.v2.Name = "v2";
+            this.v2.Size = new System.Drawing.Size(165, 26);
+            this.v2.TabIndex = 38;
             // 
-            // comboBox3
+            // boDemMet
             // 
-            this.comboBox3.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.comboBox3.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.comboBox3.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.comboBox3.FormattingEnabled = true;
-            this.comboBox3.Items.AddRange(new object[] {
+            this.boDemMet.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.boDemMet.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.boDemMet.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.boDemMet.FormattingEnabled = true;
+            this.boDemMet.Items.AddRange(new object[] {
             "Bình thường",
             "Lỗi"});
-            this.comboBox3.Location = new System.Drawing.Point(345, 38);
-            this.comboBox3.Name = "comboBox3";
-            this.comboBox3.Size = new System.Drawing.Size(165, 28);
-            this.comboBox3.TabIndex = 36;
+            this.boDemMet.Location = new System.Drawing.Point(345, 38);
+            this.boDemMet.Name = "boDemMet";
+            this.boDemMet.Size = new System.Drawing.Size(165, 28);
+            this.boDemMet.TabIndex = 36;
             // 
-            // comboBox2
+            // puliDanDay
             // 
-            this.comboBox2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.comboBox2.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.comboBox2.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.comboBox2.FormattingEnabled = true;
-            this.comboBox2.Items.AddRange(new object[] {
+            this.puliDanDay.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.puliDanDay.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.puliDanDay.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.puliDanDay.FormattingEnabled = true;
+            this.puliDanDay.Items.AddRange(new object[] {
             "Bình thường",
             "Lỗi"});
-            this.comboBox2.Location = new System.Drawing.Point(174, 38);
-            this.comboBox2.Name = "comboBox2";
-            this.comboBox2.Size = new System.Drawing.Size(165, 28);
-            this.comboBox2.TabIndex = 35;
+            this.puliDanDay.Location = new System.Drawing.Point(174, 38);
+            this.puliDanDay.Name = "puliDanDay";
+            this.puliDanDay.Size = new System.Drawing.Size(165, 28);
+            this.puliDanDay.TabIndex = 35;
             // 
-            // comboBox1
+            // mangNuoc
             // 
-            this.comboBox1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.comboBox1.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.comboBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Items.AddRange(new object[] {
+            this.mangNuoc.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.mangNuoc.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.mangNuoc.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.mangNuoc.FormattingEnabled = true;
+            this.mangNuoc.Items.AddRange(new object[] {
             "Bình thường",
             "Lỗi"});
-            this.comboBox1.Location = new System.Drawing.Point(3, 38);
-            this.comboBox1.Name = "comboBox1";
-            this.comboBox1.Size = new System.Drawing.Size(165, 28);
-            this.comboBox1.TabIndex = 34;
+            this.mangNuoc.Location = new System.Drawing.Point(3, 38);
+            this.mangNuoc.Name = "mangNuoc";
+            this.mangNuoc.Size = new System.Drawing.Size(165, 28);
+            this.mangNuoc.TabIndex = 34;
             // 
-            // comboBox4
+            // mayIn
             // 
-            this.comboBox4.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.comboBox4.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.comboBox4.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.comboBox4.FormattingEnabled = true;
-            this.comboBox4.Items.AddRange(new object[] {
+            this.mayIn.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.mayIn.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.mayIn.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.mayIn.FormattingEnabled = true;
+            this.mayIn.Items.AddRange(new object[] {
             "Bình thường",
             "Lỗi"});
-            this.comboBox4.Location = new System.Drawing.Point(516, 38);
-            this.comboBox4.Name = "comboBox4";
-            this.comboBox4.Size = new System.Drawing.Size(165, 28);
-            this.comboBox4.TabIndex = 33;
+            this.mayIn.Location = new System.Drawing.Point(516, 38);
+            this.mayIn.Name = "mayIn";
+            this.mayIn.Size = new System.Drawing.Size(165, 28);
+            this.mayIn.TabIndex = 33;
             // 
             // label11
             // 
@@ -560,25 +560,25 @@
             this.label1.Text = "Máng nước";
             this.label1.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
             // 
-            // numericUpDown1
+            // v1
             // 
-            this.numericUpDown1.DecimalPlaces = 1;
-            this.numericUpDown1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.numericUpDown1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.numericUpDown1.Increment = new decimal(new int[] {
+            this.v1.DecimalPlaces = 1;
+            this.v1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.v1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.v1.Increment = new decimal(new int[] {
             1,
             0,
             0,
             65536});
-            this.numericUpDown1.Location = new System.Drawing.Point(687, 38);
-            this.numericUpDown1.Maximum = new decimal(new int[] {
+            this.v1.Location = new System.Drawing.Point(687, 38);
+            this.v1.Maximum = new decimal(new int[] {
             -469762049,
             -590869294,
             5421010,
             0});
-            this.numericUpDown1.Name = "numericUpDown1";
-            this.numericUpDown1.Size = new System.Drawing.Size(168, 26);
-            this.numericUpDown1.TabIndex = 37;
+            this.v1.Name = "v1";
+            this.v1.Size = new System.Drawing.Size(168, 26);
+            this.v1.TabIndex = 37;
             // 
             // UC_CaiDatMay
             // 
@@ -590,17 +590,17 @@
             this.Size = new System.Drawing.Size(858, 312);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown11)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown10)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown9)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown8)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown7)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown6)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown5)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown4)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown3)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.binhSay)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.khuon)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dau2)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dau1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.co)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.v6)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.v5)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.v4)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.v3)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.v2)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.v1)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -608,20 +608,20 @@
         #endregion
 
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
-        private System.Windows.Forms.NumericUpDown numericUpDown11;
-        private System.Windows.Forms.NumericUpDown numericUpDown10;
-        private System.Windows.Forms.NumericUpDown numericUpDown9;
-        private System.Windows.Forms.NumericUpDown numericUpDown8;
-        private System.Windows.Forms.NumericUpDown numericUpDown7;
-        private System.Windows.Forms.NumericUpDown numericUpDown6;
-        private System.Windows.Forms.NumericUpDown numericUpDown5;
-        private System.Windows.Forms.NumericUpDown numericUpDown4;
-        private System.Windows.Forms.NumericUpDown numericUpDown3;
-        private System.Windows.Forms.NumericUpDown numericUpDown2;
-        private System.Windows.Forms.ComboBox comboBox3;
-        private System.Windows.Forms.ComboBox comboBox2;
-        private System.Windows.Forms.ComboBox comboBox1;
-        private System.Windows.Forms.ComboBox comboBox4;
+        private System.Windows.Forms.NumericUpDown binhSay;
+        private System.Windows.Forms.NumericUpDown khuon;
+        private System.Windows.Forms.NumericUpDown dau2;
+        private System.Windows.Forms.NumericUpDown dau1;
+        private System.Windows.Forms.NumericUpDown co;
+        private System.Windows.Forms.NumericUpDown v6;
+        private System.Windows.Forms.NumericUpDown v5;
+        private System.Windows.Forms.NumericUpDown v4;
+        private System.Windows.Forms.NumericUpDown v3;
+        private System.Windows.Forms.NumericUpDown v2;
+        private System.Windows.Forms.ComboBox boDemMet;
+        private System.Windows.Forms.ComboBox puliDanDay;
+        private System.Windows.Forms.ComboBox mangNuoc;
+        private System.Windows.Forms.ComboBox mayIn;
         private System.Windows.Forms.Label label11;
         private System.Windows.Forms.Label label12;
         private System.Windows.Forms.Label label13;
@@ -637,6 +637,6 @@
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.NumericUpDown numericUpDown1;
+        private System.Windows.Forms.NumericUpDown v1;
     }
 }

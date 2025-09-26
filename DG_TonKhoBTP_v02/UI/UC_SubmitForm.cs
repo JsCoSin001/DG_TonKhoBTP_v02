@@ -17,5 +17,14 @@ namespace DG_TonKhoBTP_v02.UI
             InitializeComponent();
         }
 
+        private void btnLuu_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnClear_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }

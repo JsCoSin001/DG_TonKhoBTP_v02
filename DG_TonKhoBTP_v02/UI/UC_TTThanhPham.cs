@@ -1,4 +1,5 @@
 ﻿using DG_TonKhoBTP_v02.Core;
+using DG_TonKhoBTP_v02.Dictionary;
 using DG_TonKhoBTP_v02.Helper; 
 using System;
 using System.Collections.Generic;

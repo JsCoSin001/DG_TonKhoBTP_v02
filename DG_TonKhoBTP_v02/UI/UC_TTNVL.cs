@@ -266,10 +266,6 @@ namespace DG_TonKhoBTP_v02.UI
 
         public object GetData()
         {
-            // [Luồng 2.1] Đảm bảo các cột tối thiểu tồn tại (theo model)
-            EnsureColumnsFromModel<TTNVL>(dtgTTNVL);
-
-            // [Luồng 2.2] Duyệt từng hàng -> TTNVL (ô nào null/"" => 0 cho numeric)
             var list = new List<TTNVL>();
 
             foreach (DataGridViewRow row in dtgTTNVL.Rows)

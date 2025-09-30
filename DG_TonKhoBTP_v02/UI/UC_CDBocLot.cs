@@ -1,4 +1,5 @@
 ﻿using DG_TonKhoBTP_v02.Core;
+using DG_TonKhoBTP_v02.Dictionary;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -21,16 +22,6 @@ namespace DG_TonKhoBTP_v02.UI
 
 
         #region AI generated
-        //public string SectionName => nameof(UC_CDBocLot);
-
-        //public CaiDatCDBoc GetSectionData()
-        //{
-        //    var m = new CaiDatCDBoc();
-        //    // Nếu bạn có property tương ứng trong CaiDatCDBoc (ví dụ DoDayTBLot), map vào:
-        //    // m.DoDayTBLot = (double)doDayTBLot.Value;
-        //    // Nếu chưa có, bạn có thể thêm property mới vào model.
-        //    return m;
-        //}
 
         public string SectionName => nameof(UC_CDBocLot);
 

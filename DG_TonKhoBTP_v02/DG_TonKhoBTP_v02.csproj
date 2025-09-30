@@ -98,6 +98,7 @@
     <Compile Include="Core\Interfaces.cs" />
     <Compile Include="Core\ISectionProvider.cs" />
     <Compile Include="Core\Models.cs" />
+    <Compile Include="Core\ProviderAggregator.cs" />
     <Compile Include="Core\SectionMerger.cs" />
     <Compile Include="Core\StateStore.cs" />
     <Compile Include="Database\DatabaseHelper.cs" />

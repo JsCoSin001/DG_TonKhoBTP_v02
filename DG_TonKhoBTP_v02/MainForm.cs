@@ -21,8 +21,6 @@ namespace DG_TonKhoBTP_v02
             InitializeComponent();
         }
 
-
-
         private Panel UI_TopPanel(CongDoan cd)
         {
             Panel pnTop = new Panel();
@@ -34,7 +32,6 @@ namespace DG_TonKhoBTP_v02
 
             UC_TTThanhPham uc_TTThanhPham = new UC_TTThanhPham();
             uc_TTThanhPham.Dock = DockStyle.Top;
-
 
             uc_caLamViec.Event_ChonMay += (value) => uc_TTThanhPham.ChonMay(value); ;
 

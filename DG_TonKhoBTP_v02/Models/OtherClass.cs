@@ -15,13 +15,15 @@ namespace DG_TonKhoBTP_v02.Models
 
     public class CongDoan
     {
+        public int Id { get; set; }
         public string TenCongDoan { get; set; }
         public List<string> DanhSachMay { get; set; }
         public List<ColumnDefinition> Columns { get; set; }
 
-        public CongDoan(string tenCongDoan, List<string> danhSachMay, List<ColumnDefinition> columns)
+        public CongDoan(int id,string tenCongDoan, List<string> danhSachMay, List<ColumnDefinition> columns)
         {
-            TenCongDoan = ("BÁO CÁO CÔNG ĐOẠN " + tenCongDoan).ToUpper();
+            this.Id = id;
+            TenCongDoan = ("BÁO CÁO CÔNG ĐOẠN " + tenCongDoan).ToUpper();            
             DanhSachMay = new List<string>(danhSachMay);
             Columns = new List<ColumnDefinition>(columns);
         }

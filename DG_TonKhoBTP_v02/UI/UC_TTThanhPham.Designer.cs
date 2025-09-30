@@ -553,6 +553,7 @@
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(94, 27);
             this.textBox1.TabIndex = 39;
+            this.textBox1.Text = "123";
             // 
             // textBox2
             // 
@@ -563,6 +564,7 @@
             this.textBox2.Name = "textBox2";
             this.textBox2.Size = new System.Drawing.Size(194, 27);
             this.textBox2.TabIndex = 40;
+            this.textBox2.Text = "BTP.XYZ";
             // 
             // textBox3
             // 
@@ -573,6 +575,7 @@
             this.textBox3.Name = "textBox3";
             this.textBox3.Size = new System.Drawing.Size(478, 27);
             this.textBox3.TabIndex = 41;
+            this.textBox3.Text = "C123";
             // 
             // maBin
             // 

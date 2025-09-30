@@ -10,6 +10,7 @@ namespace DG_TonKhoBTP_v02.Dictionary
     public static class ThongTinChungCongDoan
     {
         public static readonly CongDoan KeoRut = new CongDoan(
+            1,
             "Kéo rút",
             new List<string> { "MAY01", "MAY02", "MAY03", "MAY04", "MAY05" },
             new List<ColumnDefinition>
@@ -20,6 +21,7 @@ namespace DG_TonKhoBTP_v02.Dictionary
         );
 
         public static readonly CongDoan BenRuot = new CongDoan(
+            2,
             "bện ruột dẫn",
             new List<string> { "Ben_1", "Ben_2", "Ben_3", "Ben_4", "Ben_5" },
             new List<ColumnDefinition>
@@ -31,6 +33,7 @@ namespace DG_TonKhoBTP_v02.Dictionary
         );
 
         public static readonly CongDoan GhepLoi_QB = new CongDoan(
+            3,
             "ghép lõi - quấn băng",
             new List<string> { "QB1", "QB2", "QB3", "QB4", "QB5" },
             new List<ColumnDefinition>
@@ -45,6 +48,7 @@ namespace DG_TonKhoBTP_v02.Dictionary
         );
 
         public static readonly CongDoan BocMach = new CongDoan(
+            4,
             "Bọc mạch",
             new List<string> { "BM1", "BM5", "BM4", "BM3", "BM2" },
             new List<ColumnDefinition>
@@ -57,6 +61,7 @@ namespace DG_TonKhoBTP_v02.Dictionary
         );
 
         public static readonly CongDoan BocLot = new CongDoan(
+            5,
             "Bọc lot",
             new List<string> { "BL1", "BL2" },
             new List<ColumnDefinition>
@@ -67,6 +72,7 @@ namespace DG_TonKhoBTP_v02.Dictionary
         );
 
         public static readonly CongDoan BocVo = new CongDoan(
+            6,
             "Bọc vỏ",
             new List<string> { "BV1", "BV2" },
             new List<ColumnDefinition>

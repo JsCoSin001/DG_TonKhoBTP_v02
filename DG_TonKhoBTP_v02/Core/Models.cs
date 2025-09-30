@@ -68,6 +68,97 @@ namespace DG_TonKhoBTP_v02.Core
         public string QuanDoc { get; set; }
     }
 
+
+    public class ThongTinSP
+    {
+        public int Id { get; set; }
+        public int DanhSachSP_ID { get; set; }        // FK -> DanhSachMaSP.id
+        public int ThongTinCaLamViec_ID { get; set; } // FK -> ThongTinCaLamViec.id
+        public string MaBin { get; set; }             // NOT NULL
+        public double KhoiLuongTruoc { get; set; }    // NOT NULL
+        public double KhoiLuongSau { get; set; }      // NOT NULL DEFAULT 0
+        // 1 - kg ; 0 - mét  (DB ghi chú cho ChieuDai*, ở code ta vẫn để double)
+        public double ChieuDaiTruoc { get; set; }     // NOT NULL
+        public double ChieuDaiSau { get; set; }       // NOT NULL
+        public double Phe { get; set; }               // NOT NULL DEFAULT 0
+        public string GhiChu { get; set; }            // NULL
+        public DateTime? DateInsert { get; set; }     // NULL
+    }
+
+    // --------------------------- Công đoạn: Bóc Vỏ ---------------------------
+
+    public class CD_BocVo
+    {
+        public int Id { get; set; }
+        public int? ThongTinSP_ID { get; set; }   // FK -> ThongTinSP.id (NULLABLE trong schema)
+        public double DayVoTB { get; set; }       // NOT NULL
+        // InAn: 1 - OK ; 0 - NG
+        public string InAn { get; set; }            // NOT NULL DEFAULT 1
+    }
+
+    // --------------------------- Công đoạn: Bóc Lót ---------------------------
+
+    public class CD_BocLot
+    {
+        public int Id { get; set; }
+        public int? ThongTinSP_ID { get; set; }   // FK -> ThongTinSP.id (NULLABLE trong schema)
+        public double DoDayTBLot { get; set; }    // NOT NULL
+    }
+
+    // --------------------------- Công đoạn: Bóc Mạch ---------------------------
+
+    public class CD_BocMach
+    {
+        public int Id { get; set; }
+        public int ThongTinSP_ID { get; set; }    // NOT NULL
+        // NgoaiQuan: 1 - OK ; 0 - NG
+        public string NgoaiQuan { get; set; }       // NOT NULL DEFAULT 1
+        // (ghi số lần và số mét máy báo)
+        public int LanDanhThung { get; set; }     // NOT NULL
+        public double SoMet { get; set; }         // NOT NULL
+    }
+
+    // --------------------------- Công đoạn: Kéo Rút ---------------------------
+
+    public class CD_KeoRut
+    {
+        public int Id { get; set; }
+        public int ThongTinSP_ID { get; set; }    // NOT NULL
+        public double DKTrucX { get; set; }       // NOT NULL
+        public double DKTrucY { get; set; }       // NOT NULL
+        // NgoaiQuan: 0 - Không đạt ; 1 - Đạt
+        public string NgoaiQuan { get; set; }       // NOT NULL DEFAULT 1
+        public double TocDo { get; set; }         // NOT NULL
+        public double DienApU { get; set; }       // NOT NULL
+        public double DongDienU { get; set; }     // NOT NULL
+    }
+
+    // --------------------------- Công đoạn: Bện Ruột ---------------------------
+
+    public class CD_BenRuot
+    {
+        public int Id { get; set; }
+        public int ThongTinSP_ID { get; set; }    // NOT NULL
+        public double DKSoi { get; set; }         // NOT NULL
+        public int? SoSoi { get; set; }           // NUMERIC -> int?
+        // Chiều Xoắn: 'Z' hoặc 'S'
+        public string ChieuXoan { get; set; }     // NOT NULL DEFAULT 'Z'
+        public double BuocBen { get; set; }       // NOT NULL
+    }
+
+    // --------------------------- Công đoạn: Ghép Lõi + Quấn Băng ---------------------------
+
+    public class CD_GhepLoiQB
+    {
+        public int Id { get; set; }
+        public int ThongTinSP_ID { get; set; }    // NOT NULL
+        public double BuocXoan { get; set; }      // NOT NULL
+        public string ChieuXoan { get; set; }     // NOT NULL DEFAULT 'Z'
+        public double GoiCachMep { get; set; }    // NOT NULL
+        public double DKBTP { get; set; }         // NOT NULL
+    }
+
+
     // Tổ hợp snapshot toàn form (linh hoạt)
     public class FormSnapshot
     {

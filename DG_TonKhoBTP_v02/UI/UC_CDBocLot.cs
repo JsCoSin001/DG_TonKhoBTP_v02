@@ -11,7 +11,8 @@ using System.Windows.Forms;
 
 namespace DG_TonKhoBTP_v02.UI
 {
-    public partial class UC_CDBocLot : UserControl, ISectionProvider<CaiDatCDBoc>
+    public partial class UC_CDBocLot : UserControl, ISectionProvider<CD_BocLot>
+    //public partial class UC_CDBocLot : UserControl, ISectionProvider<CaiDatCDBoc>
     {
         public UC_CDBocLot()
         {
@@ -20,15 +21,26 @@ namespace DG_TonKhoBTP_v02.UI
 
 
         #region AI generated
+        //public string SectionName => nameof(UC_CDBocLot);
+
+        //public CaiDatCDBoc GetSectionData()
+        //{
+        //    var m = new CaiDatCDBoc();
+        //    // Nếu bạn có property tương ứng trong CaiDatCDBoc (ví dụ DoDayTBLot), map vào:
+        //    // m.DoDayTBLot = (double)doDayTBLot.Value;
+        //    // Nếu chưa có, bạn có thể thêm property mới vào model.
+        //    return m;
+        //}
+
         public string SectionName => nameof(UC_CDBocLot);
 
-        public CaiDatCDBoc GetSectionData()
+        public CD_BocLot GetSectionData()
         {
-            var m = new CaiDatCDBoc();
-            // Nếu bạn có property tương ứng trong CaiDatCDBoc (ví dụ DoDayTBLot), map vào:
-            // m.DoDayTBLot = (double)doDayTBLot.Value;
-            // Nếu chưa có, bạn có thể thêm property mới vào model.
-            return m;
+            return new CD_BocLot
+            {
+                ThongTinSP_ID = 0,
+                DoDayTBLot = (double)doDayTBLot.Value
+            };
         }
         #endregion
     }

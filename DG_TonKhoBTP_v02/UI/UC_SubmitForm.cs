@@ -23,32 +23,21 @@ namespace DG_TonKhoBTP_v02.UI
             var host = this.FindForm();
             if (host == null) return;
 
-            var snap = FormSnapshotBuilder.Capture(host);
+            var snap = DG_TonKhoBTP_v02.Core.FormSnapshotBuilder.Capture(host);
 
-            // [Luồng 5] Hậu xử lý cho CaiDatCDBoc: hỏi UC_TTSanPham để lấy bản gộp
+            // lấy UC_TTSanPham ở đâu đó trong form
             var ucSanPham = Helper.Helper.FindControlRecursive<UC_TTSanPham>(host);
             if (ucSanPham != null)
             {
-                var merged = ucSanPham.GetCaiDatBocGop();
-                // Ghi đè/đặt 1 key duy nhất cho CaiDatCDBoc trong snapshot
-                snap.Sections["CaiDatCDBoc"] = merged;
-                // (Optional) bỏ các key lẻ như UC_CaiDatMay/UC_DieuKienBoc/UC_CDBocLot nếu bạn đã thêm trước đó
+                // TỰ-ĐỘNG gom tất cả providers hiện có
+                var extra = ucSanPham.GetAggregateSections();
+                foreach (var kv in extra)
+                    snap.Sections[kv.Key] = kv.Value; // vd "CaiDatCDBoc", "CD_BenRuot", "CD_BocLot"...
             }
 
-            StateStore.CurrentSnapshot = snap;
-
-            // Lấy CaiDatCDBoc đã gộp
-            var caiDat = StateStore.CurrentSnapshot.GetSection<CaiDatCDBoc>("CaiDatCDBoc");
-
-            // Lấy danh sách NVL
-            var listNVL = StateStore.CurrentSnapshot.GetSection<List<TTNVL>>("UC_TTNVL");
-
-            // Lấy thông tin ca làm việc
-            var ca = StateStore.CurrentSnapshot.GetSection<ThongTinCaLamViec>("UC_TTCaLamViec");
+            DG_TonKhoBTP_v02.Core.StateStore.CurrentSnapshot = snap;
 
 
-            MessageBox.Show("Đã lưu snapshot dữ liệu (đã gộp CaiDatCDBoc).", "Thông báo",
-                            MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void btnClear_Click(object sender, EventArgs e)

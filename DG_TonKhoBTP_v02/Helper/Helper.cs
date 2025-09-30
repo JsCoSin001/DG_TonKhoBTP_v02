@@ -65,6 +65,28 @@ namespace DG_TonKhoBTP_v02.Helper
 
             return lot;
         }
+
+
+        // Có thể đặt trong UC_SubmitForm hoặc class Helper chung
+        public static T FindControlRecursive<T>(Control root) where T : Control
+        {
+            foreach (Control c in root.Controls)
+            {
+                if (c is T t)
+                    return t;
+
+                if (c.HasChildren)
+                {
+                    var child = FindControlRecursive<T>(c);
+                    if (child != null)
+                        return child;
+                }
+            }
+            return null;
+        }
+
+
+
     }
 
 

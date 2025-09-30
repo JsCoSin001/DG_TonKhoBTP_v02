@@ -1,4 +1,5 @@
 ﻿
+using DG_TonKhoBTP_v02.Core;
 using DG_TonKhoBTP_v02.Database;
 using DG_TonKhoBTP_v02.Models;
 using DocumentFormat.OpenXml.Wordprocessing;
@@ -8,6 +9,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -15,7 +17,7 @@ using Color = System.Drawing.Color;
 
 namespace DG_TonKhoBTP_v02.UI
 {
-    public partial class UC_TTNVL : UserControl
+    public partial class UC_TTNVL : UserControl, IFormSection
     {
         public UC_TTNVL(List<ColumnDefinition> columns)
         {
@@ -253,8 +255,154 @@ namespace DG_TonKhoBTP_v02.UI
         {
 
         }
+
+
+        #region AI generated code for IFormSection
+
+        public string SectionName => nameof(UC_TTNVL);
+
+        // Giả định có control: groupBox1, dtgTTNVL, cbxTimKiem, ...
+        // dtgTTNVL cột động: tên cột nên trùng với property của TTNVL (không phân biệt hoa thường).
+
+        public object GetData()
+        {
+            // [Luồng 2.1] Đảm bảo các cột tối thiểu tồn tại (theo model)
+            EnsureColumnsFromModel<TTNVL>(dtgTTNVL);
+
+            // [Luồng 2.2] Duyệt từng hàng -> TTNVL (ô nào null/"" => 0 cho numeric)
+            var list = new List<TTNVL>();
+
+            foreach (DataGridViewRow row in dtgTTNVL.Rows)
+            {
+                if (row.IsNewRow) continue;
+
+                var item = new TTNVL();
+                MapRowToObject(row, item);
+                list.Add(item);
+            }
+
+            return list;
+        }
+
+        public void ClearInputs()
+        {
+            // Xoá dữ liệu theo cách an toàn cho mọi kiểu bind
+            DataGridViewUtils.ClearSmart(dtgTTNVL);
+
+            // Reset control khác nếu cần
+            if (cbxTimKiem != null)
+            {
+                //cbxTimKiem.SelectedIndex = -1;
+                //cbxTimKiem.Text = string.Empty;
+            }
+        }
+
+        // ===== Helpers =====
+
+        private static void EnsureColumnsFromModel<T>(DataGridView grid)
+        {
+            var props = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);
+            var existing = new HashSet<string>(grid.Columns
+                                                  .Cast<DataGridViewColumn>()
+                                                  .Select(c => c.Name),
+                                               StringComparer.OrdinalIgnoreCase);
+
+            foreach (var p in props)
+            {
+                if (!existing.Contains(p.Name))
+                {
+                    // Thêm cột động (text/number) đơn giản
+                    var col = new DataGridViewTextBoxColumn
+                    {
+                        Name = p.Name,
+                        HeaderText = p.Name
+                    };
+                    grid.Columns.Add(col);
+                }
+            }
+        }
+
+        private static void MapRowToObject<T>(DataGridViewRow row, T target)
+        {
+            var props = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);
+
+            foreach (var p in props)
+            {
+                if (!row.DataGridView.Columns.Contains(p.Name))
+                    continue;
+
+                var raw = row.Cells[p.Name]?.Value;
+
+                try
+                {
+                    object value = null;
+
+                    if (p.PropertyType == typeof(string))
+                    {
+                        value = raw?.ToString() ?? string.Empty;
+                    }
+                    else if (IsNumeric(p.PropertyType))
+                    {
+                        // Ô trống => 0
+                        var s = raw?.ToString();
+                        if (string.IsNullOrWhiteSpace(s))
+                        {
+                            value = ConvertToNumericDefaultZero(p.PropertyType);
+                        }
+                        else
+                        {
+                            value = Convert.ChangeType(s, Nullable.GetUnderlyingType(p.PropertyType) ?? p.PropertyType);
+                        }
+                    }
+                    else
+                    {
+                        // Kiểu khác (int?, double?, …)
+                        var underlying = Nullable.GetUnderlyingType(p.PropertyType) ?? p.PropertyType;
+                        if (raw == null || string.IsNullOrWhiteSpace(raw.ToString()))
+                        {
+                            value = underlying.IsValueType ? Activator.CreateInstance(underlying) : null;
+                        }
+                        else
+                        {
+                            value = Convert.ChangeType(raw, underlying);
+                        }
+                    }
+
+                    p.SetValue(target, value);
+                }
+                catch
+                {
+                    // Nếu chuyển kiểu lỗi -> gán 0 cho numeric, "" cho string
+                    if (p.PropertyType == typeof(string))
+                        p.SetValue(target, string.Empty);
+                    else if (IsNumeric(p.PropertyType))
+                        p.SetValue(target, ConvertToNumericDefaultZero(p.PropertyType));
+                }
+            }
+        }
+
+        private static bool IsNumeric(Type t)
+        {
+            t = Nullable.GetUnderlyingType(t) ?? t;
+            return t == typeof(int) || t == typeof(long) || t == typeof(short) ||
+                   t == typeof(double) || t == typeof(float) || t == typeof(decimal);
+        }
+
+        private static object ConvertToNumericDefaultZero(Type t)
+        {
+            t = Nullable.GetUnderlyingType(t) ?? t;
+            if (t == typeof(int)) return 0;
+            if (t == typeof(long)) return 0L;
+            if (t == typeof(short)) return (short)0;
+            if (t == typeof(double)) return 0.0d;
+            if (t == typeof(float)) return 0.0f;
+            if (t == typeof(decimal)) return 0.0m;
+            return 0;
+        }
+
+        #endregion
     }
 
     // Class mô tả cột
-    
+
 }

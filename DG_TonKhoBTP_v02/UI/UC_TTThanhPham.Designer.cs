@@ -54,18 +54,18 @@
             this.label8 = new System.Windows.Forms.Label();
             this.soBin = new System.Windows.Forms.NumericUpDown();
             this.label21 = new System.Windows.Forms.Label();
-            this.maBin = new System.Windows.Forms.Label();
             this.may = new System.Windows.Forms.ComboBox();
             this.panel3 = new System.Windows.Forms.Panel();
             this.tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
-            this.label20 = new System.Windows.Forms.Label();
             this.label19 = new System.Windows.Forms.Label();
-            this.label18 = new System.Windows.Forms.Label();
             this.label17 = new System.Windows.Forms.Label();
-            this.label16 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.timNVL = new System.Windows.Forms.ComboBox();
             this.label3 = new System.Windows.Forms.Label();
+            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.textBox2 = new System.Windows.Forms.TextBox();
+            this.textBox3 = new System.Windows.Forms.TextBox();
+            this.maBin = new System.Windows.Forms.TextBox();
             this.groupBox1.SuspendLayout();
             this.panel1.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
@@ -252,8 +252,8 @@
             this.tableLayoutPanel1.Controls.Add(this.label8, 7, 1);
             this.tableLayoutPanel1.Controls.Add(this.soBin, 8, 1);
             this.tableLayoutPanel1.Controls.Add(this.label21, 10, 0);
-            this.tableLayoutPanel1.Controls.Add(this.maBin, 10, 1);
             this.tableLayoutPanel1.Controls.Add(this.may, 0, 1);
+            this.tableLayoutPanel1.Controls.Add(this.maBin, 10, 1);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Left;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
@@ -444,16 +444,6 @@
             this.label21.Text = "Mã Bin";
             this.label21.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
             // 
-            // maBin
-            // 
-            this.maBin.AutoSize = true;
-            this.maBin.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.maBin.Location = new System.Drawing.Point(553, 20);
-            this.maBin.Name = "maBin";
-            this.maBin.Size = new System.Drawing.Size(242, 29);
-            this.maBin.TabIndex = 35;
-            this.maBin.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
             // may
             // 
             this.may.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -484,14 +474,14 @@
             this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 200F));
             this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 70F));
             this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-            this.tableLayoutPanel4.Controls.Add(this.label20, 7, 0);
+            this.tableLayoutPanel4.Controls.Add(this.textBox3, 7, 0);
+            this.tableLayoutPanel4.Controls.Add(this.textBox2, 5, 0);
             this.tableLayoutPanel4.Controls.Add(this.label19, 6, 0);
-            this.tableLayoutPanel4.Controls.Add(this.label18, 5, 0);
             this.tableLayoutPanel4.Controls.Add(this.label17, 4, 0);
-            this.tableLayoutPanel4.Controls.Add(this.label16, 3, 0);
             this.tableLayoutPanel4.Controls.Add(this.label5, 2, 0);
             this.tableLayoutPanel4.Controls.Add(this.timNVL, 1, 0);
             this.tableLayoutPanel4.Controls.Add(this.label3, 0, 0);
+            this.tableLayoutPanel4.Controls.Add(this.textBox1, 3, 0);
             this.tableLayoutPanel4.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel4.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel4.Name = "tableLayoutPanel4";
@@ -499,17 +489,6 @@
             this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel4.Size = new System.Drawing.Size(1474, 36);
             this.tableLayoutPanel4.TabIndex = 0;
-            // 
-            // label20
-            // 
-            this.label20.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label20.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label20.Location = new System.Drawing.Point(993, 0);
-            this.label20.Name = "label20";
-            this.label20.Size = new System.Drawing.Size(498, 36);
-            this.label20.TabIndex = 38;
-            this.label20.Text = "C 15.1";
-            this.label20.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // label19
             // 
@@ -522,17 +501,6 @@
             this.label19.Text = "Tên:";
             this.label19.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
-            // label18
-            // 
-            this.label18.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label18.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label18.Location = new System.Drawing.Point(723, 0);
-            this.label18.Name = "label18";
-            this.label18.Size = new System.Drawing.Size(194, 36);
-            this.label18.TabIndex = 36;
-            this.label18.Text = "BTP.123123";
-            this.label18.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
             // label17
             // 
             this.label17.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -543,17 +511,6 @@
             this.label17.TabIndex = 35;
             this.label17.Text = "Mã:";
             this.label17.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // label16
-            // 
-            this.label16.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label16.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label16.Location = new System.Drawing.Point(523, 0);
-            this.label16.Name = "label16";
-            this.label16.Size = new System.Drawing.Size(94, 36);
-            this.label16.TabIndex = 34;
-            this.label16.Text = "12";
-            this.label16.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // label5
             // 
@@ -587,6 +544,45 @@
             this.label3.Text = "Tìm Tên";
             this.label3.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
+            // textBox1
+            // 
+            this.textBox1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.textBox1.Enabled = false;
+            this.textBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.textBox1.Location = new System.Drawing.Point(523, 3);
+            this.textBox1.Name = "textBox1";
+            this.textBox1.Size = new System.Drawing.Size(94, 27);
+            this.textBox1.TabIndex = 39;
+            // 
+            // textBox2
+            // 
+            this.textBox2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.textBox2.Enabled = false;
+            this.textBox2.Font = new System.Drawing.Font("Microsoft Sans Serif", 12.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.textBox2.Location = new System.Drawing.Point(723, 3);
+            this.textBox2.Name = "textBox2";
+            this.textBox2.Size = new System.Drawing.Size(194, 27);
+            this.textBox2.TabIndex = 40;
+            // 
+            // textBox3
+            // 
+            this.textBox3.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.textBox3.Enabled = false;
+            this.textBox3.Font = new System.Drawing.Font("Microsoft Sans Serif", 12.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.textBox3.Location = new System.Drawing.Point(993, 3);
+            this.textBox3.Name = "textBox3";
+            this.textBox3.Size = new System.Drawing.Size(478, 27);
+            this.textBox3.TabIndex = 41;
+            // 
+            // maBin
+            // 
+            this.maBin.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.maBin.Enabled = false;
+            this.maBin.Location = new System.Drawing.Point(553, 23);
+            this.maBin.Name = "maBin";
+            this.maBin.Size = new System.Drawing.Size(242, 26);
+            this.maBin.TabIndex = 37;
+            // 
             // UC_TTThanhPham
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -609,6 +605,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.soBin)).EndInit();
             this.panel3.ResumeLayout(false);
             this.tableLayoutPanel4.ResumeLayout(false);
+            this.tableLayoutPanel4.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -641,17 +638,17 @@
         private System.Windows.Forms.Panel panel3;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel4;
         private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.Label label20;
         private System.Windows.Forms.Label label19;
-        private System.Windows.Forms.Label label18;
         private System.Windows.Forms.Label label17;
-        private System.Windows.Forms.Label label16;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.ComboBox timNVL;
         private System.Windows.Forms.Label label15;
         private System.Windows.Forms.RichTextBox GhiChu;
         private System.Windows.Forms.Label label21;
-        private System.Windows.Forms.Label maBin;
         private System.Windows.Forms.ComboBox may;
+        private System.Windows.Forms.TextBox textBox3;
+        private System.Windows.Forms.TextBox textBox2;
+        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.TextBox maBin;
     }
 }

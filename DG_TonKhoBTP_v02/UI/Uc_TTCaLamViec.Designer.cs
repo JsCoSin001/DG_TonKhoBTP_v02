@@ -110,6 +110,7 @@
             // quanDoc
             // 
             this.quanDoc.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.quanDoc.Enabled = false;
             this.quanDoc.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.quanDoc.Location = new System.Drawing.Point(1231, 3);
             this.quanDoc.Name = "quanDoc";
@@ -130,6 +131,7 @@
             // toTruong
             // 
             this.toTruong.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.toTruong.Enabled = false;
             this.toTruong.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.toTruong.Location = new System.Drawing.Point(1032, 3);
             this.toTruong.Name = "toTruong";

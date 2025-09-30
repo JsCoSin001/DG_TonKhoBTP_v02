@@ -4,7 +4,9 @@ using DG_TonKhoBTP_v02.Models;
 using DG_TonKhoBTP_v02.UI;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Text;
 using System.Windows.Forms;
 
 namespace DG_TonKhoBTP_v02
@@ -127,39 +129,53 @@ namespace DG_TonKhoBTP_v02
             pnShow.Controls.Add(pnTop);
         }
 
-
-        private void LogNamesGroupedByLevel(Control root)
+        public static void LogControlsTree(Control root, Action<string> log = null)
         {
-            // Gom tên control theo level
-            var map = new Dictionary<int, List<string>>();
-            CollectByLevel(root, level: 0, map);
+            if (root == null) return;
 
-            Console.WriteLine("=== Control Names Grouped by Level ===");
-            foreach (var kv in map.OrderBy(k => k.Key))
+            // KHẮC PHỤC: không gán trực tiếp Debug.WriteLine; dùng lambda hoặc chọn Trace/Console
+            if (log == null)
             {
-                var level = kv.Key;
-                var names = kv.Value;
-                Console.WriteLine($"Note {level}: {string.Join(", ", names)}");
+#if DEBUG
+                log = s => Debug.WriteLine(s);    // Chạy khi build Debug
+#else
+            log = s => Trace.WriteLine(s);    // Hoặc Console.WriteLine(s);
+#endif
+            }
+
+            log($"Root {NodeText(root)}");
+            Dump(root, log, "");
+        }
+
+        public static string GetControlsTree(Control root)
+        {
+            if (root == null) return string.Empty;
+            var sb = new StringBuilder();
+            LogControlsTree(root, s => sb.AppendLine(s));
+            return sb.ToString();
+        }
+
+        private static void Dump(Control parent, Action<string> log, string prefix)
+        {
+            int count = parent.Controls.Count;
+            for (int i = 0; i < count; i++)
+            {
+                var child = parent.Controls[i];
+                bool isLast = i == count - 1;
+                string connector = isLast ? "└─" : "├─";
+                log($"{prefix}{connector} {NodeText(child)}");
+
+                string childPrefix = prefix + (isLast ? "   " : "│  ");
+                if (child.HasChildren)
+                    Dump(child, log, childPrefix);
             }
         }
 
-        private void CollectByLevel(Control ctrl, int level, Dictionary<int, List<string>> map)
+        private static string NodeText(Control c)
         {
-            string name = string.IsNullOrWhiteSpace(ctrl.Name) ? "(no name)" : ctrl.Name;
-
-            if (!map.TryGetValue(level, out var list))
-            {
-                list = new List<string>();
-                map[level] = list;
-            }
-            list.Add(name);
-
-            foreach (Control child in ctrl.Controls)
-            {
-                CollectByLevel(child, level + 1, map);
-            }
+            string name = string.IsNullOrWhiteSpace(c.Name) ? "(no name)" : c.Name;
+            return $"{name} : {c.GetType().Name} [{c.Left},{c.Top},{c.Width}x{c.Height}]";
         }
-
 
 
 
@@ -227,7 +243,7 @@ namespace DG_TonKhoBTP_v02
 
 
             // Log cấu trúc control sau khi ShowUI
-            LogNamesGroupedByLevel(pnShow);
+            LogControlsTree(pnShow, s => Console.WriteLine(s));
         }
 
         private void btnBocMach_Click(object sender, EventArgs e)

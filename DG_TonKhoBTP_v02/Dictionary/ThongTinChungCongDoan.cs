@@ -16,7 +16,8 @@ namespace DG_TonKhoBTP_v02.Dictionary
             new List<ColumnDefinition>
             {
                 new ColumnDefinition { Name = "id", DataType = typeof(int), Header = "ID" },
-                new ColumnDefinition { Name = "binNVL", DataType = typeof(string), Header = "LOT nguyên liệu" }
+                new ColumnDefinition { Name = "BinNVL", DataType = typeof(string), Header = "LOT nguyên liệu"},
+                new ColumnDefinition { Name = "conLai", DataType = typeof(double), Header = "Còn lại" }
             }
         );
 
@@ -27,7 +28,8 @@ namespace DG_TonKhoBTP_v02.Dictionary
             new List<ColumnDefinition>
             {
                 new ColumnDefinition { Name = "id", DataType = typeof(int), Header = "ID" },
-                new ColumnDefinition { Name = "binNVL", DataType = typeof(string), Header = "LOT nguyên liệu" },
+                new ColumnDefinition { Name = "BinNVL", DataType = typeof(string), Header = "LOT nguyên liệu" },
+                new ColumnDefinition { Name = "conLai", DataType = typeof(double), Header = "Còn lại" },
                 new ColumnDefinition { Name = "DuongKinhSoiDong", DataType = typeof(double), Header = "ĐK sợi đồng" }
             }
         );
@@ -39,7 +41,8 @@ namespace DG_TonKhoBTP_v02.Dictionary
             new List<ColumnDefinition>
             {
                 new ColumnDefinition { Name = "id", DataType = typeof(int), Header = "ID" },
-                new ColumnDefinition { Name = "binNVL", DataType = typeof(string), Header = "LOT nguyên liệu" },
+                new ColumnDefinition { Name = "BinNVL", DataType = typeof(string), Header = "LOT nguyên liệu" },
+                new ColumnDefinition { Name = "conLai", DataType = typeof(double), Header = "Còn lại" },
                 new ColumnDefinition { Name = "DuongKinhSoiDong", DataType = typeof(double), Header = "ĐK sợi đồng" },
                 new ColumnDefinition { Name = "DuongKinhSoiMach", DataType = typeof(double), Header = "ĐK sợi mạch" },
                 new ColumnDefinition { Name = "BanRongBang", DataType = typeof(double), Header = "Độ rộng băng" },
@@ -54,7 +57,8 @@ namespace DG_TonKhoBTP_v02.Dictionary
             new List<ColumnDefinition>
             {
                 new ColumnDefinition { Name = "id", DataType = typeof(int), Header = "ID" },
-                new ColumnDefinition { Name = "binNVL", DataType = typeof(string), Header = "LOT nguyên liệu" },
+                new ColumnDefinition { Name = "BinNVL", DataType = typeof(string), Header = "LOT nguyên liệu" },
+                new ColumnDefinition { Name = "conLai", DataType = typeof(double), Header = "Còn lại" },
                 new ColumnDefinition { Name = "DuongKinhSoiDong", DataType = typeof(double), Header = "ĐK sợi đồng" },
                 new ColumnDefinition { Name = "SoSoi", DataType = typeof(double), Header = "Số sợi" }
             }
@@ -67,7 +71,8 @@ namespace DG_TonKhoBTP_v02.Dictionary
             new List<ColumnDefinition>
             {
                 new ColumnDefinition { Name = "id", DataType = typeof(int), Header = "ID" },
-                new ColumnDefinition { Name = "binNVL", DataType = typeof(string), Header = "LOT nguyên liệu" }
+                new ColumnDefinition { Name = "BinNVL", DataType = typeof(string), Header = "LOT nguyên liệu" },
+                new ColumnDefinition { Name = "conLai", DataType = typeof(double), Header = "Còn lại" }
             }
         );
 
@@ -78,7 +83,8 @@ namespace DG_TonKhoBTP_v02.Dictionary
             new List<ColumnDefinition>
             {
                 new ColumnDefinition { Name = "id", DataType = typeof(int), Header = "ID" },
-                new ColumnDefinition { Name = "binNVL", DataType = typeof(string), Header = "LOT nguyên liệu" },
+                new ColumnDefinition { Name = "BinNVL", DataType = typeof(string), Header = "LOT nguyên liệu" },
+                new ColumnDefinition { Name = "conLai", DataType = typeof(double), Header = "Còn lại" },
                 new ColumnDefinition { Name = "KetCauLoi", DataType = typeof(double), Header = "Kết cấu lõi" }
             }
         );

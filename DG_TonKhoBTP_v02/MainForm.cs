@@ -1,4 +1,5 @@
 ﻿
+using DG_TonKhoBTP_v02.Database;
 using DG_TonKhoBTP_v02.Dictionary;
 using DG_TonKhoBTP_v02.Models;
 using DG_TonKhoBTP_v02.UI;
@@ -13,12 +14,13 @@ namespace DG_TonKhoBTP_v02
 {
     public partial class MainForm : Form
     {
-        private string _URL = "D:\\Database\\QLSX_DG_v2.db";
+        private string _URL = "D:\\Database\\QLSX_v02.db";
         UC_TTCaLamViec uc_caLamViec;
 
         public MainForm()
         {
             InitializeComponent();
+            DatabaseHelper.SetDatabasePath(_URL);
         }
 
         private Panel UI_TopPanel(CongDoan cd)
@@ -126,53 +128,53 @@ namespace DG_TonKhoBTP_v02
             pnShow.Controls.Add(pnTop);
         }
 
-        public static void LogControlsTree(Control root, Action<string> log = null)
-        {
-            if (root == null) return;
+//        public static void LogControlsTree(Control root, Action<string> log = null)
+//        {
+//            if (root == null) return;
 
-            // KHẮC PHỤC: không gán trực tiếp Debug.WriteLine; dùng lambda hoặc chọn Trace/Console
-            if (log == null)
-            {
-#if DEBUG
-                log = s => Debug.WriteLine(s);    // Chạy khi build Debug
-#else
-            log = s => Trace.WriteLine(s);    // Hoặc Console.WriteLine(s);
-#endif
-            }
+//            // KHẮC PHỤC: không gán trực tiếp Debug.WriteLine; dùng lambda hoặc chọn Trace/Console
+//            if (log == null)
+//            {
+//#if DEBUG
+//                log = s => Debug.WriteLine(s);    // Chạy khi build Debug
+//#else
+//            log = s => Trace.WriteLine(s);    // Hoặc Console.WriteLine(s);
+//#endif
+//            }
 
-            log($"Root {NodeText(root)}");
-            Dump(root, log, "");
-        }
+//            log($"Root {NodeText(root)}");
+//            Dump(root, log, "");
+//        }
 
-        public static string GetControlsTree(Control root)
-        {
-            if (root == null) return string.Empty;
-            var sb = new StringBuilder();
-            LogControlsTree(root, s => sb.AppendLine(s));
-            return sb.ToString();
-        }
+//        public static string GetControlsTree(Control root)
+//        {
+//            if (root == null) return string.Empty;
+//            var sb = new StringBuilder();
+//            LogControlsTree(root, s => sb.AppendLine(s));
+//            return sb.ToString();
+//        }
 
-        private static void Dump(Control parent, Action<string> log, string prefix)
-        {
-            int count = parent.Controls.Count;
-            for (int i = 0; i < count; i++)
-            {
-                var child = parent.Controls[i];
-                bool isLast = i == count - 1;
-                string connector = isLast ? "└─" : "├─";
-                log($"{prefix}{connector} {NodeText(child)}");
+//        private static void Dump(Control parent, Action<string> log, string prefix)
+//        {
+//            int count = parent.Controls.Count;
+//            for (int i = 0; i < count; i++)
+//            {
+//                var child = parent.Controls[i];
+//                bool isLast = i == count - 1;
+//                string connector = isLast ? "└─" : "├─";
+//                log($"{prefix}{connector} {NodeText(child)}");
 
-                string childPrefix = prefix + (isLast ? "   " : "│  ");
-                if (child.HasChildren)
-                    Dump(child, log, childPrefix);
-            }
-        }
+//                string childPrefix = prefix + (isLast ? "   " : "│  ");
+//                if (child.HasChildren)
+//                    Dump(child, log, childPrefix);
+//            }
+//        }
 
-        private static string NodeText(Control c)
-        {
-            string name = string.IsNullOrWhiteSpace(c.Name) ? "(no name)" : c.Name;
-            return $"{name} : {c.GetType().Name} [{c.Left},{c.Top},{c.Width}x{c.Height}]";
-        }
+//        private static string NodeText(Control c)
+//        {
+//            string name = string.IsNullOrWhiteSpace(c.Name) ? "(no name)" : c.Name;
+//            return $"{name} : {c.GetType().Name} [{c.Left},{c.Top},{c.Width}x{c.Height}]";
+//        }
 
 
 
@@ -240,7 +242,7 @@ namespace DG_TonKhoBTP_v02
 
 
             // Log cấu trúc control sau khi ShowUI
-            LogControlsTree(pnShow, s => Console.WriteLine(s));
+            //LogControlsTree(pnShow, s => Console.WriteLine(s));
         }
 
         private void btnBocMach_Click(object sender, EventArgs e)

@@ -54,7 +54,7 @@ namespace DG_TonKhoBTP_v02.UI
         {
             return new ThongTinCaLamViec
             {
-                Ngay = ngay.Value,
+                Ngay = ngay.Value.ToString("yyyy-MM-dd"),
                 May = cbMay?.Text ?? string.Empty,
                 Ca = ca?.Text ?? string.Empty,
                 NguoiLam = nguoiLam?.Text ?? string.Empty,

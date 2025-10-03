@@ -1,5 +1,7 @@
 ﻿  using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.SQLite;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,6 +11,7 @@ namespace DG_TonKhoBTP_v02.Helper
 {
     public static class Helper
     {
+        public static string _connStr;
         public static string GetShiftValue()
         {
             int hour = DateTime.Now.Hour;
@@ -20,7 +23,9 @@ namespace DG_TonKhoBTP_v02.Helper
                 return "2";
 
             return "3";
+
         }
+
         public static string GetNgayHienTai()
         {
             DateTime now = DateTime.Now;
@@ -84,9 +89,6 @@ namespace DG_TonKhoBTP_v02.Helper
             }
             return null;
         }
-
-
-
     }
 
 

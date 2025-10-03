@@ -142,7 +142,7 @@
             0});
             this.binhSay.Name = "binhSay";
             this.binhSay.Size = new System.Drawing.Size(168, 26);
-            this.binhSay.TabIndex = 47;
+            this.binhSay.TabIndex = 15;
             // 
             // khuon
             // 
@@ -162,7 +162,7 @@
             0});
             this.khuon.Name = "khuon";
             this.khuon.Size = new System.Drawing.Size(165, 26);
-            this.khuon.TabIndex = 46;
+            this.khuon.TabIndex = 14;
             // 
             // dau2
             // 
@@ -182,7 +182,7 @@
             0});
             this.dau2.Name = "dau2";
             this.dau2.Size = new System.Drawing.Size(165, 26);
-            this.dau2.TabIndex = 45;
+            this.dau2.TabIndex = 13;
             // 
             // dau1
             // 
@@ -202,7 +202,7 @@
             0});
             this.dau1.Name = "dau1";
             this.dau1.Size = new System.Drawing.Size(165, 26);
-            this.dau1.TabIndex = 44;
+            this.dau1.TabIndex = 12;
             // 
             // co
             // 
@@ -222,7 +222,7 @@
             0});
             this.co.Name = "co";
             this.co.Size = new System.Drawing.Size(165, 26);
-            this.co.TabIndex = 43;
+            this.co.TabIndex = 11;
             // 
             // v6
             // 
@@ -242,7 +242,7 @@
             0});
             this.v6.Name = "v6";
             this.v6.Size = new System.Drawing.Size(168, 26);
-            this.v6.TabIndex = 42;
+            this.v6.TabIndex = 10;
             // 
             // v5
             // 
@@ -262,7 +262,7 @@
             0});
             this.v5.Name = "v5";
             this.v5.Size = new System.Drawing.Size(165, 26);
-            this.v5.TabIndex = 41;
+            this.v5.TabIndex = 9;
             // 
             // v4
             // 
@@ -282,7 +282,7 @@
             0});
             this.v4.Name = "v4";
             this.v4.Size = new System.Drawing.Size(165, 26);
-            this.v4.TabIndex = 40;
+            this.v4.TabIndex = 8;
             // 
             // v3
             // 
@@ -302,7 +302,7 @@
             0});
             this.v3.Name = "v3";
             this.v3.Size = new System.Drawing.Size(165, 26);
-            this.v3.TabIndex = 39;
+            this.v3.TabIndex = 7;
             // 
             // v2
             // 
@@ -322,7 +322,7 @@
             0});
             this.v2.Name = "v2";
             this.v2.Size = new System.Drawing.Size(165, 26);
-            this.v2.TabIndex = 38;
+            this.v2.TabIndex = 6;
             // 
             // boDemMet
             // 
@@ -336,7 +336,7 @@
             this.boDemMet.Location = new System.Drawing.Point(345, 38);
             this.boDemMet.Name = "boDemMet";
             this.boDemMet.Size = new System.Drawing.Size(165, 28);
-            this.boDemMet.TabIndex = 36;
+            this.boDemMet.TabIndex = 3;
             // 
             // puliDanDay
             // 
@@ -350,7 +350,7 @@
             this.puliDanDay.Location = new System.Drawing.Point(174, 38);
             this.puliDanDay.Name = "puliDanDay";
             this.puliDanDay.Size = new System.Drawing.Size(165, 28);
-            this.puliDanDay.TabIndex = 35;
+            this.puliDanDay.TabIndex = 2;
             // 
             // mangNuoc
             // 
@@ -364,7 +364,7 @@
             this.mangNuoc.Location = new System.Drawing.Point(3, 38);
             this.mangNuoc.Name = "mangNuoc";
             this.mangNuoc.Size = new System.Drawing.Size(165, 28);
-            this.mangNuoc.TabIndex = 34;
+            this.mangNuoc.TabIndex = 1;
             // 
             // mayIn
             // 
@@ -378,7 +378,7 @@
             this.mayIn.Location = new System.Drawing.Point(516, 38);
             this.mayIn.Name = "mayIn";
             this.mayIn.Size = new System.Drawing.Size(165, 28);
-            this.mayIn.TabIndex = 33;
+            this.mayIn.TabIndex = 4;
             // 
             // label11
             // 
@@ -578,7 +578,7 @@
             0});
             this.v1.Name = "v1";
             this.v1.Size = new System.Drawing.Size(168, 26);
-            this.v1.TabIndex = 37;
+            this.v1.TabIndex = 5;
             // 
             // UC_CaiDatMay
             // 

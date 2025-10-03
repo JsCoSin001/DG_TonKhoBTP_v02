@@ -2,6 +2,7 @@
 using DG_TonKhoBTP_v02.Core;
 using DG_TonKhoBTP_v02.Database;
 using DG_TonKhoBTP_v02.Models;
+using DocumentFormat.OpenXml.Office2010.Excel;
 using DocumentFormat.OpenXml.Wordprocessing;
 using System;
 using System.Collections.Generic;
@@ -11,6 +12,7 @@ using System.Drawing;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Color = System.Drawing.Color;
@@ -19,11 +21,10 @@ namespace DG_TonKhoBTP_v02.UI
 {
     public partial class UC_TTNVL : UserControl, IFormSection
     {
+        private CancellationTokenSource _searchCts;
         public UC_TTNVL(List<ColumnDefinition> columns)
         {
             InitializeComponent();
-
-            
 
             TaoBang(columns);
 
@@ -90,9 +91,18 @@ namespace DG_TonKhoBTP_v02.UI
         {
 
             int defaultWidth = 105;
+            int defaulHeight = 40;
+
+
+            if (headers.Length > 5)
+            {
+                defaultWidth = 90;
+                defaulHeight = 50;
+            }
+
+            dgv.ColumnHeadersHeight = defaulHeight;
 
             dgv.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
-            dgv.ColumnHeadersHeight = 40; 
 
             for (int i = 0; i < headers.Length && i < dgv.Columns.Count; i++)
             {
@@ -160,101 +170,132 @@ namespace DG_TonKhoBTP_v02.UI
                 e.Handled = true;
         }
 
-        private void tbxTimKiem_TextUpdate(object sender, EventArgs e)
+        private async void tbxTimKiem_TextUpdate(object sender, EventArgs e)
         {
-            string keyword = cbxTimKiem.Text.Trim();
-            this.LoadAutoCompleteLot(keyword, cbxTimKiem);
+            //ResetController_TimTenSP();
+            string tenNL = cbxTimKiem.Text;
+
+            if (string.IsNullOrEmpty(tenNL)) return;
+
+            // --- thêm debounce + cancel ---
+            _searchCts?.Cancel();
+            _searchCts = new CancellationTokenSource();
+            var token = _searchCts.Token;
+
+            try
+            {
+                // debounce: đợi user dừng gõ 250ms mới chạy
+                await Task.Delay(250, token);
+
+                // gọi async thay vì sync
+                await ShowDanhSachLuaChon(tenNL, token);
+            }
+            catch (OperationCanceledException)
+            {
+                // bị huỷ vì user gõ tiếp, bỏ qua
+            }
         }
 
-        private void LoadAutoCompleteLot(string keyword, ComboBox cbx)
+        private async Task ShowDanhSachLuaChon(string keyword, CancellationToken ct)
         {
-
             if (string.IsNullOrWhiteSpace(keyword))
             {
-                //ResetController_TimLOT();
-                cbx.DroppedDown = false;
+                cbxTimKiem.DroppedDown = false;
                 return;
             }
-            string para = "Lot";
+            string para = "ten";
 
             string query = @"
-                SELECT 
-	                t.ID, 
-	                t.Lot, 
-                    0 as ConLai,
-	                dssp.ten as TenSP,
-	                t.KhoiLuongConLai as KL
-                FROM DL_CD_Ben b
-                JOIN TonKho t ON b.TonKho_ID = t.ID
-                JOIN DanhSachMaSP dssp ON t.MaSP_ID = dssp.ID
-                WHERE t.Lot LIKE '%' || @" + para + @" || '%'
-                  AND t.KhoiLuongConLai <> 0
-                  AND t.Lot NOT LIKE 'Z_%';";
-
-            //DataTable tonKho = DatabaseHelper.GetData(keyword, query, para);
-
-            //cbx.DroppedDown = false;
-
-            //cbx.SelectionChangeCommitted -= cbx_SelectionChangeCommitted; // tránh trùng event
-            //// check data return
-            //if (tonKho.Rows.Count == 0) return;
-
-            //cbx.DataSource = tonKho;
-            //cbx.DisplayMember = "Lot";
-
-            //string currentText = keyword;
-
-            //cbx.DroppedDown = true;
-            //cbx.Text = currentText;
-            //cbx.SelectionStart = cbx.Text.Length;
-            //cbx.SelectionLength = 0;
-
-            cbx.SelectionChangeCommitted += cbx_SelectionChangeCommitted;
+                SELECT
+                    t.id                         AS id,
+                    t.MaBin as BinNVL
+                FROM TTThanhPham AS t
+                JOIN DanhSachMaSP AS d
+                    ON d.id = t.DanhSachSP_ID
+                WHERE
+                (
+                  (d.DonVi = 0 AND t.KhoiLuongSau <> 0)
+                  OR
+                  (d.DonVi = 1 AND t.ChieuDaiSau  <> 0)
+                )
+                AND t.MaBin LIKE '%' || @para || '%';
+            ";
 
 
+            // --- sửa: chạy query trong Task.Run để không block UI ---
+            DataTable sp = await Task.Run(() =>
+            {
+                return DatabaseHelper.GetData(keyword, query, para);
+            }, ct);
+
+            ct.ThrowIfCancellationRequested();
+
+            cbxTimKiem.DroppedDown = false;
+
+            cbxTimKiem.SelectionChangeCommitted -= cbxTimKiem_SelectionChangeCommitted; // tránh trùng event
+            if (sp.Rows.Count == 0) return;
+
+            cbxTimKiem.DataSource = sp;
+            cbxTimKiem.DisplayMember = "BinNVL";
+
+            string currentText = keyword;
+
+            cbxTimKiem.DroppedDown = true;
+            cbxTimKiem.Text = currentText;
+            cbxTimKiem.SelectionStart = cbxTimKiem.Text.Length;
+            cbxTimKiem.SelectionLength = 0;
+
+            cbxTimKiem.SelectionChangeCommitted += cbxTimKiem_SelectionChangeCommitted;
         }
 
-        private void cbx_SelectionChangeCommitted(object sender, EventArgs e)
+        private void cbxTimKiem_SelectionChangeCommitted(object sender, EventArgs e)
         {
-            ////ResetController_TimLOT();
+            if (cbxTimKiem.SelectedItem == null || !(cbxTimKiem.SelectedItem is DataRowView sel))
+                return;
+
+            // Lấy DataTable đang bind với DataGridView (kể cả khi dùng BindingSource)
+            DataTable table = null;
+            BindingSource bs = dtgTTNVL.DataSource as BindingSource;
+            if (bs != null)
+                table = bs.DataSource as DataTable;
+            else
+                table = dtgTTNVL.DataSource as DataTable;
+
+            if (table == null)
+            {
+                MessageBox.Show("DataGridView chưa bind với DataTable.");
+                return;
+            }
 
 
-            ////if (cbTimLot.SelectedItem == null || !(cbTimLot.SelectedItem is DataRowView)) return;
+            // Chống trùng theo 'id'
+            string key = sel["id"] == DBNull.Value ? string.Empty : Convert.ToString(sel["id"]);
+            bool exists = table.AsEnumerable().Any(r => (r["id"] == DBNull.Value ? string.Empty : Convert.ToString(r["id"])) == key);
+            if (exists) return;
 
-            //DataRowView row = (DataRowView)cbxTimKiem.SelectedItem;
+            // Tạo dòng mới và gán giá trị
+            DataRow newRow = table.NewRow();
+            newRow["id"] = sel["id"];
+            newRow["BinNVL"] = sel["BinNVL"];
+            table.Rows.Add(newRow);
 
-            //string id = row["ID"].ToString();
+            // Chọn & cuộn đến dòng vừa thêm (tuỳ chọn)
+            int addedIndex = table.Rows.IndexOf(newRow);
+            if (addedIndex >= 0 && addedIndex < dtgTTNVL.Rows.Count)
+            {
+                dtgTTNVL.ClearSelection();
+                dtgTTNVL.Rows[addedIndex].Selected = true;
+                dtgTTNVL.FirstDisplayedScrollingRowIndex = addedIndex;
+            }
 
-            ////DataRowView dong = (DataRowView)row;
-
-            //bool isDuplicate = dtgTTNVL.Rows.Cast<DataGridViewRow>()
-            //    .Any(r => r.Cells["ID"].Value?.ToString() == id);
-
-            //if (!isDuplicate)
-            //{
-            //    int index = dtgTTNVL.Rows.Add();
-            //    DataGridViewRow newRow = dtgTTNVL.Rows[index];
-            //    newRow.Cells["ID"].Value = row["ID"];
-            //    newRow.Cells["lot"].Value = row["Lot"];
-            //    newRow.Cells["conLai"].Value = row["ConLai"];
-            //    newRow.Cells["ten"].Value = row["TenSP"];
-            //    newRow.Cells["kl"].Value = row["KL"];
-            //}
-            //else MessageBox.Show("Lô này đã được thêm vào danh sách.");
-
-            //cbxTimKiem.SelectedIndex = -1;  
-            //cbxTimKiem.Text = string.Empty; 
+            cbxTimKiem.SelectedIndex = -1;
+            cbxTimKiem.Text = string.Empty;
         }
 
-        private void label1_Click(object sender, EventArgs e)
-        {
 
-        }
 
-        private void cbxTimKiem_SelectedIndexChanged(object sender, EventArgs e)
-        {
 
-        }
+
 
 
         #region AI generated code for IFormSection
@@ -399,6 +440,5 @@ namespace DG_TonKhoBTP_v02.UI
         #endregion
     }
 
-    // Class mô tả cột
 
 }

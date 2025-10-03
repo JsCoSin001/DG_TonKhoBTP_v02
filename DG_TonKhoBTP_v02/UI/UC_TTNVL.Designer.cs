@@ -88,7 +88,6 @@
             this.cbxTimKiem.Name = "cbxTimKiem";
             this.cbxTimKiem.Size = new System.Drawing.Size(675, 28);
             this.cbxTimKiem.TabIndex = 1;
-            this.cbxTimKiem.SelectedIndexChanged += new System.EventHandler(this.cbxTimKiem_SelectedIndexChanged);
             this.cbxTimKiem.TextUpdate += new System.EventHandler(this.tbxTimKiem_TextUpdate);
             // 
             // label1
@@ -101,7 +100,6 @@
             this.label1.TabIndex = 0;
             this.label1.Text = "Tìm kiếm";
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.label1.Click += new System.EventHandler(this.label1_Click);
             // 
             // UC_TTNVL
             // 

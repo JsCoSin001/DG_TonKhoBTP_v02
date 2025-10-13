@@ -15,11 +15,18 @@ namespace DG_TonKhoBTP_v02.Dictionary
             new List<string> { "MAY01", "MAY02", "MAY03", "MAY04", "MAY05" },
             new List<ColumnDefinition>
             {
+                new ColumnDefinition { Name = "KlBatDau", DataType = typeof(double), Header = "KL bắt đầu" },
+                new ColumnDefinition { Name = "CdBatDau", DataType = typeof(double), Header = "CD bắt đầu" },
                 new ColumnDefinition { Name = "id", DataType = typeof(int), Header = "ID" },
                 new ColumnDefinition { Name = "BinNVL", DataType = typeof(string), Header = "LOT nguyên liệu"},
-                new ColumnDefinition { Name = "conLai", DataType = typeof(double), Header = "Còn lại" }
+                new ColumnDefinition { Name = "CdConLai", DataType = typeof(double), Header = "CD còn lại" },
+                new ColumnDefinition { Name = "KlConLai", DataType = typeof(double), Header = "KL còn lại" },
             }
         );
+
+
+
+
 
         public static readonly CongDoan BenRuot = new CongDoan(
             2,
@@ -27,10 +34,13 @@ namespace DG_TonKhoBTP_v02.Dictionary
             new List<string> { "Ben_1", "Ben_2", "Ben_3", "Ben_4", "Ben_5" },
             new List<ColumnDefinition>
             {
+                new ColumnDefinition { Name = "KlBatDau", DataType = typeof(double), Header = "KL bắt đầu" },
+                new ColumnDefinition { Name = "CdBatDau", DataType = typeof(double), Header = "CD bắt đầu" },
                 new ColumnDefinition { Name = "id", DataType = typeof(int), Header = "ID" },
                 new ColumnDefinition { Name = "BinNVL", DataType = typeof(string), Header = "LOT nguyên liệu" },
-                new ColumnDefinition { Name = "conLai", DataType = typeof(double), Header = "Còn lại" },
-                new ColumnDefinition { Name = "DuongKinhSoiDong", DataType = typeof(double), Header = "ĐK sợi đồng" }
+                new ColumnDefinition { Name = "CdConLai", DataType = typeof(double), Header = "CD còn lại" },
+                new ColumnDefinition { Name = "KlConLai", DataType = typeof(double), Header = "KL còn lại" },
+                new ColumnDefinition { Name = "DuongKinhSoiDong", DataType = typeof(double), Header = "ĐK sợi đồng" },
             }
         );
 
@@ -40,9 +50,12 @@ namespace DG_TonKhoBTP_v02.Dictionary
             new List<string> { "QB1", "QB2", "QB3", "QB4", "QB5" },
             new List<ColumnDefinition>
             {
+                new ColumnDefinition { Name = "KlBatDau", DataType = typeof(double), Header = "KL bắt đầu" },
+                new ColumnDefinition { Name = "CdBatDau", DataType = typeof(double), Header = "CD bắt đầu" },
                 new ColumnDefinition { Name = "id", DataType = typeof(int), Header = "ID" },
                 new ColumnDefinition { Name = "BinNVL", DataType = typeof(string), Header = "LOT nguyên liệu" },
-                new ColumnDefinition { Name = "conLai", DataType = typeof(double), Header = "Còn lại" },
+                new ColumnDefinition { Name = "CdConLai", DataType = typeof(double), Header = "CD còn lại" },
+                new ColumnDefinition { Name = "KlConLai", DataType = typeof(double), Header = "KL còn lại" },
                 new ColumnDefinition { Name = "DuongKinhSoiDong", DataType = typeof(double), Header = "ĐK sợi đồng" },
                 new ColumnDefinition { Name = "DuongKinhSoiMach", DataType = typeof(double), Header = "ĐK sợi mạch" },
                 new ColumnDefinition { Name = "BanRongBang", DataType = typeof(double), Header = "Độ rộng băng" },
@@ -56,11 +69,14 @@ namespace DG_TonKhoBTP_v02.Dictionary
             new List<string> { "BM1", "BM5", "BM4", "BM3", "BM2" },
             new List<ColumnDefinition>
             {
+                new ColumnDefinition { Name = "KlBatDau", DataType = typeof(double), Header = "KL bắt đầu" },
+                new ColumnDefinition { Name = "CdBatDau", DataType = typeof(double), Header = "CD bắt đầu" },
                 new ColumnDefinition { Name = "id", DataType = typeof(int), Header = "ID" },
                 new ColumnDefinition { Name = "BinNVL", DataType = typeof(string), Header = "LOT nguyên liệu" },
-                new ColumnDefinition { Name = "conLai", DataType = typeof(double), Header = "Còn lại" },
+                new ColumnDefinition { Name = "CdConLai", DataType = typeof(double), Header = "CD còn lại" },
+                new ColumnDefinition { Name = "KlConLai", DataType = typeof(double), Header = "KL còn lại" },
                 new ColumnDefinition { Name = "DuongKinhSoiDong", DataType = typeof(double), Header = "ĐK sợi đồng" },
-                new ColumnDefinition { Name = "SoSoi", DataType = typeof(double), Header = "Số sợi" }
+                new ColumnDefinition { Name = "SoSoi", DataType = typeof(double), Header = "Số sợi" },
             }
         );
 
@@ -70,9 +86,12 @@ namespace DG_TonKhoBTP_v02.Dictionary
             new List<string> { "BL1", "BL2" },
             new List<ColumnDefinition>
             {
+                new ColumnDefinition { Name = "KlBatDau", DataType = typeof(double), Header = "KL bắt đầu" },
+                new ColumnDefinition { Name = "CdBatDau", DataType = typeof(double), Header = "CD bắt đầu" },
                 new ColumnDefinition { Name = "id", DataType = typeof(int), Header = "ID" },
                 new ColumnDefinition { Name = "BinNVL", DataType = typeof(string), Header = "LOT nguyên liệu" },
-                new ColumnDefinition { Name = "conLai", DataType = typeof(double), Header = "Còn lại" }
+                new ColumnDefinition { Name = "CdConLai", DataType = typeof(double), Header = "CD còn lại" },
+                new ColumnDefinition { Name = "KlConLai", DataType = typeof(double), Header = "KL còn lại" },
             }
         );
 
@@ -82,10 +101,13 @@ namespace DG_TonKhoBTP_v02.Dictionary
             new List<string> { "BV1", "BV2" },
             new List<ColumnDefinition>
             {
+                new ColumnDefinition { Name = "KlBatDau", DataType = typeof(double), Header = "KL bắt đầu" },
+                new ColumnDefinition { Name = "CdBatDau", DataType = typeof(double), Header = "CD bắt đầu" },
                 new ColumnDefinition { Name = "id", DataType = typeof(int), Header = "ID" },
                 new ColumnDefinition { Name = "BinNVL", DataType = typeof(string), Header = "LOT nguyên liệu" },
-                new ColumnDefinition { Name = "conLai", DataType = typeof(double), Header = "Còn lại" },
-                new ColumnDefinition { Name = "KetCauLoi", DataType = typeof(double), Header = "Kết cấu lõi" }
+                new ColumnDefinition { Name = "CdConLai", DataType = typeof(double), Header = "CD còn lại" },
+                new ColumnDefinition { Name = "KlConLai", DataType = typeof(double), Header = "KL còn lại" },
+                new ColumnDefinition { Name = "KetCauLoi", DataType = typeof(double), Header = "Kết cấu lõi" },
             }
         );
 

@@ -11,22 +11,13 @@ namespace DG_TonKhoBTP_v02.Helper
     public static class Validator
     {
         public static bool TTCaLamViec(ThongTinCaLamViec data)
-        {
+        => !string.IsNullOrWhiteSpace(data.May)  && !string.IsNullOrWhiteSpace(data.NguoiLam);
 
-            return true;
-        }
-
-
-        public static bool TTNVL(List<TTNVL> data)
-        {
-
-            return true;
-        }
-
+        public static bool TTNVL(List<TTNVL> data) => data != null && data.Count > 0;
 
         public static bool TTThanhPham(TTThanhPham data)
         {
-
+            if (data.DanhSachSP_ID == 0 || data.MaBin == "" || (data.KhoiLuongSau == 0 && data.ChieuDaiSau == 0)) return false;
             return true;
         }
 

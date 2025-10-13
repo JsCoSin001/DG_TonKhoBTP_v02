@@ -25,7 +25,7 @@ namespace DG_TonKhoBTP_v02.UI
         {
             return new CD_BocMach
             {
-                ThongTinSP_ID = 0, // bind khi lưu DB
+                TTThanhPhan_ID = 0, // bind khi lưu DB
                 NgoaiQuan = ngoaiQuan.Text,
                 LanDanhThung = (int)lanDanhThung.Value,
                 SoMet = (double)soMet.Value

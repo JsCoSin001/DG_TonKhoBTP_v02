@@ -44,18 +44,17 @@ namespace DG_TonKhoBTP_v02.UI
             //Tuỳ chọn: Lưu tạm
             DG_TonKhoBTP_v02.Core.StateStore.CurrentSnapshot = snap;
 
-            #region Xử lý lưu trữ snapshot - Thông tin cam việc
-            // Kiểm tra tính hợp lệ của thongTinCaLamViec
+            #region Kiểm tra tính hợp lệ của thongTinCaLamViec
             ThongTinCaLamViec thongTinCaLamViec = (ThongTinCaLamViec) snap.Sections["UC_TTCaLamViec"];
 
-            if (!Validator.TTCaLamViec(thongTinCaLamViec)) {
-                MessageBox.Show("Thông tin ở ca làm việc đang thiếu dữ liệu", "THÔNG BÁO",MessageBoxButtons.OK,MessageBoxIcon.Error);
+            if (!Validator.TTCaLamViec(thongTinCaLamViec))
+            {
+                MessageBox.Show("Thông tin ở ca làm việc đang thiếu dữ liệu", "THÔNG BÁO", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
             #endregion
 
-            #region Xử lý lưu trữ snapshot - Thông tin nguyên liệu
-            // Kiểm tra tính hợp lệ của tthongTinNVL
+            #region Kiểm tra tính hợp lệ dữ liệu của uc NVL
             var list_TTNVL = snap.Sections["UC_TTNVL"] as List<TTNVL>;
 
             if (!Validator.TTNVL(list_TTNVL))
@@ -65,18 +64,17 @@ namespace DG_TonKhoBTP_v02.UI
             }
             #endregion
 
-            #region Xử lý lưu trữ snapshot - Thông tin thành phẩm
-            // Kiểm tra tính hợp lệ của tthongTinNVL
+            #region Kiểm tra tính hợp lệ của dữ liệu thành phẩm công đoạn
             TTThanhPham thongTinThanhPham = (TTThanhPham) snap.Sections["UC_TTThanhPham"];
 
             if (!Validator.TTThanhPham(thongTinThanhPham))
             {
-                MessageBox.Show("Thông tin TP CÔNG ĐOẠN chưa hợp lệ", "THÔNG BÁO", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Thiếu THÔNG TIN TP của CÔNG ĐOẠN", "THÔNG BÁO", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
             #endregion
 
-            #region Xử lý lưu trữ snapshot - Thông tin cài đặt công đoạn bọc
+            #region Kiểm tra tính hợp lệ dữ liệu của chi tiết các công đoạn
             List<object> chiTietCD = Validator.KiemTraChiTietCongDoan(snap);
 
             if (chiTietCD[0] == null)
@@ -86,19 +84,19 @@ namespace DG_TonKhoBTP_v02.UI
             }
             #endregion
 
-            // Lưu dữ liệu
+            #region Lưu và thông báo trạng thái lưu
             bool isSaved = DatabaseHelper.SaveDataSanPham(thongTinCaLamViec, thongTinThanhPham, list_TTNVL, chiTietCD);
 
             if(isSaved)
             {
                 MessageBox.Show("Lưu dữ liệu thành công", "THÔNG BÁO", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                ControlCleaner.ClearAll(host);
             }
             else
             {
                 MessageBox.Show("Lưu dữ liệu thất bại", "THÔNG BÁO", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-
-
+            #endregion
 
         }
 

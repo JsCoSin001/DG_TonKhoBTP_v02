@@ -18,9 +18,14 @@ namespace DG_TonKhoBTP_v02.UI
     public partial class UC_TTThanhPham : UserControl, IFormSection
     {
         private CancellationTokenSource _searchCts;
-        public UC_TTThanhPham()
+
+        public string CongDoan { get; set; }
+        public void SetTenCongDoan(string value) => CongDoan = value;
+
+        public UC_TTThanhPham(string tenCD)
         {
             InitializeComponent();
+            SetTenCongDoan(tenCD);
         }
 
         public void ChonMay(string value)
@@ -56,13 +61,13 @@ namespace DG_TonKhoBTP_v02.UI
             return new TTThanhPham
             {
                  
-                DanhSachSP_ID = 0,
+                DanhSachSP_ID = int.Parse(id.Text),
                 ThongTinCaLamViec_ID = 0,
-
+                CongDoan = CongDoan,
                 MaBin = maBin?.Text ?? string.Empty,
-                KhoiLuongTruoc = 0, // nếu không có input, để 0
+                KhoiLuongTruoc = (double)khoiLuong.Value, // Tạo mới đặt KL trước = kl sau
                 KhoiLuongSau = (double)khoiLuong.Value,
-                ChieuDaiTruoc = 0, // nếu không có input, để 0
+                ChieuDaiTruoc = (double)chieuDai.Value, // Tạo mới đặt CD trước = CD sau
                 ChieuDaiSau = (double)chieuDai.Value,
                 Phe = (double)phe.Value,
                 GhiChu = GhiChu?.Text ?? string.Empty,

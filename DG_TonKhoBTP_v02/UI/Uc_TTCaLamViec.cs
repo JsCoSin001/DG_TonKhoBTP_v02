@@ -31,7 +31,7 @@ namespace DG_TonKhoBTP_v02.UI
         {
             _URL = url;
 
-            lblTieuDe.Text = tieuDe;
+            lblTieuDe.Text = ("báo cáo công đoạn " + tieuDe).ToUpper();
 
             cbMay.Items.Clear();
             cbMay.Items.AddRange(dsMay.ToArray());

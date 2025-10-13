@@ -26,7 +26,7 @@ namespace DG_TonKhoBTP_v02.UI
         {
             return new CD_KeoRut
             {
-                ThongTinSP_ID = 0, // bind FK khi lưu DB
+                TTThanhPhan_ID = 0, // bind FK khi lưu DB
                 DKTrucX = (double)dkTrucX.Value,
                 DKTrucY = (double)dkTrucY.Value,
                 NgoaiQuan = ngoaiQuan.Text,

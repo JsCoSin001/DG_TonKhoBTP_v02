@@ -22,6 +22,11 @@ namespace DG_TonKhoBTP_v02.UI
     public partial class UC_TTNVL : UserControl, IFormSection
     {
         private CancellationTokenSource _searchCts;
+
+        // Nếu true thì tìm Cu phi 8...
+        public bool RawMaterial { get; set; } = false;
+        public void SetStatusRawMaterial(bool value) => RawMaterial = value;
+
         public UC_TTNVL(List<ColumnDefinition> columns)
         {
             InitializeComponent();
@@ -93,6 +98,8 @@ namespace DG_TonKhoBTP_v02.UI
             int defaultWidth = 105;
             int defaulHeight = 40;
 
+            // Sẽ thay đổi nội dung này sau
+            bool isShow = true;
 
             if (headers.Length > 5)
             {
@@ -108,13 +115,19 @@ namespace DG_TonKhoBTP_v02.UI
             {
                 dgv.Columns[i].HeaderText = headers[i];
                 dgv.Columns[i].Width = defaultWidth;
-            }           
+            }
 
-            dgv.Columns[0].Width = 40;
-            dgv.Columns[0].ReadOnly = true;
+            dgv.Columns[0].Width = 80;
+            dgv.Columns[0].Visible = isShow;
 
-            dgv.Columns[1].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            dgv.Columns[1].ReadOnly = true;
+            dgv.Columns[1].Width = 80;
+            dgv.Columns[1].Visible = isShow;
+            
+            dgv.Columns[2].Width = 80;
+            dgv.Columns[2].Visible = isShow;
+
+            dgv.Columns[3].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            dgv.Columns[3].ReadOnly = true;
 
             dgv.EnableHeadersVisualStyles = false;
             dgv.ColumnHeadersDefaultCellStyle.Font = new System.Drawing.Font("Microsoft Sans Serif", 11, FontStyle.Regular);
@@ -204,23 +217,16 @@ namespace DG_TonKhoBTP_v02.UI
                 return;
             }
             string para = "ten";
+            string query;
 
-            string query = @"
-                SELECT
-                    t.id                         AS id,
-                    t.MaBin as BinNVL
-                FROM TTThanhPham AS t
-                JOIN DanhSachMaSP AS d
-                    ON d.id = t.DanhSachSP_ID
-                WHERE
-                (
-                  (d.DonVi = 0 AND t.KhoiLuongSau <> 0)
-                  OR
-                  (d.DonVi = 1 AND t.ChieuDaiSau  <> 0)
-                )
-                AND t.MaBin LIKE '%' || @para || '%';
-            ";
-
+            if (RawMaterial)
+            {
+                query = Helper.Helper.TaoSQL_LayDLNVL_TTThanhPham();
+            }
+            else
+            {
+                query = Helper.Helper.TaoSQL_LayDLTTThanhPham();
+            }
 
             // --- sửa: chạy query trong Task.Run để không block UI ---
             DataTable sp = await Task.Run(() =>
@@ -275,6 +281,8 @@ namespace DG_TonKhoBTP_v02.UI
 
             // Tạo dòng mới và gán giá trị
             DataRow newRow = table.NewRow();
+            newRow["KlBatDau"] = sel["KlBatDau"];
+            newRow["CdBatDau"] = sel["CdBatDau"];
             newRow["id"] = sel["id"];
             newRow["BinNVL"] = sel["BinNVL"];
             table.Rows.Add(newRow);
@@ -292,12 +300,6 @@ namespace DG_TonKhoBTP_v02.UI
             cbxTimKiem.Text = string.Empty;
         }
 
-
-
-
-
-
-
         #region AI generated code for IFormSection
 
         public string SectionName => nameof(UC_TTNVL);
@@ -314,7 +316,7 @@ namespace DG_TonKhoBTP_v02.UI
                 if (row.IsNewRow) continue;
 
                 var item = new TTNVL();
-                MapRowToObject(row, item);
+                Helper.Helper.MapRowToObject(row, item);
                 list.Add(item);
             }
 
@@ -333,110 +335,6 @@ namespace DG_TonKhoBTP_v02.UI
                 //cbxTimKiem.Text = string.Empty;
             }
         }
-
-        // ===== Helpers =====
-
-        private static void EnsureColumnsFromModel<T>(DataGridView grid)
-        {
-            var props = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);
-            var existing = new HashSet<string>(grid.Columns
-                                                  .Cast<DataGridViewColumn>()
-                                                  .Select(c => c.Name),
-                                               StringComparer.OrdinalIgnoreCase);
-
-            foreach (var p in props)
-            {
-                if (!existing.Contains(p.Name))
-                {
-                    // Thêm cột động (text/number) đơn giản
-                    var col = new DataGridViewTextBoxColumn
-                    {
-                        Name = p.Name,
-                        HeaderText = p.Name
-                    };
-                    grid.Columns.Add(col);
-                }
-            }
-        }
-
-        private static void MapRowToObject<T>(DataGridViewRow row, T target)
-        {
-            var props = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);
-
-            foreach (var p in props)
-            {
-                if (!row.DataGridView.Columns.Contains(p.Name))
-                    continue;
-
-                var raw = row.Cells[p.Name]?.Value;
-
-                try
-                {
-                    object value = null;
-
-                    if (p.PropertyType == typeof(string))
-                    {
-                        value = raw?.ToString() ?? string.Empty;
-                    }
-                    else if (IsNumeric(p.PropertyType))
-                    {
-                        // Ô trống => 0
-                        var s = raw?.ToString();
-                        if (string.IsNullOrWhiteSpace(s))
-                        {
-                            value = ConvertToNumericDefaultZero(p.PropertyType);
-                        }
-                        else
-                        {
-                            value = Convert.ChangeType(s, Nullable.GetUnderlyingType(p.PropertyType) ?? p.PropertyType);
-                        }
-                    }
-                    else
-                    {
-                        // Kiểu khác (int?, double?, …)
-                        var underlying = Nullable.GetUnderlyingType(p.PropertyType) ?? p.PropertyType;
-                        if (raw == null || string.IsNullOrWhiteSpace(raw.ToString()))
-                        {
-                            value = underlying.IsValueType ? Activator.CreateInstance(underlying) : null;
-                        }
-                        else
-                        {
-                            value = Convert.ChangeType(raw, underlying);
-                        }
-                    }
-
-                    p.SetValue(target, value);
-                }
-                catch
-                {
-                    // Nếu chuyển kiểu lỗi -> gán 0 cho numeric, "" cho string
-                    if (p.PropertyType == typeof(string))
-                        p.SetValue(target, string.Empty);
-                    else if (IsNumeric(p.PropertyType))
-                        p.SetValue(target, ConvertToNumericDefaultZero(p.PropertyType));
-                }
-            }
-        }
-
-        private static bool IsNumeric(Type t)
-        {
-            t = Nullable.GetUnderlyingType(t) ?? t;
-            return t == typeof(int) || t == typeof(long) || t == typeof(short) ||
-                   t == typeof(double) || t == typeof(float) || t == typeof(decimal);
-        }
-
-        private static object ConvertToNumericDefaultZero(Type t)
-        {
-            t = Nullable.GetUnderlyingType(t) ?? t;
-            if (t == typeof(int)) return 0;
-            if (t == typeof(long)) return 0L;
-            if (t == typeof(short)) return (short)0;
-            if (t == typeof(double)) return 0.0d;
-            if (t == typeof(float)) return 0.0f;
-            if (t == typeof(decimal)) return 0.0m;
-            return 0;
-        }
-
         #endregion
     }
 

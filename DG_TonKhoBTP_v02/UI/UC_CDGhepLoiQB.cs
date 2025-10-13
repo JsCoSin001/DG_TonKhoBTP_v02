@@ -26,7 +26,7 @@ namespace DG_TonKhoBTP_v02.UI
         {
             return new CD_GhepLoiQB
             {
-                ThongTinSP_ID = 0,
+                TTThanhPhan_ID = 0,
                 BuocXoan = (double)buocXoan.Value,
                 ChieuXoan = chieuXoan?.Text,
                 GoiCachMep = (double)goiCachMep.Value,

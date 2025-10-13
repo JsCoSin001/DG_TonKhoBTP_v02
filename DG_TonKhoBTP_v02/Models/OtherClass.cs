@@ -23,7 +23,7 @@ namespace DG_TonKhoBTP_v02.Models
         public CongDoan(int id,string tenCongDoan, List<string> danhSachMay, List<ColumnDefinition> columns)
         {
             this.Id = id;
-            TenCongDoan = ("BÁO CÁO CÔNG ĐOẠN " + tenCongDoan).ToUpper();            
+            TenCongDoan = tenCongDoan.ToUpper();            
             DanhSachMay = new List<string>(danhSachMay);
             Columns = new List<ColumnDefinition>(columns);
         }

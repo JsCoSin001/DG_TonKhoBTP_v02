@@ -29,7 +29,7 @@ namespace DG_TonKhoBTP_v02.UI
         {
             return new CD_BocLot
             {
-                ThongTinSP_ID = 0,
+                TTThanhPhan_ID = 0,
                 DoDayTBLot = (double)doDayTBLot.Value
             };
         }

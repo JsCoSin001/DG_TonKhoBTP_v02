@@ -25,7 +25,7 @@ namespace DG_TonKhoBTP_v02.UI
         {
             return new CD_BenRuot
             {
-                ThongTinSP_ID = 0,
+                TTThanhPhan_ID = 0,
                 DKSoi = (double)dkSoi.Value,
                 SoSoi = (int)soSoi.Value,
                 ChieuXoan = ChieuXoan.Text,

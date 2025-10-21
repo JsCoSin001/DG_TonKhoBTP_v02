@@ -32,13 +32,13 @@
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.panel1 = new System.Windows.Forms.Panel();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
+            this.label20 = new System.Windows.Forms.Label();
             this.label10 = new System.Windows.Forms.Label();
             this.label12 = new System.Windows.Forms.Label();
             this.label14 = new System.Windows.Forms.Label();
             this.khoiLuong = new System.Windows.Forms.NumericUpDown();
             this.phe = new System.Windows.Forms.NumericUpDown();
             this.chieuDai = new System.Windows.Forms.NumericUpDown();
-            this.label15 = new System.Windows.Forms.Label();
             this.GhiChu = new System.Windows.Forms.RichTextBox();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.label13 = new System.Windows.Forms.Label();
@@ -109,22 +109,23 @@
             // 
             // tableLayoutPanel2
             // 
-            this.tableLayoutPanel2.ColumnCount = 7;
+            this.tableLayoutPanel2.ColumnCount = 8;
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 90F));
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 90F));
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 90F));
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel2.Controls.Add(this.label20, 6, 0);
             this.tableLayoutPanel2.Controls.Add(this.label10, 4, 0);
             this.tableLayoutPanel2.Controls.Add(this.label12, 2, 0);
             this.tableLayoutPanel2.Controls.Add(this.label14, 0, 0);
             this.tableLayoutPanel2.Controls.Add(this.khoiLuong, 0, 1);
             this.tableLayoutPanel2.Controls.Add(this.phe, 4, 1);
             this.tableLayoutPanel2.Controls.Add(this.chieuDai, 2, 1);
-            this.tableLayoutPanel2.Controls.Add(this.label15, 6, 0);
-            this.tableLayoutPanel2.Controls.Add(this.GhiChu, 6, 1);
+            this.tableLayoutPanel2.Controls.Add(this.GhiChu, 7, 0);
             this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel2.Location = new System.Drawing.Point(828, 0);
             this.tableLayoutPanel2.Name = "tableLayoutPanel2";
@@ -133,6 +134,18 @@
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel2.Size = new System.Drawing.Size(646, 49);
             this.tableLayoutPanel2.TabIndex = 1;
+            // 
+            // label20
+            // 
+            this.label20.AutoSize = true;
+            this.label20.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.label20.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label20.Location = new System.Drawing.Point(333, 0);
+            this.label20.Name = "label20";
+            this.label20.Size = new System.Drawing.Size(59, 20);
+            this.label20.TabIndex = 36;
+            this.label20.Text = "Ghi chú";
+            this.label20.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
             // 
             // label10
             // 
@@ -208,23 +221,14 @@
             this.chieuDai.Size = new System.Drawing.Size(84, 26);
             this.chieuDai.TabIndex = 30;
             // 
-            // label15
-            // 
-            this.label15.AutoSize = true;
-            this.label15.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label15.Location = new System.Drawing.Point(333, 0);
-            this.label15.Name = "label15";
-            this.label15.Size = new System.Drawing.Size(59, 18);
-            this.label15.TabIndex = 31;
-            this.label15.Text = "Ghi chú";
-            this.label15.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
-            // 
             // GhiChu
             // 
             this.GhiChu.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.GhiChu.Location = new System.Drawing.Point(333, 23);
+            this.GhiChu.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.GhiChu.Location = new System.Drawing.Point(398, 3);
             this.GhiChu.Name = "GhiChu";
-            this.GhiChu.Size = new System.Drawing.Size(310, 23);
+            this.tableLayoutPanel2.SetRowSpan(this.GhiChu, 2);
+            this.GhiChu.Size = new System.Drawing.Size(245, 43);
             this.GhiChu.TabIndex = 32;
             this.GhiChu.Text = "";
             // 
@@ -362,7 +366,7 @@
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(14, 29);
             this.label6.TabIndex = 18;
-            this.label6.Text = "-";
+            this.label6.Text = "/";
             this.label6.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // sttCongDoan
@@ -394,7 +398,7 @@
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(14, 29);
             this.label7.TabIndex = 16;
-            this.label7.Text = "/";
+            this.label7.Text = "-";
             this.label7.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // sttLo
@@ -648,7 +652,6 @@
         private System.Windows.Forms.Label label17;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.ComboBox timNVL;
-        private System.Windows.Forms.Label label15;
         private System.Windows.Forms.RichTextBox GhiChu;
         private System.Windows.Forms.Label label21;
         private System.Windows.Forms.ComboBox may;
@@ -657,5 +660,6 @@
         private System.Windows.Forms.TextBox id;
         private System.Windows.Forms.TextBox maBin;
         private System.Windows.Forms.Timer timer1;
+        private System.Windows.Forms.Label label20;
     }
 }

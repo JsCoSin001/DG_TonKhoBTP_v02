@@ -1,5 +1,6 @@
 ﻿
 using DG_TonKhoBTP_v02.Core;
+using DG_TonKhoBTP_v02.Models;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -20,6 +21,7 @@ namespace DG_TonKhoBTP_v02.Database
             _connStr = $"Data Source={path};Version=3;";
         }
 
+        #region Lấy dữ liệu
         public static DataTable GetData(string key, string query, string para)
         {
             using (SQLiteConnection conn = new SQLiteConnection(_connStr))
@@ -40,8 +42,72 @@ namespace DG_TonKhoBTP_v02.Database
                 }
             }
         }
+        public static DataTable GetDataByMonth(DateTime selectedDate, CongDoan cd)
+        {
 
-        public static bool SaveDataSanPham( ThongTinCaLamViec caLam, TTThanhPham tp, List<TTNVL> nvl , List<object> chiTietCD)
+            // Lấy dữ liệu nvl theo công đoạn
+            string sqlTenNVL = "";
+            List<ColumnDefinition> clms = cd.Columns;
+            // duyệt columns
+            foreach (var name in clms) sqlTenNVL += ", nvl." + name.Name;
+            // Loại bỏ các thông tin thừa
+            sqlTenNVL = sqlTenNVL.Replace("nvl.id,", "").Trim().Substring(2);
+
+            // Lấy thông tin chi tiết công đoạn
+            string sqlLayChiTietCD = Helper.Helper.TaoSQL_LayChiTietCongDoan(cd.Id);            
+
+            // Tạo select
+            string query = Helper.Helper.TaoSqL_LayThongTinChung();
+
+            query = query + sqlLayChiTietCD + sqlTenNVL;
+
+            // Tạo kết nối
+            query += Helper.Helper.TaoSQL_TaoKetNoiCacBang();
+
+            // Tạo điều kiện lọc
+            query += " WHERE strftime('%Y-%m', tclv.Ngay) = strftime('%Y-%m', @para) ";
+
+            // Thêm điều kiện
+            query += " AND ttp.CongDoan = " + cd.Id;
+
+            // Sắp xếp
+            query += " ORDER BY tclv.Ngay DESC, ttp.id DESC;";
+
+            // Gọi lại hàm GetData chung bạn đã có
+            return GetData(selectedDate.ToString("yyyy-MM-dd"), query, "para");
+        }
+        #endregion
+
+        #region Update dữ liệu
+        private static void UpdateKL_CD_TTThanhPham(SQLiteConnection conn, SQLiteTransaction tx, List<TTNVL> nvlList, long thongTinSpId)
+        {
+            const string sql = @"
+                UPDATE TTThanhPham
+                SET KhoiLuongSau = @KhoiLuongSau,
+                    ChieuDaiSau = @ChieuDaiSau,
+                    LastEdit_ID = @LastEdit_ID
+                WHERE MaBin = @MaBin;";
+
+            using var cmd = new SQLiteCommand(sql, conn, tx);
+            cmd.Parameters.Add("@KhoiLuongSau", System.Data.DbType.Double);
+            cmd.Parameters.Add("@ChieuDaiSau", System.Data.DbType.Double);
+            cmd.Parameters.Add("@LastEdit_ID", System.Data.DbType.Int64);
+            cmd.Parameters.Add("@MaBin", System.Data.DbType.String);
+
+            foreach (var nvl in nvlList)
+            {
+                cmd.Parameters["@KhoiLuongSau"].Value = nvl.KlConLai;
+                cmd.Parameters["@ChieuDaiSau"].Value = nvl.CdConLai;
+                cmd.Parameters["@LastEdit_ID"].Value = thongTinSpId;
+                cmd.Parameters["@MaBin"].Value = nvl.BinNVL;
+
+                cmd.ExecuteNonQuery(); 
+            }
+        }
+        #endregion
+
+        #region Insert dữ liệu các công đoạn
+        public static bool SaveDataSanPham(ThongTinCaLamViec caLam, TTThanhPham tp, List<TTNVL> nvl, List<object> chiTietCD)
         {
             using var conn = new SQLiteConnection(_connStr);
             conn.Open();
@@ -60,8 +126,8 @@ namespace DG_TonKhoBTP_v02.Database
                 // 3) TTNVL -> Tạo mới
                 InsertTTNVL(conn, tx, tpId, nvl);
 
-                // 3.1) Update Khối lượng sau, Chiều dài sau ở TTThanhPham => xem lại
-                UpdateKL_CD_TTThanhPham(conn, tx, nvl);
+                // 3.1) Update Khối lượng sau, Chiều dài sau và thêm ID được update ở TTThanhPham 
+                UpdateKL_CD_TTThanhPham(conn, tx, nvl, tpId);
 
                 // 4) CaiDatCDBoc
                 if (caiDat != null) InsertCaiDatCDBoc(conn, tx, tpId, caiDat);
@@ -105,75 +171,12 @@ namespace DG_TonKhoBTP_v02.Database
                 tx.Rollback();
                 return false;
             }
-        }
-
-
-        #region Update dữ liệu
-        private static void UpdateKL_CD_TTThanhPham(SQLiteConnection conn, SQLiteTransaction tx, List<TTNVL> nvlList)
-        {
-            const string sql = @"
-                UPDATE TTThanhPham
-                SET KhoiLuongSau = @KhoiLuongSau,
-                    ChieuDaiSau = @ChieuDaiSau
-                WHERE MaBin = @MaBin;";
-
-            using var cmd = new SQLiteCommand(sql, conn, tx);
-            cmd.Parameters.Add("@KhoiLuongSau", System.Data.DbType.Double);
-            cmd.Parameters.Add("@ChieuDaiSau", System.Data.DbType.Double);
-            cmd.Parameters.Add("@MaBin", System.Data.DbType.String);
-
-            foreach (var nvl in nvlList)
+            finally
             {
-                cmd.Parameters["@KhoiLuongSau"].Value = nvl.KlConLai;
-                cmd.Parameters["@ChieuDaiSau"].Value = nvl.CdConLai;
-                cmd.Parameters["@MaBin"].Value = nvl.BinNVL;
 
-                cmd.ExecuteNonQuery(); // nếu MaBin không tồn tại thì không ảnh hưởng gì
             }
         }
 
-        public static void CapNhatTTThanhPham(
-            SQLiteConnection conn, SQLiteTransaction tx,
-            string bin, int id_bin, double cdSau, double klSau)
-        {
-            string sql = @"
-                UPDATE TTThanhPham
-                SET 
-                    ChieuDaiSau = @cdSau,
-                    KhoiLuongSau = @klSau
-                WHERE id = (
-                    SELECT TTThanhPham_ID 
-                    FROM TTNVL 
-                    WHERE BinNVL = @bin 
-                    ORDER BY id DESC 
-                    LIMIT 1
-                )
-                AND (
-                    SELECT id 
-                    FROM TTNVL 
-                    WHERE BinNVL = @bin 
-                    ORDER BY id DESC 
-                    LIMIT 1
-                ) = @id_bin;
-            ";
-
-            using (var cmd = new SQLiteCommand(sql, conn, tx))
-            {
-                cmd.Parameters.AddWithValue("@cdSau", cdSau);
-                cmd.Parameters.AddWithValue("@klSau", klSau);
-                cmd.Parameters.AddWithValue("@bin", bin);
-                cmd.Parameters.AddWithValue("@id_bin", id_bin);
-
-                int rows = cmd.ExecuteNonQuery();
-
-                Console.WriteLine(rows > 0
-                    ? "✅ Đã cập nhật TTThanhPham thành công."
-                    : "⚠️ Không có bản ghi nào được cập nhật (id_bin không trùng hoặc bin không tồn tại).");
-            }
-        }
-        #endregion
-
-        #region Insert dữ liệu các công đoạn
         private static long InsertThongTinCaLamViec(SQLiteConnection conn, SQLiteTransaction tx, ThongTinCaLamViec m)
         {
             const string sql = @"
@@ -207,7 +210,7 @@ namespace DG_TonKhoBTP_v02.Database
             cmd.Parameters.AddWithValue("@ChieuDaiTruoc", m.ChieuDaiTruoc);
             cmd.Parameters.AddWithValue("@ChieuDaiSau", m.ChieuDaiSau);
             cmd.Parameters.AddWithValue("@Phe", m.Phe);
-            cmd.Parameters.AddWithValue("@CongDoan", m.CongDoan);
+            cmd.Parameters.AddWithValue("@CongDoan", m.CongDoan.Id);
             cmd.Parameters.AddWithValue("@GhiChu", (object?)m.GhiChu ?? DBNull.Value);
             cmd.Parameters.AddWithValue("@DateInsert", (object?)m.DateInsert ?? DBNull.Value);
             return (long)(cmd.ExecuteScalar() ?? 0L);

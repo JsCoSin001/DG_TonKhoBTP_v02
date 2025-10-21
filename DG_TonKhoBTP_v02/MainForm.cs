@@ -75,7 +75,7 @@ namespace DG_TonKhoBTP_v02
                 new UC_CDKeoRut()
             );            
 
-            Panel pnBottom = UI_BottomPanel(columns, ucSanPham, rawMaterial: true);
+            Panel pnBottom = UI_BottomPanel(columns, ucSanPham, thongTinCD, rawMaterial: true);
 
             this.ShowUI(thongTinCD, pnBottom);
         }
@@ -91,7 +91,7 @@ namespace DG_TonKhoBTP_v02
                 new UC_CDBenRuot()
             );
 
-            Panel pnBottom = UI_BottomPanel(columns, ucSanPham);
+            Panel pnBottom = UI_BottomPanel(columns, ucSanPham, thongTinCD);
 
             this.ShowUI(thongTinCD, pnBottom);
         }
@@ -106,7 +106,7 @@ namespace DG_TonKhoBTP_v02
                 new UC_CDGhepLoiQB()
             );
 
-            Panel pnBottom = UI_BottomPanel(columns, ucSanPham);
+            Panel pnBottom = UI_BottomPanel(columns, ucSanPham, thongTinCD);
 
             this.ShowUI(thongTinCD, pnBottom);
         }
@@ -123,13 +123,10 @@ namespace DG_TonKhoBTP_v02
                 new UC_CaiDatMay()
             );
 
-            Panel pnBottom = UI_BottomPanel(columns, ucSanPham);
+            Panel pnBottom = UI_BottomPanel(columns, ucSanPham, thongTinCD);
 
             this.ShowUI(thongTinCD, pnBottom);
-
-
-            // Log cấu trúc control sau khi ShowUI
-            LogControlsTree(pnShow, s => Console.WriteLine(s));
+            
         }
 
         private void btnBocMach_Click(object sender, EventArgs e)
@@ -144,7 +141,7 @@ namespace DG_TonKhoBTP_v02
                 new UC_CaiDatMay()
             );
 
-            Panel pnBottom = UI_BottomPanel(columns, ucSanPham);
+            Panel pnBottom = UI_BottomPanel(columns, ucSanPham, thongTinCD);
 
             this.ShowUI(thongTinCD, pnBottom);
         }
@@ -161,7 +158,7 @@ namespace DG_TonKhoBTP_v02
                 new UC_CaiDatMay()
             );
 
-            Panel pnBottom = UI_BottomPanel(columns, ucSanPham);
+            Panel pnBottom = UI_BottomPanel(columns, ucSanPham, thongTinCD);
 
             this.ShowUI(thongTinCD, pnBottom);
         }
@@ -177,7 +174,7 @@ namespace DG_TonKhoBTP_v02
             UC_TTCaLamViec uc_caLamViec = new UC_TTCaLamViec(cd.DanhSachMay, _URL, cd.TenCongDoan);
             uc_caLamViec.Dock = DockStyle.Top;
 
-            UC_TTThanhPham uc_TTThanhPham = new UC_TTThanhPham(cd.TenCongDoan);
+            UC_TTThanhPham uc_TTThanhPham = new UC_TTThanhPham(cd);
             uc_TTThanhPham.Dock = DockStyle.Top;
 
             uc_caLamViec.Event_ChonMay += (value) => uc_TTThanhPham.ChonMay(value); ;
@@ -188,7 +185,7 @@ namespace DG_TonKhoBTP_v02
             return pnTop;
         }
 
-        private Panel UI_BottomPanel(List<ColumnDefinition> columns, Control productInfoControl, bool rawMaterial = false)
+        private Panel UI_BottomPanel(List<ColumnDefinition> columns, Control productInfoControl, CongDoan cd, bool rawMaterial = false)
         {
             Panel pnBottom = new Panel();
             pnBottom.Dock = DockStyle.Fill;
@@ -201,7 +198,7 @@ namespace DG_TonKhoBTP_v02
 
             // pn Bottom - Right
             #region Tạo UI panel ở dưới - bên phải - Đặt full kích thước
-            Panel pnRight = UI_BottomRightPanel(productInfoControl);
+            Panel pnRight = UI_BottomRightPanel(productInfoControl,cd);
             #endregion
 
             pnBottom.Controls.Add(pnRight);
@@ -210,7 +207,7 @@ namespace DG_TonKhoBTP_v02
             return pnBottom;
         }
 
-        private Panel UI_BottomRightPanel(Control productInfoControl)
+        private Panel UI_BottomRightPanel(Control productInfoControl, CongDoan cd)
         {
             var pnRight = new Panel { Dock = DockStyle.Fill };
 
@@ -220,7 +217,7 @@ namespace DG_TonKhoBTP_v02
             var uC_SubmitForm = new UC_SubmitForm { Dock = DockStyle.Top };
 
             // Edit/Report
-            Panel pnEdit_Report = UI_Edit_Report();
+            Panel pnEdit_Report = UI_Edit_Report(cd);
 
             pnRight.Controls.Add(pnEdit_Report);
             pnRight.Controls.Add(uC_SubmitForm);
@@ -229,7 +226,7 @@ namespace DG_TonKhoBTP_v02
             return pnRight;
         }
 
-        private Panel UI_Edit_Report()
+        private Panel UI_Edit_Report(CongDoan cd)
         {
             Panel pnEdit_Report = new Panel();
             // Đặt pnEdit_Report lên Top
@@ -241,7 +238,7 @@ namespace DG_TonKhoBTP_v02
             uC_Edit.Dock = DockStyle.Left;
             uC_Edit.Width = 500;
 
-            UC_Report uC_Report = new UC_Report();
+            UC_Report uC_Report = new UC_Report(cd);
             // Đặt Form báo cáo toàn panel pnEdit_Report
             uC_Report.Dock = DockStyle.Fill;
 
@@ -276,5 +273,10 @@ namespace DG_TonKhoBTP_v02
         }
         #endregion
 
+        private void button1_Click(object sender, EventArgs e)
+        {
+            // Log cấu trúc control sau khi ShowUI
+            LogControlsTree(pnShow, s => Console.WriteLine(s));
+        }
     }
 }

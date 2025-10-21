@@ -24,10 +24,6 @@ namespace DG_TonKhoBTP_v02.Dictionary
             }
         );
 
-
-
-
-
         public static readonly CongDoan BenRuot = new CongDoan(
             2,
             "bện ruột dẫn",

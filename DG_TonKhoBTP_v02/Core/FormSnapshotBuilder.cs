@@ -19,9 +19,17 @@ namespace DG_TonKhoBTP_v02.Core
 
             foreach (var section in EnumerateSections(hostForm))
             {
-                var data = section.GetData(); // Mỗi UC tự chịu trách nhiệm map UI -> DTO
-                // Tên section duy nhất, ví dụ: "UC_TTNVL", "UC_CaiDatMay", ...
-                snap.Sections[section.SectionName] = data;
+                try
+                {
+                    var data = section.GetData(); 
+                                                 
+                    snap.Sections[section.SectionName] = data;
+                }
+                catch
+                {
+                   MessageBox.Show($"Dữ liệu không hợp lệ", "LỖI", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                   System.Console.WriteLine($"Lỗi khi thu thập dữ liệu từ section: {section.SectionName}");
+                }                
             }
 
             return snap;

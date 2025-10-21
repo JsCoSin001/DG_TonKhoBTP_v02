@@ -1,7 +1,8 @@
 ﻿using DG_TonKhoBTP_v02.Core;
 using DG_TonKhoBTP_v02.Database;
 using DG_TonKhoBTP_v02.Dictionary;
-using DG_TonKhoBTP_v02.Helper; 
+using DG_TonKhoBTP_v02.Helper;
+using DG_TonKhoBTP_v02.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -19,13 +20,15 @@ namespace DG_TonKhoBTP_v02.UI
     {
         private CancellationTokenSource _searchCts;
 
-        public string CongDoan { get; set; }
-        public void SetTenCongDoan(string value) => CongDoan = value;
+        public string tenCongDoan { get; set; }
+        public CongDoan congDoan;
+        public void SetTenCongDoan(string value) => tenCongDoan = value;
 
-        public UC_TTThanhPham(string tenCD)
+        public UC_TTThanhPham(CongDoan cd)
         {
             InitializeComponent();
-            SetTenCongDoan(tenCD);
+            SetTenCongDoan(cd.TenCongDoan);
+            congDoan = cd;
         }
 
         public void ChonMay(string value)
@@ -63,7 +66,7 @@ namespace DG_TonKhoBTP_v02.UI
                  
                 DanhSachSP_ID = int.Parse(id.Text),
                 ThongTinCaLamViec_ID = 0,
-                CongDoan = CongDoan,
+                CongDoan = congDoan,
                 MaBin = maBin?.Text ?? string.Empty,
                 KhoiLuongTruoc = (double)khoiLuong.Value, // Tạo mới đặt KL trước = kl sau
                 KhoiLuongSau = (double)khoiLuong.Value,

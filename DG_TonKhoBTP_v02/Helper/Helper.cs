@@ -76,7 +76,11 @@ namespace DG_TonKhoBTP_v02.Helper
             
         }
 
+        public static string TaoKhoangTrong(int tongKhoangTrong, string noiDung)
+        {
+            return new string(' ', tongKhoangTrong - noiDung.Length);
 
+        }
         public static string GetNgayHienTai()
         {
             DateTime now = DateTime.Now;
@@ -86,6 +90,65 @@ namespace DG_TonKhoBTP_v02.Helper
 
             return ngayHienTai.ToString("yyyy-MM-dd");
         }
+
+        public static string TaoSqL_LayThongTinChung()
+        {
+            return @"
+                SELECT
+                  ttp.id AS STT,
+                  tclv.Ngay, tclv.Ca,tclv.May,
+                  ttp.MaBin,ds.Ten AS TEN_SP, tclv.NguoiLam,
+                  ttp.KhoiLuongTruoc, ttp.KhoiLuongSau,
+                  ttp.ChieuDaiTruoc, ttp.ChieuDaiSau,
+                  ttp.Phe, ttp.GhiChu, ";
+        }
+
+        public static string TaoSQL_TaoKetNoiCacBang()
+        {
+            return @"
+                FROM TTThanhPham ttp
+                JOIN ThongTinCaLamViec tclv ON tclv.id = ttp.ThongTinCaLamViec_ID
+                JOIN DanhSachMaSP ds        ON ds.id   = ttp.DanhSachSP_ID
+                LEFT JOIN CD_BocVo    cbv ON cbv.TTThanhPham_ID    = ttp.id
+                LEFT JOIN CD_BocLot   cbl ON cbl.TTThanhPham_ID    = ttp.id
+                LEFT JOIN CD_BocMach  cbm ON cbm.TTThanhPham_ID    = ttp.id
+                LEFT JOIN CD_KeoRut   ckr ON ckr.TTThanhPham_ID    = ttp.id
+                LEFT JOIN CD_BenRuot  cbr ON cbr.TTThanhPham_ID    = ttp.id
+                LEFT JOIN CD_GhepLoiQB cgl ON cgl.TTThanhPham_ID   = ttp.id
+                LEFT JOIN CaiDatCDBoc cdb ON cdb.TTThanhPham_ID   = ttp.id
+                LEFT JOIN TTNVL       nvl ON nvl.TTThanhPham_ID    = ttp.id";
+        }
+
+        public static string TaoSQL_LayChiTietCongDoan(int id)
+        {
+            string sqlLayChiTietCD = "";
+
+            switch (id)
+            {
+                case 1: // Kéo rút
+                    sqlLayChiTietCD = "ckr.DKTrucX, ckr.DKTrucY, ckr.NgoaiQuan AS KeoRut_NgoaiQuan, ckr.TocDo, ckr.DienApU, ckr.DongDienU,";
+                    break;
+                case 2: // Bện ruột
+                    sqlLayChiTietCD = "cbr.DKSoi, cbr.SoSoi, cbr.ChieuXoan AS BenRuot_ChieuXoan, cbr.BuocBen,";
+                    break;
+                case 3: // Ghép lõi - Quấn băng
+                    sqlLayChiTietCD = "cgl.BuocXoan, cgl.ChieuXoan, cgl.GoiCachMep, cgl.DKBTP,";
+                    break;
+                case 4: // Bọc mạch
+                    sqlLayChiTietCD = "cbm.NgoaiQuan AS BocMach_NgoaiQuan, cbm.LanDanhThung, cbm.SoMet,";
+                    break;
+                case 5: // Bóc lót
+                    sqlLayChiTietCD = "cbl.DoDayTBLot,";
+                    break;
+                case 6: // Bóc vỏ
+                    sqlLayChiTietCD = "cbv.DayVoTB, cbv.InAn, ";
+                    break;
+                default:
+                    break;
+            }
+            return sqlLayChiTietCD;
+        }
+
         public static string LOTGenerated(ComboBox may, NumericUpDown maHT, ComboBox sttCongDoan, NumericUpDown sttBin, NumericUpDown soBin)
         {
             string lot = "";
@@ -137,7 +200,6 @@ namespace DG_TonKhoBTP_v02.Helper
             }
             return null;
         }
-
 
         public static void MapRowToObject<T>(DataGridViewRow row, T target)
         {

@@ -3,6 +3,7 @@
 // Tham chiếu cột theo file SQL (CaiDatCDBoc, TTNVL, ThongTinCaLamViec, ...).
 // [Luồng 3] Snapshot gom dữ liệu từ nhiều UC vào một biến.
 
+using DG_TonKhoBTP_v02.Models;
 using System;
 using System.Collections.Generic;
 
@@ -81,7 +82,7 @@ namespace DG_TonKhoBTP_v02.Core
         public double ChieuDaiTruoc { get; set; }     // NOT NULL
         public double ChieuDaiSau { get; set; }       // NOT NULL
         public double Phe { get; set; }               // NOT NULL DEFAULT 0
-        public string CongDoan { get; set; }               // NOT NULL DEFAULT 0
+        public CongDoan CongDoan { get; set; }               // NOT NULL DEFAULT 0
         public string GhiChu { get; set; }            // NULL
         public string? DateInsert { get; set; }     // NULL
     }

@@ -103,7 +103,7 @@ namespace DG_TonKhoBTP_v02.UI
 
             if (headers.Length > 5)
             {
-                defaultWidth = 90;
+                defaultWidth = 80;
                 defaulHeight = 50;
             }
 
@@ -301,7 +301,6 @@ namespace DG_TonKhoBTP_v02.UI
         }
 
         #region AI generated code for IFormSection
-
         public string SectionName => nameof(UC_TTNVL);
 
         // Giả định có control: groupBox1, dtgTTNVL, cbxTimKiem, ...

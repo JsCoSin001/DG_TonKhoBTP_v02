@@ -31,9 +31,9 @@
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.label1 = new System.Windows.Forms.Label();
-            this.button1 = new System.Windows.Forms.Button();
+            this.btnShowBaoCao = new System.Windows.Forms.Button();
             this.panel1 = new System.Windows.Forms.Panel();
-            this.dateTimePicker1 = new System.Windows.Forms.DateTimePicker();
+            this.ngayBC = new System.Windows.Forms.DateTimePicker();
             this.groupBox1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -59,7 +59,7 @@
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.tableLayoutPanel1.Controls.Add(this.label1, 0, 0);
-            this.tableLayoutPanel1.Controls.Add(this.button1, 2, 0);
+            this.tableLayoutPanel1.Controls.Add(this.btnShowBaoCao, 2, 0);
             this.tableLayoutPanel1.Controls.Add(this.panel1, 1, 0);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(3, 18);
@@ -81,38 +81,39 @@
             this.label1.Text = "Thời điểm";
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
-            // button1
+            // btnShowBaoCao
             // 
-            this.button1.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.button1.BackColor = System.Drawing.Color.LightSeaGreen;
-            this.button1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button1.ForeColor = System.Drawing.SystemColors.ControlLightLight;
-            this.button1.Location = new System.Drawing.Point(269, 4);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 38);
-            this.button1.TabIndex = 1;
-            this.button1.Text = "Xem";
-            this.button1.UseVisualStyleBackColor = false;
+            this.btnShowBaoCao.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.btnShowBaoCao.BackColor = System.Drawing.Color.LightSeaGreen;
+            this.btnShowBaoCao.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnShowBaoCao.ForeColor = System.Drawing.SystemColors.ControlLightLight;
+            this.btnShowBaoCao.Location = new System.Drawing.Point(269, 4);
+            this.btnShowBaoCao.Name = "btnShowBaoCao";
+            this.btnShowBaoCao.Size = new System.Drawing.Size(75, 38);
+            this.btnShowBaoCao.TabIndex = 1;
+            this.btnShowBaoCao.Text = "Xem";
+            this.btnShowBaoCao.UseVisualStyleBackColor = false;
+            this.btnShowBaoCao.Click += new System.EventHandler(this.btnShowBaoCao_Click);
             // 
             // panel1
             // 
-            this.panel1.Controls.Add(this.dateTimePicker1);
+            this.panel1.Controls.Add(this.ngayBC);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel1.Location = new System.Drawing.Point(82, 3);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(181, 40);
             this.panel1.TabIndex = 2;
             // 
-            // dateTimePicker1
+            // ngayBC
             // 
-            this.dateTimePicker1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.dateTimePicker1.CustomFormat = "dd/MM/yyyy";
-            this.dateTimePicker1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.dateTimePicker1.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
-            this.dateTimePicker1.Location = new System.Drawing.Point(0, 11);
-            this.dateTimePicker1.Name = "dateTimePicker1";
-            this.dateTimePicker1.Size = new System.Drawing.Size(175, 26);
-            this.dateTimePicker1.TabIndex = 0;
+            this.ngayBC.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.ngayBC.CustomFormat = "dd/MM/yyyy";
+            this.ngayBC.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.ngayBC.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
+            this.ngayBC.Location = new System.Drawing.Point(0, 11);
+            this.ngayBC.Name = "ngayBC";
+            this.ngayBC.Size = new System.Drawing.Size(175, 26);
+            this.ngayBC.TabIndex = 0;
             // 
             // UC_Report
             // 
@@ -137,8 +138,8 @@
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button btnShowBaoCao;
         private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.DateTimePicker dateTimePicker1;
+        private System.Windows.Forms.DateTimePicker ngayBC;
     }
 }

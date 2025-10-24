@@ -27,6 +27,14 @@ namespace DG_TonKhoBTP_v02.UI
         {
             DateTime selected = ngayBC.Value;
             DataTable dt = DatabaseHelper.GetDataByMonth(selected, CongDoan);
+            // check if dt has rows
+            if (dt.Rows.Count == 0)
+            {
+                MessageBox.Show("Không tìm thấy dữ liệu trong tháng đã chọn!", "Thông báo",
+                                MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
             UC_MonthyReport fBaoCao = new UC_MonthyReport();
             fBaoCao.LoadData(dt);
             fBaoCao.ShowDialog();

@@ -12,8 +12,7 @@ using System.Windows.Forms;
 
 namespace DG_TonKhoBTP_v02.UI
 {
-    public partial class UC_CDBocLot : UserControl, ISectionProvider<CD_BocLot>
-    //public partial class UC_CDBocLot : UserControl, ISectionProvider<CaiDatCDBoc>
+    public partial class UC_CDBocLot : UserControl, ISectionProvider<CD_BocLot>, IDataReceiver
     {
         public UC_CDBocLot()
         {
@@ -32,6 +31,15 @@ namespace DG_TonKhoBTP_v02.UI
                 TTThanhPhan_ID = 0,
                 DoDayTBLot = (double)doDayTBLot.Value
             };
+        }
+
+        public void LoadData(DataTable dt)
+        {
+            if (dt == null || dt.Rows.Count == 0) return;
+            var row = dt.Rows[0];
+
+            Helper.Helper.SetIfPresent(row, "cbl_DoDayTBLot", val => doDayTBLot.Value = Convert.ToDecimal(val));
+
         }
         #endregion
     }

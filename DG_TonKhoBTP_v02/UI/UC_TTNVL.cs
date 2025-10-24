@@ -2,7 +2,9 @@
 using DG_TonKhoBTP_v02.Core;
 using DG_TonKhoBTP_v02.Database;
 using DG_TonKhoBTP_v02.Models;
+using DocumentFormat.OpenXml.Drawing.Diagrams;
 using DocumentFormat.OpenXml.Office2010.Excel;
+using DocumentFormat.OpenXml.Spreadsheet;
 using DocumentFormat.OpenXml.Wordprocessing;
 using System;
 using System.Collections.Generic;
@@ -19,9 +21,13 @@ using Color = System.Drawing.Color;
 
 namespace DG_TonKhoBTP_v02.UI
 {
-    public partial class UC_TTNVL : UserControl, IFormSection
+    public partial class UC_TTNVL : UserControl, IFormSection, IDataReceiver
     {
         private CancellationTokenSource _searchCts;
+
+        List<ColumnDefinition> _columns;
+
+        bool isShow = false;
 
         // Nếu true thì tìm Cu phi 8...
         public bool RawMaterial { get; set; } = false;
@@ -30,6 +36,8 @@ namespace DG_TonKhoBTP_v02.UI
         public UC_TTNVL(List<ColumnDefinition> columns)
         {
             InitializeComponent();
+
+            _columns = columns;
 
             TaoBang(columns);
 
@@ -44,16 +52,15 @@ namespace DG_TonKhoBTP_v02.UI
         {
             DataTable dt = new DataTable("ThongTin");
 
+
             // Tạo cột từ danh sách
             foreach (var col in columns) dt.Columns.Add(col.Name, col.DataType);
 
             dtgTTNVL.DataSource = dt;
 
-            // Tạo mảng headers từ danh sách truyền vào
-            string[] headers = columns.Select(c => c.Header).ToArray();
 
             // Gọi lại hàm SetColumnHeaders để cấu hình
-            SetColumnHeaders(dtgTTNVL, headers);
+            SetColumnHeaders(dtgTTNVL, columns);
 
             // Tuỳ chỉnh style
             dtgTTNVL.DefaultCellStyle.Font = new System.Drawing.Font("Microsoft Sans Serif", 12, FontStyle.Regular);
@@ -92,14 +99,16 @@ namespace DG_TonKhoBTP_v02.UI
             }
         }
 
-        private void SetColumnHeaders(DataGridView dgv, string[] headers)
+        private void SetColumnHeaders(DataGridView dgv, List<ColumnDefinition> columns)
         {
+
+            // Tạo mảng headers từ danh sách truyền vào
+            string[] headers = columns.Select(c => c.Header).ToArray();
 
             int defaultWidth = 105;
             int defaulHeight = 40;
 
             // Sẽ thay đổi nội dung này sau
-            bool isShow = true;
 
             if (headers.Length > 5)
             {
@@ -119,12 +128,15 @@ namespace DG_TonKhoBTP_v02.UI
 
             dgv.Columns[0].Width = 80;
             dgv.Columns[0].Visible = isShow;
+            dgv.Columns[0].ReadOnly = true;
 
             dgv.Columns[1].Width = 80;
             dgv.Columns[1].Visible = isShow;
-            
+            dgv.Columns[1].ReadOnly = true;
+
             dgv.Columns[2].Width = 80;
             dgv.Columns[2].Visible = isShow;
+            dgv.Columns[2].ReadOnly = true;
 
             dgv.Columns[3].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
             dgv.Columns[3].ReadOnly = true;
@@ -228,7 +240,6 @@ namespace DG_TonKhoBTP_v02.UI
                 query = Helper.Helper.TaoSQL_LayDLTTThanhPham();
             }
 
-            // --- sửa: chạy query trong Task.Run để không block UI ---
             DataTable sp = await Task.Run(() =>
             {
                 return DatabaseHelper.GetData(keyword, query, para);
@@ -299,6 +310,116 @@ namespace DG_TonKhoBTP_v02.UI
             cbxTimKiem.SelectedIndex = -1;
             cbxTimKiem.Text = string.Empty;
         }
+
+
+        #region Hiển thị dữ liệu từ DataTable
+        public void LoadData(DataTable dt)
+        {
+            if (dt == null) return;
+
+            // 1. Tạo DataTable mới để lưu dữ liệu
+            DataTable dtNew = new DataTable();
+
+            // Thêm cột theo _columns
+            foreach (var col in _columns)
+            {
+                dtNew.Columns.Add(col.Name, col.DataType);
+            }
+
+            // 2. Duyệt từng dòng trong dt gốc và thêm vào dtNew
+            foreach (DataRow dr in dt.Rows)
+            {
+                object[] rowVals = new object[_columns.Count];
+
+                for (int i = 0; i < _columns.Count; i++)
+                {
+                    // Kiểm tra xem cột có tồn tại trong dt gốc không
+                    if (dt.Columns.Contains(_columns[i].Name))
+                    {
+                        rowVals[i] = dr[_columns[i].Name];
+                    }
+                    else
+                    {
+                        rowVals[i] = DBNull.Value; // hoặc giá trị mặc định
+                    }
+                }
+
+                dtNew.Rows.Add(rowVals);
+            }
+
+            // 3. Gán dtNew vào DataSource của DataGridView
+            dtgTTNVL.DataSource = dtNew;
+
+            // 4. Cấu hình lại headers và style (nếu cần)
+            SetColumnHeaders(dtgTTNVL, _columns);
+        }
+        //public void LoadData(DataTable dt)
+        //{
+        //    if (dt == null) return;
+
+        //    // 1) Tạo dtNew theo _columns
+        //    var dtNew = new DataTable("ThongTin");
+        //    foreach (var col in _columns)
+        //        dtNew.Columns.Add(col.Name, col.DataType);
+
+        //    foreach (DataRow src in dt.Rows)
+        //    {
+        //        var row = dtNew.NewRow();
+        //        foreach (var col in _columns)
+        //            if (dt.Columns.Contains(col.Name)) row[col.Name] = src[col.Name];
+        //        dtNew.Rows.Add(row);
+        //    }
+
+        //    dtgTTNVL.SuspendLayout();
+
+        //    try
+        //    {
+        //        // 2) Dọn cột cũ để tránh duplicate / lệch mapping
+        //        dtgTTNVL.DataSource = null;
+        //        dtgTTNVL.Columns.Clear();             // quan trọng
+
+        //        // 3) Bind
+        //        dtgTTNVL.AutoGenerateColumns = true;
+        //        dtgTTNVL.DataSource = dtNew;
+
+        //        // 4) Gọi lại cấu hình header/width…
+        //        SetColumnHeaders(dtgTTNVL, _columns);
+
+        //        // 5) Ép lại thứ tự hiển thị theo _columns (đảm bảo index ổn định cho SetColumnHeaders)
+        //        for (int i = 0; i < _columns.Count; i++)
+        //        {
+        //            var name = _columns[i].Name;
+        //            if (dtgTTNVL.Columns.Contains(name))
+        //                dtgTTNVL.Columns[name].DisplayIndex = i;
+        //        }
+
+        //        // 6) Đảm bảo cột Delete là cột CUỐI CÙNG
+        //        if (!dtgTTNVL.Columns.Contains("Delete"))
+        //        {
+        //            var btnDelete = new DataGridViewButtonColumn
+        //            {
+        //                Name = "Delete",
+        //                HeaderText = "",
+        //                Text = "Xoá",
+        //                UseColumnTextForButtonValue = true,
+        //                Width = 60
+        //            };
+        //            dtgTTNVL.Columns.Add(btnDelete);
+        //        }
+
+        //        // Đặt DisplayIndex cho Delete là cuối
+        //        dtgTTNVL.Columns["Delete"].DisplayIndex = dtgTTNVL.Columns.Count - 1;
+
+        //        // (Giữ nguyên các tuỳ chỉnh khác của bạn)
+        //        dtgTTNVL.CellClick -= dtgTTNVL_CellClick;
+        //        dtgTTNVL.CellClick += dtgTTNVL_CellClick;
+        //    }
+        //    finally
+        //    {
+        //        dtgTTNVL.ResumeLayout();
+        //    }
+        //}
+        #endregion
 
         #region AI generated code for IFormSection
         public string SectionName => nameof(UC_TTNVL);

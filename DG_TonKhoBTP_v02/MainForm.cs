@@ -1,10 +1,12 @@
 ﻿
+using DG_TonKhoBTP_v02.Core;
 using DG_TonKhoBTP_v02.Database;
 using DG_TonKhoBTP_v02.Dictionary;
 using DG_TonKhoBTP_v02.Models;
 using DG_TonKhoBTP_v02.UI;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
@@ -17,11 +19,14 @@ namespace DG_TonKhoBTP_v02
         private string _URL = "D:\\Database\\QLSX_v02.db";
         //UC_TTCaLamViec uc_caLamViec;
 
+
+
         public MainForm()
         {
             InitializeComponent();
             DatabaseHelper.SetDatabasePath(_URL);
         }
+
 
         #region Hàm log cấu trúc control
         public static void LogControlsTree(Control root, Action<string> log = null)
@@ -167,9 +172,7 @@ namespace DG_TonKhoBTP_v02
         #region Tạo panel UI theo công đoạn
         private Panel UI_TopPanel(CongDoan cd)
         {
-            Panel pnTop = new Panel();
-            pnTop.Dock = DockStyle.Top;
-            pnTop.AutoSize = true;
+            Panel pnTop = new Panel { Dock = DockStyle.Top, AutoSize = true };
 
             UC_TTCaLamViec uc_caLamViec = new UC_TTCaLamViec(cd.DanhSachMay, _URL, cd.TenCongDoan);
             uc_caLamViec.Dock = DockStyle.Top;
@@ -223,6 +226,17 @@ namespace DG_TonKhoBTP_v02
             pnRight.Controls.Add(uC_SubmitForm);
             pnRight.Controls.Add(productInfoControl);
 
+            var ucEdit = FindChild<UC_Edit>(pnEdit_Report);
+            if (ucEdit != null)
+            {
+                // Đăng ký theo instance vừa render
+                ucEdit.DataTableSubmitted += (s, dt) =>
+                {
+                    // Broadcast dt tới TẤT CẢ control implements IDataReceiver trong pnShow
+                    BroadcastToReceivers(pnShow, dt);
+                };
+            }
+
             return pnRight;
         }
 
@@ -233,7 +247,7 @@ namespace DG_TonKhoBTP_v02
             pnEdit_Report.Dock = DockStyle.Top;
             pnEdit_Report.Height = 120;
 
-            UC_Edit uC_Edit = new UC_Edit();
+            UC_Edit uC_Edit = new UC_Edit(cd);
             // Đặt Form Sửa số liệu bên trái panel pnEdit_Report
             uC_Edit.Dock = DockStyle.Left;
             uC_Edit.Width = 500;
@@ -277,6 +291,50 @@ namespace DG_TonKhoBTP_v02
         {
             // Log cấu trúc control sau khi ShowUI
             LogControlsTree(pnShow, s => Console.WriteLine(s));
+        }
+
+        private void BroadcastToReceivers(Control root, DataTable dt)
+        {
+            if (root == null || dt == null) return;
+
+            foreach (var receiver in FindAll<IDataReceiver>(root))
+            {
+                try
+                {
+                    receiver.LoadData(dt);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"LoadData error on {receiver.GetType().Name}: {ex.Message}");
+                }
+            }
+        }
+
+        private static IEnumerable<T> FindAll<T>(Control parent)
+        {
+            if (parent == null) yield break;
+
+            foreach (Control child in parent.Controls)
+            {
+                if (child is T t) yield return t;
+
+                foreach (var sub in FindAll<T>(child))
+                    yield return sub;
+            }
+        }
+
+        private static TControl FindChild<TControl>(Control parent) where TControl : Control
+        {
+            if (parent == null) return null;
+
+            foreach (Control child in parent.Controls)
+            {
+                if (child is TControl t) return t;
+
+                var found = FindChild<TControl>(child);
+                if (found != null) return found;
+            }
+            return null;
         }
     }
 }

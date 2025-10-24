@@ -8,6 +8,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -89,15 +90,15 @@ namespace DG_TonKhoBTP_v02.UI
                 #endregion
 
                 #region Lưu và thông báo trạng thái lưu
-                try
+
+                string err = "Lưu dữ liệu thành công";
+                if (!DatabaseHelper.SaveDataSanPham(thongTinCaLamViec, thongTinThanhPham, list_TTNVL, chiTietCD, out err))
                 {
-                    DatabaseHelper.SaveDataSanPham(thongTinCaLamViec, thongTinThanhPham, list_TTNVL, chiTietCD);
-                    ControlCleaner.ClearAll(host);
-                    MessageBox.Show("Lưu dữ liệu thành công", "THÔNG BÁO", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show($"Lưu thất bại:\n{err}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
-                catch (Exception)
+                else
                 {
-                    MessageBox.Show("Lưu dữ liệu thất bại", "THÔNG BÁO", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(err, "THÔNG BÁO", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 #endregion
             }

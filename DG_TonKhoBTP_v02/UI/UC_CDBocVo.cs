@@ -12,7 +12,7 @@ using System.Windows.Forms;
 
 namespace DG_TonKhoBTP_v02.UI
 {
-    public partial class UC_CDBocVo : UserControl, ISectionProvider<CD_BocVo>
+    public partial class UC_CDBocVo : UserControl, ISectionProvider<CD_BocVo>, IDataReceiver
     {
         public UC_CDBocVo()
         {
@@ -29,6 +29,15 @@ namespace DG_TonKhoBTP_v02.UI
                 DayVoTB = (double)dayVoTB.Value,   // thay nudDayVoTB bằng control thật
                 InAn = inAn.Text,         // nếu không có checkbox, tự quyết theo combobox/text
             };
+        }
+
+        public void LoadData(DataTable dt)
+        {
+            if (dt == null || dt.Rows.Count == 0) return;
+            var row = dt.Rows[0];
+
+            Helper.Helper.SetIfPresent(row, "cbv_DayVoTB", val => dayVoTB.Value = Convert.ToDecimal(val));
+            Helper.Helper.SetIfPresent(row, "cbv_InAn", val => inAn.Text = Convert.ToString(val));
         }
     }
 }

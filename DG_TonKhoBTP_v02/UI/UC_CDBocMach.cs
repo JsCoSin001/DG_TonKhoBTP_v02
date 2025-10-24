@@ -12,7 +12,7 @@ using System.Windows.Forms;
 
 namespace DG_TonKhoBTP_v02.UI
 {
-    public partial class UC_CDBocMach : UserControl, ISectionProvider<CD_BocMach>
+    public partial class UC_CDBocMach : UserControl, ISectionProvider<CD_BocMach>, IDataReceiver
     {
         public UC_CDBocMach()
         {
@@ -30,6 +30,17 @@ namespace DG_TonKhoBTP_v02.UI
                 LanDanhThung = (int)lanDanhThung.Value,
                 SoMet = (double)soMet.Value
             };
+        }
+
+        public void LoadData(DataTable dt)
+        {
+            if (dt == null || dt.Rows.Count == 0) return;
+            var row = dt.Rows[0];
+
+            Helper.Helper.SetIfPresent(row, "cbm_NgoaiQuan", val => ngoaiQuan.Text = Convert.ToString(val));
+            Helper.Helper.SetIfPresent(row, "cbm_LanDanhThung", val => lanDanhThung.Value = Convert.ToDecimal(val));
+            Helper.Helper.SetIfPresent(row, "cbm_SoMet", val => soMet.Text = Convert.ToString(val));
+
         }
     }
 }

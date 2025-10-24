@@ -16,7 +16,7 @@ using System.Windows.Forms;
 
 namespace DG_TonKhoBTP_v02.UI
 {
-    public partial class UC_TTThanhPham : UserControl, IFormSection
+    public partial class UC_TTThanhPham : UserControl, IFormSection, IDataReceiver
     {
         private CancellationTokenSource _searchCts;
 
@@ -132,14 +132,13 @@ namespace DG_TonKhoBTP_v02.UI
             }
             string para = "ten";
 
-            string query = @"
+            string query = $@"
                 SELECT id, ten, ma
                 FROM DanhSachMaSP
-                WHERE ten LIKE '%' || @para || '%'
+                WHERE ten LIKE '%' || @{para} || '%'
                   AND ma NOT LIKE 'NVL.%';
             ";
 
-            // --- sửa: chạy query trong Task.Run để không block UI ---
             DataTable sp = await Task.Run(() =>
             {
                 return DatabaseHelper.GetData(keyword, query, para);
@@ -186,6 +185,33 @@ namespace DG_TonKhoBTP_v02.UI
             ten.Text = string.Empty;
         }
 
-        
+        public void LoadData(DataTable dt)
+        {
+            if (dt == null || dt.Rows.Count == 0) return;
+            var row = dt.Rows[0];
+
+            string bin = row["ttp_MaBin"].ToString();
+
+            Helper.Helper.SetIfPresent(row, "ds_id", val => id.Text = Convert.ToString(val));
+            Helper.Helper.SetIfPresent(row, "ds_Ma", val => ma.Text = Convert.ToString(val));
+            Helper.Helper.SetIfPresent(row, "ds_Ten", val => ten.Text = Convert.ToString(val));
+            Helper.Helper.SetIfPresent(row, "ttp_KhoiLuongSau", val => khoiLuong.Value = Convert.ToDecimal(val));
+            Helper.Helper.SetIfPresent(row, "ttp_ChieuDaiSau", val => chieuDai.Value = Convert.ToDecimal(val));
+            Helper.Helper.SetIfPresent(row, "ttp_Phe", val => phe.Value = Convert.ToDecimal(val));
+            Helper.Helper.SetIfPresent(row, "ttp_GhiChu", val => GhiChu.Text = Convert.ToString(val));
+
+            string[] mabin = Helper.Helper.CatMaBin(bin);
+
+            if (mabin.Length == 5)
+            {
+                maHanhTrinh.Value = Convert.ToDecimal(mabin[1]);
+                sttCongDoan.Text = mabin[2];
+                sttLo.Value = Convert.ToDecimal(mabin[3]);
+                soBin.Value = Convert.ToDecimal(mabin[4]);
+            }
+
+            maBin.Text = bin;
+
+        }
     }
 }

@@ -31,13 +31,13 @@
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.label1 = new System.Windows.Forms.Label();
-            this.button1 = new System.Windows.Forms.Button();
+            this.btnTim = new System.Windows.Forms.Button();
             this.panel1 = new System.Windows.Forms.Panel();
-            this.numericUpDown1 = new System.Windows.Forms.NumericUpDown();
+            this.sttLoi = new System.Windows.Forms.NumericUpDown();
             this.groupBox1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             this.panel1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.sttLoi)).BeginInit();
             this.SuspendLayout();
             // 
             // groupBox1
@@ -48,7 +48,7 @@
             this.groupBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.groupBox1.Location = new System.Drawing.Point(10, 10);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(353, 67);
+            this.groupBox1.Size = new System.Drawing.Size(393, 67);
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Sửa dữ liệu";
@@ -60,14 +60,14 @@
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.tableLayoutPanel1.Controls.Add(this.label1, 0, 0);
-            this.tableLayoutPanel1.Controls.Add(this.button1, 2, 0);
+            this.tableLayoutPanel1.Controls.Add(this.btnTim, 2, 0);
             this.tableLayoutPanel1.Controls.Add(this.panel1, 1, 0);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(3, 18);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 1;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(347, 46);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(387, 46);
             this.tableLayoutPanel1.TabIndex = 0;
             // 
             // label1
@@ -82,39 +82,40 @@
             this.label1.Text = "STT lỗi";
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
-            // button1
+            // btnTim
             // 
-            this.button1.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.button1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button1.Location = new System.Drawing.Point(269, 4);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 38);
-            this.button1.TabIndex = 1;
-            this.button1.Text = "Tìm kiếm";
-            this.button1.UseVisualStyleBackColor = true;
+            this.btnTim.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.btnTim.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnTim.Location = new System.Drawing.Point(293, 4);
+            this.btnTim.Name = "btnTim";
+            this.btnTim.Size = new System.Drawing.Size(91, 38);
+            this.btnTim.TabIndex = 1;
+            this.btnTim.Text = "Tìm kiếm";
+            this.btnTim.UseVisualStyleBackColor = true;
+            this.btnTim.Click += new System.EventHandler(this.btnTim_Click);
             // 
             // panel1
             // 
-            this.panel1.Controls.Add(this.numericUpDown1);
+            this.panel1.Controls.Add(this.sttLoi);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel1.Location = new System.Drawing.Point(64, 3);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(199, 40);
+            this.panel1.Size = new System.Drawing.Size(223, 40);
             this.panel1.TabIndex = 2;
             // 
-            // numericUpDown1
+            // sttLoi
             // 
-            this.numericUpDown1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.numericUpDown1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.numericUpDown1.Location = new System.Drawing.Point(3, 9);
-            this.numericUpDown1.Maximum = new decimal(new int[] {
+            this.sttLoi.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.sttLoi.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.sttLoi.Location = new System.Drawing.Point(3, 9);
+            this.sttLoi.Maximum = new decimal(new int[] {
             1569325055,
             23283064,
             0,
             0});
-            this.numericUpDown1.Name = "numericUpDown1";
-            this.numericUpDown1.Size = new System.Drawing.Size(193, 26);
-            this.numericUpDown1.TabIndex = 0;
+            this.sttLoi.Name = "sttLoi";
+            this.sttLoi.Size = new System.Drawing.Size(217, 26);
+            this.sttLoi.TabIndex = 0;
             // 
             // UC_Edit
             // 
@@ -124,12 +125,12 @@
             this.Controls.Add(this.groupBox1);
             this.Name = "UC_Edit";
             this.Padding = new System.Windows.Forms.Padding(10);
-            this.Size = new System.Drawing.Size(373, 87);
+            this.Size = new System.Drawing.Size(413, 87);
             this.groupBox1.ResumeLayout(false);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
             this.panel1.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.sttLoi)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -140,8 +141,8 @@
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button btnTim;
         private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.NumericUpDown numericUpDown1;
+        private System.Windows.Forms.NumericUpDown sttLoi;
     }
 }

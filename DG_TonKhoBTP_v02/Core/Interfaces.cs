@@ -3,6 +3,7 @@
 // [Luồng 1] UC_SubmitForm sẽ tìm tất cả control thực thi IFormSection để lấy dữ liệu.
 
 using System;
+using System.Data;
 
 namespace DG_TonKhoBTP_v02.Core
 {
@@ -23,5 +24,9 @@ namespace DG_TonKhoBTP_v02.Core
         /// [Phụ] Tên section để gắn key trong snapshot.
         /// </summary>
         string SectionName { get; }
+    }
+    public interface IDataReceiver
+    {
+        void LoadData(DataTable dt);
     }
 }

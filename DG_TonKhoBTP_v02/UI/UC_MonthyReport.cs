@@ -26,6 +26,7 @@ namespace DG_TonKhoBTP_v02.UI
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
             this.ControlBox = true;
             this.ShowIcon = false;
+            this.Padding = new Padding(5);
 
             // Full màn hình (tuỳ bạn giữ hoặc bỏ)
             this.WindowState = FormWindowState.Maximized;
@@ -43,8 +44,8 @@ namespace DG_TonKhoBTP_v02.UI
                 RowHeadersVisible = false,
                 BackgroundColor = Color.White
             };
-            dataGridView1.DefaultCellStyle.Font = new Font("Segoe UI", 12F, FontStyle.Regular);
             dataGridView1.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 12F, FontStyle.Regular);
+            dataGridView1.DefaultCellStyle.Font = new Font("Segoe UI", 10F, FontStyle.Regular);
             dataGridView1.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
 
             dataGridView1.RowTemplate.Height = 35;

@@ -65,16 +65,16 @@
             this.tableLayoutPanel1.RowCount = 2;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 35F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(819, 65);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(805, 65);
             this.tableLayoutPanel1.TabIndex = 0;
             // 
             // label3
             // 
             this.label3.AutoSize = true;
             this.label3.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label3.Location = new System.Drawing.Point(235, 0);
+            this.label3.Location = new System.Drawing.Point(231, 0);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(110, 30);
+            this.label3.Size = new System.Drawing.Size(108, 30);
             this.label3.TabIndex = 2;
             this.label3.Text = "Số m máy báo";
             this.label3.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
@@ -83,9 +83,9 @@
             // 
             this.label2.AutoSize = true;
             this.label2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label2.Location = new System.Drawing.Point(119, 0);
+            this.label2.Location = new System.Drawing.Point(117, 0);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(110, 30);
+            this.label2.Size = new System.Drawing.Size(108, 30);
             this.label2.TabIndex = 1;
             this.label2.Text = "Lần đánh thủng";
             this.label2.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
@@ -96,7 +96,7 @@
             this.label1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.label1.Location = new System.Drawing.Point(3, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(110, 30);
+            this.label1.Size = new System.Drawing.Size(108, 30);
             this.label1.TabIndex = 0;
             this.label1.Text = "Ngoại quan";
             this.label1.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
@@ -110,14 +110,14 @@
             0,
             0,
             65536});
-            this.soMet.Location = new System.Drawing.Point(235, 33);
+            this.soMet.Location = new System.Drawing.Point(231, 33);
             this.soMet.Maximum = new decimal(new int[] {
             1569325055,
             23283064,
             0,
             0});
             this.soMet.Name = "soMet";
-            this.soMet.Size = new System.Drawing.Size(110, 24);
+            this.soMet.Size = new System.Drawing.Size(108, 24);
             this.soMet.TabIndex = 16;
             // 
             // ngoaiQuan
@@ -129,20 +129,20 @@
             "Xấu"});
             this.ngoaiQuan.Location = new System.Drawing.Point(3, 33);
             this.ngoaiQuan.Name = "ngoaiQuan";
-            this.ngoaiQuan.Size = new System.Drawing.Size(110, 26);
+            this.ngoaiQuan.Size = new System.Drawing.Size(108, 26);
             this.ngoaiQuan.TabIndex = 17;
             // 
             // lanDanhThung
             // 
             this.lanDanhThung.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lanDanhThung.Location = new System.Drawing.Point(119, 33);
+            this.lanDanhThung.Location = new System.Drawing.Point(117, 33);
             this.lanDanhThung.Maximum = new decimal(new int[] {
             1569325055,
             23283064,
             0,
             0});
             this.lanDanhThung.Name = "lanDanhThung";
-            this.lanDanhThung.Size = new System.Drawing.Size(110, 24);
+            this.lanDanhThung.Size = new System.Drawing.Size(108, 24);
             this.lanDanhThung.TabIndex = 18;
             // 
             // UC_CDBocMach
@@ -153,7 +153,7 @@
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.Controls.Add(this.tableLayoutPanel1);
             this.Name = "UC_CDBocMach";
-            this.Size = new System.Drawing.Size(819, 65);
+            this.Size = new System.Drawing.Size(805, 65);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.soMet)).EndInit();

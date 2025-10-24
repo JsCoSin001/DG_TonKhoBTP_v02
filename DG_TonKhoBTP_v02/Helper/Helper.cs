@@ -1,4 +1,5 @@
-﻿  using System;
+﻿using DG_TonKhoBTP_v02.Models;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
@@ -13,6 +14,7 @@ namespace DG_TonKhoBTP_v02.Helper
     public static class Helper
     {
         public static string _connStr;
+
         public static string GetShiftValue()
         {
             int hour = DateTime.Now.Hour;
@@ -26,28 +28,29 @@ namespace DG_TonKhoBTP_v02.Helper
             return "3";
 
         }
+
         public static string TaoSQL_LayDLTTThanhPham()
         {
             // KHÔNG đặt dấu ; ở cuối vì còn nối UNION ALL ở hàm sau
             return @"
-                SELECT
-                    t.KhoiLuongSau AS KlBatDau,
-                    t.ChieuDaiSau  AS CDBatDau,
-                    t.id           AS id,
-                    t.MaBin        AS BinNVL
-                FROM TTThanhPham AS t
-                JOIN DanhSachMaSP AS d
-                    ON d.id = t.DanhSachSP_ID
-                WHERE
-                    (
-                        (d.DonVi = 0 AND t.KhoiLuongSau <> 0)
-                        OR
-                        (d.DonVi = 1 AND t.ChieuDaiSau  <> 0)
-                    )
-                    AND (
-                        @para IS NULL OR TRIM(@para) = ''
-                        OR t.MaBin LIKE '%' || @para || '%' COLLATE NOCASE
-                    )
+            SELECT
+                t.KhoiLuongSau AS KlBatDau,
+                t.ChieuDaiSau  AS CDBatDau,
+                t.id           AS id,
+                t.MaBin        AS BinNVL
+            FROM TTThanhPham AS t
+            JOIN DanhSachMaSP AS d
+                ON d.id = t.DanhSachSP_ID
+            WHERE
+                (
+                    (d.DonVi = 0 AND t.KhoiLuongSau <> 0)
+                    OR
+                    (d.DonVi = 1 AND t.ChieuDaiSau  <> 0)
+                )
+                AND (
+                    @ten IS NULL OR TRIM(@ten) = ''
+                    OR t.MaBin LIKE '%' || @ten || '%' COLLATE NOCASE
+                )
             ";
         }
 
@@ -56,24 +59,22 @@ namespace DG_TonKhoBTP_v02.Helper
             string baseQuery = TaoSQL_LayDLTTThanhPham(); // KHÔNG có ; ở cuối
 
             return baseQuery + @"
+            UNION ALL
 
-                UNION ALL
-
-                SELECT
-                    -1   AS KlBatDau,
-                    -1   AS CDBatDau,
-                    d.id AS id,
-                    d.ten AS BinNVL
-                FROM DanhSachMaSP AS d
-                WHERE
-                    d.Ma LIKE 'NVL.%' COLLATE NOCASE
-                    AND (
-                        @para IS NULL OR TRIM(@para) = ''
-                        OR d.Ten LIKE '%' || @para || '%' COLLATE NOCASE
-                        OR d.Ma  LIKE '%' || @para || '%' COLLATE NOCASE
-                    )
+            SELECT
+                -1      AS KlBatDau,
+                -1      AS CDBatDau,
+                d.id    AS id,
+                d.ten   AS BinNVL
+            FROM DanhSachMaSP AS d
+            WHERE
+                d.Ma LIKE 'NVL.%' COLLATE NOCASE
+                AND (
+                    @ten IS NULL OR TRIM(@ten) = ''
+                    OR d.Ten LIKE '%' || @ten || '%' COLLATE NOCASE
+                    OR d.Ma  LIKE '%' || @ten || '%' COLLATE NOCASE
+                )
             ";
-            
         }
 
         public static string TaoKhoangTrong(int tongKhoangTrong, string noiDung)
@@ -81,6 +82,7 @@ namespace DG_TonKhoBTP_v02.Helper
             return new string(' ', tongKhoangTrong - noiDung.Length);
 
         }
+
         public static string GetNgayHienTai()
         {
             DateTime now = DateTime.Now;
@@ -91,7 +93,7 @@ namespace DG_TonKhoBTP_v02.Helper
             return ngayHienTai.ToString("yyyy-MM-dd");
         }
 
-        public static string TaoSqL_LayThongTinChung()
+        public static string TaoSqL_LayThongTinBaoCaoChung()
         {
             return @"
                 SELECT
@@ -101,6 +103,123 @@ namespace DG_TonKhoBTP_v02.Helper
                   ttp.KhoiLuongTruoc, ttp.KhoiLuongSau,
                   ttp.ChieuDaiTruoc, ttp.ChieuDaiSau,
                   ttp.Phe, ttp.GhiChu, ";
+        }
+
+        public static string TaoSql_LayThongTinBaoCaoToanBo()
+        {
+            return @"
+                    SELECT
+                    ttp.id                          AS ttp_id,
+                    ttp.DanhSachSP_ID               AS ttp_DanhSachSP_ID,
+                    ttp.ThongTinCaLamViec_ID        AS ttp_ThongTinCaLamViec_ID,
+                    ttp.MaBin                       AS ttp_MaBin,
+                    ttp.KhoiLuongTruoc              AS ttp_KhoiLuongTruoc,
+                    ttp.KhoiLuongSau                AS ttp_KhoiLuongSau,
+                    ttp.ChieuDaiTruoc               AS ttp_ChieuDaiTruoc,
+                    ttp.ChieuDaiSau                 AS ttp_ChieuDaiSau,
+                    ttp.Phe                         AS ttp_Phe,
+                    ttp.CongDoan                    AS ttp_CongDoan,
+                    ttp.GhiChu                      AS ttp_GhiChu,
+                    ttp.LastEdit_ID                 AS ttp_LastEdit_ID,
+                    ttp.DateInsert                  AS ttp_DateInsert,
+
+                    tclv.id                         AS tclv_id,
+                    tclv.Ngay                       AS tclv_Ngay,
+                    tclv.May                        AS tclv_May,
+                    tclv.Ca                         AS tclv_Ca,
+                    tclv.NguoiLam                   AS tclv_NguoiLam,
+                    tclv.ToTruong                   AS tclv_ToTruong,
+                    tclv.QuanDoc                    AS tclv_QuanDoc,
+
+                    ds.id                           AS ds_id,
+                    ds.Ten                          AS ds_Ten,
+                    ds.Ma                           AS ds_Ma,
+                    ds.DonVi                        AS ds_DonVi,
+                    ds.KieuSP                       AS ds_KieuSP,
+                    ds.DateInsert                   AS ds_DateInsert,
+
+                    cbv.id                          AS cbv_id,
+                    cbv.TTThanhPham_ID              AS cbv_TTThanhPham_ID,
+                    cbv.DayVoTB                     AS cbv_DayVoTB,
+                    cbv.InAn                        AS cbv_InAn,
+
+                    cbl.id                          AS cbl_id,
+                    cbl.TTThanhPham_ID              AS cbl_TTThanhPham_ID,
+                    cbl.DoDayTBLot                  AS cbl_DoDayTBLot,
+
+                    cbm.id                          AS cbm_id,
+                    cbm.TTThanhPham_ID              AS cbm_TTThanhPham_ID,
+                    cbm.NgoaiQuan                   AS cbm_NgoaiQuan,
+                    cbm.LanDanhThung               AS cbm_LanDanhThung,
+                    cbm.SoMet                       AS cbm_SoMet,
+
+                    ckr.id                          AS ckr_id,
+                    ckr.TTThanhPham_ID              AS ckr_TTThanhPham_ID,
+                    ckr.DKTrucX                     AS ckr_DKTrucX,
+                    ckr.DKTrucY                     AS ckr_DKTrucY,
+                    ckr.NgoaiQuan                   AS ckr_NgoaiQuan,
+                    ckr.TocDo                       AS ckr_TocDo,
+                    ckr.DienApU                     AS ckr_DienApU,
+                    ckr.DongDienU                   AS ckr_DongDienU,
+
+                    cbr.id                          AS cbr_id,
+                    cbr.TTThanhPham_ID              AS cbr_TTThanhPham_ID,
+                    cbr.DKSoi                       AS cbr_DKSoi,
+                    cbr.SoSoi                       AS cbr_SoSoi,
+                    cbr.ChieuXoan                   AS cbr_ChieuXoan,
+                    cbr.BuocBen                     AS cbr_BuocBen,
+
+                    cgl.id                          AS cgl_id,
+                    cgl.TTThanhPham_ID              AS cgl_TTThanhPham_ID,
+                    cgl.BuocXoan                    AS cgl_BuocXoan,
+                    cgl.ChieuXoan                   AS cgl_ChieuXoan,
+                    cgl.GoiCachMep                  AS cgl_GoiCachMep,
+                    cgl.DKBTP                       AS cgl_DKBTP,
+
+                    cdb.id                          AS cdb_id,
+                    cdb.TTThanhPham_ID              AS cdb_TTThanhPham_ID,
+                    cdb.MangNuoc                    AS cdb_MangNuoc,
+                    cdb.PuliDanDay                  AS cdb_PuliDanDay,
+                    cdb.BoDemMet                    AS cdb_BoDemMet,
+                    cdb.MayIn                       AS cdb_MayIn,
+                    cdb.v1                          AS cdb_v1,
+                    cdb.v2                          AS cdb_v2,
+                    cdb.v3                          AS cdb_v3,
+                    cdb.v4                          AS cdb_v4,
+                    cdb.v5                          AS cdb_v5,
+                    cdb.v6                          AS cdb_v6,
+                    cdb.Co                          AS cdb_Co,
+                    cdb.Dau1                        AS cdb_Dau1,
+                    cdb.Dau2                        AS cdb_Dau2,
+                    cdb.Khuon                       AS cdb_Khuon,
+                    cdb.BinhSay                     AS cdb_BinhSay,
+                    cdb.DKKhuon1                    AS cdb_DKKhuon1,
+                    cdb.DKKhuon2                    AS cdb_DKKhuon2,
+                    cdb.TTNhua                      AS cdb_TTNhua,
+                    cdb.NhuaPhe                     AS cdb_NhuaPhe,
+                    cdb.GhiChuNhuaPhe               AS cdb_GhiChuNhuaPhe,
+                    cdb.DayPhe                      AS cdb_DayPhe,
+                    cdb.GhiChuDayPhe                AS cdb_GhiChuDayPhe,
+                    cdb.KTDKLan1                    AS cdb_KTDKLan1,
+                    cdb.KTDKLan2                    AS cdb_KTDKLan2,
+                    cdb.KTDKLan3                    AS cdb_KTDKLan3,
+                    cdb.DiemMongLan1                AS cdb_DiemMongLan1,
+                    cdb.DiemMongLan2                AS cdb_DiemMongLan2,
+
+                    nvl.id                          AS id,
+                    nvl.TTThanhPham_ID              AS nvl_TTThanhPham_ID,
+                    nvl.BinNVL                      AS BinNVL,
+                    nvl.KlBatDau                    AS KlBatDau,
+                    nvl.CdBatDau                    AS CdBatDau,
+                    nvl.KlConLai                    AS KlConLai,
+                    nvl.CdConLai                    AS CdConLai,
+                    nvl.DuongKinhSoiDong            AS DuongKinhSoiDong,
+                    nvl.SoSoi                       AS SoSoi,
+                    nvl.KetCauLoi                   AS KetCauLoi,
+                    nvl.DuongKinhSoiMach            AS DuongKinhSoiMach,
+                    nvl.BanRongBang                 AS BanRongBang,
+                    nvl.DoDayBang                   AS DoDayBang,
+                ";
         }
 
         public static string TaoSQL_TaoKetNoiCacBang()
@@ -149,6 +268,23 @@ namespace DG_TonKhoBTP_v02.Helper
             return sqlLayChiTietCD;
         }
 
+        public static string TaoSQL_LayDuLieuNVL(List<ColumnDefinition> clms)
+        {
+            string sqlTenNVL = "";
+            foreach (var name in clms) sqlTenNVL += ", nvl." + name.Name;
+            sqlTenNVL = sqlTenNVL.Replace("nvl.id,", "").Trim().Substring(2);
+            return sqlTenNVL;
+        }
+
+        public static void SetIfPresent(DataRow row, string col, Action<object> setter)
+        {
+            if (row.Table.Columns.Contains(col))
+            {
+                var val = row[col];
+                if (val != DBNull.Value) setter(val);
+            }
+        }
+
         public static string LOTGenerated(ComboBox may, NumericUpDown maHT, ComboBox sttCongDoan, NumericUpDown sttBin, NumericUpDown soBin)
         {
             string lot = "";
@@ -183,7 +319,6 @@ namespace DG_TonKhoBTP_v02.Helper
             return lot;
         }
 
-        // Có thể đặt trong UC_SubmitForm hoặc class Helper chung
         public static T FindControlRecursive<T>(Control root) where T : Control
         {
             foreach (Control c in root.Controls)
@@ -277,6 +412,13 @@ namespace DG_TonKhoBTP_v02.Helper
             if (t == typeof(float)) return 0.0f;
             if (t == typeof(decimal)) return 0.0m;
             return 0;
+        }
+
+        public static string[] CatMaBin(string input)
+        {
+            // Tách chuỗi bằng cả '-' và '/'
+            char[] separators = { '-', '/' };
+            return input.Split(separators, StringSplitOptions.RemoveEmptyEntries);
         }
     }
 

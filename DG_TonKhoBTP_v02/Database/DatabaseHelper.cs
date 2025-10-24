@@ -30,8 +30,7 @@ namespace DG_TonKhoBTP_v02.Database
 
                 using (SQLiteCommand cmd = new SQLiteCommand(query, conn))
                 {
-                    //cmd.Parameters.AddWithValue("@" + para, key);
-                    cmd.Parameters.AddWithValue("@para", key);
+                    cmd.Parameters.AddWithValue("@"+ para, key);
 
                     using (SQLiteDataAdapter adapter = new SQLiteDataAdapter(cmd))
                     {
@@ -44,41 +43,64 @@ namespace DG_TonKhoBTP_v02.Database
         }
         public static DataTable GetDataByMonth(DateTime selectedDate, CongDoan cd)
         {
+            string key = selectedDate.ToString("yyyy-MM-dd");
+            // Tạo select
+            string sqlSelect = Helper.Helper.TaoSqL_LayThongTinBaoCaoChung();
 
             // Lấy dữ liệu nvl theo công đoạn
-            string sqlTenNVL = "";
-            List<ColumnDefinition> clms = cd.Columns;
-            // duyệt columns
-            foreach (var name in clms) sqlTenNVL += ", nvl." + name.Name;
-            // Loại bỏ các thông tin thừa
-            sqlTenNVL = sqlTenNVL.Replace("nvl.id,", "").Trim().Substring(2);
+            string sqlTenNVL = Helper.Helper.TaoSQL_LayDuLieuNVL(cd.Columns);
 
             // Lấy thông tin chi tiết công đoạn
-            string sqlLayChiTietCD = Helper.Helper.TaoSQL_LayChiTietCongDoan(cd.Id);            
+            string sqlLayChiTietCD = Helper.Helper.TaoSQL_LayChiTietCongDoan(cd.Id);
 
-            // Tạo select
-            string query = Helper.Helper.TaoSqL_LayThongTinChung();
+            // Tạo câu nối các bảng
+            string sqlKetNoi = Helper.Helper.TaoSQL_TaoKetNoiCacBang();
 
-            query = query + sqlLayChiTietCD + sqlTenNVL;
+            // Tạo điều kiện lọc theo tháng
+            string sqlDk1 = " WHERE strftime('%Y-%m', tclv.Ngay) = strftime('%Y-%m', @para) ";
 
-            // Tạo kết nối
-            query += Helper.Helper.TaoSQL_TaoKetNoiCacBang();
+            // Tạo điều kiện lọc theo công đoạn
+            string sqlDk2 = " AND ttp.CongDoan = " + cd.Id;
 
-            // Tạo điều kiện lọc
-            query += " WHERE strftime('%Y-%m', tclv.Ngay) = strftime('%Y-%m', @para) ";
+            // Tạo order by
+            string sqlOrder = " ORDER BY tclv.Ngay DESC, ttp.id DESC;";
 
-            // Thêm điều kiện
-            query += " AND ttp.CongDoan = " + cd.Id;
+            // Kết hợp câu truy vấn
+            string query = sqlSelect + sqlLayChiTietCD + sqlTenNVL + sqlKetNoi + sqlDk1 + sqlDk2 + sqlOrder; 
 
-            // Sắp xếp
-            query += " ORDER BY tclv.Ngay DESC, ttp.id DESC;";
-
-            // Gọi lại hàm GetData chung bạn đã có
-            return GetData(selectedDate.ToString("yyyy-MM-dd"), query, "para");
+            return GetData(key, query, "para");
         }
-        #endregion
 
-        #region Update dữ liệu
+        public static DataTable GetDataByID(string key, CongDoan cd)
+        {
+            // Tạo select
+            string sqlSelect = Helper.Helper.TaoSql_LayThongTinBaoCaoToanBo();
+
+            // Lấy dữ liệu nvl theo công đoạn
+            string sqlTenNVL = Helper.Helper.TaoSQL_LayDuLieuNVL(cd.Columns);
+
+            // Lấy thông tin chi tiết công đoạn
+            string sqlLayChiTietCD = Helper.Helper.TaoSQL_LayChiTietCongDoan(cd.Id);
+
+            // Tạo câu nối các bảng
+            string sqlKetNoi = Helper.Helper.TaoSQL_TaoKetNoiCacBang();
+
+            // Tạo điều kiện lọc theo ID
+            string sqlDk1 = " WHERE ttp.id = @id";
+
+            string sqlDk2 = " AND ttp.CongDoan = " + cd.Id;
+
+            // Kết hợp câu truy vấn
+            string query = sqlSelect + sqlLayChiTietCD + sqlTenNVL + sqlKetNoi + sqlDk1 +sqlDk2;
+
+            return GetData(key, query, "id");
+        }
+
+
+
+            #endregion
+
+            #region Update dữ liệu
         private static void UpdateKL_CD_TTThanhPham(SQLiteConnection conn, SQLiteTransaction tx, List<TTNVL> nvlList, long thongTinSpId)
         {
             const string sql = @"
@@ -107,13 +129,15 @@ namespace DG_TonKhoBTP_v02.Database
         #endregion
 
         #region Insert dữ liệu các công đoạn
-        public static bool SaveDataSanPham(ThongTinCaLamViec caLam, TTThanhPham tp, List<TTNVL> nvl, List<object> chiTietCD)
+        public static bool SaveDataSanPham(ThongTinCaLamViec caLam, TTThanhPham tp, List<TTNVL> nvl, List<object> chiTietCD, out string errorMsg)
         {
             using var conn = new SQLiteConnection(_connStr);
             conn.Open();
             using var tx = conn.BeginTransaction();
 
             CaiDatCDBoc caiDat = (CaiDatCDBoc)chiTietCD[1];
+
+            errorMsg = string.Empty;
 
             try
             {
@@ -166,15 +190,46 @@ namespace DG_TonKhoBTP_v02.Database
                 tx.Commit();
                 return true;
             }
-            catch
+            catch (Exception ex)
             {
                 tx.Rollback();
+
+                if (ex is SQLiteException sqliteEx)
+                {
+                    // Lỗi database
+                    switch (sqliteEx.ErrorCode)
+                    {
+                        case (int)SQLiteErrorCode.Constraint:
+                            errorMsg = tp.MaBin + " ĐÃ TỒN TẠI.";
+                            break;
+                        case (int)SQLiteErrorCode.Busy:
+                            errorMsg = "CƠ SỞ DỮ LIỆU ĐANG BẬN, HÃY THỬ LẠI LẦN NỮA.";
+                            break;
+                        default:
+                            errorMsg = $"Lỗi cơ sở dữ liệu: {sqliteEx.Message}";
+                            break;
+                    }
+                }
+                else if (ex is InvalidCastException)
+                {
+                    errorMsg = "Kiểu dữ liệu không khớp, vui lòng kiểm tra thông tin công đoạn.";
+                }
+                else if (ex is ArgumentException)
+                {
+                    errorMsg = ex.Message; // ví dụ: "Chi tiết công đoạn không hợp lệ."
+                }
+                else if (ex is NullReferenceException)
+                {
+                    errorMsg = "Một dữ liệu cần thiết chưa được khởi tạo. Vui lòng kiểm tra lại biểu mẫu nhập.";
+                }
+                else
+                {
+                    errorMsg = $"Lỗi không xác định: {ex.Message}";
+                }
+
                 return false;
             }
-            finally
-            {
 
-            }
         }
 
         private static long InsertThongTinCaLamViec(SQLiteConnection conn, SQLiteTransaction tx, ThongTinCaLamViec m)

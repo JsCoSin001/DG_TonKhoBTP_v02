@@ -12,7 +12,7 @@ using System.Windows.Forms;
 
 namespace DG_TonKhoBTP_v02.UI
 {
-    public partial class UC_CDKeoRut : UserControl, ISectionProvider<CD_KeoRut>
+    public partial class UC_CDKeoRut : UserControl, ISectionProvider<CD_KeoRut>, IDataReceiver
     {
         public UC_CDKeoRut()
         {
@@ -36,6 +36,17 @@ namespace DG_TonKhoBTP_v02.UI
             };
         }
 
+        public void LoadData(DataTable dt)
+        {
+            if (dt == null || dt.Rows.Count == 0) return;
+            var row = dt.Rows[0];
 
+            Helper.Helper.SetIfPresent(row, "ckr_DKTrucX", val => dkTrucX.Value = Convert.ToDecimal(val));
+            Helper.Helper.SetIfPresent(row, "ckr_DKTrucY", val => dkTrucY.Value = Convert.ToDecimal(val));
+            Helper.Helper.SetIfPresent(row, "ckr_NgoaiQuan", val => ngoaiQuan.Text = Convert.ToString(val));
+            Helper.Helper.SetIfPresent(row, "ckr_TocDo", val => tocDo.Value = Convert.ToDecimal(val));
+            Helper.Helper.SetIfPresent(row, "ckr_DienApU", val => dienApU.Value = Convert.ToDecimal(val));
+            Helper.Helper.SetIfPresent(row, "ckr_DongDienU", val => dongDienU.Value = Convert.ToDecimal(val));
+        }
     }
 }

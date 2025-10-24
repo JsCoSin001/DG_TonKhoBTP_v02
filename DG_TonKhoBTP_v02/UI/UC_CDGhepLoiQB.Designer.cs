@@ -70,7 +70,7 @@
             this.tableLayoutPanel1.RowCount = 2;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 35F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(854, 65);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(840, 65);
             this.tableLayoutPanel1.TabIndex = 0;
             // 
             // dkBTP
@@ -82,23 +82,23 @@
             0,
             0,
             65536});
-            this.dkBTP.Location = new System.Drawing.Point(366, 33);
+            this.dkBTP.Location = new System.Drawing.Point(360, 33);
             this.dkBTP.Maximum = new decimal(new int[] {
             1569325055,
             23283064,
             0,
             0});
             this.dkBTP.Name = "dkBTP";
-            this.dkBTP.Size = new System.Drawing.Size(115, 24);
+            this.dkBTP.Size = new System.Drawing.Size(113, 24);
             this.dkBTP.TabIndex = 10;
             // 
             // label4
             // 
             this.label4.AutoSize = true;
             this.label4.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label4.Location = new System.Drawing.Point(366, 0);
+            this.label4.Location = new System.Drawing.Point(360, 0);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(115, 30);
+            this.label4.Size = new System.Drawing.Size(113, 30);
             this.label4.TabIndex = 3;
             this.label4.Text = "ĐKính BTP";
             this.label4.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
@@ -107,9 +107,9 @@
             // 
             this.label3.AutoSize = true;
             this.label3.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label3.Location = new System.Drawing.Point(245, 0);
+            this.label3.Location = new System.Drawing.Point(241, 0);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(115, 30);
+            this.label3.Size = new System.Drawing.Size(113, 30);
             this.label3.TabIndex = 2;
             this.label3.Text = "Gối cách mép";
             this.label3.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
@@ -118,9 +118,9 @@
             // 
             this.label2.AutoSize = true;
             this.label2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label2.Location = new System.Drawing.Point(124, 0);
+            this.label2.Location = new System.Drawing.Point(122, 0);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(115, 30);
+            this.label2.Size = new System.Drawing.Size(113, 30);
             this.label2.TabIndex = 1;
             this.label2.Text = "Chiều xoắn";
             this.label2.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
@@ -131,7 +131,7 @@
             this.label1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.label1.Location = new System.Drawing.Point(3, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(115, 30);
+            this.label1.Size = new System.Drawing.Size(113, 30);
             this.label1.TabIndex = 0;
             this.label1.Text = "Bước xoắn";
             this.label1.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
@@ -152,7 +152,7 @@
             0,
             0});
             this.buocXoan.Name = "buocXoan";
-            this.buocXoan.Size = new System.Drawing.Size(115, 24);
+            this.buocXoan.Size = new System.Drawing.Size(113, 24);
             this.buocXoan.TabIndex = 7;
             // 
             // chieuXoan
@@ -162,9 +162,9 @@
             this.chieuXoan.Items.AddRange(new object[] {
             "Z",
             "S"});
-            this.chieuXoan.Location = new System.Drawing.Point(124, 33);
+            this.chieuXoan.Location = new System.Drawing.Point(122, 33);
             this.chieuXoan.Name = "chieuXoan";
-            this.chieuXoan.Size = new System.Drawing.Size(115, 26);
+            this.chieuXoan.Size = new System.Drawing.Size(113, 26);
             this.chieuXoan.TabIndex = 15;
             // 
             // goiCachMep
@@ -176,14 +176,14 @@
             0,
             0,
             65536});
-            this.goiCachMep.Location = new System.Drawing.Point(245, 33);
+            this.goiCachMep.Location = new System.Drawing.Point(241, 33);
             this.goiCachMep.Maximum = new decimal(new int[] {
             1569325055,
             23283064,
             0,
             0});
             this.goiCachMep.Name = "goiCachMep";
-            this.goiCachMep.Size = new System.Drawing.Size(115, 24);
+            this.goiCachMep.Size = new System.Drawing.Size(113, 24);
             this.goiCachMep.TabIndex = 16;
             // 
             // UC_CDGhepLoiQB
@@ -194,7 +194,7 @@
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.Controls.Add(this.tableLayoutPanel1);
             this.Name = "UC_CDGhepLoiQB";
-            this.Size = new System.Drawing.Size(854, 65);
+            this.Size = new System.Drawing.Size(840, 65);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dkBTP)).EndInit();

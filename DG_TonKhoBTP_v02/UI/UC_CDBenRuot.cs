@@ -12,7 +12,7 @@ using System.Windows.Forms;
 
 namespace DG_TonKhoBTP_v02.UI
 {
-    public partial class UC_CDBenRuot : UserControl, ISectionProvider<CD_BenRuot>
+    public partial class UC_CDBenRuot : UserControl, ISectionProvider<CD_BenRuot>, IDataReceiver
     {
         public UC_CDBenRuot()
         {
@@ -31,6 +31,18 @@ namespace DG_TonKhoBTP_v02.UI
                 ChieuXoan = ChieuXoan.Text,
                 BuocBen = (double)buocBen.Value
             };
+        }
+
+        public void LoadData(DataTable dt)
+        {
+            if (dt == null || dt.Rows.Count == 0) return;
+            var row = dt.Rows[0];
+
+            Helper.Helper.SetIfPresent(row, "cbr_DKSoi", val => dkSoi.Value = Convert.ToDecimal(val));
+            Helper.Helper.SetIfPresent(row, "cbr_SoSoi", val => soSoi.Value = Convert.ToDecimal(val));
+            Helper.Helper.SetIfPresent(row, "cbr_ChieuXoan", val => ChieuXoan.Text = Convert.ToString(val));
+            Helper.Helper.SetIfPresent(row, "cbr_BuocBen", val => buocBen.Value = Convert.ToDecimal(val));
+
         }
     }
 }

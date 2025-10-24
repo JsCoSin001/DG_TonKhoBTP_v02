@@ -12,7 +12,7 @@ using System.Windows.Forms;
 
 namespace DG_TonKhoBTP_v02.UI
 {
-    public partial class UC_CaiDatMay : UserControl, ISectionProvider<CaiDatCDBoc>
+    public partial class UC_CaiDatMay : UserControl, ISectionProvider<CaiDatCDBoc>, IDataReceiver
     {
         public UC_CaiDatMay()
         {
@@ -46,6 +46,11 @@ namespace DG_TonKhoBTP_v02.UI
                 Khuon = (double?)khuon?.Value,
                 BinhSay = (double?)binhSay?.Value
             };
+        }
+
+        public void LoadData(DataTable dt)
+        {
+            throw new NotImplementedException();
         }
         #endregion
 

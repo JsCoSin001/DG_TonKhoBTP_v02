@@ -1,6 +1,8 @@
 ﻿using DG_TonKhoBTP_v02.Core;
 using DG_TonKhoBTP_v02.Database;
 using DG_TonKhoBTP_v02.Helper;
+using DG_TonKhoBTP_v02.Models;
+using DG_TonKhoBTP_v02.Printer;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -33,7 +35,17 @@ namespace DG_TonKhoBTP_v02.UI
                 var host = this.FindForm();
                 if (host == null) return;
 
-                var snap = DG_TonKhoBTP_v02.Core.FormSnapshotBuilder.Capture(host);
+                FormSnapshot snap = null;
+                try
+                {
+                    snap = DG_TonKhoBTP_v02.Core.FormSnapshotBuilder.Capture(host);
+                }
+                catch (Exception) {}
+
+                if (snap == null || snap.Sections.Count < 4 )
+                {
+                    return;
+                }
 
                 // lấy UC_TTSanPham ở đâu đó trong form
                 var ucSanPham = Helper.Helper.FindControlRecursive<UC_TTSanPham>(host);
@@ -91,15 +103,42 @@ namespace DG_TonKhoBTP_v02.UI
 
                 #region Lưu và thông báo trạng thái lưu
 
-                string err = "Lưu dữ liệu thành công";
-                if (!DatabaseHelper.SaveDataSanPham(thongTinCaLamViec, thongTinThanhPham, list_TTNVL, chiTietCD, out err))
-                {
-                    MessageBox.Show($"Lưu thất bại:\n{err}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
+                EditModel editmodel = (EditModel)snap.Sections["UC_Edit"];
+                int idEdit = editmodel.Id;
+
+                string err;
+                bool isSuccess;
+
+                if (idEdit > 0)
+                    isSuccess = DatabaseHelper.UpdateDataSanPham(idEdit, thongTinCaLamViec, thongTinThanhPham, list_TTNVL, chiTietCD, out err);
                 else
+                    isSuccess = DatabaseHelper.SaveDataSanPham(thongTinCaLamViec, thongTinThanhPham, list_TTNVL, chiTietCD, out err);
+
+                string title = isSuccess ? "THÔNG BÁO" : "Lỗi";
+                MessageBoxIcon icon = isSuccess ? MessageBoxIcon.Information : MessageBoxIcon.Error;
+                string message = isSuccess ? (idEdit > 0 ? "SỬA" : "LƯU" ) + " THÀNH CÔNG" : err;
+
+                // In tem
+                PrinterModel printer = new PrinterModel
                 {
-                    MessageBox.Show(err, "THÔNG BÁO", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
+                    NgaySX = DateTime.ParseExact(thongTinCaLamViec.Ngay, "yyyy-MM-dd", null).ToString("dd/MM/yyyy"),
+                    CaSX = thongTinCaLamViec.Ca,
+                    KhoiLuong = thongTinThanhPham.KhoiLuongSau.ToString(),
+                    ChieuDai = thongTinThanhPham.ChieuDaiSau.ToString(),
+                    TenSP = thongTinThanhPham.TenTP,
+                    MaBin = thongTinThanhPham.MaBin,
+                    MaSP = thongTinThanhPham.MaTP,
+                    DanhGia = "",
+                    TenCN = Helper.Helper.ConvertTiengVietKhongDau(thongTinCaLamViec.NguoiLam),
+                    GhiChu = Helper.Helper.ConvertTiengVietKhongDau(thongTinThanhPham.GhiChu)
+                };
+
+                PrintHelper.PrintLabel(printer);
+
+                MessageBox.Show(message, title, MessageBoxButtons.OK, icon);
+
+                if (isSuccess) ControlCleaner.ClearAll(host);
+
                 #endregion
             }
             finally

@@ -1,6 +1,7 @@
 ﻿
 using DG_TonKhoBTP_v02.Core;
 using DG_TonKhoBTP_v02.Models;
+using DocumentFormat.OpenXml.Drawing;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -95,12 +96,9 @@ namespace DG_TonKhoBTP_v02.Database
 
             return GetData(key, query, "id");
         }
+        #endregion
 
-
-
-            #endregion
-
-            #region Update dữ liệu
+        #region Update dữ liệu
         private static void UpdateKL_CD_TTThanhPham(SQLiteConnection conn, SQLiteTransaction tx, List<TTNVL> nvlList, long thongTinSpId)
         {
             const string sql = @"
@@ -126,6 +124,369 @@ namespace DG_TonKhoBTP_v02.Database
                 cmd.ExecuteNonQuery(); 
             }
         }
+
+        // Main update function
+        public static bool UpdateDataSanPham(int tpId, ThongTinCaLamViec caLam, TTThanhPham tp, List<TTNVL> nvl, List<object> chiTietCD, out string errorMsg)
+        {
+            using var conn = new SQLiteConnection(_connStr);
+            conn.Open();
+            using var tx = conn.BeginTransaction();
+
+            CaiDatCDBoc caiDat = (CaiDatCDBoc)chiTietCD[1];
+
+            errorMsg = string.Empty;
+
+            try
+            {
+                // 1) ThongTinCaLamViec
+                UpdateThongTinCaLamViec(conn, tx, caLam, tpId);
+
+                // 2) TTThanhPham
+                UpdateTTThanhPham(conn, tx, tp, tpId);
+
+                // 3) TTNVL -> Xoá nvl cũ và Tạo mới
+                Del_InsertTTNVL(conn, tx, tpId, nvl);
+
+                // 3.1) Update Khối lượng sau, Chiều dài sau và thêm ID được update ở TTThanhPham 
+                UpdateKhoiLuongConLai_TTThanhPham(conn, tx, nvl, tpId);
+
+                // 4) CaiDatCDBoc
+                if (caiDat != null) UpdateCaiDatCDBoc(conn, tx, tpId, caiDat);
+
+                // 5) Thêm chi tiết các công đoạn
+                switch (chiTietCD[0])
+                {
+                    case CD_BocLot lot:
+                        UpdateCDBocLot(conn, tx, tpId, lot);
+                        break;
+
+                    case CD_BocVo vo:
+                        UpdateCDBocVo(conn, tx, tpId, vo);
+                        break;
+
+                    case CD_BocMach mach:
+                        UpdateCDBocMach(conn, tx, tpId, mach);
+                        break;
+
+                    case CD_KeoRut keo:
+                        UpdateCDKeoRut(conn, tx, tpId, keo);
+                        break;
+
+                    case CD_BenRuot ben:
+                        UpdateCDBenRuot(conn, tx, tpId, ben);
+                        break;
+
+                    case CD_GhepLoiQB qb:
+                        UpdateCDGhepLoiQB(conn, tx, tpId, qb);
+                        break;
+
+                    default:
+                        throw new ArgumentException("Lỗi bất thường.");
+                }
+
+                tx.Commit();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                tx.Rollback();
+
+                errorMsg = Helper.Helper.ShowErrorDatabase(ex, tp.MaBin);
+
+                return false;
+            }
+
+        }
+
+        private static void UpdateThongTinCaLamViec(SQLiteConnection conn, SQLiteTransaction tx, ThongTinCaLamViec m, int id)
+        {
+            string sqlUpdate = @"UPDATE ThongTinCaLamViec 
+                        SET Ngay = @Ngay,
+                            May = @May,
+                            Ca = @Ca,
+                            NguoiLam = @NguoiLam,
+                            ToTruong = @ToTruong,
+                            QuanDoc = @QuanDoc
+                        WHERE id = (SELECT ThongTinCaLamViec_ID 
+                                   FROM TTThanhPham 
+                                   WHERE id = @id)";
+
+            using (var cmd = new SQLiteCommand(sqlUpdate, conn, tx))
+            {
+                cmd.Parameters.AddWithValue("@Ngay", m.Ngay);
+                cmd.Parameters.AddWithValue("@May", m.May);
+                cmd.Parameters.AddWithValue("@Ca", m.Ca);
+                cmd.Parameters.AddWithValue("@NguoiLam", m.NguoiLam);
+                cmd.Parameters.AddWithValue("@ToTruong", m.ToTruong ?? (object)DBNull.Value);
+                cmd.Parameters.AddWithValue("@QuanDoc", m.QuanDoc ?? (object)DBNull.Value);
+                cmd.Parameters.AddWithValue("@id", id);
+
+                int rowsAffected = cmd.ExecuteNonQuery();
+
+                if (rowsAffected == 0)
+                {
+                    throw new Exception($"Không tìm thấy hoặc không thể update ThongTinCaLamViec cho TTThanhPham id = {id}");
+                }
+            }
+        }
+
+        private static void UpdateTTThanhPham(SQLiteConnection conn, SQLiteTransaction tx, TTThanhPham m, int thongTinCaLamViecId)
+        {
+            string sqlUpdate = @"UPDATE TTThanhPham 
+                                SET DanhSachSP_ID = @DanhSachSP_ID,
+                                    MaBin = @MaBin,
+                                    KhoiLuongTruoc = @KhoiLuongTruoc,
+                                    KhoiLuongSau = @KhoiLuongSau,
+                                    ChieuDaiTruoc = @ChieuDaiTruoc,
+                                    ChieuDaiSau = @ChieuDaiSau,
+                                    Phe = @Phe,
+                                    GhiChu = @GhiChu
+                                WHERE id = @id";
+            m.GhiChu = m.GhiChu + "- Đã sửa";
+
+            using (var cmd = new SQLiteCommand(sqlUpdate, conn, tx))
+            {
+                cmd.Parameters.AddWithValue("@DanhSachSP_ID", m.DanhSachSP_ID);
+                cmd.Parameters.AddWithValue("@MaBin", m.MaBin);
+                cmd.Parameters.AddWithValue("@KhoiLuongTruoc", m.KhoiLuongTruoc);
+                cmd.Parameters.AddWithValue("@KhoiLuongSau", m.KhoiLuongSau);
+                cmd.Parameters.AddWithValue("@ChieuDaiTruoc", m.ChieuDaiTruoc);
+                cmd.Parameters.AddWithValue("@ChieuDaiSau", m.ChieuDaiSau);
+                cmd.Parameters.AddWithValue("@Phe", m.Phe);
+                cmd.Parameters.AddWithValue("@GhiChu", m.GhiChu ?? (object)DBNull.Value);
+                cmd.Parameters.AddWithValue("@id", thongTinCaLamViecId);
+
+                int rowsAffected = cmd.ExecuteNonQuery();
+
+                if (rowsAffected == 0)
+                {
+                    throw new Exception($"Không tìm thấy hoặc không thể update TTThanhPham với id = {m.Id}");
+                }
+            }
+        }
+
+        private static void Del_InsertTTNVL(SQLiteConnection conn, SQLiteTransaction tx, long thongTinSpId, List<TTNVL> items)
+        {
+            // Xoá dữ liệu cũ
+            using (var cmd = new SQLiteCommand(conn))
+            {
+                cmd.Transaction = tx;
+                cmd.CommandText = @"DELETE FROM TTNVL WHERE TTThanhPham_ID = @TTThanhPham_ID";
+                cmd.Parameters.AddWithValue("@TTThanhPham_ID", thongTinSpId);
+                cmd.ExecuteNonQuery();
+            }
+            // Thêm dữ liệu mới
+            InsertTTNVL(conn, tx, thongTinSpId, items);
+        }
+
+        private static void UpdateKhoiLuongConLai_TTThanhPham( SQLiteConnection conn, SQLiteTransaction tx, List<TTNVL> nvlList,long thongTinSpId)
+        {
+            if (conn == null) throw new ArgumentNullException(nameof(conn));
+            if (tx == null) throw new ArgumentNullException(nameof(tx));
+            if (nvlList == null || nvlList.Count == 0) return;
+
+            using var cmd = new SQLiteCommand(@"
+            UPDATE TTThanhPham
+               SET KhoiLuongSau = @kl,
+                   ChieuDaiSau  = @cd
+             WHERE MaBin       = @mabin
+               AND LastEdit_id = @lastEditId;", conn, tx);
+
+            var pKL = cmd.Parameters.Add("@kl", DbType.Double);
+            var pCD = cmd.Parameters.Add("@cd", DbType.Double);
+            var pBin = cmd.Parameters.Add("@mabin", DbType.String);
+            var pLE = cmd.Parameters.Add("@lastEditId", DbType.Int64);
+
+            pLE.Value = thongTinSpId;
+
+            foreach (var nvl in nvlList)
+            {
+                if (nvl == null || string.IsNullOrWhiteSpace(nvl.BinNVL))
+                    continue;
+
+                pKL.Value = nvl.KlConLai;
+                pCD.Value = nvl.CdConLai;
+                pBin.Value = nvl.BinNVL.Trim();
+
+                cmd.ExecuteNonQuery(); 
+            }
+        }
+
+        private static void UpdateCaiDatCDBoc(SQLiteConnection conn, SQLiteTransaction tx, long thongTinSpId, CaiDatCDBoc m)
+        {
+            string query = @"
+                UPDATE CaiDatCDBoc
+                SET 
+                    MangNuoc = @MangNuoc,
+                    PuliDanDay = @PuliDanDay,
+                    BoDemMet = @BoDemMet,
+                    MayIn = @MayIn,
+                    v1 = @v1,
+                    v2 = @v2,
+                    v3 = @v3,
+                    v4 = @v4,
+                    v5 = @v5,
+                    v6 = @v6,
+                    Co = @Co,
+                    Dau1 = @Dau1,
+                    Dau2 = @Dau2,
+                    Khuon = @Khuon,
+                    BinhSay = @BinhSay,
+                    DKKhuon1 = @DKKhuon1,
+                    DKKhuon2 = @DKKhuon2,
+                    TTNhua = @TTNhua,
+                    NhuaPhe = @NhuaPhe,
+                    GhiChuNhuaPhe = @GhiChuNhuaPhe,
+                    DayPhe = @DayPhe,
+                    GhiChuDayPhe = @GhiChuDayPhe,
+                    KTDKLan1 = @KTDKLan1,
+                    KTDKLan2 = @KTDKLan2,
+                    KTDKLan3 = @KTDKLan3,
+                    DiemMongLan1 = @DiemMongLan1,
+                    DiemMongLan2 = @DiemMongLan2
+                WHERE TTThanhPham_ID = @TTThanhPham_ID;
+            ";
+
+            using (var cmd = new SQLiteCommand(query, conn, tx))
+            {
+                cmd.Parameters.AddWithValue("@TTThanhPham_ID", thongTinSpId);
+                cmd.Parameters.AddWithValue("@MangNuoc", m.MangNuoc);
+                cmd.Parameters.AddWithValue("@PuliDanDay", m.PuliDanDay);
+                cmd.Parameters.AddWithValue("@BoDemMet", m.BoDemMet);
+                cmd.Parameters.AddWithValue("@MayIn", (object?)m.MayIn ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@v1", (object?)m.v1 ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@v2", (object?)m.v2 ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@v3", (object?)m.v3 ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@v4", (object?)m.v4 ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@v5", (object?)m.v5 ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@v6", (object?)m.v6 ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@Co", (object?)m.Co ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@Dau1", (object?)m.Dau1 ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@Dau2", (object?)m.Dau2 ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@Khuon", (object?)m.Khuon ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@BinhSay", (object?)m.BinhSay ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@DKKhuon1", m.DKKhuon1);
+                cmd.Parameters.AddWithValue("@DKKhuon2", m.DKKhuon2);
+                cmd.Parameters.AddWithValue("@TTNhua", m.TTNhua);
+                cmd.Parameters.AddWithValue("@NhuaPhe", m.NhuaPhe);
+                cmd.Parameters.AddWithValue("@GhiChuNhuaPhe", (object?)m.GhiChuNhuaPhe ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@DayPhe", m.DayPhe);
+                cmd.Parameters.AddWithValue("@GhiChuDayPhe", (object?)m.GhiChuDayPhe ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@KTDKLan1", m.KTDKLan1);
+                cmd.Parameters.AddWithValue("@KTDKLan2", m.KTDKLan2);
+                cmd.Parameters.AddWithValue("@KTDKLan3", m.KTDKLan3);
+                cmd.Parameters.AddWithValue("@DiemMongLan1", m.DiemMongLan1);
+                cmd.Parameters.AddWithValue("@DiemMongLan2", m.DiemMongLan2);
+
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        private static void UpdateCDBocLot(SQLiteConnection conn, SQLiteTransaction tx, long thongTinSpId, CD_BocLot m)
+        {
+            const string sql = @"
+                UPDATE CD_BocLot
+                SET DoDayTBLot = @DoDayTBLot
+                WHERE TTThanhPham_ID = @TTThanhPham_ID;";
+
+            using var cmd = new SQLiteCommand(sql, conn, tx);
+            cmd.Parameters.AddWithValue("@DoDayTBLot", m.DoDayTBLot);
+            cmd.Parameters.AddWithValue("@TTThanhPham_ID", thongTinSpId);
+            cmd.ExecuteNonQuery();
+        }
+        private static void UpdateCDBocVo(SQLiteConnection conn, SQLiteTransaction tx, long thongTinSpId, CD_BocVo m)
+        {
+            const string sql = @"
+                UPDATE CD_BocVo
+                SET DayVoTB = @DayVoTB,
+                    InAn = @InAn
+                WHERE TTThanhPham_ID = @TTThanhPham_ID;";
+
+            using var cmd = new SQLiteCommand(sql, conn, tx);
+            cmd.Parameters.AddWithValue("@DayVoTB", m.DayVoTB);
+            cmd.Parameters.AddWithValue("@InAn", m.InAn ?? string.Empty);
+            cmd.Parameters.AddWithValue("@TTThanhPham_ID", thongTinSpId);
+            cmd.ExecuteNonQuery();
+        }
+
+        private static void UpdateCDBocMach(SQLiteConnection conn, SQLiteTransaction tx, long thongTinSpId, CD_BocMach m)
+        {
+            const string sql = @"
+            UPDATE CD_BocMach
+            SET NgoaiQuan = @NgoaiQuan,
+                LanDanhThung = @LanDanhThung,
+                SoMet = @SoMet
+            WHERE TTThanhPham_ID = @TTThanhPham_ID;";
+
+            using var cmd = new SQLiteCommand(sql, conn, tx);
+            cmd.Parameters.AddWithValue("@NgoaiQuan", m.NgoaiQuan ?? "1");
+            cmd.Parameters.AddWithValue("@LanDanhThung", m.LanDanhThung);
+            cmd.Parameters.AddWithValue("@SoMet", m.SoMet);
+            cmd.Parameters.AddWithValue("@TTThanhPham_ID", thongTinSpId);
+            cmd.ExecuteNonQuery();
+        }
+
+        private static void UpdateCDKeoRut(SQLiteConnection conn, SQLiteTransaction tx, long thongTinSpId, CD_KeoRut m)
+        {
+            const string sql = @"
+            UPDATE CD_KeoRut
+            SET DKTrucX = @DKTrucX,
+                DKTrucY = @DKTrucY,
+                NgoaiQuan = @NgoaiQuan,
+                TocDo = @TocDo,
+                DienApU = @DienApU,
+                DongDienU = @DongDienU
+            WHERE TTThanhPham_ID = @TTThanhPham_ID;";
+
+            using var cmd = new SQLiteCommand(sql, conn, tx);
+            cmd.Parameters.AddWithValue("@DKTrucX", m.DKTrucX);
+            cmd.Parameters.AddWithValue("@DKTrucY", m.DKTrucY);
+            cmd.Parameters.AddWithValue("@NgoaiQuan", m.NgoaiQuan ?? string.Empty);
+            cmd.Parameters.AddWithValue("@TocDo", m.TocDo);
+            cmd.Parameters.AddWithValue("@DienApU", m.DienApU);
+            cmd.Parameters.AddWithValue("@DongDienU", m.DongDienU);
+            cmd.Parameters.AddWithValue("@TTThanhPham_ID", thongTinSpId);
+            cmd.ExecuteNonQuery();
+        }
+
+        private static void UpdateCDBenRuot(SQLiteConnection conn, SQLiteTransaction tx, long thongTinSpId, CD_BenRuot m)
+        {
+            const string sql = @"
+            UPDATE CD_BenRuot
+            SET DKSoi = @DKSoi,
+                SoSoi = @SoSoi,
+                ChieuXoan = @ChieuXoan,
+                BuocBen = @BuocBen
+            WHERE TTThanhPham_ID = @TTThanhPham_ID;";
+
+            using var cmd = new SQLiteCommand(sql, conn, tx);
+            cmd.Parameters.AddWithValue("@DKSoi", m.DKSoi);
+            cmd.Parameters.AddWithValue("@SoSoi", (object?)m.SoSoi ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@ChieuXoan", m.ChieuXoan ?? "Z");
+            cmd.Parameters.AddWithValue("@BuocBen", m.BuocBen);
+            cmd.Parameters.AddWithValue("@TTThanhPham_ID", thongTinSpId);
+            cmd.ExecuteNonQuery();
+        }
+
+        private static void UpdateCDGhepLoiQB(SQLiteConnection conn, SQLiteTransaction tx, long thongTinSpId, CD_GhepLoiQB m)
+        {
+            const string sql = @"
+            UPDATE CD_GhepLoiQB
+            SET BuocXoan = @BuocXoan,
+                ChieuXoan = @ChieuXoan,
+                GoiCachMep = @GoiCachMep,
+                DKBTP = @DKBTP
+            WHERE TTThanhPham_ID = @TTThanhPham_ID;";
+
+            using var cmd = new SQLiteCommand(sql, conn, tx);
+            cmd.Parameters.AddWithValue("@BuocXoan", m.BuocXoan);
+            cmd.Parameters.AddWithValue("@ChieuXoan", m.ChieuXoan ?? "Z");
+            cmd.Parameters.AddWithValue("@GoiCachMep", m.GoiCachMep);
+            cmd.Parameters.AddWithValue("@DKBTP", m.DKBTP);
+            cmd.Parameters.AddWithValue("@TTThanhPham_ID", thongTinSpId);
+            cmd.ExecuteNonQuery();
+        }
+
         #endregion
 
         #region Insert dữ liệu các công đoạn
@@ -194,38 +555,7 @@ namespace DG_TonKhoBTP_v02.Database
             {
                 tx.Rollback();
 
-                if (ex is SQLiteException sqliteEx)
-                {
-                    // Lỗi database
-                    switch (sqliteEx.ErrorCode)
-                    {
-                        case (int)SQLiteErrorCode.Constraint:
-                            errorMsg = tp.MaBin + " ĐÃ TỒN TẠI.";
-                            break;
-                        case (int)SQLiteErrorCode.Busy:
-                            errorMsg = "CƠ SỞ DỮ LIỆU ĐANG BẬN, HÃY THỬ LẠI LẦN NỮA.";
-                            break;
-                        default:
-                            errorMsg = $"Lỗi cơ sở dữ liệu: {sqliteEx.Message}";
-                            break;
-                    }
-                }
-                else if (ex is InvalidCastException)
-                {
-                    errorMsg = "Kiểu dữ liệu không khớp, vui lòng kiểm tra thông tin công đoạn.";
-                }
-                else if (ex is ArgumentException)
-                {
-                    errorMsg = ex.Message; // ví dụ: "Chi tiết công đoạn không hợp lệ."
-                }
-                else if (ex is NullReferenceException)
-                {
-                    errorMsg = "Một dữ liệu cần thiết chưa được khởi tạo. Vui lòng kiểm tra lại biểu mẫu nhập.";
-                }
-                else
-                {
-                    errorMsg = $"Lỗi không xác định: {ex.Message}";
-                }
+                errorMsg = Helper.Helper.ShowErrorDatabase(ex, tp.MaBin);
 
                 return false;
             }
@@ -427,7 +757,7 @@ namespace DG_TonKhoBTP_v02.Database
             // Lưu ý cột "Chiều Xoắn" có dấu và khoảng trắng -> cần trích dẫn bằng dấu "
             const string sql = @"
             INSERT INTO CD_BenRuot
-            (TTThanhPham_ID, DKSoi, SoSoi, ""Chiều Xoắn"", BuocBen)
+            (TTThanhPham_ID, DKSoi, SoSoi, ChieuXoan, BuocBen)
             VALUES
             (@TTThanhPham_ID, @DKSoi, @SoSoi, @ChieuXoan, @BuocBen);";
 

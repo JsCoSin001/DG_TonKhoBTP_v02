@@ -1,4 +1,5 @@
-﻿using DG_TonKhoBTP_v02.Models;
+﻿using DG_TonKhoBTP_v02.Core;
+using DG_TonKhoBTP_v02.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -11,9 +12,10 @@ using System.Windows.Forms;
 
 namespace DG_TonKhoBTP_v02.UI
 {
-    public partial class UC_Edit : UserControl
+    public partial class UC_Edit : UserControl, IFormSection
     {
         CongDoan _cd;
+
 
         public event EventHandler<DataTable> DataTableSubmitted;
 
@@ -52,6 +54,21 @@ namespace DG_TonKhoBTP_v02.UI
             {
                 btnTim.Enabled = true;
             }
+        }
+
+        public string SectionName => nameof(UC_Edit);
+
+        public object GetData()
+        {
+            return new EditModel
+            {
+                Id = (int)sttLoi.Value
+            };
+        }
+
+        public void ClearInputs()
+        {
+            sttLoi.Value = 0;
         }
     }
 }

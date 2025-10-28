@@ -30,7 +30,7 @@ namespace DG_TonKhoBTP_v02.UI
             // check if dt has rows
             if (dt.Rows.Count == 0)
             {
-                MessageBox.Show("Không tìm thấy dữ liệu trong tháng đã chọn!", "Thông báo",
+                MessageBox.Show("THÁNG " + selected.ToString("MM/yyyy") + " KHÔNG CÓ DỮ LIỆU!", "Thông báo",
                                 MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }

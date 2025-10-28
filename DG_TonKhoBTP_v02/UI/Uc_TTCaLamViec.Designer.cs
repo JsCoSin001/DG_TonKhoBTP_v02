@@ -67,7 +67,7 @@
             this.groupBox1.Margin = new System.Windows.Forms.Padding(4);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Padding = new System.Windows.Forms.Padding(10);
-            this.groupBox1.Size = new System.Drawing.Size(1329, 65);
+            this.groupBox1.Size = new System.Drawing.Size(1329, 70);
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Thông tin ca làm việc";
@@ -104,7 +104,7 @@
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 1;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(1309, 30);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(1309, 35);
             this.tableLayoutPanel1.TabIndex = 0;
             // 
             // quanDoc
@@ -123,7 +123,7 @@
             this.label6.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label6.Location = new System.Drawing.Point(1111, 0);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(114, 30);
+            this.label6.Size = new System.Drawing.Size(114, 35);
             this.label6.TabIndex = 16;
             this.label6.Text = "Quản đốc";
             this.label6.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -144,7 +144,7 @@
             this.label5.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label5.Location = new System.Drawing.Point(912, 0);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(114, 30);
+            this.label5.Size = new System.Drawing.Size(114, 35);
             this.label5.TabIndex = 14;
             this.label5.Text = "Tổ trưởng";
             this.label5.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -164,7 +164,7 @@
             this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label4.Location = new System.Drawing.Point(713, 0);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(114, 30);
+            this.label4.Size = new System.Drawing.Size(114, 35);
             this.label4.TabIndex = 12;
             this.label4.Text = "Người làm";
             this.label4.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -190,7 +190,7 @@
             this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label3.Location = new System.Drawing.Point(573, 0);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(64, 30);
+            this.label3.Size = new System.Drawing.Size(64, 35);
             this.label3.TabIndex = 4;
             this.label3.Text = "Ca";
             this.label3.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -201,7 +201,7 @@
             this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label2.Location = new System.Drawing.Point(273, 0);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(94, 30);
+            this.label2.Size = new System.Drawing.Size(94, 35);
             this.label2.TabIndex = 2;
             this.label2.Text = "Máy";
             this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -212,7 +212,7 @@
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label1.Location = new System.Drawing.Point(3, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(64, 30);
+            this.label1.Size = new System.Drawing.Size(64, 35);
             this.label1.TabIndex = 0;
             this.label1.Text = "Ngày";
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -251,7 +251,7 @@
             this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "UC_TTCaLamViec";
             this.Padding = new System.Windows.Forms.Padding(10);
-            this.Size = new System.Drawing.Size(1349, 127);
+            this.Size = new System.Drawing.Size(1349, 132);
             this.groupBox1.ResumeLayout(false);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();

@@ -62,6 +62,7 @@ namespace DG_TonKhoBTP_v02.Core
     // Ca làm việc (tối thiểu cho UC_TTCaLamViec)
     public class ThongTinCaLamViec
     {
+        public int Id { get; set; }
         public string Ngay { get; set; }
         public string May { get; set; }
         public string Ca { get; set; }
@@ -75,6 +76,8 @@ namespace DG_TonKhoBTP_v02.Core
     {
         public int Id { get; set; }
         public int DanhSachSP_ID { get; set; }        // FK -> DanhSachMaSP.id
+        public string TenTP { get; set; }       
+        public string MaTP { get; set; }       
         public int ThongTinCaLamViec_ID { get; set; } // FK -> ThongTinCaLamViec.id
         public string MaBin { get; set; }             // NOT NULL
         public double KhoiLuongTruoc { get; set; }    // NOT NULL
@@ -166,5 +169,11 @@ namespace DG_TonKhoBTP_v02.Core
         {
             return Sections.TryGetValue(name, out var o) ? o as T : null;
         }
+    }
+
+
+    public class EditModel
+    {
+        public int Id { get; set; }
     }
 }

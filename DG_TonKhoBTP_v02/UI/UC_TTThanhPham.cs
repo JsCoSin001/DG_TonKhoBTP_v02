@@ -34,6 +34,7 @@ namespace DG_TonKhoBTP_v02.UI
         public void ChonMay(string value)
         {
             may.Text = value;
+            maBin.Text = Helper.Helper.LOTGenerated(may, maHanhTrinh, sttCongDoan, sttLo, soBin);
         }
 
         private void maHanhTrinh_ValueChanged(object sender, EventArgs e)
@@ -66,6 +67,8 @@ namespace DG_TonKhoBTP_v02.UI
                  
                 DanhSachSP_ID = int.Parse(id.Text),
                 ThongTinCaLamViec_ID = 0,
+                TenTP = ten.Text,
+                MaTP = ma.Text,
                 CongDoan = congDoan,
                 MaBin = maBin?.Text ?? string.Empty,
                 KhoiLuongTruoc = (double)khoiLuong.Value, // Tạo mới đặt KL trước = kl sau

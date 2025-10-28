@@ -50,7 +50,24 @@ namespace DG_TonKhoBTP_v02.UI
 
         public void LoadData(DataTable dt)
         {
-            throw new NotImplementedException();
+            if (dt == null || dt.Rows.Count == 0) return;
+            var row = dt.Rows[0];
+
+            Helper.Helper.SetIfPresent(row, "cdb_MangNuoc", val => mangNuoc.Text = Convert.ToString(val));
+            Helper.Helper.SetIfPresent(row, "cdb_PuliDanDay", val => puliDanDay.Text = Convert.ToString(val));
+            Helper.Helper.SetIfPresent(row, "cdb_BoDemMet", val => boDemMet.Text = Convert.ToString(val));
+            Helper.Helper.SetIfPresent(row, "cdb_MayIn", val => mayIn.Text = Convert.ToString(val));
+            Helper.Helper.SetIfPresent(row, "cdb_v1", val => v1.Text = Convert.ToString(val));
+            Helper.Helper.SetIfPresent(row, "cdb_v2", val => v2.Text = Convert.ToString(val));
+            Helper.Helper.SetIfPresent(row, "cdb_v3", val => v3.Text = Convert.ToString(val));
+            Helper.Helper.SetIfPresent(row, "cdb_v4", val => v4.Text = Convert.ToString(val));
+            Helper.Helper.SetIfPresent(row, "cdb_v5", val => v5.Text = Convert.ToString(val));
+            Helper.Helper.SetIfPresent(row, "cdb_v6", val => v6.Text = Convert.ToString(val));
+            Helper.Helper.SetIfPresent(row, "cdb_Co", val => co.Text = Convert.ToString(val));
+            Helper.Helper.SetIfPresent(row, "cdb_Dau1", val => dau1.Text = Convert.ToString(val));
+            Helper.Helper.SetIfPresent(row, "cdb_Dau2", val => dau2.Text = Convert.ToString(val));
+            Helper.Helper.SetIfPresent(row, "cdb_Khuon", val => khuon.Text = Convert.ToString(val));
+            Helper.Helper.SetIfPresent(row, "cdb_BinhSay", val => binhSay.Text = Convert.ToString(val));
         }
         #endregion
 

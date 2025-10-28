@@ -3,9 +3,11 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -419,6 +421,67 @@ namespace DG_TonKhoBTP_v02.Helper
             // Tách chuỗi bằng cả '-' và '/'
             char[] separators = { '-', '/' };
             return input.Split(separators, StringSplitOptions.RemoveEmptyEntries);
+        }
+
+        public static string ShowErrorDatabase(Exception ex, string? maBin = null)
+        {
+            if (ex is SQLiteException sqliteEx)
+            {
+                switch (sqliteEx.ErrorCode)
+                {
+                    case (int)SQLiteErrorCode.Constraint:
+                        return $"{maBin ?? "DỮ LIỆU"} ĐÃ TỒN TẠI.";
+                    case (int)SQLiteErrorCode.Busy:
+                        return "CƠ SỞ DỮ LIỆU ĐANG BẬN, HÃY THỬ LẠI LẦN NỮA.";
+                    default:
+                        return $"Lỗi cơ sở dữ liệu: {sqliteEx.Message}";
+                }
+            }
+            else if (ex is InvalidCastException)
+            {
+                return "Kiểu dữ liệu không khớp, vui lòng kiểm tra thông tin công đoạn.";
+            }
+            else if (ex is ArgumentException)
+            {
+                return ex.Message; // ví dụ: "Chi tiết công đoạn không hợp lệ."
+            }
+            else if (ex is NullReferenceException)
+            {
+                return "Một dữ liệu cần thiết chưa được khởi tạo. Vui lòng kiểm tra lại biểu mẫu nhập.";
+            }
+            else
+            {
+                return $"Lỗi không xác định: {ex.Message}";
+            }
+        }
+
+        public static string ConvertTiengVietKhongDau(string input)
+        {
+            if (string.IsNullOrEmpty(input))
+                return input;
+
+            // Chuẩn hóa chuỗi về dạng FormD (mỗi ký tự có dấu được tách ra thành ký tự + dấu)
+            string normalized = input.Normalize(NormalizationForm.FormD);
+
+            // Loại bỏ các ký tự dấu (NonSpacingMark)
+            StringBuilder sb = new StringBuilder();
+            foreach (char c in normalized)
+            {
+                UnicodeCategory category = CharUnicodeInfo.GetUnicodeCategory(c);
+                if (category != UnicodeCategory.NonSpacingMark)
+                    sb.Append(c);
+            }
+
+            // Chuẩn hóa lại về FormC (chuẩn bình thường)
+            string result = sb.ToString().Normalize(NormalizationForm.FormC);
+
+            // Xử lý đặc biệt cho "đ" và "Đ"
+            result = result.Replace('đ', 'd').Replace('Đ', 'D');
+
+            // Loại bỏ khoảng trắng thừa (tùy chọn)
+            result = Regex.Replace(result, @"\s+", " ").Trim();
+
+            return result;
         }
     }
 

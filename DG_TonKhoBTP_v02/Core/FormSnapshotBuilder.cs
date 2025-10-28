@@ -27,8 +27,9 @@ namespace DG_TonKhoBTP_v02.Core
                 }
                 catch
                 {
-                   MessageBox.Show($"Dữ liệu không hợp lệ", "LỖI", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                   MessageBox.Show($"LỖI NHẬP LIỆU", "LỖI", MessageBoxButtons.OK, MessageBoxIcon.Error);
                    System.Console.WriteLine($"Lỗi khi thu thập dữ liệu từ section: {section.SectionName}");
+                    throw;
                 }                
             }
 

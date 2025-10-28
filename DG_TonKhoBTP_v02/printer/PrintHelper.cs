@@ -45,7 +45,7 @@ namespace DG_TonKhoBTP_v02.Printer
                 new TextLineSpec { Prefix = "San Pham: ",    Content = printer.TenSP, X = 300 },
                 new TextLineSpec { Prefix = "Ma san pham: ", Content = printer.MaBin, X = 300 },
                 new TextLineSpec { Prefix = "Quy cach: ",    Content = printer.TenSP, X = 300 },
-                new TextLineSpec { Prefix = "Danh Gia: ",    Content = printer.DanhGia, X = 270 },
+                new TextLineSpec { Prefix = "Danh Gia: ",Content ="OK" + Helper.Helper.TaoKhoangTrong(10,printer.DanhGia) + "NG", X = 270 },
                 new TextLineSpec { Prefix = "CN van hanh: " + Helper.Helper.TaoKhoangTrong(15,printer.TenCN) + " T.truong:", Content = printer.TenCN, X = 250 },
             }; 
 

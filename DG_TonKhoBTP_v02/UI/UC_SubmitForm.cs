@@ -102,43 +102,79 @@ namespace DG_TonKhoBTP_v02.UI
                 #endregion
 
                 #region Lưu và thông báo trạng thái lưu
-
                 EditModel editmodel = (EditModel)snap.Sections["UC_Edit"];
                 int idEdit = editmodel.Id;
+                string err = string.Empty;
+                bool isSuccess = false;
 
-                string err;
-                bool isSuccess;
-
-                if (idEdit > 0)
-                    isSuccess = DatabaseHelper.UpdateDataSanPham(idEdit, thongTinCaLamViec, thongTinThanhPham, list_TTNVL, chiTietCD, out err);
-                else
-                    isSuccess = DatabaseHelper.SaveDataSanPham(thongTinCaLamViec, thongTinThanhPham, list_TTNVL, chiTietCD, out err);
-
-                string title = isSuccess ? "THÔNG BÁO" : "Lỗi";
-                MessageBoxIcon icon = isSuccess ? MessageBoxIcon.Information : MessageBoxIcon.Error;
-                string message = isSuccess ? (idEdit > 0 ? "SỬA" : "LƯU" ) + " THÀNH CÔNG" : err;
-
-                // In tem
-                PrinterModel printer = new PrinterModel
+                // Tạo dữ liệu in sẵn (hoặc tạo sau khi lưu tuỳ ý)
+                PrinterModel BuildPrinter()
                 {
-                    NgaySX = DateTime.ParseExact(thongTinCaLamViec.Ngay, "yyyy-MM-dd", null).ToString("dd/MM/yyyy"),
-                    CaSX = thongTinCaLamViec.Ca,
-                    KhoiLuong = thongTinThanhPham.KhoiLuongSau.ToString(),
-                    ChieuDai = thongTinThanhPham.ChieuDaiSau.ToString(),
-                    TenSP = thongTinThanhPham.TenTP,
-                    MaBin = thongTinThanhPham.MaBin,
-                    MaSP = thongTinThanhPham.MaTP,
-                    DanhGia = "",
-                    TenCN = Helper.Helper.ConvertTiengVietKhongDau(thongTinCaLamViec.NguoiLam),
-                    GhiChu = Helper.Helper.ConvertTiengVietKhongDau(thongTinThanhPham.GhiChu)
-                };
+                    return new PrinterModel
+                    {
+                        NgaySX = DateTime.ParseExact(thongTinCaLamViec.Ngay, "yyyy-MM-dd", null).ToString("dd/MM/yyyy"),
+                        CaSX = thongTinCaLamViec.Ca,
+                        KhoiLuong = thongTinThanhPham.KhoiLuongSau.ToString(),
+                        ChieuDai = thongTinThanhPham.ChieuDaiSau.ToString(),
+                        TenSP = thongTinThanhPham.TenTP,
+                        MaBin = thongTinThanhPham.MaBin,
+                        MaSP = thongTinThanhPham.MaTP,
+                        DanhGia = "",
+                        TenCN = Helper.Helper.ConvertTiengVietKhongDau(thongTinCaLamViec.NguoiLam),
+                        GhiChu = Helper.Helper.ConvertTiengVietKhongDau(thongTinThanhPham.GhiChu)
+                    };
+                }
 
-                PrintHelper.PrintLabel(printer);
+                var waiting = new FrmWaiting("Đang lưu dữ liệu và in tem...");
+                try
+                {
+                    // Thiết lập để form luôn nổi trên
+                    waiting.TopMost = true;
+                    waiting.StartPosition = FormStartPosition.CenterScreen;
+                    waiting.Show();
+                    waiting.Refresh(); // Force refresh để vẽ ngay
+                    Application.DoEvents();
 
-                MessageBox.Show(message, title, MessageBoxButtons.OK, icon);
+                    Task.Run(() =>
+                    {
+                        // 1) Lưu dữ liệu
+                        if (idEdit > 0)
+                            isSuccess = DatabaseHelper.UpdateDataSanPham(idEdit, thongTinCaLamViec, thongTinThanhPham, list_TTNVL, chiTietCD, out err);
+                        else
+                            isSuccess = DatabaseHelper.SaveDataSanPham(thongTinCaLamViec, thongTinThanhPham, list_TTNVL, chiTietCD, out err);
 
-                if (isSuccess) ControlCleaner.ClearAll(host);
+                        // 2) In tem nếu lưu ok
+                        if (isSuccess)
+                        {
+                            var printer = BuildPrinter();
+                            PrintHelper.PrintLabel(printer);
+                        }
 
+                        // 3) Quay lại UI: đóng waiting + báo kết quả + clear form
+                        this.BeginInvoke(new Action(() =>
+                        {
+                            try
+                            {
+                                waiting.Close();
+                                waiting.Dispose();
+                            }
+                            catch { }
+
+                            string title = isSuccess ? "THÔNG BÁO" : "Lỗi";
+                            MessageBoxIcon icon = isSuccess ? MessageBoxIcon.Information : MessageBoxIcon.Error;
+                            string message = isSuccess ? (idEdit > 0 ? "SỬA" : "LƯU") + " THÀNH CÔNG" : err;
+                            MessageBox.Show(message, title, MessageBoxButtons.OK, icon);
+
+                            if (isSuccess) ControlCleaner.ClearAll(host);
+                        }));
+                    });
+                }
+                catch (Exception ex)
+                {
+                    waiting?.Close();
+                    waiting?.Dispose();
+                    MessageBox.Show("Lỗi: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
                 #endregion
             }
             finally

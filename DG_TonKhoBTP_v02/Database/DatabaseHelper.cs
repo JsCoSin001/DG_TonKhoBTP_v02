@@ -23,15 +23,17 @@ namespace DG_TonKhoBTP_v02.Database
         }
 
         #region Lấy dữ liệu
-        public static DataTable GetData(string key, string query, string para)
+        public static DataTable GetData(string query , string key = null,  string para = null)
         {
             using (SQLiteConnection conn = new SQLiteConnection(_connStr))
             {
                 conn.Open();
-
                 using (SQLiteCommand cmd = new SQLiteCommand(query, conn))
                 {
-                    cmd.Parameters.AddWithValue("@"+ para, key);
+                    if (!string.IsNullOrWhiteSpace(para) && key != null)
+                    {
+                        cmd.Parameters.AddWithValue("@" + para, key);
+                    }
 
                     using (SQLiteDataAdapter adapter = new SQLiteDataAdapter(cmd))
                     {
@@ -42,6 +44,7 @@ namespace DG_TonKhoBTP_v02.Database
                 }
             }
         }
+                
         public static DataTable GetDataByMonth(DateTime selectedDate, CongDoan cd)
         {
             string key = selectedDate.ToString("yyyy-MM-dd");
@@ -69,7 +72,7 @@ namespace DG_TonKhoBTP_v02.Database
             // Kết hợp câu truy vấn
             string query = sqlSelect + sqlLayChiTietCD + sqlTenNVL + sqlKetNoi + sqlDk1 + sqlDk2 + sqlOrder; 
 
-            return GetData(key, query, "para");
+            return GetData( query, key, "para");
         }
 
         public static DataTable GetDataByID(string key, CongDoan cd)
@@ -94,7 +97,7 @@ namespace DG_TonKhoBTP_v02.Database
             // Kết hợp câu truy vấn
             string query = sqlSelect + sqlLayChiTietCD + sqlTenNVL + sqlKetNoi + sqlDk1 +sqlDk2;
 
-            return GetData(key, query, "id");
+            return GetData(query, key, "id");
         }
         #endregion
 
@@ -394,6 +397,7 @@ namespace DG_TonKhoBTP_v02.Database
             cmd.Parameters.AddWithValue("@TTThanhPham_ID", thongTinSpId);
             cmd.ExecuteNonQuery();
         }
+        
         private static void UpdateCDBocVo(SQLiteConnection conn, SQLiteTransaction tx, long thongTinSpId, CD_BocVo m)
         {
             const string sql = @"
@@ -486,6 +490,88 @@ namespace DG_TonKhoBTP_v02.Database
             cmd.Parameters.AddWithValue("@TTThanhPham_ID", thongTinSpId);
             cmd.ExecuteNonQuery();
         }
+
+        public static string UpdateDanhSachMaSP(DanhSachMaSP sp, int key)
+        {
+            string query = @"
+                UPDATE DanhSachMaSP
+                SET 
+                    Ten = @Ten,
+                    Ma = @Ma,
+                    DonVi = @DonVi,
+                    KieuSP = @KieuSP,
+                    DateInsert = @DateInsert
+                WHERE id = @Id;
+            ";
+
+            try
+            {
+                using (var conn = new SQLiteConnection(_connStr))
+                {
+                    conn.Open();
+                    using (var cmd = new SQLiteCommand(query, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@Ten", sp.Ten);
+                        cmd.Parameters.AddWithValue("@Ma", sp.Ma);
+                        cmd.Parameters.AddWithValue("@DonVi", sp.DonVi);
+                        cmd.Parameters.AddWithValue("@KieuSP", sp.KieuSP);
+                        cmd.Parameters.AddWithValue("@DateInsert", sp.DateInsert);
+                        cmd.Parameters.AddWithValue("@Id", key);
+
+                        int rowsAffected = cmd.ExecuteNonQuery();
+
+                        // Nếu cập nhật thành công → trả về chuỗi rỗng
+                        if (rowsAffected > 0)
+                            return "";
+                        else
+                            return $"Không tìm thấy bản ghi với Tên = {sp.Ten}";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // Trả về lỗi từ helper
+                return Helper.Helper.ShowErrorDatabase(ex, sp.Ten);
+            }
+        }
+
+        public static string UpdateKLConLai_BanTran(BanTran bt)
+        {
+            string query = @"
+                UPDATE TTThanhPham
+                SET 
+                    KhoiLuongSau = @KhoiLuongSau,
+                    KLBanTran = COALESCE(KLBanTran, 0) + @KhoiLuongBanTran
+                WHERE MaBin = @MaBin;
+            ";
+
+            try
+            {
+                using (var conn = new SQLiteConnection(_connStr))
+                {
+                    conn.Open();
+                    using (var cmd = new SQLiteCommand(query, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@KhoiLuongSau", bt.KhoiLuongSau);
+                        cmd.Parameters.AddWithValue("@KhoiLuongBanTran", bt.KhoiLuongBanTran);
+                        cmd.Parameters.AddWithValue("@MaBin", bt.MaBin);
+
+                        int rowsAffected = cmd.ExecuteNonQuery();
+
+                        if (rowsAffected > 0)
+                            return ""; // cập nhật thành công → trả về chuỗi rỗng
+                        else
+                            return $"Không tìm thấy bản ghi với MaBin = {bt.MaBin}";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // Gọi helper hiển thị lỗi giống phong cách bạn đang dùng
+                return Helper.Helper.ShowErrorDatabase(ex, bt.MaBin);
+            }
+        }
+
 
         #endregion
 
@@ -786,6 +872,40 @@ namespace DG_TonKhoBTP_v02.Database
             cmd.Parameters.AddWithValue("@DKBTP", m.DKBTP);
             cmd.ExecuteNonQuery();
         }
+
+        public static string InsertDSMaSP(DanhSachMaSP sp)
+        {
+            try
+            {
+                using var conn = new SQLiteConnection(_connStr);
+                conn.Open();
+                using var tx = conn.BeginTransaction();
+
+                string sql = @"
+                    INSERT INTO DanhSachMaSP (Ten, Ma, DonVi, KieuSP, DateInsert)
+                    VALUES (@Ten, @Ma, @DonVi, @KieuSP, @DateInsert);
+                ";
+
+                using (var cmd = new SQLiteCommand(sql, conn, tx))
+                {
+                    cmd.Parameters.AddWithValue("@Ten", sp.Ten);
+                    cmd.Parameters.AddWithValue("@Ma", sp.Ma);
+                    cmd.Parameters.AddWithValue("@DonVi", sp.DonVi);
+                    cmd.Parameters.AddWithValue("@KieuSP", sp.KieuSP);
+                    cmd.Parameters.AddWithValue("@DateInsert", sp.DateInsert ?? DateTime.Now);
+
+                    cmd.ExecuteNonQuery();
+                }
+
+                tx.Commit();
+                return ""; 
+            }
+            catch (Exception ex)
+            {
+                return Helper.Helper.ShowErrorDatabase(ex, sp.Ma);
+            }
+        }
+
         #endregion
 
     }

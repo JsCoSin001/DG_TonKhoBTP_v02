@@ -19,8 +19,6 @@ namespace DG_TonKhoBTP_v02
         private string _URL = "D:\\Database\\QLSX_v02.db";
         //UC_TTCaLamViec uc_caLamViec;
 
-
-
         public MainForm()
         {
             InitializeComponent();
@@ -29,6 +27,12 @@ namespace DG_TonKhoBTP_v02
 
 
         #region Hàm log cấu trúc control
+        private void button1_Click(object sender, EventArgs e)
+        {
+            // Log cấu trúc control sau khi ShowUI
+            LogControlsTree(pnShow, s => Console.WriteLine(s));
+        }
+
         public static void LogControlsTree(Control root, Action<string> log = null)
         {
             if (root == null) return;
@@ -101,9 +105,39 @@ namespace DG_TonKhoBTP_v02
             this.ShowUI(thongTinCD, pnBottom);
         }
 
-        private void btnGhepLoiQB_Click(object sender, EventArgs e)
+        private void btnGhepLoi_Click(object sender, EventArgs e)
         {
-            CongDoan thongTinCD = ThongTinChungCongDoan.GhepLoi_QB;
+            CongDoan thongTinCD = ThongTinChungCongDoan.GhepLoi;
+
+            List<ColumnDefinition> columns = thongTinCD.Columns;
+
+            var ucSanPham = new UC_TTSanPham(
+                new UC_CDGhepLoiQB()
+            );
+
+            Panel pnBottom = UI_BottomPanel(columns, ucSanPham, thongTinCD);
+
+            this.ShowUI(thongTinCD, pnBottom);
+        }
+
+        private void btnQuanBang_Click(object sender, EventArgs e)
+        {
+            CongDoan thongTinCD = ThongTinChungCongDoan.QuanBang;
+
+            List<ColumnDefinition> columns = thongTinCD.Columns;
+
+            var ucSanPham = new UC_TTSanPham(
+                new UC_CDGhepLoiQB()
+            );
+
+            Panel pnBottom = UI_BottomPanel(columns, ucSanPham, thongTinCD);
+
+            this.ShowUI(thongTinCD, pnBottom);
+        }
+
+        private void btnMica_Click(object sender, EventArgs e)
+        {
+            CongDoan thongTinCD = ThongTinChungCongDoan.Mica;
 
             List<ColumnDefinition> columns = thongTinCD.Columns;
 
@@ -275,23 +309,6 @@ namespace DG_TonKhoBTP_v02
             pnLeft.Controls.Add(uC_TTNVL);
             return pnLeft;
         }
-        #endregion
-
-        #region Hiển thị Giao diện
-        private void ShowUI(CongDoan cd, Panel pnBottom)
-        {
-            pnShow.Controls.Clear();
-            Panel pnTop = this.UI_TopPanel(cd);
-            pnShow.Controls.Add(pnBottom);
-            pnShow.Controls.Add(pnTop);
-        }
-        #endregion
-
-        private void button1_Click(object sender, EventArgs e)
-        {
-            // Log cấu trúc control sau khi ShowUI
-            LogControlsTree(pnShow, s => Console.WriteLine(s));
-        }
 
         private void BroadcastToReceivers(Control root, DataTable dt)
         {
@@ -336,5 +353,41 @@ namespace DG_TonKhoBTP_v02
             }
             return null;
         }
+
+        private void btnCapNhatMaHang_Click(object sender, EventArgs e)
+        {
+            pnShow.Controls.Clear();
+            var uc = new UC_CapNhatSP
+            {
+                Dock = DockStyle.Fill
+            };
+
+            pnShow.Controls.Add(uc);
+        }
+
+        private void btnBaoCaoTonKho_Click(object sender, EventArgs e)
+        {
+            pnShow.Controls.Clear();
+            var uc = new UC_TonKho
+            {
+                Dock = DockStyle.Fill
+            };
+
+            pnShow.Controls.Add(uc);
+        }
+
+        #endregion
+
+        #region Hiển thị Giao diện Main
+        private void ShowUI(CongDoan cd, Panel pnBottom)
+        {
+            pnShow.Controls.Clear();
+            Panel pnTop = this.UI_TopPanel(cd);
+            pnShow.Controls.Add(pnBottom);
+            pnShow.Controls.Add(pnTop);
+        }
+        #endregion
+
+
     }
 }

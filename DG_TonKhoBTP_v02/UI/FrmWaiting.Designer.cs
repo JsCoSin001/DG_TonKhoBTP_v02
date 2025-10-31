@@ -70,7 +70,7 @@
             this.lblMessage.Name = "lblMessage";
             this.lblMessage.Size = new System.Drawing.Size(278, 24);
             this.lblMessage.TabIndex = 1;
-            this.lblMessage.Text = "ĐANG XỬ LÝ DỮ LIÊU";
+            this.lblMessage.Text = "XIN CHỜ ...";
             this.lblMessage.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // FrmWaiting

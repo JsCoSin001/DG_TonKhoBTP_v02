@@ -45,9 +45,9 @@ namespace DG_TonKhoBTP_v02.Helper
                 ON d.id = t.DanhSachSP_ID
             WHERE
                 (
-                    (d.DonVi = 0 AND t.KhoiLuongSau <> 0)
+                    (d.DonVi = 'KG' AND t.KhoiLuongSau <> 0)
                     OR
-                    (d.DonVi = 1 AND t.ChieuDaiSau  <> 0)
+                    (d.DonVi = 'M' AND t.ChieuDaiSau  <> 0)
                 )
                 AND (
                     @ten IS NULL OR TRIM(@ten) = ''
@@ -423,14 +423,14 @@ namespace DG_TonKhoBTP_v02.Helper
             return input.Split(separators, StringSplitOptions.RemoveEmptyEntries);
         }
 
-        public static string ShowErrorDatabase(Exception ex, string? maBin = null)
+        public static string ShowErrorDatabase(Exception ex, string? ten = null)
         {
             if (ex is SQLiteException sqliteEx)
             {
                 switch (sqliteEx.ErrorCode)
                 {
                     case (int)SQLiteErrorCode.Constraint:
-                        return $"{maBin ?? "DỮ LIỆU"} ĐÃ TỒN TẠI.";
+                        return $"{ten ?? "DỮ LIỆU"} ĐÃ TỒN TẠI.";
                     case (int)SQLiteErrorCode.Busy:
                         return "CƠ SỞ DỮ LIỆU ĐANG BẬN, HÃY THỬ LẠI LẦN NỮA.";
                     default:
@@ -483,6 +483,8 @@ namespace DG_TonKhoBTP_v02.Helper
 
             return result;
         }
+
+        
     }
 
 

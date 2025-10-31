@@ -31,6 +31,7 @@
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.btnLuu = new System.Windows.Forms.Button();
             this.btnClear = new System.Windows.Forms.Button();
+            this.cbInTem = new System.Windows.Forms.CheckBox();
             this.flowLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -40,11 +41,12 @@
             this.flowLayoutPanel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.flowLayoutPanel1.Controls.Add(this.btnLuu);
             this.flowLayoutPanel1.Controls.Add(this.btnClear);
+            this.flowLayoutPanel1.Controls.Add(this.cbInTem);
             this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanel1.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
             this.flowLayoutPanel1.Location = new System.Drawing.Point(0, 0);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(247, 52);
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(330, 52);
             this.flowLayoutPanel1.TabIndex = 0;
             // 
             // btnLuu
@@ -52,7 +54,7 @@
             this.btnLuu.BackColor = System.Drawing.Color.ForestGreen;
             this.btnLuu.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnLuu.ForeColor = System.Drawing.Color.Honeydew;
-            this.btnLuu.Location = new System.Drawing.Point(107, 3);
+            this.btnLuu.Location = new System.Drawing.Point(190, 3);
             this.btnLuu.Name = "btnLuu";
             this.btnLuu.Size = new System.Drawing.Size(137, 46);
             this.btnLuu.TabIndex = 0;
@@ -65,13 +67,27 @@
             this.btnClear.BackColor = System.Drawing.Color.Brown;
             this.btnClear.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnClear.ForeColor = System.Drawing.SystemColors.Control;
-            this.btnClear.Location = new System.Drawing.Point(3, 3);
+            this.btnClear.Location = new System.Drawing.Point(86, 3);
             this.btnClear.Name = "btnClear";
             this.btnClear.Size = new System.Drawing.Size(98, 46);
             this.btnClear.TabIndex = 1;
             this.btnClear.Text = "Xoá";
             this.btnClear.UseVisualStyleBackColor = false;
             this.btnClear.Click += new System.EventHandler(this.btnClear_Click);
+            // 
+            // cbInTem
+            // 
+            this.cbInTem.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.cbInTem.AutoSize = true;
+            this.cbInTem.Checked = true;
+            this.cbInTem.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.cbInTem.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cbInTem.Location = new System.Drawing.Point(3, 14);
+            this.cbInTem.Name = "cbInTem";
+            this.cbInTem.Size = new System.Drawing.Size(77, 24);
+            this.cbInTem.TabIndex = 2;
+            this.cbInTem.Text = "In Tem";
+            this.cbInTem.UseVisualStyleBackColor = true;
             // 
             // UC_SubmitForm
             // 
@@ -81,8 +97,9 @@
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.Controls.Add(this.flowLayoutPanel1);
             this.Name = "UC_SubmitForm";
-            this.Size = new System.Drawing.Size(247, 52);
+            this.Size = new System.Drawing.Size(330, 52);
             this.flowLayoutPanel1.ResumeLayout(false);
+            this.flowLayoutPanel1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -93,5 +110,6 @@
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
         private System.Windows.Forms.Button btnLuu;
         private System.Windows.Forms.Button btnClear;
+        private System.Windows.Forms.CheckBox cbInTem;
     }
 }

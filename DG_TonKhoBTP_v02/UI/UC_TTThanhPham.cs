@@ -96,9 +96,6 @@ namespace DG_TonKhoBTP_v02.UI
             phe.Value = phe.Minimum;
             GhiChu.Text = string.Empty;
         }
-
-
-
         #endregion
 
         private async void timNVL_TextUpdate(object sender, EventArgs e)
@@ -135,16 +132,19 @@ namespace DG_TonKhoBTP_v02.UI
             }
             string para = "ten";
 
+            var likeConditions = string.Join(" OR ", congDoan.ListMa_Accept.Select((m, i) => $"Ma LIKE '{m}'"));
+
             string query = $@"
                 SELECT id, ten, ma
                 FROM DanhSachMaSP
                 WHERE ten LIKE '%' || @{para} || '%'
-                  AND ma NOT LIKE 'NVL.%';
+                    AND Ma NOT LIKE 'NVL.%'
+                    AND ({likeConditions});
             ";
 
             DataTable sp = await Task.Run(() =>
             {
-                return DatabaseHelper.GetData(keyword, query, para);
+                return DatabaseHelper.GetData( query, keyword, para);
             }, ct);
 
             ct.ThrowIfCancellationRequested();

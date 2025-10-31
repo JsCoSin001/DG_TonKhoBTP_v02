@@ -121,6 +121,12 @@
     <Compile Include="printer\TextLineSpec.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UI\UC_CapNhatSP.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\UC_CapNhatSP.Designer.cs">
+      <DependentUpon>UC_CapNhatSP.cs</DependentUpon>
+    </Compile>
     <Compile Include="UI\FrmWaiting.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -196,6 +202,12 @@
     <Compile Include="UI\UC_SubmitForm.Designer.cs">
       <DependentUpon>UC_SubmitForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="UI\UC_TonKho.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\UC_TonKho.Designer.cs">
+      <DependentUpon>UC_TonKho.cs</DependentUpon>
+    </Compile>
     <Compile Include="UI\UC_TTCaLamViec.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -232,6 +244,9 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="UI\UC_CapNhatSP.resx">
+      <DependentUpon>UC_CapNhatSP.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="UI\FrmWaiting.resx">
       <DependentUpon>FrmWaiting.cs</DependentUpon>
     </EmbeddedResource>
@@ -267,6 +282,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="UI\UC_SubmitForm.resx">
       <DependentUpon>UC_SubmitForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\UC_TonKho.resx">
+      <DependentUpon>UC_TonKho.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UI\UC_TTCaLamViec.resx">
       <DependentUpon>UC_TTCaLamViec.cs</DependentUpon>

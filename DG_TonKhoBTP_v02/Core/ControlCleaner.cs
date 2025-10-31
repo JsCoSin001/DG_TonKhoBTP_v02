@@ -34,6 +34,10 @@ namespace DG_TonKhoBTP_v02.Core
                         // Tuỳ nhu cầu: đặt về Today
                         dtp.Value = System.DateTime.Today;
                         break;
+
+                    case CheckBox chk:
+                        chk.Checked = true;
+                        break;
                     case DataGridView dgv:
                         // Xoá hết dòng nhập
                         DataGridViewUtils.ClearSmart(dgv);

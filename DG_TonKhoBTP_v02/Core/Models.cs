@@ -27,6 +27,10 @@ namespace DG_TonKhoBTP_v02.Core
         public double DoDayBang { get; set; }
     }
 
+    public class Submit {
+        public bool IsChecked { get; set; }
+    }
+
     // Khớp bảng CaiDatCDBoc (rút gọn thuộc tính thường dùng từ UC_CaiDatMay/UC_DieuKienBoc/UC_CDBocLot)
     public class CaiDatCDBoc
     {
@@ -171,6 +175,15 @@ namespace DG_TonKhoBTP_v02.Core
         }
     }
 
+    public class DanhSachMaSP
+    {
+        public int Id { get; set; }
+        public string Ten { get; set; }
+        public string Ma { get; set; }
+        public string DonVi { get; set; }
+        public string KieuSP { get; set; }
+        public DateTime? DateInsert { get; set; }
+    }
 
     public class EditModel
     {

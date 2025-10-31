@@ -242,7 +242,7 @@ namespace DG_TonKhoBTP_v02.UI
 
             DataTable sp = await Task.Run(() =>
             {
-                return DatabaseHelper.GetData(keyword, query, para);
+                return DatabaseHelper.GetData( query, keyword, para);
             }, ct);
 
             ct.ThrowIfCancellationRequested();
@@ -383,9 +383,6 @@ namespace DG_TonKhoBTP_v02.UI
 
         #region AI generated code for IFormSection
         public string SectionName => nameof(UC_TTNVL);
-
-        // Giả định có control: groupBox1, dtgTTNVL, cbxTimKiem, ...
-        // dtgTTNVL cột động: tên cột nên trùng với property của TTNVL (không phân biệt hoa thường).
 
         public object GetData()
         {

@@ -18,8 +18,11 @@ using Validator = DG_TonKhoBTP_v02.Helper.Validator;
 
 namespace DG_TonKhoBTP_v02.UI
 {
-    public partial class UC_SubmitForm : UserControl
+    public partial class UC_SubmitForm : UserControl, IFormSection
     {
+        public string SectionName => nameof(UC_SubmitForm);
+        
+
         public UC_SubmitForm()
         {
             InitializeComponent();
@@ -144,7 +147,7 @@ namespace DG_TonKhoBTP_v02.UI
                             isSuccess = DatabaseHelper.SaveDataSanPham(thongTinCaLamViec, thongTinThanhPham, list_TTNVL, chiTietCD, out err);
 
                         // 2) In tem nếu lưu ok
-                        if (isSuccess)
+                        if (isSuccess && cbInTem.Checked)
                         {
                             var printer = BuildPrinter();
                             PrintHelper.PrintLabel(printer);
@@ -199,6 +202,19 @@ namespace DG_TonKhoBTP_v02.UI
             if (root is IFormSection fs) fs.ClearInputs();
             foreach (Control child in root.Controls)
                 ClearSectionRecursive(child);
+        }
+
+        public object GetData()
+        {
+            return new Submit
+            {
+                IsChecked = cbInTem.Checked
+            };
+        }
+
+        public void ClearInputs()
+        {
+            cbInTem.Checked = true;
         }
     }
 }

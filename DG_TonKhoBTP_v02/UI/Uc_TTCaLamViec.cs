@@ -82,12 +82,12 @@ namespace DG_TonKhoBTP_v02.UI
             if (dt == null || dt.Rows.Count == 0) return;
             var row = dt.Rows[0];
 
-            Helper.Helper.SetIfPresent(row, "tclv_Ngay", val => ngay.Value = Convert.ToDateTime(val));
-            Helper.Helper.SetIfPresent(row, "tclv_May", val => cbMay.Text = Convert.ToString(val));
-            Helper.Helper.SetIfPresent(row, "tclv_Ca", val => ca.Text = Convert.ToString(val));
-            Helper.Helper.SetIfPresent(row, "tclv_NguoiLam", val => nguoiLam.Text = Convert.ToString(val));
-            Helper.Helper.SetIfPresent(row, "tclv_ToTruong", val => toTruong.Text = Convert.ToString(val));
-            Helper.Helper.SetIfPresent(row, "tclv_QuanDoc", val => quanDoc.Text = Convert.ToString(val));
+            Helper.Helper.SetIfPresent(row, "Ngay", val => ngay.Value = Convert.ToDateTime(val));
+            Helper.Helper.SetIfPresent(row, "May", val => cbMay.Text = Convert.ToString(val));
+            Helper.Helper.SetIfPresent(row, "Ca", val => ca.Text = Convert.ToString(val));
+            Helper.Helper.SetIfPresent(row, "NguoiLam", val => nguoiLam.Text = Convert.ToString(val));
+            Helper.Helper.SetIfPresent(row, "ToTruong", val => toTruong.Text = Convert.ToString(val));
+            Helper.Helper.SetIfPresent(row, "QuanDoc", val => quanDoc.Text = Convert.ToString(val));
 
         }
 

@@ -39,10 +39,10 @@ namespace DG_TonKhoBTP_v02.UI
             if (dt == null || dt.Rows.Count == 0) return;
             var row = dt.Rows[0];
 
-            Helper.Helper.SetIfPresent(row, "cgl_BuocXoan", val => buocXoan.Value = Convert.ToDecimal(val));
-            Helper.Helper.SetIfPresent(row, "cgl_ChieuXoan", val => chieuXoan.Text = Convert.ToString(val));
-            Helper.Helper.SetIfPresent(row, "cgl_GoiCachMep", val => goiCachMep.Value = Convert.ToDecimal(val));
-            Helper.Helper.SetIfPresent(row, "cgl_DKBTP", val => dkBTP.Value = Convert.ToDecimal(val));
+            Helper.Helper.SetIfPresent(row, "BuocXoan", val => buocXoan.Value = Convert.ToDecimal(val));
+            Helper.Helper.SetIfPresent(row, "GhepLoi_ChieuXoan", val => chieuXoan.Text = Convert.ToString(val));
+            Helper.Helper.SetIfPresent(row, "GoiCachMep", val => goiCachMep.Value = Convert.ToDecimal(val));
+            Helper.Helper.SetIfPresent(row, "DKBTP", val => dkBTP.Value = Convert.ToDecimal(val));
         }
     }
 }

@@ -22,6 +22,11 @@ namespace DG_TonKhoBTP_v02.Database
             _connStr = $"Data Source={path};Version=3;";
         }
 
+        public static string GetStringConnector
+        {
+            get { return _connStr; }
+        }
+
         #region Lấy dữ liệu
         public static DataTable GetData(string query , string key = null,  string para = null)
         {
@@ -48,46 +53,41 @@ namespace DG_TonKhoBTP_v02.Database
         public static DataTable GetDataByMonth(DateTime selectedDate, CongDoan cd)
         {
             string key = selectedDate.ToString("yyyy-MM-dd");
-            // Tạo select
+            
             string sqlSelect = Helper.Helper.TaoSqL_LayThongTinBaoCaoChung();
 
-            // Lấy dữ liệu nvl theo công đoạn
+            string sqlLayChiTietCD = Helper.Helper.TaoSQL_LayChiTiet_1CD(cd.Id);
+            
             string sqlTenNVL = Helper.Helper.TaoSQL_LayDuLieuNVL(cd.Columns);
 
-            // Lấy thông tin chi tiết công đoạn
-            string sqlLayChiTietCD = Helper.Helper.TaoSQL_LayChiTietCongDoan(cd.Id);
+            string sqlJoin = Helper.Helper.TaoSQL_TaoKetNoiCacBang();
 
-            // Tạo câu nối các bảng
-            string sqlKetNoi = Helper.Helper.TaoSQL_TaoKetNoiCacBang();
-
-            // Tạo điều kiện lọc theo tháng
             string sqlDk1 = " WHERE strftime('%Y-%m', tclv.Ngay) = strftime('%Y-%m', @para) ";
 
-            // Tạo điều kiện lọc theo công đoạn
             string sqlDk2 = " AND ttp.CongDoan = " + cd.Id;
 
-            // Tạo order by
+            // 6) ORDER BY
             string sqlOrder = " ORDER BY tclv.Ngay DESC, ttp.id DESC;";
 
-            // Kết hợp câu truy vấn
-            string query = sqlSelect + sqlLayChiTietCD + sqlTenNVL + sqlKetNoi + sqlDk1 + sqlDk2 + sqlOrder; 
+            // 7) Kết hợp hoàn chỉnh
+            string query = sqlSelect + " ," + sqlLayChiTietCD + " ," + sqlTenNVL + sqlJoin + sqlDk1 + sqlDk2 + sqlOrder;
 
-            return GetData( query, key, "para");
+            return GetData(query, key, "para");
         }
-
+                
         public static DataTable GetDataByID(string key, CongDoan cd)
         {
             // Tạo select
-            string sqlSelect = Helper.Helper.TaoSql_LayThongTinBaoCaoToanBo();
+            string sqlSelect = Helper.Helper.TaoSqL_LayThongTinBaoCaoChung();
+
+            // Lấy thông tin chi tiết công đoạn
+            string sqlLayChiTietCD = Helper.Helper.TaoSQL_LayChiTiet_1CD(cd.Id);
 
             // Lấy dữ liệu nvl theo công đoạn
             string sqlTenNVL = Helper.Helper.TaoSQL_LayDuLieuNVL(cd.Columns);
 
-            // Lấy thông tin chi tiết công đoạn
-            string sqlLayChiTietCD = Helper.Helper.TaoSQL_LayChiTietCongDoan(cd.Id);
-
             // Tạo câu nối các bảng
-            string sqlKetNoi = Helper.Helper.TaoSQL_TaoKetNoiCacBang();
+            string sqlJoin = Helper.Helper.TaoSQL_TaoKetNoiCacBang();
 
             // Tạo điều kiện lọc theo ID
             string sqlDk1 = " WHERE ttp.id = @id";
@@ -95,10 +95,44 @@ namespace DG_TonKhoBTP_v02.Database
             string sqlDk2 = " AND ttp.CongDoan = " + cd.Id;
 
             // Kết hợp câu truy vấn
-            string query = sqlSelect + sqlLayChiTietCD + sqlTenNVL + sqlKetNoi + sqlDk1 +sqlDk2;
+            string query = sqlSelect + " ,"+ sqlLayChiTietCD + " ," + sqlTenNVL + sqlJoin + sqlDk1 +sqlDk2;
 
             return GetData(query, key, "id");
         }
+
+        public static DataTable GetDataBaoCaoSX(DateTime ngayBatDau, DateTime ngayKetThuc, List<CongDoan> selectedCongDoans)
+        {
+            // Tạo phần SELECT chung
+            string sqlSelect = Helper.Helper.TaoSqL_LayThongTinBaoCaoChung();
+
+            // Lấy dữ liệu NVL theo danh sách công đoạn
+            string sqlTenNVL = Helper.Helper.TaoSQL_LayDuLieuNVL(selectedCongDoans.Select(cd => cd.Columns).ToArray());
+
+            // Lấy chi tiết công đoạn
+            var(sqlLayChiTietCD, loaiCD) = Helper.Helper.TaoSQL_LayChiTiet_NhieuCD(selectedCongDoans) ;
+
+            // Câu nối các bảng
+            string sqlJoin = Helper.Helper.TaoSQL_TaoKetNoiCacBang();
+
+            // Format ngày sang dạng SQLite hiểu được
+            string ngayBD = ngayBatDau.ToString("yyyy-MM-dd");
+
+            string ngayKT = ngayKetThuc.ToString("yyyy-MM-dd");
+
+            // Điều kiện WHERE – chèn trực tiếp giá trị ngày
+            string sqlDkNgay = $" WHERE date(tclv.Ngay) >= date('{ngayBD}') AND date(tclv.Ngay) <= date('{ngayKT}')";
+
+
+            // Sắp xếp
+            string sqlOrder = " ORDER BY tclv.Ngay DESC, ttp.id DESC;";
+
+            // Ghép chuỗi hoàn chỉnh
+            string query = sqlSelect + " ," + sqlLayChiTietCD + " ," + sqlTenNVL + sqlJoin + sqlDkNgay + loaiCD + sqlOrder;
+
+            return GetData(query);
+        }
+
+
         #endregion
 
         #region Update dữ liệu
@@ -571,8 +605,6 @@ namespace DG_TonKhoBTP_v02.Database
                 return Helper.Helper.ShowErrorDatabase(ex, bt.MaBin);
             }
         }
-
-
         #endregion
 
         #region Insert dữ liệu các công đoạn
@@ -693,14 +725,15 @@ namespace DG_TonKhoBTP_v02.Database
 
             const string sql = @"
             INSERT INTO TTNVL
-                (TTThanhPham_ID, BinNVL, KlBatDau, CdBatDau, KlConLai, CdConLai, DuongKinhSoiDong, SoSoi, KetCauLoi, DuongKinhSoiMach, BanRongBang, DoDayBang)
+                (TTThanhPham_ID, BinNVL,DanhSachMaSP_ID, KlBatDau, CdBatDau, KlConLai, CdConLai, DuongKinhSoiDong, SoSoi, KetCauLoi, DuongKinhSoiMach, BanRongBang, DoDayBang)
             VALUES
-                (@TTThanhPham_ID, @BinNVL, @KlBatDau, @CdBatDau, @KlConLai, @CdConLai, @DuongKinhSoiDong, @SoSoi, @KetCauLoi, @DuongKinhSoiMach, @BanRongBang, @DoDayBang);";
+                (@TTThanhPham_ID, @BinNVL,@DanhSachMaSP_ID, @KlBatDau, @CdBatDau, @KlConLai, @CdConLai, @DuongKinhSoiDong, @SoSoi, @KetCauLoi, @DuongKinhSoiMach, @BanRongBang, @DoDayBang);";
 
             using var cmd = new SQLiteCommand(sql, conn, tx);
 
             var pThongTinSP_ID = cmd.Parameters.Add("@TTThanhPham_ID", DbType.Int64);
             var pBinNVL = cmd.Parameters.Add("@BinNVL", DbType.String);
+            var DanhSachMaSP_ID = cmd.Parameters.Add("@DanhSachMaSP_ID", DbType.Int64);
             var KlBatDau = cmd.Parameters.Add("@KlBatDau", DbType.Double);
             var CdBatDau = cmd.Parameters.Add("@CdBatDau", DbType.Double);
             var KlConLai = cmd.Parameters.Add("@KlConLai", DbType.Double);
@@ -716,6 +749,7 @@ namespace DG_TonKhoBTP_v02.Database
             {
                 pThongTinSP_ID.Value = thongTinSpId;
                 pBinNVL.Value = m.BinNVL ?? string.Empty;
+                DanhSachMaSP_ID.Value = m.DanhSachMaSP_ID;
                 KlBatDau.Value = m.KlBatDau;
                 CdBatDau.Value = m.CdBatDau;
                 KlConLai.Value = m.KlConLai;
@@ -905,7 +939,6 @@ namespace DG_TonKhoBTP_v02.Database
                 return Helper.Helper.ShowErrorDatabase(ex, sp.Ma);
             }
         }
-
         #endregion
 
     }

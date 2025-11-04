@@ -36,4 +36,74 @@ namespace DG_TonKhoBTP_v02.UI
             else Close();
         }
     }
+
+
+    public static class WaitingHelper
+    {
+        /// <summary>
+        /// Chạy hàm async với form chờ.
+        /// </summary>
+        public static async Task RunWithWaiting(Func<Task> action, string message = "ĐANG THỰC HIỆN YÊU CẦU...")
+        {
+            using (var waiting = new FrmWaiting(message))
+            {
+                waiting.TopMost = true;
+                waiting.StartPosition = FormStartPosition.CenterScreen;
+                waiting.Show();
+                waiting.Refresh();
+
+                try
+                {
+                    await action();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Lỗi: " + ex.Message, "Lỗi",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+                finally
+                {
+                    waiting.Close();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Chạy hàm đồng bộ (Action) với form chờ.
+        /// </summary>
+        public static async Task RunWithWaiting(Action action, string message = "ĐANG THỰC HIỆN YÊU CẦU...")
+        {
+            await RunWithWaiting(() => Task.Run(action), message);
+        }
+
+        /// <summary>
+        /// Phiên bản generic: chạy hàm async trả về kết quả T trong khi hiển thị form chờ.
+        /// </summary>
+        public static async Task<T> RunWithWaiting<T>(Func<Task<T>> func, string message = "ĐANG THỰC HIỆN YÊU CẦU...")
+        {
+            using (var waiting = new FrmWaiting(message))
+            {
+                waiting.TopMost = true;
+                waiting.StartPosition = FormStartPosition.CenterScreen;
+                waiting.Show();
+                waiting.Refresh();
+
+                try
+                {
+                    return await func();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Lỗi: " + ex.Message, "Lỗi",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return default;
+                }
+                finally
+                {
+                    waiting.Close();
+                }
+            }
+        }
+    }
+
 }

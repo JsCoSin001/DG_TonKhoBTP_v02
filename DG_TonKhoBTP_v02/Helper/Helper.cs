@@ -39,6 +39,7 @@ namespace DG_TonKhoBTP_v02.Helper
                 t.KhoiLuongSau AS KlBatDau,
                 t.ChieuDaiSau  AS CDBatDau,
                 t.id           AS id,
+                d.id            as DanhSachMaSP_ID,
                 t.MaBin        AS BinNVL
             FROM TTThanhPham AS t
             JOIN DanhSachMaSP AS d
@@ -67,6 +68,7 @@ namespace DG_TonKhoBTP_v02.Helper
                 -1      AS KlBatDau,
                 -1      AS CDBatDau,
                 d.id    AS id,
+                d.id            as DanhSachMaSP_ID,
                 d.ten   AS BinNVL
             FROM DanhSachMaSP AS d
             WHERE
@@ -98,14 +100,16 @@ namespace DG_TonKhoBTP_v02.Helper
         public static string TaoSqL_LayThongTinBaoCaoChung()
         {
             return @"
-                SELECT
-                  ttp.id AS STT,
-                  tclv.Ngay, tclv.Ca,tclv.May,
-                  ttp.MaBin,ds.Ten AS TEN_SP, tclv.NguoiLam,
-                  ttp.KhoiLuongTruoc, ttp.KhoiLuongSau,
-                  ttp.ChieuDaiTruoc, ttp.ChieuDaiSau,
-                  ttp.Phe, ttp.GhiChu, ";
+            SELECT
+              ttp.id AS STT,
+              tclv.Ngay, tclv.Ca, tclv.May,
+              ttp.MaBin as MaBin, ds.Ten AS Ten, ds.Ma AS Ma, ds.id AS id,
+              tclv.NguoiLam, tclv.ToTruong, tclv.QuanDoc,
+              ttp.KhoiLuongTruoc AS KhoiLuongTruoc, ttp.KhoiLuongSau as KhoiLuongSau,
+              ttp.ChieuDaiTruoc as ChieuDaiTruoc, ttp.ChieuDaiSau as ChieuDaiSau,
+              ttp.Phe as Phe, ttp.GhiChu as GhiChu ";
         }
+
 
         public static string TaoSql_LayThongTinBaoCaoToanBo()
         {
@@ -230,53 +234,80 @@ namespace DG_TonKhoBTP_v02.Helper
                 FROM TTThanhPham ttp
                 JOIN ThongTinCaLamViec tclv ON tclv.id = ttp.ThongTinCaLamViec_ID
                 JOIN DanhSachMaSP ds        ON ds.id   = ttp.DanhSachSP_ID
-                LEFT JOIN CD_BocVo    cbv ON cbv.TTThanhPham_ID    = ttp.id
-                LEFT JOIN CD_BocLot   cbl ON cbl.TTThanhPham_ID    = ttp.id
-                LEFT JOIN CD_BocMach  cbm ON cbm.TTThanhPham_ID    = ttp.id
-                LEFT JOIN CD_KeoRut   ckr ON ckr.TTThanhPham_ID    = ttp.id
-                LEFT JOIN CD_BenRuot  cbr ON cbr.TTThanhPham_ID    = ttp.id
-                LEFT JOIN CD_GhepLoiQB cgl ON cgl.TTThanhPham_ID   = ttp.id
-                LEFT JOIN CaiDatCDBoc cdb ON cdb.TTThanhPham_ID   = ttp.id
-                LEFT JOIN TTNVL       nvl ON nvl.TTThanhPham_ID    = ttp.id";
+                LEFT JOIN CD_BocVo     cbv  ON cbv.TTThanhPham_ID   = ttp.id
+                LEFT JOIN CD_BocLot    cbl  ON cbl.TTThanhPham_ID   = ttp.id
+                LEFT JOIN CD_BocMach   cbm  ON cbm.TTThanhPham_ID   = ttp.id
+                LEFT JOIN CD_KeoRut    ckr  ON ckr.TTThanhPham_ID   = ttp.id
+                LEFT JOIN CD_BenRuot   cbr  ON cbr.TTThanhPham_ID   = ttp.id
+                LEFT JOIN CD_GhepLoiQB cgl  ON cgl.TTThanhPham_ID   = ttp.id
+                LEFT JOIN CaiDatCDBoc  cdb  ON cdb.TTThanhPham_ID   = ttp.id
+                LEFT JOIN TTNVL        nvl  ON nvl.TTThanhPham_ID   = ttp.id
+                LEFT JOIN DanhSachMaSP ds_nvl ON ds_nvl.id          = nvl.DanhSachMaSP_ID
+            ";
         }
 
-        public static string TaoSQL_LayChiTietCongDoan(int id)
-        {
-            string sqlLayChiTietCD = "";
 
-            switch (id)
+        public static string TaoSQL_LayChiTiet_1CD(int id)
+        {
+            string[] dsCotCongDoan = ChiTietCongDoan.DSTenCot;
+
+            id = id < 6 ? id : 2;
+            return dsCotCongDoan[id];
+        }
+
+
+        public static (string Columns, string DieuKien) TaoSQL_LayChiTiet_NhieuCD(List<CongDoan> selectedCongDoans)
+        {
+            if (selectedCongDoans == null || selectedCongDoans.Count == 0)
+                return (string.Empty, string.Empty);
+
+            // Lấy danh sách cột
+            var allCols = selectedCongDoans
+                .Select(cd => TaoSQL_LayChiTiet_1CD(cd.Id))
+                .SelectMany(s => s.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                .Select(s => s.Trim())
+                .Where(s => !string.IsNullOrWhiteSpace(s))
+                .Distinct(StringComparer.OrdinalIgnoreCase);
+
+            string columnsSql = string.Join(", ", allCols);
+
+            // Tạo điều kiện WHERE: (ttp.CongDoan = 1 OR ttp.CongDoan = 2 ...)
+            string dieuKienSql = " AND (" + string.Join(" OR ", selectedCongDoans.Select(cd => $"ttp.CongDoan = {cd.Id}")) + ")";
+
+            return (columnsSql, dieuKienSql);
+        }
+
+
+        public static string TaoSQL_LayDuLieuNVL(params IEnumerable<ColumnDefinition>[] groups)
+        {
+            var names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            if (groups != null)
             {
-                case 1: // Kéo rút
-                    sqlLayChiTietCD = "ckr.DKTrucX, ckr.DKTrucY, ckr.NgoaiQuan AS KeoRut_NgoaiQuan, ckr.TocDo, ckr.DienApU, ckr.DongDienU,";
-                    break;
-                case 2: // Bện ruột
-                    sqlLayChiTietCD = "cbr.DKSoi, cbr.SoSoi, cbr.ChieuXoan AS BenRuot_ChieuXoan, cbr.BuocBen,";
-                    break;
-                case 3: // Ghép lõi - Quấn băng
-                    sqlLayChiTietCD = "cgl.BuocXoan, cgl.ChieuXoan, cgl.GoiCachMep, cgl.DKBTP,";
-                    break;
-                case 4: // Bọc mạch
-                    sqlLayChiTietCD = "cbm.NgoaiQuan AS BocMach_NgoaiQuan, cbm.LanDanhThung, cbm.SoMet,";
-                    break;
-                case 5: // Bóc lót
-                    sqlLayChiTietCD = "cbl.DoDayTBLot,";
-                    break;
-                case 6: // Bóc vỏ
-                    sqlLayChiTietCD = "cbv.DayVoTB, cbv.InAn, ";
-                    break;
-                default:
-                    break;
+                foreach (var group in groups)
+                {
+                    if (group == null) continue;
+                    foreach (var col in group)
+                    {
+                        var name = col?.Name?.Trim();
+                        if (string.IsNullOrWhiteSpace(name)) continue;
+                        if (string.Equals(name, "id", StringComparison.OrdinalIgnoreCase)) continue; // bỏ nvl.id
+                        names.Add(name);
+                    }
+                }
             }
-            return sqlLayChiTietCD;
+
+            var cols = new List<string>();
+            // luôn thêm tên NVL (alias từ bảng DanhSachMaSP dành cho NVL)
+            cols.Add("ds_nvl.Ten AS TenNVL");
+
+            // các cột NVL khác (nếu có)
+            cols.AddRange(names.Select(n => $"nvl.{n} AS {n}"));
+
+            return string.Join(", ", cols); // KHÔNG có dấu phẩy đầu/cuối
         }
 
-        public static string TaoSQL_LayDuLieuNVL(List<ColumnDefinition> clms)
-        {
-            string sqlTenNVL = "";
-            foreach (var name in clms) sqlTenNVL += ", nvl." + name.Name;
-            sqlTenNVL = sqlTenNVL.Replace("nvl.id,", "").Trim().Substring(2);
-            return sqlTenNVL;
-        }
+
 
         public static void SetIfPresent(DataRow row, string col, Action<object> setter)
         {
@@ -484,7 +515,25 @@ namespace DG_TonKhoBTP_v02.Helper
             return result;
         }
 
-        
+        public static List<CongDoan> GetCheckedCongDoans(TableLayoutPanel tbCheckBox)
+        {
+            var result = new List<CongDoan>();
+
+            foreach (Control control in tbCheckBox.Controls)
+            {
+                if (control is CheckBox cb && cb.Checked)
+                {
+                    if (cb.Tag is CongDoan congDoan)
+                    {
+                        result.Add(congDoan);
+                    }
+                }
+            }
+
+            return result;
+        }
+
+
     }
 
 

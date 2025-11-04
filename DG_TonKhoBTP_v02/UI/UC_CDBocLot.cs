@@ -38,7 +38,7 @@ namespace DG_TonKhoBTP_v02.UI
             if (dt == null || dt.Rows.Count == 0) return;
             var row = dt.Rows[0];
 
-            Helper.Helper.SetIfPresent(row, "cbl_DoDayTBLot", val => doDayTBLot.Value = Convert.ToDecimal(val));
+            Helper.Helper.SetIfPresent(row, "DoDayTBLot", val => doDayTBLot.Value = Convert.ToDecimal(val));
 
         }
         #endregion

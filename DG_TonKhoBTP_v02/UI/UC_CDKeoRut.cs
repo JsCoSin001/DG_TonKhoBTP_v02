@@ -41,12 +41,12 @@ namespace DG_TonKhoBTP_v02.UI
             if (dt == null || dt.Rows.Count == 0) return;
             var row = dt.Rows[0];
 
-            Helper.Helper.SetIfPresent(row, "ckr_DKTrucX", val => dkTrucX.Value = Convert.ToDecimal(val));
-            Helper.Helper.SetIfPresent(row, "ckr_DKTrucY", val => dkTrucY.Value = Convert.ToDecimal(val));
-            Helper.Helper.SetIfPresent(row, "ckr_NgoaiQuan", val => ngoaiQuan.Text = Convert.ToString(val));
-            Helper.Helper.SetIfPresent(row, "ckr_TocDo", val => tocDo.Value = Convert.ToDecimal(val));
-            Helper.Helper.SetIfPresent(row, "ckr_DienApU", val => dienApU.Value = Convert.ToDecimal(val));
-            Helper.Helper.SetIfPresent(row, "ckr_DongDienU", val => dongDienU.Value = Convert.ToDecimal(val));
+            Helper.Helper.SetIfPresent(row, "DKTrucX", val => dkTrucX.Value = Convert.ToDecimal(val));
+            Helper.Helper.SetIfPresent(row, "DKTrucY", val => dkTrucY.Value = Convert.ToDecimal(val));
+            Helper.Helper.SetIfPresent(row, "KeoRut_NgoaiQuan", val => ngoaiQuan.Text = Convert.ToString(val));
+            Helper.Helper.SetIfPresent(row, "TocDo", val => tocDo.Value = Convert.ToDecimal(val));
+            Helper.Helper.SetIfPresent(row, "DienApU", val => dienApU.Value = Convert.ToDecimal(val));
+            Helper.Helper.SetIfPresent(row, "DongDienU", val => dongDienU.Value = Convert.ToDecimal(val));
         }
     }
 }

@@ -38,11 +38,10 @@ namespace DG_TonKhoBTP_v02.UI
             if (dt == null || dt.Rows.Count == 0) return;
             var row = dt.Rows[0];
 
-            Helper.Helper.SetIfPresent(row, "cbr_DKSoi", val => dkSoi.Value = Convert.ToDecimal(val));
-            Helper.Helper.SetIfPresent(row, "cbr_SoSoi", val => soSoi.Value = Convert.ToDecimal(val));
-            Helper.Helper.SetIfPresent(row, "cbr_ChieuXoan", val => ChieuXoan.Text = Convert.ToString(val));
-            Helper.Helper.SetIfPresent(row, "cbr_BuocBen", val => buocBen.Value = Convert.ToDecimal(val));
-
+            Helper.Helper.SetIfPresent(row, "DKSoi", val => dkSoi.Value = Convert.ToDecimal(val));
+            Helper.Helper.SetIfPresent(row, "SoSoi", val => soSoi.Value = Convert.ToDecimal(val));
+            Helper.Helper.SetIfPresent(row, "BenRuot_ChieuXoan", val => ChieuXoan.Text = Convert.ToString(val));
+            Helper.Helper.SetIfPresent(row, "BuocBen", val => buocBen.Value = Convert.ToDecimal(val));
         }
     }
 }

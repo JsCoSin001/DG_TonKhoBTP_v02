@@ -1,7 +1,11 @@
 ﻿using DG_TonKhoBTP_v02.Core;
 using DG_TonKhoBTP_v02.Database;
+using DG_TonKhoBTP_v02.Dictionary;
+using DG_TonKhoBTP_v02.Helper;
 using DG_TonKhoBTP_v02.Models;
+using DG_TonKhoBTP_v02.Printer;
 using DocumentFormat.OpenXml.Office2010.Excel;
+using DocumentFormat.OpenXml.Office2019.Excel.RichData2;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -22,28 +26,14 @@ namespace DG_TonKhoBTP_v02.UI
         public UC_TonKho()
         {
             InitializeComponent();
-        }
-
-        private void btnTonKhoCu_Click(object sender, EventArgs e)
-        {
-            string query = "SELECT * FROM DanhSachMaSP";
-
-            DataTable dt = new DataTable();
-
-            string col = null;
-
-            
-            query += " ORDER BY id DESC";
-
-            dt = DatabaseHelper.GetData(query, col, "KieuSP");
-            grvShowBaoCao.DataSource = dt;
-            grvShowBaoCao.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-
-            grvShowBaoCao.Font = new System.Drawing.Font("Segoe UI", 12, FontStyle.Regular);
-
-            grvShowBaoCao.Columns[0].Width = 100;
-            grvShowBaoCao.Columns[1].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
-            grvShowBaoCao.Columns[2].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+            cbxKeoRut.Tag = ThongTinChungCongDoan.KeoRut;
+            cbxBen.Tag = ThongTinChungCongDoan.BenRuot;
+            cbxQuanMica.Tag = ThongTinChungCongDoan.Mica;
+            cbxBocCachDien.Tag = ThongTinChungCongDoan.BocMach;
+            cbxGhepLoi.Tag = ThongTinChungCongDoan.GhepLoi;
+            cbxBocLot.Tag = ThongTinChungCongDoan.BocLot;
+            cbxQuanBang.Tag = ThongTinChungCongDoan.QuanBang;
+            cbxBocTP.Tag = ThongTinChungCongDoan.BocVo;
         }
 
         private async Task ShowDanhSachLuaChon(string keyword, CancellationToken ct)
@@ -165,6 +155,12 @@ namespace DG_TonKhoBTP_v02.UI
 
         private void btnLuu_Click(object sender, EventArgs e)
         {
+            if (string.IsNullOrEmpty(tbMaBin.Text))
+            {
+                MessageBox.Show("VUI LÒNG CHỌN MÃ BIN", "THÔNG BÁO", MessageBoxButtons.OK);
+                return;
+            }
+
             BanTran bt = new BanTran
             {
                 MaBin = tbMaBin.Text,
@@ -180,5 +176,153 @@ namespace DG_TonKhoBTP_v02.UI
             }
             MessageBox.Show(message, "THÔNG BÁO", MessageBoxButtons.OK);
         }
+
+        private void cbxAllSelected_CheckedChanged(object sender, EventArgs e)
+        {
+            bool isChecked = cbxAllSelected.Checked;
+
+            foreach (Control control in tbCheckBox.Controls)
+            {
+                // Kiểm tra nếu control là CheckBox
+                if (control is CheckBox checkbox)
+                {
+                    // Gán trạng thái Checked
+                    checkbox.Checked = isChecked;
+                }
+            }
+        }
+
+        private async void btnBCSX_Click(object sender, EventArgs e)
+        {
+            DateTime batDau = dtBatDau.Value;
+            DateTime ketThuc = dtKetThuc.Value;
+
+            if (ketThuc <= batDau)
+            {
+                MessageBox.Show("Thời gian kết thúc phải lớn hơn thời gian bắt đầu!", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            var selectedCongDoans = Helper.Helper.GetCheckedCongDoans(tbCheckBox);
+            if (selectedCongDoans == null || selectedCongDoans.Count == 0)
+            {
+                MessageBox.Show("Vui lòng chọn ít nhất một công đoạn!", "Thông báo",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            string fileName = selectedCongDoans.Count == 1
+                ? $"Report_{selectedCongDoans[0].TenCongDoan}"
+                : "Report_MultiCongDoan";
+
+
+            await WaitingHelper.RunWithWaiting(async () =>
+            {
+                DataTable dt = await Task.Run(() =>
+                    DatabaseHelper.GetDataBaoCaoSX(batDau, ketThuc, selectedCongDoans));
+
+                if (dt == null || dt.Rows.Count == 0)
+                {
+                    MessageBox.Show("KHÔNG CÓ DỮ LIỆU", "THÔNG BÁO",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                if (btnXuatExcel.Checked)
+                {
+                    await Task.Run(() => ExportExcelFile(dt, fileName));
+                    MessageBox.Show("Đã xuất Excel thành công!", "Thông báo",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                else
+                {
+                    ShowResult(dt);
+                }
+            });
+        }
+
+
+        private void ShowResult(DataTable master)
+        {
+            grvShowBaoCao.AutoGenerateColumns = true;
+            grvShowBaoCao.DataSource = master;
+            grvShowBaoCao.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.DisplayedCells;
+            grvShowBaoCao.AllowUserToAddRows = false;
+            grvShowBaoCao.ReadOnly = true;
+        }
+
+        private void ExportExcelFile(DataTable master, string defaultFileName)
+        {
+            try
+            {
+
+                ExcelExporter.Export(master, defaultFileName);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    $"Lỗi khi xuất Excel: {ex.Message}",
+                    "Export Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error
+                );
+            }
+        }
+
+        private async void btnTonDong_Click(object sender, EventArgs e)
+        {
+            grvShowBaoCao.DataSource = null;
+
+            string query = @"
+                SELECT 
+                    TTThanhPham.MaBin,
+                    DanhSachMaSP.Ma,
+                    DanhSachMaSP.Ten,
+                    DanhSachMaSP.DonVi,
+                    TTThanhPham.KhoiLuongTruoc as KLTruoc,
+                    TTThanhPham.KhoiLuongSau as KLSau,
+                    TTThanhPham.ChieuDaiTruoc as CDTruoc,
+                    TTThanhPham.ChieuDaiSau as CDSau,
+                    TTThanhPham.Phe,
+                    TTThanhPham.KLBanTran,
+                    TTThanhPham.GhiChu
+                FROM TTThanhPham
+                INNER JOIN DanhSachMaSP 
+                    ON TTThanhPham.DanhSachSP_ID = DanhSachMaSP.id
+                WHERE 
+                    (DanhSachMaSP.DonVi = 'KG' AND TTThanhPham.KhoiLuongSau <> 0)
+                    OR
+                    (DanhSachMaSP.DonVi = 'M' AND TTThanhPham.ChieuDaiSau <> 0)
+                ORDER BY TTThanhPham.id DESC
+            ";
+
+            string col = null;
+            string fileName = "BaoCaoTonKho_" + DateTime.Now.ToString("ddMMMyyyy");
+
+            await WaitingHelper.RunWithWaiting(async () =>
+            {
+                DataTable dt = await Task.Run(() => DatabaseHelper.GetData(query, col, "KieuSP"));
+
+                if (dt == null || dt.Rows.Count == 0)
+                {
+                    MessageBox.Show("KHÔNG CÓ DỮ LIỆU", "THÔNG BÁO",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                if (btnXuatExcel.Checked)
+                {
+                    await Task.Run(() => ExportExcelFile(dt, fileName));
+                    MessageBox.Show("Đã xuất Excel thành công!", "Thông báo",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                else
+                {
+                    ShowResult(dt);
+                }
+            });
+        }
+
+
     }
 }

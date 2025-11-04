@@ -36,8 +36,8 @@ namespace DG_TonKhoBTP_v02.UI
             if (dt == null || dt.Rows.Count == 0) return;
             var row = dt.Rows[0];
 
-            Helper.Helper.SetIfPresent(row, "cbv_DayVoTB", val => dayVoTB.Value = Convert.ToDecimal(val));
-            Helper.Helper.SetIfPresent(row, "cbv_InAn", val => inAn.Text = Convert.ToString(val));
+            Helper.Helper.SetIfPresent(row, "DayVoTB", val => dayVoTB.Value = Convert.ToDecimal(val));
+            Helper.Helper.SetIfPresent(row, "InAn", val => inAn.Text = Convert.ToString(val));
         }
     }
 }

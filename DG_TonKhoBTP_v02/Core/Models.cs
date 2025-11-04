@@ -14,7 +14,8 @@ namespace DG_TonKhoBTP_v02.Core
     {
         public int Id { get; set; }                 // Optional (nếu có)
         public int TTThanhPhan_ID { get; set; }      // Optional (chưa gán lúc nhập tay)
-        public string BinNVL { get; set; }          // NOT NULL trong DB
+        public int DanhSachMaSP_ID { get; set; }      
+        public string BinNVL { get; set; }          
         public double KlBatDau { get; set; }
         public double CdBatDau { get; set; }
         public double KlConLai { get; set; }

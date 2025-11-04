@@ -17,7 +17,7 @@ namespace DG_TonKhoBTP_v02.UI
 
         private void SetupForm()
         {
-            this.Text = "Báo cáo sản xuất theo tháng";
+            this.Text = "Báo cáo sản xuất tháng";
             this.StartPosition = FormStartPosition.CenterScreen;
 
             // Chỉ cho phép đóng, không minimize/maximize/resize
@@ -28,7 +28,7 @@ namespace DG_TonKhoBTP_v02.UI
             this.ShowIcon = false;
             this.Padding = new Padding(5);
 
-            // Full màn hình (tuỳ bạn giữ hoặc bỏ)
+            // Full màn hình 
             this.WindowState = FormWindowState.Maximized;
         }
 

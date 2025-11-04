@@ -103,8 +103,11 @@
     <Compile Include="Core\StateStore.cs" />
     <Compile Include="Database\DatabaseHelper.cs" />
     <Compile Include="Dictionary\ThongTinChungCongDoan.cs" />
+    <Compile Include="Helper\ChiTietCongDoan.cs" />
     <Compile Include="Helper\DataGridViewUtils.cs" />
+    <Compile Include="Helper\ExcelExporter.cs" />
     <Compile Include="Helper\Helper.cs" />
+    <Compile Include="Helper\ReportHelper.cs" />
     <Compile Include="Helper\Validator.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>

@@ -43,7 +43,7 @@ namespace DG_TonKhoBTP_v02.UI
                 // check if dt has rows
                 if (dt.Rows.Count == 0)
                 {
-                    MessageBox.Show("STT LỖI KHÔNG TỒN TAỊ!", "Thông báo",
+                    MessageBox.Show("STT KHÔNG TỒN TẠI!", "Thông báo",
                                     MessageBoxButtons.OK, MessageBoxIcon.Information);
                     return;
                 }

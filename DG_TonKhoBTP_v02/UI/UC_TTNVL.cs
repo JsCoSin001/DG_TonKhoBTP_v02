@@ -27,7 +27,7 @@ namespace DG_TonKhoBTP_v02.UI
 
         List<ColumnDefinition> _columns;
 
-        bool isShow = false;
+        bool isShow = true;
 
         // Nếu true thì tìm Cu phi 8...
         public bool RawMaterial { get; set; } = false;
@@ -138,8 +138,12 @@ namespace DG_TonKhoBTP_v02.UI
             dgv.Columns[2].Visible = isShow;
             dgv.Columns[2].ReadOnly = true;
 
-            dgv.Columns[3].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            dgv.Columns[3].Width = 80;
+            dgv.Columns[3].Visible = isShow;
             dgv.Columns[3].ReadOnly = true;
+
+            dgv.Columns[4].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            dgv.Columns[4].ReadOnly = true;
 
             dgv.EnableHeadersVisualStyles = false;
             dgv.ColumnHeadersDefaultCellStyle.Font = new System.Drawing.Font("Microsoft Sans Serif", 11, FontStyle.Regular);
@@ -295,6 +299,7 @@ namespace DG_TonKhoBTP_v02.UI
             newRow["KlBatDau"] = sel["KlBatDau"];
             newRow["CdBatDau"] = sel["CdBatDau"];
             newRow["id"] = sel["id"];
+            newRow["DanhSachMaSP_ID"] = sel["DanhSachMaSP_ID"];
             newRow["BinNVL"] = sel["BinNVL"];
             table.Rows.Add(newRow);
 

@@ -25,7 +25,6 @@ namespace DG_TonKhoBTP_v02
             DatabaseHelper.SetDatabasePath(_URL);
         }
 
-
         #region Hàm log cấu trúc control
         private void button1_Click(object sender, EventArgs e)
         {
@@ -94,7 +93,6 @@ namespace DG_TonKhoBTP_v02
             CongDoan thongTinCD = ThongTinChungCongDoan.BenRuot;
 
             List<ColumnDefinition> columns = thongTinCD.Columns;
-
 
             var ucSanPham = new UC_TTSanPham(
                 new UC_CDBenRuot()
@@ -375,7 +373,6 @@ namespace DG_TonKhoBTP_v02
 
             pnShow.Controls.Add(uc);
         }
-
         #endregion
 
         #region Hiển thị Giao diện Main

@@ -193,15 +193,15 @@ namespace DG_TonKhoBTP_v02.UI
             if (dt == null || dt.Rows.Count == 0) return;
             var row = dt.Rows[0];
 
-            string bin = row["ttp_MaBin"].ToString();
+            string bin = row["MaBin"].ToString();
 
-            Helper.Helper.SetIfPresent(row, "ds_id", val => id.Text = Convert.ToString(val));
-            Helper.Helper.SetIfPresent(row, "ds_Ma", val => ma.Text = Convert.ToString(val));
-            Helper.Helper.SetIfPresent(row, "ds_Ten", val => ten.Text = Convert.ToString(val));
-            Helper.Helper.SetIfPresent(row, "ttp_KhoiLuongSau", val => khoiLuong.Value = Convert.ToDecimal(val));
-            Helper.Helper.SetIfPresent(row, "ttp_ChieuDaiSau", val => chieuDai.Value = Convert.ToDecimal(val));
-            Helper.Helper.SetIfPresent(row, "ttp_Phe", val => phe.Value = Convert.ToDecimal(val));
-            Helper.Helper.SetIfPresent(row, "ttp_GhiChu", val => GhiChu.Text = Convert.ToString(val));
+            Helper.Helper.SetIfPresent(row, "id", val => id.Text = Convert.ToString(val));
+            Helper.Helper.SetIfPresent(row, "Ma", val => ma.Text = Convert.ToString(val));
+            Helper.Helper.SetIfPresent(row, "Ten", val => ten.Text = Convert.ToString(val));
+            Helper.Helper.SetIfPresent(row, "KhoiLuongSau", val => khoiLuong.Value = Convert.ToDecimal(val));
+            Helper.Helper.SetIfPresent(row, "ChieuDaiSau", val => chieuDai.Value = Convert.ToDecimal(val));
+            Helper.Helper.SetIfPresent(row, "Phe", val => phe.Value = Convert.ToDecimal(val));
+            Helper.Helper.SetIfPresent(row, "GhiChu", val => GhiChu.Text = Convert.ToString(val));
 
             string[] mabin = Helper.Helper.CatMaBin(bin);
 

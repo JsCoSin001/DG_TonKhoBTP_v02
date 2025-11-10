@@ -35,10 +35,10 @@ namespace DG_TonKhoBTP_v02.Core
     // Khớp bảng CaiDatCDBoc (rút gọn thuộc tính thường dùng từ UC_CaiDatMay/UC_DieuKienBoc/UC_CDBocLot)
     public class CaiDatCDBoc
     {
-        public bool MangNuoc { get; set; }
-        public bool PuliDanDay { get; set; }
-        public bool BoDemMet { get; set; }
-        public bool? MayIn { get; set; }
+        public string MangNuoc { get; set; }
+        public string PuliDanDay { get; set; }
+        public string BoDemMet { get; set; }
+        public string? MayIn { get; set; }
         public double? v1 { get; set; }
         public double? v2 { get; set; }
         public double? v3 { get; set; }

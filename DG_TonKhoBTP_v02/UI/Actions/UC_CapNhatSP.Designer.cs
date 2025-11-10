@@ -274,7 +274,7 @@
             this.cbxLoaiTimKiem.Items.AddRange(new object[] {
             "Mã SP",
             "Tên SP"});
-            this.cbxLoaiTimKiem.Location = new System.Drawing.Point(3, 18);
+            this.cbxLoaiTimKiem.Location = new System.Drawing.Point(3, 15);
             this.cbxLoaiTimKiem.Name = "cbxLoaiTimKiem";
             this.cbxLoaiTimKiem.Size = new System.Drawing.Size(94, 28);
             this.cbxLoaiTimKiem.TabIndex = 7;
@@ -283,7 +283,7 @@
             // 
             this.cbxMaSP.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbxMaSP.FormattingEnabled = true;
-            this.cbxMaSP.Location = new System.Drawing.Point(103, 18);
+            this.cbxMaSP.Location = new System.Drawing.Point(103, 15);
             this.cbxMaSP.Name = "cbxMaSP";
             this.cbxMaSP.Size = new System.Drawing.Size(472, 28);
             this.cbxMaSP.TabIndex = 8;

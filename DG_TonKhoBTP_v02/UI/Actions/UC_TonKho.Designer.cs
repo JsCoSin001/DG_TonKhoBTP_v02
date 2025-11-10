@@ -273,7 +273,7 @@
             // 
             this.cbxTimMaBin.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbxTimMaBin.FormattingEnabled = true;
-            this.cbxTimMaBin.Location = new System.Drawing.Point(103, 9);
+            this.cbxTimMaBin.Location = new System.Drawing.Point(103, 6);
             this.cbxTimMaBin.Name = "cbxTimMaBin";
             this.cbxTimMaBin.Size = new System.Drawing.Size(438, 28);
             this.cbxTimMaBin.TabIndex = 3;
@@ -477,7 +477,7 @@
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(130, 16);
             this.label6.TabIndex = 13;
-            this.label6.Text = "Từ ngày";
+            this.label6.Text = "Lấy dữ liệu từ ngày";
             this.label6.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // label7
@@ -566,9 +566,9 @@
             this.grvShowBaoCao.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.grvShowBaoCao.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.grvShowBaoCao.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.grvShowBaoCao.Location = new System.Drawing.Point(0, 0);
+            this.grvShowBaoCao.Location = new System.Drawing.Point(5, 0);
             this.grvShowBaoCao.Name = "grvShowBaoCao";
-            this.grvShowBaoCao.Size = new System.Drawing.Size(549, 740);
+            this.grvShowBaoCao.Size = new System.Drawing.Size(539, 740);
             this.grvShowBaoCao.TabIndex = 4;
             // 
             // panel4
@@ -577,6 +577,7 @@
             this.panel4.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel4.Location = new System.Drawing.Point(550, 0);
             this.panel4.Name = "panel4";
+            this.panel4.Padding = new System.Windows.Forms.Padding(5, 0, 5, 0);
             this.panel4.Size = new System.Drawing.Size(549, 740);
             this.panel4.TabIndex = 5;
             // 

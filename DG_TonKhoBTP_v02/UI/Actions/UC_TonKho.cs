@@ -153,29 +153,48 @@ namespace DG_TonKhoBTP_v02.UI
             klConLai.Value = 0;
         }
 
-        private void btnLuu_Click(object sender, EventArgs e)
+        private async void btnLuu_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrEmpty(tbMaBin.Text))
+            if (string.IsNullOrWhiteSpace(tbMaBin.Text))
             {
                 MessageBox.Show("VUI LÒNG CHỌN MÃ BIN", "THÔNG BÁO", MessageBoxButtons.OK);
                 return;
             }
 
-            BanTran bt = new BanTran
+            var bt = new BanTran
             {
                 MaBin = tbMaBin.Text,
                 KhoiLuongSau = (double)klConLai.Value,
                 KhoiLuongBanTran = (double)klBanTran.Value
             };
 
-            string message = DatabaseHelper.UpdateKLConLai_BanTran(bt);
-            if (message == string.Empty)
+            btnLuu.Enabled = false; // tránh click lặp
+            try
             {
-                message = "THAO TÁC THÀNH CÔNG";
-                ClearForm();
+                await WaitingHelper.RunWithWaiting(async () =>
+                {
+                    // Chạy cập nhật nặng ở thread pool để UI không bị đơ
+                    string message = await Task.Run(() => DatabaseHelper.UpdateKLConLai_BanTran(bt));
+                    //await Task.Delay(3000);
+                    if (string.IsNullOrEmpty(message))
+                    {
+                        message = "THAO TÁC THÀNH CÔNG";
+                        ClearForm(); // vẫn ở context UI sau await, OK để gọi
+                    }
+
+                    MessageBox.Show(message, "THÔNG BÁO", MessageBoxButtons.OK);
+                });
             }
-            MessageBox.Show(message, "THÔNG BÁO", MessageBoxButtons.OK);
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Có lỗi xảy ra: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                btnLuu.Enabled = true;
+            }
         }
+
 
         private void cbxAllSelected_CheckedChanged(object sender, EventArgs e)
         {

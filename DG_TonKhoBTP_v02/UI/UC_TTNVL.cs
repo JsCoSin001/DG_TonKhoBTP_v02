@@ -27,7 +27,7 @@ namespace DG_TonKhoBTP_v02.UI
 
         List<ColumnDefinition> _columns;
 
-        bool isShow = true;
+        bool isShow = false;
 
         // Nếu true thì tìm Cu phi 8...
         public bool RawMaterial { get; set; } = false;

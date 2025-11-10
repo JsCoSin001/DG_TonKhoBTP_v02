@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace DG_TonKhoBTP_v02.Dictionary
 {
     public static class 
-        ThongTinChungCongDoan
+    ThongTinChungCongDoan
     {
         public static readonly CongDoan KeoRut = new CongDoan(
             0,
@@ -42,7 +42,7 @@ namespace DG_TonKhoBTP_v02.Dictionary
 
         public static readonly CongDoan BenRuot = new CongDoan(
             1,
-            "bện ruột dẫn",
+            "bện đồng - nhôm",
             new List<string> { "Ben_1", "Ben_2", "Ben_3", "Ben_4", "Ben_5" },
             new List<ColumnDefinition>
             {
@@ -73,7 +73,7 @@ namespace DG_TonKhoBTP_v02.Dictionary
 
         public static readonly CongDoan BocMach = new CongDoan(
             3,
-            "Bọc mạch",
+            "Bọc cách điện",
             new List<string> { "BM1", "BM5", "BM4", "BM3", "BM2" },
             new List<ColumnDefinition>
             {
@@ -107,7 +107,7 @@ namespace DG_TonKhoBTP_v02.Dictionary
 
         public static readonly CongDoan BocLot = new CongDoan(
             4,
-            "Bọc lot",
+            "Bọc lót",
             new List<string> { "BL1", "BL2" },
             new List<ColumnDefinition>
             {

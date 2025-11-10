@@ -116,99 +116,105 @@
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Models\OtherClass.cs" />
-    <Compile Include="printer\MainPrinter.cs" />
-    <Compile Include="printer\PrinterModel.cs" />
-    <Compile Include="printer\PrintHelper.cs" />
-    <Compile Include="printer\Qr.cs" />
-    <Compile Include="printer\SbplTextBuilder.cs" />
-    <Compile Include="printer\TextLineSpec.cs" />
+    <Compile Include="Printer\MainPrinter.cs" />
+    <Compile Include="Printer\PrinterModel.cs" />
+    <Compile Include="Printer\PrintHelper.cs" />
+    <Compile Include="Printer\Qr.cs" />
+    <Compile Include="Printer\SbplTextBuilder.cs" />
+    <Compile Include="Printer\TextLineSpec.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="UI\UC_CapNhatSP.cs">
+    <Compile Include="UI\Actions\UC_CapNhatSP.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="UI\UC_CapNhatSP.Designer.cs">
+    <Compile Include="UI\Actions\UC_CapNhatSP.Designer.cs">
       <DependentUpon>UC_CapNhatSP.cs</DependentUpon>
     </Compile>
-    <Compile Include="UI\FrmWaiting.cs">
+    <Compile Include="UI\Actions\UC_TruyVetDuLieu.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\Actions\UC_TruyVetDuLieu.Designer.cs">
+      <DependentUpon>UC_TruyVetDuLieu.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Helper\FrmWaiting.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="UI\FrmWaiting.Designer.cs">
+    <Compile Include="UI\Helper\FrmWaiting.Designer.cs">
       <DependentUpon>FrmWaiting.cs</DependentUpon>
     </Compile>
-    <Compile Include="UI\UC_CaiDatMay.cs">
+    <Compile Include="UI\CD_Boc\UC_CaiDatMay.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="UI\UC_CaiDatMay.Designer.cs">
+    <Compile Include="UI\CD_Boc\UC_CaiDatMay.Designer.cs">
       <DependentUpon>UC_CaiDatMay.cs</DependentUpon>
     </Compile>
-    <Compile Include="UI\UC_CDBenRuot.cs">
+    <Compile Include="UI\CD_Ben\UC_CDBenRuot.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="UI\UC_CDBenRuot.Designer.cs">
+    <Compile Include="UI\CD_Ben\UC_CDBenRuot.Designer.cs">
       <DependentUpon>UC_CDBenRuot.cs</DependentUpon>
     </Compile>
-    <Compile Include="UI\UC_CDBocVo.cs">
+    <Compile Include="UI\CD_Boc\UC_CDBocVo.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="UI\UC_CDBocVo.Designer.cs">
+    <Compile Include="UI\CD_Boc\UC_CDBocVo.Designer.cs">
       <DependentUpon>UC_CDBocVo.cs</DependentUpon>
     </Compile>
-    <Compile Include="UI\UC_CDBocLot.cs">
+    <Compile Include="UI\CD_Boc\UC_CDBocLot.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="UI\UC_CDBocLot.Designer.cs">
+    <Compile Include="UI\CD_Boc\UC_CDBocLot.Designer.cs">
       <DependentUpon>UC_CDBocLot.cs</DependentUpon>
     </Compile>
-    <Compile Include="UI\UC_CDBocMach.cs">
+    <Compile Include="UI\CD_Boc\UC_CDBocMach.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="UI\UC_CDBocMach.Designer.cs">
+    <Compile Include="UI\CD_Boc\UC_CDBocMach.Designer.cs">
       <DependentUpon>UC_CDBocMach.cs</DependentUpon>
     </Compile>
-    <Compile Include="UI\UC_CDGhepLoiQB.cs">
+    <Compile Include="UI\CD_Ben\UC_CDGhepLoiQB.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="UI\UC_CDGhepLoiQB.Designer.cs">
+    <Compile Include="UI\CD_Ben\UC_CDGhepLoiQB.Designer.cs">
       <DependentUpon>UC_CDGhepLoiQB.cs</DependentUpon>
     </Compile>
-    <Compile Include="UI\UC_CDKeoRut.cs">
+    <Compile Include="UI\CD_KeoRut\UC_CDKeoRut.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="UI\UC_CDKeoRut.Designer.cs">
+    <Compile Include="UI\CD_KeoRut\UC_CDKeoRut.Designer.cs">
       <DependentUpon>UC_CDKeoRut.cs</DependentUpon>
     </Compile>
-    <Compile Include="UI\UC_DieuKienBoc.cs">
+    <Compile Include="UI\CD_Boc\UC_DieuKienBoc.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="UI\UC_DieuKienBoc.Designer.cs">
+    <Compile Include="UI\CD_Boc\UC_DieuKienBoc.Designer.cs">
       <DependentUpon>UC_DieuKienBoc.cs</DependentUpon>
     </Compile>
-    <Compile Include="UI\UC_Edit.cs">
+    <Compile Include="UI\Actions\UC_Edit.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="UI\UC_Edit.Designer.cs">
+    <Compile Include="UI\Actions\UC_Edit.Designer.cs">
       <DependentUpon>UC_Edit.cs</DependentUpon>
     </Compile>
-    <Compile Include="UI\UC_MonthyReport.cs">
+    <Compile Include="UI\Actions\UC_MonthyReport.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="UI\UC_Report.cs">
+    <Compile Include="UI\Actions\UC_Report.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="UI\UC_Report.Designer.cs">
+    <Compile Include="UI\Actions\UC_Report.Designer.cs">
       <DependentUpon>UC_Report.cs</DependentUpon>
     </Compile>
-    <Compile Include="UI\UC_SubmitForm.cs">
+    <Compile Include="UI\Actions\UC_SubmitForm.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="UI\UC_SubmitForm.Designer.cs">
+    <Compile Include="UI\Actions\UC_SubmitForm.Designer.cs">
       <DependentUpon>UC_SubmitForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="UI\UC_TonKho.cs">
+    <Compile Include="UI\Actions\UC_TonKho.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="UI\UC_TonKho.Designer.cs">
+    <Compile Include="UI\Actions\UC_TonKho.Designer.cs">
       <DependentUpon>UC_TonKho.cs</DependentUpon>
     </Compile>
     <Compile Include="UI\UC_TTCaLamViec.cs">
@@ -223,10 +229,10 @@
     <Compile Include="UI\UC_TTNVL.Designer.cs">
       <DependentUpon>UC_TTNVL.cs</DependentUpon>
     </Compile>
-    <Compile Include="UI\UC_TTSanPham.cs">
+    <Compile Include="UI\CD_Boc\UC_TTSanPham.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="UI\UC_TTSanPham.Designer.cs">
+    <Compile Include="UI\CD_Boc\UC_TTSanPham.Designer.cs">
       <DependentUpon>UC_TTSanPham.cs</DependentUpon>
     </Compile>
     <Compile Include="UI\UC_TTThanhPham.cs">
@@ -247,46 +253,52 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <EmbeddedResource Include="UI\UC_CapNhatSP.resx">
+    <EmbeddedResource Include="UI\Actions\UC_CapNhatSP.resx">
       <DependentUpon>UC_CapNhatSP.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="UI\FrmWaiting.resx">
+    <EmbeddedResource Include="UI\Actions\UC_MonthyReport.resx">
+      <DependentUpon>UC_MonthyReport.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\Actions\UC_TruyVetDuLieu.resx">
+      <DependentUpon>UC_TruyVetDuLieu.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\Helper\FrmWaiting.resx">
       <DependentUpon>FrmWaiting.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="UI\UC_CaiDatMay.resx">
+    <EmbeddedResource Include="UI\CD_Boc\UC_CaiDatMay.resx">
       <DependentUpon>UC_CaiDatMay.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="UI\UC_CDBenRuot.resx">
+    <EmbeddedResource Include="UI\CD_Ben\UC_CDBenRuot.resx">
       <DependentUpon>UC_CDBenRuot.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="UI\UC_CDBocVo.resx">
+    <EmbeddedResource Include="UI\CD_Boc\UC_CDBocVo.resx">
       <DependentUpon>UC_CDBocVo.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="UI\UC_CDBocLot.resx">
+    <EmbeddedResource Include="UI\CD_Boc\UC_CDBocLot.resx">
       <DependentUpon>UC_CDBocLot.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="UI\UC_CDBocMach.resx">
+    <EmbeddedResource Include="UI\CD_Boc\UC_CDBocMach.resx">
       <DependentUpon>UC_CDBocMach.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="UI\UC_CDGhepLoiQB.resx">
+    <EmbeddedResource Include="UI\CD_Ben\UC_CDGhepLoiQB.resx">
       <DependentUpon>UC_CDGhepLoiQB.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="UI\UC_CDKeoRut.resx">
+    <EmbeddedResource Include="UI\CD_KeoRut\UC_CDKeoRut.resx">
       <DependentUpon>UC_CDKeoRut.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="UI\UC_DieuKienBoc.resx">
+    <EmbeddedResource Include="UI\CD_Boc\UC_DieuKienBoc.resx">
       <DependentUpon>UC_DieuKienBoc.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="UI\UC_Edit.resx">
+    <EmbeddedResource Include="UI\Actions\UC_Edit.resx">
       <DependentUpon>UC_Edit.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="UI\UC_Report.resx">
+    <EmbeddedResource Include="UI\Actions\UC_Report.resx">
       <DependentUpon>UC_Report.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="UI\UC_SubmitForm.resx">
+    <EmbeddedResource Include="UI\Actions\UC_SubmitForm.resx">
       <DependentUpon>UC_SubmitForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="UI\UC_TonKho.resx">
+    <EmbeddedResource Include="UI\Actions\UC_TonKho.resx">
       <DependentUpon>UC_TonKho.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UI\UC_TTCaLamViec.resx">
@@ -295,7 +307,7 @@
     <EmbeddedResource Include="UI\UC_TTNVL.resx">
       <DependentUpon>UC_TTNVL.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="UI\UC_TTSanPham.resx">
+    <EmbeddedResource Include="UI\CD_Boc\UC_TTSanPham.resx">
       <DependentUpon>UC_TTSanPham.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UI\UC_TTThanhPham.resx">

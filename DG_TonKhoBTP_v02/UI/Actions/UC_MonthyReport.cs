@@ -62,5 +62,17 @@ namespace DG_TonKhoBTP_v02.UI
             }
             dataGridView1.DataSource = table;
         }
+
+        private void InitializeComponent()
+        {
+            this.SuspendLayout();
+            // 
+            // UC_MonthyReport
+            // 
+            this.ClientSize = new System.Drawing.Size(335, 165);
+            this.Name = "UC_MonthyReport";
+            this.ResumeLayout(false);
+
+        }
     }
 }

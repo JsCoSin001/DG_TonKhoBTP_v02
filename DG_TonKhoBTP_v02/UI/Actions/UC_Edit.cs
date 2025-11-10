@@ -60,9 +60,16 @@ namespace DG_TonKhoBTP_v02.UI
 
         public object GetData()
         {
+            int value = 0;
+
+            if (!string.IsNullOrWhiteSpace(sttLoi.Text))
+            {
+                value = (int)sttLoi.Value;
+            }
+
             return new EditModel
             {
-                Id = (int)sttLoi.Value
+                Id = value
             };
         }
 

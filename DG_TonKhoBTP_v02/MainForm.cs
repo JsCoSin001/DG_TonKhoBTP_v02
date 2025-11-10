@@ -4,6 +4,7 @@ using DG_TonKhoBTP_v02.Database;
 using DG_TonKhoBTP_v02.Dictionary;
 using DG_TonKhoBTP_v02.Models;
 using DG_TonKhoBTP_v02.UI;
+using DG_TonKhoBTP_v02.UI.Actions;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -383,8 +384,19 @@ namespace DG_TonKhoBTP_v02
             pnShow.Controls.Add(pnBottom);
             pnShow.Controls.Add(pnTop);
         }
+
+
         #endregion
 
+        private void btnTruyVetDL_Click(object sender, EventArgs e)
+        {
+            pnShow.Controls.Clear();
+            var uc = new UC_TruyVetDuLieu
+            {
+                Dock = DockStyle.Fill
+            };
 
+            pnShow.Controls.Add(uc);
+        }
     }
 }

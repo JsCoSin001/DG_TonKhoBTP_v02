@@ -110,123 +110,49 @@ namespace DG_TonKhoBTP_v02.Helper
               ttp.Phe as Phe, ttp.GhiChu as GhiChu ";
         }
 
-
-        public static string TaoSql_LayThongTinBaoCaoToanBo()
+        public static string TaoSQL_DSMaBin(string tenHienThi)
         {
-            return @"
-                    SELECT
-                    ttp.id                          AS ttp_id,
-                    ttp.DanhSachSP_ID               AS ttp_DanhSachSP_ID,
-                    ttp.ThongTinCaLamViec_ID        AS ttp_ThongTinCaLamViec_ID,
-                    ttp.MaBin                       AS ttp_MaBin,
-                    ttp.KhoiLuongTruoc              AS ttp_KhoiLuongTruoc,
-                    ttp.KhoiLuongSau                AS ttp_KhoiLuongSau,
-                    ttp.ChieuDaiTruoc               AS ttp_ChieuDaiTruoc,
-                    ttp.ChieuDaiSau                 AS ttp_ChieuDaiSau,
-                    ttp.Phe                         AS ttp_Phe,
-                    ttp.CongDoan                    AS ttp_CongDoan,
-                    ttp.GhiChu                      AS ttp_GhiChu,
-                    ttp.LastEdit_ID                 AS ttp_LastEdit_ID,
-                    ttp.DateInsert                  AS ttp_DateInsert,
-
-                    tclv.id                         AS tclv_id,
-                    tclv.Ngay                       AS tclv_Ngay,
-                    tclv.May                        AS tclv_May,
-                    tclv.Ca                         AS tclv_Ca,
-                    tclv.NguoiLam                   AS tclv_NguoiLam,
-                    tclv.ToTruong                   AS tclv_ToTruong,
-                    tclv.QuanDoc                    AS tclv_QuanDoc,
-
-                    ds.id                           AS ds_id,
-                    ds.Ten                          AS ds_Ten,
-                    ds.Ma                           AS ds_Ma,
-                    ds.DonVi                        AS ds_DonVi,
-                    ds.KieuSP                       AS ds_KieuSP,
-                    ds.DateInsert                   AS ds_DateInsert,
-
-                    cbv.id                          AS cbv_id,
-                    cbv.TTThanhPham_ID              AS cbv_TTThanhPham_ID,
-                    cbv.DayVoTB                     AS cbv_DayVoTB,
-                    cbv.InAn                        AS cbv_InAn,
-
-                    cbl.id                          AS cbl_id,
-                    cbl.TTThanhPham_ID              AS cbl_TTThanhPham_ID,
-                    cbl.DoDayTBLot                  AS cbl_DoDayTBLot,
-
-                    cbm.id                          AS cbm_id,
-                    cbm.TTThanhPham_ID              AS cbm_TTThanhPham_ID,
-                    cbm.NgoaiQuan                   AS cbm_NgoaiQuan,
-                    cbm.LanDanhThung               AS cbm_LanDanhThung,
-                    cbm.SoMet                       AS cbm_SoMet,
-
-                    ckr.id                          AS ckr_id,
-                    ckr.TTThanhPham_ID              AS ckr_TTThanhPham_ID,
-                    ckr.DKTrucX                     AS ckr_DKTrucX,
-                    ckr.DKTrucY                     AS ckr_DKTrucY,
-                    ckr.NgoaiQuan                   AS ckr_NgoaiQuan,
-                    ckr.TocDo                       AS ckr_TocDo,
-                    ckr.DienApU                     AS ckr_DienApU,
-                    ckr.DongDienU                   AS ckr_DongDienU,
-
-                    cbr.id                          AS cbr_id,
-                    cbr.TTThanhPham_ID              AS cbr_TTThanhPham_ID,
-                    cbr.DKSoi                       AS cbr_DKSoi,
-                    cbr.SoSoi                       AS cbr_SoSoi,
-                    cbr.ChieuXoan                   AS cbr_ChieuXoan,
-                    cbr.BuocBen                     AS cbr_BuocBen,
-
-                    cgl.id                          AS cgl_id,
-                    cgl.TTThanhPham_ID              AS cgl_TTThanhPham_ID,
-                    cgl.BuocXoan                    AS cgl_BuocXoan,
-                    cgl.ChieuXoan                   AS cgl_ChieuXoan,
-                    cgl.GoiCachMep                  AS cgl_GoiCachMep,
-                    cgl.DKBTP                       AS cgl_DKBTP,
-
-                    cdb.id                          AS cdb_id,
-                    cdb.TTThanhPham_ID              AS cdb_TTThanhPham_ID,
-                    cdb.MangNuoc                    AS cdb_MangNuoc,
-                    cdb.PuliDanDay                  AS cdb_PuliDanDay,
-                    cdb.BoDemMet                    AS cdb_BoDemMet,
-                    cdb.MayIn                       AS cdb_MayIn,
-                    cdb.v1                          AS cdb_v1,
-                    cdb.v2                          AS cdb_v2,
-                    cdb.v3                          AS cdb_v3,
-                    cdb.v4                          AS cdb_v4,
-                    cdb.v5                          AS cdb_v5,
-                    cdb.v6                          AS cdb_v6,
-                    cdb.Co                          AS cdb_Co,
-                    cdb.Dau1                        AS cdb_Dau1,
-                    cdb.Dau2                        AS cdb_Dau2,
-                    cdb.Khuon                       AS cdb_Khuon,
-                    cdb.BinhSay                     AS cdb_BinhSay,
-                    cdb.DKKhuon1                    AS cdb_DKKhuon1,
-                    cdb.DKKhuon2                    AS cdb_DKKhuon2,
-                    cdb.TTNhua                      AS cdb_TTNhua,
-                    cdb.NhuaPhe                     AS cdb_NhuaPhe,
-                    cdb.GhiChuNhuaPhe               AS cdb_GhiChuNhuaPhe,
-                    cdb.DayPhe                      AS cdb_DayPhe,
-                    cdb.GhiChuDayPhe                AS cdb_GhiChuDayPhe,
-                    cdb.KTDKLan1                    AS cdb_KTDKLan1,
-                    cdb.KTDKLan2                    AS cdb_KTDKLan2,
-                    cdb.KTDKLan3                    AS cdb_KTDKLan3,
-                    cdb.DiemMongLan1                AS cdb_DiemMongLan1,
-                    cdb.DiemMongLan2                AS cdb_DiemMongLan2,
-
-                    nvl.id                          AS id,
-                    nvl.TTThanhPham_ID              AS nvl_TTThanhPham_ID,
-                    nvl.BinNVL                      AS BinNVL,
-                    nvl.KlBatDau                    AS KlBatDau,
-                    nvl.CdBatDau                    AS CdBatDau,
-                    nvl.KlConLai                    AS KlConLai,
-                    nvl.CdConLai                    AS CdConLai,
-                    nvl.DuongKinhSoiDong            AS DuongKinhSoiDong,
-                    nvl.SoSoi                       AS SoSoi,
-                    nvl.KetCauLoi                   AS KetCauLoi,
-                    nvl.DuongKinhSoiMach            AS DuongKinhSoiMach,
-                    nvl.BanRongBang                 AS BanRongBang,
-                    nvl.DoDayBang                   AS DoDayBang,
-                ";
+            return @" SELECT MaBin as" +tenHienThi + "FROM TTThanhPham WHERE MaBin LIKE '%' || @ma || '%'; ";
         }
+
+        public static string TaoSQL_LayDLTruyVet(bool col, string key, out string selectedCol)
+        {
+            // Cột hiển thị trong ComboBox (phải đúng tên alias trong DataTable)
+            selectedCol = (col) ? "Ten" : "MaBin";
+
+            // Cột dùng cho điều kiện WHERE (có thể giữ prefix bảng)
+            string whereCol = (col) ? "SP.Ten" : "TT.MaBin";
+
+            string sql = $@"
+                SELECT
+                    TT.id AS STT,
+                    CLV.Ngay AS Ngay,
+                    CLV.Ca AS Ca,
+                    TT.MaBin AS MaBin,
+                    SP.Ten AS Ten,
+                    SP.Ma AS Ma,
+                    CLV.May AS May,
+                    CLV.NguoiLam AS NguoiLam,
+                    TT.CongDoan AS CongDoan,
+                    TT.KhoiLuongTruoc,
+                    TT.KhoiLuongSau,
+                    TT.ChieuDaiTruoc,
+                    TT.ChieuDaiSau,
+                    TT.Phe,
+                    TT.GhiChu,
+                    TT.CongDoan,
+                    CLV.ToTruong AS ToTruong,
+                    CLV.QuanDoc AS QuanDoc
+                FROM TTThanhPham AS TT
+                INNER JOIN DanhSachMaSP AS SP
+                    ON TT.DanhSachSP_ID = SP.id
+                INNER JOIN ThongTinCaLamViec AS CLV
+                    ON TT.ThongTinCaLamViec_ID = CLV.id
+                WHERE {whereCol} LIKE '%' || @{key} || '%';
+            ";
+            return sql;
+        }
+
 
         public static string TaoSQL_TaoKetNoiCacBang()
         {
@@ -234,13 +160,13 @@ namespace DG_TonKhoBTP_v02.Helper
                 FROM TTThanhPham ttp
                 JOIN ThongTinCaLamViec tclv ON tclv.id = ttp.ThongTinCaLamViec_ID
                 JOIN DanhSachMaSP ds        ON ds.id   = ttp.DanhSachSP_ID
-                LEFT JOIN CD_BocVo     cbv  ON cbv.TTThanhPham_ID   = ttp.id
-                LEFT JOIN CD_BocLot    cbl  ON cbl.TTThanhPham_ID   = ttp.id
-                LEFT JOIN CD_BocMach   cbm  ON cbm.TTThanhPham_ID   = ttp.id
+                LEFT JOIN CaiDatCDBoc  cdb  ON cdb.TTThanhPham_ID   = ttp.id
+                LEFT JOIN CD_BocVo     cbv  ON cbv.CaiDatCDBoc_ID   = cdb.id
+                LEFT JOIN CD_BocLot    cbl  ON cbl.CaiDatCDBoc_ID   = cdb.id
+                LEFT JOIN CD_BocMach   cbm  ON cbm.CaiDatCDBoc_ID   = cdb.id
                 LEFT JOIN CD_KeoRut    ckr  ON ckr.TTThanhPham_ID   = ttp.id
                 LEFT JOIN CD_BenRuot   cbr  ON cbr.TTThanhPham_ID   = ttp.id
                 LEFT JOIN CD_GhepLoiQB cgl  ON cgl.TTThanhPham_ID   = ttp.id
-                LEFT JOIN CaiDatCDBoc  cdb  ON cdb.TTThanhPham_ID   = ttp.id
                 LEFT JOIN TTNVL        nvl  ON nvl.TTThanhPham_ID   = ttp.id
                 LEFT JOIN DanhSachMaSP ds_nvl ON ds_nvl.id          = nvl.DanhSachMaSP_ID
             ";
@@ -249,10 +175,15 @@ namespace DG_TonKhoBTP_v02.Helper
 
         public static string TaoSQL_LayChiTiet_1CD(int id)
         {
-            string[] dsCotCongDoan = ChiTietCongDoan.DSTenCot;
+            string[] dsCotCongDoan = ChiTietCongDoanBoc.DSTenCotRieng;
 
-            id = id < 6 ? id : 2;
-            return dsCotCongDoan[id];
+            string sqlChung = "";
+
+            if (2 < id && id < 6) sqlChung = ChiTietCongDoanBoc.DSTenCotChung + ", ";
+
+            if (id > 5) id = 2;
+
+            return sqlChung + dsCotCongDoan[id];
         }
 
 
@@ -456,35 +387,152 @@ namespace DG_TonKhoBTP_v02.Helper
 
         public static string ShowErrorDatabase(Exception ex, string? ten = null)
         {
+            // Bóc lớp Aggregate/TargetInvocation/InnerException thường gặp
+            while (ex.InnerException != null &&
+                   (ex is AggregateException || ex is TargetInvocationException))
+            {
+                ex = ex.InnerException!;
+            }
+
+            // 1) SQLiteException: chi tiết hoá theo loại ràng buộc/lỗi
             if (ex is SQLiteException sqliteEx)
             {
+                // Một số hệ lib có ResultCode/ExtendedResultCode; nếu không có, dùng ErrorCode + Message
+                // Map nhanh theo mã lỗi trước
                 switch (sqliteEx.ErrorCode)
                 {
+                    // 19
                     case (int)SQLiteErrorCode.Constraint:
-                        return $"{ten ?? "DỮ LIỆU"} ĐÃ TỒN TẠI.";
+                        {
+                            var msg = sqliteEx.Message ?? string.Empty;
+
+                            // Nhận diện từng loại constraint theo message phổ biến của SQLite
+                            if (msg.IndexOf("NOT NULL constraint failed", StringComparison.OrdinalIgnoreCase) >= 0)
+                            {
+                                var col = ExtractTail(msg); // lấy "Bảng.Cột" nếu có
+                                return $"Thiếu dữ liệu bắt buộc{FormatField(col)}. Vui lòng kiểm tra và nhập đầy đủ.";
+                            }
+                            if (msg.IndexOf("UNIQUE constraint failed", StringComparison.OrdinalIgnoreCase) >= 0)
+                            {
+                                var col = ExtractTail(msg);
+                                return $"{ten ?? "DỮ LIỆU"} đã tồn tại{FormatField(col)}. Vui lòng kiểm tra trùng lặp.";
+                            }
+                            if (msg.IndexOf("FOREIGN KEY constraint failed", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                                msg.IndexOf("foreign key", StringComparison.OrdinalIgnoreCase) >= 0)
+                            {
+                                return $"Dữ liệu tham chiếu không hợp lệ. Vui lòng kiểm tra các khoá ngoại (bản ghi cha/bảng liên quan).";
+                            }
+                            if (msg.IndexOf("CHECK constraint failed", StringComparison.OrdinalIgnoreCase) >= 0)
+                            {
+                                var rule = ExtractTail(msg);
+                                return $"Dữ liệu vi phạm ràng buộc kiểm tra{FormatField(rule)}. Vui lòng xem lại điều kiện hợp lệ.";
+                            }
+                            if (msg.IndexOf("PRIMARY KEY", StringComparison.OrdinalIgnoreCase) >= 0)
+                            {
+                                var col = ExtractTail(msg);
+                                return $"{ten ?? "DỮ LIỆU"} đã tồn tại (trùng khoá chính){FormatField(col)}.";
+                            }
+
+                            // Fallback chung cho Constraint
+                            return $"{ten ?? "DỮ LIỆU"} không thoả ràng buộc. {Normalize(sqliteEx.Message)}";
+                        }
+
+                    // 5
                     case (int)SQLiteErrorCode.Busy:
-                        return "CƠ SỞ DỮ LIỆU ĐANG BẬN, HÃY THỬ LẠI LẦN NỮA.";
+                        return "Cơ sở dữ liệu đang bận, vui lòng thử lại sau giây lát.";
+                    // 6
+                    case (int)SQLiteErrorCode.Locked:
+                        return "Cơ sở dữ liệu đang bị khoá bởi tiến trình khác. Hãy đóng kết nối/ứng dụng đang sử dụng rồi thử lại.";
+                    // 10
+                    //case (int)SQLiteErrorCode.IOErr:
+                    //    return "Lỗi I/O khi truy cập tệp cơ sở dữ liệu. Vui lòng kiểm tra quyền truy cập và dung lượng đĩa.";
+                    // 13
+                    case (int)SQLiteErrorCode.Perm:
+                        return "Không đủ quyền để thao tác với cơ sở dữ liệu. Vui lòng kiểm tra quyền truy cập tệp.";
+                    // 14
+                    case (int)SQLiteErrorCode.Abort:
+                        return "Thao tác với cơ sở dữ liệu đã bị huỷ.";
+                    // 8
+                    case (int)SQLiteErrorCode.ReadOnly:
+                        return "Cơ sở dữ liệu ở chế độ chỉ đọc. Vui lòng bật quyền ghi hoặc chọn tệp khác.";
+                    // 11
+                    case (int)SQLiteErrorCode.Corrupt:
+                        return "Tệp cơ sở dữ liệu có dấu hiệu hỏng. Hãy khôi phục từ bản sao lưu.";
+                    // 13 (FULL trong 1 số binding khác; nếu không có, bỏ qua)
+                    case (int)SQLiteErrorCode.Full:
+                        return "Đĩa đầy. Không thể ghi dữ liệu mới.";
+                    // 23
+                    case (int)SQLiteErrorCode.Auth:
+                        return "Xác thực cơ sở dữ liệu thất bại.";
+                    // 25
+                    case (int)SQLiteErrorCode.Range:
+                        return "Tham số câu lệnh SQL không hợp lệ hoặc nằm ngoài phạm vi.";
+                    // 1
+                    case (int)SQLiteErrorCode.Error:
                     default:
-                        return $"Lỗi cơ sở dữ liệu: {sqliteEx.Message}";
+                        // Rơi về thông điệp gốc nhưng đã “mềm hoá”
+                        return $"Lỗi cơ sở dữ liệu: {Normalize(sqliteEx.Message)}";
                 }
             }
-            else if (ex is InvalidCastException)
-            {
-                return "Kiểu dữ liệu không khớp, vui lòng kiểm tra thông tin công đoạn.";
-            }
-            else if (ex is ArgumentException)
-            {
-                return ex.Message; // ví dụ: "Chi tiết công đoạn không hợp lệ."
-            }
-            else if (ex is NullReferenceException)
-            {
-                return "Một dữ liệu cần thiết chưa được khởi tạo. Vui lòng kiểm tra lại biểu mẫu nhập.";
-            }
-            else
-            {
-                return $"Lỗi không xác định: {ex.Message}";
-            }
+
+            // 2) Một số lỗi .NET thường gặp khi thao tác dữ liệu
+            if (ex is TimeoutException)
+                return "Quá thời gian chờ khi thao tác với cơ sở dữ liệu. Vui lòng thử lại.";
+            if (ex is InvalidCastException)
+                return "Kiểu dữ liệu không khớp, vui lòng kiểm tra lại định dạng nhập.";
+            if (ex is FormatException)
+                return "Giá trị nhập sai định dạng. Vui lòng kiểm tra số/ngày giờ/ký tự.";
+            if (ex is ArgumentNullException ane)
+                return $"Thiếu tham số bắt buộc: {ane.ParamName ?? "không rõ"}.";
+            if (ex is ArgumentOutOfRangeException aore)
+                return $"Giá trị vượt phạm vi hợp lệ: {aore.ParamName ?? "không rõ"}.";
+            if (ex is ArgumentException)
+                return Normalize(ex.Message);
+            if (ex is InvalidOperationException)
+                return "Thao tác hiện không hợp lệ trong trạng thái hiện tại. Vui lòng kiểm tra luồng xử lý.";
+            if (ex is NullReferenceException)
+                return "Một dữ liệu cần thiết chưa được khởi tạo. Vui lòng kiểm tra biểu mẫu nhập.";
+            if (ex is UnauthorizedAccessException)
+                return "Không đủ quyền truy cập tài nguyên cơ sở dữ liệu.";
+            if (ex is System.IO.IOException)
+                return "Lỗi đọc/ghi tệp cơ sở dữ liệu. Vui lòng kiểm tra đường dẫn và quyền truy cập.";
+
+            // 3) Fallback cuối
+            return $"Đã xảy ra lỗi: {Normalize(ex.Message)}";
         }
+
+        // Chuẩn hoá thông điệp: cắt xuống 1 dòng, bỏ ký tự xuống dòng thừa
+        private static string Normalize(string? message)
+        {
+            if (string.IsNullOrWhiteSpace(message)) return "Không có thêm thông tin.";
+            var oneLine = message.Replace("\r", " ").Replace("\n", " ").Trim();
+            // Có thể cắt ngắn nếu quá dài
+            return oneLine.Length > 350 ? oneLine.Substring(0, 350) + "..." : oneLine;
+        }
+
+        // Trích phần đuôi "Bảng.Cột" hoặc tên ràng buộc từ thông điệp SQLite
+        // Ví dụ: "NOT NULL constraint failed: CaiDatCDBoc.TTNhua" -> "CaiDatCDBoc.TTNhua"
+        private static string? ExtractTail(string message)
+        {
+            if (string.IsNullOrWhiteSpace(message)) return null;
+
+            // Thử bắt cụm sau dấu ":" (thường là Table.Column hoặc tên constraint)
+            var colonIdx = message.LastIndexOf(':');
+            if (colonIdx >= 0 && colonIdx + 1 < message.Length)
+            {
+                var tail = message.Substring(colonIdx + 1).Trim();
+                if (!string.IsNullOrEmpty(tail)) return tail;
+            }
+
+            // Thử Regex cho "failed: <something>"
+            var m = Regex.Match(message, @"failed:\s*(.+)$", RegexOptions.IgnoreCase);
+            if (m.Success) return m.Groups[1].Value.Trim();
+
+            return null;
+        }
+
+        private static string FormatField(string? fieldOrRule)
+            => string.IsNullOrWhiteSpace(fieldOrRule) ? "" : $" ({fieldOrRule})";
 
         public static string ConvertTiengVietKhongDau(string input)
         {

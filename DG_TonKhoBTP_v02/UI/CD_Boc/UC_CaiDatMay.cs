@@ -27,11 +27,10 @@ namespace DG_TonKhoBTP_v02.UI
         {
             return new CaiDatCDBoc
             {
-                // ComboBox -> bool (đơn giản hoá: có chọn là true)
-                MangNuoc = !string.IsNullOrWhiteSpace(mangNuoc?.Text),
-                PuliDanDay = !string.IsNullOrWhiteSpace(puliDanDay?.Text),
-                BoDemMet = !string.IsNullOrWhiteSpace(boDemMet?.Text),
-                MayIn = !string.IsNullOrWhiteSpace(mayIn?.Text),
+                MangNuoc = mangNuoc?.Text,
+                PuliDanDay = puliDanDay?.Text,
+                BoDemMet = boDemMet?.Text,
+                MayIn = mayIn?.Text,
 
                 v1 = (double?)v1?.Value,
                 v2 = (double?)v2?.Value,
@@ -52,7 +51,6 @@ namespace DG_TonKhoBTP_v02.UI
         {
             if (dt == null || dt.Rows.Count == 0) return;
             var row = dt.Rows[0];
-
             Helper.Helper.SetIfPresent(row, "MangNuoc", val => mangNuoc.Text = Convert.ToString(val));
             Helper.Helper.SetIfPresent(row, "PuliDanDay", val => puliDanDay.Text = Convert.ToString(val));
             Helper.Helper.SetIfPresent(row, "BoDemMet", val => boDemMet.Text = Convert.ToString(val));

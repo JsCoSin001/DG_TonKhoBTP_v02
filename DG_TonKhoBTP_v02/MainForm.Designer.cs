@@ -50,6 +50,7 @@
             this.grbBaoCao = new System.Windows.Forms.GroupBox();
             this.pnBaoCao = new System.Windows.Forms.FlowLayoutPanel();
             this.btnBaoCaoTonKho = new System.Windows.Forms.Button();
+            this.btnTruyVetDL = new System.Windows.Forms.Button();
             this.pnSign = new System.Windows.Forms.Panel();
             this.label2 = new System.Windows.Forms.Label();
             this.pnMain = new System.Windows.Forms.Panel();
@@ -309,6 +310,7 @@
             this.btnCapNhatMaHang.Size = new System.Drawing.Size(159, 44);
             this.btnCapNhatMaHang.TabIndex = 9;
             this.btnCapNhatMaHang.Text = "UPDATE MÃ HÀNG";
+            this.btnCapNhatMaHang.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.btnCapNhatMaHang.UseVisualStyleBackColor = false;
             this.btnCapNhatMaHang.Click += new System.EventHandler(this.btnCapNhatMaHang_Click);
             // 
@@ -318,7 +320,7 @@
             this.grbBaoCao.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.grbBaoCao.Location = new System.Drawing.Point(3, 634);
             this.grbBaoCao.Name = "grbBaoCao";
-            this.grbBaoCao.Size = new System.Drawing.Size(168, 88);
+            this.grbBaoCao.Size = new System.Drawing.Size(168, 167);
             this.grbBaoCao.TabIndex = 2;
             this.grbBaoCao.TabStop = false;
             this.grbBaoCao.Text = "BÁO CÁO";
@@ -326,10 +328,11 @@
             // pnBaoCao
             // 
             this.pnBaoCao.Controls.Add(this.btnBaoCaoTonKho);
+            this.pnBaoCao.Controls.Add(this.btnTruyVetDL);
             this.pnBaoCao.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnBaoCao.Location = new System.Drawing.Point(3, 17);
             this.pnBaoCao.Name = "pnBaoCao";
-            this.pnBaoCao.Size = new System.Drawing.Size(162, 68);
+            this.pnBaoCao.Size = new System.Drawing.Size(162, 147);
             this.pnBaoCao.TabIndex = 3;
             // 
             // btnBaoCaoTonKho
@@ -343,8 +346,24 @@
             this.btnBaoCaoTonKho.Size = new System.Drawing.Size(159, 44);
             this.btnBaoCaoTonKho.TabIndex = 8;
             this.btnBaoCaoTonKho.Text = "TỒN KHO";
+            this.btnBaoCaoTonKho.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.btnBaoCaoTonKho.UseVisualStyleBackColor = false;
             this.btnBaoCaoTonKho.Click += new System.EventHandler(this.btnBaoCaoTonKho_Click);
+            // 
+            // btnTruyVetDL
+            // 
+            this.btnTruyVetDL.BackColor = System.Drawing.Color.Snow;
+            this.btnTruyVetDL.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnTruyVetDL.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.btnTruyVetDL.Location = new System.Drawing.Point(3, 59);
+            this.btnTruyVetDL.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
+            this.btnTruyVetDL.Name = "btnTruyVetDL";
+            this.btnTruyVetDL.Size = new System.Drawing.Size(159, 44);
+            this.btnTruyVetDL.TabIndex = 9;
+            this.btnTruyVetDL.Text = "TRUY VẾT DỮ LIỆU";
+            this.btnTruyVetDL.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnTruyVetDL.UseVisualStyleBackColor = false;
+            this.btnTruyVetDL.Click += new System.EventHandler(this.btnTruyVetDL_Click);
             // 
             // pnSign
             // 
@@ -473,6 +492,7 @@
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
         private System.Windows.Forms.Button btnGhepLoi;
         private System.Windows.Forms.Button btnQuanBang;
+        private System.Windows.Forms.Button btnTruyVetDL;
     }
 }
 

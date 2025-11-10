@@ -30,7 +30,7 @@ namespace DG_TonKhoBTP_v02.Models
         public CongDoan(int id,string tenCongDoan, List<string> danhSachMay, List<ColumnDefinition> columns, List<string> dsAccept, List<string> dsListData)
         {
             this.Id = id;
-            TenCongDoan = tenCongDoan.ToUpper();            
+            TenCongDoan = tenCongDoan.ToUpper();
             DanhSachMay = new List<string>(danhSachMay);
             Columns = new List<ColumnDefinition>(columns);
             ListMa_Accept = dsAccept;
@@ -44,7 +44,7 @@ namespace DG_TonKhoBTP_v02.Models
             DanhSachMay = new List<string>(other.DanhSachMay);
             Columns = new List<ColumnDefinition>(other.Columns);
             ListMa_Accept = other.ListMa_Accept;
-            ListData_Report = other.ListData_Report; 
+            ListData_Report = other.ListData_Report;
         }
 
     }

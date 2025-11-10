@@ -140,7 +140,6 @@ namespace DG_TonKhoBTP_v02.Helper
                     TT.ChieuDaiSau,
                     TT.Phe,
                     TT.GhiChu,
-                    TT.CongDoan,
                     CLV.ToTruong AS ToTruong,
                     CLV.QuanDoc AS QuanDoc
                 FROM TTThanhPham AS TT

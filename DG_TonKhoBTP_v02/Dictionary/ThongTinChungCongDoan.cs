@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DG_TonKhoBTP_v02.Dictionary
 {
-    public static class 
+    public static class
     ThongTinChungCongDoan
     {
         public static readonly CongDoan KeoRut = new CongDoan(
@@ -24,7 +24,7 @@ namespace DG_TonKhoBTP_v02.Dictionary
                 new ColumnDefinition { Name = "CdConLai", DataType = typeof(double), Header = "CD còn lại" },
                 new ColumnDefinition { Name = "KlConLai", DataType = typeof(double), Header = "KL còn lại" },
             },
-            new List<string> { "BTP.20101%", "BTP.20201%"},
+            new List<string> { "BTP.20101%", "BTP.20201%" },
             new List<string> { 
                 //"DanhSachMaSP.Ma", 
                 //"DanhSachMaSP.Ten", 
@@ -33,7 +33,7 @@ namespace DG_TonKhoBTP_v02.Dictionary
                 "TTThanhPham.ChieuDaiSau",
                 "TTThanhPham.KhoiLuongTruoc",
                 "TTThanhPham.KhoiLuongSau",
-                "TTThanhPham.Phe", 
+                "TTThanhPham.Phe",
                 "TTNVL.BinNVL",
                 "DSNVL.Ten  as Ten_NVL"
             }
@@ -64,7 +64,7 @@ namespace DG_TonKhoBTP_v02.Dictionary
                 "TTThanhPham.ChieuDaiSau",
                 "TTThanhPham.KhoiLuongTruoc",
                 "TTThanhPham.KhoiLuongSau",
-                "TTThanhPham.Phe", 
+                "TTThanhPham.Phe",
                 "TTNVL.BinNVL",
                 "DSNVL.Ten  as Ten_NVL"
             }
@@ -119,7 +119,7 @@ namespace DG_TonKhoBTP_v02.Dictionary
                 new ColumnDefinition { Name = "CdConLai", DataType = typeof(double), Header = "CD còn lại" },
                 new ColumnDefinition { Name = "KlConLai", DataType = typeof(double), Header = "KL còn lại" },
             },
-            new List<string> { "BTP.20105%", "BTP.20205%" } ,
+            new List<string> { "BTP.20105%", "BTP.20205%" },
             new List<string> {
                 //"DanhSachMaSP.Ma",
                 //"DanhSachMaSP.Ten",
@@ -224,5 +224,5 @@ namespace DG_TonKhoBTP_v02.Dictionary
 
     }
 
-    
+
 }

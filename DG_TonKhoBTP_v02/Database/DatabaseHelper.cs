@@ -160,7 +160,7 @@ namespace DG_TonKhoBTP_v02.Database
             return GetData(query, mabin, "mabin");
         }
 
-
+        
 
         #endregion
 

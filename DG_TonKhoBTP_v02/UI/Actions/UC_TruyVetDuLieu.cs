@@ -18,6 +18,10 @@ namespace DG_TonKhoBTP_v02.UI.Actions
     public partial class UC_TruyVetDuLieu : UserControl
     {
         private CancellationTokenSource _searchCts;
+        private CancellationTokenSource _ctsThanhPham; // Thêm CTS cho grid ThanhPham
+        private CancellationTokenSource _ctsNVL;       // Thêm CTS cho grid NVL
+        private bool _isLoadingThanhPham = false;      // Flag cho ThanhPham
+        private bool _isLoadingNVL = false;            // Flag cho NVL
         string selectedCol;
         public UC_TruyVetDuLieu()
         {
@@ -58,21 +62,48 @@ namespace DG_TonKhoBTP_v02.UI.Actions
                 cbxTimKiem.DroppedDown = false;
                 return;
             }
+
             string para = "key";
             bool stt = (cbxLoaiTimKiem.SelectedIndex > 1);
-
             string query = Helper.Helper.TaoSQL_LayDLTruyVet(stt, para, out selectedCol);
 
-            DataTable sp = await Task.Run(() =>
+            FrmWaiting waiting = null;
+            DataTable sp = null;
+
+            try
             {
-                return DatabaseHelper.GetData(query, keyword, para);
-            }, ct);
+                // Hiển thị form chờ
+                waiting = new FrmWaiting("Đang tải dữ liệu...");
+                waiting.TopMost = true;
+                waiting.StartPosition = FormStartPosition.CenterScreen;
+                waiting.Show();
+                waiting.Refresh();
 
-            ct.ThrowIfCancellationRequested();
+                // Query database
+                sp = await Task.Run(() =>
+                {
+                    ct.ThrowIfCancellationRequested();
+                    return DatabaseHelper.GetData(query, keyword, para);
+                }, ct);
 
+                // ✅ Kiểm tra cancel NGAY sau khi có dữ liệu, TRƯỚC khi đóng form
+                ct.ThrowIfCancellationRequested();
+            }
+            catch (OperationCanceledException)
+            {
+                // Bị hủy, return luôn, không xử lý UI
+                return;
+            }
+            finally
+            {
+                // Đảm bảo đóng form chờ trong mọi trường hợp
+                waiting?.SafeClose();
+            }
+
+            // ✅ Đến đây chắc chắn có dữ liệu hợp lệ và không bị cancel
             cbxTimKiem.DroppedDown = false;
+            cbxTimKiem.SelectionChangeCommitted -= cbxTimKiem_SelectionChangeCommitted;
 
-            cbxTimKiem.SelectionChangeCommitted -= cbxTimKiem_SelectionChangeCommitted; // tránh trùng event
             if (sp.Rows.Count == 0) return;
 
             cbxTimKiem.DataSource = sp;
@@ -94,20 +125,15 @@ namespace DG_TonKhoBTP_v02.UI.Actions
             cbxTimKiem.Text = string.Empty;
         }
 
-        private void cbxTimKiem_SelectionChangeCommitted(object sender, EventArgs e)
+        private async void cbxTimKiem_SelectionChangeCommitted(object sender, EventArgs e)
         {
-            // Bỏ qua nếu không có item được chọn
-            if (cbxTimKiem.SelectedItem == null)
-                return;
+            if (cbxTimKiem.SelectedItem == null) return;
 
-            // Lấy DataRowView từ item được chọn
             if (cbxTimKiem.SelectedItem is DataRowView selectedRow)
             {
-                // Tạo DataTable mới chỉ chứa dòng được chọn
-                DataTable dtSelected = selectedRow.Row.Table.Clone(); // Copy cấu trúc
-                dtSelected.ImportRow(selectedRow.Row); // Import dòng được chọn
+                DataTable dtSelected = selectedRow.Row.Table.Clone();
+                dtSelected.ImportRow(selectedRow.Row);
 
-                // Gán vào DataGridView
                 if (grvChiTietThanhPham.DataSource is BindingSource bsGrid)
                 {
                     bsGrid.DataSource = dtSelected;
@@ -119,64 +145,144 @@ namespace DG_TonKhoBTP_v02.UI.Actions
                     grvChiTietThanhPham.DataSource = dtSelected;
                 }
 
-                // Tự động chọn dòng đầu tiên (vì chỉ có 1 dòng)
                 if (grvChiTietThanhPham.Rows.Count > 0)
                 {
                     grvChiTietThanhPham.ClearSelection();
-
                     string maBin = grvChiTietThanhPham.Rows[0].Cells["mabin"].Value.ToString();
-                    getSelectedCol(maBin, grvChiTietNVL, true);
+
+                    // Gọi async với CancellationToken.None (hoặc tạo CTS riêng nếu cần)
+                    try
+                    {
+                        await getSelectedColAsync(maBin, grvChiTietNVL, true, CancellationToken.None);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        // Bỏ qua nếu bị cancel
+                    }
                 }
             }
 
-            // Reset lại ComboBox để sẵn sàng cho lần tìm tiếp theo
             cbxTimKiem.SelectedIndex = -1;
             cbxTimKiem.Text = string.Empty;
         }
 
-        private void grvChiTietThanhPham_CellClick(object sender, DataGridViewCellEventArgs e)
+        private async void grvChiTietThanhPham_CellClick(object sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex < 0) return;
+            if (_isLoadingThanhPham) return; // Nếu đang load thì bỏ qua
 
-            DataGridViewRow row = grvChiTietThanhPham.Rows[e.RowIndex];
-            string cellValue = row.Cells["MaBin"].Value.ToString();
-
-            getSelectedCol(cellValue, grvChiTietNVL, true);
-        }
-
-        private void grvChiTietNVL_CellClick(object sender, DataGridViewCellEventArgs e)
-        {
-
-            if (e.RowIndex < 0) return;
-
-            DataGridViewRow row = grvChiTietNVL.Rows[e.RowIndex];
-            string cellValue = row.Cells["MaBin"].Value.ToString();
-
-            getSelectedCol(cellValue, grvChiTietThanhPham,  false);
-            getSelectedCol(cellValue, grvChiTietNVL, true);
-        }
-
-        private void getSelectedCol(string maBin, DataGridView dgrDich, bool loai_MaBin = true)
-        {
-            if (maBin != "")
+            try
             {
-                DataTable dlNVVL;
+                _isLoadingThanhPham = true;
+                grvChiTietThanhPham.Enabled = false; // Disable grid
 
-                if (loai_MaBin)
-                {
-                    dlNVVL = DatabaseHelper.GetThongTinNVLTheoMaBin(maBin);
-                }
-                else
-                {
-                    string para = "key";
-                    string query = Helper.Helper.TaoSQL_LayDLTruyVet(loai_MaBin, para, out selectedCol);
-                    dlNVVL = DatabaseHelper.GetData(query, maBin, para);
-                }
+                DataGridViewRow row = grvChiTietThanhPham.Rows[e.RowIndex];
+                string cellValue = row.Cells["MaBin"].Value.ToString();
 
+                // Hủy request cũ nếu có
+                _ctsThanhPham?.Cancel();
+                _ctsThanhPham = new CancellationTokenSource();
+                var token = _ctsThanhPham.Token;
+
+                await getSelectedColAsync(cellValue, grvChiTietNVL, true, token);
+            }
+            catch (OperationCanceledException)
+            {
+                // Bị hủy, bỏ qua
+            }
+            finally
+            {
+                grvChiTietThanhPham.Enabled = true; // Enable lại
+                _isLoadingThanhPham = false;
+            }
+        }
+
+        private async void grvChiTietNVL_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0) return;
+            if (_isLoadingNVL) return; // Nếu đang load thì bỏ qua
+
+            try
+            {
+                _isLoadingNVL = true;
+                grvChiTietNVL.Enabled = false; // Disable grid
+
+                DataGridViewRow row = grvChiTietNVL.Rows[e.RowIndex];
+                string cellValue = row.Cells["MaBin"].Value.ToString();
+
+                // Hủy request cũ nếu có
+                _ctsNVL?.Cancel();
+                _ctsNVL = new CancellationTokenSource();
+                var token = _ctsNVL.Token;
+
+                // Chạy tuần tự 2 lần query, cả 2 đều có thể bị cancel
+                await getSelectedColAsync(cellValue, grvChiTietThanhPham, false, token);
+                await getSelectedColAsync(cellValue, grvChiTietNVL, true, token);
+            }
+            catch (OperationCanceledException)
+            {
+                // Bị hủy, bỏ qua
+            }
+            finally
+            {
+                grvChiTietNVL.Enabled = true; // Enable lại
+                _isLoadingNVL = false;
+            }
+        }
+
+
+        private async Task getSelectedColAsync( string maBin, DataGridView dgrDich, bool loai_MaBin = true, CancellationToken ct = default) // Thêm parameter
+        {
+            if (string.IsNullOrEmpty(maBin)) return;
+
+            FrmWaiting waiting = null;
+            DataTable dlNVVL = null;
+
+            try
+            {
+                waiting = new FrmWaiting("Đang tải dữ liệu...");
+                waiting.TopMost = true;
+                waiting.StartPosition = FormStartPosition.CenterScreen;
+                waiting.Show();
+                waiting.Refresh();
+
+                dlNVVL = await Task.Run(() =>
+                {
+                    // Kiểm tra cancel trước khi query
+                    ct.ThrowIfCancellationRequested();
+
+                    if (loai_MaBin)
+                    {
+                        return DatabaseHelper.GetThongTinNVLTheoMaBin(maBin);
+                    }
+                    else
+                    {
+                        string para = "key";
+                        string tempCol;
+                        string query = Helper.Helper.TaoSQL_LayDLTruyVet(loai_MaBin, para, out tempCol);
+                        return DatabaseHelper.GetData(query, maBin, para);
+                    }
+                }, ct);
+
+                // Kiểm tra cancel sau khi query xong
+                ct.ThrowIfCancellationRequested();
+            }
+            catch (OperationCanceledException)
+            {
+                // Request bị hủy, throw lại để event handler bắt
+                throw;
+            }
+            finally
+            {
+                waiting?.SafeClose();
+            }
+
+            // Cập nhật UI
+            if (dlNVVL != null)
+            {
                 dgrDich.AutoGenerateColumns = true;
                 dgrDich.DefaultCellStyle.Font = new System.Drawing.Font("Tahoma", 11F, FontStyle.Regular);
                 dgrDich.ColumnHeadersDefaultCellStyle.Font = new System.Drawing.Font("Tahoma", 11F, FontStyle.Regular);
-
                 dgrDich.DataSource = dlNVVL;
             }
         }

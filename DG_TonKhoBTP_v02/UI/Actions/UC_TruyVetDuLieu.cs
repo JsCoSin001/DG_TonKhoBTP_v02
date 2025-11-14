@@ -1,5 +1,6 @@
 ﻿using ClosedXML.Excel;
 using DG_TonKhoBTP_v02.Database;
+using DG_TonKhoBTP_v02.Dictionary;
 using DocumentFormat.OpenXml.Spreadsheet;
 using DocumentFormat.OpenXml.Wordprocessing;
 using System;
@@ -149,8 +150,10 @@ namespace DG_TonKhoBTP_v02.UI.Actions
                 {
                     grvChiTietThanhPham.ClearSelection();
                     string maBin = grvChiTietThanhPham.Rows[0].Cells["mabin"].Value.ToString();
-
-                    // Gọi async với CancellationToken.None (hoặc tạo CTS riêng nếu cần)
+                    int idCongDoan = Convert.ToInt32(grvChiTietThanhPham.Rows[0].Cells["CongDoan"].Value);
+                    string tenCD = ThongTinChungCongDoan.GetTenCongDoanById(idCongDoan);
+                    tenCD = string.IsNullOrEmpty(tenCD) ? "" : char.ToUpper(tenCD[0]) + tenCD.Substring(1).ToLower();
+                    grvChiTietThanhPham.Rows[0].Cells["CongDoan"].Value = tenCD;
                     try
                     {
                         await getSelectedColAsync(maBin, grvChiTietNVL, true, CancellationToken.None);
@@ -168,33 +171,33 @@ namespace DG_TonKhoBTP_v02.UI.Actions
 
         private async void grvChiTietThanhPham_CellClick(object sender, DataGridViewCellEventArgs e)
         {
-            if (e.RowIndex < 0) return;
-            if (_isLoadingThanhPham) return; // Nếu đang load thì bỏ qua
+            //if (e.RowIndex < 0) return;
+            //if (_isLoadingThanhPham) return; // Nếu đang load thì bỏ qua
 
-            try
-            {
-                _isLoadingThanhPham = true;
-                grvChiTietThanhPham.Enabled = false; // Disable grid
+            //try
+            //{
+            //    _isLoadingThanhPham = true;
+            //    grvChiTietThanhPham.Enabled = false; // Disable grid
 
-                DataGridViewRow row = grvChiTietThanhPham.Rows[e.RowIndex];
-                string cellValue = row.Cells["MaBin"].Value.ToString();
+            //    DataGridViewRow row = grvChiTietThanhPham.Rows[e.RowIndex];
+            //    string cellValue = row.Cells["MaBin"].Value.ToString();
 
-                // Hủy request cũ nếu có
-                _ctsThanhPham?.Cancel();
-                _ctsThanhPham = new CancellationTokenSource();
-                var token = _ctsThanhPham.Token;
+            //    // Hủy request cũ nếu có
+            //    _ctsThanhPham?.Cancel();
+            //    _ctsThanhPham = new CancellationTokenSource();
+            //    var token = _ctsThanhPham.Token;
 
-                await getSelectedColAsync(cellValue, grvChiTietNVL, true, token);
-            }
-            catch (OperationCanceledException)
-            {
-                // Bị hủy, bỏ qua
-            }
-            finally
-            {
-                grvChiTietThanhPham.Enabled = true; // Enable lại
-                _isLoadingThanhPham = false;
-            }
+            //    await getSelectedColAsync(cellValue, grvChiTietNVL, true, token);
+            //}
+            //catch (OperationCanceledException)
+            //{
+            //    // Bị hủy, bỏ qua
+            //}
+            //finally
+            //{
+            //    grvChiTietThanhPham.Enabled = true; // Enable lại
+            //    _isLoadingThanhPham = false;
+            //}
         }
 
         private async void grvChiTietNVL_CellClick(object sender, DataGridViewCellEventArgs e)

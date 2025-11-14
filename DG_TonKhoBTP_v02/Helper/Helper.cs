@@ -36,14 +36,22 @@ namespace DG_TonKhoBTP_v02.Helper
             // KHÔNG đặt dấu ; ở cuối vì còn nối UNION ALL ở hàm sau
             return @"
             SELECT
-                t.KhoiLuongSau AS KlBatDau,
-                t.ChieuDaiSau  AS CDBatDau,
-                t.id           AS id,
+                t.KhoiLuongSau  AS KlBatDau,
+                t.ChieuDaiSau   AS CDBatDau,
+                t.id            AS id,
+                d.Ten           AS TenNVL,
+                d.DonVi         AS DonVi,
                 d.id            as DanhSachMaSP_ID,
-                t.MaBin        AS BinNVL
+                t.MaBin         AS BinNVL,
+                v.Ngay          AS Ngay,
+                v.Ca            AS Ca,
+                v.NguoiLam      AS NguoiLam,
+                t.GhiChu        as GhiChu
             FROM TTThanhPham AS t
             JOIN DanhSachMaSP AS d
                 ON d.id = t.DanhSachSP_ID
+            JOIN ThongTinCaLamViec AS v
+                ON v.id = t.ThongTinCaLamViec_ID
             WHERE
                 (
                     (d.DonVi = 'KG' AND t.KhoiLuongSau <> 0)
@@ -65,11 +73,17 @@ namespace DG_TonKhoBTP_v02.Helper
             UNION ALL
 
             SELECT
-                -1      AS KlBatDau,
-                -1      AS CDBatDau,
-                d.id    AS id,
-                d.id            as DanhSachMaSP_ID,
-                d.ten   AS BinNVL
+                -1          AS KlBatDau,
+                -1          AS CDBatDau,
+                d.id        AS id,
+                d.Ten       AS TenNVL,
+                d.DonVi     AS DonVi,
+                d.id        AS DanhSachMaSP_ID,
+                d.Ten       AS BinNVL,
+                NULL        AS Ngay,
+                ''          AS Ca,
+                ''          AS NguoiLam,
+                ''          as GhiChu
             FROM DanhSachMaSP AS d
             WHERE
                 d.Ma LIKE 'NVL.%' COLLATE NOCASE
@@ -110,11 +124,6 @@ namespace DG_TonKhoBTP_v02.Helper
               ttp.Phe as Phe, ttp.GhiChu as GhiChu ";
         }
 
-        public static string TaoSQL_DSMaBin(string tenHienThi)
-        {
-            return @" SELECT MaBin as" +tenHienThi + "FROM TTThanhPham WHERE MaBin LIKE '%' || @ma || '%'; ";
-        }
-
         public static string TaoSQL_LayDLTruyVet(bool col, string key, out string selectedCol)
         {
             // Cột hiển thị trong ComboBox (phải đúng tên alias trong DataTable)
@@ -152,7 +161,6 @@ namespace DG_TonKhoBTP_v02.Helper
             return sql;
         }
 
-
         public static string TaoSQL_TaoKetNoiCacBang()
         {
             return @"
@@ -171,7 +179,6 @@ namespace DG_TonKhoBTP_v02.Helper
             ";
         }
 
-
         public static string TaoSQL_LayChiTiet_1CD(int id)
         {
             string[] dsCotCongDoan = ChiTietCongDoanBoc.DSTenCotRieng;
@@ -185,8 +192,42 @@ namespace DG_TonKhoBTP_v02.Helper
             return sqlChung + dsCotCongDoan[id];
         }
 
+        public static (string query, string loaiCD) TaoSQL_BCSX( List<CongDoan> selectedCongDoans)
+        {
+            // Tạo phần SELECT chung
+            string sqlSelect = TaoSqL_LayThongTinBaoCaoChung();
 
-        public static (string Columns, string DieuKien) TaoSQL_LayChiTiet_NhieuCD(List<CongDoan> selectedCongDoans)
+            // Lấy chi tiết công đoạn
+            var (sqlLayChiTietCD, loaiCD) = TaoSQL_LayChiTiet_NhieuCD(selectedCongDoans);
+
+
+            // Lấy dữ liệu NVL theo danh sách công đoạn
+            string sqlTenNVL = TaoSQL_LayDuLieuNVL(selectedCongDoans.Select(cd => cd.Columns).ToArray());
+
+
+            // Câu nối các bảng
+            string sqlJoin = TaoSQL_TaoKetNoiCacBang();
+
+            // Format ngày sang dạng SQLite hiểu được
+            //string ngayBD = ngayBatDau.Date.AddHours(5).AddMinutes(59).ToString("yyyy-MM-dd HH:mm:ss");
+
+            //string ngayKT = ngayKetThuc.Date.AddDays(1).AddHours(6).ToString("yyyy-MM-dd HH:mm:ss");
+
+            // Điều kiện WHERE – chèn trực tiếp giá trị ngày
+            //string sqlDkNgay = $" WHERE date(tclv.Ngay) >= date('{ngayBD}') AND date(tclv.Ngay) <= date('{ngayKT}')";
+
+
+            // Sắp xếp
+            //string sqlOrder = " ORDER BY tclv.Ngay DESC, ttp.id DESC;";
+
+            // Ghép chuỗi hoàn chỉnh
+            //string query = sqlSelect + " ," + sqlLayChiTietCD + " ," + sqlTenNVL + sqlJoin + sqlDkNgay + loaiCD + sqlOrder;
+            string query = sqlSelect + " ," + sqlLayChiTietCD + " ," + sqlTenNVL + sqlJoin + loaiCD ;
+
+            return (query, loaiCD);
+        }
+
+        public static (string Columns, string DieuKien)   TaoSQL_LayChiTiet_NhieuCD(List<CongDoan> selectedCongDoans)
         {
             if (selectedCongDoans == null || selectedCongDoans.Count == 0)
                 return (string.Empty, string.Empty);
@@ -207,7 +248,6 @@ namespace DG_TonKhoBTP_v02.Helper
             return (columnsSql, dieuKienSql);
         }
 
-
         public static string TaoSQL_LayDuLieuNVL(params IEnumerable<ColumnDefinition>[] groups)
         {
             var names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -222,6 +262,13 @@ namespace DG_TonKhoBTP_v02.Helper
                         var name = col?.Name?.Trim();
                         if (string.IsNullOrWhiteSpace(name)) continue;
                         if (string.Equals(name, "id", StringComparison.OrdinalIgnoreCase)) continue; // bỏ nvl.id
+                        if (string.Equals(name, "DanhSachMaSP_ID", StringComparison.OrdinalIgnoreCase)) continue; // bỏ nvl.id
+                        if (string.Equals(name, "DonVi", StringComparison.OrdinalIgnoreCase)) continue; // bỏ nvl.id
+                        if (string.Equals(name, "TenNVL", StringComparison.OrdinalIgnoreCase)) continue; // bỏ nvl.id
+                        if (string.Equals(name, "Ngay", StringComparison.OrdinalIgnoreCase)) continue; // bỏ nvl.id
+                        if (string.Equals(name, "Ca", StringComparison.OrdinalIgnoreCase)) continue; // bỏ nvl.id
+                        if (string.Equals(name, "NguoiLam", StringComparison.OrdinalIgnoreCase)) continue; // bỏ nvl.id
+                        if (string.Equals(name, "GhiChu", StringComparison.OrdinalIgnoreCase)) continue; // bỏ nvl.id
                         names.Add(name);
                     }
                 }
@@ -230,14 +277,17 @@ namespace DG_TonKhoBTP_v02.Helper
             var cols = new List<string>();
             // luôn thêm tên NVL (alias từ bảng DanhSachMaSP dành cho NVL)
             cols.Add("ds_nvl.Ten AS TenNVL");
-
+            //cols.Add("ds_nvl.DonVi AS DonVi");
+            //cols.Add("tclv.Ngay AS Ngay");
+            //cols.Add("tclv.Ca AS Ca");
+            //cols.Add("tclv.NguoiLam AS CaNguoiLam");
+            //cols.Add("ttp.GhiChu AS GhiChu");
+            
             // các cột NVL khác (nếu có)
             cols.AddRange(names.Select(n => $"nvl.{n} AS {n}"));
 
             return string.Join(", ", cols); // KHÔNG có dấu phẩy đầu/cuối
         }
-
-
 
         public static void SetIfPresent(DataRow row, string col, Action<object> setter)
         {
@@ -299,45 +349,133 @@ namespace DG_TonKhoBTP_v02.Helper
             return null;
         }
 
+        //public static void MapRowToObject<T>(DataGridViewRow row, T target)
+        //{
+        //    var props = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);
+
+        //    foreach (var p in props)
+        //    {
+        //        if (!row.DataGridView.Columns.Contains(p.Name))
+        //            continue;
+
+        //        var raw = row.Cells[p.Name]?.Value;
+
+        //        try
+        //        {
+        //            object value = null;
+
+        //            if (p.PropertyType == typeof(string))
+        //            {
+        //                value = raw?.ToString() ?? string.Empty;
+        //            }
+        //            else if (IsNumeric(p.PropertyType))
+        //            {
+        //                // Ô trống => 0
+        //                var s = raw?.ToString();
+        //                if (string.IsNullOrWhiteSpace(s))
+        //                {
+        //                    value = ConvertToNumericDefaultZero(p.PropertyType);
+        //                }
+        //                else
+        //                {
+        //                    value = Convert.ChangeType(s, Nullable.GetUnderlyingType(p.PropertyType) ?? p.PropertyType);
+        //                }
+        //            }
+        //            else
+        //            {
+        //                // Kiểu khác (int?, double?, …)
+        //                var underlying = Nullable.GetUnderlyingType(p.PropertyType) ?? p.PropertyType;
+        //                if (raw == null || string.IsNullOrWhiteSpace(raw.ToString()))
+        //                {
+        //                    value = underlying.IsValueType ? Activator.CreateInstance(underlying) : null;
+        //                }
+        //                else
+        //                {
+        //                    value = Convert.ChangeType(raw, underlying);
+        //                }
+        //            }
+
+        //            p.SetValue(target, value);
+        //        }
+        //        catch
+        //        {
+        //            // Nếu chuyển kiểu lỗi -> gán 0 cho numeric, "" cho string
+        //            if (p.PropertyType == typeof(string))
+        //                p.SetValue(target, string.Empty);
+        //            else if (IsNumeric(p.PropertyType))
+        //                p.SetValue(target, ConvertToNumericDefaultZero(p.PropertyType));
+        //        }
+        //    }
+        //}
+
         public static void MapRowToObject<T>(DataGridViewRow row, T target)
         {
+            // Lấy tất cả property public instance của kiểu T
             var props = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);
 
             foreach (var p in props)
             {
+                // Nếu DataGridView không có cột trùng tên property thì bỏ qua
                 if (!row.DataGridView.Columns.Contains(p.Name))
                     continue;
 
+                // Lấy giá trị ô tương ứng với property p
                 var raw = row.Cells[p.Name]?.Value;
 
                 try
                 {
                     object value = null;
 
+                    // Nếu property là string
                     if (p.PropertyType == typeof(string))
                     {
+                        // Nếu null thì cho chuỗi rỗng
                         value = raw?.ToString() ?? string.Empty;
                     }
+                    // Nếu là kiểu numeric (int, double, decimal, ...) hoặc nullable của chúng (int?, double?, ...)
                     else if (IsNumeric(p.PropertyType))
                     {
-                        // Ô trống => 0
                         var s = raw?.ToString();
+
+                        // Ô trống hoặc whitespace
                         if (string.IsNullOrWhiteSpace(s))
                         {
-                            value = ConvertToNumericDefaultZero(p.PropertyType);
+                            // Nếu property là kiểu nullable (int?, double?, ...)
+                            if (Nullable.GetUnderlyingType(p.PropertyType) != null)
+                            {
+                                // => gán null theo yêu cầu của bạn
+                                value = null;
+                            }
+                            else
+                            {
+                                // Nếu là kiểu numeric không nullable (int, double, ...) thì gán 0
+                                value = ConvertToNumericDefaultZero(p.PropertyType);
+                            }
                         }
                         else
                         {
-                            value = Convert.ChangeType(s, Nullable.GetUnderlyingType(p.PropertyType) ?? p.PropertyType);
+                            // Có giá trị -> convert sang kiểu underlying (nếu là nullable thì lấy kiểu gốc bên trong)
+                            var targetType = Nullable.GetUnderlyingType(p.PropertyType) ?? p.PropertyType;
+                            value = Convert.ChangeType(s, targetType);
                         }
                     }
                     else
                     {
-                        // Kiểu khác (int?, double?, …)
+                        // Các kiểu khác (ví dụ: DateTime?, bool?, ...)
                         var underlying = Nullable.GetUnderlyingType(p.PropertyType) ?? p.PropertyType;
+
                         if (raw == null || string.IsNullOrWhiteSpace(raw.ToString()))
                         {
-                            value = underlying.IsValueType ? Activator.CreateInstance(underlying) : null;
+                            // Nếu là nullable type -> cho null
+                            if (Nullable.GetUnderlyingType(p.PropertyType) != null)
+                            {
+                                value = null;
+                            }
+                            else
+                            {
+                                // Nếu không phải nullable -> tạo instance mặc định (ví dụ: 0 cho int, 01/01/0001 cho DateTime, ...)
+                                value = Activator.CreateInstance(underlying);
+                            }
                         }
                         else
                         {
@@ -345,35 +483,85 @@ namespace DG_TonKhoBTP_v02.Helper
                         }
                     }
 
+                    // Gán giá trị đã convert cho property
                     p.SetValue(target, value);
                 }
                 catch
                 {
-                    // Nếu chuyển kiểu lỗi -> gán 0 cho numeric, "" cho string
+                    // Nếu lỗi convert:
                     if (p.PropertyType == typeof(string))
+                    {
                         p.SetValue(target, string.Empty);
+                    }
                     else if (IsNumeric(p.PropertyType))
-                        p.SetValue(target, ConvertToNumericDefaultZero(p.PropertyType));
+                    {
+                        // Nếu là nullable numeric -> cho null khi lỗi
+                        if (Nullable.GetUnderlyingType(p.PropertyType) != null)
+                        {
+                            p.SetValue(target, null);
+                        }
+                        else
+                        {
+                            // Numeric không nullable -> cho 0
+                            p.SetValue(target, ConvertToNumericDefaultZero(p.PropertyType));
+                        }
+                    }
+                    else
+                    {
+                        // Các kiểu khác: nếu nullable -> null, nếu không nullable -> default của kiểu
+                        if (Nullable.GetUnderlyingType(p.PropertyType) != null)
+                        {
+                            p.SetValue(target, null);
+                        }
+                        else
+                        {
+                            var underlying = Nullable.GetUnderlyingType(p.PropertyType) ?? p.PropertyType;
+                            p.SetValue(target, Activator.CreateInstance(underlying));
+                        }
+                    }
                 }
             }
         }
 
+        //private static bool IsNumeric(Type t)
+        //{
+        //    t = Nullable.GetUnderlyingType(t) ?? t;
+        //    return t == typeof(int) || t == typeof(long) || t == typeof(short) ||
+        //           t == typeof(double) || t == typeof(float) || t == typeof(decimal);
+        //}
+
         private static bool IsNumeric(Type t)
         {
+            // Nếu là nullable thì lấy kiểu gốc bên trong (ví dụ int? -> int)
             t = Nullable.GetUnderlyingType(t) ?? t;
+
             return t == typeof(int) || t == typeof(long) || t == typeof(short) ||
                    t == typeof(double) || t == typeof(float) || t == typeof(decimal);
         }
 
+        //private static object ConvertToNumericDefaultZero(Type t)
+        //{
+        //    t = Nullable.GetUnderlyingType(t) ?? t;
+        //    if (t == typeof(int)) return 0;
+        //    if (t == typeof(long)) return 0L;
+        //    if (t == typeof(short)) return (short)0;
+        //    if (t == typeof(double)) return 0.0d;
+        //    if (t == typeof(float)) return 0.0f;
+        //    if (t == typeof(decimal)) return 0.0m;
+        //    return 0;
+        //}
+
         private static object ConvertToNumericDefaultZero(Type t)
         {
             t = Nullable.GetUnderlyingType(t) ?? t;
+
             if (t == typeof(int)) return 0;
             if (t == typeof(long)) return 0L;
             if (t == typeof(short)) return (short)0;
             if (t == typeof(double)) return 0.0d;
             if (t == typeof(float)) return 0.0f;
             if (t == typeof(decimal)) return 0.0m;
+
             return 0;
         }
 
@@ -500,7 +688,6 @@ namespace DG_TonKhoBTP_v02.Helper
             return $"Đã xảy ra lỗi: {Normalize(ex.Message)}";
         }
 
-        // Chuẩn hoá thông điệp: cắt xuống 1 dòng, bỏ ký tự xuống dòng thừa
         private static string Normalize(string? message)
         {
             if (string.IsNullOrWhiteSpace(message)) return "Không có thêm thông tin.";
@@ -509,8 +696,6 @@ namespace DG_TonKhoBTP_v02.Helper
             return oneLine.Length > 350 ? oneLine.Substring(0, 350) + "..." : oneLine;
         }
 
-        // Trích phần đuôi "Bảng.Cột" hoặc tên ràng buộc từ thông điệp SQLite
-        // Ví dụ: "NOT NULL constraint failed: CaiDatCDBoc.TTNhua" -> "CaiDatCDBoc.TTNhua"
         private static string? ExtractTail(string message)
         {
             if (string.IsNullOrWhiteSpace(message)) return null;

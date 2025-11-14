@@ -30,17 +30,21 @@
         {
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.dtgTTNVL = new System.Windows.Forms.DataGridView();
+            this.panel1 = new System.Windows.Forms.Panel();
+            this.label2 = new System.Windows.Forms.Label();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.cbxTimKiem = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dtgTTNVL)).BeginInit();
+            this.panel1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // groupBox1
             // 
             this.groupBox1.Controls.Add(this.dtgTTNVL);
+            this.groupBox1.Controls.Add(this.panel1);
             this.groupBox1.Controls.Add(this.tableLayoutPanel1);
             this.groupBox1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.groupBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -58,11 +62,33 @@
             this.dtgTTNVL.AllowUserToAddRows = false;
             this.dtgTTNVL.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dtgTTNVL.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dtgTTNVL.Location = new System.Drawing.Point(10, 60);
+            this.dtgTTNVL.Location = new System.Drawing.Point(10, 81);
             this.dtgTTNVL.Name = "dtgTTNVL";
             this.dtgTTNVL.RowHeadersVisible = false;
-            this.dtgTTNVL.Size = new System.Drawing.Size(756, 384);
+            this.dtgTTNVL.Size = new System.Drawing.Size(756, 363);
             this.dtgTTNVL.TabIndex = 1;
+            // 
+            // panel1
+            // 
+            this.panel1.Controls.Add(this.label2);
+            this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panel1.Location = new System.Drawing.Point(10, 60);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(756, 21);
+            this.panel1.TabIndex = 4;
+            // 
+            // label2
+            // 
+            this.label2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label2.ForeColor = System.Drawing.Color.DarkRed;
+            this.label2.Location = new System.Drawing.Point(0, 0);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(756, 21);
+            this.label2.TabIndex = 0;
+            this.label2.Text = "Nếu KHỐI LƯỢNG / CHIỀU DÀI = 0 sẽ KHÔNG in tem";
+            this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.label2.UseCompatibleTextRendering = true;
             // 
             // tableLayoutPanel1
             // 
@@ -111,6 +137,7 @@
             this.Size = new System.Drawing.Size(796, 474);
             this.groupBox1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dtgTTNVL)).EndInit();
+            this.panel1.ResumeLayout(false);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.ResumeLayout(false);
 
@@ -123,5 +150,7 @@
         private System.Windows.Forms.ComboBox cbxTimKiem;
         private System.Windows.Forms.DataGridView dtgTTNVL;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
+        private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.Label label2;
     }
 }

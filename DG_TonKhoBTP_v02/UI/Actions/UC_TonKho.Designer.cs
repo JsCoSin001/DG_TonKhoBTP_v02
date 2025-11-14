@@ -66,6 +66,7 @@
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.grvShowBaoCao = new System.Windows.Forms.DataGridView();
             this.panel4 = new System.Windows.Forms.Panel();
+            this.cbxBaoCaoTon = new System.Windows.Forms.CheckBox();
             this.groupBox1.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.klConLai)).BeginInit();
@@ -273,7 +274,7 @@
             // 
             this.cbxTimMaBin.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbxTimMaBin.FormattingEnabled = true;
-            this.cbxTimMaBin.Location = new System.Drawing.Point(103, 6);
+            this.cbxTimMaBin.Location = new System.Drawing.Point(103, 9);
             this.cbxTimMaBin.Name = "cbxTimMaBin";
             this.cbxTimMaBin.Size = new System.Drawing.Size(438, 28);
             this.cbxTimMaBin.TabIndex = 3;
@@ -322,6 +323,7 @@
             this.tbCheckBox.Controls.Add(this.label6, 1, 3);
             this.tbCheckBox.Controls.Add(this.label7, 1, 4);
             this.tbCheckBox.Controls.Add(this.cbxAllSelected, 0, 3);
+            this.tbCheckBox.Controls.Add(this.cbxBaoCaoTon, 0, 4);
             this.tbCheckBox.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.tbCheckBox.Location = new System.Drawing.Point(3, 18);
             this.tbCheckBox.Name = "tbCheckBox";
@@ -581,6 +583,18 @@
             this.panel4.Size = new System.Drawing.Size(549, 740);
             this.panel4.TabIndex = 5;
             // 
+            // cbxBaoCaoTon
+            // 
+            this.cbxBaoCaoTon.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.cbxBaoCaoTon.AutoSize = true;
+            this.cbxBaoCaoTon.Location = new System.Drawing.Point(3, 118);
+            this.cbxBaoCaoTon.Name = "cbxBaoCaoTon";
+            this.cbxBaoCaoTon.Size = new System.Drawing.Size(130, 18);
+            this.cbxBaoCaoTon.TabIndex = 16;
+            this.cbxBaoCaoTon.Text = "Báo Cáo Tồn";
+            this.cbxBaoCaoTon.UseVisualStyleBackColor = true;
+            this.cbxBaoCaoTon.Click += new System.EventHandler(this.cbxBaoCaoTon_Click);
+            // 
             // UC_TonKho
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -652,5 +666,6 @@
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.DateTimePicker dtBatDau;
+        private System.Windows.Forms.CheckBox cbxBaoCaoTon;
     }
 }

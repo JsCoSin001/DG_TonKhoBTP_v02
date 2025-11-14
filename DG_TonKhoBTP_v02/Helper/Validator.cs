@@ -13,7 +13,47 @@ namespace DG_TonKhoBTP_v02.Helper
         public static bool TTCaLamViec(ThongTinCaLamViec data)
         => !string.IsNullOrWhiteSpace(data.May)  && !string.IsNullOrWhiteSpace(data.NguoiLam);
 
-        public static bool TTNVL(List<TTNVL> data) => data != null && data.Count > 0;
+        //public static bool TTNVL(List<TTNVL> data)
+        //{
+        //    bool result = true;
+        //    if (data == null || data.Count == 0) return false;
+        //    foreach (TTNVL t in data) {
+        //        if (t.DanhSachMaSP_ID == 0 || t.BinNVL == "" || (t.KlConLai == 0 && t.CdConLai == 0)) return false;
+        //    }
+            
+        //    return result;
+        //}
+
+        public static bool TTNVL(List<TTNVL> data)
+        {
+            bool result = true;
+
+            if (data == null || data.Count == 0)
+                return false;
+
+            foreach (TTNVL t in data)
+            {
+
+                // Kiểm tra các thuộc tính trong t
+                if (t.BanRongBang == null 
+                    || t.DoDayBang == null 
+                    || t.KetCauLoi == null
+                    || t.KlBatDau == null
+                    || t.KlConLai == null
+                    || t.DanhSachMaSP_ID == 0
+                    || t.BinNVL == ""
+                    || t.KlConLai == null
+                    || t.CdConLai == null
+                    ) 
+                {
+                    result = false;
+                    break;
+                }
+            }
+
+            return result;
+        }
+
 
         public static bool TTThanhPham(TTThanhPham data)
         {

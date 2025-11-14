@@ -215,13 +215,11 @@ namespace DG_TonKhoBTP_v02.UI
         {
             DateTime batDau = dtBatDau.Value;
             DateTime ketThuc = dtKetThuc.Value;
-
             if (ketThuc <= batDau)
             {
                 MessageBox.Show("Thời gian kết thúc phải lớn hơn thời gian bắt đầu!", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-
             var selectedCongDoans = Helper.Helper.GetCheckedCongDoans(tbCheckBox);
             if (selectedCongDoans == null || selectedCongDoans.Count == 0)
             {
@@ -229,16 +227,19 @@ namespace DG_TonKhoBTP_v02.UI
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
-
             string fileName = selectedCongDoans.Count == 1
                 ? $"Report_{selectedCongDoans[0].TenCongDoan}"
                 : "Report_MultiCongDoan";
 
-
             await WaitingHelper.RunWithWaiting(async () =>
             {
                 DataTable dt = await Task.Run(() =>
-                    DatabaseHelper.GetDataBaoCaoSX(batDau, ketThuc, selectedCongDoans));
+                {
+                    if (cbxBaoCaoTon.Checked)
+                        return DatabaseHelper.GetTonKhoCD(selectedCongDoans);
+                    else
+                        return DatabaseHelper.GetDataBaoCaoSX(batDau, ketThuc, selectedCongDoans);
+                });
 
                 if (dt == null || dt.Rows.Count == 0)
                 {
@@ -249,9 +250,8 @@ namespace DG_TonKhoBTP_v02.UI
 
                 if (btnXuatExcel.Checked)
                 {
-                    await Task.Run(() => ExportExcelFile(dt, fileName));
-                    MessageBox.Show("Đã xuất Excel thành công!", "Thông báo",
-                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    // Chạy trực tiếp trên UI thread - không dùng Task.Run
+                    ExportExcelFile(dt, fileName);
                 }
                 else
                 {
@@ -291,7 +291,6 @@ namespace DG_TonKhoBTP_v02.UI
         private async void btnTonDong_Click(object sender, EventArgs e)
         {
             grvShowBaoCao.DataSource = null;
-
             string query = @"
                 SELECT 
                     TTThanhPham.MaBin,
@@ -314,7 +313,6 @@ namespace DG_TonKhoBTP_v02.UI
                     (DanhSachMaSP.DonVi = 'M' AND TTThanhPham.ChieuDaiSau <> 0)
                 ORDER BY TTThanhPham.id DESC
             ";
-
             string col = null;
             string fileName = "BaoCaoTonKho_" + DateTime.Now.ToString("ddMMMyyyy");
 
@@ -331,7 +329,8 @@ namespace DG_TonKhoBTP_v02.UI
 
                 if (btnXuatExcel.Checked)
                 {
-                    await Task.Run(() => ExportExcelFile(dt, fileName));
+                    // QUAN TRỌNG: Không dùng Task.Run cho Excel
+                    ExportExcelFile(dt, fileName);
                     MessageBox.Show("Đã xuất Excel thành công!", "Thông báo",
                         MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
@@ -342,6 +341,10 @@ namespace DG_TonKhoBTP_v02.UI
             });
         }
 
-
+        private void cbxBaoCaoTon_Click(object sender, EventArgs e)
+        {
+            dtBatDau.Enabled = !cbxBaoCaoTon.Checked;
+            dtKetThuc.Enabled = !cbxBaoCaoTon.Checked;
+        }
     }
 }

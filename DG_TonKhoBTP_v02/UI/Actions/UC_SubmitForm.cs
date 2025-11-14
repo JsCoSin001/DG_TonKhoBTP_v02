@@ -69,7 +69,7 @@ namespace DG_TonKhoBTP_v02.UI
             if (!Validator.TTNVL(list_TTNVL))
             {
                 MessageBox.Show("Thông tin NGUYÊN LIỆU chưa hợp lệ", "THÔNG BÁO",
-                                MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                      MessageBoxButtons.OK, MessageBoxIcon.Error);
                 btnLuu.Enabled = true;
                 return;
             }
@@ -124,6 +124,7 @@ namespace DG_TonKhoBTP_v02.UI
             bool shouldPrint = cbInTem.Checked;
 
             var waiting = new FrmWaiting("Đang lưu dữ liệu và in tem...");
+
             try
             {
                 waiting.TopMost = true;
@@ -143,19 +144,42 @@ namespace DG_TonKhoBTP_v02.UI
                         else
                             isSuccess = DatabaseHelper.UpdateDataSanPham(
                                 idEdit, thongTinCaLamViec, thongTinThanhPham, list_TTNVL, chiTietCD, out err);
-
+                    
                         // 2) In tem nếu lưu ok
                         if (isSuccess && shouldPrint)
                         {
+                            // In tem thành phẩm
                             var printer = BuildPrinter();
                             PrintHelper.PrintLabel(printer);
+
+                            // In tem nguyên liệu (nếu có)
+                            foreach (TTNVL nvl in list_TTNVL)
+                            {
+                                if ((nvl.DonVi == "KG" && nvl.KlConLai != 0) || (nvl.DonVi == "M" && nvl.CdConLai != 0))
+                                {
+                                    PrinterModel nvl_printer = new PrinterModel
+                                    {
+                                        NgaySX = nvl.Ngay,
+                                        CaSX = nvl.Ca,
+                                        KhoiLuong = nvl.KlConLai.ToString(),
+                                        ChieuDai = nvl.CdConLai.ToString(),
+                                        TenSP = nvl.TenNVL,
+                                        MaBin = nvl.BinNVL,
+                                        MaSP = nvl.TenNVL,
+                                        DanhGia = "",
+                                        TenCN = Helper.Helper.ConvertTiengVietKhongDau(nvl.NguoiLam),
+                                        GhiChu = nvl.GhiChu
+                                    };
+                                    PrintHelper.PrintLabel(nvl_printer);
+                                }                               
+                            }
                         }
                     }
                     catch (Exception ex)
                     {
                         // Bắt mọi lỗi “ngoài dự kiến” trong background
                         isSuccess = false;
-                        err = "Lỗi trong quá trình lưu/in: " + ex.Message;
+                        err = "LƯU THÀNH CÔNG, LỖI IN: " + ex.Message;
                     }
                     finally
                     {

@@ -197,17 +197,21 @@ namespace DG_TonKhoBTP_v02.UI
                             MessageBoxButtons.OK, MessageBoxIcon.Information);
                         return;
                     }
+                    else
+                    {
+                        grvDanhSach.DataSource = dt;
+                        grvDanhSach.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+                        grvDanhSach.Font = new System.Drawing.Font("Segoe UI", 12, FontStyle.Regular);
+                        grvDanhSach.ColumnHeadersDefaultCellStyle.Font = new System.Drawing.Font("Segoe UI", 12, FontStyle.Bold);
+
+                        if (grvDanhSach.Columns.Count > 0) grvDanhSach.Columns[0].Width = 100;
+                        if (grvDanhSach.Columns.Count > 1) grvDanhSach.Columns[1].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+                        if (grvDanhSach.Columns.Count > 2) grvDanhSach.Columns[2].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+                    }
                 });
 
 
-                grvDanhSach.DataSource = dt;
-                grvDanhSach.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-                grvDanhSach.Font = new System.Drawing.Font("Segoe UI", 12, FontStyle.Regular);
-                grvDanhSach.ColumnHeadersDefaultCellStyle.Font = new System.Drawing.Font("Segoe UI", 12, FontStyle.Bold);
-
-                if (grvDanhSach.Columns.Count > 0) grvDanhSach.Columns[0].Width = 100;
-                if (grvDanhSach.Columns.Count > 1) grvDanhSach.Columns[1].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
-                if (grvDanhSach.Columns.Count > 2) grvDanhSach.Columns[2].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+                
             }
             catch (Exception ex)
             {
@@ -302,7 +306,8 @@ namespace DG_TonKhoBTP_v02.UI
             cbxMaSP.SelectedIndex = -1;
             cbxMaSP.Text = string.Empty;
 
-            btnLuu.Text = "CẬP NHẬT";
+            btnLuu.Text = "Cập nhật";
         }
+
     }
 }

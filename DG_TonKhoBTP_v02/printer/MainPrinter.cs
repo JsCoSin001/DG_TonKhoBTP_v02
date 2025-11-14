@@ -12,13 +12,6 @@ namespace DG_TonKhoBTP_v02.Printer
         // 👉 Đặt đúng tên máy in trong Windows
         private const string PrinterName = "SATO WS408";
 
-        // 👉 In chữ + QR cho tem 100x100mm (203 dpi)
-        //public static void PrintUpperTextAndQr(string upperText,
-        //                                       int textX = 120, int textY = 820,
-        //                                       string fontCmd = "XS",
-        //                                       string enlarge = "0304",
-        //                                       int pitch = 2)
-        //{
         public static void PrintUpperTextAndQr(string upperText)
         {
 

@@ -112,6 +112,7 @@ namespace DG_TonKhoBTP_v02.Database
             // Lấy chi tiết công đoạn
             var(sqlLayChiTietCD, loaiCD) = Helper.Helper.TaoSQL_LayChiTiet_NhieuCD(selectedCongDoans) ;
 
+
             // Câu nối các bảng
             string sqlJoin = Helper.Helper.TaoSQL_TaoKetNoiCacBang();
 
@@ -132,6 +133,39 @@ namespace DG_TonKhoBTP_v02.Database
 
             return GetData(query);
         }
+
+        public static DataTable GetTonKhoCD( List<CongDoan> selectedCongDoans)
+        {
+            // Tạo phần SELECT chung
+            string sqlSelect = Helper.Helper.TaoSqL_LayThongTinBaoCaoChung();
+
+            // Lấy dữ liệu NVL theo danh sách công đoạn
+            string sqlTenNVL = Helper.Helper.TaoSQL_LayDuLieuNVL(selectedCongDoans.Select(cd => cd.Columns).ToArray());
+
+            // Lấy chi tiết công đoạn
+            var (sqlLayChiTietCD, loaiCD) = Helper.Helper.TaoSQL_LayChiTiet_NhieuCD(selectedCongDoans);
+
+            // Câu nối các bảng
+            string sqlJoin = Helper.Helper.TaoSQL_TaoKetNoiCacBang();
+
+            loaiCD = loaiCD.Replace("AND", "WHERE")
+                    + @"
+                        AND (
+                        (ds.DonVi = 'KG' AND ttp.KhoiLuongSau > 0)
+                        OR
+                        (ds.DonVi = 'M' AND ttp.ChieuDaiSau > 0)
+                      )";
+
+
+            // Sắp xếp
+            string sqlOrder = " ORDER BY tclv.Ngay DESC, ttp.id DESC;";
+
+            // Ghép chuỗi hoàn chỉnh
+            string query = sqlSelect + " ," + sqlLayChiTietCD + " ," + sqlTenNVL + sqlJoin +  loaiCD + sqlOrder;
+
+            return GetData(query);
+        }
+
 
         public static DataTable GetThongTinNVLTheoMaBin(string mabin)
         {
@@ -784,7 +818,7 @@ namespace DG_TonKhoBTP_v02.Database
 
             const string sql = @"
             INSERT INTO TTNVL
-                (TTThanhPham_ID, BinNVL,DanhSachMaSP_ID, KlBatDau, CdBatDau, KlConLai, CdConLai, DuongKinhSoiDong, SoSoi, KetCauLoi, DuongKinhSoiMach, BanRongBang, DoDayBang)
+                (TTThanhPham_ID, BinNVL, DanhSachMaSP_ID, KlBatDau, CdBatDau, KlConLai, CdConLai, DuongKinhSoiDong, SoSoi, KetCauLoi, DuongKinhSoiMach, BanRongBang, DoDayBang)
             VALUES
                 (@TTThanhPham_ID, @BinNVL,@DanhSachMaSP_ID, @KlBatDau, @CdBatDau, @KlConLai, @CdConLai, @DuongKinhSoiDong, @SoSoi, @KetCauLoi, @DuongKinhSoiMach, @BanRongBang, @DoDayBang);";
 

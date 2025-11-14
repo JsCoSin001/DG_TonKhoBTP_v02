@@ -9,23 +9,31 @@ using System.Collections.Generic;
 
 namespace DG_TonKhoBTP_v02.Core
 {
-    // Khớp bảng TTNVL (cột nào không nhập thì lưu 0)
+
     public class TTNVL
     {
-        public int Id { get; set; }                 // Optional (nếu có)
-        public int TTThanhPhan_ID { get; set; }      // Optional (chưa gán lúc nhập tay)
-        public int DanhSachMaSP_ID { get; set; }      
-        public string BinNVL { get; set; }          
-        public double KlBatDau { get; set; }
-        public double CdBatDau { get; set; }
-        public double KlConLai { get; set; }
-        public double CdConLai { get; set; }
-        public double DuongKinhSoiDong { get; set; }
-        public int SoSoi { get; set; }
-        public double KetCauLoi { get; set; }
-        public double DuongKinhSoiMach { get; set; }
-        public double BanRongBang { get; set; }
-        public double DoDayBang { get; set; }
+        // Để nullable (int?) để có thể gán null nếu người dùng không nhập
+        public int? Id { get; set; }                     
+        public int? TTThanhPhan_ID { get; set; }         
+        public int? DanhSachMaSP_ID { get; set; }
+
+        public string BinNVL { get; set; }       
+        public double? KlBatDau { get; set; } = -1;
+        public string? Ngay { get; set; } = "";
+        public string? Ca { get; set; } = "";
+        public string? NguoiLam { get; set; } = "";
+        public string? TenNVL { get; set; } = "";
+        public string? GhiChu { get; set; } = "";
+        public double? CdBatDau { get; set; } = -1;
+        public double? KlConLai { get; set; } = -1;
+        public double? CdConLai { get; set; } = -1;
+        public double? DuongKinhSoiDong { get; set; } = -1;
+        public int? SoSoi { get; set; } = -1;
+        public double? KetCauLoi { get; set; } = -1;
+        public double? DuongKinhSoiMach { get; set; } = -1;
+        public double? BanRongBang { get; set; } = -1;
+        public double? DoDayBang { get; set; } = -1;
+        public string? DonVi { get; set; } = "";
     }
 
     public class Submit {

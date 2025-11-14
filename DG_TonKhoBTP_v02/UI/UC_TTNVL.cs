@@ -28,6 +28,7 @@ namespace DG_TonKhoBTP_v02.UI
         List<ColumnDefinition> _columns;
 
         bool isShow = false;
+        int tongCotCanHide = 9;
 
         // Nếu true thì tìm Cu phi 8...
         public bool RawMaterial { get; set; } = false;
@@ -126,24 +127,14 @@ namespace DG_TonKhoBTP_v02.UI
                 dgv.Columns[i].Width = defaultWidth;
             }
 
-            dgv.Columns[0].Width = 80;
-            dgv.Columns[0].Visible = isShow;
-            dgv.Columns[0].ReadOnly = true;
+            for (int i = 0; i <= tongCotCanHide; i++)
+            {
+                dgv.Columns[i].Visible = isShow;
+                dgv.Columns[i].ReadOnly = true;
+            }
 
-            dgv.Columns[1].Width = 80;
-            dgv.Columns[1].Visible = isShow;
-            dgv.Columns[1].ReadOnly = true;
-
-            dgv.Columns[2].Width = 80;
-            dgv.Columns[2].Visible = isShow;
-            dgv.Columns[2].ReadOnly = true;
-
-            dgv.Columns[3].Width = 80;
-            dgv.Columns[3].Visible = isShow;
-            dgv.Columns[3].ReadOnly = true;
-
-            dgv.Columns[4].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            dgv.Columns[4].ReadOnly = true;
+            dgv.Columns[tongCotCanHide + 1].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            dgv.Columns[tongCotCanHide + 1].ReadOnly = true;
 
             dgv.EnableHeadersVisualStyles = false;
             dgv.ColumnHeadersDefaultCellStyle.Font = new System.Drawing.Font("Microsoft Sans Serif", 11, FontStyle.Regular);
@@ -288,7 +279,6 @@ namespace DG_TonKhoBTP_v02.UI
                 return;
             }
 
-
             // Chống trùng theo 'id'
             string key = sel["id"] == DBNull.Value ? string.Empty : Convert.ToString(sel["id"]);
             bool exists = table.AsEnumerable().Any(r => (r["id"] == DBNull.Value ? string.Empty : Convert.ToString(r["id"])) == key);
@@ -298,7 +288,13 @@ namespace DG_TonKhoBTP_v02.UI
             DataRow newRow = table.NewRow();
             newRow["KlBatDau"] = sel["KlBatDau"];
             newRow["CdBatDau"] = sel["CdBatDau"];
+            newRow["DonVi"] = sel["DonVi"];
             newRow["id"] = sel["id"];
+            newRow["TenNVL"] = sel["TenNVL"];
+            newRow["Ngay"] = sel["Ngay"];
+            newRow["Ca"] = sel["Ca"];
+            newRow["NguoiLam"] = sel["NguoiLam"];
+            newRow["GhiChu"] = sel["GhiChu"];
             newRow["DanhSachMaSP_ID"] = sel["DanhSachMaSP_ID"];
             newRow["BinNVL"] = sel["BinNVL"];
             table.Rows.Add(newRow);
@@ -389,21 +385,41 @@ namespace DG_TonKhoBTP_v02.UI
         #region AI generated code for IFormSection
         public string SectionName => nameof(UC_TTNVL);
 
+        //public object GetData()
+        //{
+        //    var list = new List<TTNVL>();
+
+        //    foreach (DataGridViewRow row in dtgTTNVL.Rows)
+        //    {
+        //        if (row.IsNewRow) continue;
+
+        //        var item = new TTNVL();
+        //        Helper.Helper.MapRowToObject(row, item);
+        //        list.Add(item);
+        //    }
+
+        //    return list;
+        //}
+
         public object GetData()
         {
             var list = new List<TTNVL>();
 
             foreach (DataGridViewRow row in dtgTTNVL.Rows)
             {
+                // Bỏ qua dòng "New Row" (dòng trống cuối cùng của DataGridView)
                 if (row.IsNewRow) continue;
 
-                var item = new TTNVL();
-                Helper.Helper.MapRowToObject(row, item);
+                var item = new TTNVL(); // Lúc này các field đang có default = -1
+                Helper.Helper.MapRowToObject(row, item); // Map từ row vào object
                 list.Add(item);
             }
 
             return list;
+            // Khi dùng:
+            // var data = section.GetData(); // data là List<TTNVL>
         }
+
 
         public void ClearInputs()
         {
@@ -417,6 +433,8 @@ namespace DG_TonKhoBTP_v02.UI
                 //cbxTimKiem.Text = string.Empty;
             }
         }
+
+        
         #endregion
     }
 

@@ -59,6 +59,7 @@
             this.label6 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
             this.cbxAllSelected = new System.Windows.Forms.CheckBox();
+            this.cbxBaoCaoTon = new System.Windows.Forms.CheckBox();
             this.btnXuatExcel = new System.Windows.Forms.CheckBox();
             this.panel1 = new System.Windows.Forms.Panel();
             this.panel3 = new System.Windows.Forms.Panel();
@@ -66,7 +67,6 @@
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.grvShowBaoCao = new System.Windows.Forms.DataGridView();
             this.panel4 = new System.Windows.Forms.Panel();
-            this.cbxBaoCaoTon = new System.Windows.Forms.CheckBox();
             this.groupBox1.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.klConLai)).BeginInit();
@@ -88,7 +88,7 @@
             this.groupBox1.Controls.Add(this.tableLayoutPanel2);
             this.groupBox1.Controls.Add(this.tableLayoutPanel1);
             this.groupBox1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.groupBox1.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.groupBox1.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.groupBox1.Location = new System.Drawing.Point(0, 0);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(550, 196);
@@ -274,7 +274,7 @@
             // 
             this.cbxTimMaBin.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbxTimMaBin.FormattingEnabled = true;
-            this.cbxTimMaBin.Location = new System.Drawing.Point(103, 9);
+            this.cbxTimMaBin.Location = new System.Drawing.Point(103, 6);
             this.cbxTimMaBin.Name = "cbxTimMaBin";
             this.cbxTimMaBin.Size = new System.Drawing.Size(438, 28);
             this.cbxTimMaBin.TabIndex = 3;
@@ -294,7 +294,7 @@
             this.groupBox2.AutoSize = true;
             this.groupBox2.Controls.Add(this.tbCheckBox);
             this.groupBox2.Dock = System.Windows.Forms.DockStyle.Top;
-            this.groupBox2.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.groupBox2.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.groupBox2.Location = new System.Drawing.Point(0, 10);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(550, 184);
@@ -452,6 +452,7 @@
             // 
             this.dtBatDau.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.dtBatDau.CalendarFont = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.dtBatDau.Enabled = false;
             this.dtBatDau.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.dtBatDau.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
             this.dtBatDau.Location = new System.Drawing.Point(275, 78);
@@ -463,6 +464,7 @@
             // 
             this.dtKetThuc.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.dtKetThuc.CalendarFont = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.dtKetThuc.Enabled = false;
             this.dtKetThuc.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.dtKetThuc.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
             this.dtKetThuc.Location = new System.Drawing.Point(275, 114);
@@ -507,6 +509,20 @@
             this.cbxAllSelected.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
             this.cbxAllSelected.UseVisualStyleBackColor = true;
             this.cbxAllSelected.Click += new System.EventHandler(this.cbxAllSelected_CheckedChanged);
+            // 
+            // cbxBaoCaoTon
+            // 
+            this.cbxBaoCaoTon.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.cbxBaoCaoTon.AutoSize = true;
+            this.cbxBaoCaoTon.Checked = true;
+            this.cbxBaoCaoTon.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.cbxBaoCaoTon.Location = new System.Drawing.Point(3, 118);
+            this.cbxBaoCaoTon.Name = "cbxBaoCaoTon";
+            this.cbxBaoCaoTon.Size = new System.Drawing.Size(130, 18);
+            this.cbxBaoCaoTon.TabIndex = 16;
+            this.cbxBaoCaoTon.Text = "Báo Cáo Tồn Kho";
+            this.cbxBaoCaoTon.UseVisualStyleBackColor = true;
+            this.cbxBaoCaoTon.Click += new System.EventHandler(this.cbxBaoCaoTon_Click);
             // 
             // btnXuatExcel
             // 
@@ -582,18 +598,6 @@
             this.panel4.Padding = new System.Windows.Forms.Padding(5, 0, 5, 0);
             this.panel4.Size = new System.Drawing.Size(549, 740);
             this.panel4.TabIndex = 5;
-            // 
-            // cbxBaoCaoTon
-            // 
-            this.cbxBaoCaoTon.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.cbxBaoCaoTon.AutoSize = true;
-            this.cbxBaoCaoTon.Location = new System.Drawing.Point(3, 118);
-            this.cbxBaoCaoTon.Name = "cbxBaoCaoTon";
-            this.cbxBaoCaoTon.Size = new System.Drawing.Size(130, 18);
-            this.cbxBaoCaoTon.TabIndex = 16;
-            this.cbxBaoCaoTon.Text = "Báo Cáo Tồn";
-            this.cbxBaoCaoTon.UseVisualStyleBackColor = true;
-            this.cbxBaoCaoTon.Click += new System.EventHandler(this.cbxBaoCaoTon_Click);
             // 
             // UC_TonKho
             // 

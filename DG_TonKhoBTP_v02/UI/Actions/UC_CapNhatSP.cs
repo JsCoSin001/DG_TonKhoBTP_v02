@@ -109,8 +109,6 @@ namespace DG_TonKhoBTP_v02.UI
             }
         }
 
-
-
         private void Clear()
         {
             ma.Text = "";
@@ -119,6 +117,7 @@ namespace DG_TonKhoBTP_v02.UI
             donVi.SelectedItem = null;
             cbxMaSP.Text = "";
             id.Text = "";
+            btnLuu.Text = "LƯU";
         }
 
         private void ma_TextChanged(object sender, EventArgs e)

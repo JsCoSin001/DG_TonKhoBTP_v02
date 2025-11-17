@@ -32,8 +32,8 @@
             this.pnLeft = new System.Windows.Forms.Panel();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.pnLogo = new System.Windows.Forms.Panel();
-            this.label1 = new System.Windows.Forms.Label();
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.lblTenCty = new System.Windows.Forms.Label();
+            this.imgLogo = new System.Windows.Forms.PictureBox();
             this.grbChucNang = new System.Windows.Forms.GroupBox();
             this.pnCongDoan = new System.Windows.Forms.FlowLayoutPanel();
             this.btnKeoRut = new System.Windows.Forms.Button();
@@ -52,7 +52,7 @@
             this.btnBaoCaoTonKho = new System.Windows.Forms.Button();
             this.btnTruyVetDL = new System.Windows.Forms.Button();
             this.pnSign = new System.Windows.Forms.Panel();
-            this.label2 = new System.Windows.Forms.Label();
+            this.lblAuthor = new System.Windows.Forms.Label();
             this.pnMain = new System.Windows.Forms.Panel();
             this.pnShow = new System.Windows.Forms.Panel();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
@@ -61,7 +61,7 @@
             this.pnLeft.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
             this.pnLogo.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.imgLogo)).BeginInit();
             this.grbChucNang.SuspendLayout();
             this.pnCongDoan.SuspendLayout();
             this.grbCongCu.SuspendLayout();
@@ -99,35 +99,37 @@
             // 
             // pnLogo
             // 
-            this.pnLogo.Controls.Add(this.label1);
-            this.pnLogo.Controls.Add(this.pictureBox1);
+            this.pnLogo.Controls.Add(this.lblTenCty);
+            this.pnLogo.Controls.Add(this.imgLogo);
             this.pnLogo.Dock = System.Windows.Forms.DockStyle.Top;
             this.pnLogo.Location = new System.Drawing.Point(3, 3);
             this.pnLogo.Name = "pnLogo";
             this.pnLogo.Size = new System.Drawing.Size(168, 70);
             this.pnLogo.TabIndex = 0;
             // 
-            // label1
+            // lblTenCty
             // 
-            this.label1.Dock = System.Windows.Forms.DockStyle.Top;
-            this.label1.Font = new System.Drawing.Font("Tahoma", 17.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(67, 0);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(101, 67);
-            this.label1.TabIndex = 1;
-            this.label1.Text = "ĐÔNG GIANG";
-            this.label1.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
+            this.lblTenCty.Dock = System.Windows.Forms.DockStyle.Top;
+            this.lblTenCty.Font = new System.Drawing.Font("Tahoma", 17.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblTenCty.Location = new System.Drawing.Point(67, 0);
+            this.lblTenCty.Name = "lblTenCty";
+            this.lblTenCty.Size = new System.Drawing.Size(101, 67);
+            this.lblTenCty.TabIndex = 1;
+            this.lblTenCty.Text = "ĐÔNG GIANG";
+            this.lblTenCty.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.lblTenCty.Click += new System.EventHandler(this.lblTenCty_Click);
             // 
-            // pictureBox1
+            // imgLogo
             // 
-            this.pictureBox1.Dock = System.Windows.Forms.DockStyle.Left;
-            this.pictureBox1.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox1.Image")));
-            this.pictureBox1.Location = new System.Drawing.Point(0, 0);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Padding = new System.Windows.Forms.Padding(10);
-            this.pictureBox1.Size = new System.Drawing.Size(67, 70);
-            this.pictureBox1.TabIndex = 0;
-            this.pictureBox1.TabStop = false;
+            this.imgLogo.Dock = System.Windows.Forms.DockStyle.Left;
+            this.imgLogo.Image = ((System.Drawing.Image)(resources.GetObject("imgLogo.Image")));
+            this.imgLogo.Location = new System.Drawing.Point(0, 0);
+            this.imgLogo.Name = "imgLogo";
+            this.imgLogo.Padding = new System.Windows.Forms.Padding(10);
+            this.imgLogo.Size = new System.Drawing.Size(67, 70);
+            this.imgLogo.TabIndex = 0;
+            this.imgLogo.TabStop = false;
+            this.imgLogo.Click += new System.EventHandler(this.imgLogo_Click);
             // 
             // grbChucNang
             // 
@@ -367,22 +369,22 @@
             // 
             // pnSign
             // 
-            this.pnSign.Controls.Add(this.label2);
+            this.pnSign.Controls.Add(this.lblAuthor);
             this.pnSign.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.pnSign.Location = new System.Drawing.Point(0, 905);
             this.pnSign.Name = "pnSign";
             this.pnSign.Size = new System.Drawing.Size(176, 32);
             this.pnSign.TabIndex = 4;
             // 
-            // label2
+            // lblAuthor
             // 
-            this.label2.AutoSize = true;
-            this.label2.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.label2.Location = new System.Drawing.Point(0, 16);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(133, 16);
-            this.label2.TabIndex = 0;
-            this.label2.Text = "Made by Linh - v02.00";
+            this.lblAuthor.AutoSize = true;
+            this.lblAuthor.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.lblAuthor.Location = new System.Drawing.Point(0, 16);
+            this.lblAuthor.Name = "lblAuthor";
+            this.lblAuthor.Size = new System.Drawing.Size(133, 16);
+            this.lblAuthor.TabIndex = 0;
+            this.lblAuthor.Text = "Made by Linh - v02.00";
             // 
             // pnMain
             // 
@@ -419,12 +421,14 @@
             this.homeToolStripMenuItem.Name = "homeToolStripMenuItem";
             this.homeToolStripMenuItem.Size = new System.Drawing.Size(62, 24);
             this.homeToolStripMenuItem.Text = "Home";
+            this.homeToolStripMenuItem.Click += new System.EventHandler(this.homeToolStripMenuItem_Click);
             // 
             // setiingToolStripMenuItem
             // 
             this.setiingToolStripMenuItem.Name = "setiingToolStripMenuItem";
             this.setiingToolStripMenuItem.Size = new System.Drawing.Size(68, 24);
             this.setiingToolStripMenuItem.Text = "Setting";
+            this.setiingToolStripMenuItem.Click += new System.EventHandler(this.setiingToolStripMenuItem_Click);
             // 
             // MainForm
             // 
@@ -438,14 +442,15 @@
             this.MainMenuStrip = this.menuStrip1;
             this.Margin = new System.Windows.Forms.Padding(4);
             this.MaximizeBox = false;
+            this.MinimizeBox = false;
             this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Form1";
+            this.Text = "Home";
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this.pnLeft.ResumeLayout(false);
             this.flowLayoutPanel1.ResumeLayout(false);
             this.pnLogo.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.imgLogo)).EndInit();
             this.grbChucNang.ResumeLayout(false);
             this.pnCongDoan.ResumeLayout(false);
             this.grbCongCu.ResumeLayout(false);
@@ -466,8 +471,8 @@
 
         private System.Windows.Forms.Panel pnLeft;
         private System.Windows.Forms.Panel pnLogo;
-        private System.Windows.Forms.PictureBox pictureBox1;
-        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.PictureBox imgLogo;
+        private System.Windows.Forms.Label lblTenCty;
         private System.Windows.Forms.FlowLayoutPanel pnCongDoan;
         private System.Windows.Forms.Panel pnSign;
         private System.Windows.Forms.FlowLayoutPanel pnBaoCao;
@@ -480,7 +485,7 @@
         private System.Windows.Forms.Button btnBocVo;
         private System.Windows.Forms.Button btnBaoCaoTonKho;
         private System.Windows.Forms.Button btnCapNhatMaHang;
-        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label lblAuthor;
         private System.Windows.Forms.Panel pnMain;
         private System.Windows.Forms.Panel pnShow;
         private System.Windows.Forms.MenuStrip menuStrip1;

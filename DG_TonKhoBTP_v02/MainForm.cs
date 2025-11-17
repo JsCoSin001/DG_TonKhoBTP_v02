@@ -5,6 +5,8 @@ using DG_TonKhoBTP_v02.Dictionary;
 using DG_TonKhoBTP_v02.Models;
 using DG_TonKhoBTP_v02.UI;
 using DG_TonKhoBTP_v02.UI.Actions;
+using DG_TonKhoBTP_v02.UI.Setting;
+using QLDuLieuTonKho_BTP;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -17,13 +19,16 @@ namespace DG_TonKhoBTP_v02
 {
     public partial class MainForm : Form
     {
-        private string _URL = "D:\\Database\\QLSX_v02.db";
-        //UC_TTCaLamViec uc_caLamViec;
+        private string _URL = Properties.Settings.Default.URL;
+        private string _PRINTERNAME = Properties.Settings.Default.PrinterName;
+        private string _ver = "2.0.0";
 
         public MainForm()
         {
             InitializeComponent();
             DatabaseHelper.SetDatabasePath(_URL);
+            lblAuthor.Text = "Made by Linh - v"+ _ver;
+            ShowHomePage();
         }
 
         #region Hàm log cấu trúc control
@@ -77,6 +82,8 @@ namespace DG_TonKhoBTP_v02
         #region Hiển thị UI theo công đoạn
         private void btnKeoRut_Click(object sender, EventArgs e)
         {
+            if (Helper.Helper.KiemTraEmpty(_URL)) return;
+
             CongDoan thongTinCD = ThongTinChungCongDoan.KeoRut;
             List<ColumnDefinition> columns = thongTinCD.Columns;
 
@@ -91,6 +98,8 @@ namespace DG_TonKhoBTP_v02
 
         private void btnBenRuot_Click(object sender, EventArgs e)
         {
+            if (Helper.Helper.KiemTraEmpty(_URL)) return;
+
             CongDoan thongTinCD = ThongTinChungCongDoan.BenRuot;
 
             List<ColumnDefinition> columns = thongTinCD.Columns;
@@ -106,6 +115,8 @@ namespace DG_TonKhoBTP_v02
 
         private void btnGhepLoi_Click(object sender, EventArgs e)
         {
+            if (Helper.Helper.KiemTraEmpty(_URL)) return;
+
             CongDoan thongTinCD = ThongTinChungCongDoan.GhepLoi;
 
             List<ColumnDefinition> columns = thongTinCD.Columns;
@@ -121,6 +132,8 @@ namespace DG_TonKhoBTP_v02
 
         private void btnQuanBang_Click(object sender, EventArgs e)
         {
+            if (Helper.Helper.KiemTraEmpty(_URL)) return;
+
             CongDoan thongTinCD = ThongTinChungCongDoan.QuanBang;
 
             List<ColumnDefinition> columns = thongTinCD.Columns;
@@ -136,6 +149,8 @@ namespace DG_TonKhoBTP_v02
 
         private void btnMica_Click(object sender, EventArgs e)
         {
+            if (Helper.Helper.KiemTraEmpty(_URL)) return;
+
             CongDoan thongTinCD = ThongTinChungCongDoan.Mica;
 
             List<ColumnDefinition> columns = thongTinCD.Columns;
@@ -151,6 +166,7 @@ namespace DG_TonKhoBTP_v02
 
         private void btnBocLot_Click(object sender, EventArgs e)
         {
+            if (Helper.Helper.KiemTraEmpty(_URL)) return;
             CongDoan thongTinCD = ThongTinChungCongDoan.BocLot;
 
             List<ColumnDefinition> columns = thongTinCD.Columns;
@@ -169,6 +185,8 @@ namespace DG_TonKhoBTP_v02
 
         private void btnBocMach_Click(object sender, EventArgs e)
         {
+            if (Helper.Helper.KiemTraEmpty(_URL)) return;
+
             CongDoan thongTinCD = ThongTinChungCongDoan.BocMach;
 
             List<ColumnDefinition> columns = thongTinCD.Columns;
@@ -186,6 +204,7 @@ namespace DG_TonKhoBTP_v02
 
         private void btnBocVo_Click(object sender, EventArgs e)
         {
+            if (Helper.Helper.KiemTraEmpty(_URL)) return;
             CongDoan thongTinCD = ThongTinChungCongDoan.BocVo;
 
             List<ColumnDefinition> columns = thongTinCD.Columns;
@@ -355,6 +374,7 @@ namespace DG_TonKhoBTP_v02
 
         private void btnCapNhatMaHang_Click(object sender, EventArgs e)
         {
+            if (Helper.Helper.KiemTraEmpty(_URL)) return;
             pnShow.Controls.Clear();
             var uc = new UC_CapNhatSP
             {
@@ -366,6 +386,8 @@ namespace DG_TonKhoBTP_v02
 
         private void btnBaoCaoTonKho_Click(object sender, EventArgs e)
         {
+            if (Helper.Helper.KiemTraEmpty(_URL)) return;
+
             pnShow.Controls.Clear();
             var uc = new UC_TonKho
             {
@@ -390,6 +412,8 @@ namespace DG_TonKhoBTP_v02
 
         private void btnTruyVetDL_Click(object sender, EventArgs e)
         {
+            if (Helper.Helper.KiemTraEmpty(_URL)) return;
+
             pnShow.Controls.Clear();
             var uc = new UC_TruyVetDuLieu
             {
@@ -397,6 +421,42 @@ namespace DG_TonKhoBTP_v02
             };
 
             pnShow.Controls.Add(uc);
+        }
+
+        private void setiingToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Setting settingForm = new Setting();
+            settingForm.StartPosition = FormStartPosition.CenterParent;
+            settingForm.ShowDialog();
+        }
+
+        private void ShowHomePage()
+        {
+            // Xóa các control cũ trong panel
+            pnShow.Controls.Clear();
+            Uc_HomePage homePage = new Uc_HomePage();
+
+            pnShow.Dock = DockStyle.Fill;
+            pnShow.Controls.Add(homePage);
+            homePage.Dock = DockStyle.Fill;
+            homePage.lblVersion.Text = "Phiên bản: v" + _ver;
+        }
+
+        
+
+        private void homeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ShowHomePage();
+        }
+
+        private void imgLogo_Click(object sender, EventArgs e)
+        {
+            ShowHomePage();
+        }
+
+        private void lblTenCty_Click(object sender, EventArgs e)
+        {
+            ShowHomePage();
         }
     }
 }

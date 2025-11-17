@@ -217,6 +217,18 @@
     <Compile Include="UI\Actions\UC_TonKho.Designer.cs">
       <DependentUpon>UC_TonKho.cs</DependentUpon>
     </Compile>
+    <Compile Include="UI\Setting\Setting.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\Setting\Setting.Designer.cs">
+      <DependentUpon>Setting.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Uc_HomePage.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\Uc_HomePage.Designer.cs">
+      <DependentUpon>Uc_HomePage.cs</DependentUpon>
+    </Compile>
     <Compile Include="UI\UC_TTCaLamViec.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -300,6 +312,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="UI\Actions\UC_TonKho.resx">
       <DependentUpon>UC_TonKho.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\Setting\Setting.resx">
+      <DependentUpon>Setting.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\Uc_HomePage.resx">
+      <DependentUpon>Uc_HomePage.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UI\UC_TTCaLamViec.resx">
       <DependentUpon>UC_TTCaLamViec.cs</DependentUpon>

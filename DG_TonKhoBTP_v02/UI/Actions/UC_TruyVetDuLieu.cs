@@ -126,51 +126,9 @@ namespace DG_TonKhoBTP_v02.UI.Actions
             cbxTimKiem.Text = string.Empty;
         }
 
-        private async void cbxTimKiem_SelectionChangeCommitted(object sender, EventArgs e)
-        {
-            if (cbxTimKiem.SelectedItem == null) return;
 
-            if (cbxTimKiem.SelectedItem is DataRowView selectedRow)
-            {
-                DataTable dtSelected = selectedRow.Row.Table.Clone();
-                dtSelected.ImportRow(selectedRow.Row);
-
-                if (grvChiTietThanhPham.DataSource is BindingSource bsGrid)
-                {
-                    bsGrid.DataSource = dtSelected;
-                }
-                else
-                {
-                    grvChiTietThanhPham.DefaultCellStyle.Font = new System.Drawing.Font("Tahoma", 11F, FontStyle.Regular);
-                    grvChiTietThanhPham.ColumnHeadersDefaultCellStyle.Font = new System.Drawing.Font("Tahoma", 11F, FontStyle.Regular);
-                    grvChiTietThanhPham.DataSource = dtSelected;
-                }
-
-                if (grvChiTietThanhPham.Rows.Count > 0)
-                {
-                    grvChiTietThanhPham.ClearSelection();
-                    string maBin = grvChiTietThanhPham.Rows[0].Cells["mabin"].Value.ToString();
-                    int idCongDoan = Convert.ToInt32(grvChiTietThanhPham.Rows[0].Cells["CongDoan"].Value);
-                    string tenCD = ThongTinChungCongDoan.GetTenCongDoanById(idCongDoan);
-                    tenCD = string.IsNullOrEmpty(tenCD) ? "" : char.ToUpper(tenCD[0]) + tenCD.Substring(1).ToLower();
-                    grvChiTietThanhPham.Rows[0].Cells["CongDoan"].Value = tenCD;
-                    try
-                    {
-                        await getSelectedColAsync(maBin, grvChiTietNVL, true, CancellationToken.None);
-                    }
-                    catch (OperationCanceledException)
-                    {
-                        // Bỏ qua nếu bị cancel
-                    }
-                }
-            }
-
-            cbxTimKiem.SelectedIndex = -1;
-            cbxTimKiem.Text = string.Empty;
-        }
-
-        private async void grvChiTietThanhPham_CellClick(object sender, DataGridViewCellEventArgs e)
-        {
+        //private async void grvChiTietThanhPham_CellClick(object sender, DataGridViewCellEventArgs e)
+        //{
             //if (e.RowIndex < 0) return;
             //if (_isLoadingThanhPham) return; // Nếu đang load thì bỏ qua
 
@@ -198,39 +156,45 @@ namespace DG_TonKhoBTP_v02.UI.Actions
             //    grvChiTietThanhPham.Enabled = true; // Enable lại
             //    _isLoadingThanhPham = false;
             //}
-        }
+        //}
 
-        private async void grvChiTietNVL_CellClick(object sender, DataGridViewCellEventArgs e)
+        private async void cbxTimKiem_SelectionChangeCommitted(object sender, EventArgs e)
         {
-            if (e.RowIndex < 0) return;
-            if (_isLoadingNVL) return; // Nếu đang load thì bỏ qua
+            if (cbxTimKiem.SelectedItem == null) return;
 
-            try
+            if (cbxTimKiem.SelectedItem is DataRowView selectedRow)
             {
-                _isLoadingNVL = true;
-                grvChiTietNVL.Enabled = false; // Disable grid
+                DataTable dtSelected = selectedRow.Row.Table.Clone();
+                dtSelected.ImportRow(selectedRow.Row);
 
-                DataGridViewRow row = grvChiTietNVL.Rows[e.RowIndex];
-                string cellValue = row.Cells["MaBin"].Value.ToString();
+                if (grvChiTietThanhPham.DataSource is BindingSource bsGrid)
+                {
+                    bsGrid.DataSource = dtSelected;
+                }
+                else
+                {
+                    grvChiTietThanhPham.DefaultCellStyle.Font = new System.Drawing.Font("Tahoma", 11F, FontStyle.Regular);
+                    grvChiTietThanhPham.ColumnHeadersDefaultCellStyle.Font = new System.Drawing.Font("Tahoma", 11F, FontStyle.Regular);
+                    grvChiTietThanhPham.DataSource = dtSelected;
+                }
 
-                // Hủy request cũ nếu có
-                _ctsNVL?.Cancel();
-                _ctsNVL = new CancellationTokenSource();
-                var token = _ctsNVL.Token;
+                if (grvChiTietThanhPham.Rows.Count > 0)
+                {
+                    grvChiTietThanhPham.ClearSelection();
+                    string maBin = grvChiTietThanhPham.Rows[0].Cells["mabin"].Value.ToString();
+                    try
+                    {
+                        await getSelectedColAsync(maBin, grvChiTietNVL, true, CancellationToken.None);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        // Bỏ qua nếu bị cancel
+                    }
+                }
+            }
 
-                // Chạy tuần tự 2 lần query, cả 2 đều có thể bị cancel
-                await getSelectedColAsync(cellValue, grvChiTietThanhPham, false, token);
-                await getSelectedColAsync(cellValue, grvChiTietNVL, true, token);
-            }
-            catch (OperationCanceledException)
-            {
-                // Bị hủy, bỏ qua
-            }
-            finally
-            {
-                grvChiTietNVL.Enabled = true; // Enable lại
-                _isLoadingNVL = false;
-            }
+            cbxTimKiem.SelectedIndex = -1;
+            cbxTimKiem.Text = string.Empty;
         }
 
 
@@ -287,6 +251,79 @@ namespace DG_TonKhoBTP_v02.UI.Actions
                 dgrDich.DefaultCellStyle.Font = new System.Drawing.Font("Tahoma", 11F, FontStyle.Regular);
                 dgrDich.ColumnHeadersDefaultCellStyle.Font = new System.Drawing.Font("Tahoma", 11F, FontStyle.Regular);
                 dgrDich.DataSource = dlNVVL;
+
+            }
+
+
+            // ============================
+            // XỬ LÝ CÔNG ĐOẠN NGAY TRONG HÀM
+            // ============================
+
+            if (grvChiTietThanhPham.Rows.Count > 0 && grvChiTietThanhPham.Columns.Contains("CongDoan"))
+            {
+                var value = grvChiTietThanhPham.Rows[0].Cells["CongDoan"].Value;
+
+                if (value != null && int.TryParse(value.ToString(), out int idCongDoan))
+                {
+                    string tenCD = ThongTinChungCongDoan.GetTenCongDoanById(idCongDoan);
+                    if (!string.IsNullOrEmpty(tenCD))
+                    {
+                        tenCD = char.ToUpper(tenCD[0]) + tenCD.Substring(1).ToLower();
+                    }
+
+                    grvChiTietThanhPham.Rows[0].Cells["CongDoan"].Value = tenCD;
+                }
+            }
+        }
+
+        private void grvChiTietThanhPham_CellValueChanged(object sender, DataGridViewCellEventArgs e)
+        {
+            Console.WriteLine("sdfsdf");
+        }
+
+        private void grvChiTietNVL_DoubleClick(object sender, EventArgs e)
+        {
+
+        }
+
+        private async void grvChiTietNVL_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0) return;
+            if (_isLoadingNVL) return; // Nếu đang load thì bỏ qua
+
+            try
+            {
+                _isLoadingNVL = true;
+                grvChiTietNVL.Enabled = false; // Disable grid
+
+                DataGridViewRow row = grvChiTietNVL.Rows[e.RowIndex];
+                string cellValue = row.Cells["MaBin"].Value.ToString();
+                string maNVL = row.Cells["MaNVL"].Value.ToString();
+                maNVL = maNVL.Split('.')[0];
+
+                // Hủy request cũ nếu có
+                _ctsNVL?.Cancel();
+                _ctsNVL = new CancellationTokenSource();
+                var token = _ctsNVL.Token;
+
+                if (maNVL == "NVL")
+                {
+                    MessageBox.Show("ĐỐI TƯỢNG ĐÃ LÀ NVL, KHÔNG TÌM ĐƯỢC THÊM THÔNG TIN", "CẢNH BÁO");
+                    return;
+                }
+
+                // Chạy tuần tự 2 lần query, cả 2 đều có thể bị cancel
+                await getSelectedColAsync(cellValue, grvChiTietThanhPham, false, token);
+                await getSelectedColAsync(cellValue, grvChiTietNVL, true, token);
+            }
+            catch (OperationCanceledException)
+            {
+                // Bị hủy, bỏ qua
+            }
+            finally
+            {
+                grvChiTietNVL.Enabled = true; // Enable lại
+                _isLoadingNVL = false;
             }
         }
     }

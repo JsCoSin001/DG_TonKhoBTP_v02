@@ -104,13 +104,13 @@
             // 
             this.groupBox4.Controls.Add(this.grvChiTietNVL);
             this.groupBox4.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.groupBox4.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.groupBox4.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.groupBox4.Location = new System.Drawing.Point(3, 93);
             this.groupBox4.Name = "groupBox4";
             this.groupBox4.Size = new System.Drawing.Size(1169, 498);
             this.groupBox4.TabIndex = 3;
             this.groupBox4.TabStop = false;
-            this.groupBox4.Text = "CHI TIẾT NVL";
+            this.groupBox4.Text = "Chi Tiết NVL Công Đoạn";
             // 
             // grvChiTietNVL
             // 
@@ -127,19 +127,20 @@
             this.grvChiTietNVL.RowTemplate.Height = 30;
             this.grvChiTietNVL.Size = new System.Drawing.Size(1163, 478);
             this.grvChiTietNVL.TabIndex = 0;
-            this.grvChiTietNVL.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.grvChiTietNVL_CellClick);
+            this.grvChiTietNVL.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.grvChiTietNVL_CellDoubleClick);
+            this.grvChiTietNVL.DoubleClick += new System.EventHandler(this.grvChiTietNVL_DoubleClick);
             // 
             // groupBox3
             // 
             this.groupBox3.Controls.Add(this.grvChiTietThanhPham);
             this.groupBox3.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.groupBox3.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.groupBox3.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.groupBox3.Location = new System.Drawing.Point(3, 3);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Size = new System.Drawing.Size(1169, 84);
             this.groupBox3.TabIndex = 2;
             this.groupBox3.TabStop = false;
-            this.groupBox3.Text = "CHI TIẾT THÀNH PHẨM";
+            this.groupBox3.Text = "Chi Tiết";
             // 
             // grvChiTietThanhPham
             // 
@@ -156,7 +157,7 @@
             this.grvChiTietThanhPham.RowTemplate.Height = 30;
             this.grvChiTietThanhPham.Size = new System.Drawing.Size(1163, 64);
             this.grvChiTietThanhPham.TabIndex = 0;
-            this.grvChiTietThanhPham.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.grvChiTietThanhPham_CellClick);
+            this.grvChiTietThanhPham.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.grvChiTietThanhPham_CellValueChanged);
             // 
             // panel2
             // 
@@ -171,14 +172,14 @@
             // 
             this.groupBox1.Controls.Add(this.tableLayoutPanel1);
             this.groupBox1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.groupBox1.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.groupBox1.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.groupBox1.Location = new System.Drawing.Point(0, 0);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Padding = new System.Windows.Forms.Padding(3, 3, 3, 12);
             this.groupBox1.Size = new System.Drawing.Size(1175, 79);
             this.groupBox1.TabIndex = 1;
             this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "BẢNG TÌM KIẾM";
+            this.groupBox1.Text = "Bảng Tìm Kiếm";
             // 
             // tableLayoutPanel1
             // 

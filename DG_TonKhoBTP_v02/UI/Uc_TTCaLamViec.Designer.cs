@@ -70,7 +70,7 @@
             this.groupBox1.Size = new System.Drawing.Size(1329, 70);
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Thông tin ca làm việc";
+            this.groupBox1.Text = "Thông Tin Ca Làm Việc";
             // 
             // tableLayoutPanel1
             // 

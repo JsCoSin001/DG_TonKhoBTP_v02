@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
+using System.Drawing.Printing;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
@@ -16,6 +17,16 @@ namespace DG_TonKhoBTP_v02.Helper
     public static class Helper
     {
         public static string _connStr;
+
+        public static bool KiemTraEmpty(string values)
+        {
+           if (string.IsNullOrWhiteSpace(values))
+            {
+                MessageBox.Show("KHÔNG TÌM THẤY ĐƯỜNG DẪN DATABASE.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return true;
+            }
+            return false;
+        }
 
         public static string GetShiftValue()
         {
@@ -349,65 +360,7 @@ namespace DG_TonKhoBTP_v02.Helper
             return null;
         }
 
-        //public static void MapRowToObject<T>(DataGridViewRow row, T target)
-        //{
-        //    var props = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);
-
-        //    foreach (var p in props)
-        //    {
-        //        if (!row.DataGridView.Columns.Contains(p.Name))
-        //            continue;
-
-        //        var raw = row.Cells[p.Name]?.Value;
-
-        //        try
-        //        {
-        //            object value = null;
-
-        //            if (p.PropertyType == typeof(string))
-        //            {
-        //                value = raw?.ToString() ?? string.Empty;
-        //            }
-        //            else if (IsNumeric(p.PropertyType))
-        //            {
-        //                // Ô trống => 0
-        //                var s = raw?.ToString();
-        //                if (string.IsNullOrWhiteSpace(s))
-        //                {
-        //                    value = ConvertToNumericDefaultZero(p.PropertyType);
-        //                }
-        //                else
-        //                {
-        //                    value = Convert.ChangeType(s, Nullable.GetUnderlyingType(p.PropertyType) ?? p.PropertyType);
-        //                }
-        //            }
-        //            else
-        //            {
-        //                // Kiểu khác (int?, double?, …)
-        //                var underlying = Nullable.GetUnderlyingType(p.PropertyType) ?? p.PropertyType;
-        //                if (raw == null || string.IsNullOrWhiteSpace(raw.ToString()))
-        //                {
-        //                    value = underlying.IsValueType ? Activator.CreateInstance(underlying) : null;
-        //                }
-        //                else
-        //                {
-        //                    value = Convert.ChangeType(raw, underlying);
-        //                }
-        //            }
-
-        //            p.SetValue(target, value);
-        //        }
-        //        catch
-        //        {
-        //            // Nếu chuyển kiểu lỗi -> gán 0 cho numeric, "" cho string
-        //            if (p.PropertyType == typeof(string))
-        //                p.SetValue(target, string.Empty);
-        //            else if (IsNumeric(p.PropertyType))
-        //                p.SetValue(target, ConvertToNumericDefaultZero(p.PropertyType));
-        //        }
-        //    }
-        //}
-
+        
         public static void MapRowToObject<T>(DataGridViewRow row, T target)
         {
             // Lấy tất cả property public instance của kiểu T
@@ -523,13 +476,6 @@ namespace DG_TonKhoBTP_v02.Helper
             }
         }
 
-        //private static bool IsNumeric(Type t)
-        //{
-        //    t = Nullable.GetUnderlyingType(t) ?? t;
-        //    return t == typeof(int) || t == typeof(long) || t == typeof(short) ||
-        //           t == typeof(double) || t == typeof(float) || t == typeof(decimal);
-        //}
-
         private static bool IsNumeric(Type t)
         {
             // Nếu là nullable thì lấy kiểu gốc bên trong (ví dụ int? -> int)
@@ -538,18 +484,6 @@ namespace DG_TonKhoBTP_v02.Helper
             return t == typeof(int) || t == typeof(long) || t == typeof(short) ||
                    t == typeof(double) || t == typeof(float) || t == typeof(decimal);
         }
-
-        //private static object ConvertToNumericDefaultZero(Type t)
-        //{
-        //    t = Nullable.GetUnderlyingType(t) ?? t;
-        //    if (t == typeof(int)) return 0;
-        //    if (t == typeof(long)) return 0L;
-        //    if (t == typeof(short)) return (short)0;
-        //    if (t == typeof(double)) return 0.0d;
-        //    if (t == typeof(float)) return 0.0f;
-        //    if (t == typeof(decimal)) return 0.0m;
-        //    return 0;
-        //}
 
         private static object ConvertToNumericDefaultZero(Type t)
         {
@@ -763,6 +697,84 @@ namespace DG_TonKhoBTP_v02.Helper
             }
 
             return result;
+        }
+
+
+        public static bool kiemTraPhanQuyen(string tx)
+        {
+            string password = Properties.Settings.Default.PassApp;
+            if (tx == password)
+            {
+                return true;
+            }
+            else
+            {
+                MessageBox.Show("BẠN CẦN CẤP QUYỀN ĐỂ SỬ DỤNG CHỨC NĂNG NÀY!.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return false;
+            }
+        }
+
+        public static string SetURLDatabase()
+        {
+            string result = "";
+
+            using (OpenFileDialog dialog = new OpenFileDialog())
+            {
+                dialog.Title = "Chọn file database (.db)";
+                dialog.Filter = "SQLite Database (*.db)|*.db|Tất cả các file (*.*)|*.*";
+                dialog.Multiselect = false;
+
+                if (dialog.ShowDialog() == DialogResult.OK)
+                {
+                    result = dialog.FileName;
+                }
+                else
+                {
+                    result = "";
+                }
+                return result;
+            }
+        }
+
+        public static void UpdatePassApp(string tb)
+        {
+            string[] parts = tb.Split('|');
+
+            if (parts.Count() == 2 && parts[0] == "Change")
+                Properties.Settings.Default.PassApp = parts[1].Trim();
+            else
+                Properties.Settings.Default.UserPass = tb;
+
+            Properties.Settings.Default.Save();
+            // Khởi động lại ứng dụng
+            Application.Restart();
+
+            // Thoát ứng dụng hiện tại
+            Environment.Exit(0);
+        }
+
+        public static void LoadPrinters(ComboBox comboBox)
+        {
+            if (comboBox == null) return;
+
+            comboBox.Items.Clear();
+
+            // Lấy danh sách máy in đã cài
+            foreach (string printerName in PrinterSettings.InstalledPrinters)
+            {
+                comboBox.Items.Add(printerName);
+            }
+
+            // Chọn máy in mặc định (nếu có)
+            var defaultPrinter = new PrinterSettings().PrinterName;
+            if (!string.IsNullOrEmpty(defaultPrinter) && comboBox.Items.Contains(defaultPrinter))
+            {
+                comboBox.SelectedItem = defaultPrinter;
+            }
+            else if (comboBox.Items.Count > 0)
+            {
+                comboBox.SelectedIndex = 0;
+            }
         }
 
 

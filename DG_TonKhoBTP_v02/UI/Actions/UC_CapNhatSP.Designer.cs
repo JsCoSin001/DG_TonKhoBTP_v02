@@ -79,7 +79,7 @@
             this.groupBox1.Size = new System.Drawing.Size(623, 153);
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Bảng nhập liệu";
+            this.groupBox1.Text = "Bảng Nhập Liệu";
             // 
             // flowLayoutPanel1
             // 
@@ -328,7 +328,7 @@
             this.groupBox3.Size = new System.Drawing.Size(623, 74);
             this.groupBox3.TabIndex = 2;
             this.groupBox3.TabStop = false;
-            this.groupBox3.Text = "Xem danh sách";
+            this.groupBox3.Text = "Xem Danh Sách";
             // 
             // tableLayoutPanel3
             // 

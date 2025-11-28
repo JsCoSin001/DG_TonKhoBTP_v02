@@ -20,7 +20,6 @@ namespace DG_TonKhoBTP_v02
     public partial class MainForm : Form
     {
         private string _URL = Properties.Settings.Default.URL;
-        private string _PRINTERNAME = Properties.Settings.Default.PrinterName;
         private string _ver = "2.0.0";
 
         public MainForm()
@@ -442,8 +441,6 @@ namespace DG_TonKhoBTP_v02
             homePage.lblVersion.Text = "Phiên bản: v" + _ver;
         }
 
-        
-
         private void homeToolStripMenuItem_Click(object sender, EventArgs e)
         {
             ShowHomePage();
@@ -457,6 +454,20 @@ namespace DG_TonKhoBTP_v02
         private void lblTenCty_Click(object sender, EventArgs e)
         {
             ShowHomePage();
+        }
+
+        private void BtnKiemTraBc_Click(object sender, EventArgs e)
+        {
+
+            if (Helper.Helper.KiemTraEmpty(_URL)) return;
+
+            pnShow.Controls.Clear();
+            var uc = new UC_KTraBC
+            {
+                Dock = DockStyle.Fill
+            };
+
+            pnShow.Controls.Add(uc);
         }
     }
 }

@@ -1,86 +1,266 @@
-﻿
-using DG_TonKhoBTP_v02.Models;
+﻿using DG_TonKhoBTP_v02.Models;
+using QRCoder;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
+using System.Drawing.Printing;
 using System.Text;
+using System.Windows;
+using FontStyle = System.Drawing.FontStyle;
 
 namespace DG_TonKhoBTP_v02.Printer
 {
     public class PrintHelper
     {
-        private static List<string> WrapText(string text, int maxCharsPerLine = 42)
-        {
-            var result = new List<string>();
-            if (string.IsNullOrWhiteSpace(text)) return result;
-
-            var words = text.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-            var line = new StringBuilder();
-
-            foreach (var w in words)
-            {
-                if (line.Length == 0) line.Append(w);
-                else if (line.Length + 1 + w.Length <= maxCharsPerLine) line.Append(' ').Append(w);
-                else { result.Add(line.ToString()); line.Clear(); line.Append(w); }
-            }
-            if (line.Length > 0) result.Add(line.ToString());
-
-            return result;
-        }
-
         public static void PrintLabel(PrinterModel printer)
         {
-            string qrLabel= $"{printer.MaBin}_{printer.KhoiLuong}kg_{printer.ChieuDai}m";
+            string qrLabel = $"{printer.MaBin}_{printer.KhoiLuong}kg_{printer.ChieuDai}m";
 
-            string qr = Qr.GeneratedQr(qrLabel);
+            Bitmap image = ConvertToImage(printer, qrLabel);
 
-            string kl_cdBin = printer.KhoiLuong + "(kg)" + (printer.ChieuDai != "" ? "_" + printer.ChieuDai + "(m)" : "");
-
-
-            var lines = new List<TextLineSpec>
+            // In ảnh
+            try
             {
-                new TextLineSpec { Content = "PHIEU QUAN LY SAN PHAM", X = 180 },
-                new TextLineSpec { Prefix = new string(' ',27) +"BQ-ISO-09-08"},
-                new TextLineSpec { Prefix = "Ngay SX: " + Helper.Helper.TaoKhoangTrong(25,printer.NgaySX) + " Ca SX:", Content = printer.NgaySX + new string(' ',12)  + printer.CaSX, X = 170 },
-                new TextLineSpec { Prefix = "Thong tin Bin: ", Content = kl_cdBin, X = 300 },
-                new TextLineSpec { Prefix = "San Pham: ",    Content = printer.TenSP, X = 300 },
-                new TextLineSpec { Prefix = "Ma san pham: ", Content = printer.MaBin, X = 300 },
-                new TextLineSpec { Prefix = "Quy cach: ",    Content = printer.TenSP, X = 300 },
-                new TextLineSpec { Prefix = "Danh Gia: ",Content ="OK" + Helper.Helper.TaoKhoangTrong(10,printer.DanhGia) + "NG", X = 270 },
-                new TextLineSpec { Prefix = "CN van hanh: " + Helper.Helper.TaoKhoangTrong(15,printer.TenCN) + " T.truong:", Content = printer.TenCN, X = 250 },
-            }; 
-
-
-            // --- Ghi chu: tự động xuống dòng ---
-            var ghiChuLines = WrapText(printer.GhiChu ?? string.Empty, maxCharsPerLine: 35);
-            if (ghiChuLines.Count == 0)
-            {
-                lines.Add(new TextLineSpec { Prefix = "Ghi chu: ", Content = string.Empty, X = 175 });
+                PrintImage(image);
             }
-            else
+            catch (Exception)
             {
-                for (int i = 0; i < ghiChuLines.Count; i++)
+                MessageBox.Show("CHƯA IN ĐƯỢC TEMP: " + printer.MaBin, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+
+            image.Dispose();
+        }
+
+        public static bool PrintImage(Bitmap image)
+        {
+            string PRINTER_NAME = Properties.Settings.Default.PrinterName;
+
+            try
+            {
+                using (PrintDocument pd = new PrintDocument())
                 {
-                    lines.Add(new TextLineSpec
+                    pd.PrinterSettings.PrinterName = PRINTER_NAME;
+
+                    if (!pd.PrinterSettings.IsValid)
+                        throw new Exception($"Máy in '{PRINTER_NAME}' không tồn tại");
+
+                    // Lấy DPI từ ảnh (đã set trong ConvertToImage)
+                    double dpiX = image.HorizontalResolution;
+                    double dpiY = image.VerticalResolution;
+
+                    // 1 inch = 25.4 mm → quy đổi pixel → mm
+                    double labelWidthMm = image.Width / dpiX * 25.4;
+                    double labelHeightMm = image.Height / dpiY * 25.4;
+
+                    // Convert mm → hundredths of inch (Hi)
+                    int paperWidthHi = LabelConfig.MmToHi(labelWidthMm);
+                    int paperHeightHi = LabelConfig.MmToHi(labelHeightMm);
+
+                    // Đặt kích thước giấy đúng 100% theo ảnh
+                    pd.DefaultPageSettings.PaperSize = new PaperSize("Label", paperWidthHi, paperHeightHi);
+                    pd.DefaultPageSettings.Margins = new Margins(0, 0, 0, 0);
+
+                    pd.PrintPage += (sender, e) =>
                     {
-                        Prefix = i == 0 ? "Ghi chu: " : new string(' ', 10), // dòng sau thụt nhẹ
-                        Content = ghiChuLines[i],
-                        X = 175
-                    });
+                        // In full-page – ảnh phủ toàn bộ tem
+                        Rectangle dest = new Rectangle(
+                            0,
+                            0,
+                            e.PageBounds.Width,
+                            e.PageBounds.Height
+                        );
+
+                        e.Graphics.DrawImage(image, dest);
+                    };
+
+                    pd.Print();
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Lỗi in: {ex.Message}");
+            }
+        }
+
+        private static float CalculateNeededHeight(PrinterModel data, float maxWidth)
+        {
+            if (string.IsNullOrEmpty(data.GhiChu))
+                return 0;
+
+            using (Bitmap bmp = new Bitmap(1, 1))
+            {
+                // Đặt DPI thật
+                bmp.SetResolution(LabelConfig.Dpi, LabelConfig.Dpi);
+
+                using (Graphics g = Graphics.FromImage(bmp))
+                using (Font font = new Font("Arial", 11, FontStyle.Bold))
+                {
+                    StringFormat format = new StringFormat
+                    {
+                        Trimming = StringTrimming.Word,
+                        FormatFlags = StringFormatFlags.NoClip
+                    };
+
+                    SizeF size = g.MeasureString(
+                        data.GhiChu,
+                        font,
+                        new SizeF(maxWidth, float.MaxValue),
+                        format
+                    );
+
+                    return size.Height;
                 }
             }
+        }
 
-            // các dòng còn lại giữ nguyên
-            lines.Add(new TextLineSpec { Prefix = new string(' ', 5) + "KCS ", Content = qr, X = 400 });
-            lines.Add(new TextLineSpec { Content = new string(' ', 1), X = 0 });
-            lines.Add(new TextLineSpec { Content = new string(' ', 5), X = 0 });
-            lines.Add(new TextLineSpec { Content = new string(' ', 5), X = 0 });
-            lines.Add(new TextLineSpec { Content = new string(' ', 5), X = 0 });
-            lines.Add(new TextLineSpec { Content = new string(' ', 5), X = 0 });
-            lines.Add(new TextLineSpec { Content = new string('.', 1), X = 0});
+        public static Bitmap ConvertToImage(PrinterModel data, string qrContent)
+        {
+            try
+            {
+                int widthPx = LabelConfig.MmToPx(LabelConfig.ContentWidthMm);
+                float maxWidth = widthPx - 100;
 
-            string textBlock = SbplTextBuilder.BuildMultiLineTextBlock(lines, startX: 30, startY: 10, lineSpacing: 50);
+                //==============================
+                //  PHASE 1: TÍNH CHIỀU CAO THẬT
+                //==============================
+                float chieuCaoGhiChu = CalculateNeededHeight(data, maxWidth);
 
-            MainPrinter.PrintUpperTextAndQr(textBlock);
+                // Chiều cao các phần cố định (tính theo thứ tự từ trên xuống)
+                float lineHeight = 80;
+                float baseHeight = LabelConfig.TopMarginPx;  // top margin
+                baseHeight += lineHeight;  // Tiêu đề "PHIẾU QUẢN LÝ SẢN PHẨM"
+                baseHeight += lineHeight;  // BC-ISO-09-08
+                baseHeight += lineHeight;  // Ngày SX + Ca SX
+                baseHeight += lineHeight;  // Khối lượng + Chiều dài
+                baseHeight += lineHeight;  // Sản phẩm
+                baseHeight += lineHeight;  // Mã SP
+                baseHeight += lineHeight;  // Đánh Giá
+                baseHeight += lineHeight;  // CN Vận hành
+                baseHeight += 25;          // Spacing trước "Ghi chú"
+                baseHeight += chieuCaoGhiChu;  // Chiều cao ghi chú (có thể = 0 nếu không có)
+                baseHeight += 25;          // Spacing sau "Ghi chú"
+                baseHeight += lineHeight;  // KCS + QR section
+                baseHeight += LabelConfig.MmToPx(30);  // QR size (30mm)
+                baseHeight += 50;          // Bottom padding
+
+                int totalHeightPx = (int)Math.Ceiling(baseHeight);
+
+                Bitmap bitmap = new Bitmap(widthPx, totalHeightPx, PixelFormat.Format24bppRgb);
+                bitmap.SetResolution(LabelConfig.Dpi, LabelConfig.Dpi);
+
+                using (Graphics graphics = Graphics.FromImage(bitmap))
+                {
+                    graphics.Clear(Color.White);
+                    graphics.SmoothingMode = SmoothingMode.AntiAlias;
+
+                    Font labelFont = new Font("Arial", 10);
+                    Font labelFontISO = new Font("Arial", 9);
+                    Font labelBoldFont = new Font("Arial", 11, FontStyle.Bold);
+                    Font titleFont = new Font("Arial", 12, FontStyle.Bold);
+                    Brush brush = Brushes.Black;
+
+                    float y = LabelConfig.TopMarginPx;
+                    float lineHeightVal = 80;
+
+                    StringFormat centerFormat = new StringFormat() { Alignment = StringAlignment.Center };
+                    graphics.DrawString("PHIẾU QUẢN LÝ SẢN PHẨM", titleFont, brush, widthPx / 2f, y, centerFormat);
+                    y += lineHeightVal - 5;
+
+                    StringFormat rightAlign = new StringFormat() { Alignment = StringAlignment.Far };
+                    graphics.DrawString("BC-ISO-09-08", labelFontISO, brush, widthPx, y, rightAlign);
+                    y += lineHeightVal;
+
+                    graphics.DrawString("Ngày SX: ", labelFont, brush, 30, y);
+                    graphics.DrawString(data.NgaySX, labelBoldFont, brush, 250, y);
+                    graphics.DrawString("Ca SX: ", labelFont, brush, 650, y);
+                    graphics.DrawString(data.CaSX, labelBoldFont, brush, 800, y);
+                    y += lineHeightVal;
+
+                    graphics.DrawString("Khối lượng: ", labelFont, brush, 30, y);
+                    graphics.DrawString(data.KhoiLuong, labelBoldFont, brush, 300, y);
+                    graphics.DrawString("Chiều dài: ", labelFont, brush, 580, y);
+                    graphics.DrawString(data.ChieuDai, labelBoldFont, brush, 800, y);
+                    y += lineHeightVal;
+
+                    graphics.DrawString("Sản phẩm: ", labelFont, brush, 30, y);
+                    graphics.DrawString(data.TenSP, labelBoldFont, brush, 280, y);
+                    y += lineHeightVal;
+
+                    graphics.DrawString("Mã SP: ", labelFont, brush, 30, y);
+                    graphics.DrawString(data.MaBin, labelBoldFont, brush, 200, y);
+                    y += lineHeightVal;
+
+                    graphics.DrawString("Đánh Giá: ", labelFont, brush, 30, y);
+                    graphics.DrawString("☐ OK    ☐ NG", labelFont, brush, 250, y);
+                    y += lineHeightVal;
+
+                    graphics.DrawString("CN Vận hành: ", labelFont, brush, 30, y);
+                    graphics.DrawString(data.TenCN, labelBoldFont, brush, 350, y);
+                    y += lineHeightVal;
+
+                    graphics.DrawString("Ghi chú: ", labelFont, brush, 30, y);
+                    y += 25;
+
+                    if (!string.IsNullOrEmpty(data.GhiChu))
+                    {
+                        StringFormat wrap = new StringFormat(StringFormatFlags.NoClip)
+                        {
+                            Trimming = StringTrimming.Word
+                        };
+
+                        // đo lại cho chắc (hoàn toàn trùng phase 1)
+                        SizeF textSize = graphics.MeasureString(
+                            data.GhiChu,
+                            labelBoldFont,
+                            new SizeF(maxWidth, float.MaxValue),
+                            wrap
+                        );
+
+                        RectangleF textBox = new RectangleF(50, y + 25, maxWidth, textSize.Height);
+                        graphics.DrawString(data.GhiChu, labelBoldFont, brush, textBox, wrap);
+
+                        y += textSize.Height + 25;
+                    }
+
+                    y += lineHeightVal + 50;
+
+                    graphics.DrawString("KCS", labelFont, brush, 180, y);
+
+                    // QR
+                    if (!string.IsNullOrEmpty(qrContent))
+                    {
+                        int qrSizePx = LabelConfig.MmToPx(30);
+                        int qrX = 600;
+
+                        Rectangle qrRect = new Rectangle(qrX, (int)y, qrSizePx, qrSizePx);
+
+                        using (var qrGenerator = new QRCodeGenerator())
+                        using (var qrData = qrGenerator.CreateQrCode(qrContent, QRCodeGenerator.ECCLevel.Q))
+                        using (var qrCode = new QRCode(qrData))
+                        using (Bitmap qrBmp = qrCode.GetGraphic(20))
+                        {
+                            graphics.DrawImage(qrBmp, qrRect);
+                        }
+
+                        y += qrSizePx;
+                    }
+
+                    labelFont.Dispose();
+                    labelBoldFont.Dispose();
+                    labelFontISO.Dispose();
+                    titleFont.Dispose();
+                }
+
+                return bitmap;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Lỗi tạo ảnh: {ex.Message}");
+            }
         }
     }
 }

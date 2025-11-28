@@ -70,5 +70,41 @@ namespace DG_TonKhoBTP_v02.Properties {
                 this["PrinterName"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("70")]
+        public string START_X {
+            get {
+                return ((string)(this["START_X"]));
+            }
+            set {
+                this["START_X"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("10")]
+        public string START_Y {
+            get {
+                return ((string)(this["START_Y"]));
+            }
+            set {
+                this["START_Y"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("50")]
+        public string LINESPACING {
+            get {
+                return ((string)(this["LINESPACING"]));
+            }
+            set {
+                this["LINESPACING"] = value;
+            }
+        }
     }
 }

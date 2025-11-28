@@ -51,6 +51,7 @@
             this.pnBaoCao = new System.Windows.Forms.FlowLayoutPanel();
             this.btnBaoCaoTonKho = new System.Windows.Forms.Button();
             this.btnTruyVetDL = new System.Windows.Forms.Button();
+            this.BtnKiemTraBc = new System.Windows.Forms.Button();
             this.pnSign = new System.Windows.Forms.Panel();
             this.lblAuthor = new System.Windows.Forms.Label();
             this.pnMain = new System.Windows.Forms.Panel();
@@ -322,7 +323,7 @@
             this.grbBaoCao.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.grbBaoCao.Location = new System.Drawing.Point(3, 634);
             this.grbBaoCao.Name = "grbBaoCao";
-            this.grbBaoCao.Size = new System.Drawing.Size(168, 167);
+            this.grbBaoCao.Size = new System.Drawing.Size(168, 216);
             this.grbBaoCao.TabIndex = 2;
             this.grbBaoCao.TabStop = false;
             this.grbBaoCao.Text = "BÁO CÁO";
@@ -331,10 +332,11 @@
             // 
             this.pnBaoCao.Controls.Add(this.btnBaoCaoTonKho);
             this.pnBaoCao.Controls.Add(this.btnTruyVetDL);
+            this.pnBaoCao.Controls.Add(this.BtnKiemTraBc);
             this.pnBaoCao.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnBaoCao.Location = new System.Drawing.Point(3, 17);
             this.pnBaoCao.Name = "pnBaoCao";
-            this.pnBaoCao.Size = new System.Drawing.Size(162, 147);
+            this.pnBaoCao.Size = new System.Drawing.Size(162, 196);
             this.pnBaoCao.TabIndex = 3;
             // 
             // btnBaoCaoTonKho
@@ -366,6 +368,21 @@
             this.btnTruyVetDL.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.btnTruyVetDL.UseVisualStyleBackColor = false;
             this.btnTruyVetDL.Click += new System.EventHandler(this.btnTruyVetDL_Click);
+            // 
+            // BtnKiemTraBc
+            // 
+            this.BtnKiemTraBc.BackColor = System.Drawing.Color.Snow;
+            this.BtnKiemTraBc.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.BtnKiemTraBc.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.BtnKiemTraBc.Location = new System.Drawing.Point(3, 113);
+            this.BtnKiemTraBc.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
+            this.BtnKiemTraBc.Name = "BtnKiemTraBc";
+            this.BtnKiemTraBc.Size = new System.Drawing.Size(159, 44);
+            this.BtnKiemTraBc.TabIndex = 10;
+            this.BtnKiemTraBc.Text = "KIỂM TRA BÁO CÁO";
+            this.BtnKiemTraBc.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.BtnKiemTraBc.UseVisualStyleBackColor = false;
+            this.BtnKiemTraBc.Click += new System.EventHandler(this.BtnKiemTraBc_Click);
             // 
             // pnSign
             // 
@@ -498,6 +515,7 @@
         private System.Windows.Forms.Button btnGhepLoi;
         private System.Windows.Forms.Button btnQuanBang;
         private System.Windows.Forms.Button btnTruyVetDL;
+        private System.Windows.Forms.Button BtnKiemTraBc;
     }
 }
 

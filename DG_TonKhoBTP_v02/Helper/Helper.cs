@@ -1,4 +1,5 @@
 ﻿using DG_TonKhoBTP_v02.Models;
+using DG_TonKhoBTP_v02.Dictionary;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -26,6 +27,18 @@ namespace DG_TonKhoBTP_v02.Helper
                 return true;
             }
             return false;
+        }
+
+        public static List<CongDoan> GetDanhSachCongDoan()
+        {
+            return ThongTinChungCongDoan.TatCaCongDoan
+                .Select(cd =>
+                {
+                    cd.TenCongDoan = cd.TenCongDoan.ToUpper();
+                    return cd;
+                })
+                .OrderBy(cd => cd.Id)
+                .ToList();
         }
 
         public static string GetShiftValue()
@@ -128,7 +141,7 @@ namespace DG_TonKhoBTP_v02.Helper
             SELECT
               ttp.id AS STT,
               tclv.Ngay, tclv.Ca, tclv.May,
-              ttp.MaBin as MaBin, ds.Ten AS Ten, ds.Ma AS Ma, ds.id AS id,
+              ttp.MaBin as MaBin, ds.Ten AS Ten, ds.Ma AS Ma,ds.DonVi, ds.id AS id,
               tclv.NguoiLam, tclv.ToTruong, tclv.QuanDoc,
               ttp.KhoiLuongTruoc AS KhoiLuongTruoc, ttp.KhoiLuongSau as KhoiLuongSau,
               ttp.ChieuDaiTruoc as ChieuDaiTruoc, ttp.ChieuDaiSau as ChieuDaiSau,

@@ -50,6 +50,39 @@ namespace DG_TonKhoBTP_v02.Database
                 }
             }
         }
+
+        public static DataTable GetDataByCongDoan(DateTime selectedDate, CongDoan cd,int ca, string nguoiKiemTra)
+        {
+            string key = selectedDate.ToString("yyyy-MM-dd");
+
+            string sqlSelect = Helper.Helper.TaoSqL_LayThongTinBaoCaoChung();
+
+            string sqlLayChiTietCD = Helper.Helper.TaoSQL_LayChiTiet_1CD(cd.Id);
+
+            string sqlTenNVL = Helper.Helper.TaoSQL_LayDuLieuNVL(cd.Columns);
+
+            string sqlJoin = Helper.Helper.TaoSQL_TaoKetNoiCacBang();
+
+            string sqlDk1 = " WHERE date(tclv.Ngay) = date(@para) ";
+
+            string sqlDk2 = " AND ttp.CongDoan = " + cd.Id;
+
+            string sqlDk3 = " AND tclv.Ca = " + ca;
+
+            if (!string.IsNullOrWhiteSpace(nguoiKiemTra))
+            {
+                sqlDk3 += " AND tclv.NguoiLam = '" + nguoiKiemTra + "' ";
+            }
+
+            // 6) ORDER BY
+            string sqlOrder = " ORDER BY tclv.Ngay DESC, ttp.id DESC;";
+
+            // 7) Kết hợp hoàn chỉnh
+            string query = sqlSelect + " ," + sqlLayChiTietCD + " ," + sqlTenNVL + sqlJoin + sqlDk1 + sqlDk2 + sqlDk3 + sqlOrder;
+
+            return GetData(query, key, "para");
+        }
+
         // Lấy dữ liệu theo ngày tháng
         public static DataTable GetDataByMonth(DateTime selectedDate, CongDoan cd)
         {
@@ -166,7 +199,6 @@ namespace DG_TonKhoBTP_v02.Database
             return GetData(query);
         }
 
-
         public static DataTable GetThongTinNVLTheoMaBin(string mabin)
         {
             string query = @"
@@ -194,11 +226,121 @@ namespace DG_TonKhoBTP_v02.Database
             return GetData(query, mabin, "mabin");
         }
 
-        
+        public static List<PrinterModel> GetPrinterDataByListBin(List<string> listBin)
+        {
+            List<PrinterModel> result = new List<PrinterModel>();
 
+
+            // 1. Tạo danh sách parameter @bin0, @bin1,...
+            var paramNames = listBin.Select((bin, index) => "@bin" + index).ToList();
+            string inClause = string.Join(",", paramNames);
+
+            // 2. SQL truy vấn
+            string query = $@"
+                SELECT  
+                    t.Ngay AS NgaySX,
+                    t.Ca AS CaSX,
+                    tp.KhoiLuongSau AS KhoiLuong,
+                    tp.ChieuDaiSau AS ChieuDai,
+                    d.ten AS TenSP,
+                    tp.MaBin AS MaBin,
+                    d.ma AS MaSP,
+                    t.NguoiLam AS TenCN,
+                    tp.GhiChu AS GhiChu
+                FROM TTThanhPham tp
+                JOIN ThongTinCaLamViec t ON tp.ThongTinCaLamViec_ID = t.id
+                JOIN DanhSachMaSP d ON tp.DanhSachSP_ID = d.id
+                WHERE tp.MaBin IN ({inClause});
+                ";
+
+            using (SQLiteConnection conn = new SQLiteConnection(_connStr))
+            {
+                conn.Open();
+
+                using (SQLiteCommand cmd = new SQLiteCommand(query, conn))
+                {
+                    // 3. Gán giá trị cho từng parameter
+                    for (int i = 0; i < listBin.Count; i++)
+                    {
+                        cmd.Parameters.AddWithValue("@bin" + i, listBin[i]);
+                    }
+
+                    using (SQLiteDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            var model = new PrinterModel
+                            {
+                                NgaySX = DateTime.Parse(reader["NgaySX"].ToString()).ToString("dd/MM/yyyy"),
+                                CaSX = reader["CaSX"].ToString(),
+                                KhoiLuong = reader["KhoiLuong"].ToString(),
+                                ChieuDai = reader["ChieuDai"].ToString(),
+                                TenSP = reader["TenSP"].ToString(),
+                                MaBin = reader["MaBin"].ToString(),
+                                MaSP = reader["MaSP"].ToString(),
+                                DanhGia = "",
+                                TenCN = reader["TenCN"].ToString(),
+                                GhiChu = reader["GhiChu"].ToString()
+                            };
+
+                            result.Add(model);
+                        }
+                    }
+                }
+            }
+
+            return result;
+        }
         #endregion
 
         #region Update dữ liệu
+        public static bool UpdateNguoiKiemTra(List<int> listStt, string nguoiKT)
+        {
+            if (listStt == null || listStt.Count == 0)
+                return false;
+
+            try
+            {
+                using (var con = new SQLiteConnection(_connStr))
+                {
+                    con.Open();
+
+                    using (var cmd = con.CreateCommand())
+                    {
+                        // tạo param hàng loạt @p0, @p1, ...
+                        List<string> paramNames = new List<string>();
+                        int i = 0;
+
+                        foreach (int stt in listStt)
+                        {
+                            string p = "@p" + i;
+                            paramNames.Add(p);
+                            cmd.Parameters.AddWithValue(p, stt);
+                            i++;
+                        }
+
+                        // param tên tổ trưởng
+                        cmd.Parameters.AddWithValue("@nguoiKT", nguoiKT);
+
+                        cmd.CommandText = $@"
+                            UPDATE ThongTinCaLamViec
+                            SET ToTruong = @nguoiKT
+                            WHERE id IN (
+                                SELECT ThongTinCaLamViec_ID
+                                FROM TTThanhPham
+                                WHERE id IN ({string.Join(",", paramNames)})
+                            );
+                            ";
+                    }
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+               return false;
+            }
+        }
+
         private static void UpdateKL_CD_TTThanhPham(SQLiteConnection conn, SQLiteTransaction tx, List<TTNVL> nvlList, long thongTinSpId)
         {
             const string sql = @"

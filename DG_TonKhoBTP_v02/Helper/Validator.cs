@@ -13,16 +13,6 @@ namespace DG_TonKhoBTP_v02.Helper
         public static bool TTCaLamViec(ThongTinCaLamViec data)
         => !string.IsNullOrWhiteSpace(data.May)  && !string.IsNullOrWhiteSpace(data.NguoiLam);
 
-        //public static bool TTNVL(List<TTNVL> data)
-        //{
-        //    bool result = true;
-        //    if (data == null || data.Count == 0) return false;
-        //    foreach (TTNVL t in data) {
-        //        if (t.DanhSachMaSP_ID == 0 || t.BinNVL == "" || (t.KlConLai == 0 && t.CdConLai == 0)) return false;
-        //    }
-            
-        //    return result;
-        //}
 
         public static bool TTNVL(List<TTNVL> data)
         {
@@ -33,22 +23,48 @@ namespace DG_TonKhoBTP_v02.Helper
 
             foreach (TTNVL t in data)
             {
+                if (t.CdBatDau == -1 && t.KlBatDau == -1) continue;
 
-                // Kiểm tra các thuộc tính trong t
-                if (t.BanRongBang == null 
-                    || t.DoDayBang == null 
-                    || t.KetCauLoi == null
-                    || t.KlBatDau == null
-                    || t.KlConLai == null
-                    || t.DanhSachMaSP_ID == 0
-                    || t.BinNVL == ""
-                    || t.KlConLai == null
-                    || t.CdConLai == null
-                    ) 
+                if((t.DonVi == "KG" && t.KlConLai == null) || (t.DonVi == "M" && t.CdConLai == null))
                 {
                     result = false;
                     break;
                 }
+
+                if (
+                        t.BanRongBang == null
+                        || t.DoDayBang == null
+                        || t.KetCauLoi == null
+                        || t.DanhSachMaSP_ID == 0
+                        || t.BinNVL == ""
+                        )
+                {
+
+                    result = false;
+                    break;
+                }
+
+
+                //if (t.CdBatDau != -1 || t.KlBatDau != -1)
+                //{
+                //    // Kiểm tra các thuộc tính trong t
+                //    if (
+                //        t.BanRongBang == null
+                //        || t.DoDayBang == null
+                //        || t.KetCauLoi == null
+                //        || t.KlBatDau == null
+                //        || t.KlConLai == null
+                //        || t.DanhSachMaSP_ID == 0
+                //        || t.BinNVL == ""
+                //        || t.KlConLai == null
+                //        || t.CdConLai == null
+                //        )
+                //    {
+
+                //        result = false;
+                //        break;
+                //    }
+                //}
             }
 
             return result;

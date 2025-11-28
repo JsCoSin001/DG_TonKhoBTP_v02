@@ -55,6 +55,11 @@
     <Reference Include="Microsoft.Bcl.HashCode, Version=1.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Bcl.HashCode.1.1.1\lib\net461\Microsoft.Bcl.HashCode.dll</HintPath>
     </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="QRCoder, Version=1.7.0.0, Culture=neutral, PublicKeyToken=c4ed5b9ae8358a28, processorArchitecture=MSIL">
+      <HintPath>..\packages\QRCoder.1.7.0\lib\net40\QRCoder.dll</HintPath>
+    </Reference>
     <Reference Include="RBush, Version=4.0.0.0, Culture=neutral, PublicKeyToken=c77e27b81f4d0187, processorArchitecture=MSIL">
       <HintPath>..\packages\RBush.Signed.4.0.0\lib\net47\RBush.dll</HintPath>
     </Reference>
@@ -116,12 +121,9 @@
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Models\OtherClass.cs" />
-    <Compile Include="Printer\MainPrinter.cs" />
+    <Compile Include="Printer\LabelConfig.cs" />
     <Compile Include="Printer\PrinterModel.cs" />
     <Compile Include="Printer\PrintHelper.cs" />
-    <Compile Include="Printer\Qr.cs" />
-    <Compile Include="Printer\SbplTextBuilder.cs" />
-    <Compile Include="Printer\TextLineSpec.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UI\Actions\UC_CapNhatSP.cs">
@@ -129,6 +131,12 @@
     </Compile>
     <Compile Include="UI\Actions\UC_CapNhatSP.Designer.cs">
       <DependentUpon>UC_CapNhatSP.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Actions\UC_KTraBC.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\Actions\UC_KTraBC.Designer.cs">
+      <DependentUpon>UC_KTraBC.cs</DependentUpon>
     </Compile>
     <Compile Include="UI\Actions\UC_TruyVetDuLieu.cs">
       <SubType>UserControl</SubType>
@@ -267,6 +275,9 @@
     </Compile>
     <EmbeddedResource Include="UI\Actions\UC_CapNhatSP.resx">
       <DependentUpon>UC_CapNhatSP.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\Actions\UC_KTraBC.resx">
+      <DependentUpon>UC_KTraBC.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UI\Actions\UC_MonthyReport.resx">
       <DependentUpon>UC_MonthyReport.cs</DependentUpon>

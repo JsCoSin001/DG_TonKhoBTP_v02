@@ -9,6 +9,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Drawing;
+using System.Globalization;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
@@ -100,8 +101,8 @@ namespace DG_TonKhoBTP_v02.UI
                 // Lưu ý: ParseExact có thể ném exception; ta đang gọi trong background try/catch
                 return new PrinterModel
                 {
-                    NgaySX = DateTime.ParseExact(thongTinCaLamViec.Ngay, "yyyy-MM-dd HH:mm:ss", null)
-                                     .ToString("dd/MM/yyyy"),
+                    NgaySX = DateTime.ParseExact(thongTinCaLamViec.Ngay, "yyyy-MM-dd", CultureInfo.InvariantCulture).ToString("dd/MM/yyyy"),
+                    //NgaySX = thongTinCaLamViec.Ngay,
                     CaSX = thongTinCaLamViec.Ca,
                     KhoiLuong = thongTinThanhPham.KhoiLuongSau.ToString(),
                     ChieuDai = thongTinThanhPham.ChieuDaiSau.ToString(),
@@ -152,27 +153,43 @@ namespace DG_TonKhoBTP_v02.UI
                             var printer = BuildPrinter();
                             PrintHelper.PrintLabel(printer);
 
+                            List<string> dsBin = new List<string>();
+
                             // In tem nguyên liệu (nếu có)
                             foreach (TTNVL nvl in list_TTNVL)
                             {
-                                if ((nvl.DonVi == "KG" && nvl.KlConLai != 0) || (nvl.DonVi == "M" && nvl.CdConLai != 0))
-                                {
-                                    PrinterModel nvl_printer = new PrinterModel
-                                    {
-                                        NgaySX = nvl.Ngay,
-                                        CaSX = nvl.Ca,
-                                        KhoiLuong = nvl.KlConLai.ToString(),
-                                        ChieuDai = nvl.CdConLai.ToString(),
-                                        TenSP = nvl.TenNVL,
-                                        MaBin = nvl.BinNVL,
-                                        MaSP = nvl.TenNVL,
-                                        DanhGia = "",
-                                        TenCN = Helper.Helper.ConvertTiengVietKhongDau(nvl.NguoiLam),
-                                        GhiChu = nvl.GhiChu
-                                    };
-                                    PrintHelper.PrintLabel(nvl_printer);
-                                }                               
+
+                                if ((nvl.DonVi == "KG" && nvl.KlConLai == 0) || (nvl.DonVi == "M" && nvl.CdConLai == 0) || nvl.CdBatDau == -1 || nvl.KlBatDau == -1) continue;
+                                dsBin.Add(nvl.BinNVL);
+
+                                //PrinterModel nvl_printer = new PrinterModel
+                                //{
+                                //    //NgaySX = nvl.Ngay,
+                                //    NgaySX = DateTime.ParseExact(nvl.Ngay, "yyyy-MM-dd", CultureInfo.InvariantCulture).ToString("dd/MM/yyyy"),
+                                //    CaSX = nvl.Ca,
+                                //    KhoiLuong = nvl.KlConLai.ToString(),
+                                //    ChieuDai = nvl.CdConLai.ToString(),
+                                //    TenSP = nvl.TenNVL,
+                                //    MaBin = nvl.BinNVL,
+                                //    MaSP = nvl.TenNVL,
+                                //    DanhGia = "",
+                                //    TenCN = Helper.Helper.ConvertTiengVietKhongDau(nvl.NguoiLam),
+                                //    GhiChu = nvl.GhiChu
+                                //};
+
+                                //PrintHelper.PrintLabel(nvl_printer);
+
                             }
+
+                            List<PrinterModel> nvl_printer = DatabaseHelper.GetPrinterDataByListBin(dsBin);
+
+                            if (nvl_printer == null || nvl_printer.Count == 0) return;
+
+                            foreach (PrinterModel item in nvl_printer)
+                            {
+                                PrintHelper.PrintLabel(item);
+                            }
+
                         }
                     }
                     catch (Exception ex)

@@ -203,9 +203,8 @@ namespace DG_TonKhoBTP_v02.UI
             foreach (Control control in tbCheckBox.Controls)
             {
                 // Kiểm tra nếu control là CheckBox
-                if (control is CheckBox checkbox)
+                if (control is CheckBox checkbox && checkbox != cbxBaoCaoTon)
                 {
-                    // Gán trạng thái Checked
                     checkbox.Checked = isChecked;
                 }
             }

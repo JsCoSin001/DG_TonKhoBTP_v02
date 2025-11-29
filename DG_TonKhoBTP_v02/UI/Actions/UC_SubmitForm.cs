@@ -15,6 +15,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using PrinterModel = DG_TonKhoBTP_v02.Models.PrinterModel;
 using Validator = DG_TonKhoBTP_v02.Helper.Validator;
 
 namespace DG_TonKhoBTP_v02.UI
@@ -161,23 +162,6 @@ namespace DG_TonKhoBTP_v02.UI
 
                                 if ((nvl.DonVi == "KG" && nvl.KlConLai == 0) || (nvl.DonVi == "M" && nvl.CdConLai == 0) || nvl.CdBatDau == -1 || nvl.KlBatDau == -1) continue;
                                 dsBin.Add(nvl.BinNVL);
-
-                                //PrinterModel nvl_printer = new PrinterModel
-                                //{
-                                //    //NgaySX = nvl.Ngay,
-                                //    NgaySX = DateTime.ParseExact(nvl.Ngay, "yyyy-MM-dd", CultureInfo.InvariantCulture).ToString("dd/MM/yyyy"),
-                                //    CaSX = nvl.Ca,
-                                //    KhoiLuong = nvl.KlConLai.ToString(),
-                                //    ChieuDai = nvl.CdConLai.ToString(),
-                                //    TenSP = nvl.TenNVL,
-                                //    MaBin = nvl.BinNVL,
-                                //    MaSP = nvl.TenNVL,
-                                //    DanhGia = "",
-                                //    TenCN = Helper.Helper.ConvertTiengVietKhongDau(nvl.NguoiLam),
-                                //    GhiChu = nvl.GhiChu
-                                //};
-
-                                //PrintHelper.PrintLabel(nvl_printer);
 
                             }
 

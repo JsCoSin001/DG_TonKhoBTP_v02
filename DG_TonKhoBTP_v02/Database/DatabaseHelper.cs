@@ -1,5 +1,6 @@
 ﻿
 using DG_TonKhoBTP_v02.Core;
+using DG_TonKhoBTP_v02.DL_Ben;
 using DG_TonKhoBTP_v02.Models;
 using DocumentFormat.OpenXml.Drawing;
 using System;
@@ -341,6 +342,7 @@ namespace DG_TonKhoBTP_v02.Database
             }
         }
 
+
         private static void UpdateKL_CD_TTThanhPham(SQLiteConnection conn, SQLiteTransaction tx, List<TTNVL> nvlList, long thongTinSpId)
         {
             const string sql = @"
@@ -398,6 +400,23 @@ namespace DG_TonKhoBTP_v02.Database
                 // 5) Thêm chi tiết các công đoạn
                 switch (chiTietCD[0])
                 {
+                    case CD_BenRuot ben:
+                        UpdateCDBenRuot(conn, tx, tpId, ben);
+                        break;
+
+                    case CD_KeoRut keo:
+                        UpdateCDKeoRut(conn, tx, tpId, keo);
+                        updateVersion1(tpId, tp, caLam);
+                        break;
+
+                    case CD_GhepLoiQB qb:
+                        UpdateCDGhepLoiQB(conn, tx, tpId, qb);
+                        break;
+
+                    case CD_BocMach mach:
+                        UpdateCDBocMach(conn, tx, tpId, mach);
+                        break;
+
                     case CD_BocLot lot:
                         UpdateCDBocLot(conn, tx, tpId, lot);
                         break;
@@ -406,21 +425,8 @@ namespace DG_TonKhoBTP_v02.Database
                         UpdateCDBocVo(conn, tx, tpId, vo);
                         break;
 
-                    case CD_BocMach mach:
-                        UpdateCDBocMach(conn, tx, tpId, mach);
-                        break;
 
-                    case CD_KeoRut keo:
-                        UpdateCDKeoRut(conn, tx, tpId, keo);
-                        break;
 
-                    case CD_BenRuot ben:
-                        UpdateCDBenRuot(conn, tx, tpId, ben);
-                        break;
-
-                    case CD_GhepLoiQB qb:
-                        UpdateCDGhepLoiQB(conn, tx, tpId, qb);
-                        break;
 
                     default:
                         throw new ArgumentException("Lỗi bất thường.");
@@ -861,6 +867,9 @@ namespace DG_TonKhoBTP_v02.Database
                 // 3.1) Update Khối lượng sau, Chiều dài sau và thêm ID được update ở TTThanhPham 
                 UpdateKL_CD_TTThanhPham(conn, tx, nvl, tpId);
 
+                // Dùng cho db v1
+                //DatabasehelperVer01.UpdateTonKho_NVL_Lan1(nvl);
+
                 // 4) CaiDatCDBoc (chỉ áp dụng cho nhóm bóc)
                 var congDoan = chiTietCD[0];
 
@@ -875,20 +884,9 @@ namespace DG_TonKhoBTP_v02.Database
                 // 5) Thêm chi tiết các công đoạn
                 switch (congDoan)
                 {
-                    case CD_BocLot lot:
-                        InsertCDBocLot(conn, tx, idCaiDatCDBoc, lot);
-                        break;
-
-                    case CD_BocVo vo:
-                        InsertCDBocVo(conn, tx, idCaiDatCDBoc, vo);
-                        break;
-
-                    case CD_BocMach mach:
-                        InsertCDBocMach(conn, tx, idCaiDatCDBoc, mach);
-                        break;
-
                     case CD_KeoRut keo:
                         InsertCDKeoRut(conn, tx, tpId, keo);
+                        insertVersion1(tp,caLam, nvl);
                         break;
 
                     case CD_BenRuot ben:
@@ -897,6 +895,18 @@ namespace DG_TonKhoBTP_v02.Database
 
                     case CD_GhepLoiQB qb:
                         InsertCDGhepLoiQB(conn, tx, tpId, qb);
+                        break;
+
+                    case CD_BocLot lot:
+                        InsertCDBocLot(conn, tx, idCaiDatCDBoc, lot);
+                        break;
+
+                    case CD_BocMach mach:
+                        InsertCDBocMach(conn, tx, idCaiDatCDBoc, mach);
+                        break;
+
+                    case CD_BocVo vo:
+                        InsertCDBocVo(conn, tx, idCaiDatCDBoc, vo);
                         break;
 
                     default:
@@ -1184,6 +1194,54 @@ namespace DG_TonKhoBTP_v02.Database
                 return Helper.Helper.ShowErrorDatabase(ex, sp.Ma);
             }
         }
+        #endregion
+
+        #region ===================================
+        private static void insertVersion1(TTThanhPham tp,ThongTinCaLamViec tt, List<TTNVL> nvlList)
+        {
+            TonKho tonKho = new TonKho
+            {
+                Lot = tp.MaBin,
+                MaSP_ID = tp.DanhSachSP_ID,
+                KhoiLuongDauVao = (decimal)tp.KhoiLuongTruoc,
+                KhoiLuongConLai = (decimal)tp.KhoiLuongSau,
+                HanNoi = 0,
+                ChieuDai = (decimal)tp.ChieuDaiTruoc
+            };
+
+            DL_CD_Ben dL_CD_Ben = new DL_CD_Ben
+            {
+                Ngay = tt.Ngay,
+                Ca = tt.Ca,
+                NguoiLam = tt.NguoiLam,
+                SoMay = tt.May,
+                GhiChu = tp.GhiChu,
+            };
+            DatabasehelperVer01.InsertSanPhamTonKhoDL<TonKho, DL_CD_Ben>(tonKho, dL_CD_Ben, "dL_CD_Ben", nvlList);
+        }
+
+        private static void updateVersion1(int id, TTThanhPham tp, ThongTinCaLamViec tt)
+        {
+            TonKho tonKho = new TonKho
+            {
+                Lot = tp.MaBin,
+                MaSP_ID = tp.DanhSachSP_ID,
+                KhoiLuongDauVao = (decimal)tp.KhoiLuongTruoc,
+                KhoiLuongConLai = (decimal)tp.KhoiLuongSau,
+                HanNoi = 0,
+                ChieuDai = (decimal)tp.ChieuDaiTruoc
+            };
+            DL_CD_Ben dL_CD_Ben = new DL_CD_Ben
+            {
+                Ngay = tt.Ngay,
+                Ca = tt.Ca,
+                NguoiLam = tt.NguoiLam,
+                SoMay = tt.May,
+                GhiChu = tp.GhiChu,
+            };
+            DatabasehelperVer01.UpdateDL_CDBen(id, tonKho, dL_CD_Ben);
+        }
+
         #endregion
 
     }

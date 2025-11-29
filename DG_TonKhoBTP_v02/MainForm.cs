@@ -2,6 +2,7 @@
 using DG_TonKhoBTP_v02.Core;
 using DG_TonKhoBTP_v02.Database;
 using DG_TonKhoBTP_v02.Dictionary;
+using DG_TonKhoBTP_v02.DL_Ben;
 using DG_TonKhoBTP_v02.Models;
 using DG_TonKhoBTP_v02.UI;
 using DG_TonKhoBTP_v02.UI.Actions;
@@ -27,6 +28,9 @@ namespace DG_TonKhoBTP_v02
             InitializeComponent();
             DatabaseHelper.SetDatabasePath(_URL);
             lblAuthor.Text = "Made by Linh - v"+ _ver;
+
+            DatabasehelperVer01.SetDatabasePath(_URL);
+
             ShowHomePage();
         }
 

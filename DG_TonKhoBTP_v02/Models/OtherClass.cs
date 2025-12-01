@@ -56,5 +56,12 @@ namespace DG_TonKhoBTP_v02.Models
         public double KhoiLuongBanTran { get; set; }
     }
 
+    public class ConfigDB
+    {
+        public int ID { get; set; } = 1;
+        public bool Active { get; set; }
+        public string Message { get; set; }
+    }
+
 
 }

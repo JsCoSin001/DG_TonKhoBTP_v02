@@ -1,4 +1,7 @@
-﻿using System;
+﻿using DG_TonKhoBTP_v02.Database;
+using DG_TonKhoBTP_v02.Models;
+using DocumentFormat.OpenXml.Wordprocessing;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -24,7 +27,26 @@ namespace DG_TonKhoBTP_v02.UI.Setting
             tbPathDB.Text = _url;
             Helper.Helper.LoadPrinters(cbxPrinterName);
             cbxPrinterName.Text = _printerName;
+
+            LoadConfigAndShow();
+
         }
+
+        public void LoadConfigAndShow()
+        {
+            try
+            {
+                ConfigDB config = DatabaseHelper.GetConfig();
+                cbxActive.SelectedIndex = config.Active ? 1 : 0;
+                rtbMessage.Text = config.Message;
+                lblThongBao.Visible = config.Active;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Không thể đọc dữ liệu từ database!\nChi tiết lỗi: " + ex.Message, "LỖI", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
 
         private void btnFindPathDB_Click(object sender, EventArgs e)
         {
@@ -69,5 +91,34 @@ namespace DG_TonKhoBTP_v02.UI.Setting
 
         }
 
+        private void cbxActive_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            lblThongBao.Visible = cbxActive.SelectedIndex == 1;
+        }
+
+        private void btnLuu_Click(object sender, EventArgs e)
+        {
+            if (!Helper.Helper.kiemTraPhanQuyen(_quyenMaster)) return;
+
+            string rtbMsg = rtbMessage.Text.Trim();
+            if (rtbMsg.Length == 0 && cbxActive.SelectedIndex == 1)
+            {
+                DialogResult result = MessageBox.Show(
+                    "LỜI NHẮC KHÔNG ĐƯỢC BỎ TRỐNG!",
+                    "CẢNH BÁO",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning
+                );
+                return  ;
+            }
+
+            ConfigDB config = new ConfigDB
+            {
+                Active = cbxActive.SelectedIndex == 1,
+                Message = rtbMsg
+            };
+
+            DatabaseHelper.UpdateConfig(config);
+        }
     }
 }

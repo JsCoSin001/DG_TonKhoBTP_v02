@@ -155,6 +155,14 @@ namespace DG_TonKhoBTP_v02.UI
 
         private async void btnLuu_Click(object sender, EventArgs e)
         {
+            ConfigDB configDB = DatabaseHelper.GetConfig();
+
+            if (configDB.Active)
+            {
+                MessageBox.Show(configDB.Message, "THÔNG BÁO", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             if (string.IsNullOrWhiteSpace(tbMaBin.Text))
             {
                 MessageBox.Show("VUI LÒNG CHỌN MÃ BIN", "THÔNG BÁO", MessageBoxButtons.OK);

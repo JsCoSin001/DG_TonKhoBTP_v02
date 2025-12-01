@@ -292,6 +292,33 @@ namespace DG_TonKhoBTP_v02.Database
 
             return result;
         }
+
+
+        public static ConfigDB GetConfig()
+        {
+
+            using (var conn = new SQLiteConnection(_connStr))
+            {
+                conn.Open();
+
+                string sql = "SELECT Active, Message FROM ConfigDB LIMIT 1";
+
+                using (var cmd = new SQLiteCommand(sql, conn))
+                using (var reader = cmd.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        return new ConfigDB
+                        {
+                            Active = reader.IsDBNull(0) ? false : reader.GetBoolean(0),
+                            Message = reader.IsDBNull(1) ? null : reader.GetString(1)
+                        };
+                    }
+                }
+            }
+
+            return null; // Trường hợp bảng rỗng
+        }
         #endregion
 
         #region Update dữ liệu
@@ -1193,6 +1220,41 @@ namespace DG_TonKhoBTP_v02.Database
             {
                 return Helper.Helper.ShowErrorDatabase(ex, sp.Ma);
             }
+        }
+        #endregion
+
+
+        #region setup config
+        public static void UpdateConfig(ConfigDB config)
+        {
+            string query = "UPDATE ConfigDB SET Active = @active, Message = @message WHERE ID = @id";
+            string mess = "CẬP NHẬT THÀNH CÔNG";
+            try
+            {
+                using (SQLiteConnection conn = new SQLiteConnection(_connStr))
+                {
+                    conn.Open();
+
+                    using (SQLiteCommand cmd = new SQLiteCommand(query, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@active", config.Active);
+                        cmd.Parameters.AddWithValue("@message", config.Message);
+                        cmd.Parameters.AddWithValue("@id", config.ID);
+
+                        cmd.ExecuteNonQuery();
+                    }
+
+                    conn.Close();
+                }
+
+            }
+            catch (Exception)
+            {
+                mess = "CẬP NHẬT THẤT BẠI";
+            }
+
+            MessageBox.Show(mess, "THÔNG BÁO", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
         }
         #endregion
 

@@ -32,6 +32,15 @@ namespace DG_TonKhoBTP_v02.UI
 
         private void btnLuu_Click(object sender, EventArgs e)
         {
+            ConfigDB configDB = DatabaseHelper.GetConfig();
+
+            if (configDB.Active)
+            {
+                MessageBox.Show(configDB.Message, "THÔNG BÁO", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+
             btnLuu.Enabled = false;
 
             // --- Lấy form + snapshot ---

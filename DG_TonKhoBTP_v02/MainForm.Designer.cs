@@ -53,12 +53,13 @@
             this.btnTruyVetDL = new System.Windows.Forms.Button();
             this.BtnKiemTraBc = new System.Windows.Forms.Button();
             this.pnSign = new System.Windows.Forms.Panel();
-            this.lblAuthor = new System.Windows.Forms.Label();
             this.pnMain = new System.Windows.Forms.Panel();
             this.pnShow = new System.Windows.Forms.Panel();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.homeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.setiingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.lblAuthor = new System.Windows.Forms.Label();
+            this.panel1 = new System.Windows.Forms.Panel();
             this.pnLeft.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
             this.pnLogo.SuspendLayout();
@@ -72,17 +73,17 @@
             this.pnSign.SuspendLayout();
             this.pnMain.SuspendLayout();
             this.menuStrip1.SuspendLayout();
+            this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // pnLeft
             // 
             this.pnLeft.Controls.Add(this.flowLayoutPanel1);
-            this.pnLeft.Controls.Add(this.pnSign);
             this.pnLeft.Dock = System.Windows.Forms.DockStyle.Left;
             this.pnLeft.Location = new System.Drawing.Point(0, 0);
             this.pnLeft.Margin = new System.Windows.Forms.Padding(4);
             this.pnLeft.Name = "pnLeft";
-            this.pnLeft.Size = new System.Drawing.Size(176, 937);
+            this.pnLeft.Size = new System.Drawing.Size(176, 907);
             this.pnLeft.TabIndex = 0;
             // 
             // flowLayoutPanel1
@@ -95,7 +96,7 @@
             this.flowLayoutPanel1.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
             this.flowLayoutPanel1.Location = new System.Drawing.Point(0, 0);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(176, 905);
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(176, 907);
             this.flowLayoutPanel1.TabIndex = 2;
             // 
             // pnLogo
@@ -388,25 +389,15 @@
             // 
             this.pnSign.Controls.Add(this.lblAuthor);
             this.pnSign.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.pnSign.Location = new System.Drawing.Point(0, 905);
+            this.pnSign.Location = new System.Drawing.Point(0, 907);
             this.pnSign.Name = "pnSign";
-            this.pnSign.Size = new System.Drawing.Size(176, 32);
+            this.pnSign.Size = new System.Drawing.Size(1334, 30);
             this.pnSign.TabIndex = 4;
-            // 
-            // lblAuthor
-            // 
-            this.lblAuthor.AutoSize = true;
-            this.lblAuthor.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.lblAuthor.Location = new System.Drawing.Point(0, 16);
-            this.lblAuthor.Name = "lblAuthor";
-            this.lblAuthor.Size = new System.Drawing.Size(133, 16);
-            this.lblAuthor.TabIndex = 0;
-            this.lblAuthor.Text = "Made by Linh - v02.00";
             // 
             // pnMain
             // 
-            this.pnMain.Controls.Add(this.pnShow);
-            this.pnMain.Controls.Add(this.pnLeft);
+            this.pnMain.Controls.Add(this.panel1);
+            this.pnMain.Controls.Add(this.pnSign);
             this.pnMain.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnMain.Location = new System.Drawing.Point(0, 28);
             this.pnMain.Name = "pnMain";
@@ -418,7 +409,7 @@
             this.pnShow.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnShow.Location = new System.Drawing.Point(176, 0);
             this.pnShow.Name = "pnShow";
-            this.pnShow.Size = new System.Drawing.Size(1158, 937);
+            this.pnShow.Size = new System.Drawing.Size(1158, 907);
             this.pnShow.TabIndex = 1;
             // 
             // menuStrip1
@@ -446,6 +437,26 @@
             this.setiingToolStripMenuItem.Size = new System.Drawing.Size(68, 24);
             this.setiingToolStripMenuItem.Text = "Setting";
             this.setiingToolStripMenuItem.Click += new System.EventHandler(this.setiingToolStripMenuItem_Click);
+            // 
+            // lblAuthor
+            // 
+            this.lblAuthor.Dock = System.Windows.Forms.DockStyle.Top;
+            this.lblAuthor.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblAuthor.Location = new System.Drawing.Point(0, 0);
+            this.lblAuthor.Name = "lblAuthor";
+            this.lblAuthor.Size = new System.Drawing.Size(1334, 19);
+            this.lblAuthor.TabIndex = 3;
+            this.lblAuthor.Text = "label1";
+            // 
+            // panel1
+            // 
+            this.panel1.Controls.Add(this.pnShow);
+            this.panel1.Controls.Add(this.pnLeft);
+            this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panel1.Location = new System.Drawing.Point(0, 0);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(1334, 907);
+            this.panel1.TabIndex = 5;
             // 
             // MainForm
             // 
@@ -475,10 +486,10 @@
             this.grbBaoCao.ResumeLayout(false);
             this.pnBaoCao.ResumeLayout(false);
             this.pnSign.ResumeLayout(false);
-            this.pnSign.PerformLayout();
             this.pnMain.ResumeLayout(false);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
+            this.panel1.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -502,7 +513,6 @@
         private System.Windows.Forms.Button btnBocVo;
         private System.Windows.Forms.Button btnBaoCaoTonKho;
         private System.Windows.Forms.Button btnCapNhatMaHang;
-        private System.Windows.Forms.Label lblAuthor;
         private System.Windows.Forms.Panel pnMain;
         private System.Windows.Forms.Panel pnShow;
         private System.Windows.Forms.MenuStrip menuStrip1;
@@ -516,6 +526,8 @@
         private System.Windows.Forms.Button btnQuanBang;
         private System.Windows.Forms.Button btnTruyVetDL;
         private System.Windows.Forms.Button BtnKiemTraBc;
+        private System.Windows.Forms.Label lblAuthor;
+        private System.Windows.Forms.Panel panel1;
     }
 }
 

@@ -36,7 +36,7 @@ namespace DG_TonKhoBTP_v02.UI
 
             if (configDB.Active)
             {
-                string message = $"Anh/Chị {configDB.Author.ToUpper()} thông tin: {configDB.Message.ToUpper()} ";
+                string message = $"{configDB.Author.ToUpper()} nói: {configDB.Message.ToUpper()} ";
 
                 MessageBox.Show(message, "THÔNG BÁO", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;

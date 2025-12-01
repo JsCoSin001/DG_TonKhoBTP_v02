@@ -21,13 +21,13 @@ namespace DG_TonKhoBTP_v02
     public partial class MainForm : Form
     {
         private string _URL = Properties.Settings.Default.URL;
-        private string _ver = "2.0.0";
+        private string _ver = "2.0";
 
         public MainForm()
         {
             InitializeComponent();
             DatabaseHelper.SetDatabasePath(_URL);
-            lblAuthor.Text = "Made by Linh - v"+ _ver;
+            lblAuthor.Text = $"Phát triển bởi Linh - Version: {_ver}. All rights reserved.";
 
             DatabasehelperVer01.SetDatabasePath(_URL);
 

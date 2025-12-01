@@ -426,10 +426,19 @@ namespace DG_TonKhoBTP_v02
             pnShow.Controls.Add(uc);
         }
 
-        private void setiingToolStripMenuItem_Click(object sender, EventArgs e)
+        private async void setiingToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            //Setting settingForm = new Setting();
+            //settingForm.StartPosition = FormStartPosition.CenterParent;
+            //settingForm.ShowDialog();
+
+
             Setting settingForm = new Setting();
             settingForm.StartPosition = FormStartPosition.CenterParent;
+
+            // Load dữ liệu với waiting form trước khi show dialog
+            await settingForm.LoadDataAsync();
+
             settingForm.ShowDialog();
         }
 

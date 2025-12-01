@@ -28,8 +28,45 @@ namespace DG_TonKhoBTP_v02.UI.Setting
             Helper.Helper.LoadPrinters(cbxPrinterName);
             cbxPrinterName.Text = _printerName;
 
-            LoadConfigAndShow();
+            //LoadConfigAndShow();
 
+        }
+
+        public async Task LoadDataAsync()
+        {
+            await WaitingHelper.RunWithWaiting(async () =>
+            {
+                ConfigDB config = null;
+                Exception loadException = null;
+
+                // Chạy việc đọc database trong background thread
+                await Task.Run(() =>
+                {
+                    try
+                    {
+                        config = DatabaseHelper.GetConfig();
+                    }
+                    catch (Exception ex)
+                    {
+                        loadException = ex;
+                    }
+                });
+
+                // Cập nhật UI trên UI thread (không cần Invoke vì đã ở UI thread)
+                if (loadException != null)
+                {
+                    MessageBox.Show("Không thể đọc dữ liệu từ database!\nChi tiết lỗi: " + loadException.Message,
+                        "LỖI", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+                else if (config != null)
+                {
+                    cbxActive.SelectedIndex = config.Active ? 1 : 0;
+                    tbxNguoiThucHien.Text = config.Author.ToString();
+                    rtbMessage.Text = config.Message;
+                    lblThongBao.Visible = config.Active;
+                }
+
+            }, "ĐANG KHỞI TẠO DỮ LIỆU...");
         }
 
         public void LoadConfigAndShow()

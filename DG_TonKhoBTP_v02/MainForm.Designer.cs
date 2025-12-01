@@ -53,13 +53,13 @@
             this.btnTruyVetDL = new System.Windows.Forms.Button();
             this.BtnKiemTraBc = new System.Windows.Forms.Button();
             this.pnSign = new System.Windows.Forms.Panel();
+            this.lblAuthor = new System.Windows.Forms.Label();
             this.pnMain = new System.Windows.Forms.Panel();
+            this.panel1 = new System.Windows.Forms.Panel();
             this.pnShow = new System.Windows.Forms.Panel();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.homeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.setiingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.lblAuthor = new System.Windows.Forms.Label();
-            this.panel1 = new System.Windows.Forms.Panel();
             this.pnLeft.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
             this.pnLogo.SuspendLayout();
@@ -72,8 +72,8 @@
             this.pnBaoCao.SuspendLayout();
             this.pnSign.SuspendLayout();
             this.pnMain.SuspendLayout();
-            this.menuStrip1.SuspendLayout();
             this.panel1.SuspendLayout();
+            this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // pnLeft
@@ -111,6 +111,7 @@
             // 
             // lblTenCty
             // 
+            this.lblTenCty.Cursor = System.Windows.Forms.Cursors.Hand;
             this.lblTenCty.Dock = System.Windows.Forms.DockStyle.Top;
             this.lblTenCty.Font = new System.Drawing.Font("Tahoma", 17.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblTenCty.Location = new System.Drawing.Point(67, 0);
@@ -123,6 +124,7 @@
             // 
             // imgLogo
             // 
+            this.imgLogo.Cursor = System.Windows.Forms.Cursors.Hand;
             this.imgLogo.Dock = System.Windows.Forms.DockStyle.Left;
             this.imgLogo.Image = ((System.Drawing.Image)(resources.GetObject("imgLogo.Image")));
             this.imgLogo.Location = new System.Drawing.Point(0, 0);
@@ -166,6 +168,7 @@
             // btnKeoRut
             // 
             this.btnKeoRut.BackColor = System.Drawing.Color.Snow;
+            this.btnKeoRut.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnKeoRut.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnKeoRut.ForeColor = System.Drawing.SystemColors.ControlText;
             this.btnKeoRut.Location = new System.Drawing.Point(3, 5);
@@ -181,6 +184,7 @@
             // btnBenRuot
             // 
             this.btnBenRuot.BackColor = System.Drawing.Color.Snow;
+            this.btnBenRuot.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnBenRuot.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnBenRuot.ForeColor = System.Drawing.SystemColors.ControlText;
             this.btnBenRuot.Location = new System.Drawing.Point(3, 59);
@@ -196,6 +200,7 @@
             // btnMica
             // 
             this.btnMica.BackColor = System.Drawing.Color.Snow;
+            this.btnMica.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnMica.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnMica.ForeColor = System.Drawing.SystemColors.ControlText;
             this.btnMica.Location = new System.Drawing.Point(3, 113);
@@ -211,6 +216,7 @@
             // btnBocMach
             // 
             this.btnBocMach.BackColor = System.Drawing.Color.Snow;
+            this.btnBocMach.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnBocMach.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnBocMach.ForeColor = System.Drawing.SystemColors.ControlText;
             this.btnBocMach.Location = new System.Drawing.Point(3, 167);
@@ -226,6 +232,7 @@
             // btnGhepLoi
             // 
             this.btnGhepLoi.BackColor = System.Drawing.Color.Snow;
+            this.btnGhepLoi.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnGhepLoi.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnGhepLoi.ForeColor = System.Drawing.SystemColors.ControlText;
             this.btnGhepLoi.Location = new System.Drawing.Point(3, 221);
@@ -241,6 +248,7 @@
             // btnBocLot
             // 
             this.btnBocLot.BackColor = System.Drawing.Color.Snow;
+            this.btnBocLot.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnBocLot.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnBocLot.ForeColor = System.Drawing.SystemColors.ControlText;
             this.btnBocLot.Location = new System.Drawing.Point(3, 275);
@@ -256,6 +264,7 @@
             // btnQuanBang
             // 
             this.btnQuanBang.BackColor = System.Drawing.Color.Snow;
+            this.btnQuanBang.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnQuanBang.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnQuanBang.ForeColor = System.Drawing.SystemColors.ControlText;
             this.btnQuanBang.Location = new System.Drawing.Point(3, 329);
@@ -271,6 +280,7 @@
             // btnBocVo
             // 
             this.btnBocVo.BackColor = System.Drawing.Color.Snow;
+            this.btnBocVo.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnBocVo.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnBocVo.ForeColor = System.Drawing.SystemColors.ControlText;
             this.btnBocVo.Location = new System.Drawing.Point(3, 383);
@@ -306,6 +316,7 @@
             // btnCapNhatMaHang
             // 
             this.btnCapNhatMaHang.BackColor = System.Drawing.Color.Snow;
+            this.btnCapNhatMaHang.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnCapNhatMaHang.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnCapNhatMaHang.ForeColor = System.Drawing.SystemColors.ControlText;
             this.btnCapNhatMaHang.Location = new System.Drawing.Point(3, 5);
@@ -324,7 +335,7 @@
             this.grbBaoCao.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.grbBaoCao.Location = new System.Drawing.Point(3, 634);
             this.grbBaoCao.Name = "grbBaoCao";
-            this.grbBaoCao.Size = new System.Drawing.Size(168, 216);
+            this.grbBaoCao.Size = new System.Drawing.Size(168, 197);
             this.grbBaoCao.TabIndex = 2;
             this.grbBaoCao.TabStop = false;
             this.grbBaoCao.Text = "BÁO CÁO";
@@ -337,12 +348,13 @@
             this.pnBaoCao.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnBaoCao.Location = new System.Drawing.Point(3, 17);
             this.pnBaoCao.Name = "pnBaoCao";
-            this.pnBaoCao.Size = new System.Drawing.Size(162, 196);
+            this.pnBaoCao.Size = new System.Drawing.Size(162, 177);
             this.pnBaoCao.TabIndex = 3;
             // 
             // btnBaoCaoTonKho
             // 
             this.btnBaoCaoTonKho.BackColor = System.Drawing.Color.Snow;
+            this.btnBaoCaoTonKho.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnBaoCaoTonKho.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnBaoCaoTonKho.ForeColor = System.Drawing.SystemColors.ControlText;
             this.btnBaoCaoTonKho.Location = new System.Drawing.Point(3, 5);
@@ -358,6 +370,7 @@
             // btnTruyVetDL
             // 
             this.btnTruyVetDL.BackColor = System.Drawing.Color.Snow;
+            this.btnTruyVetDL.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnTruyVetDL.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnTruyVetDL.ForeColor = System.Drawing.SystemColors.ControlText;
             this.btnTruyVetDL.Location = new System.Drawing.Point(3, 59);
@@ -373,6 +386,7 @@
             // BtnKiemTraBc
             // 
             this.BtnKiemTraBc.BackColor = System.Drawing.Color.Snow;
+            this.BtnKiemTraBc.Cursor = System.Windows.Forms.Cursors.Hand;
             this.BtnKiemTraBc.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.BtnKiemTraBc.ForeColor = System.Drawing.SystemColors.ControlText;
             this.BtnKiemTraBc.Location = new System.Drawing.Point(3, 113);
@@ -394,6 +408,17 @@
             this.pnSign.Size = new System.Drawing.Size(1334, 30);
             this.pnSign.TabIndex = 4;
             // 
+            // lblAuthor
+            // 
+            this.lblAuthor.Dock = System.Windows.Forms.DockStyle.Top;
+            this.lblAuthor.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblAuthor.Location = new System.Drawing.Point(0, 0);
+            this.lblAuthor.Name = "lblAuthor";
+            this.lblAuthor.Size = new System.Drawing.Size(1334, 19);
+            this.lblAuthor.TabIndex = 3;
+            this.lblAuthor.Text = "label1";
+            this.lblAuthor.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            // 
             // pnMain
             // 
             this.pnMain.Controls.Add(this.panel1);
@@ -403,6 +428,16 @@
             this.pnMain.Name = "pnMain";
             this.pnMain.Size = new System.Drawing.Size(1334, 937);
             this.pnMain.TabIndex = 1;
+            // 
+            // panel1
+            // 
+            this.panel1.Controls.Add(this.pnShow);
+            this.panel1.Controls.Add(this.pnLeft);
+            this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panel1.Location = new System.Drawing.Point(0, 0);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(1334, 907);
+            this.panel1.TabIndex = 5;
             // 
             // pnShow
             // 
@@ -438,26 +473,6 @@
             this.setiingToolStripMenuItem.Text = "Setting";
             this.setiingToolStripMenuItem.Click += new System.EventHandler(this.setiingToolStripMenuItem_Click);
             // 
-            // lblAuthor
-            // 
-            this.lblAuthor.Dock = System.Windows.Forms.DockStyle.Top;
-            this.lblAuthor.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblAuthor.Location = new System.Drawing.Point(0, 0);
-            this.lblAuthor.Name = "lblAuthor";
-            this.lblAuthor.Size = new System.Drawing.Size(1334, 19);
-            this.lblAuthor.TabIndex = 3;
-            this.lblAuthor.Text = "label1";
-            // 
-            // panel1
-            // 
-            this.panel1.Controls.Add(this.pnShow);
-            this.panel1.Controls.Add(this.pnLeft);
-            this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel1.Location = new System.Drawing.Point(0, 0);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(1334, 907);
-            this.panel1.TabIndex = 5;
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 16F);
@@ -467,6 +482,7 @@
             this.Controls.Add(this.menuStrip1);
             this.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuStrip1;
             this.Margin = new System.Windows.Forms.Padding(4);
             this.MaximizeBox = false;
@@ -487,9 +503,9 @@
             this.pnBaoCao.ResumeLayout(false);
             this.pnSign.ResumeLayout(false);
             this.pnMain.ResumeLayout(false);
+            this.panel1.ResumeLayout(false);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
-            this.panel1.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 

@@ -28,8 +28,6 @@ namespace DG_TonKhoBTP_v02.UI.Setting
             Helper.Helper.LoadPrinters(cbxPrinterName);
             cbxPrinterName.Text = _printerName;
 
-            //LoadConfigAndShow();
-
         }
 
         public async Task LoadDataAsync()

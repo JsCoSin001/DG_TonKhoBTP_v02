@@ -428,11 +428,6 @@ namespace DG_TonKhoBTP_v02
 
         private async void setiingToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            //Setting settingForm = new Setting();
-            //settingForm.StartPosition = FormStartPosition.CenterParent;
-            //settingForm.ShowDialog();
-
-
             Setting settingForm = new Setting();
             settingForm.StartPosition = FormStartPosition.CenterParent;
 

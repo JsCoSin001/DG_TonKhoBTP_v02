@@ -59,6 +59,7 @@ namespace DG_TonKhoBTP_v02.Models
     public class ConfigDB
     {
         public int ID { get; set; } = 1;
+        public string Author { get; set; }
         public bool Active { get; set; }
         public string Message { get; set; }
     }

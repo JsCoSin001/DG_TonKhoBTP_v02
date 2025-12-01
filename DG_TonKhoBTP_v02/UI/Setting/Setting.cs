@@ -38,6 +38,7 @@ namespace DG_TonKhoBTP_v02.UI.Setting
             {
                 ConfigDB config = DatabaseHelper.GetConfig();
                 cbxActive.SelectedIndex = config.Active ? 1 : 0;
+                tbxNguoiThucHien.Text = config.Author.ToString();
                 rtbMessage.Text = config.Message;
                 lblThongBao.Visible = config.Active;
             }
@@ -71,6 +72,9 @@ namespace DG_TonKhoBTP_v02.UI.Setting
         {
             string pass = tbQuyenUser.Text.Trim();
             Helper.Helper.UpdatePassApp(pass);
+
+            MessageBox.Show("Ứng dụng sẽ được khởi động lại để áp dụng thay đổi.", "THÔNG BÁO");
+            Application.Restart();
         }
 
         private void btnLuuPrinter_Click(object sender, EventArgs e)
@@ -94,6 +98,7 @@ namespace DG_TonKhoBTP_v02.UI.Setting
         private void cbxActive_SelectedIndexChanged(object sender, EventArgs e)
         {
             lblThongBao.Visible = cbxActive.SelectedIndex == 1;
+            tbxNguoiThucHien.Text = "";
         }
 
         private void btnLuu_Click(object sender, EventArgs e)
@@ -101,10 +106,22 @@ namespace DG_TonKhoBTP_v02.UI.Setting
             if (!Helper.Helper.kiemTraPhanQuyen(_quyenMaster)) return;
 
             string rtbMsg = rtbMessage.Text.Trim();
-            if (rtbMsg.Length == 0 && cbxActive.SelectedIndex == 1)
+
+            if (tbxNguoiThucHien.Text.Trim() == "")
             {
                 DialogResult result = MessageBox.Show(
-                    "LỜI NHẮC KHÔNG ĐƯỢC BỎ TRỐNG!",
+                    "NGƯỜI THỰC HIỆN KHÔNG ĐƯỢC BỎ TRỐNG.",
+                    "CẢNH BÁO",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning
+                );
+                return;
+            }
+
+            if (cbxActive.SelectedIndex == 1 && rtbMsg.Length == 0)
+            {
+                DialogResult result = MessageBox.Show(
+                    "LỜI NHẮC ĐANG BỊ BỎ TRỐNG.",
                     "CẢNH BÁO",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Warning
@@ -115,6 +132,7 @@ namespace DG_TonKhoBTP_v02.UI.Setting
             ConfigDB config = new ConfigDB
             {
                 Active = cbxActive.SelectedIndex == 1,
+                Author = tbxNguoiThucHien.Text.Trim(),
                 Message = rtbMsg
             };
 

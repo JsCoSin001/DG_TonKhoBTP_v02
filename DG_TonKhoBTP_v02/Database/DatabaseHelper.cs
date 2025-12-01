@@ -301,7 +301,7 @@ namespace DG_TonKhoBTP_v02.Database
             {
                 conn.Open();
 
-                string sql = "SELECT Active, Message FROM ConfigDB LIMIT 1";
+                string sql = "SELECT Active,Author, Message FROM ConfigDB LIMIT 1";
 
                 using (var cmd = new SQLiteCommand(sql, conn))
                 using (var reader = cmd.ExecuteReader())
@@ -311,7 +311,8 @@ namespace DG_TonKhoBTP_v02.Database
                         return new ConfigDB
                         {
                             Active = reader.IsDBNull(0) ? false : reader.GetBoolean(0),
-                            Message = reader.IsDBNull(1) ? null : reader.GetString(1)
+                            Author = reader.IsDBNull(1) ? null : reader.GetString(1),
+                            Message = reader.IsDBNull(2) ? null : reader.GetString(2)
                         };
                     }
                 }
@@ -1227,7 +1228,7 @@ namespace DG_TonKhoBTP_v02.Database
         #region setup config
         public static void UpdateConfig(ConfigDB config)
         {
-            string query = "UPDATE ConfigDB SET Active = @active, Message = @message WHERE ID = @id";
+            string query = "UPDATE ConfigDB SET Active = @active, Author = @author, Message = @message WHERE ID = @id";
             string mess = "CẬP NHẬT THÀNH CÔNG";
             try
             {
@@ -1238,6 +1239,7 @@ namespace DG_TonKhoBTP_v02.Database
                     using (SQLiteCommand cmd = new SQLiteCommand(query, conn))
                     {
                         cmd.Parameters.AddWithValue("@active", config.Active);
+                        cmd.Parameters.AddWithValue("@author", config.Author);
                         cmd.Parameters.AddWithValue("@message", config.Message);
                         cmd.Parameters.AddWithValue("@id", config.ID);
 

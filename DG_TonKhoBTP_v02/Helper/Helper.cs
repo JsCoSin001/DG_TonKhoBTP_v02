@@ -759,11 +759,6 @@ namespace DG_TonKhoBTP_v02.Helper
                 Properties.Settings.Default.UserPass = tb;
 
             Properties.Settings.Default.Save();
-            // Khởi động lại ứng dụng
-            Application.Restart();
-
-            // Thoát ứng dụng hiện tại
-            Environment.Exit(0);
         }
 
         public static void LoadPrinters(ComboBox comboBox)

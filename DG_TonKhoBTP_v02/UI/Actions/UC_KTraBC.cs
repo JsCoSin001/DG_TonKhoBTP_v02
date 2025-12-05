@@ -31,7 +31,7 @@ namespace DG_TonKhoBTP_v02.UI.Actions
             cbxCa.DataSource = new List<string> { "1", "2", "3" };
         }
 
-        private void btnTimKiem_Click(object sender, EventArgs e)
+        private async void btnTimKiem_Click(object sender, EventArgs e)
         {
             if (dgKetQua.Columns.Contains("colCheck"))
                 dgKetQua.Columns.Remove("colCheck");
@@ -43,74 +43,113 @@ namespace DG_TonKhoBTP_v02.UI.Actions
             DateTime ngay = dtNgay.Value;
             int ca = int.Parse(cbxCa.SelectedItem.ToString());
 
-            DataTable dt = DatabaseHelper.GetDataByCongDoan(ngay, congDoan, ca, nguoiKT);
+            btnTimKiem.Enabled = false;
 
-            if (dt == null || dt.Rows.Count == 0)
+            try
             {
-                MessageBox.Show("KHÔNG TÌM THẤY DỮ LIỆU PHÙ HỢP.", "THÔNG BÁO", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
+                // Truy vấn dữ liệu với waiting form
+                DataTable dt = await WaitingHelper.RunWithWaiting(
+                    async () => await Task.Run(() => DatabaseHelper.GetDataByCongDoan(ngay, congDoan, ca, nguoiKT)),
+                    "ĐANG TÌM KIẾM DỮ LIỆU..."
+                );
+
+                // Kiểm tra kết quả sau khi waiting form đóng
+                if (dt == null || dt.Rows.Count == 0)
+                {
+                    MessageBox.Show("KHÔNG TÌM THẤY DỮ LIỆU PHÙ HỢP.", "THÔNG BÁO",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
+
+                // Hiển thị dữ liệu
+                dgKetQua.DataSource = dt;
+
+                // Thêm cột checkbox nếu chưa có
+                if (!dgKetQua.Columns.Contains("colCheck"))
+                {
+                    DataGridViewCheckBoxColumn chk = new DataGridViewCheckBoxColumn();
+                    chk.HeaderText = "Đã Kiểm Tra";
+                    chk.Name = "colCheck";
+                    dgKetQua.Columns.Insert(0, chk);
+                }
+
+                foreach (DataGridViewColumn col in dgKetQua.Columns)
+                {
+                    if (col.Name == "colCheck")
+                        col.ReadOnly = false;
+                    else
+                        col.ReadOnly = true;
+                }
             }
-
-
-            dgKetQua.DataSource = dt;
-
-            // Thêm cột checkbox nếu chưa có
-            if (!dgKetQua.Columns.Contains("colCheck"))
+            catch (Exception ex)
             {
-                DataGridViewCheckBoxColumn chk = new DataGridViewCheckBoxColumn();
-                chk.HeaderText = "Đã Kiểm Tra";
-                chk.Name = "colCheck";
-                dgKetQua.Columns.Insert(0, chk);
+                MessageBox.Show($"Có lỗi xảy ra: {ex.Message}", "LỖI",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-
-            foreach (DataGridViewColumn col in dgKetQua.Columns)
+            finally
             {
-                if (col.Name == "colCheck")
-                    col.ReadOnly = false;
-                else
-                    col.ReadOnly = true;
+                btnTimKiem.Enabled = true;
             }
         }
 
-        private void btnChecked_Click(object sender, EventArgs e)
+        private async void btnChecked_Click(object sender, EventArgs e)
         {
             string nguoiKT = tbNguoiKiemTra.Text.Trim();
 
-            // check nguoi kiem tra empty
+            // Kiểm tra người kiểm tra
             if (string.IsNullOrEmpty(nguoiKT))
             {
-                MessageBox.Show("VUI LÒNG NHẬP NGƯỜI KIỂM TRA.", "THÔNG BÁO", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("VUI LÒNG NHẬP NGƯỜI KIỂM TRA.", "THÔNG BÁO",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
+            // Thu thập danh sách STT được chọn
             HashSet<int> listStt = new HashSet<int>();
-
             foreach (DataGridViewRow row in dgKetQua.Rows)
             {
                 bool isChecked = row.Cells["colCheck"].Value != null
                                  && Convert.ToBoolean(row.Cells["colCheck"].Value);
-
                 if (isChecked)
                 {
                     int stt = Convert.ToInt32(row.Cells["stt"].Value);
-                    listStt.Add(stt);   // HashSet tự loại bỏ giá trị trùng
+                    listStt.Add(stt);
                 }
             }
 
-            // kiểm tra danh sách rỗng
+            // Kiểm tra danh sách rỗng
             if (listStt.Count == 0)
             {
-                MessageBox.Show("CHƯA THẤY NỘI DUNG NÀO ĐƯỢC CHỌN.", "THÔNG BÁO", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("CHƯA THẤY NỘI DUNG NÀO ĐƯỢC CHỌN.", "THÔNG BÁO",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            bool flg = DatabaseHelper.UpdateNguoiKiemTra(listStt.ToList(), nguoiKT);
+            btnChecked.Enabled = false;
 
-            string message = "THAO TÁC";
-            message += flg ? " THÀNH CÔNG." : " THẤT BẠI";
+            try
+            {
+                // Cập nhật với waiting form
+                bool flg = await WaitingHelper.RunWithWaiting(
+                    async () => await Task.Run(() => DatabaseHelper.UpdateNguoiKiemTra(listStt.ToList(), nguoiKT)),
+                    "ĐANG CẬP NHẬT NGƯỜI KIỂM TRA..."
+                );
 
-            MessageBox.Show(message, "THÔNG BÁO", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
+                // Hiển thị kết quả sau khi waiting form đóng
+                string message = flg ? "THAO TÁC THÀNH CÔNG." : "THAO TÁC THẤT BẠI.";
+                MessageBox.Show(message, "THÔNG BÁO",
+                    MessageBoxButtons.OK,
+                    flg ? MessageBoxIcon.Information : MessageBoxIcon.Error);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Có lỗi xảy ra: {ex.Message}", "LỖI",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                btnChecked.Enabled = true;
+            }
         }
 
         private void cbxCheckAll_CheckedChanged(object sender, EventArgs e)

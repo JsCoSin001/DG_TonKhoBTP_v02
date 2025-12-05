@@ -156,10 +156,20 @@ namespace DG_TonKhoBTP_v02.UI.Setting
             {
                 Active = rdoHoatDong.Checked,
                 Author = tbxNguoiThucHien.Text.Trim(),
-                Message = rtbMsg
+                Message = rtbMsg,
+                Ngay = DateTime.Now.ToString("yyyy/MM/dd HH:mm")
             };
 
-            DatabaseHelper.UpdateConfig(config);
+            bool flg = DatabaseHelper.InsertConfig(config);
+            string ms = "THAO TÁC THẤT BẠI.";
+
+            if (flg)
+            {
+                ms =  "THAO TÁC THÀNH CÔNG";
+                tbxNguoiThucHien.Text = "";
+            }
+
+            MessageBox.Show(ms, "THÔNG BÁO");
         }
 
         private void rdoHoatDong_CheckedChanged(object sender, EventArgs e)

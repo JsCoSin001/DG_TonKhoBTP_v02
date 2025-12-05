@@ -173,6 +173,9 @@
     <Compile Include="UI\Actions\UC_TruyVetDuLieu.Designer.cs">
       <DependentUpon>UC_TruyVetDuLieu.cs</DependentUpon>
     </Compile>
+    <Compile Include="UI\CustomComponent\CustomButton.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="UI\Helper\FrmWaiting.cs">
       <SubType>Form</SubType>
     </Compile>

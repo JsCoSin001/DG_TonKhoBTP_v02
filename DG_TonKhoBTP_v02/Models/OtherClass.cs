@@ -62,6 +62,7 @@ namespace DG_TonKhoBTP_v02.Models
         public string Author { get; set; }
         public bool Active { get; set; }
         public string Message { get; set; }
+        public string Ngay { get; set; }
     }
 
 

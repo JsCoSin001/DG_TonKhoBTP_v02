@@ -22,7 +22,6 @@ namespace DG_TonKhoBTP_v02.UI
 
         private CancellationTokenSource _searchCts;
 
-        string table = "Ma";
         public UC_CapNhatSP()
         {
             InitializeComponent();
@@ -37,7 +36,7 @@ namespace DG_TonKhoBTP_v02.UI
             {
                 if (kieuSP.SelectedItem == null)
                 {
-                    MessageBox.Show("KIỂU SẢN PHẨM KHÔNG HỢP LỆ.", "Lỗi",
+                    MessageBox.Show("KIỂU SẢN PHẨM KHÔNG HỢP LỆ.", "LỖI",
                         MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
@@ -96,7 +95,7 @@ namespace DG_TonKhoBTP_v02.UI
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Đã xảy ra lỗi: {ex.Message}", "Lỗi",
+                MessageBox.Show($"Đã xảy ra lỗi: {ex.Message}".ToUpper(), "LỖI",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally

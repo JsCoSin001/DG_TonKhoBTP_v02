@@ -12,8 +12,10 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
+using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace DG_TonKhoBTP_v02
@@ -83,145 +85,629 @@ namespace DG_TonKhoBTP_v02
         #endregion
 
         #region Hiển thị UI theo công đoạn
+
         private void btnKeoRut_Click(object sender, EventArgs e)
         {
-            if (Helper.Helper.KiemTraEmpty(_URL)) return;
+            if (Helper.Helper.KiemTraEmpty(_URL))
+                return;
 
-            CongDoan thongTinCD = ThongTinChungCongDoan.KeoRut;
-            List<ColumnDefinition> columns = thongTinCD.Columns;
+            // Đổi màu nút đang chọn (tái sử dụng được cho nút khác)
+            HighlightMenuButton((Button)sender);
 
-            var ucSanPham = new UC_TTSanPham(
-                new UC_CDKeoRut()
-            );            
+            btnKeoRut.Enabled = false;
 
-            Panel pnBottom = UI_BottomPanel(columns, ucSanPham, thongTinCD, rawMaterial: true);
+            using (var waiting = new FrmWaiting("ĐANG KHỞI TẠO GIAO DIỆN ..."))
+            {
+                try
+                {
+                    // 1. Hiển thị form chờ
+                    waiting.TopMost = true;
+                    waiting.StartPosition = FormStartPosition.CenterScreen;
+                    waiting.Show();
+                    waiting.Refresh();
+                    Application.DoEvents(); // giúp FrmWaiting kịp vẽ
 
-            this.ShowUI(thongTinCD, pnBottom);
+                    // 2. Tạm dừng layout + ẩn vùng hiển thị chính để tránh giật
+                    pnShow.SuspendLayout();
+                    pnShow.Visible = false;
+
+                    // 3. Tạo toàn bộ UI kéo rút
+                    CongDoan thongTinCD = ThongTinChungCongDoan.KeoRut;
+                    List<ColumnDefinition> columns = thongTinCD.Columns;
+
+                    var ucSanPham = new UC_TTSanPham(new UC_CDKeoRut());
+
+                    Panel pnBottom = UI_BottomPanel(columns, ucSanPham, thongTinCD, rawMaterial: true);
+
+                    // Hàm ShowUI của bạn
+                    ShowUI(thongTinCD, pnBottom);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(
+                        "Lỗi khởi tạo giao diện kéo rút: " + ex.Message,
+                        "Lỗi",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error);
+                }
+                finally
+                {
+                    // 4. Hiện lại UI + resume layout
+                    try
+                    {
+                        pnShow.Visible = true;
+                        pnShow.ResumeLayout(true);
+                    }
+                    catch { }
+
+                    // 5. FrmWaiting sẽ tự Dispose nhờ using, chỉ cần đảm bảo nó đã đóng
+                    try
+                    {
+                        if (waiting.Visible)
+                            waiting.Close();
+                    }
+                    catch { }
+
+                    btnKeoRut.Enabled = true;
+                }
+            }
         }
+
 
         private void btnBenRuot_Click(object sender, EventArgs e)
         {
-            if (Helper.Helper.KiemTraEmpty(_URL)) return;
+            if (Helper.Helper.KiemTraEmpty(_URL))
+                return;
 
-            CongDoan thongTinCD = ThongTinChungCongDoan.BenRuot;
+            HighlightMenuButton((Button)sender);
+            btnBenRuot.Enabled = false;
 
-            List<ColumnDefinition> columns = thongTinCD.Columns;
+            using (var waiting = new FrmWaiting("ĐANG KHỞI TẠO GIAO DIỆN ..."))
+            {
+                try
+                {
+                    waiting.TopMost = true;
+                    waiting.StartPosition = FormStartPosition.CenterScreen;
+                    waiting.Show();
+                    waiting.Refresh();
+                    Application.DoEvents();
 
-            var ucSanPham = new UC_TTSanPham(
-                new UC_CDBenRuot()
-            );
+                    pnShow.SuspendLayout();
+                    pnShow.Visible = false;
 
-            Panel pnBottom = UI_BottomPanel(columns, ucSanPham, thongTinCD);
+                    CongDoan thongTinCD = ThongTinChungCongDoan.BenRuot;
+                    List<ColumnDefinition> columns = thongTinCD.Columns;
+                    var ucSanPham = new UC_TTSanPham(new UC_CDBenRuot());
+                    Panel pnBottom = UI_BottomPanel(columns, ucSanPham, thongTinCD);
 
-            this.ShowUI(thongTinCD, pnBottom);
+                    ShowUI(thongTinCD, pnBottom);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(
+                        "Lỗi khởi tạo giao diện bẻn ruột: " + ex.Message,
+                        "Lỗi",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error);
+                }
+                finally
+                {
+                    try
+                    {
+                        pnShow.Visible = true;
+                        pnShow.ResumeLayout(true);
+                    }
+                    catch { }
+
+                    try
+                    {
+                        if (waiting.Visible)
+                            waiting.Close();
+                    }
+                    catch { }
+
+                    btnBenRuot.Enabled = true;
+                }
+            }
         }
 
         private void btnGhepLoi_Click(object sender, EventArgs e)
         {
-            if (Helper.Helper.KiemTraEmpty(_URL)) return;
+            if (Helper.Helper.KiemTraEmpty(_URL))
+                return;
 
-            CongDoan thongTinCD = ThongTinChungCongDoan.GhepLoi;
+            HighlightMenuButton((Button)sender);
+            btnGhepLoi.Enabled = false;
 
-            List<ColumnDefinition> columns = thongTinCD.Columns;
+            using (var waiting = new FrmWaiting("ĐANG KHỞI TẠO GIAO DIỆN ..."))
+            {
+                try
+                {
+                    waiting.TopMost = true;
+                    waiting.StartPosition = FormStartPosition.CenterScreen;
+                    waiting.Show();
+                    waiting.Refresh();
+                    Application.DoEvents();
 
-            var ucSanPham = new UC_TTSanPham(
-                new UC_CDGhepLoiQB()
-            );
+                    pnShow.SuspendLayout();
+                    pnShow.Visible = false;
 
-            Panel pnBottom = UI_BottomPanel(columns, ucSanPham, thongTinCD);
+                    CongDoan thongTinCD = ThongTinChungCongDoan.GhepLoi;
+                    List<ColumnDefinition> columns = thongTinCD.Columns;
+                    var ucSanPham = new UC_TTSanPham(new UC_CDGhepLoiQB());
+                    Panel pnBottom = UI_BottomPanel(columns, ucSanPham, thongTinCD);
 
-            this.ShowUI(thongTinCD, pnBottom);
+                    ShowUI(thongTinCD, pnBottom);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(
+                        "Lỗi khởi tạo giao diện ghép lõi: " + ex.Message,
+                        "Lỗi",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error);
+                }
+                finally
+                {
+                    try
+                    {
+                        pnShow.Visible = true;
+                        pnShow.ResumeLayout(true);
+                    }
+                    catch { }
+
+                    try
+                    {
+                        if (waiting.Visible)
+                            waiting.Close();
+                    }
+                    catch { }
+
+                    btnGhepLoi.Enabled = true;
+                }
+            }
         }
 
         private void btnQuanBang_Click(object sender, EventArgs e)
         {
-            if (Helper.Helper.KiemTraEmpty(_URL)) return;
+            if (Helper.Helper.KiemTraEmpty(_URL))
+                return;
 
-            CongDoan thongTinCD = ThongTinChungCongDoan.QuanBang;
+            HighlightMenuButton((Button)sender);
+            btnQuanBang.Enabled = false;
 
-            List<ColumnDefinition> columns = thongTinCD.Columns;
+            using (var waiting = new FrmWaiting("ĐANG KHỞI TẠO GIAO DIỆN ..."))
+            {
+                try
+                {
+                    waiting.TopMost = true;
+                    waiting.StartPosition = FormStartPosition.CenterScreen;
+                    waiting.Show();
+                    waiting.Refresh();
+                    Application.DoEvents();
 
-            var ucSanPham = new UC_TTSanPham(
-                new UC_CDGhepLoiQB()
-            );
+                    pnShow.SuspendLayout();
+                    pnShow.Visible = false;
 
-            Panel pnBottom = UI_BottomPanel(columns, ucSanPham, thongTinCD);
+                    CongDoan thongTinCD = ThongTinChungCongDoan.QuanBang;
+                    List<ColumnDefinition> columns = thongTinCD.Columns;
+                    var ucSanPham = new UC_TTSanPham(new UC_CDGhepLoiQB());
+                    Panel pnBottom = UI_BottomPanel(columns, ucSanPham, thongTinCD);
 
-            this.ShowUI(thongTinCD, pnBottom);
+                    ShowUI(thongTinCD, pnBottom);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(
+                        "Lỗi khởi tạo giao diện quấn băng: " + ex.Message,
+                        "Lỗi",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error);
+                }
+                finally
+                {
+                    try
+                    {
+                        pnShow.Visible = true;
+                        pnShow.ResumeLayout(true);
+                    }
+                    catch { }
+
+                    try
+                    {
+                        if (waiting.Visible)
+                            waiting.Close();
+                    }
+                    catch { }
+
+                    btnQuanBang.Enabled = true;
+                }
+            }
         }
 
         private void btnMica_Click(object sender, EventArgs e)
         {
-            if (Helper.Helper.KiemTraEmpty(_URL)) return;
+            if (Helper.Helper.KiemTraEmpty(_URL))
+                return;
 
-            CongDoan thongTinCD = ThongTinChungCongDoan.Mica;
+            HighlightMenuButton((Button)sender);
+            btnMica.Enabled = false;
 
-            List<ColumnDefinition> columns = thongTinCD.Columns;
+            using (var waiting = new FrmWaiting("ĐANG KHỞI TẠO GIAO DIỆN ..."))
+            {
+                try
+                {
+                    waiting.TopMost = true;
+                    waiting.StartPosition = FormStartPosition.CenterScreen;
+                    waiting.Show();
+                    waiting.Refresh();
+                    Application.DoEvents();
 
-            var ucSanPham = new UC_TTSanPham(
-                new UC_CDGhepLoiQB()
-            );
+                    pnShow.SuspendLayout();
+                    pnShow.Visible = false;
 
-            Panel pnBottom = UI_BottomPanel(columns, ucSanPham, thongTinCD);
+                    CongDoan thongTinCD = ThongTinChungCongDoan.Mica;
+                    List<ColumnDefinition> columns = thongTinCD.Columns;
+                    var ucSanPham = new UC_TTSanPham(new UC_CDGhepLoiQB());
+                    Panel pnBottom = UI_BottomPanel(columns, ucSanPham, thongTinCD);
 
-            this.ShowUI(thongTinCD, pnBottom);
+                    ShowUI(thongTinCD, pnBottom);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(
+                        "Lỗi khởi tạo giao diện mica: " + ex.Message,
+                        "Lỗi",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error);
+                }
+                finally
+                {
+                    try
+                    {
+                        pnShow.Visible = true;
+                        pnShow.ResumeLayout(true);
+                    }
+                    catch { }
+
+                    try
+                    {
+                        if (waiting.Visible)
+                            waiting.Close();
+                    }
+                    catch { }
+
+                    btnMica.Enabled = true;
+                }
+            }
         }
 
         private void btnBocLot_Click(object sender, EventArgs e)
         {
-            if (Helper.Helper.KiemTraEmpty(_URL)) return;
-            CongDoan thongTinCD = ThongTinChungCongDoan.BocLot;
+            if (Helper.Helper.KiemTraEmpty(_URL))
+                return;
 
-            List<ColumnDefinition> columns = thongTinCD.Columns;
+            HighlightMenuButton((Button)sender);
+            btnBocLot.Enabled = false;
 
-            var ucSanPham = new UC_TTSanPham(
-                new UC_CDBocLot(),
-                new UC_DieuKienBoc(),
-                new UC_CaiDatMay()
-            );
+            using (var waiting = new FrmWaiting("ĐANG KHỞI TẠO GIAO DIỆN ..."))
+            {
+                try
+                {
+                    waiting.TopMost = true;
+                    waiting.StartPosition = FormStartPosition.CenterScreen;
+                    waiting.Show();
+                    waiting.Refresh();
+                    Application.DoEvents();
 
-            Panel pnBottom = UI_BottomPanel(columns, ucSanPham, thongTinCD);
+                    pnShow.SuspendLayout();
+                    pnShow.Visible = false;
 
-            this.ShowUI(thongTinCD, pnBottom);
-            
+                    CongDoan thongTinCD = ThongTinChungCongDoan.BocLot;
+                    List<ColumnDefinition> columns = thongTinCD.Columns;
+                    var ucSanPham = new UC_TTSanPham(
+                        new UC_CDBocLot(),
+                        new UC_DieuKienBoc(),
+                        new UC_CaiDatMay()
+                    );
+                    Panel pnBottom = UI_BottomPanel(columns, ucSanPham, thongTinCD);
+
+                    ShowUI(thongTinCD, pnBottom);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(
+                        "Lỗi khởi tạo giao diện bóc lót: " + ex.Message,
+                        "Lỗi",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error);
+                }
+                finally
+                {
+                    try
+                    {
+                        pnShow.Visible = true;
+                        pnShow.ResumeLayout(true);
+                    }
+                    catch { }
+
+                    try
+                    {
+                        if (waiting.Visible)
+                            waiting.Close();
+                    }
+                    catch { }
+
+                    btnBocLot.Enabled = true;
+                }
+            }
         }
 
         private void btnBocMach_Click(object sender, EventArgs e)
         {
-            if (Helper.Helper.KiemTraEmpty(_URL)) return;
+            if (Helper.Helper.KiemTraEmpty(_URL))
+                return;
 
-            CongDoan thongTinCD = ThongTinChungCongDoan.BocMach;
+            HighlightMenuButton((Button)sender);
+            btnBocMach.Enabled = false;
 
-            List<ColumnDefinition> columns = thongTinCD.Columns;
+            using (var waiting = new FrmWaiting("ĐANG KHỞI TẠO GIAO DIỆN ..."))
+            {
+                try
+                {
+                    waiting.TopMost = true;
+                    waiting.StartPosition = FormStartPosition.CenterScreen;
+                    waiting.Show();
+                    waiting.Refresh();
+                    Application.DoEvents();
 
-            var ucSanPham = new UC_TTSanPham(
-                new UC_CDBocMach(),
-                new UC_DieuKienBoc(),
-                new UC_CaiDatMay()
-            );
+                    pnShow.SuspendLayout();
+                    pnShow.Visible = false;
 
-            Panel pnBottom = UI_BottomPanel(columns, ucSanPham, thongTinCD);
+                    CongDoan thongTinCD = ThongTinChungCongDoan.BocMach;
+                    List<ColumnDefinition> columns = thongTinCD.Columns;
+                    var ucSanPham = new UC_TTSanPham(
+                        new UC_CDBocMach(),
+                        new UC_DieuKienBoc(),
+                        new UC_CaiDatMay()
+                    );
+                    Panel pnBottom = UI_BottomPanel(columns, ucSanPham, thongTinCD);
 
-            this.ShowUI(thongTinCD, pnBottom);
+                    ShowUI(thongTinCD, pnBottom);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(
+                        "Lỗi khởi tạo giao diện bóc mạch: " + ex.Message,
+                        "Lỗi",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error);
+                }
+                finally
+                {
+                    try
+                    {
+                        pnShow.Visible = true;
+                        pnShow.ResumeLayout(true);
+                    }
+                    catch { }
+
+                    try
+                    {
+                        if (waiting.Visible)
+                            waiting.Close();
+                    }
+                    catch { }
+
+                    btnBocMach.Enabled = true;
+                }
+            }
         }
 
         private void btnBocVo_Click(object sender, EventArgs e)
         {
-            if (Helper.Helper.KiemTraEmpty(_URL)) return;
-            CongDoan thongTinCD = ThongTinChungCongDoan.BocVo;
+            if (Helper.Helper.KiemTraEmpty(_URL))
+                return;
 
-            List<ColumnDefinition> columns = thongTinCD.Columns;
+            HighlightMenuButton((Button)sender);
+            btnBocVo.Enabled = false;
 
-            var ucSanPham = new UC_TTSanPham(
-                new UC_CDBocVo(),
-                new UC_DieuKienBoc(),
-                new UC_CaiDatMay()
-            );
+            using (var waiting = new FrmWaiting("ĐANG KHỞI TẠO GIAO DIỆN ..."))
+            {
+                try
+                {
+                    waiting.TopMost = true;
+                    waiting.StartPosition = FormStartPosition.CenterScreen;
+                    waiting.Show();
+                    waiting.Refresh();
+                    Application.DoEvents();
 
-            Panel pnBottom = UI_BottomPanel(columns, ucSanPham, thongTinCD);
+                    pnShow.SuspendLayout();
+                    pnShow.Visible = false;
 
-            this.ShowUI(thongTinCD, pnBottom);
+                    CongDoan thongTinCD = ThongTinChungCongDoan.BocVo;
+                    List<ColumnDefinition> columns = thongTinCD.Columns;
+                    var ucSanPham = new UC_TTSanPham(
+                        new UC_CDBocVo(),
+                        new UC_DieuKienBoc(),
+                        new UC_CaiDatMay()
+                    );
+                    Panel pnBottom = UI_BottomPanel(columns, ucSanPham, thongTinCD);
+
+                    ShowUI(thongTinCD, pnBottom);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(
+                        "Lỗi khởi tạo giao diện bóc vỏ: " + ex.Message,
+                        "Lỗi",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error);
+                }
+                finally
+                {
+                    try
+                    {
+                        pnShow.Visible = true;
+                        pnShow.ResumeLayout(true);
+                    }
+                    catch { }
+
+                    try
+                    {
+                        if (waiting.Visible)
+                            waiting.Close();
+                    }
+                    catch { }
+
+                    btnBocVo.Enabled = true;
+                }
+            }
         }
+
+
+
+        //private void btnCapNhatMaHang_Click(object sender, EventArgs e)
+        //{
+        //    if (Helper.Helper.KiemTraEmpty(_URL)) return;
+        //    pnShow.Controls.Clear();
+        //    var uc = new UC_CapNhatSP
+        //    {
+        //        Dock = DockStyle.Fill
+        //    };
+
+        //    pnShow.Controls.Add(uc);
+        //}
+
+        private void btnCapNhatMaHang_Click(object sender, EventArgs e)
+        {
+            if (Helper.Helper.KiemTraEmpty(_URL))
+                return;
+
+            HighlightMenuButton((Button)sender);
+            btnCapNhatMaHang.Enabled = false;
+
+            using (var waiting = new FrmWaiting("ĐANG KHỞI TẠO GIAO DIỆN ..."))
+            {
+                try
+                {
+                    waiting.TopMost = true;
+                    waiting.StartPosition = FormStartPosition.CenterScreen;
+                    waiting.Show();
+                    waiting.Refresh();
+                    Application.DoEvents();
+
+                    pnShow.SuspendLayout();
+                    pnShow.Visible = false;
+
+                    pnShow.Controls.Clear();
+                    var uc = new UC_CapNhatSP
+                    {
+                        Dock = DockStyle.Fill
+                    };
+                    pnShow.Controls.Add(uc);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(
+                        "Lỗi khởi tạo giao diện cập nhật mã hàng: " + ex.Message,
+                        "Lỗi",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error);
+                }
+                finally
+                {
+                    try
+                    {
+                        pnShow.Visible = true;
+                        pnShow.ResumeLayout(true);
+                    }
+                    catch { }
+
+                    try
+                    {
+                        if (waiting.Visible)
+                            waiting.Close();
+                    }
+                    catch { }
+
+                    btnCapNhatMaHang.Enabled = true;
+                }
+            }
+        }
+
+        //private void btnBaoCaoTonKho_Click(object sender, EventArgs e)
+        //{
+        //    if (Helper.Helper.KiemTraEmpty(_URL)) return;
+
+        //    pnShow.Controls.Clear();
+        //    var uc = new UC_TonKho
+        //    {
+        //        Dock = DockStyle.Fill
+        //    };
+
+        //    pnShow.Controls.Add(uc);
+        //}
+
+        private void btnBaoCaoTonKho_Click(object sender, EventArgs e)
+        {
+            if (Helper.Helper.KiemTraEmpty(_URL))
+                return;
+
+            HighlightMenuButton((Button)sender);
+            btnBaoCaoTonKho.Enabled = false;
+
+            using (var waiting = new FrmWaiting("ĐANG KHỞI TẠO GIAO DIỆN ..."))
+            {
+                try
+                {
+                    waiting.TopMost = true;
+                    waiting.StartPosition = FormStartPosition.CenterScreen;
+                    waiting.Show();
+                    waiting.Refresh();
+                    Application.DoEvents();
+
+                    pnShow.SuspendLayout();
+                    pnShow.Visible = false;
+
+                    pnShow.Controls.Clear();
+                    var uc = new UC_TonKho
+                    {
+                        Dock = DockStyle.Fill
+                    };
+                    pnShow.Controls.Add(uc);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(
+                        "Lỗi khởi tạo giao diện báo cáo tồn kho: " + ex.Message,
+                        "Lỗi",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error);
+                }
+                finally
+                {
+                    try
+                    {
+                        pnShow.Visible = true;
+                        pnShow.ResumeLayout(true);
+                    }
+                    catch { }
+
+                    try
+                    {
+                        if (waiting.Visible)
+                            waiting.Close();
+                    }
+                    catch { }
+
+                    btnBaoCaoTonKho.Enabled = true;
+                }
+            }
+        }
+
+
+
         #endregion
 
         #region Tạo panel UI theo công đoạn
@@ -375,30 +861,6 @@ namespace DG_TonKhoBTP_v02
             return null;
         }
 
-        private void btnCapNhatMaHang_Click(object sender, EventArgs e)
-        {
-            if (Helper.Helper.KiemTraEmpty(_URL)) return;
-            pnShow.Controls.Clear();
-            var uc = new UC_CapNhatSP
-            {
-                Dock = DockStyle.Fill
-            };
-
-            pnShow.Controls.Add(uc);
-        }
-
-        private void btnBaoCaoTonKho_Click(object sender, EventArgs e)
-        {
-            if (Helper.Helper.KiemTraEmpty(_URL)) return;
-
-            pnShow.Controls.Clear();
-            var uc = new UC_TonKho
-            {
-                Dock = DockStyle.Fill
-            };
-
-            pnShow.Controls.Add(uc);
-        }
         #endregion
 
         #region Hiển thị Giao diện Main
@@ -411,18 +873,76 @@ namespace DG_TonKhoBTP_v02
         }
         #endregion
 
+        //private void btnTruyVetDL_Click(object sender, EventArgs e)
+        //{
+        //    if (Helper.Helper.KiemTraEmpty(_URL)) return;
+
+        //    pnShow.Controls.Clear();
+        //    var uc = new UC_TruyVetDuLieu
+        //    {
+        //        Dock = DockStyle.Fill
+        //    };
+
+        //    pnShow.Controls.Add(uc);
+        //}
+
         private void btnTruyVetDL_Click(object sender, EventArgs e)
         {
-            if (Helper.Helper.KiemTraEmpty(_URL)) return;
+            if (Helper.Helper.KiemTraEmpty(_URL))
+                return;
 
-            pnShow.Controls.Clear();
-            var uc = new UC_TruyVetDuLieu
+            HighlightMenuButton((Button)sender);
+            btnTruyVetDL.Enabled = false;
+
+            using (var waiting = new FrmWaiting("ĐANG KHỞI TẠO GIAO DIỆN ..."))
             {
-                Dock = DockStyle.Fill
-            };
+                try
+                {
+                    waiting.TopMost = true;
+                    waiting.StartPosition = FormStartPosition.CenterScreen;
+                    waiting.Show();
+                    waiting.Refresh();
+                    Application.DoEvents();
 
-            pnShow.Controls.Add(uc);
+                    pnShow.SuspendLayout();
+                    pnShow.Visible = false;
+
+                    pnShow.Controls.Clear();
+                    var uc = new UC_TruyVetDuLieu
+                    {
+                        Dock = DockStyle.Fill
+                    };
+                    pnShow.Controls.Add(uc);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(
+                        "Lỗi khởi tạo giao diện truy vết dữ liệu: " + ex.Message,
+                        "Lỗi",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error);
+                }
+                finally
+                {
+                    try
+                    {
+                        pnShow.Visible = true;
+                        pnShow.ResumeLayout(true);
+                    }
+                    catch { }
+
+                    try
+                    {
+                        if (waiting.Visible)
+                            waiting.Close();
+                    }
+                    catch { }
+
+                    btnTruyVetDL.Enabled = true;
+                }
+            }
         }
+
 
         private async void setiingToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -462,18 +982,96 @@ namespace DG_TonKhoBTP_v02
             ShowHomePage();
         }
 
+
         private void BtnKiemTraBc_Click(object sender, EventArgs e)
         {
+            if (Helper.Helper.KiemTraEmpty(_URL))
+                return;
 
-            if (Helper.Helper.KiemTraEmpty(_URL)) return;
+            HighlightMenuButton((Button)sender);
+            BtnKiemTraBc.Enabled = false;
 
-            pnShow.Controls.Clear();
-            var uc = new UC_KTraBC
+            using (var waiting = new FrmWaiting("ĐANG KHỞI TẠO GIAO DIỆN ..."))
             {
-                Dock = DockStyle.Fill
-            };
+                try
+                {
+                    waiting.TopMost = true;
+                    waiting.StartPosition = FormStartPosition.CenterScreen;
+                    waiting.Show();
+                    waiting.Refresh();
+                    Application.DoEvents();
 
-            pnShow.Controls.Add(uc);
+                    pnShow.SuspendLayout();
+                    pnShow.Visible = false;
+
+                    pnShow.Controls.Clear();
+                    var uc = new UC_KTraBC
+                    {
+                        Dock = DockStyle.Fill
+                    };
+                    pnShow.Controls.Add(uc);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(
+                        "Lỗi khởi tạo giao diện kiểm tra BC: " + ex.Message,
+                        "Lỗi",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error);
+                }
+                finally
+                {
+                    try
+                    {
+                        pnShow.Visible = true;
+                        pnShow.ResumeLayout(true);
+                    }
+                    catch { }
+
+                    try
+                    {
+                        if (waiting.Visible)
+                            waiting.Close();
+                    }
+                    catch { }
+
+                    BtnKiemTraBc.Enabled = true;
+                }
+            }
         }
+
+        #region Tô màu nút
+
+        private void ResetMenuButtons(Control container)
+        {
+            foreach (Control ctl in container.Controls)
+            {
+                if (ctl is Button btn)
+                {
+                    btn.BackColor = SystemColors.Control;
+                    btn.ForeColor = SystemColors.ControlText;
+                }
+
+                // Nếu control hiện tại còn chứa controls con → đệ quy tiếp
+                if (ctl.HasChildren)
+                {
+                    ResetMenuButtons(ctl);
+                }
+            }
+        }
+
+        private void SetActiveButton(Button btn)
+        {
+            btn.BackColor = Color.Gainsboro;  // màu nút được chọn
+            btn.ForeColor = Color.Black;
+        }
+
+        private void HighlightMenuButton(Button activeButton)
+        {
+            ResetMenuButtons(fpnButton);
+            SetActiveButton(activeButton);
+        }
+
+        #endregion
     }
 }

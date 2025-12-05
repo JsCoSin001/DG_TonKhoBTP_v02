@@ -301,7 +301,7 @@ namespace DG_TonKhoBTP_v02.Database
             {
                 conn.Open();
 
-                string sql = "SELECT Active,Author, Message FROM ConfigDB LIMIT 1";
+                string sql = "SELECT Active,Author, Message FROM ConfigDB ORDER BY ID DESC  LIMIT 1";
 
                 using (var cmd = new SQLiteCommand(sql, conn))
                 using (var reader = cmd.ExecuteReader())
@@ -1233,10 +1233,10 @@ namespace DG_TonKhoBTP_v02.Database
 
 
         #region setup config
-        public static void UpdateConfig(ConfigDB config)
+        public static bool InsertConfig(ConfigDB config)
         {
-            string query = "UPDATE ConfigDB SET Active = @active, Author = @author, Message = @message WHERE ID = @id";
-            string mess = "CẬP NHẬT THÀNH CÔNG";
+            string query = "INSERT INTO ConfigDB (Active, Author, Message, Ngay) VALUES (@active, @author, @message, @ngay)";
+            bool flg = false;
             try
             {
                 using (SQLiteConnection conn = new SQLiteConnection(_connStr))
@@ -1248,21 +1248,18 @@ namespace DG_TonKhoBTP_v02.Database
                         cmd.Parameters.AddWithValue("@active", config.Active);
                         cmd.Parameters.AddWithValue("@author", config.Author);
                         cmd.Parameters.AddWithValue("@message", config.Message);
-                        cmd.Parameters.AddWithValue("@id", config.ID);
+                        cmd.Parameters.AddWithValue("@ngay", config.Ngay);
 
                         cmd.ExecuteNonQuery();
                     }
 
                     conn.Close();
+                    flg = true;
                 }
-
             }
-            catch (Exception)
-            {
-                mess = "CẬP NHẬT THẤT BẠI";
-            }
+            catch (Exception) { }
 
-            MessageBox.Show(mess, "THÔNG BÁO", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            return flg;
 
         }
         #endregion

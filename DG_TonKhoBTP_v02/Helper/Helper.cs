@@ -143,13 +143,7 @@ namespace DG_TonKhoBTP_v02.Helper
                 )
             ";
         }
-
-        public static string TaoKhoangTrong(int tongKhoangTrong, string noiDung)
-        {
-            return new string(' ', tongKhoangTrong - noiDung.Length);
-
-        }
-
+         
         public static string GetNgayHienTai()
         {
             DateTime now = DateTime.Now;

@@ -55,22 +55,5 @@ namespace DG_TonKhoBTP_v02.UI
                 btnShowBaoCao.Enabled = true;
             }
         }
-
-        //private void btnShowBaoCao_Click(object sender, EventArgs e)
-        //{
-        //    DateTime selected = ngayBC.Value;
-        //    DataTable dt = DatabaseHelper.GetDataByMonth(selected, CongDoan);
-        //    // check if dt has rows
-        //    if (dt.Rows.Count == 0)
-        //    {
-        //        MessageBox.Show("THÁNG " + selected.ToString("MM/yyyy") + " KHÔNG CÓ DỮ LIỆU!", "Thông báo",
-        //                        MessageBoxButtons.OK, MessageBoxIcon.Information);
-        //        return;
-        //    }
-
-        //    UC_MonthyReport fBaoCao = new UC_MonthyReport();
-        //    fBaoCao.LoadData(dt);
-        //    fBaoCao.ShowDialog();
-        //}
     }
 }

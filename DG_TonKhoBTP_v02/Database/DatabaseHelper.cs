@@ -3,6 +3,7 @@ using DG_TonKhoBTP_v02.Core;
 using DG_TonKhoBTP_v02.DL_Ben;
 using DG_TonKhoBTP_v02.Models;
 using DocumentFormat.OpenXml.Drawing;
+using DocumentFormat.OpenXml.Spreadsheet;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -293,7 +294,6 @@ namespace DG_TonKhoBTP_v02.Database
             return result;
         }
 
-
         public static ConfigDB GetConfig()
         {
 
@@ -328,6 +328,8 @@ namespace DG_TonKhoBTP_v02.Database
             if (listStt == null || listStt.Count == 0)
                 return false;
 
+            int rows = 0;
+
             try
             {
                 using (var con = new SQLiteConnection(_connStr))
@@ -359,17 +361,19 @@ namespace DG_TonKhoBTP_v02.Database
                                 FROM TTThanhPham
                                 WHERE id IN ({string.Join(",", paramNames)})
                             );
-                            ";
+                        ";
+
+                        rows = cmd.ExecuteNonQuery();
                     }
                 }
-                return true;
+
+                return rows > 0;
             }
             catch (Exception ex)
             {
                return false;
             }
         }
-
 
         private static void UpdateKL_CD_TTThanhPham(SQLiteConnection conn, SQLiteTransaction tx, List<TTNVL> nvlList, long thongTinSpId)
         {
@@ -422,7 +426,11 @@ namespace DG_TonKhoBTP_v02.Database
                 // 3.1) Update Khối lượng sau, Chiều dài sau và thêm ID được update ở TTThanhPham 
                 UpdateKhoiLuongConLai_TTThanhPham(conn, tx, nvl, tpId);
 
-                // 4) CaiDatCDBoc
+                // 3.2) Dùng cho db v1
+                DatabasehelperVer01.UpdateTonKho_NVL_Lan2(nvl,tp.MaBin);
+
+
+                // 4) CaiDatCDBoc - Nếu có
                 if (caiDat != null) UpdateCaiDatCDBoc(conn, tx, tpId, caiDat);
 
                 // 5) Thêm chi tiết các công đoạn
@@ -452,9 +460,6 @@ namespace DG_TonKhoBTP_v02.Database
                     case CD_BocVo vo:
                         UpdateCDBocVo(conn, tx, tpId, vo);
                         break;
-
-
-
 
                     default:
                         throw new ArgumentException("Lỗi bất thường.");
@@ -895,8 +900,8 @@ namespace DG_TonKhoBTP_v02.Database
                 // 3.1) Update Khối lượng sau, Chiều dài sau và thêm ID được update ở TTThanhPham 
                 UpdateKL_CD_TTThanhPham(conn, tx, nvl, tpId);
 
-                // Dùng cho db v1
-                //DatabasehelperVer01.UpdateTonKho_NVL_Lan1(nvl);
+                // 3.2) Dùng cho db v1
+                DatabasehelperVer01.UpdateTonKho_NVL_Lan1(nvl);
 
                 // 4) CaiDatCDBoc (chỉ áp dụng cho nhóm bóc)
                 var congDoan = chiTietCD[0];
@@ -914,6 +919,8 @@ namespace DG_TonKhoBTP_v02.Database
                 {
                     case CD_KeoRut keo:
                         InsertCDKeoRut(conn, tx, tpId, keo);
+
+                        // Tạo mới dữ liệu cho db v1
                         insertVersion1(tp,caLam, nvl);
                         break;
 

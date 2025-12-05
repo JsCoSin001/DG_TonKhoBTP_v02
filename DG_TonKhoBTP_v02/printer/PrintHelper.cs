@@ -9,28 +9,61 @@ using System.Drawing.Printing;
 using System.Text;
 using System.Windows;
 using FontStyle = System.Drawing.FontStyle;
+using System.Management;   
+
 
 namespace DG_TonKhoBTP_v02.Printer
 {
     public class PrintHelper
     {
+
         public static void PrintLabel(PrinterModel printer)
         {
             string qrLabel = $"{printer.MaBin}_{printer.KhoiLuong}kg_{printer.ChieuDai}m";
 
-            Bitmap image = ConvertToImage(printer, qrLabel);
+            using (Bitmap image = ConvertToImage(printer, qrLabel))
+            {
+                try
+                {
+                    PrintImage(image);
+                }
+                catch (Exception ex)
+                {
+                    // Không MessageBox ở đây, chỉ ném lỗi ra ngoài
+                    throw new Exception($"CHƯA IN ĐƯỢC TEM: {printer.MaBin}. {ex.Message}", ex);
+                }
+            }
+        }
 
-            // In ảnh
+        public static bool IsPrinterReady(string printerName)
+        {
             try
             {
-                PrintImage(image);
+                string query = $"SELECT * FROM Win32_Printer WHERE Name = '{printerName.Replace("\\", "\\\\")}'";
+
+                using (var searcher = new ManagementObjectSearcher(query))
+                {
+                    foreach (ManagementObject printer in searcher.Get())
+                    {
+                        bool workOffline = printer["WorkOffline"] != null && (bool)printer["WorkOffline"];
+
+                        // 3 = Idle, 4 = Printing, 5 = Warming Up => coi là OK
+                        ushort status = 0;
+                        if (printer["PrinterStatus"] != null)
+                            status = (ushort)printer["PrinterStatus"];
+
+                        bool statusOk = (status == 3 || status == 4 || status == 5);
+
+                        return !workOffline && statusOk;
+                    }
+                }
             }
-            catch (Exception)
+            catch
             {
-                MessageBox.Show("CHƯA IN ĐƯỢC TEMP: " + printer.MaBin, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+                return false;
             }
 
-            image.Dispose();
+            return false;
         }
 
         public static bool PrintImage(Bitmap image)
@@ -46,25 +79,23 @@ namespace DG_TonKhoBTP_v02.Printer
                     if (!pd.PrinterSettings.IsValid)
                         throw new Exception($"Máy in '{PRINTER_NAME}' không tồn tại");
 
-                    // Lấy DPI từ ảnh (đã set trong ConvertToImage)
+                    if (!IsPrinterReady(PRINTER_NAME))
+                        throw new Exception($"máy in '{PRINTER_NAME}' không sẵn sàng.");
+
                     double dpiX = image.HorizontalResolution;
                     double dpiY = image.VerticalResolution;
 
-                    // 1 inch = 25.4 mm → quy đổi pixel → mm
                     double labelWidthMm = image.Width / dpiX * 25.4;
                     double labelHeightMm = image.Height / dpiY * 25.4;
 
-                    // Convert mm → hundredths of inch (Hi)
                     int paperWidthHi = LabelConfig.MmToHi(labelWidthMm);
                     int paperHeightHi = LabelConfig.MmToHi(labelHeightMm);
 
-                    // Đặt kích thước giấy đúng 100% theo ảnh
                     pd.DefaultPageSettings.PaperSize = new PaperSize("Label", paperWidthHi, paperHeightHi);
                     pd.DefaultPageSettings.Margins = new Margins(0, 0, 0, 0);
 
                     pd.PrintPage += (sender, e) =>
                     {
-                        // In full-page – ảnh phủ toàn bộ tem
                         Rectangle dest = new Rectangle(
                             0,
                             0,
@@ -82,7 +113,7 @@ namespace DG_TonKhoBTP_v02.Printer
             }
             catch (Exception ex)
             {
-                throw new Exception($"Lỗi in: {ex.Message}");
+                throw new Exception($"\n{ex.Message}", ex);
             }
         }
 
@@ -181,9 +212,9 @@ namespace DG_TonKhoBTP_v02.Printer
                     y += lineHeightVal;
 
                     graphics.DrawString("Khối lượng: ", labelFont, brush, 30, y);
-                    graphics.DrawString(data.KhoiLuong, labelBoldFont, brush, 300, y);
+                    graphics.DrawString($"{data.KhoiLuong} Kg", labelBoldFont, brush, 300, y);
                     graphics.DrawString("Chiều dài: ", labelFont, brush, 580, y);
-                    graphics.DrawString(data.ChieuDai, labelBoldFont, brush, 800, y);
+                    graphics.DrawString($"{data.ChieuDai} M", labelBoldFont, brush, 800, y);
                     y += lineHeightVal;
 
                     graphics.DrawString("Sản phẩm: ", labelFont, brush, 30, y);

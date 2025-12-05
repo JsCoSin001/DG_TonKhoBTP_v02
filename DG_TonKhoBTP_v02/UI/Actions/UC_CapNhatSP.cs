@@ -30,10 +30,88 @@ namespace DG_TonKhoBTP_v02.UI
             cbxLoaiSP.SelectedItem = cbxLoaiSP.Items[1];
         }
 
+        //private async void btnLuu_Click(object sender, EventArgs e)
+        //{
+        //    btnLuu.Enabled = false;
+
+        //    try
+        //    {
+        //        if (kieuSP.SelectedItem == null)
+        //        {
+        //            MessageBox.Show("KIỂU SẢN PHẨM KHÔNG HỢP LỆ.", "LỖI",
+        //                MessageBoxButtons.OK, MessageBoxIcon.Error);
+        //            return;
+        //        }
+
+        //        var sp = new DanhSachMaSP
+        //        {
+        //            Ma = ma.Text.Trim().ToUpper(),
+        //            Ten = ten.Text.Trim().ToUpper(),
+        //            KieuSP = kieuSP.Text.Trim().ToUpper(),
+        //            DonVi = donVi.Text.Trim().ToUpper(),
+        //            DateInsert = DateTime.Now
+        //        };
+
+        //        if (string.IsNullOrEmpty(sp.Ma) ||
+        //            string.IsNullOrEmpty(sp.Ten) ||
+        //            string.IsNullOrEmpty(sp.DonVi))
+        //        {
+        //            MessageBox.Show("THIẾU DỮ LIỆU.", "Lỗi",
+        //                MessageBoxButtons.OK, MessageBoxIcon.Error);
+        //            return;
+        //        }
+
+        //        // >>>> LẤY GIÁ TRỊ UI TRƯỚC KHI VÀO Task.Run <<<<
+        //        var cbxText = cbxMaSP.Text?.Trim();
+        //        var idText = id.Text?.Trim();
+
+        //        await WaitingHelper.RunWithWaiting(async () =>
+        //        {
+        //            string result = await Task.Run(() =>
+        //            {
+        //                bool isInsert = string.IsNullOrEmpty(idText);
+
+        //                if (!isInsert)
+        //                {
+        //                    if (!int.TryParse(idText, out int parsedId))
+        //                        return "ID KHÔNG HỢP LỆ.";
+
+        //                    return DatabaseHelper.UpdateDanhSachMaSP(sp, parsedId);
+        //                }
+
+        //                return DatabaseHelper.InsertDSMaSP(sp);
+        //            });
+
+        //            if (string.IsNullOrEmpty(result))
+        //            {
+        //                MessageBox.Show("THAO TÁC THÀNH CÔNG", "THÔNG BÁO",
+        //                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+        //                Clear(); // nhớ: Clear() chỉ đụng UI trên UI thread (ở đây là OK)
+        //            }
+        //            else
+        //            {
+        //                MessageBox.Show(result, "LỖI",
+        //                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+        //            }
+        //        });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        MessageBox.Show($"Đã xảy ra lỗi: {ex.Message}", "Lỗi",
+        //            MessageBoxButtons.OK, MessageBoxIcon.Error);
+        //    }
+        //    finally
+        //    {
+        //        btnLuu.Enabled = true;
+        //        btnLuu.Text = "LƯU";
+
+
+        //    }
+        //}
+
         private async void btnLuu_Click(object sender, EventArgs e)
         {
             btnLuu.Enabled = false;
-
             try
             {
                 if (kieuSP.SelectedItem == null)
@@ -61,13 +139,13 @@ namespace DG_TonKhoBTP_v02.UI
                     return;
                 }
 
-                // >>>> LẤY GIÁ TRỊ UI TRƯỚC KHI VÀO Task.Run <<<<
-                var cbxText = cbxMaSP.Text?.Trim();
+                // Lấy giá trị UI trước
                 var idText = id.Text?.Trim();
 
-                await WaitingHelper.RunWithWaiting(async () =>
+                // Chạy logic với waiting form, TRẢ VỀ KẾT QUẢ
+                string result = await WaitingHelper.RunWithWaiting(async () =>
                 {
-                    string result = await Task.Run(() =>
+                    return await Task.Run(() =>
                     {
                         bool isInsert = string.IsNullOrEmpty(idText);
 
@@ -75,25 +153,25 @@ namespace DG_TonKhoBTP_v02.UI
                         {
                             if (!int.TryParse(idText, out int parsedId))
                                 return "ID KHÔNG HỢP LỆ.";
-
                             return DatabaseHelper.UpdateDanhSachMaSP(sp, parsedId);
                         }
 
                         return DatabaseHelper.InsertDSMaSP(sp);
                     });
+                }, "ĐANG LƯU DỮ LIỆU...");
 
-                    if (string.IsNullOrEmpty(result))
-                    {
-                        MessageBox.Show("THAO TÁC THÀNH CÔNG", "THÔNG BÁO",
-                            MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        Clear(); // nhớ: Clear() chỉ đụng UI trên UI thread (ở đây là OK)
-                    }
-                    else
-                    {
-                        MessageBox.Show(result, "LỖI",
-                            MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
-                });
+                // >>>> HIỂN THỊ MESSAGEBOX SAU KHI WAITING FORM ĐÃ ĐÓNG <<
+                if (string.IsNullOrEmpty(result))
+                {
+                    MessageBox.Show("THAO TÁC THÀNH CÔNG", "THÔNG BÁO",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    Clear();
+                }
+                else
+                {
+                    MessageBox.Show(result, "LỖI",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
             catch (Exception ex)
             {
@@ -104,8 +182,6 @@ namespace DG_TonKhoBTP_v02.UI
             {
                 btnLuu.Enabled = true;
                 btnLuu.Text = "LƯU";
-
-
             }
         }
 
@@ -117,7 +193,7 @@ namespace DG_TonKhoBTP_v02.UI
             donVi.SelectedItem = null;
             cbxMaSP.Text = "";
             id.Text = "";
-            btnLuu.Text = "LƯU";
+            btnLuu.Text = "Lưu";
         }
 
         private void ma_TextChanged(object sender, EventArgs e)

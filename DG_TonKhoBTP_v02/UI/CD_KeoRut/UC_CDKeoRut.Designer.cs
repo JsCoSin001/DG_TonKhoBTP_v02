@@ -100,7 +100,7 @@
             0});
             this.dongDienU.Name = "dongDienU";
             this.dongDienU.Size = new System.Drawing.Size(86, 24);
-            this.dongDienU.TabIndex = 12;
+            this.dongDienU.TabIndex = 6;
             // 
             // dienApU
             // 
@@ -119,7 +119,7 @@
             0});
             this.dienApU.Name = "dienApU";
             this.dienApU.Size = new System.Drawing.Size(86, 24);
-            this.dienApU.TabIndex = 11;
+            this.dienApU.TabIndex = 5;
             // 
             // tocDo
             // 
@@ -138,7 +138,7 @@
             0});
             this.tocDo.Name = "tocDo";
             this.tocDo.Size = new System.Drawing.Size(86, 24);
-            this.tocDo.TabIndex = 10;
+            this.tocDo.TabIndex = 4;
             // 
             // dkTrucY
             // 
@@ -157,7 +157,7 @@
             0});
             this.dkTrucY.Name = "dkTrucY";
             this.dkTrucY.Size = new System.Drawing.Size(86, 24);
-            this.dkTrucY.TabIndex = 8;
+            this.dkTrucY.TabIndex = 2;
             // 
             // label6
             // 
@@ -242,7 +242,7 @@
             0});
             this.dkTrucX.Name = "dkTrucX";
             this.dkTrucX.Size = new System.Drawing.Size(86, 24);
-            this.dkTrucX.TabIndex = 7;
+            this.dkTrucX.TabIndex = 1;
             // 
             // ngoaiQuan
             // 
@@ -255,7 +255,7 @@
             this.ngoaiQuan.Location = new System.Drawing.Point(187, 33);
             this.ngoaiQuan.Name = "ngoaiQuan";
             this.ngoaiQuan.Size = new System.Drawing.Size(86, 26);
-            this.ngoaiQuan.TabIndex = 14;
+            this.ngoaiQuan.TabIndex = 3;
             // 
             // UC_CDKeoRut
             // 

@@ -28,35 +28,23 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.btnLuu = new System.Windows.Forms.Button();
             this.btnClear = new System.Windows.Forms.Button();
             this.cbInTem = new System.Windows.Forms.CheckBox();
-            this.flowLayoutPanel1.SuspendLayout();
+            this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+            this.lblTrangThai = new System.Windows.Forms.Label();
+            this.tableLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // flowLayoutPanel1
-            // 
-            this.flowLayoutPanel1.AutoSize = true;
-            this.flowLayoutPanel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.flowLayoutPanel1.Controls.Add(this.btnLuu);
-            this.flowLayoutPanel1.Controls.Add(this.btnClear);
-            this.flowLayoutPanel1.Controls.Add(this.cbInTem);
-            this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flowLayoutPanel1.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
-            this.flowLayoutPanel1.Location = new System.Drawing.Point(0, 0);
-            this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(330, 52);
-            this.flowLayoutPanel1.TabIndex = 0;
             // 
             // btnLuu
             // 
+            this.btnLuu.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.btnLuu.BackColor = System.Drawing.Color.ForestGreen;
             this.btnLuu.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnLuu.ForeColor = System.Drawing.Color.Honeydew;
-            this.btnLuu.Location = new System.Drawing.Point(190, 3);
+            this.btnLuu.Location = new System.Drawing.Point(247, 3);
             this.btnLuu.Name = "btnLuu";
-            this.btnLuu.Size = new System.Drawing.Size(137, 46);
+            this.btnLuu.Size = new System.Drawing.Size(114, 46);
             this.btnLuu.TabIndex = 0;
             this.btnLuu.Text = "LƯU";
             this.btnLuu.UseVisualStyleBackColor = false;
@@ -64,12 +52,13 @@
             // 
             // btnClear
             // 
+            this.btnClear.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.btnClear.BackColor = System.Drawing.Color.Brown;
             this.btnClear.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnClear.ForeColor = System.Drawing.SystemColors.Control;
-            this.btnClear.Location = new System.Drawing.Point(86, 3);
+            this.btnClear.Location = new System.Drawing.Point(127, 3);
             this.btnClear.Name = "btnClear";
-            this.btnClear.Size = new System.Drawing.Size(98, 46);
+            this.btnClear.Size = new System.Drawing.Size(114, 46);
             this.btnClear.TabIndex = 1;
             this.btnClear.Text = "Xoá";
             this.btnClear.UseVisualStyleBackColor = false;
@@ -81,35 +70,65 @@
             this.cbInTem.AutoSize = true;
             this.cbInTem.Checked = true;
             this.cbInTem.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.cbInTem.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cbInTem.Location = new System.Drawing.Point(3, 14);
+            this.cbInTem.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cbInTem.Location = new System.Drawing.Point(54, 16);
             this.cbInTem.Name = "cbInTem";
-            this.cbInTem.Size = new System.Drawing.Size(77, 24);
+            this.cbInTem.Size = new System.Drawing.Size(67, 20);
             this.cbInTem.TabIndex = 2;
             this.cbInTem.Text = "In Tem";
             this.cbInTem.UseVisualStyleBackColor = true;
+            // 
+            // tableLayoutPanel1
+            // 
+            this.tableLayoutPanel1.AutoSize = true;
+            this.tableLayoutPanel1.ColumnCount = 4;
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 120F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 120F));
+            this.tableLayoutPanel1.Controls.Add(this.cbInTem, 1, 0);
+            this.tableLayoutPanel1.Controls.Add(this.btnLuu, 3, 0);
+            this.tableLayoutPanel1.Controls.Add(this.btnClear, 2, 0);
+            this.tableLayoutPanel1.Controls.Add(this.lblTrangThai, 0, 0);
+            this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
+            this.tableLayoutPanel1.Name = "tableLayoutPanel1";
+            this.tableLayoutPanel1.RowCount = 1;
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(364, 52);
+            this.tableLayoutPanel1.TabIndex = 4;
+            // 
+            // lblTrangThai
+            // 
+            this.lblTrangThai.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblTrangThai.AutoSize = true;
+            this.lblTrangThai.ForeColor = System.Drawing.Color.OrangeRed;
+            this.lblTrangThai.Location = new System.Drawing.Point(3, 19);
+            this.lblTrangThai.Name = "lblTrangThai";
+            this.lblTrangThai.Size = new System.Drawing.Size(45, 13);
+            this.lblTrangThai.TabIndex = 3;
             // 
             // UC_SubmitForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.AutoSize = true;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.Controls.Add(this.flowLayoutPanel1);
+            this.Controls.Add(this.tableLayoutPanel1);
             this.Name = "UC_SubmitForm";
-            this.Size = new System.Drawing.Size(330, 52);
-            this.flowLayoutPanel1.ResumeLayout(false);
-            this.flowLayoutPanel1.PerformLayout();
+            this.Size = new System.Drawing.Size(364, 52);
+            this.Load += new System.EventHandler(this.UC_SubmitForm_Load);
+            this.tableLayoutPanel1.ResumeLayout(false);
+            this.tableLayoutPanel1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
         }
 
         #endregion
-
-        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
         private System.Windows.Forms.Button btnLuu;
         private System.Windows.Forms.Button btnClear;
         private System.Windows.Forms.CheckBox cbInTem;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
+        private System.Windows.Forms.Label lblTrangThai;
     }
 }

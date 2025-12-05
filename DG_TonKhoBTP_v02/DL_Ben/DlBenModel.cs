@@ -182,9 +182,8 @@ namespace DG_TonKhoBTP_v02.DL_Ben
                     try
                     {
                         int tonKho_ID = InsertModelToDatabase(tonKho, "TonKho", connection, tran);
-                        //int tonKho_ID = (int)(long)new SQLiteCommand("SELECT last_insert_rowid()", connection, tran).ExecuteScalar();
-
-                        //UpdateTonKho_NVL(nvlList, tonKho_ID, connection);
+                        
+                        UpdateTonKho_NVL(nvlList, tonKho_ID, connection);
 
                         // Gán thuộc tính TonKho_ID bằng reflection hoặc dynamic
                         dynamic dynamicModel = dlModel;
@@ -246,58 +245,101 @@ namespace DG_TonKhoBTP_v02.DL_Ben
             }
         }
 
-        //public static void UpdateTonKho_NVL_Lan1(List<TTNVL> nvlList)
-        //{
-        //    string sql = @"UPDATE TonKho
-        //               SET KhoiLuongConLai = @KhoiLuongConLai,
-        //                   ChieuDai = @ChieuDai
-        //               WHERE Lot = @Lot";
-        //    using (var conn = new SQLiteConnection(_connStr))
-        //    {
-        //        conn.Open();
+        public static void UpdateTonKho_NVL_Lan1(List<TTNVL> nvlList)
+        {
+            string sql = @"UPDATE TonKho
+                       SET KhoiLuongConLai = @KhoiLuongConLai,
+                           ChieuDai = @ChieuDai
+                       WHERE Lot = @Lot";
+            using (var conn = new SQLiteConnection(_connStr))
+            {
+                conn.Open();
 
-        //        using (var cmd = new SQLiteCommand(sql, conn))
-        //        {
-        //            // Chuẩn bị sẵn param (đỡ phải Add mỗi vòng loop)
-        //            cmd.Parameters.Add("@KhoiLuongConLai", System.Data.DbType.Double);
-        //            cmd.Parameters.Add("@ChieuDai", System.Data.DbType.Double);
-        //            cmd.Parameters.Add("@Lot", System.Data.DbType.String);
+                using (var cmd = new SQLiteCommand(sql, conn))
+                {
+                    // Chuẩn bị sẵn param (đỡ phải Add mỗi vòng loop)
+                    cmd.Parameters.Add("@KhoiLuongConLai", System.Data.DbType.Double);
+                    cmd.Parameters.Add("@ChieuDai", System.Data.DbType.Double);
+                    cmd.Parameters.Add("@Lot", System.Data.DbType.String);
 
-        //            foreach (var nvl in nvlList)
-        //            {
-        //                if (string.IsNullOrWhiteSpace(nvl.BinNVL))
-        //                    continue; // Không có BinNVL thì bỏ qua
+                    foreach (var nvl in nvlList)
+                    {
+                        if (string.IsNullOrWhiteSpace(nvl.BinNVL))
+                            continue; // Không có BinNVL thì bỏ qua
 
-        //                cmd.Parameters["@KhoiLuongConLai"].Value = nvl.KlConLai ?? 0;
-        //                cmd.Parameters["@ChieuDai"].Value = nvl.CdConLai ?? 0;
-        //                cmd.Parameters["@Lot"].Value = nvl.BinNVL;
+                        cmd.Parameters["@KhoiLuongConLai"].Value = nvl.KlConLai ?? 0;
+                        cmd.Parameters["@ChieuDai"].Value = nvl.CdConLai ?? 0;
+                        cmd.Parameters["@Lot"].Value = nvl.BinNVL;
 
-        //                cmd.ExecuteNonQuery();
-        //            }
-        //        }
-        //    }
-        //}
-        //public static void UpdateTonKho_NVL(List<TTNVL> nvlList, int tonKho_ID , SQLiteConnection conn)
-        //{
-        //    string sql = @"UPDATE TonKho
-        //               SET  ID_Cuoi = @ID_Cuoi
-        //               WHERE Lot = @Lot";
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+            }
+        }
 
-        //    using (var cmd = new SQLiteCommand(sql, conn))
-        //    {
-        //        cmd.Parameters.Add("@ID_Cuoi", System.Data.DbType.Int32);
-        //        cmd.Parameters.Add("@Lot", System.Data.DbType.String);
+        public static void UpdateTonKho_NVL_Lan2(List<TTNVL> nvlList, string maBin)
+        {
+            string sql = @"
+                UPDATE TonKho
+                SET KhoiLuongConLai = @KhoiLuongConLai,
+                    ChieuDai        = @ChieuDai
+                WHERE Lot = @Lot
+                  AND ID_Cuoi = (
+                        SELECT t2.ID
+                        FROM TonKho AS t2
+                        WHERE t2.Lot = @MaBin
+                        LIMIT 1
+                  );";
 
-        //        foreach (var nvl in nvlList)
-        //        {
-        //            if (string.IsNullOrWhiteSpace(nvl.BinNVL))
-        //                continue; // Không có BinNVL thì bỏ qua
-        //            cmd.Parameters["@ID_Cuoi"].Value = tonKho_ID;
-        //            cmd.Parameters["@Lot"].Value = nvl.BinNVL;
+            using (var conn = new SQLiteConnection(_connStr))
+            {
+                conn.Open();
 
-        //            cmd.ExecuteNonQuery();
-        //        }
-        //    }
-        //}
+                using (var cmd = new SQLiteCommand(sql, conn))
+                {
+                    // chuẩn bị param cố định
+                    cmd.Parameters.Add("@KhoiLuongConLai", System.Data.DbType.Double);
+                    cmd.Parameters.Add("@ChieuDai", System.Data.DbType.Double);
+                    cmd.Parameters.Add("@Lot", System.Data.DbType.String);
+                    cmd.Parameters.Add("@MaBin", System.Data.DbType.String).Value = maBin;
+
+                    foreach (var nvl in nvlList)
+                    {
+                        if (string.IsNullOrWhiteSpace(nvl.BinNVL))
+                            continue;
+
+                        cmd.Parameters["@KhoiLuongConLai"].Value = nvl.KlConLai ?? 0;
+                        cmd.Parameters["@ChieuDai"].Value = nvl.CdConLai ?? 0;
+                        cmd.Parameters["@Lot"].Value = nvl.BinNVL;   // Lot cần update
+
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+            }
+        }
+
+
+        public static void UpdateTonKho_NVL(List<TTNVL> nvlList, int tonKho_ID, SQLiteConnection conn)
+        {
+            string sql = @"UPDATE TonKho
+                       SET  ID_Cuoi = @ID_Cuoi
+                       WHERE Lot = @Lot";
+
+            using (var cmd = new SQLiteCommand(sql, conn))
+            {
+                cmd.Parameters.Add("@ID_Cuoi", System.Data.DbType.Int32);
+                cmd.Parameters.Add("@Lot", System.Data.DbType.String);
+
+                foreach (var nvl in nvlList)
+                {
+                    if (string.IsNullOrWhiteSpace(nvl.BinNVL))
+                        continue; // Không có BinNVL thì bỏ qua
+                    cmd.Parameters["@ID_Cuoi"].Value = tonKho_ID;
+                    cmd.Parameters["@Lot"].Value = nvl.BinNVL;
+
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
     }
 }

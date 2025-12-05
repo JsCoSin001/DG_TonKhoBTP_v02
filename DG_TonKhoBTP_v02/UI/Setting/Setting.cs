@@ -25,9 +25,10 @@ namespace DG_TonKhoBTP_v02.UI.Setting
         {
             InitializeComponent();
             tbPathDB.Text = _url;
-            Helper.Helper.LoadPrinters(cbxPrinterName);
-            cbxPrinterName.Text = _printerName;
+            Helper.Helper.LoadPrinters(cbxPrinterName);            
 
+            cbxMayIn.Checked = _printerName != "";
+            cbxPrinterName.Enabled = cbxMayIn.Checked;
         }
 
         public async Task LoadDataAsync()
@@ -58,31 +59,17 @@ namespace DG_TonKhoBTP_v02.UI.Setting
                 }
                 else if (config != null)
                 {
-                    cbxActive.SelectedIndex = config.Active ? 1 : 0;
+                    //cbxActive.SelectedIndex = config.Active ? 1 : 0;
+                    rdoHoatDong.Checked = config.Active;
+                    rdoTamDung.Checked = !config.Active;
+
                     tbxNguoiThucHien.Text = config.Author.ToString();
                     rtbMessage.Text = config.Message;
-                    lblThongBao.Visible = config.Active;
+                    lblThongBao.Visible = !config.Active;
                 }
 
-            }, "ĐANG KHỞI TẠO DỮ LIỆU...");
+            }, "ĐANG LẤY DỮ LIỆU...");
         }
-
-        public void LoadConfigAndShow()
-        {
-            try
-            {
-                ConfigDB config = DatabaseHelper.GetConfig();
-                cbxActive.SelectedIndex = config.Active ? 1 : 0;
-                tbxNguoiThucHien.Text = config.Author.ToString();
-                rtbMessage.Text = config.Message;
-                lblThongBao.Visible = config.Active;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Không thể đọc dữ liệu từ database!\nChi tiết lỗi: " + ex.Message, "LỖI", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
 
         private void btnFindPathDB_Click(object sender, EventArgs e)
         {
@@ -115,25 +102,26 @@ namespace DG_TonKhoBTP_v02.UI.Setting
         private void btnLuuPrinter_Click(object sender, EventArgs e)
         {
             if (!Helper.Helper.kiemTraPhanQuyen(_quyenMaster)) return;
-            string printerName = cbxPrinterName.Text;
-            if (string.IsNullOrEmpty(printerName))
+
+            string printerName = "";
+
+            if (cbxMayIn.Checked)
             {
-                MessageBox.Show("Vui lòng chọn tên máy in.", "CẢNH BÁO");
-                return;
+                printerName = cbxPrinterName.Text;
+
+                if (string.IsNullOrEmpty(printerName))
+                {
+                    MessageBox.Show("Vui lòng chọn tên máy in.", "CẢNH BÁO");
+                    return;
+                }
             }
 
             Properties.Settings.Default.PrinterName = printerName;
             Properties.Settings.Default.Save();
 
-            MessageBox.Show("Ứng dụng sẽ được khởi động lại để áp dụng thay đổi.", "THÔNG BÁO");
+            MessageBox.Show("Ứng dụng sẽ được khởi động lại để áp dụng thay đổi.".ToUpper(), "THÔNG BÁO");
             Application.Restart();
 
-        }
-
-        private void cbxActive_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            lblThongBao.Visible = cbxActive.SelectedIndex == 1;
-            tbxNguoiThucHien.Text = "";
         }
 
         private void btnLuu_Click(object sender, EventArgs e)
@@ -153,7 +141,7 @@ namespace DG_TonKhoBTP_v02.UI.Setting
                 return;
             }
 
-            if (cbxActive.SelectedIndex == 1 && rtbMsg.Length == 0)
+            if (rdoTamDung.Checked && rtbMsg.Length == 0)
             {
                 DialogResult result = MessageBox.Show(
                     "LỜI NHẮC ĐANG BỊ BỎ TRỐNG.",
@@ -166,12 +154,23 @@ namespace DG_TonKhoBTP_v02.UI.Setting
 
             ConfigDB config = new ConfigDB
             {
-                Active = cbxActive.SelectedIndex == 1,
+                Active = rdoHoatDong.Checked,
                 Author = tbxNguoiThucHien.Text.Trim(),
                 Message = rtbMsg
             };
 
             DatabaseHelper.UpdateConfig(config);
+        }
+
+        private void rdoHoatDong_CheckedChanged(object sender, EventArgs e)
+        {
+            lblThongBao.Visible = rdoTamDung.Checked;
+            tbxNguoiThucHien.Text = "";
+        }
+
+        private void cbxMayIn_CheckedChanged(object sender, EventArgs e)
+        {
+            cbxPrinterName.Enabled = cbxMayIn.Checked;
         }
     }
 }

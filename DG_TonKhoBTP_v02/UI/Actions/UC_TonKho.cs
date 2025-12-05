@@ -155,13 +155,7 @@ namespace DG_TonKhoBTP_v02.UI
 
         private async void btnLuu_Click(object sender, EventArgs e)
         {
-            ConfigDB configDB = DatabaseHelper.GetConfig();
-
-            if (configDB.Active)
-            {
-                MessageBox.Show(configDB.Message, "THÔNG BÁO", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
+            if (Helper.Helper.TaoThongBao() != "") return;
 
             if (string.IsNullOrWhiteSpace(tbMaBin.Text))
             {
@@ -176,26 +170,34 @@ namespace DG_TonKhoBTP_v02.UI
                 KhoiLuongBanTran = (double)klBanTran.Value
             };
 
-            btnLuu.Enabled = false; // tránh click lặp
+            btnLuu.Enabled = false;
+
             try
             {
-                await WaitingHelper.RunWithWaiting(async () =>
+                // Trả về kết quả từ WaitingHelper
+                string message = await WaitingHelper.RunWithWaiting(async () =>
                 {
-                    // Chạy cập nhật nặng ở thread pool để UI không bị đơ
-                    string message = await Task.Run(() => DatabaseHelper.UpdateKLConLai_BanTran(bt));
-                    //await Task.Delay(3000);
-                    if (string.IsNullOrEmpty(message))
-                    {
-                        message = "THAO TÁC THÀNH CÔNG";
-                        ClearForm(); // vẫn ở context UI sau await, OK để gọi
-                    }
+                    // Chạy cập nhật nặng ở thread pool
+                    return await Task.Run(() => DatabaseHelper.UpdateKLConLai_BanTran(bt));
+                }, "ĐANG CẬP NHẬT DỮ LIỆU...");
 
-                    MessageBox.Show(message, "THÔNG BÁO", MessageBoxButtons.OK);
-                });
+                // >>>> HIỂN THỊ MESSAGEBOX SAU KHI WAITING FORM ĐÃ ĐÓNG <<
+                if (string.IsNullOrEmpty(message))
+                {
+                    MessageBox.Show("THAO TÁC THÀNH CÔNG", "THÔNG BÁO",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    ClearForm();
+                }
+                else
+                {
+                    MessageBox.Show(message, "THÔNG BÁO",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Có lỗi xảy ra: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Có lỗi xảy ra: {ex.Message}", "Lỗi",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
             {

@@ -23,21 +23,54 @@ namespace DG_TonKhoBTP_v02.UI
             CongDoan = congDoan;
         }
 
-        private void btnShowBaoCao_Click(object sender, EventArgs e)
+        private async void btnShowBaoCao_Click(object sender, EventArgs e)
         {
             DateTime selected = ngayBC.Value;
-            DataTable dt = DatabaseHelper.GetDataByMonth(selected, CongDoan);
-            // check if dt has rows
-            if (dt.Rows.Count == 0)
-            {
-                MessageBox.Show("THÁNG " + selected.ToString("MM/yyyy") + " KHÔNG CÓ DỮ LIỆU!", "Thông báo",
-                                MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
 
-            UC_MonthyReport fBaoCao = new UC_MonthyReport();
-            fBaoCao.LoadData(dt);
-            fBaoCao.ShowDialog();
+            btnShowBaoCao.Enabled = false;
+
+            try
+            {
+                // Lấy dữ liệu với waiting form
+                DataTable dt = await WaitingHelper.RunWithWaiting(
+                    async () => await Task.Run(() => DatabaseHelper.GetDataByMonth(selected, CongDoan)),
+                    "ĐANG TẢI BÁO CÁO THÁNG " + selected.ToString("MM/yyyy") + "..."
+                );
+
+                // Kiểm tra kết quả
+                if (dt == null || dt.Rows.Count == 0)
+                {
+                    MessageBox.Show("THÁNG " + selected.ToString("MM/yyyy") + " KHÔNG CÓ DỮ LIỆU!",
+                                  "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
+
+                // Hiển thị báo cáo
+                UC_MonthyReport fBaoCao = new UC_MonthyReport();
+                fBaoCao.LoadData(dt);
+                fBaoCao.ShowDialog();
+            }
+            finally
+            {
+                btnShowBaoCao.Enabled = true;
+            }
         }
+
+        //private void btnShowBaoCao_Click(object sender, EventArgs e)
+        //{
+        //    DateTime selected = ngayBC.Value;
+        //    DataTable dt = DatabaseHelper.GetDataByMonth(selected, CongDoan);
+        //    // check if dt has rows
+        //    if (dt.Rows.Count == 0)
+        //    {
+        //        MessageBox.Show("THÁNG " + selected.ToString("MM/yyyy") + " KHÔNG CÓ DỮ LIỆU!", "Thông báo",
+        //                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+        //        return;
+        //    }
+
+        //    UC_MonthyReport fBaoCao = new UC_MonthyReport();
+        //    fBaoCao.LoadData(dt);
+        //    fBaoCao.ShowDialog();
+        //}
     }
 }

@@ -27,7 +27,7 @@ namespace DG_TonKhoBTP_v02
         {
             InitializeComponent();
             DatabaseHelper.SetDatabasePath(_URL);
-            lblAuthor.Text = $"Phát triển bởi Linh - Version: {_ver}. All rights reserved.";
+            lblAuthor.Text = $"Phát triển bởi Linh - Version: {_ver} - All rights reserved.";
 
             DatabasehelperVer01.SetDatabasePath(_URL);
 
@@ -409,8 +409,6 @@ namespace DG_TonKhoBTP_v02
             pnShow.Controls.Add(pnBottom);
             pnShow.Controls.Add(pnTop);
         }
-
-
         #endregion
 
         private void btnTruyVetDL_Click(object sender, EventArgs e)

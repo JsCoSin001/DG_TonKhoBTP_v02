@@ -117,7 +117,7 @@
             this.quanDoc.Location = new System.Drawing.Point(1151, 3);
             this.quanDoc.Name = "quanDoc";
             this.quanDoc.Size = new System.Drawing.Size(155, 26);
-            this.quanDoc.TabIndex = 17;
+            this.quanDoc.TabIndex = 6;
             // 
             // label6
             // 
@@ -138,7 +138,7 @@
             this.toTruong.Location = new System.Drawing.Point(892, 3);
             this.toTruong.Name = "toTruong";
             this.toTruong.Size = new System.Drawing.Size(153, 26);
-            this.toTruong.TabIndex = 15;
+            this.toTruong.TabIndex = 5;
             // 
             // label5
             // 
@@ -158,7 +158,7 @@
             this.nguoiLam.Location = new System.Drawing.Point(633, 3);
             this.nguoiLam.Name = "nguoiLam";
             this.nguoiLam.Size = new System.Drawing.Size(153, 26);
-            this.nguoiLam.TabIndex = 13;
+            this.nguoiLam.TabIndex = 4;
             // 
             // label4
             // 
@@ -184,7 +184,7 @@
             this.ca.Location = new System.Drawing.Point(463, 3);
             this.ca.Name = "ca";
             this.ca.Size = new System.Drawing.Size(64, 28);
-            this.ca.TabIndex = 5;
+            this.ca.TabIndex = 3;
             // 
             // label3
             // 
@@ -240,7 +240,7 @@
             this.cbMay.Location = new System.Drawing.Point(293, 3);
             this.cbMay.Name = "cbMay";
             this.cbMay.Size = new System.Drawing.Size(94, 28);
-            this.cbMay.TabIndex = 3;
+            this.cbMay.TabIndex = 2;
             this.cbMay.SelectedIndexChanged += new System.EventHandler(this.cbMay_SelectedIndexChanged);
             // 
             // UC_TTCaLamViec

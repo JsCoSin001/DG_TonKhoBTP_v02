@@ -1,5 +1,6 @@
-﻿using DG_TonKhoBTP_v02.Models;
+﻿using DG_TonKhoBTP_v02.Database;
 using DG_TonKhoBTP_v02.Dictionary;
+using DG_TonKhoBTP_v02.Models;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -39,6 +40,30 @@ namespace DG_TonKhoBTP_v02.Helper
                 })
                 .OrderBy(cd => cd.Id)
                 .ToList();
+        }
+
+        public static string TaoThongBao(Label lb = null)
+        {
+            ConfigDB configDB = DatabaseHelper.GetConfig();
+
+            // Nếu Active == true ⇒ chỉ ẩn label và thoát
+            if (configDB.Active)
+            {
+                if (lb != null) lb.Visible = false;
+                return "";
+            }
+
+            // Đến đây nghĩa là Active == false
+            string tb = $"{configDB.Author}: {configDB.Message} ".ToUpper();
+            MessageBox.Show(tb, "THÔNG BÁO", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+
+            if (lb != null)
+            {
+                lb.Text = tb.Replace("\n", " ");
+                lb.Visible = true;
+            }
+
+            return tb;
         }
 
         public static string GetShiftValue()
@@ -773,8 +798,17 @@ namespace DG_TonKhoBTP_v02.Helper
                 comboBox.Items.Add(printerName);
             }
 
+            string printer = Properties.Settings.Default.PrinterName;
+
+            if (printer != "")
+            {
+                comboBox.SelectedItem = printer;
+                return;
+            }
+
             // Chọn máy in mặc định (nếu có)
             var defaultPrinter = new PrinterSettings().PrinterName;
+
             if (!string.IsNullOrEmpty(defaultPrinter) && comboBox.Items.Contains(defaultPrinter))
             {
                 comboBox.SelectedItem = defaultPrinter;

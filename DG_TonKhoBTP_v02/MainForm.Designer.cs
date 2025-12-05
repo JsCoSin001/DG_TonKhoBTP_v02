@@ -175,7 +175,7 @@
             this.btnKeoRut.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
             this.btnKeoRut.Name = "btnKeoRut";
             this.btnKeoRut.Size = new System.Drawing.Size(159, 44);
-            this.btnKeoRut.TabIndex = 0;
+            this.btnKeoRut.TabIndex = 1;
             this.btnKeoRut.Text = "CĐ KÉO - RÚT";
             this.btnKeoRut.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.btnKeoRut.UseVisualStyleBackColor = false;
@@ -191,7 +191,7 @@
             this.btnBenRuot.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
             this.btnBenRuot.Name = "btnBenRuot";
             this.btnBenRuot.Size = new System.Drawing.Size(159, 44);
-            this.btnBenRuot.TabIndex = 1;
+            this.btnBenRuot.TabIndex = 2;
             this.btnBenRuot.Text = "CĐ BỆN CU - AL";
             this.btnBenRuot.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.btnBenRuot.UseVisualStyleBackColor = false;
@@ -207,7 +207,7 @@
             this.btnMica.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
             this.btnMica.Name = "btnMica";
             this.btnMica.Size = new System.Drawing.Size(159, 44);
-            this.btnMica.TabIndex = 2;
+            this.btnMica.TabIndex = 3;
             this.btnMica.Text = "CĐ QB MICA";
             this.btnMica.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.btnMica.UseVisualStyleBackColor = false;
@@ -239,7 +239,7 @@
             this.btnGhepLoi.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
             this.btnGhepLoi.Name = "btnGhepLoi";
             this.btnGhepLoi.Size = new System.Drawing.Size(159, 44);
-            this.btnGhepLoi.TabIndex = 6;
+            this.btnGhepLoi.TabIndex = 5;
             this.btnGhepLoi.Text = "CĐ GHÉP LÕI";
             this.btnGhepLoi.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.btnGhepLoi.UseVisualStyleBackColor = false;
@@ -255,7 +255,7 @@
             this.btnBocLot.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
             this.btnBocLot.Name = "btnBocLot";
             this.btnBocLot.Size = new System.Drawing.Size(159, 44);
-            this.btnBocLot.TabIndex = 3;
+            this.btnBocLot.TabIndex = 6;
             this.btnBocLot.Text = "CĐ BỌC LÓT";
             this.btnBocLot.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.btnBocLot.UseVisualStyleBackColor = false;
@@ -287,7 +287,7 @@
             this.btnBocVo.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
             this.btnBocVo.Name = "btnBocVo";
             this.btnBocVo.Size = new System.Drawing.Size(159, 44);
-            this.btnBocVo.TabIndex = 5;
+            this.btnBocVo.TabIndex = 8;
             this.btnBocVo.Text = "CĐ BỌC VỎ";
             this.btnBocVo.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.btnBocVo.UseVisualStyleBackColor = false;
@@ -462,15 +462,15 @@
             // homeToolStripMenuItem
             // 
             this.homeToolStripMenuItem.Name = "homeToolStripMenuItem";
-            this.homeToolStripMenuItem.Size = new System.Drawing.Size(62, 24);
-            this.homeToolStripMenuItem.Text = "Home";
+            this.homeToolStripMenuItem.Size = new System.Drawing.Size(85, 24);
+            this.homeToolStripMenuItem.Text = "Trang chủ";
             this.homeToolStripMenuItem.Click += new System.EventHandler(this.homeToolStripMenuItem_Click);
             // 
             // setiingToolStripMenuItem
             // 
             this.setiingToolStripMenuItem.Name = "setiingToolStripMenuItem";
             this.setiingToolStripMenuItem.Size = new System.Drawing.Size(68, 24);
-            this.setiingToolStripMenuItem.Text = "Setting";
+            this.setiingToolStripMenuItem.Text = "Cài đặt";
             this.setiingToolStripMenuItem.Click += new System.EventHandler(this.setiingToolStripMenuItem_Click);
             // 
             // MainForm

@@ -25,36 +25,47 @@ namespace DG_TonKhoBTP_v02.UI
             _cd = cd;
         }
 
-        private void btnTim_Click(object sender, EventArgs e)
+        private async void btnTim_Click(object sender, EventArgs e)
         {
             long stt = (long)sttLoi.Value;
+
+            // Kiểm tra input trước, chưa cần waiting form
+            if (stt <= 0)
+            {
+                MessageBox.Show("STT KHÔNG HỢP LỆ!", "Thông báo",
+                                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             btnTim.Enabled = false;
+
             try
             {
-                if (stt <= 0)
+                await WaitingHelper.RunWithWaiting(async () =>
                 {
-                    MessageBox.Show("STT KHÔNG HỢP LỆ!", "Thông báo",
-                                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
-                }
+                    // Chạy query trên thread nền
+                    DataTable dt = await Task.Run(() =>
+                        Database.DatabaseHelper.GetDataByID(stt.ToString(), _cd));
 
-                DataTable dt = Database.DatabaseHelper.GetDataByID(stt.ToString(), _cd);
+                    // Sau await, ta đã quay lại UI thread (WinForms SynchronizationContext)
+                    if (dt == null || dt.Rows.Count == 0)
+                    {
+                        MessageBox.Show("STT KHÔNG TỒN TẠI!", "Thông báo",
+                                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        return;
+                    }
 
-                // check if dt has rows
-                if (dt.Rows.Count == 0)
-                {
-                    MessageBox.Show("STT KHÔNG TỒN TẠI!", "Thông báo",
-                                    MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    return;
-                }
+                    // Raise event / cập nhật UI bình thường
+                    DataTableSubmitted?.Invoke(this, dt);
 
-                DataTableSubmitted?.Invoke(this, dt);
+                }, "ĐANG TÌM KIẾM, VUI LÒNG ĐỢI...");
             }
             finally
             {
                 btnTim.Enabled = true;
             }
         }
+
 
         public string SectionName => nameof(UC_Edit);
 

@@ -56,23 +56,11 @@ namespace DG_TonKhoBTP_v02.UI
         {
             if (table == null)
             {
-                MessageBox.Show("Không có dữ liệu để hiển thị!", "Thông báo",
-                                MessageBoxButtons.OK, MessageBoxIcon.Information);
+                FrmWaiting.ShowGifAlert($"Không có dữ liệu để hiển thị");
                 return;
             }
             dataGridView1.DataSource = table;
         }
 
-        private void InitializeComponent()
-        {
-            this.SuspendLayout();
-            // 
-            // UC_MonthyReport
-            // 
-            this.ClientSize = new System.Drawing.Size(335, 165);
-            this.Name = "UC_MonthyReport";
-            this.ResumeLayout(false);
-
-        }
     }
 }

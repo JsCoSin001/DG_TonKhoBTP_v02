@@ -159,7 +159,7 @@ namespace DG_TonKhoBTP_v02.UI
 
             if (string.IsNullOrWhiteSpace(tbMaBin.Text))
             {
-                MessageBox.Show("VUI LÒNG CHỌN MÃ BIN", "THÔNG BÁO", MessageBoxButtons.OK);
+                FrmWaiting.ShowGifAlert($"VUI LÒNG CHỌN MÃ BIN");
                 return;
             }
 
@@ -182,22 +182,19 @@ namespace DG_TonKhoBTP_v02.UI
                 }, "ĐANG CẬP NHẬT DỮ LIỆU...");
 
                 // >>>> HIỂN THỊ MESSAGEBOX SAU KHI WAITING FORM ĐÃ ĐÓNG <<
+                string icon = "warning";
                 if (string.IsNullOrEmpty(message))
                 {
-                    MessageBox.Show("THAO TÁC THÀNH CÔNG", "THÔNG BÁO",
-                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    message = "THAO TÁC THÀNH CÔNG";
+                    icon = "ok";
                     ClearForm();
-                }
-                else
-                {
-                    MessageBox.Show(message, "THÔNG BÁO",
-                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                }
+                }                
+
+                FrmWaiting.ShowGifAlert(message, "THÔNG BÁO", icon);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Có lỗi xảy ra: {ex.Message}", "Lỗi",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                FrmWaiting.ShowGifAlert($"Có lỗi xảy ra: {ex.Message}");
             }
             finally
             {
@@ -226,14 +223,13 @@ namespace DG_TonKhoBTP_v02.UI
             DateTime ketThuc = dtKetThuc.Value;
             if (ketThuc <= batDau)
             {
-                MessageBox.Show("Thời gian kết thúc phải lớn hơn thời gian bắt đầu!", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                FrmWaiting.ShowGifAlert("Thời gian kết thúc phải lớn hơn thời gian bắt đầu!");
                 return;
             }
             var selectedCongDoans = Helper.Helper.GetCheckedCongDoans(tbCheckBox);
             if (selectedCongDoans == null || selectedCongDoans.Count == 0)
             {
-                MessageBox.Show("Vui lòng chọn ít nhất một công đoạn!", "Thông báo",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                FrmWaiting.ShowGifAlert("Vui lòng chọn ít nhất một công đoạn!");
                 return;
             }
             string fileName = selectedCongDoans.Count == 1
@@ -252,8 +248,7 @@ namespace DG_TonKhoBTP_v02.UI
 
                 if (dt == null || dt.Rows.Count == 0)
                 {
-                    MessageBox.Show("KHÔNG CÓ DỮ LIỆU", "THÔNG BÁO",
-                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    FrmWaiting.ShowGifAlert("KHÔNG CÓ DỮ LIỆU");
                     return;
                 }
 
@@ -288,12 +283,7 @@ namespace DG_TonKhoBTP_v02.UI
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
-                    $"Lỗi khi xuất Excel: {ex.Message}",
-                    "Export Error",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error
-                );
+                FrmWaiting.ShowGifAlert($"Lỗi khi xuất Excel: {ex.Message}");
             }
         }
 
@@ -331,8 +321,7 @@ namespace DG_TonKhoBTP_v02.UI
 
                 if (dt == null || dt.Rows.Count == 0)
                 {
-                    MessageBox.Show("KHÔNG CÓ DỮ LIỆU", "THÔNG BÁO",
-                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    FrmWaiting.ShowGifAlert("KHÔNG CÓ DỮ LIỆU");
                     return;
                 }
 
@@ -340,8 +329,7 @@ namespace DG_TonKhoBTP_v02.UI
                 {
                     // QUAN TRỌNG: Không dùng Task.Run cho Excel
                     ExportExcelFile(dt, fileName);
-                    MessageBox.Show("Đã xuất Excel thành công!", "Thông báo",
-                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    FrmWaiting.ShowGifAlert("XUẤT EXCEL THÀNH CÔNG", "THÔNG BÁO", "ok");
                 }
                 else
                 {

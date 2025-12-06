@@ -1,6 +1,7 @@
 ﻿using DG_TonKhoBTP_v02.Database;
 using DG_TonKhoBTP_v02.Dictionary;
 using DG_TonKhoBTP_v02.Models;
+using DG_TonKhoBTP_v02.UI;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -24,7 +25,7 @@ namespace DG_TonKhoBTP_v02.Helper
         {
            if (string.IsNullOrWhiteSpace(values))
             {
-                MessageBox.Show("KHÔNG TÌM THẤY ĐƯỜNG DẪN DATABASE.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                FrmWaiting.ShowGifAlert("KHÔNG TÌM THẤY ĐƯỜNG DẪN DATABASE.");
                 return true;
             }
             return false;
@@ -55,7 +56,8 @@ namespace DG_TonKhoBTP_v02.Helper
 
             // Đến đây nghĩa là Active == false
             string tb = $"{configDB.Author}: {configDB.Message} ".ToUpper();
-            MessageBox.Show(tb, "THÔNG BÁO", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+
+            FrmWaiting.ShowGifAlert(tb, "THÔNG BÁO");
 
             if (lb != null)
             {
@@ -741,7 +743,7 @@ namespace DG_TonKhoBTP_v02.Helper
             }
             else
             {
-                MessageBox.Show("BẠN CẦN CẤP QUYỀN ĐỂ SỬ DỤNG CHỨC NĂNG NÀY!.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                FrmWaiting.ShowGifAlert("BẠN CẦN CẤP QUYỀN ĐỂ SỬ DỤNG CHỨC NĂNG NÀY!", "THÔNG BÁO");
                 return false;
             }
         }

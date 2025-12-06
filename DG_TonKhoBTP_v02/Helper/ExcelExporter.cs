@@ -1,8 +1,9 @@
-﻿using System;
+﻿using ClosedXML.Excel;
+using DG_TonKhoBTP_v02.UI;
+using System;
 using System.Data;
 using System.IO;
 using System.Windows.Forms;
-using ClosedXML.Excel;
 
 namespace DG_TonKhoBTP_v02.Helper
 {
@@ -12,8 +13,7 @@ namespace DG_TonKhoBTP_v02.Helper
         {
             if (table == null || table.Rows.Count == 0)
             {
-                MessageBox.Show("Không có dữ liệu để xuất.", "Export",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                FrmWaiting.ShowGifAlert("Không có dữ liệu để xuất.", "Export");
                 return;
             }
 
@@ -30,13 +30,11 @@ namespace DG_TonKhoBTP_v02.Helper
             {
                 // CHẠY TRÊN UI THREAD — OK
                 ExportToPath(table, sfd.FileName);
-                MessageBox.Show("Đã xuất Excel thành công!", "Export",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                FrmWaiting.ShowGifAlert("Đã xuất Excel thành công!", "Export","ok");
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Lỗi khi xuất Excel: {ex.Message}", "Export Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                FrmWaiting.ShowGifAlert($"Lỗi khi xuất Excel: {ex.Message}", "Export Error");
             }
         }
 

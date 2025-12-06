@@ -45,7 +45,7 @@ namespace DG_TonKhoBTP_v02.UI.Actions
             try
             {
                 // debounce: đợi user dừng gõ 250ms mới chạy
-                await Task.Delay(250, token);
+                await Task.Delay(500, token);
 
                 // gọi async thay vì sync
                 await ShowDanhSachLuaChon(searchData, token);
@@ -308,7 +308,7 @@ namespace DG_TonKhoBTP_v02.UI.Actions
 
                 if (maNVL == "NVL")
                 {
-                    MessageBox.Show("ĐỐI TƯỢNG ĐÃ LÀ NVL, KHÔNG TÌM ĐƯỢC THÊM THÔNG TIN", "CẢNH BÁO");
+                    FrmWaiting.ShowGifAlert("ĐỐI TƯỢNG ĐÃ LÀ NVL, KHÔNG TÌM ĐƯỢC THÊM THÔNG TIN");
                     return;
                 }
 

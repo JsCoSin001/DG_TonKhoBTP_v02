@@ -2,6 +2,7 @@
 // Mục đích: Duyệt cây control, lấy tất cả IFormSection -> nhét vào FormSnapshot.
 // [Luồng 4] Được gọi khi btnLuu click.
 
+using DG_TonKhoBTP_v02.UI;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
@@ -27,8 +28,9 @@ namespace DG_TonKhoBTP_v02.Core
                 }
                 catch
                 {
-                   MessageBox.Show($"DỮ LIỆU KHÔNG ĐẠT YÊU CẦU", "LỖI", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                   System.Console.WriteLine($"Lỗi khi thu thập dữ liệu từ section: {section.SectionName}");
+                    FrmWaiting.ShowGifAlert($"DỮ LIỆU KHÔNG ĐẠT YÊU CẦU", "LỖI");
+
+                    System.Console.WriteLine($"Lỗi khi thu thập dữ liệu từ section: {section.SectionName}");
                     throw;
                 }                
             }

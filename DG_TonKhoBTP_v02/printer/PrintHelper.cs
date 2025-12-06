@@ -9,7 +9,10 @@ using System.Drawing.Printing;
 using System.Text;
 using System.Windows;
 using FontStyle = System.Drawing.FontStyle;
-using System.Management;   
+using System.Management;
+
+
+using System.Printing;
 
 
 namespace DG_TonKhoBTP_v02.Printer
@@ -35,36 +38,83 @@ namespace DG_TonKhoBTP_v02.Printer
             }
         }
 
+        //public static bool IsPrinterReady(string printerName)
+        //{
+        //    try
+        //    {
+        //        string query = $"SELECT * FROM Win32_Printer WHERE Name = '{printerName.Replace("\\", "\\\\")}'";
+
+        //        using (var searcher = new ManagementObjectSearcher(query))
+        //        {
+        //            foreach (ManagementObject printer in searcher.Get())
+        //            {
+        //                bool workOffline = printer["WorkOffline"] != null && (bool)printer["WorkOffline"];
+
+        //                // 3 = Idle, 4 = Printing, 5 = Warming Up => coi là OK
+        //                ushort status = 0;
+        //                if (printer["PrinterStatus"] != null)
+        //                    status = (ushort)printer["PrinterStatus"];
+
+        //                bool statusOk = (status == 3 || status == 4 || status == 5);
+
+        //                return !workOffline && statusOk;
+        //            }
+        //        }
+        //    }
+        //    catch
+        //    {
+        //        return false;
+        //    }
+
+        //    return false;
+        //}
+
+
         public static bool IsPrinterReady(string printerName)
         {
             try
             {
-                string query = $"SELECT * FROM Win32_Printer WHERE Name = '{printerName.Replace("\\", "\\\\")}'";
-
-                using (var searcher = new ManagementObjectSearcher(query))
+                // LocalPrintServer = máy tính hiện tại
+                using (var server = new LocalPrintServer())
                 {
-                    foreach (ManagementObject printer in searcher.Get())
-                    {
-                        bool workOffline = printer["WorkOffline"] != null && (bool)printer["WorkOffline"];
+                    // Tên printerName phải đúng với tên trong "Devices and Printers"
+                    // ví dụ: "SATO WS4(4inch) 412TT"
+                    PrintQueue queue = server.GetPrintQueue(printerName);
 
-                        // 3 = Idle, 4 = Printing, 5 = Warming Up => coi là OK
-                        ushort status = 0;
-                        if (printer["PrinterStatus"] != null)
-                            status = (ushort)printer["PrinterStatus"];
+                    // Cập nhật trạng thái mới nhất từ spooler
+                    queue.Refresh();
 
-                        bool statusOk = (status == 3 || status == 4 || status == 5);
+                    PrintQueueStatus status = queue.QueueStatus;
 
-                        return !workOffline && statusOk;
-                    }
+                    // Các trạng thái coi là LỖI / KHÔNG SẴN SÀNG
+                    bool hasFatalStatus =
+                        status.HasFlag(PrintQueueStatus.Paused) || // đang bị pause
+                        status.HasFlag(PrintQueueStatus.Error) || // lỗi chung
+                        status.HasFlag(PrintQueueStatus.PendingDeletion) ||
+                        status.HasFlag(PrintQueueStatus.PaperJam) ||
+                        status.HasFlag(PrintQueueStatus.PaperOut) || // hết giấy / nhãn
+                        status.HasFlag(PrintQueueStatus.ManualFeed) ||
+                        status.HasFlag(PrintQueueStatus.PaperProblem) || // kẹt giấy, nắp mở,...
+                        status.HasFlag(PrintQueueStatus.Offline) || // Use printer offline, mất kết nối
+                        status.HasFlag(PrintQueueStatus.NoToner) ||
+                        status.HasFlag(PrintQueueStatus.NotAvailable) ||
+                        status.HasFlag(PrintQueueStatus.OutputBinFull) ||
+                        status.HasFlag(PrintQueueStatus.UserIntervention) || // cần thao tác người dùng
+                        status.HasFlag(PrintQueueStatus.OutOfMemory);
+
+                    // CÁI NÀO COI LÀ OK?
+                    // - None, Printing, Busy, Waiting, Processing, WarmingUp, PowerSave,...
+                    // vẫn cho in bình thường nên return true nếu không có "fatal" ở trên.
+                    return !hasFatalStatus;
                 }
             }
             catch
             {
+                // Không tìm thấy printer hoặc lỗi khác → coi như không sẵn sàng
                 return false;
             }
-
-            return false;
         }
+
 
         public static bool PrintImage(Bitmap image)
         {

@@ -32,8 +32,7 @@ namespace DG_TonKhoBTP_v02.UI
             // Kiểm tra input trước, chưa cần waiting form
             if (stt <= 0)
             {
-                MessageBox.Show("STT KHÔNG HỢP LỆ!", "Thông báo",
-                                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                FrmWaiting.ShowGifAlert("STT KHÔNG HỢP LỆ!");
                 return;
             }
 
@@ -50,8 +49,7 @@ namespace DG_TonKhoBTP_v02.UI
                     // Sau await, ta đã quay lại UI thread (WinForms SynchronizationContext)
                     if (dt == null || dt.Rows.Count == 0)
                     {
-                        MessageBox.Show("STT KHÔNG TỒN TẠI!", "Thông báo",
-                                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        FrmWaiting.ShowGifAlert("STT KHÔNG TỒN TẠI!");
                         return;
                     }
 

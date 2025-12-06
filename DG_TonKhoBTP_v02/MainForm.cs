@@ -124,11 +124,7 @@ namespace DG_TonKhoBTP_v02
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(
-                        "Lỗi khởi tạo giao diện kéo rút: " + ex.Message,
-                        "Lỗi",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Error);
+                    FrmWaiting.ShowGifAlert("Lỗi khởi tạo giao diện kéo rút: " + ex.Message);
                 }
                 finally
                 {
@@ -184,11 +180,7 @@ namespace DG_TonKhoBTP_v02
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(
-                        "Lỗi khởi tạo giao diện bẻn ruột: " + ex.Message,
-                        "Lỗi",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Error);
+                    FrmWaiting.ShowGifAlert("Lỗi khởi tạo giao diện bẻn ruột: " + ex.Message);
                 }
                 finally
                 {
@@ -241,11 +233,7 @@ namespace DG_TonKhoBTP_v02
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(
-                        "Lỗi khởi tạo giao diện ghép lõi: " + ex.Message,
-                        "Lỗi",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Error);
+                    FrmWaiting.ShowGifAlert("Lỗi khởi tạo giao diện ghép lõi: " + ex.Message);
                 }
                 finally
                 {
@@ -298,11 +286,7 @@ namespace DG_TonKhoBTP_v02
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(
-                        "Lỗi khởi tạo giao diện quấn băng: " + ex.Message,
-                        "Lỗi",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Error);
+                    FrmWaiting.ShowGifAlert($"Lỗi khởi tạo giao diện quấn băng: {ex.Message}");
                 }
                 finally
                 {
@@ -355,11 +339,7 @@ namespace DG_TonKhoBTP_v02
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(
-                        "Lỗi khởi tạo giao diện mica: " + ex.Message,
-                        "Lỗi",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Error);
+                    FrmWaiting.ShowGifAlert($"Lỗi khởi tạo giao diện mica: {ex.Message}");
                 }
                 finally
                 {
@@ -416,11 +396,7 @@ namespace DG_TonKhoBTP_v02
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(
-                        "Lỗi khởi tạo giao diện bóc lót: " + ex.Message,
-                        "Lỗi",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Error);
+                    FrmWaiting.ShowGifAlert($"Lỗi khởi tạo giao diện bọc lót: {ex.Message}");
                 }
                 finally
                 {
@@ -477,11 +453,7 @@ namespace DG_TonKhoBTP_v02
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(
-                        "Lỗi khởi tạo giao diện bóc mạch: " + ex.Message,
-                        "Lỗi",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Error);
+                    FrmWaiting.ShowGifAlert($"Lỗi khởi tạo giao diện: {ex.Message}");
                 }
                 finally
                 {
@@ -538,11 +510,7 @@ namespace DG_TonKhoBTP_v02
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(
-                        "Lỗi khởi tạo giao diện bóc vỏ: " + ex.Message,
-                        "Lỗi",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Error);
+                    FrmWaiting.ShowGifAlert($"Lỗi khởi tạo giao diện bọc vỏ: {ex.Message}");
                 }
                 finally
                 {
@@ -565,19 +533,6 @@ namespace DG_TonKhoBTP_v02
             }
         }
 
-
-
-        //private void btnCapNhatMaHang_Click(object sender, EventArgs e)
-        //{
-        //    if (Helper.Helper.KiemTraEmpty(_URL)) return;
-        //    pnShow.Controls.Clear();
-        //    var uc = new UC_CapNhatSP
-        //    {
-        //        Dock = DockStyle.Fill
-        //    };
-
-        //    pnShow.Controls.Add(uc);
-        //}
 
         private void btnCapNhatMaHang_Click(object sender, EventArgs e)
         {
@@ -609,11 +564,7 @@ namespace DG_TonKhoBTP_v02
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(
-                        "Lỗi khởi tạo giao diện cập nhật mã hàng: " + ex.Message,
-                        "Lỗi",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Error);
+                    FrmWaiting.ShowGifAlert($"Lỗi khởi tạo giao diện: {ex.Message}");
                 }
                 finally
                 {
@@ -635,19 +586,6 @@ namespace DG_TonKhoBTP_v02
                 }
             }
         }
-
-        //private void btnBaoCaoTonKho_Click(object sender, EventArgs e)
-        //{
-        //    if (Helper.Helper.KiemTraEmpty(_URL)) return;
-
-        //    pnShow.Controls.Clear();
-        //    var uc = new UC_TonKho
-        //    {
-        //        Dock = DockStyle.Fill
-        //    };
-
-        //    pnShow.Controls.Add(uc);
-        //}
 
         private void btnBaoCaoTonKho_Click(object sender, EventArgs e)
         {
@@ -679,11 +617,7 @@ namespace DG_TonKhoBTP_v02
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(
-                        "Lỗi khởi tạo giao diện báo cáo tồn kho: " + ex.Message,
-                        "Lỗi",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Error);
+                    FrmWaiting.ShowGifAlert($"Lỗi khởi tạo giao diện: {ex.Message}");
                 }
                 finally
                 {
@@ -916,11 +850,8 @@ namespace DG_TonKhoBTP_v02
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(
-                        "Lỗi khởi tạo giao diện truy vết dữ liệu: " + ex.Message,
-                        "Lỗi",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Error);
+
+                    FrmWaiting.ShowGifAlert($"Lỗi khởi tạo giao diện: {ex.Message}");
                 }
                 finally
                 {
@@ -1013,11 +944,7 @@ namespace DG_TonKhoBTP_v02
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(
-                        "Lỗi khởi tạo giao diện kiểm tra BC: " + ex.Message,
-                        "Lỗi",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Error);
+                    FrmWaiting.ShowGifAlert($"Lỗi khởi tạo giao diện: {ex.Message}");
                 }
                 finally
                 {

@@ -54,8 +54,7 @@ namespace DG_TonKhoBTP_v02.UI.Setting
                 // Cập nhật UI trên UI thread (không cần Invoke vì đã ở UI thread)
                 if (loadException != null)
                 {
-                    MessageBox.Show("Không thể đọc dữ liệu từ database!\nChi tiết lỗi: " + loadException.Message,
-                        "LỖI", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    FrmWaiting.ShowGifAlert("Không thể đọc dữ liệu từ database!\nChi tiết lỗi: " + loadException.Message);
                 }
                 else if (config != null)
                 {
@@ -78,7 +77,7 @@ namespace DG_TonKhoBTP_v02.UI.Setting
 
             if (string.IsNullOrEmpty(result))
             {
-                MessageBox.Show("DATABASE CHƯA ĐƯỢC CHỌN.", "THÔNG BÁO");
+                FrmWaiting.ShowGifAlert("DATABASE CHƯA ĐƯỢC CHỌN");
                 return;
             }
 
@@ -86,17 +85,16 @@ namespace DG_TonKhoBTP_v02.UI.Setting
 
             Properties.Settings.Default.Save();
 
-            MessageBox.Show("Ứng dụng sẽ được khởi động lại để áp dụng thay đổi.", "THÔNG BÁO");
-            Application.Restart();
+            FrmWaiting.ShowGifAlert("ỨNG DỤNG SẼ KHỞI ĐỘNG LẠI ĐỂ ÁP DỤNG THAY ĐỔI");
+            Program.RestartApplication();
         }
 
         private void btnPhanQuyen_Click(object sender, EventArgs e)
         {
             string pass = tbQuyenUser.Text.Trim();
             Helper.Helper.UpdatePassApp(pass);
-
-            MessageBox.Show("Ứng dụng sẽ được khởi động lại để áp dụng thay đổi.", "THÔNG BÁO");
-            Application.Restart();
+            FrmWaiting.ShowGifAlert("ỨNG DỤNG SẼ KHỞI ĐỘNG LẠI ĐỂ ÁP DỤNG THAY ĐỔI");
+            Program.RestartApplication();
         }
 
         private void btnLuuPrinter_Click(object sender, EventArgs e)
@@ -111,7 +109,7 @@ namespace DG_TonKhoBTP_v02.UI.Setting
 
                 if (string.IsNullOrEmpty(printerName))
                 {
-                    MessageBox.Show("Vui lòng chọn tên máy in.", "CẢNH BÁO");
+                    FrmWaiting.ShowGifAlert("CHỌN TÊN MÁY IN");
                     return;
                 }
             }
@@ -119,8 +117,8 @@ namespace DG_TonKhoBTP_v02.UI.Setting
             Properties.Settings.Default.PrinterName = printerName;
             Properties.Settings.Default.Save();
 
-            MessageBox.Show("Ứng dụng sẽ được khởi động lại để áp dụng thay đổi.".ToUpper(), "THÔNG BÁO");
-            Application.Restart();
+            FrmWaiting.ShowGifAlert("ỨNG DỤNG SẼ KHỞI ĐỘNG LẠI ĐỂ ÁP DỤNG THAY ĐỔI");
+            Program.RestartApplication();
 
         }
 
@@ -132,23 +130,13 @@ namespace DG_TonKhoBTP_v02.UI.Setting
 
             if (tbxNguoiThucHien.Text.Trim() == "")
             {
-                DialogResult result = MessageBox.Show(
-                    "NGƯỜI THỰC HIỆN KHÔNG ĐƯỢC BỎ TRỐNG.",
-                    "CẢNH BÁO",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Warning
-                );
+                FrmWaiting.ShowGifAlert("NGƯỜI THỰC HIỆN KHÔNG ĐƯỢC BỎ TRỐNG.");
                 return;
             }
 
             if (rdoTamDung.Checked && rtbMsg.Length == 0)
             {
-                DialogResult result = MessageBox.Show(
-                    "LỜI NHẮC ĐANG BỊ BỎ TRỐNG.",
-                    "CẢNH BÁO",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Warning
-                );
+                FrmWaiting.ShowGifAlert("CHƯA CÓ LỜI NHẮC.");
                 return  ;
             }
 
@@ -162,14 +150,16 @@ namespace DG_TonKhoBTP_v02.UI.Setting
 
             bool flg = DatabaseHelper.InsertConfig(config);
             string ms = "THAO TÁC THẤT BẠI.";
+            string icon = "warning";
 
             if (flg)
             {
                 ms =  "THAO TÁC THÀNH CÔNG";
+                icon = "ok";
                 tbxNguoiThucHien.Text = "";
             }
 
-            MessageBox.Show(ms, "THÔNG BÁO");
+            FrmWaiting.ShowGifAlert(ms,"THÔNG BÁO", icon);
         }
 
         private void rdoHoatDong_CheckedChanged(object sender, EventArgs e)

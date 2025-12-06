@@ -36,8 +36,7 @@ namespace DG_TonKhoBTP_v02.UI
             {
                 if (kieuSP.SelectedItem == null)
                 {
-                    MessageBox.Show("KIỂU SẢN PHẨM KHÔNG HỢP LỆ.", "LỖI",
-                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    FrmWaiting.ShowGifAlert($"KIỂU SẢN PHẨM KHÔNG HỢP LỆ.");
                     return;
                 }
 
@@ -54,8 +53,7 @@ namespace DG_TonKhoBTP_v02.UI
                     string.IsNullOrEmpty(sp.Ten) ||
                     string.IsNullOrEmpty(sp.DonVi))
                 {
-                    MessageBox.Show("THIẾU DỮ LIỆU.", "Lỗi",
-                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    FrmWaiting.ShowGifAlert("THIẾU DỮ LIỆU.");
                     return;
                 }
 
@@ -81,22 +79,19 @@ namespace DG_TonKhoBTP_v02.UI
                 }, "ĐANG LƯU DỮ LIỆU...");
 
                 // >>>> HIỂN THỊ MESSAGEBOX SAU KHI WAITING FORM ĐÃ ĐÓNG <<
+                string icon = "warning";
                 if (string.IsNullOrEmpty(result))
                 {
-                    MessageBox.Show("THAO TÁC THÀNH CÔNG", "THÔNG BÁO",
-                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    result = "THAO TÁC THÀNH CÔNG";
+                    icon = "ok";
                     Clear();
                 }
-                else
-                {
-                    MessageBox.Show(result, "LỖI",
-                        MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
+
+                FrmWaiting.ShowGifAlert(result, "THÔNG BÁO",icon);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Đã xảy ra lỗi: {ex.Message}".ToUpper(), "LỖI",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                FrmWaiting.ShowGifAlert($"Đã xảy ra lỗi: {ex.Message}".ToUpper());
             }
             finally
             {
@@ -163,8 +158,7 @@ namespace DG_TonKhoBTP_v02.UI
 
                     if (dt == null || dt.Rows.Count == 0)
                     {
-                        MessageBox.Show("KHÔNG CÓ DỮ LIỆU.", "THÔNG BÁO",
-                            MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        FrmWaiting.ShowGifAlert("KHÔNG CÓ DỮ LIỆU.");
                         return;
                     }
 
@@ -188,8 +182,7 @@ namespace DG_TonKhoBTP_v02.UI
                         });
 
                         // 3) Thông báo xong (UI thread)
-                        MessageBox.Show("Đã xuất Excel thành công!", "Export",
-                            MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        FrmWaiting.ShowGifAlert("Đã xuất Excel thành công!", "Export","ok");
                         return;
                     }
                     else
@@ -210,8 +203,7 @@ namespace DG_TonKhoBTP_v02.UI
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Có lỗi xảy ra khi tải danh sách: {ex.Message}",
-                    "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                FrmWaiting.ShowGifAlert($"Có lỗi xảy ra khi tải danh sách: {ex.Message}");
             }
             finally
             {

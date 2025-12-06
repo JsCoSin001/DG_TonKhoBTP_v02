@@ -150,18 +150,11 @@ namespace DG_TonKhoBTP_v02.UI
 
             if (e.Exception is FormatException)
             {
-                MessageBox.Show(
-                    $"Giá trị không hợp lệ ở cột \"{colName}\". Vui lòng nhập số hợp lệ.",
-                    "Lỗi định dạng",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Warning);
+                FrmWaiting.ShowGifAlert($"Giá trị không hợp lệ ở cột \"{colName}\". Vui lòng nhập số hợp lệ.");
             }
             else
             {
-                MessageBox.Show("Có lỗi xảy ra: " + e.Exception.Message,
-                    "Lỗi",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
+                FrmWaiting.ShowGifAlert("Có lỗi xảy ra: " + e.Exception.Message);
             }
         }
 
@@ -275,7 +268,7 @@ namespace DG_TonKhoBTP_v02.UI
 
             if (table == null)
             {
-                MessageBox.Show("DataGridView chưa bind với DataTable.");
+                FrmWaiting.ShowGifAlert("DataGridView chưa bind với DataTable.");
                 return;
             }
 

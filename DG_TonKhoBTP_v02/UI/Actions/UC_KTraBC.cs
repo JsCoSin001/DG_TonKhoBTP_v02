@@ -8,6 +8,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -56,8 +57,7 @@ namespace DG_TonKhoBTP_v02.UI.Actions
                 // Kiểm tra kết quả sau khi waiting form đóng
                 if (dt == null || dt.Rows.Count == 0)
                 {
-                    MessageBox.Show("KHÔNG TÌM THẤY DỮ LIỆU PHÙ HỢP.", "THÔNG BÁO",
-                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    FrmWaiting.ShowGifAlert($"KHÔNG TÌM THẤY DỮ LIỆU PHÙ HỢP.");
                     return;
                 }
 
@@ -83,8 +83,7 @@ namespace DG_TonKhoBTP_v02.UI.Actions
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Có lỗi xảy ra: {ex.Message}", "LỖI",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                FrmWaiting.ShowGifAlert($"Có lỗi xảy ra: {ex.Message}");
             }
             finally
             {
@@ -99,8 +98,7 @@ namespace DG_TonKhoBTP_v02.UI.Actions
             // Kiểm tra người kiểm tra
             if (string.IsNullOrEmpty(nguoiKT))
             {
-                MessageBox.Show("VUI LÒNG NHẬP NGƯỜI KIỂM TRA.", "THÔNG BÁO",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                FrmWaiting.ShowGifAlert($"VUI LÒNG NHẬP NGƯỜI KIỂM TRA.");
                 return;
             }
 
@@ -120,8 +118,8 @@ namespace DG_TonKhoBTP_v02.UI.Actions
             // Kiểm tra danh sách rỗng
             if (listStt.Count == 0)
             {
-                MessageBox.Show("CHƯA THẤY NỘI DUNG NÀO ĐƯỢC CHỌN.", "THÔNG BÁO",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                FrmWaiting.ShowGifAlert($"CHƯA THẤY NỘI DUNG NÀO ĐƯỢC CHỌN");
+
                 return;
             }
 
@@ -136,15 +134,13 @@ namespace DG_TonKhoBTP_v02.UI.Actions
                 );
 
                 // Hiển thị kết quả sau khi waiting form đóng
-                string message = flg ? "THAO TÁC THÀNH CÔNG." : "THAO TÁC THẤT BẠI.";
-                MessageBox.Show(message, "THÔNG BÁO",
-                    MessageBoxButtons.OK,
-                    flg ? MessageBoxIcon.Information : MessageBoxIcon.Error);
+                string message = flg ? "THAO TÁC THÀNH CÔNG." : "THAO TÁC THẤT BẠI.";                
+                string icon = flg ? "ok" : "warning";
+                FrmWaiting.ShowGifAlert(message, "THÔNG BÁO", icon);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Có lỗi xảy ra: {ex.Message}", "LỖI",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                FrmWaiting.ShowGifAlert($"Có lỗi xảy ra: {ex.Message}");
             }
             finally
             {

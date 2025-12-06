@@ -40,8 +40,7 @@ namespace DG_TonKhoBTP_v02.UI
                 // Kiểm tra kết quả
                 if (dt == null || dt.Rows.Count == 0)
                 {
-                    MessageBox.Show("THÁNG " + selected.ToString("MM/yyyy") + " KHÔNG CÓ DỮ LIỆU!",
-                                  "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    FrmWaiting.ShowGifAlert("THÁNG " + selected.ToString("MM/yyyy") + " KHÔNG CÓ DỮ LIỆU!", "LỖI");
                     return;
                 }
 

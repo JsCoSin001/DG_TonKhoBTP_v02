@@ -1,4 +1,5 @@
 ﻿using DG_TonKhoBTP_v02.Core;
+using DG_TonKhoBTP_v02.UI;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -90,7 +91,8 @@ namespace DG_TonKhoBTP_v02.DL_Ben
                     catch (Exception ex)
                     {
                         tran.Rollback();
-                        MessageBox.Show("Lỗi: " + ex.Message, "LỖI", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        FrmWaiting.ShowGifAlert("Lỗi: " + ex.Message, "LỖI");
+
                         result = false;
                     }
                 }
@@ -198,13 +200,12 @@ namespace DG_TonKhoBTP_v02.DL_Ben
                         tran.Rollback();
                         if (ex.ResultCode == SQLiteErrorCode.Constraint && ex.Message.Contains("UNIQUE"))
                         {
-                            MessageBox.Show("LOT vừa nhập đã tồn tại",
-                                            "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            FrmWaiting.ShowGifAlert("LOT vừa nhập đã tồn tại", "LỖI");
+
                         }
                         else
                         {
-                            MessageBox.Show("Có lỗi khi lưu dữ liệu. Chi tiết: " + ex.Message,
-                                            "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            FrmWaiting.ShowGifAlert("Có lỗi khi lưu dữ liệu. Chi tiết: " + ex.Message, "LỖI");
                         }
                     }
                     finally

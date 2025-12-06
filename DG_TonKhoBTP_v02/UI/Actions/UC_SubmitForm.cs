@@ -10,6 +10,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Drawing;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
@@ -88,8 +89,7 @@ namespace DG_TonKhoBTP_v02.UI
             var thongTinCaLamViec = (ThongTinCaLamViec)snap.Sections["UC_TTCaLamViec"];
             if (!Validator.TTCaLamViec(thongTinCaLamViec))
             {
-                MessageBox.Show("Thông tin ở ca làm việc đang thiếu dữ liệu".ToUpper(), "THÔNG BÁO",
-                                MessageBoxButtons.OK, MessageBoxIcon.Error);
+                FrmWaiting.ShowGifAlert("THÔNG TIN Ở CA LÀM VIỆC ĐANG THIẾU DỮ LIỆU");
                 btnLuu.Enabled = true;
                 return;
             }
@@ -98,8 +98,7 @@ namespace DG_TonKhoBTP_v02.UI
             var list_TTNVL = snap.Sections["UC_TTNVL"] as List<TTNVL>;
             if (!Validator.TTNVL(list_TTNVL))
             {
-                MessageBox.Show("Thông tin NGUYÊN LIỆU chưa hợp lệ".ToUpper(), "THÔNG BÁO",
-                                      MessageBoxButtons.OK, MessageBoxIcon.Error);
+                FrmWaiting.ShowGifAlert("Thông tin NGUYÊN LIỆU chưa hợp lệ");
                 btnLuu.Enabled = true;
                 return;
             }
@@ -108,8 +107,7 @@ namespace DG_TonKhoBTP_v02.UI
             var thongTinThanhPham = (TTThanhPham)snap.Sections["UC_TTThanhPham"];
             if (!Validator.TTThanhPham(thongTinThanhPham))
             {
-                MessageBox.Show("Thiếu THÔNG TIN TP của CÔNG ĐOẠN", "THÔNG BÁO",
-                                MessageBoxButtons.OK, MessageBoxIcon.Error);
+                FrmWaiting.ShowGifAlert("Thiếu THÔNG TIN TP của CÔNG ĐOẠN");
                 btnLuu.Enabled = true;
                 return;
             }
@@ -118,8 +116,7 @@ namespace DG_TonKhoBTP_v02.UI
             var chiTietCD = Validator.KiemTraChiTietCongDoan(snap);
             if (chiTietCD[0] == null)
             {
-                MessageBox.Show("Chi tiết công đoạn chưa hợp lệ".ToUpper(), "THÔNG BÁO",
-                                MessageBoxButtons.OK, MessageBoxIcon.Error);
+                FrmWaiting.ShowGifAlert("Chi tiết công đoạn chưa hợp lệ");
                 btnLuu.Enabled = true;
                 return;
             }
@@ -148,7 +145,7 @@ namespace DG_TonKhoBTP_v02.UI
             var editmodel = (EditModel)snap.Sections["UC_Edit"];
             int idEdit = editmodel.Id;
             string err = string.Empty;
-            bool isSuccess = false;
+            //bool isSuccess = false;
                         
             bool shouldPrint = false;
 
@@ -259,27 +256,25 @@ namespace DG_TonKhoBTP_v02.UI
                             try { waiting.Close(); waiting.Dispose(); } catch { }
 
                             // 🔔 Thông báo 1: KẾT QUẢ LƯU
+                            string msgSave = (idEdit > 0 ? "SỬA" : "LƯU");
+                            string iconAlert = "alert";
+
                             if (saveSuccess)
                             {
-                                string msgSave = (idEdit > 0 ? "SỬA" : "LƯU") + " THÀNH CÔNG";
-                                MessageBox.Show(this, msgSave, "THÔNG BÁO",
-                                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                                msgSave += " THÀNH CÔNG ";
+                                iconAlert = "ok";
                             }
                             else
                             {
-                                string msgSave = string.IsNullOrEmpty(saveError)
-                                    ? "LƯU KHÔNG THÀNH CÔNG."
-                                    : saveError;
-
-                                MessageBox.Show(this, msgSave, "LỖI",
-                                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                msgSave += " KHÔNG THÀNH CÔNG\nLỗi: " + saveError;
                             }
+
+                            FrmWaiting.ShowGifAlert(msgSave,"THÔNG BÁO", iconAlert);
 
                             // 🔔 Thông báo 2: LỖI IN (nếu có và chỉ khi lưu thành công)
                             if (saveSuccess && hasPrintError && !string.IsNullOrEmpty(printError))
                             {
-                                MessageBox.Show(this, printError.ToUpper(), "LỖI IN",
-                                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                FrmWaiting.ShowGifAlert(printError.ToUpper(), "LỖI IN");
                             }
 
                             // Nếu lưu OK thì clear form
@@ -288,6 +283,7 @@ namespace DG_TonKhoBTP_v02.UI
 
                             btnLuu.Enabled = true; // bật lại nút
                         }));
+
                     }
                 });
             }
@@ -296,11 +292,7 @@ namespace DG_TonKhoBTP_v02.UI
                 // Lỗi xảy ra trước khi Task bắt đầu (UI thread)
                 try { waiting?.Close(); waiting?.Dispose(); } catch { }
 
-                MessageBox.Show(this,
-                    "Lỗi: " + ex.Message,
-                    "Lỗi",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
+                FrmWaiting.ShowGifAlert("LỖI: " + ex.Message, "LỖI");
 
                 btnLuu.Enabled = true;
             }

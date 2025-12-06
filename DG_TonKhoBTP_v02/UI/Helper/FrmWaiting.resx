@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
-  <data name="pictureBox1.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+  <data name="picLoading.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         R0lGODlhQABAANUAABTatIzq1Mz27FTixKzy5DTevOz69HTmzCTatJzu3Nz69GTmzLzy5ETevPz+/ITq
         1NT27FzixPT+/Hzq1CzatMT27JTu3Oz+/HTq1KTu3Lz27EzixNT69FzmzCzevBzatIzu3LTy5DzevOz6

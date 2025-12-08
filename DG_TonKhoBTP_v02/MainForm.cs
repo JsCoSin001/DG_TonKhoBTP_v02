@@ -91,35 +91,23 @@ namespace DG_TonKhoBTP_v02
             if (Helper.Helper.KiemTraEmpty(_URL))
                 return;
 
-            // Đổi màu nút đang chọn (tái sử dụng được cho nút khác)
             HighlightMenuButton((Button)sender);
-
             btnKeoRut.Enabled = false;
 
-            using (var waiting = new FrmWaiting("ĐANG KHỞI TẠO GIAO DIỆN ..."))
+            using (var waiting = new FrmWaiting("ĐANG KHỞI TẠO GIAO DIỆN..."))
             {
                 try
                 {
-                    // 1. Hiển thị form chờ
-                    waiting.TopMost = true;
-                    waiting.StartPosition = FormStartPosition.CenterScreen;
-                    waiting.Show();
-                    waiting.Refresh();
-                    Application.DoEvents(); // giúp FrmWaiting kịp vẽ
+                    waiting.ShowAndRefresh();
 
-                    // 2. Tạm dừng layout + ẩn vùng hiển thị chính để tránh giật
                     pnShow.SuspendLayout();
                     pnShow.Visible = false;
 
-                    // 3. Tạo toàn bộ UI kéo rút
                     CongDoan thongTinCD = ThongTinChungCongDoan.KeoRut;
                     List<ColumnDefinition> columns = thongTinCD.Columns;
-
                     var ucSanPham = new UC_TTSanPham(new UC_CDKeoRut());
-
                     Panel pnBottom = UI_BottomPanel(columns, ucSanPham, thongTinCD, rawMaterial: true);
 
-                    // Hàm ShowUI của bạn
                     ShowUI(thongTinCD, pnBottom);
                 }
                 catch (Exception ex)
@@ -128,27 +116,13 @@ namespace DG_TonKhoBTP_v02
                 }
                 finally
                 {
-                    // 4. Hiện lại UI + resume layout
-                    try
-                    {
-                        pnShow.Visible = true;
-                        pnShow.ResumeLayout(true);
-                    }
-                    catch { }
-
-                    // 5. FrmWaiting sẽ tự Dispose nhờ using, chỉ cần đảm bảo nó đã đóng
-                    try
-                    {
-                        if (waiting.Visible)
-                            waiting.Close();
-                    }
-                    catch { }
-
+                    pnShow.Visible = true;
+                    pnShow.ResumeLayout(true);
+                    waiting?.CloseAndDispose();
                     btnKeoRut.Enabled = true;
                 }
             }
         }
-
 
         private void btnBenRuot_Click(object sender, EventArgs e)
         {
@@ -158,15 +132,11 @@ namespace DG_TonKhoBTP_v02
             HighlightMenuButton((Button)sender);
             btnBenRuot.Enabled = false;
 
-            using (var waiting = new FrmWaiting("ĐANG KHỞI TẠO GIAO DIỆN ..."))
+            using (var waiting = new FrmWaiting("ĐANG KHỞI TẠO GIAO DIỆN..."))
             {
                 try
                 {
-                    waiting.TopMost = true;
-                    waiting.StartPosition = FormStartPosition.CenterScreen;
-                    waiting.Show();
-                    waiting.Refresh();
-                    Application.DoEvents();
+                    waiting.ShowAndRefresh();
 
                     pnShow.SuspendLayout();
                     pnShow.Visible = false;
@@ -184,20 +154,9 @@ namespace DG_TonKhoBTP_v02
                 }
                 finally
                 {
-                    try
-                    {
-                        pnShow.Visible = true;
-                        pnShow.ResumeLayout(true);
-                    }
-                    catch { }
-
-                    try
-                    {
-                        if (waiting.Visible)
-                            waiting.Close();
-                    }
-                    catch { }
-
+                    pnShow.Visible = true;
+                    pnShow.ResumeLayout(true);
+                    waiting?.CloseAndDispose();
                     btnBenRuot.Enabled = true;
                 }
             }
@@ -211,15 +170,11 @@ namespace DG_TonKhoBTP_v02
             HighlightMenuButton((Button)sender);
             btnGhepLoi.Enabled = false;
 
-            using (var waiting = new FrmWaiting("ĐANG KHỞI TẠO GIAO DIỆN ..."))
+            using (var waiting = new FrmWaiting("ĐANG KHỞI TẠO GIAO DIỆN..."))
             {
                 try
                 {
-                    waiting.TopMost = true;
-                    waiting.StartPosition = FormStartPosition.CenterScreen;
-                    waiting.Show();
-                    waiting.Refresh();
-                    Application.DoEvents();
+                    waiting.ShowAndRefresh();
 
                     pnShow.SuspendLayout();
                     pnShow.Visible = false;
@@ -237,20 +192,9 @@ namespace DG_TonKhoBTP_v02
                 }
                 finally
                 {
-                    try
-                    {
-                        pnShow.Visible = true;
-                        pnShow.ResumeLayout(true);
-                    }
-                    catch { }
-
-                    try
-                    {
-                        if (waiting.Visible)
-                            waiting.Close();
-                    }
-                    catch { }
-
+                    pnShow.Visible = true;
+                    pnShow.ResumeLayout(true);
+                    waiting?.CloseAndDispose();
                     btnGhepLoi.Enabled = true;
                 }
             }
@@ -264,15 +208,11 @@ namespace DG_TonKhoBTP_v02
             HighlightMenuButton((Button)sender);
             btnQuanBang.Enabled = false;
 
-            using (var waiting = new FrmWaiting("ĐANG KHỞI TẠO GIAO DIỆN ..."))
+            using (var waiting = new FrmWaiting("ĐANG KHỞI TẠO GIAO DIỆN..."))
             {
                 try
                 {
-                    waiting.TopMost = true;
-                    waiting.StartPosition = FormStartPosition.CenterScreen;
-                    waiting.Show();
-                    waiting.Refresh();
-                    Application.DoEvents();
+                    waiting.ShowAndRefresh();
 
                     pnShow.SuspendLayout();
                     pnShow.Visible = false;
@@ -290,20 +230,9 @@ namespace DG_TonKhoBTP_v02
                 }
                 finally
                 {
-                    try
-                    {
-                        pnShow.Visible = true;
-                        pnShow.ResumeLayout(true);
-                    }
-                    catch { }
-
-                    try
-                    {
-                        if (waiting.Visible)
-                            waiting.Close();
-                    }
-                    catch { }
-
+                    pnShow.Visible = true;
+                    pnShow.ResumeLayout(true);
+                    waiting?.CloseAndDispose();
                     btnQuanBang.Enabled = true;
                 }
             }
@@ -317,15 +246,11 @@ namespace DG_TonKhoBTP_v02
             HighlightMenuButton((Button)sender);
             btnMica.Enabled = false;
 
-            using (var waiting = new FrmWaiting("ĐANG KHỞI TẠO GIAO DIỆN ..."))
+            using (var waiting = new FrmWaiting("ĐANG KHỞI TẠO GIAO DIỆN..."))
             {
                 try
                 {
-                    waiting.TopMost = true;
-                    waiting.StartPosition = FormStartPosition.CenterScreen;
-                    waiting.Show();
-                    waiting.Refresh();
-                    Application.DoEvents();
+                    waiting.ShowAndRefresh();
 
                     pnShow.SuspendLayout();
                     pnShow.Visible = false;
@@ -343,20 +268,9 @@ namespace DG_TonKhoBTP_v02
                 }
                 finally
                 {
-                    try
-                    {
-                        pnShow.Visible = true;
-                        pnShow.ResumeLayout(true);
-                    }
-                    catch { }
-
-                    try
-                    {
-                        if (waiting.Visible)
-                            waiting.Close();
-                    }
-                    catch { }
-
+                    pnShow.Visible = true;
+                    pnShow.ResumeLayout(true);
+                    waiting?.CloseAndDispose();
                     btnMica.Enabled = true;
                 }
             }
@@ -370,15 +284,11 @@ namespace DG_TonKhoBTP_v02
             HighlightMenuButton((Button)sender);
             btnBocLot.Enabled = false;
 
-            using (var waiting = new FrmWaiting("ĐANG KHỞI TẠO GIAO DIỆN ..."))
+            using (var waiting = new FrmWaiting("ĐANG KHỞI TẠO GIAO DIỆN..."))
             {
                 try
                 {
-                    waiting.TopMost = true;
-                    waiting.StartPosition = FormStartPosition.CenterScreen;
-                    waiting.Show();
-                    waiting.Refresh();
-                    Application.DoEvents();
+                    waiting.ShowAndRefresh();
 
                     pnShow.SuspendLayout();
                     pnShow.Visible = false;
@@ -400,20 +310,9 @@ namespace DG_TonKhoBTP_v02
                 }
                 finally
                 {
-                    try
-                    {
-                        pnShow.Visible = true;
-                        pnShow.ResumeLayout(true);
-                    }
-                    catch { }
-
-                    try
-                    {
-                        if (waiting.Visible)
-                            waiting.Close();
-                    }
-                    catch { }
-
+                    pnShow.Visible = true;
+                    pnShow.ResumeLayout(true);
+                    waiting?.CloseAndDispose();
                     btnBocLot.Enabled = true;
                 }
             }
@@ -427,15 +326,11 @@ namespace DG_TonKhoBTP_v02
             HighlightMenuButton((Button)sender);
             btnBocMach.Enabled = false;
 
-            using (var waiting = new FrmWaiting("ĐANG KHỞI TẠO GIAO DIỆN ..."))
+            using (var waiting = new FrmWaiting("ĐANG KHỞI TẠO GIAO DIỆN..."))
             {
                 try
                 {
-                    waiting.TopMost = true;
-                    waiting.StartPosition = FormStartPosition.CenterScreen;
-                    waiting.Show();
-                    waiting.Refresh();
-                    Application.DoEvents();
+                    waiting.ShowAndRefresh();
 
                     pnShow.SuspendLayout();
                     pnShow.Visible = false;
@@ -453,24 +348,13 @@ namespace DG_TonKhoBTP_v02
                 }
                 catch (Exception ex)
                 {
-                    FrmWaiting.ShowGifAlert($"Lỗi khởi tạo giao diện: {ex.Message}");
+                    FrmWaiting.ShowGifAlert($"Lỗi khởi tạo giao diện bọc mạch: {ex.Message}");
                 }
                 finally
                 {
-                    try
-                    {
-                        pnShow.Visible = true;
-                        pnShow.ResumeLayout(true);
-                    }
-                    catch { }
-
-                    try
-                    {
-                        if (waiting.Visible)
-                            waiting.Close();
-                    }
-                    catch { }
-
+                    pnShow.Visible = true;
+                    pnShow.ResumeLayout(true);
+                    waiting?.CloseAndDispose();
                     btnBocMach.Enabled = true;
                 }
             }
@@ -484,15 +368,11 @@ namespace DG_TonKhoBTP_v02
             HighlightMenuButton((Button)sender);
             btnBocVo.Enabled = false;
 
-            using (var waiting = new FrmWaiting("ĐANG KHỞI TẠO GIAO DIỆN ..."))
+            using (var waiting = new FrmWaiting("ĐANG KHỞI TẠO GIAO DIỆN..."))
             {
                 try
                 {
-                    waiting.TopMost = true;
-                    waiting.StartPosition = FormStartPosition.CenterScreen;
-                    waiting.Show();
-                    waiting.Refresh();
-                    Application.DoEvents();
+                    waiting.ShowAndRefresh();
 
                     pnShow.SuspendLayout();
                     pnShow.Visible = false;
@@ -514,25 +394,13 @@ namespace DG_TonKhoBTP_v02
                 }
                 finally
                 {
-                    try
-                    {
-                        pnShow.Visible = true;
-                        pnShow.ResumeLayout(true);
-                    }
-                    catch { }
-
-                    try
-                    {
-                        if (waiting.Visible)
-                            waiting.Close();
-                    }
-                    catch { }
-
+                    pnShow.Visible = true;
+                    pnShow.ResumeLayout(true);
+                    waiting?.CloseAndDispose();
                     btnBocVo.Enabled = true;
                 }
             }
         }
-
 
         private void btnCapNhatMaHang_Click(object sender, EventArgs e)
         {
@@ -542,15 +410,11 @@ namespace DG_TonKhoBTP_v02
             HighlightMenuButton((Button)sender);
             btnCapNhatMaHang.Enabled = false;
 
-            using (var waiting = new FrmWaiting("ĐANG KHỞI TẠO GIAO DIỆN ..."))
+            using (var waiting = new FrmWaiting("ĐANG KHỞI TẠO GIAO DIỆN..."))
             {
                 try
                 {
-                    waiting.TopMost = true;
-                    waiting.StartPosition = FormStartPosition.CenterScreen;
-                    waiting.Show();
-                    waiting.Refresh();
-                    Application.DoEvents();
+                    waiting.ShowAndRefresh();
 
                     pnShow.SuspendLayout();
                     pnShow.Visible = false;
@@ -564,24 +428,13 @@ namespace DG_TonKhoBTP_v02
                 }
                 catch (Exception ex)
                 {
-                    FrmWaiting.ShowGifAlert($"Lỗi khởi tạo giao diện: {ex.Message}");
+                    FrmWaiting.ShowGifAlert($"Lỗi khởi tạo giao diện cập nhật mã hàng: {ex.Message}");
                 }
                 finally
                 {
-                    try
-                    {
-                        pnShow.Visible = true;
-                        pnShow.ResumeLayout(true);
-                    }
-                    catch { }
-
-                    try
-                    {
-                        if (waiting.Visible)
-                            waiting.Close();
-                    }
-                    catch { }
-
+                    pnShow.Visible = true;
+                    pnShow.ResumeLayout(true);
+                    waiting?.CloseAndDispose();
                     btnCapNhatMaHang.Enabled = true;
                 }
             }
@@ -595,15 +448,11 @@ namespace DG_TonKhoBTP_v02
             HighlightMenuButton((Button)sender);
             btnBaoCaoTonKho.Enabled = false;
 
-            using (var waiting = new FrmWaiting("ĐANG KHỞI TẠO GIAO DIỆN ..."))
+            using (var waiting = new FrmWaiting("ĐANG KHỞI TẠO GIAO DIỆN..."))
             {
                 try
                 {
-                    waiting.TopMost = true;
-                    waiting.StartPosition = FormStartPosition.CenterScreen;
-                    waiting.Show();
-                    waiting.Refresh();
-                    Application.DoEvents();
+                    waiting.ShowAndRefresh();
 
                     pnShow.SuspendLayout();
                     pnShow.Visible = false;
@@ -617,28 +466,454 @@ namespace DG_TonKhoBTP_v02
                 }
                 catch (Exception ex)
                 {
-                    FrmWaiting.ShowGifAlert($"Lỗi khởi tạo giao diện: {ex.Message}");
+                    FrmWaiting.ShowGifAlert($"Lỗi khởi tạo giao diện báo cáo tồn kho: {ex.Message}");
                 }
                 finally
                 {
-                    try
-                    {
-                        pnShow.Visible = true;
-                        pnShow.ResumeLayout(true);
-                    }
-                    catch { }
-
-                    try
-                    {
-                        if (waiting.Visible)
-                            waiting.Close();
-                    }
-                    catch { }
-
+                    pnShow.Visible = true;
+                    pnShow.ResumeLayout(true);
+                    waiting?.CloseAndDispose();
                     btnBaoCaoTonKho.Enabled = true;
                 }
             }
         }
+
+        //private void btnGhepLoi_Click(object sender, EventArgs e)
+        //{
+        //    if (Helper.Helper.KiemTraEmpty(_URL))
+        //        return;
+
+        //    HighlightMenuButton((Button)sender);
+        //    btnGhepLoi.Enabled = false;
+
+        //    using (var waiting = new FrmWaiting("ĐANG KHỞI TẠO GIAO DIỆN ..."))
+        //    {
+        //        try
+        //        {
+        //            waiting.TopMost = true;
+        //            waiting.StartPosition = FormStartPosition.CenterScreen;
+        //            waiting.Show();
+        //            waiting.Refresh();
+        //            Application.DoEvents();
+
+        //            pnShow.SuspendLayout();
+        //            pnShow.Visible = false;
+
+        //            CongDoan thongTinCD = ThongTinChungCongDoan.GhepLoi;
+        //            List<ColumnDefinition> columns = thongTinCD.Columns;
+        //            var ucSanPham = new UC_TTSanPham(new UC_CDGhepLoiQB());
+        //            Panel pnBottom = UI_BottomPanel(columns, ucSanPham, thongTinCD);
+
+        //            ShowUI(thongTinCD, pnBottom);
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            FrmWaiting.ShowGifAlert("Lỗi khởi tạo giao diện ghép lõi: " + ex.Message);
+        //        }
+        //        finally
+        //        {
+        //            try
+        //            {
+        //                pnShow.Visible = true;
+        //                pnShow.ResumeLayout(true);
+        //            }
+        //            catch { }
+
+        //            try
+        //            {
+        //                if (waiting.Visible)
+        //                    waiting.Close();
+        //            }
+        //            catch { }
+
+        //            btnGhepLoi.Enabled = true;
+        //        }
+        //    }
+        //}
+
+        //private void btnQuanBang_Click(object sender, EventArgs e)
+        //{
+        //    if (Helper.Helper.KiemTraEmpty(_URL))
+        //        return;
+
+        //    HighlightMenuButton((Button)sender);
+        //    btnQuanBang.Enabled = false;
+
+        //    using (var waiting = new FrmWaiting("ĐANG KHỞI TẠO GIAO DIỆN ..."))
+        //    {
+        //        try
+        //        {
+        //            waiting.TopMost = true;
+        //            waiting.StartPosition = FormStartPosition.CenterScreen;
+        //            waiting.Show();
+        //            waiting.Refresh();
+        //            Application.DoEvents();
+
+        //            pnShow.SuspendLayout();
+        //            pnShow.Visible = false;
+
+        //            CongDoan thongTinCD = ThongTinChungCongDoan.QuanBang;
+        //            List<ColumnDefinition> columns = thongTinCD.Columns;
+        //            var ucSanPham = new UC_TTSanPham(new UC_CDGhepLoiQB());
+        //            Panel pnBottom = UI_BottomPanel(columns, ucSanPham, thongTinCD);
+
+        //            ShowUI(thongTinCD, pnBottom);
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            FrmWaiting.ShowGifAlert($"Lỗi khởi tạo giao diện quấn băng: {ex.Message}");
+        //        }
+        //        finally
+        //        {
+        //            try
+        //            {
+        //                pnShow.Visible = true;
+        //                pnShow.ResumeLayout(true);
+        //            }
+        //            catch { }
+
+        //            try
+        //            {
+        //                if (waiting.Visible)
+        //                    waiting.Close();
+        //            }
+        //            catch { }
+
+        //            btnQuanBang.Enabled = true;
+        //        }
+        //    }
+        //}
+
+        //private void btnMica_Click(object sender, EventArgs e)
+        //{
+        //    if (Helper.Helper.KiemTraEmpty(_URL))
+        //        return;
+
+        //    HighlightMenuButton((Button)sender);
+        //    btnMica.Enabled = false;
+
+        //    using (var waiting = new FrmWaiting("ĐANG KHỞI TẠO GIAO DIỆN ..."))
+        //    {
+        //        try
+        //        {
+        //            waiting.TopMost = true;
+        //            waiting.StartPosition = FormStartPosition.CenterScreen;
+        //            waiting.Show();
+        //            waiting.Refresh();
+        //            Application.DoEvents();
+
+        //            pnShow.SuspendLayout();
+        //            pnShow.Visible = false;
+
+        //            CongDoan thongTinCD = ThongTinChungCongDoan.Mica;
+        //            List<ColumnDefinition> columns = thongTinCD.Columns;
+        //            var ucSanPham = new UC_TTSanPham(new UC_CDGhepLoiQB());
+        //            Panel pnBottom = UI_BottomPanel(columns, ucSanPham, thongTinCD);
+
+        //            ShowUI(thongTinCD, pnBottom);
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            FrmWaiting.ShowGifAlert($"Lỗi khởi tạo giao diện mica: {ex.Message}");
+        //        }
+        //        finally
+        //        {
+        //            try
+        //            {
+        //                pnShow.Visible = true;
+        //                pnShow.ResumeLayout(true);
+        //            }
+        //            catch { }
+
+        //            try
+        //            {
+        //                if (waiting.Visible)
+        //                    waiting.Close();
+        //            }
+        //            catch { }
+
+        //            btnMica.Enabled = true;
+        //        }
+        //    }
+        //}
+
+        //private void btnBocLot_Click(object sender, EventArgs e)
+        //{
+        //    if (Helper.Helper.KiemTraEmpty(_URL))
+        //        return;
+
+        //    HighlightMenuButton((Button)sender);
+        //    btnBocLot.Enabled = false;
+
+        //    using (var waiting = new FrmWaiting("ĐANG KHỞI TẠO GIAO DIỆN ..."))
+        //    {
+        //        try
+        //        {
+        //            waiting.TopMost = true;
+        //            waiting.StartPosition = FormStartPosition.CenterScreen;
+        //            waiting.Show();
+        //            waiting.Refresh();
+        //            Application.DoEvents();
+
+        //            pnShow.SuspendLayout();
+        //            pnShow.Visible = false;
+
+        //            CongDoan thongTinCD = ThongTinChungCongDoan.BocLot;
+        //            List<ColumnDefinition> columns = thongTinCD.Columns;
+        //            var ucSanPham = new UC_TTSanPham(
+        //                new UC_CDBocLot(),
+        //                new UC_DieuKienBoc(),
+        //                new UC_CaiDatMay()
+        //            );
+        //            Panel pnBottom = UI_BottomPanel(columns, ucSanPham, thongTinCD);
+
+        //            ShowUI(thongTinCD, pnBottom);
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            FrmWaiting.ShowGifAlert($"Lỗi khởi tạo giao diện bọc lót: {ex.Message}");
+        //        }
+        //        finally
+        //        {
+        //            try
+        //            {
+        //                pnShow.Visible = true;
+        //                pnShow.ResumeLayout(true);
+        //            }
+        //            catch { }
+
+        //            try
+        //            {
+        //                if (waiting.Visible)
+        //                    waiting.Close();
+        //            }
+        //            catch { }
+
+        //            btnBocLot.Enabled = true;
+        //        }
+        //    }
+        //}
+
+        //private void btnBocMach_Click(object sender, EventArgs e)
+        //{
+        //    if (Helper.Helper.KiemTraEmpty(_URL))
+        //        return;
+
+        //    HighlightMenuButton((Button)sender);
+        //    btnBocMach.Enabled = false;
+
+        //    using (var waiting = new FrmWaiting("ĐANG KHỞI TẠO GIAO DIỆN ..."))
+        //    {
+        //        try
+        //        {
+        //            waiting.TopMost = true;
+        //            waiting.StartPosition = FormStartPosition.CenterScreen;
+        //            waiting.Show();
+        //            waiting.Refresh();
+        //            Application.DoEvents();
+
+        //            pnShow.SuspendLayout();
+        //            pnShow.Visible = false;
+
+        //            CongDoan thongTinCD = ThongTinChungCongDoan.BocMach;
+        //            List<ColumnDefinition> columns = thongTinCD.Columns;
+        //            var ucSanPham = new UC_TTSanPham(
+        //                new UC_CDBocMach(),
+        //                new UC_DieuKienBoc(),
+        //                new UC_CaiDatMay()
+        //            );
+        //            Panel pnBottom = UI_BottomPanel(columns, ucSanPham, thongTinCD);
+
+        //            ShowUI(thongTinCD, pnBottom);
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            FrmWaiting.ShowGifAlert($"Lỗi khởi tạo giao diện: {ex.Message}");
+        //        }
+        //        finally
+        //        {
+        //            try
+        //            {
+        //                pnShow.Visible = true;
+        //                pnShow.ResumeLayout(true);
+        //            }
+        //            catch { }
+
+        //            try
+        //            {
+        //                if (waiting.Visible)
+        //                    waiting.Close();
+        //            }
+        //            catch { }
+
+        //            btnBocMach.Enabled = true;
+        //        }
+        //    }
+        //}
+
+        //private void btnBocVo_Click(object sender, EventArgs e)
+        //{
+        //    if (Helper.Helper.KiemTraEmpty(_URL))
+        //        return;
+
+        //    HighlightMenuButton((Button)sender);
+        //    btnBocVo.Enabled = false;
+
+        //    using (var waiting = new FrmWaiting("ĐANG KHỞI TẠO GIAO DIỆN ..."))
+        //    {
+        //        try
+        //        {
+        //            waiting.TopMost = true;
+        //            waiting.StartPosition = FormStartPosition.CenterScreen;
+        //            waiting.Show();
+        //            waiting.Refresh();
+        //            Application.DoEvents();
+
+        //            pnShow.SuspendLayout();
+        //            pnShow.Visible = false;
+
+        //            CongDoan thongTinCD = ThongTinChungCongDoan.BocVo;
+        //            List<ColumnDefinition> columns = thongTinCD.Columns;
+        //            var ucSanPham = new UC_TTSanPham(
+        //                new UC_CDBocVo(),
+        //                new UC_DieuKienBoc(),
+        //                new UC_CaiDatMay()
+        //            );
+        //            Panel pnBottom = UI_BottomPanel(columns, ucSanPham, thongTinCD);
+
+        //            ShowUI(thongTinCD, pnBottom);
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            FrmWaiting.ShowGifAlert($"Lỗi khởi tạo giao diện bọc vỏ: {ex.Message}");
+        //        }
+        //        finally
+        //        {
+        //            try
+        //            {
+        //                pnShow.Visible = true;
+        //                pnShow.ResumeLayout(true);
+        //            }
+        //            catch { }
+
+        //            try
+        //            {
+        //                if (waiting.Visible)
+        //                    waiting.Close();
+        //            }
+        //            catch { }
+
+        //            btnBocVo.Enabled = true;
+        //        }
+        //    }
+        //}
+
+
+        //private void btnCapNhatMaHang_Click(object sender, EventArgs e)
+        //{
+        //    if (Helper.Helper.KiemTraEmpty(_URL))
+        //        return;
+
+        //    HighlightMenuButton((Button)sender);
+        //    btnCapNhatMaHang.Enabled = false;
+
+        //    using (var waiting = new FrmWaiting("ĐANG KHỞI TẠO GIAO DIỆN ..."))
+        //    {
+        //        try
+        //        {
+        //            waiting.TopMost = true;
+        //            waiting.StartPosition = FormStartPosition.CenterScreen;
+        //            waiting.Show();
+        //            waiting.Refresh();
+        //            Application.DoEvents();
+
+        //            pnShow.SuspendLayout();
+        //            pnShow.Visible = false;
+
+        //            pnShow.Controls.Clear();
+        //            var uc = new UC_CapNhatSP
+        //            {
+        //                Dock = DockStyle.Fill
+        //            };
+        //            pnShow.Controls.Add(uc);
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            FrmWaiting.ShowGifAlert($"Lỗi khởi tạo giao diện: {ex.Message}");
+        //        }
+        //        finally
+        //        {
+        //            try
+        //            {
+        //                pnShow.Visible = true;
+        //                pnShow.ResumeLayout(true);
+        //            }
+        //            catch { }
+
+        //            try
+        //            {
+        //                if (waiting.Visible)
+        //                    waiting.Close();
+        //            }
+        //            catch { }
+
+        //            btnCapNhatMaHang.Enabled = true;
+        //        }
+        //    }
+        //}
+
+        //private void btnBaoCaoTonKho_Click(object sender, EventArgs e)
+        //{
+        //    if (Helper.Helper.KiemTraEmpty(_URL))
+        //        return;
+
+        //    HighlightMenuButton((Button)sender);
+        //    btnBaoCaoTonKho.Enabled = false;
+
+        //    using (var waiting = new FrmWaiting("ĐANG KHỞI TẠO GIAO DIỆN ..."))
+        //    {
+        //        try
+        //        {
+        //            waiting.TopMost = true;
+        //            waiting.StartPosition = FormStartPosition.CenterScreen;
+        //            waiting.Show();
+        //            waiting.Refresh();
+        //            Application.DoEvents();
+
+        //            pnShow.SuspendLayout();
+        //            pnShow.Visible = false;
+
+        //            pnShow.Controls.Clear();
+        //            var uc = new UC_TonKho
+        //            {
+        //                Dock = DockStyle.Fill
+        //            };
+        //            pnShow.Controls.Add(uc);
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            FrmWaiting.ShowGifAlert($"Lỗi khởi tạo giao diện: {ex.Message}");
+        //        }
+        //        finally
+        //        {
+        //            try
+        //            {
+        //                pnShow.Visible = true;
+        //                pnShow.ResumeLayout(true);
+        //            }
+        //            catch { }
+
+        //            try
+        //            {
+        //                if (waiting.Visible)
+        //                    waiting.Close();
+        //            }
+        //            catch { }
+
+        //            btnBaoCaoTonKho.Enabled = true;
+        //        }
+        //    }
+        //}
 
 
 
@@ -807,18 +1082,6 @@ namespace DG_TonKhoBTP_v02
         }
         #endregion
 
-        //private void btnTruyVetDL_Click(object sender, EventArgs e)
-        //{
-        //    if (Helper.Helper.KiemTraEmpty(_URL)) return;
-
-        //    pnShow.Controls.Clear();
-        //    var uc = new UC_TruyVetDuLieu
-        //    {
-        //        Dock = DockStyle.Fill
-        //    };
-
-        //    pnShow.Controls.Add(uc);
-        //}
 
         private void btnTruyVetDL_Click(object sender, EventArgs e)
         {
@@ -874,7 +1137,6 @@ namespace DG_TonKhoBTP_v02
             }
         }
 
-
         private async void setiingToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Setting settingForm = new Setting();
@@ -912,7 +1174,6 @@ namespace DG_TonKhoBTP_v02
         {
             ShowHomePage();
         }
-
 
         private void BtnKiemTraBc_Click(object sender, EventArgs e)
         {

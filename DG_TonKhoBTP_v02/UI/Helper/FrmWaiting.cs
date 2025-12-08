@@ -27,7 +27,7 @@ namespace DG_TonKhoBTP_v02.UI
         {
             var form = new FrmWaiting(message, icon, title, gifPath);
 
-            form.ControlBox = true;     // Bật nút X
+            form.ControlBox = true;
             form.MinimizeBox = false;
             form.MaximizeBox = false;
             form.TopMost = true;
@@ -41,7 +41,6 @@ namespace DG_TonKhoBTP_v02.UI
 
             // Cấu hình label
             lblMessage.AutoSize = true;
-            //lblMessage.MaximumSize = new System.Drawing.Size(288, 0);
             lblMessage.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             lblMessage.Text = message;
 
@@ -65,7 +64,19 @@ namespace DG_TonKhoBTP_v02.UI
             this.MinimumSize = new System.Drawing.Size(330, 150);
         }
 
-        public static void ShowGifAlert( string message, string title = "THÔNG BÁO", string myIcon = "warning")
+        /// <summary>
+        /// Hiển thị form waiting với cấu hình mặc định (TopMost, CenterScreen, Refresh)
+        /// </summary>
+        public void ShowAndRefresh()
+        {
+            this.TopMost = true;
+            this.StartPosition = FormStartPosition.CenterScreen;
+            this.Show();
+            this.Refresh();
+            Application.DoEvents();
+        }
+
+        public static void ShowGifAlert(string message, string title = "THÔNG BÁO", string myIcon = "warning")
         {
             string baseDir = AppDomain.CurrentDomain.BaseDirectory;
             string iconPath = Path.Combine(baseDir, "Assets", "megaphone.ico");
@@ -83,16 +94,20 @@ namespace DG_TonKhoBTP_v02.UI
 
                 alert.ShowIcon = alertIcon != null;
 
-                alert.ShowDialog();  // ⭐ THIS IS THE IMPORTANT PART ⭐
+                alert.ShowDialog();
             }
         }
 
-
-        // Cho phép đổi nội dung khi đang chạy (tuỳ chọn)
+        // Cho phép đổi nội dung khi đang chạy
         public string MessageText
         {
             get => lblMessage.Text;
-            set => lblMessage.Text = value;
+            set
+            {
+                lblMessage.Text = value;
+                this.Refresh();
+                Application.DoEvents();
+            }
         }
 
         // Cho phép đổi title khi đang chạy
@@ -116,9 +131,24 @@ namespace DG_TonKhoBTP_v02.UI
             if (InvokeRequired) BeginInvoke(new Action(Close));
             else Close();
         }
+
+        // Đóng và dispose an toàn
+        public void CloseAndDispose()
+        {
+            try
+            {
+                if (!IsDisposed)
+                {
+                    this.Close();
+                    this.Dispose();
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Lỗi đóng FrmWaiting: {ex.Message}");
+            }
+        }
     }
-
-
 
     public static class WaitingHelper
     {
@@ -129,10 +159,7 @@ namespace DG_TonKhoBTP_v02.UI
         {
             using (var waiting = new FrmWaiting(message))
             {
-                waiting.TopMost = true;
-                waiting.StartPosition = FormStartPosition.CenterScreen;
-                waiting.Show();
-                waiting.Refresh();
+                waiting.ShowAndRefresh(); // ✅ Dùng method mới
 
                 try
                 {
@@ -165,10 +192,7 @@ namespace DG_TonKhoBTP_v02.UI
         {
             using (var waiting = new FrmWaiting(message))
             {
-                waiting.TopMost = true;
-                waiting.StartPosition = FormStartPosition.CenterScreen;
-                waiting.Show();
-                waiting.Refresh();
+                waiting.ShowAndRefresh(); // ✅ Dùng method mới
 
                 try
                 {
@@ -187,5 +211,4 @@ namespace DG_TonKhoBTP_v02.UI
             }
         }
     }
-
 }

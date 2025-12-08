@@ -86,7 +86,7 @@
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(756, 21);
             this.label2.TabIndex = 0;
-            this.label2.Text = "Nếu KHỐI LƯỢNG / CHIỀU DÀI = 0 sẽ KHÔNG in tem";
+            this.label2.Text = "Các ô màu vàng cần điền dữ liệu";
             this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.label2.UseCompatibleTextRendering = true;
             // 

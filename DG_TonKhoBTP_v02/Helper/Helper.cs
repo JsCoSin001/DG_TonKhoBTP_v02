@@ -90,7 +90,7 @@ namespace DG_TonKhoBTP_v02.Helper
                 t.KhoiLuongSau  AS KlBatDau,
                 t.ChieuDaiSau   AS CDBatDau,
                 t.id            AS id,
-                d.Ten           AS TenNVL,
+                d.Ma           AS MaNVL,
                 d.DonVi         AS DonVi,
                 d.id            as DanhSachMaSP_ID,
                 t.MaBin         AS BinNVL,
@@ -127,7 +127,7 @@ namespace DG_TonKhoBTP_v02.Helper
                 -1          AS KlBatDau,
                 -1          AS CDBatDau,
                 d.id        AS id,
-                d.Ten       AS TenNVL,
+                d.ma       AS MaNVL,
                 d.DonVi     AS DonVi,
                 d.id        AS DanhSachMaSP_ID,
                 d.Ten       AS BinNVL,
@@ -310,6 +310,7 @@ namespace DG_TonKhoBTP_v02.Helper
                         if (string.Equals(name, "DanhSachMaSP_ID", StringComparison.OrdinalIgnoreCase)) continue; // bỏ nvl.id
                         if (string.Equals(name, "DonVi", StringComparison.OrdinalIgnoreCase)) continue; // bỏ nvl.id
                         if (string.Equals(name, "TenNVL", StringComparison.OrdinalIgnoreCase)) continue; // bỏ nvl.id
+                        if (string.Equals(name, "MaNVL", StringComparison.OrdinalIgnoreCase)) continue; // bỏ nvl.id
                         if (string.Equals(name, "Ngay", StringComparison.OrdinalIgnoreCase)) continue; // bỏ nvl.id
                         if (string.Equals(name, "Ca", StringComparison.OrdinalIgnoreCase)) continue; // bỏ nvl.id
                         if (string.Equals(name, "NguoiLam", StringComparison.OrdinalIgnoreCase)) continue; // bỏ nvl.id

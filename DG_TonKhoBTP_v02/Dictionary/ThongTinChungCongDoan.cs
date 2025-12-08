@@ -24,7 +24,7 @@ namespace DG_TonKhoBTP_v02.Dictionary
                 new ColumnDefinition { Name = "id",          DataType = typeof(int),    Header = "ID" },
                 new ColumnDefinition { Name = "DonVi",       DataType = typeof(string), Header = "DonVi" },
                 new ColumnDefinition { Name = "Ngay", DataType = typeof(string), Header = "Ngay" },
-                new ColumnDefinition { Name = "TenNVL", DataType = typeof(string), Header = "TenNVL" },
+                new ColumnDefinition { Name = "MaNVL", DataType = typeof(string), Header = "MaNVL" },
                 new ColumnDefinition { Name = "Ca", DataType = typeof(string), Header = "Ca" },
                 new ColumnDefinition { Name = "NguoiLam", DataType = typeof(string), Header = "NguoiLam" },
                 new ColumnDefinition { Name = "GhiChu", DataType = typeof(string), Header = "GhiChu" },

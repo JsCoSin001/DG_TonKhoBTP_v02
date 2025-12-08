@@ -22,6 +22,7 @@ public static class ErrorStore
     {
         { 1, "Lỗi bất thường, liên hệ Mr.Linh để xử lý!" },
         { 2, "Kiểm tra lại mã Bin" },
-        { 3, "Khối lượng hoặc chiều dài TP không phù hợp" },
+        { 3, "Thiếu khối lượng Thành phẩm" },
+        { 4, "Thiếu chiều dài Thành phẩm" },
     };
 }

@@ -91,6 +91,7 @@ namespace DG_TonKhoBTP_v02.Core
         public int DanhSachSP_ID { get; set; }        // FK -> DanhSachMaSP.id
         public string TenTP { get; set; }       
         public string MaTP { get; set; }       
+        public string DonVi { get; set; }       
         public int ThongTinCaLamViec_ID { get; set; } // FK -> ThongTinCaLamViec.id
         public string MaBin { get; set; }             // NOT NULL
         public double KhoiLuongTruoc { get; set; }    // NOT NULL

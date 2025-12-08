@@ -82,8 +82,13 @@ namespace DG_TonKhoBTP_v02.Helper
         public static int TTThanhPham(TTThanhPham data)
         {
             if (data.DanhSachSP_ID == 0) return 1;
+
             if (string.IsNullOrWhiteSpace(data.MaBin)) return 2;
-            if (data.KhoiLuongSau == 0 && data.ChieuDaiSau == 0) return 3;
+
+            if (data.DonVi == "KG" && data.KhoiLuongSau == 0) return 3;
+
+            if (data.DonVi == "M" && data.ChieuDaiSau == 0) return 4;
+            
             return 0;
         }
 

@@ -258,6 +258,10 @@ namespace DG_TonKhoBTP_v02.UI
             if (cbxTimKiem.SelectedItem == null || !(cbxTimKiem.SelectedItem is DataRowView sel))
                 return;
 
+            // Reset combobox SỚM – sau này return kiểu gì cũng đã reset rồi
+            cbxTimKiem.SelectedIndex = -1;
+            cbxTimKiem.Text = string.Empty;
+
             // Lấy DataTable đang bind với DataGridView (kể cả khi dùng BindingSource)
             DataTable table = null;
             BindingSource bs = dtgTTNVL.DataSource as BindingSource;
@@ -283,7 +287,7 @@ namespace DG_TonKhoBTP_v02.UI
             newRow["CdBatDau"] = sel["CdBatDau"];
             newRow["DonVi"] = sel["DonVi"];
             newRow["id"] = sel["id"];
-            newRow["TenNVL"] = sel["TenNVL"];
+            newRow["MaNVL"] = sel["MaNVL"];
             newRow["Ngay"] = sel["Ngay"];
             newRow["Ca"] = sel["Ca"];
             newRow["NguoiLam"] = sel["NguoiLam"];
@@ -292,19 +296,37 @@ namespace DG_TonKhoBTP_v02.UI
             newRow["BinNVL"] = sel["BinNVL"];
             table.Rows.Add(newRow);
 
-            // Chọn & cuộn đến dòng vừa thêm (tuỳ chọn)
             int addedIndex = table.Rows.IndexOf(newRow);
             if (addedIndex >= 0 && addedIndex < dtgTTNVL.Rows.Count)
             {
                 dtgTTNVL.ClearSelection();
-                //dtgTTNVL.Rows[addedIndex].Selected = true; 
-                dtgTTNVL.Rows[addedIndex].DefaultCellStyle.BackColor = Color.Yellow; // tô nền
+
+                string maSP = newRow["MaNVL"].ToString();
+                int dotIndex = maSP.IndexOf(".");
+                if (dotIndex > 0)
+                    maSP = maSP.Substring(0, dotIndex);
+
+                int start = 3;
+
+                if (maSP == "NVL") return; 
+
+                int baseCol = tongCotCanHide + start;
+
+                // Tô cột theo DonVi
+                int targetCol = newRow["DonVi"].ToString() == "M" ? baseCol : baseCol + 1;
+                dtgTTNVL.Rows[addedIndex].Cells[targetCol].Style.BackColor = Color.Yellow;
+
+                // Tô các cột còn lại
+                for (int i = baseCol + 2; i <= _columns.Count; i++)                
+                    dtgTTNVL.Rows[addedIndex].Cells[i].Style.BackColor = Color.Yellow;
+
+                
+
+
                 dtgTTNVL.FirstDisplayedScrollingRowIndex = addedIndex;
             }
-
-            cbxTimKiem.SelectedIndex = -1;
-            cbxTimKiem.Text = string.Empty;
         }
+
 
 
         #region Hiển thị dữ liệu từ DataTable

@@ -478,445 +478,6 @@ namespace DG_TonKhoBTP_v02
             }
         }
 
-        //private void btnGhepLoi_Click(object sender, EventArgs e)
-        //{
-        //    if (Helper.Helper.KiemTraEmpty(_URL))
-        //        return;
-
-        //    HighlightMenuButton((Button)sender);
-        //    btnGhepLoi.Enabled = false;
-
-        //    using (var waiting = new FrmWaiting("ĐANG KHỞI TẠO GIAO DIỆN ..."))
-        //    {
-        //        try
-        //        {
-        //            waiting.TopMost = true;
-        //            waiting.StartPosition = FormStartPosition.CenterScreen;
-        //            waiting.Show();
-        //            waiting.Refresh();
-        //            Application.DoEvents();
-
-        //            pnShow.SuspendLayout();
-        //            pnShow.Visible = false;
-
-        //            CongDoan thongTinCD = ThongTinChungCongDoan.GhepLoi;
-        //            List<ColumnDefinition> columns = thongTinCD.Columns;
-        //            var ucSanPham = new UC_TTSanPham(new UC_CDGhepLoiQB());
-        //            Panel pnBottom = UI_BottomPanel(columns, ucSanPham, thongTinCD);
-
-        //            ShowUI(thongTinCD, pnBottom);
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            FrmWaiting.ShowGifAlert("Lỗi khởi tạo giao diện ghép lõi: " + ex.Message);
-        //        }
-        //        finally
-        //        {
-        //            try
-        //            {
-        //                pnShow.Visible = true;
-        //                pnShow.ResumeLayout(true);
-        //            }
-        //            catch { }
-
-        //            try
-        //            {
-        //                if (waiting.Visible)
-        //                    waiting.Close();
-        //            }
-        //            catch { }
-
-        //            btnGhepLoi.Enabled = true;
-        //        }
-        //    }
-        //}
-
-        //private void btnQuanBang_Click(object sender, EventArgs e)
-        //{
-        //    if (Helper.Helper.KiemTraEmpty(_URL))
-        //        return;
-
-        //    HighlightMenuButton((Button)sender);
-        //    btnQuanBang.Enabled = false;
-
-        //    using (var waiting = new FrmWaiting("ĐANG KHỞI TẠO GIAO DIỆN ..."))
-        //    {
-        //        try
-        //        {
-        //            waiting.TopMost = true;
-        //            waiting.StartPosition = FormStartPosition.CenterScreen;
-        //            waiting.Show();
-        //            waiting.Refresh();
-        //            Application.DoEvents();
-
-        //            pnShow.SuspendLayout();
-        //            pnShow.Visible = false;
-
-        //            CongDoan thongTinCD = ThongTinChungCongDoan.QuanBang;
-        //            List<ColumnDefinition> columns = thongTinCD.Columns;
-        //            var ucSanPham = new UC_TTSanPham(new UC_CDGhepLoiQB());
-        //            Panel pnBottom = UI_BottomPanel(columns, ucSanPham, thongTinCD);
-
-        //            ShowUI(thongTinCD, pnBottom);
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            FrmWaiting.ShowGifAlert($"Lỗi khởi tạo giao diện quấn băng: {ex.Message}");
-        //        }
-        //        finally
-        //        {
-        //            try
-        //            {
-        //                pnShow.Visible = true;
-        //                pnShow.ResumeLayout(true);
-        //            }
-        //            catch { }
-
-        //            try
-        //            {
-        //                if (waiting.Visible)
-        //                    waiting.Close();
-        //            }
-        //            catch { }
-
-        //            btnQuanBang.Enabled = true;
-        //        }
-        //    }
-        //}
-
-        //private void btnMica_Click(object sender, EventArgs e)
-        //{
-        //    if (Helper.Helper.KiemTraEmpty(_URL))
-        //        return;
-
-        //    HighlightMenuButton((Button)sender);
-        //    btnMica.Enabled = false;
-
-        //    using (var waiting = new FrmWaiting("ĐANG KHỞI TẠO GIAO DIỆN ..."))
-        //    {
-        //        try
-        //        {
-        //            waiting.TopMost = true;
-        //            waiting.StartPosition = FormStartPosition.CenterScreen;
-        //            waiting.Show();
-        //            waiting.Refresh();
-        //            Application.DoEvents();
-
-        //            pnShow.SuspendLayout();
-        //            pnShow.Visible = false;
-
-        //            CongDoan thongTinCD = ThongTinChungCongDoan.Mica;
-        //            List<ColumnDefinition> columns = thongTinCD.Columns;
-        //            var ucSanPham = new UC_TTSanPham(new UC_CDGhepLoiQB());
-        //            Panel pnBottom = UI_BottomPanel(columns, ucSanPham, thongTinCD);
-
-        //            ShowUI(thongTinCD, pnBottom);
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            FrmWaiting.ShowGifAlert($"Lỗi khởi tạo giao diện mica: {ex.Message}");
-        //        }
-        //        finally
-        //        {
-        //            try
-        //            {
-        //                pnShow.Visible = true;
-        //                pnShow.ResumeLayout(true);
-        //            }
-        //            catch { }
-
-        //            try
-        //            {
-        //                if (waiting.Visible)
-        //                    waiting.Close();
-        //            }
-        //            catch { }
-
-        //            btnMica.Enabled = true;
-        //        }
-        //    }
-        //}
-
-        //private void btnBocLot_Click(object sender, EventArgs e)
-        //{
-        //    if (Helper.Helper.KiemTraEmpty(_URL))
-        //        return;
-
-        //    HighlightMenuButton((Button)sender);
-        //    btnBocLot.Enabled = false;
-
-        //    using (var waiting = new FrmWaiting("ĐANG KHỞI TẠO GIAO DIỆN ..."))
-        //    {
-        //        try
-        //        {
-        //            waiting.TopMost = true;
-        //            waiting.StartPosition = FormStartPosition.CenterScreen;
-        //            waiting.Show();
-        //            waiting.Refresh();
-        //            Application.DoEvents();
-
-        //            pnShow.SuspendLayout();
-        //            pnShow.Visible = false;
-
-        //            CongDoan thongTinCD = ThongTinChungCongDoan.BocLot;
-        //            List<ColumnDefinition> columns = thongTinCD.Columns;
-        //            var ucSanPham = new UC_TTSanPham(
-        //                new UC_CDBocLot(),
-        //                new UC_DieuKienBoc(),
-        //                new UC_CaiDatMay()
-        //            );
-        //            Panel pnBottom = UI_BottomPanel(columns, ucSanPham, thongTinCD);
-
-        //            ShowUI(thongTinCD, pnBottom);
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            FrmWaiting.ShowGifAlert($"Lỗi khởi tạo giao diện bọc lót: {ex.Message}");
-        //        }
-        //        finally
-        //        {
-        //            try
-        //            {
-        //                pnShow.Visible = true;
-        //                pnShow.ResumeLayout(true);
-        //            }
-        //            catch { }
-
-        //            try
-        //            {
-        //                if (waiting.Visible)
-        //                    waiting.Close();
-        //            }
-        //            catch { }
-
-        //            btnBocLot.Enabled = true;
-        //        }
-        //    }
-        //}
-
-        //private void btnBocMach_Click(object sender, EventArgs e)
-        //{
-        //    if (Helper.Helper.KiemTraEmpty(_URL))
-        //        return;
-
-        //    HighlightMenuButton((Button)sender);
-        //    btnBocMach.Enabled = false;
-
-        //    using (var waiting = new FrmWaiting("ĐANG KHỞI TẠO GIAO DIỆN ..."))
-        //    {
-        //        try
-        //        {
-        //            waiting.TopMost = true;
-        //            waiting.StartPosition = FormStartPosition.CenterScreen;
-        //            waiting.Show();
-        //            waiting.Refresh();
-        //            Application.DoEvents();
-
-        //            pnShow.SuspendLayout();
-        //            pnShow.Visible = false;
-
-        //            CongDoan thongTinCD = ThongTinChungCongDoan.BocMach;
-        //            List<ColumnDefinition> columns = thongTinCD.Columns;
-        //            var ucSanPham = new UC_TTSanPham(
-        //                new UC_CDBocMach(),
-        //                new UC_DieuKienBoc(),
-        //                new UC_CaiDatMay()
-        //            );
-        //            Panel pnBottom = UI_BottomPanel(columns, ucSanPham, thongTinCD);
-
-        //            ShowUI(thongTinCD, pnBottom);
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            FrmWaiting.ShowGifAlert($"Lỗi khởi tạo giao diện: {ex.Message}");
-        //        }
-        //        finally
-        //        {
-        //            try
-        //            {
-        //                pnShow.Visible = true;
-        //                pnShow.ResumeLayout(true);
-        //            }
-        //            catch { }
-
-        //            try
-        //            {
-        //                if (waiting.Visible)
-        //                    waiting.Close();
-        //            }
-        //            catch { }
-
-        //            btnBocMach.Enabled = true;
-        //        }
-        //    }
-        //}
-
-        //private void btnBocVo_Click(object sender, EventArgs e)
-        //{
-        //    if (Helper.Helper.KiemTraEmpty(_URL))
-        //        return;
-
-        //    HighlightMenuButton((Button)sender);
-        //    btnBocVo.Enabled = false;
-
-        //    using (var waiting = new FrmWaiting("ĐANG KHỞI TẠO GIAO DIỆN ..."))
-        //    {
-        //        try
-        //        {
-        //            waiting.TopMost = true;
-        //            waiting.StartPosition = FormStartPosition.CenterScreen;
-        //            waiting.Show();
-        //            waiting.Refresh();
-        //            Application.DoEvents();
-
-        //            pnShow.SuspendLayout();
-        //            pnShow.Visible = false;
-
-        //            CongDoan thongTinCD = ThongTinChungCongDoan.BocVo;
-        //            List<ColumnDefinition> columns = thongTinCD.Columns;
-        //            var ucSanPham = new UC_TTSanPham(
-        //                new UC_CDBocVo(),
-        //                new UC_DieuKienBoc(),
-        //                new UC_CaiDatMay()
-        //            );
-        //            Panel pnBottom = UI_BottomPanel(columns, ucSanPham, thongTinCD);
-
-        //            ShowUI(thongTinCD, pnBottom);
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            FrmWaiting.ShowGifAlert($"Lỗi khởi tạo giao diện bọc vỏ: {ex.Message}");
-        //        }
-        //        finally
-        //        {
-        //            try
-        //            {
-        //                pnShow.Visible = true;
-        //                pnShow.ResumeLayout(true);
-        //            }
-        //            catch { }
-
-        //            try
-        //            {
-        //                if (waiting.Visible)
-        //                    waiting.Close();
-        //            }
-        //            catch { }
-
-        //            btnBocVo.Enabled = true;
-        //        }
-        //    }
-        //}
-
-
-        //private void btnCapNhatMaHang_Click(object sender, EventArgs e)
-        //{
-        //    if (Helper.Helper.KiemTraEmpty(_URL))
-        //        return;
-
-        //    HighlightMenuButton((Button)sender);
-        //    btnCapNhatMaHang.Enabled = false;
-
-        //    using (var waiting = new FrmWaiting("ĐANG KHỞI TẠO GIAO DIỆN ..."))
-        //    {
-        //        try
-        //        {
-        //            waiting.TopMost = true;
-        //            waiting.StartPosition = FormStartPosition.CenterScreen;
-        //            waiting.Show();
-        //            waiting.Refresh();
-        //            Application.DoEvents();
-
-        //            pnShow.SuspendLayout();
-        //            pnShow.Visible = false;
-
-        //            pnShow.Controls.Clear();
-        //            var uc = new UC_CapNhatSP
-        //            {
-        //                Dock = DockStyle.Fill
-        //            };
-        //            pnShow.Controls.Add(uc);
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            FrmWaiting.ShowGifAlert($"Lỗi khởi tạo giao diện: {ex.Message}");
-        //        }
-        //        finally
-        //        {
-        //            try
-        //            {
-        //                pnShow.Visible = true;
-        //                pnShow.ResumeLayout(true);
-        //            }
-        //            catch { }
-
-        //            try
-        //            {
-        //                if (waiting.Visible)
-        //                    waiting.Close();
-        //            }
-        //            catch { }
-
-        //            btnCapNhatMaHang.Enabled = true;
-        //        }
-        //    }
-        //}
-
-        //private void btnBaoCaoTonKho_Click(object sender, EventArgs e)
-        //{
-        //    if (Helper.Helper.KiemTraEmpty(_URL))
-        //        return;
-
-        //    HighlightMenuButton((Button)sender);
-        //    btnBaoCaoTonKho.Enabled = false;
-
-        //    using (var waiting = new FrmWaiting("ĐANG KHỞI TẠO GIAO DIỆN ..."))
-        //    {
-        //        try
-        //        {
-        //            waiting.TopMost = true;
-        //            waiting.StartPosition = FormStartPosition.CenterScreen;
-        //            waiting.Show();
-        //            waiting.Refresh();
-        //            Application.DoEvents();
-
-        //            pnShow.SuspendLayout();
-        //            pnShow.Visible = false;
-
-        //            pnShow.Controls.Clear();
-        //            var uc = new UC_TonKho
-        //            {
-        //                Dock = DockStyle.Fill
-        //            };
-        //            pnShow.Controls.Add(uc);
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            FrmWaiting.ShowGifAlert($"Lỗi khởi tạo giao diện: {ex.Message}");
-        //        }
-        //        finally
-        //        {
-        //            try
-        //            {
-        //                pnShow.Visible = true;
-        //                pnShow.ResumeLayout(true);
-        //            }
-        //            catch { }
-
-        //            try
-        //            {
-        //                if (waiting.Visible)
-        //                    waiting.Close();
-        //            }
-        //            catch { }
-
-        //            btnBaoCaoTonKho.Enabled = true;
-        //        }
-        //    }
-        //}
-
-
-
         #endregion
 
         #region Tạo panel UI theo công đoạn
@@ -1082,7 +643,6 @@ namespace DG_TonKhoBTP_v02
         }
         #endregion
 
-
         private void btnTruyVetDL_Click(object sender, EventArgs e)
         {
             if (Helper.Helper.KiemTraEmpty(_URL))
@@ -1091,15 +651,11 @@ namespace DG_TonKhoBTP_v02
             HighlightMenuButton((Button)sender);
             btnTruyVetDL.Enabled = false;
 
-            using (var waiting = new FrmWaiting("ĐANG KHỞI TẠO GIAO DIỆN ..."))
+            using (var waiting = new FrmWaiting("ĐANG KHỞI TẠO GIAO DIỆN..."))
             {
                 try
                 {
-                    waiting.TopMost = true;
-                    waiting.StartPosition = FormStartPosition.CenterScreen;
-                    waiting.Show();
-                    waiting.Refresh();
-                    Application.DoEvents();
+                    waiting.ShowAndRefresh();
 
                     pnShow.SuspendLayout();
                     pnShow.Visible = false;
@@ -1113,25 +669,13 @@ namespace DG_TonKhoBTP_v02
                 }
                 catch (Exception ex)
                 {
-
-                    FrmWaiting.ShowGifAlert($"Lỗi khởi tạo giao diện: {ex.Message}");
+                    FrmWaiting.ShowGifAlert($"Lỗi khởi tạo giao diện truy vết dữ liệu: {ex.Message}");
                 }
                 finally
                 {
-                    try
-                    {
-                        pnShow.Visible = true;
-                        pnShow.ResumeLayout(true);
-                    }
-                    catch { }
-
-                    try
-                    {
-                        if (waiting.Visible)
-                            waiting.Close();
-                    }
-                    catch { }
-
+                    pnShow.Visible = true;
+                    pnShow.ResumeLayout(true);
+                    waiting?.CloseAndDispose();
                     btnTruyVetDL.Enabled = true;
                 }
             }
@@ -1183,15 +727,11 @@ namespace DG_TonKhoBTP_v02
             HighlightMenuButton((Button)sender);
             BtnKiemTraBc.Enabled = false;
 
-            using (var waiting = new FrmWaiting("ĐANG KHỞI TẠO GIAO DIỆN ..."))
+            using (var waiting = new FrmWaiting("ĐANG KHỞI TẠO GIAO DIỆN..."))
             {
                 try
                 {
-                    waiting.TopMost = true;
-                    waiting.StartPosition = FormStartPosition.CenterScreen;
-                    waiting.Show();
-                    waiting.Refresh();
-                    Application.DoEvents();
+                    waiting.ShowAndRefresh();
 
                     pnShow.SuspendLayout();
                     pnShow.Visible = false;
@@ -1205,24 +745,13 @@ namespace DG_TonKhoBTP_v02
                 }
                 catch (Exception ex)
                 {
-                    FrmWaiting.ShowGifAlert($"Lỗi khởi tạo giao diện: {ex.Message}");
+                    FrmWaiting.ShowGifAlert($"Lỗi khởi tạo giao diện kiểm tra BC: {ex.Message}");
                 }
                 finally
                 {
-                    try
-                    {
-                        pnShow.Visible = true;
-                        pnShow.ResumeLayout(true);
-                    }
-                    catch { }
-
-                    try
-                    {
-                        if (waiting.Visible)
-                            waiting.Close();
-                    }
-                    catch { }
-
+                    pnShow.Visible = true;
+                    pnShow.ResumeLayout(true);
+                    waiting?.CloseAndDispose();
                     BtnKiemTraBc.Enabled = true;
                 }
             }

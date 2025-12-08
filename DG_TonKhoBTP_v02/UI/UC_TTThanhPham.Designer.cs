@@ -67,6 +67,7 @@
             this.timNVL = new System.Windows.Forms.ComboBox();
             this.label3 = new System.Windows.Forms.Label();
             this.id = new System.Windows.Forms.TextBox();
+            this.donVi = new System.Windows.Forms.TextBox();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.groupBox1.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -483,7 +484,7 @@
             // 
             // tableLayoutPanel4
             // 
-            this.tableLayoutPanel4.ColumnCount = 8;
+            this.tableLayoutPanel4.ColumnCount = 9;
             this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 70F));
             this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 380F));
             this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 70F));
@@ -491,7 +492,8 @@
             this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 100F));
             this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 200F));
             this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 70F));
-            this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+            this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 70F));
             this.tableLayoutPanel4.Controls.Add(this.ten, 7, 0);
             this.tableLayoutPanel4.Controls.Add(this.ma, 5, 0);
             this.tableLayoutPanel4.Controls.Add(this.label19, 6, 0);
@@ -500,6 +502,7 @@
             this.tableLayoutPanel4.Controls.Add(this.timNVL, 1, 0);
             this.tableLayoutPanel4.Controls.Add(this.label3, 0, 0);
             this.tableLayoutPanel4.Controls.Add(this.id, 3, 0);
+            this.tableLayoutPanel4.Controls.Add(this.donVi, 8, 0);
             this.tableLayoutPanel4.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel4.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel4.Name = "tableLayoutPanel4";
@@ -515,7 +518,7 @@
             this.ten.Font = new System.Drawing.Font("Microsoft Sans Serif", 12.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.ten.Location = new System.Drawing.Point(993, 3);
             this.ten.Name = "ten";
-            this.ten.Size = new System.Drawing.Size(478, 27);
+            this.ten.Size = new System.Drawing.Size(408, 27);
             this.ten.TabIndex = 41;
             // 
             // ma
@@ -593,6 +596,14 @@
             this.id.Size = new System.Drawing.Size(94, 27);
             this.id.TabIndex = 39;
             // 
+            // donVi
+            // 
+            this.donVi.Location = new System.Drawing.Point(1407, 3);
+            this.donVi.Name = "donVi";
+            this.donVi.Size = new System.Drawing.Size(64, 22);
+            this.donVi.TabIndex = 42;
+            this.donVi.Visible = false;
+            // 
             // UC_TTThanhPham
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -661,5 +672,6 @@
         private System.Windows.Forms.TextBox maBin;
         private System.Windows.Forms.Timer timer1;
         private System.Windows.Forms.Label label20;
+        private System.Windows.Forms.TextBox donVi;
     }
 }

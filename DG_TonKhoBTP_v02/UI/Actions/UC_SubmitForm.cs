@@ -100,7 +100,6 @@ namespace DG_TonKhoBTP_v02.UI
                     waiting.Close();
                     waiting.Dispose();
                     btnLuu.Enabled = true;
-                    FrmWaiting.ShowGifAlert("LỖI CAPTURE DỮ LIỆU: " + ex.Message, "LỖI");
                     return;
                 }
                 Debug.WriteLine($"Capture snapshot: {swStep.ElapsedMilliseconds} ms (tổng: {swTotal.ElapsedMilliseconds} ms)");

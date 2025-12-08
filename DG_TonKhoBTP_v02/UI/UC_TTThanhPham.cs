@@ -69,6 +69,7 @@ namespace DG_TonKhoBTP_v02.UI
                 ThongTinCaLamViec_ID = 0,
                 TenTP = ten.Text,
                 MaTP = ma.Text,
+                DonVi = donVi.Text,
                 CongDoan = congDoan,
                 MaBin = maBin?.Text ?? string.Empty,
                 KhoiLuongTruoc = (double)khoiLuong.Value, // Tạo mới đặt KL trước = kl sau
@@ -135,7 +136,7 @@ namespace DG_TonKhoBTP_v02.UI
             var likeConditions = string.Join(" OR ", congDoan.ListMa_Accept.Select((m, i) => $"Ma LIKE '{m}'"));
 
             string query = $@"
-                SELECT id, ten, ma
+                SELECT id, ten, ma, donvi
                 FROM DanhSachMaSP
                 WHERE ten LIKE '%' || @{para} || '%'
                     AND Ma NOT LIKE 'NVL.%'
@@ -175,6 +176,7 @@ namespace DG_TonKhoBTP_v02.UI
             ten.Text = row["ten"].ToString();
             ma.Text = row["ma"].ToString();
             id.Text = row["id"].ToString();
+            donVi.Text = row["donvi"].ToString();
 
             timNVL.SelectedIndex = -1;
             timNVL.Text = string.Empty;
@@ -186,6 +188,7 @@ namespace DG_TonKhoBTP_v02.UI
             id.Text = string.Empty;
             ma.Text = string.Empty;
             ten.Text = string.Empty;
+            donVi.Text = string.Empty;
         }
 
         public void LoadData(DataTable dt)
@@ -198,6 +201,7 @@ namespace DG_TonKhoBTP_v02.UI
             Helper.Helper.SetIfPresent(row, "id", val => id.Text = Convert.ToString(val));
             Helper.Helper.SetIfPresent(row, "Ma", val => ma.Text = Convert.ToString(val));
             Helper.Helper.SetIfPresent(row, "Ten", val => ten.Text = Convert.ToString(val));
+            Helper.Helper.SetIfPresent(row, "donvi", val => donVi.Text = Convert.ToString(val));
             Helper.Helper.SetIfPresent(row, "KhoiLuongSau", val => khoiLuong.Value = Convert.ToDecimal(val));
             Helper.Helper.SetIfPresent(row, "ChieuDaiSau", val => chieuDai.Value = Convert.ToDecimal(val));
             Helper.Helper.SetIfPresent(row, "Phe", val => phe.Value = Convert.ToDecimal(val));

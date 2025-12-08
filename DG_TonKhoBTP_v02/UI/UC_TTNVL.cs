@@ -237,7 +237,7 @@ namespace DG_TonKhoBTP_v02.UI
 
             cbxTimKiem.DroppedDown = false;
 
-            cbxTimKiem.SelectionChangeCommitted -= cbxTimKiem_SelectionChangeCommitted; // tránh trùng event
+            cbxTimKiem.SelectionChangeCommitted -= cbxTimKiem_SelectionChangeCommitted; 
             if (sp.Rows.Count == 0) return;
 
             cbxTimKiem.DataSource = sp;
@@ -297,7 +297,8 @@ namespace DG_TonKhoBTP_v02.UI
             if (addedIndex >= 0 && addedIndex < dtgTTNVL.Rows.Count)
             {
                 dtgTTNVL.ClearSelection();
-                dtgTTNVL.Rows[addedIndex].Selected = true;
+                //dtgTTNVL.Rows[addedIndex].Selected = true; 
+                dtgTTNVL.Rows[addedIndex].DefaultCellStyle.BackColor = Color.Yellow; // tô nền
                 dtgTTNVL.FirstDisplayedScrollingRowIndex = addedIndex;
             }
 

@@ -5,82 +5,93 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static ClosedXML.Excel.XLPredefinedFormat;
 
 namespace DG_TonKhoBTP_v02.Helper
 {
     public static class Validator
     {
-        public static bool TTCaLamViec(ThongTinCaLamViec data)
-        => !string.IsNullOrWhiteSpace(data.May)  && !string.IsNullOrWhiteSpace(data.NguoiLam);
-
-
-        public static bool TTNVL(List<TTNVL> data)
+        public static int TTCaLamViec(ThongTinCaLamViec data)
         {
-            bool result = true;
+            if (string.IsNullOrWhiteSpace(data.May))
+                return 1;
+
+            if (string.IsNullOrWhiteSpace(data.NguoiLam))
+                return 2;
+
+            return 0;
+        }
+
+        public static int TTNVL(List<TTNVL> data)
+        {
+            int number = 0;
 
             if (data == null || data.Count == 0)
-                return false;
+                return number = 1;
 
             foreach (TTNVL t in data)
             {
+                #region B1) Kiểm tra việc nhập hay không nhập dữ liệu
+
+                // B1.1) Nếu là nguyên vật liệu thì bỏ qua để kiểm tra dòng khác
                 if (t.CdBatDau == -1 && t.KlBatDau == -1) continue;
 
-                if((t.DonVi == "KG" && t.KlConLai == null) || (t.DonVi == "M" && t.CdConLai == null))
+                // B1.2) Nếu BTP, nếu đơn vị là kg thì phải nhập khối lượng còn lại
+                // Nếu đơn vị là m thì phải nhập chiều dài còn lại
+                if(t.DonVi == "KG" && t.KlConLai == null)
                 {
-                    result = false;
+                    number = 2;
+                    break;
+                }
+                if (t.DonVi == "M" && t.CdConLai == null)
+                {
+                    number = 3;
                     break;
                 }
 
-                if (
-                        t.BanRongBang == null
-                        || t.DoDayBang == null
-                        || t.KetCauLoi == null
-                        || t.DanhSachMaSP_ID == 0
-                        || t.BinNVL == ""
-                        )
+                // B1.3) Các dữ liệu yêu cầu phải được nhập
+                if ( t.BanRongBang == null || t.DoDayBang == null || t.KetCauLoi == null || t.DanhSachMaSP_ID == 0 || t.BinNVL == "" )
                 {
+                    number = 4;
+                    break;
+                }
+                #endregion
 
-                    result = false;
+
+                #region B2) Kiểm tra logic khi nhập dữ liệu
+                // B2.1) Kiểm tra logic trong các dữ liệu nhập
+                if (t.KlBatDau <= t.KlConLai)
+                {
+                    number = 5;
                     break;
                 }
 
+                if ( t.CdBatDau <= t.CdConLai)
+                {
+                    number = 6;
+                    break;
+                }
 
-                //if (t.CdBatDau != -1 || t.KlBatDau != -1)
-                //{
-                //    // Kiểm tra các thuộc tính trong t
-                //    if (
-                //        t.BanRongBang == null
-                //        || t.DoDayBang == null
-                //        || t.KetCauLoi == null
-                //        || t.KlBatDau == null
-                //        || t.KlConLai == null
-                //        || t.DanhSachMaSP_ID == 0
-                //        || t.BinNVL == ""
-                //        || t.KlConLai == null
-                //        || t.CdConLai == null
-                //        )
-                //    {
+                #endregion
 
-                //        result = false;
-                //        break;
-                //    }
-                //}
             }
 
-            return result;
+            return number;
         }
 
-
-        public static bool TTThanhPham(TTThanhPham data)
+        public static int TTThanhPham(TTThanhPham data)
         {
-            if (data.DanhSachSP_ID == 0 || data.MaBin == "" || (data.KhoiLuongSau == 0 && data.ChieuDaiSau == 0)) return false;
-            return true;
+            if (data.DanhSachSP_ID == 0) return 1;
+            if (string.IsNullOrWhiteSpace(data.MaBin)) return 2;
+            if (data.KhoiLuongSau == 0 && data.ChieuDaiSau == 0) return 3;
+            return 0;
         }
 
         public static List<object> KiemTraChiTietCongDoan(FormSnapshot data)
         {
             var result = new List<object>();
             var chiTietCD = new object();
+
             CaiDatCDBoc caiDatCDBoc = null;
 
 
@@ -119,7 +130,7 @@ namespace DG_TonKhoBTP_v02.Helper
             if (data.Sections.TryGetValue("CD_BocMach", out var bocMachObj))
             {
 
-                // xử lý logic riêng cho BocLot...
+                // xử lý logic riêng cho bọc mạch...
 
                 // xử lý logic riêng cho cài đặt bọc...
                 caiDatCDBoc = (CaiDatCDBoc)data.Sections["CaiDatCDBoc"];

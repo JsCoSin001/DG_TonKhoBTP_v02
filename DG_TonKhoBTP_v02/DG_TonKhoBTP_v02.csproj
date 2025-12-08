@@ -135,6 +135,7 @@
     <Compile Include="Core\SectionMerger.cs" />
     <Compile Include="Core\StateStore.cs" />
     <Compile Include="Database\DatabaseHelper.cs" />
+    <Compile Include="Dictionary\ErrorStore.cs" />
     <Compile Include="Dictionary\ThongTinChungCongDoan.cs" />
     <Compile Include="DL_Ben\AutoIncrementAttribute.cs" />
     <Compile Include="DL_Ben\DlBenModel.cs" />

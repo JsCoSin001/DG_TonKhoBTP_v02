@@ -397,8 +397,7 @@ namespace DG_TonKhoBTP_v02.Helper
             }
             return null;
         }
-
-        
+                
         public static void MapRowToObject<T>(DataGridViewRow row, T target)
         {
             // Lấy tất cả property public instance của kiểu T
@@ -737,7 +736,6 @@ namespace DG_TonKhoBTP_v02.Helper
             return result;
         }
 
-
         public static bool kiemTraPhanQuyen(string tx)
         {
             string password = Properties.Settings.Default.PassApp;
@@ -798,27 +796,31 @@ namespace DG_TonKhoBTP_v02.Helper
                 comboBox.Items.Add(printerName);
             }
 
-            string printer = Properties.Settings.Default.PrinterName;
+            string savedPrinter = Properties.Settings.Default.PrinterName;
+            string defaultPrinter = new PrinterSettings().PrinterName;
 
-            if (printer != "")
+            if (!string.IsNullOrEmpty(savedPrinter) && comboBox.Items.Contains(savedPrinter))
             {
-                comboBox.SelectedItem = printer;
+                comboBox.SelectedItem = savedPrinter;
                 return;
             }
 
-            // Chọn máy in mặc định (nếu có)
-            var defaultPrinter = new PrinterSettings().PrinterName;
-
             if (!string.IsNullOrEmpty(defaultPrinter) && comboBox.Items.Contains(defaultPrinter))
             {
+                // 2. Nếu không có, chọn máy in mặc định của Windows
                 comboBox.SelectedItem = defaultPrinter;
+                return;
             }
-            else if (comboBox.Items.Count > 0)
-            {
-                comboBox.SelectedIndex = 0;
-            }
-        }
 
+            if (comboBox.Items.Count > 0)
+            {
+                // 3. Cuối cùng chọn phần tử đầu tiên
+                comboBox.SelectedIndex = 0;
+                return;
+            }
+
+            FrmWaiting.ShowGifAlert("KHÔNG TÌM THẤY MÁY IN");
+        }
 
     }
 

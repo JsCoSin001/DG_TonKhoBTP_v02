@@ -7,6 +7,7 @@ using DG_TonKhoBTP_v02.Models;
 using DG_TonKhoBTP_v02.UI;
 using DG_TonKhoBTP_v02.UI.Actions;
 using DG_TonKhoBTP_v02.UI.Setting;
+using DocumentFormat.OpenXml.Drawing;
 using QLDuLieuTonKho_BTP;
 using System;
 using System.Collections.Generic;
@@ -29,7 +30,7 @@ namespace DG_TonKhoBTP_v02
         {
             InitializeComponent();
             DatabaseHelper.SetDatabasePath(_URL);
-            lblAuthor.Text = $"Phát triển bởi Linh - Version: {_ver} - All rights reserved.";
+            lblAuthor.Text = $"Được phát triển bởi Linh - Version: {_ver} - All rights reserved.";
 
             DatabasehelperVer01.SetDatabasePath(_URL);
 

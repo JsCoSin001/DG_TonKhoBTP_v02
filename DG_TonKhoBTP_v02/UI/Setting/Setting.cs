@@ -25,10 +25,6 @@ namespace DG_TonKhoBTP_v02.UI.Setting
         {
             InitializeComponent();
             tbPathDB.Text = _url;
-            Helper.Helper.LoadPrinters(cbxPrinterName);            
-
-            cbxMayIn.Checked = _printerName != "";
-            cbxPrinterName.Enabled = cbxMayIn.Checked;
         }
 
         public async Task LoadDataAsync()
@@ -85,7 +81,8 @@ namespace DG_TonKhoBTP_v02.UI.Setting
 
             Properties.Settings.Default.Save();
 
-            FrmWaiting.ShowGifAlert("ỨNG DỤNG SẼ KHỞI ĐỘNG LẠI ĐỂ ÁP DỤNG THAY ĐỔI");
+            MessageBox.Show("ỨNG DỤNG SẼ KHỞI ĐỘNG LẠI ĐỂ ÁP DỤNG THAY ĐỔI", "THÔNG BÁO", MessageBoxButtons.OK, MessageBoxIcon.Information);
+         
             Program.RestartApplication();
         }
 
@@ -93,7 +90,7 @@ namespace DG_TonKhoBTP_v02.UI.Setting
         {
             string pass = tbQuyenUser.Text.Trim();
             Helper.Helper.UpdatePassApp(pass);
-            FrmWaiting.ShowGifAlert("ỨNG DỤNG SẼ KHỞI ĐỘNG LẠI ĐỂ ÁP DỤNG THAY ĐỔI");
+            MessageBox.Show("ỨNG DỤNG SẼ KHỞI ĐỘNG LẠI ĐỂ ÁP DỤNG THAY ĐỔI", "THÔNG BÁO", MessageBoxButtons.OK, MessageBoxIcon.Information);
             Program.RestartApplication();
         }
 
@@ -117,7 +114,8 @@ namespace DG_TonKhoBTP_v02.UI.Setting
             Properties.Settings.Default.PrinterName = printerName;
             Properties.Settings.Default.Save();
 
-            FrmWaiting.ShowGifAlert("ỨNG DỤNG SẼ KHỞI ĐỘNG LẠI ĐỂ ÁP DỤNG THAY ĐỔI");
+            MessageBox.Show("ỨNG DỤNG SẼ KHỞI ĐỘNG LẠI ĐỂ ÁP DỤNG THAY ĐỔI", "THÔNG BÁO", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
             Program.RestartApplication();
 
         }
@@ -171,6 +169,20 @@ namespace DG_TonKhoBTP_v02.UI.Setting
         private void cbxMayIn_CheckedChanged(object sender, EventArgs e)
         {
             cbxPrinterName.Enabled = cbxMayIn.Checked;
+        }
+
+        private void tabControl1_Selected(object sender, TabControlEventArgs e)
+        {            
+            TabPage selectedTab = e.TabPage;
+
+            if (selectedTab.Name == "pinterTab") {
+
+                Helper.Helper.LoadPrinters(cbxPrinterName);
+
+                cbxMayIn.Checked = _printerName != "";
+                cbxPrinterName.Enabled = cbxMayIn.Checked;
+            }
+
         }
     }
 }

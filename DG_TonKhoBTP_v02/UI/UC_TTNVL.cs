@@ -62,7 +62,7 @@ namespace DG_TonKhoBTP_v02.UI
             // Tuỳ chỉnh style
             dtgTTNVL.DefaultCellStyle.Font = new System.Drawing.Font("Microsoft Sans Serif", 10, FontStyle.Regular);
             dtgTTNVL.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
-            //dtgTTNVL.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
+            dtgTTNVL.AllowUserToResizeRows = false;
 
             dtgTTNVL.RowTemplate.Height = 30;
 
@@ -451,7 +451,6 @@ namespace DG_TonKhoBTP_v02.UI
             return list;
             
         }
-
 
         public void ClearInputs()
         {

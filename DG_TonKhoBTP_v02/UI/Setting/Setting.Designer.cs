@@ -30,7 +30,7 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Setting));
             this.tabControl1 = new System.Windows.Forms.TabControl();
-            this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.softwareTap = new System.Windows.Forms.TabPage();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.label1 = new System.Windows.Forms.Label();
             this.tbPathDB = new System.Windows.Forms.TextBox();
@@ -47,7 +47,7 @@
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.rdoHoatDong = new System.Windows.Forms.RadioButton();
             this.rdoTamDung = new System.Windows.Forms.RadioButton();
-            this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.pinterTab = new System.Windows.Forms.TabPage();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
             this.label3 = new System.Windows.Forms.Label();
             this.cbxPrinterName = new System.Windows.Forms.ComboBox();
@@ -60,11 +60,11 @@
             this.label6 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.tabControl1.SuspendLayout();
-            this.tabPage1.SuspendLayout();
+            this.softwareTap.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             this.tableLayoutPanel3.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
-            this.tabPage2.SuspendLayout();
+            this.pinterTab.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
             this.tabPage3.SuspendLayout();
             this.tableLayoutPanel4.SuspendLayout();
@@ -72,8 +72,8 @@
             // 
             // tabControl1
             // 
-            this.tabControl1.Controls.Add(this.tabPage1);
-            this.tabControl1.Controls.Add(this.tabPage2);
+            this.tabControl1.Controls.Add(this.softwareTap);
+            this.tabControl1.Controls.Add(this.pinterTab);
             this.tabControl1.Controls.Add(this.tabPage3);
             this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabControl1.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -82,18 +82,19 @@
             this.tabControl1.SelectedIndex = 0;
             this.tabControl1.Size = new System.Drawing.Size(672, 309);
             this.tabControl1.TabIndex = 0;
+            this.tabControl1.Selected += new System.Windows.Forms.TabControlEventHandler(this.tabControl1_Selected);
             // 
-            // tabPage1
+            // softwareTap
             // 
-            this.tabPage1.Controls.Add(this.tableLayoutPanel1);
-            this.tabPage1.Controls.Add(this.tableLayoutPanel3);
-            this.tabPage1.Location = new System.Drawing.Point(4, 25);
-            this.tabPage1.Name = "tabPage1";
-            this.tabPage1.Padding = new System.Windows.Forms.Padding(3, 10, 3, 3);
-            this.tabPage1.Size = new System.Drawing.Size(664, 280);
-            this.tabPage1.TabIndex = 0;
-            this.tabPage1.Text = "Phần Mềm";
-            this.tabPage1.UseVisualStyleBackColor = true;
+            this.softwareTap.Controls.Add(this.tableLayoutPanel1);
+            this.softwareTap.Controls.Add(this.tableLayoutPanel3);
+            this.softwareTap.Location = new System.Drawing.Point(4, 25);
+            this.softwareTap.Name = "softwareTap";
+            this.softwareTap.Padding = new System.Windows.Forms.Padding(3, 10, 3, 3);
+            this.softwareTap.Size = new System.Drawing.Size(664, 280);
+            this.softwareTap.TabIndex = 0;
+            this.softwareTap.Text = "Phần Mềm";
+            this.softwareTap.UseVisualStyleBackColor = true;
             // 
             // tableLayoutPanel1
             // 
@@ -307,16 +308,16 @@
             this.rdoTamDung.Text = "Tạm dừng";
             this.rdoTamDung.UseVisualStyleBackColor = true;
             // 
-            // tabPage2
+            // pinterTab
             // 
-            this.tabPage2.Controls.Add(this.tableLayoutPanel2);
-            this.tabPage2.Location = new System.Drawing.Point(4, 25);
-            this.tabPage2.Name = "tabPage2";
-            this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(664, 280);
-            this.tabPage2.TabIndex = 1;
-            this.tabPage2.Text = "In Ấn";
-            this.tabPage2.UseVisualStyleBackColor = true;
+            this.pinterTab.Controls.Add(this.tableLayoutPanel2);
+            this.pinterTab.Location = new System.Drawing.Point(4, 25);
+            this.pinterTab.Name = "pinterTab";
+            this.pinterTab.Padding = new System.Windows.Forms.Padding(3);
+            this.pinterTab.Size = new System.Drawing.Size(664, 280);
+            this.pinterTab.TabIndex = 1;
+            this.pinterTab.Text = "In Ấn";
+            this.pinterTab.UseVisualStyleBackColor = true;
             // 
             // tableLayoutPanel2
             // 
@@ -478,14 +479,14 @@
             this.Padding = new System.Windows.Forms.Padding(10);
             this.Text = "Cài đặt cấu hình";
             this.tabControl1.ResumeLayout(false);
-            this.tabPage1.ResumeLayout(false);
+            this.softwareTap.ResumeLayout(false);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
             this.tableLayoutPanel3.ResumeLayout(false);
             this.tableLayoutPanel3.PerformLayout();
             this.flowLayoutPanel1.ResumeLayout(false);
             this.flowLayoutPanel1.PerformLayout();
-            this.tabPage2.ResumeLayout(false);
+            this.pinterTab.ResumeLayout(false);
             this.tableLayoutPanel2.ResumeLayout(false);
             this.tableLayoutPanel2.PerformLayout();
             this.tabPage3.ResumeLayout(false);
@@ -498,8 +499,8 @@
         #endregion
 
         private System.Windows.Forms.TabControl tabControl1;
-        private System.Windows.Forms.TabPage tabPage1;
-        private System.Windows.Forms.TabPage tabPage2;
+        private System.Windows.Forms.TabPage softwareTap;
+        private System.Windows.Forms.TabPage pinterTab;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.TextBox tbPathDB;

@@ -124,6 +124,7 @@ namespace DG_TonKhoBTP_v02.UI
                 }
                 Debug.WriteLine($"Merge UC_TTSanPham: {swStep.ElapsedMilliseconds} ms (tổng: {swTotal.ElapsedMilliseconds} ms)");
 
+                #region Validate dữ liệu 
                 // Validate Ca Làm Việc
                 swStep.Restart();
                 var thongTinCaLamViec = (ThongTinCaLamViec)snap.Sections["UC_TTCaLamViec"];
@@ -143,14 +144,14 @@ namespace DG_TonKhoBTP_v02.UI
                 // Validate NVL
                 swStep.Restart();
                 var list_TTNVL = snap.Sections["UC_TTNVL"] as List<TTNVL>;
-                sttLoi = Validator.TTNVL(list_TTNVL);
+                string loiNVL = Validator.TTNVL(list_TTNVL);
                 Debug.WriteLine($"Validator.TTNVL: {swStep.ElapsedMilliseconds} ms (tổng: {swTotal.ElapsedMilliseconds} ms)");
 
-                if (sttLoi > 0)
+                if (loiNVL != "")
                 {
                     waiting.Close();
                     waiting.Dispose();
-                    FrmWaiting.ShowGifAlert(ErrorStore.ErrorNVL[sttLoi]);
+                    FrmWaiting.ShowGifAlert(loiNVL);
                     btnLuu.Enabled = true;
                     Debug.WriteLine($"Lỗi TTNVL (sttLoi={sttLoi}), thoát: {swTotal.ElapsedMilliseconds} ms");
                     return;
@@ -186,6 +187,8 @@ namespace DG_TonKhoBTP_v02.UI
                     Debug.WriteLine($"Chi tiết công đoạn chưa hợp lệ, thoát: {swTotal.ElapsedMilliseconds} ms");
                     return;
                 }
+
+                #endregion
 
                 // ✅ CẬP NHẬT MESSAGE SAU KHI VALIDATE XONG
                 bool shouldPrint = (_printer != "" && cbInTem.Checked);

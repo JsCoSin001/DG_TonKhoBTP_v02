@@ -31,7 +31,7 @@
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.dtgTTNVL = new System.Windows.Forms.DataGridView();
             this.panel1 = new System.Windows.Forms.Panel();
-            this.label2 = new System.Windows.Forms.Label();
+            this.lblTieuDe = new System.Windows.Forms.Label();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.cbxTimKiem = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
@@ -60,6 +60,8 @@
             // dtgTTNVL
             // 
             this.dtgTTNVL.AllowUserToAddRows = false;
+            this.dtgTTNVL.BackgroundColor = System.Drawing.SystemColors.ButtonFace;
+            this.dtgTTNVL.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.dtgTTNVL.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dtgTTNVL.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dtgTTNVL.Location = new System.Drawing.Point(10, 81);
@@ -67,28 +69,29 @@
             this.dtgTTNVL.RowHeadersVisible = false;
             this.dtgTTNVL.Size = new System.Drawing.Size(756, 363);
             this.dtgTTNVL.TabIndex = 1;
+            this.dtgTTNVL.Visible = false;
             // 
             // panel1
             // 
-            this.panel1.Controls.Add(this.label2);
+            this.panel1.Controls.Add(this.lblTieuDe);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
             this.panel1.Location = new System.Drawing.Point(10, 60);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(756, 21);
             this.panel1.TabIndex = 4;
             // 
-            // label2
+            // lblTieuDe
             // 
-            this.label2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.ForeColor = System.Drawing.Color.Crimson;
-            this.label2.Location = new System.Drawing.Point(0, 0);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(756, 21);
-            this.label2.TabIndex = 0;
-            this.label2.Text = "Các ô màu vàng cần điền dữ liệu";
-            this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.label2.UseCompatibleTextRendering = true;
+            this.lblTieuDe.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lblTieuDe.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblTieuDe.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.lblTieuDe.Location = new System.Drawing.Point(0, 0);
+            this.lblTieuDe.Name = "lblTieuDe";
+            this.lblTieuDe.Size = new System.Drawing.Size(756, 21);
+            this.lblTieuDe.TabIndex = 0;
+            this.lblTieuDe.Text = "Các ô màu vàng cần điền dữ liệu";
+            this.lblTieuDe.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.lblTieuDe.UseCompatibleTextRendering = true;
             // 
             // tableLayoutPanel1
             // 
@@ -151,6 +154,6 @@
         private System.Windows.Forms.DataGridView dtgTTNVL;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
         private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label lblTieuDe;
     }
 }

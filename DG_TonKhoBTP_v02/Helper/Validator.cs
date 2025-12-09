@@ -22,37 +22,39 @@ namespace DG_TonKhoBTP_v02.Helper
             return 0;
         }
 
-        public static int TTNVL(List<TTNVL> data)
+        public static string TTNVL(List<TTNVL> data)
         {
-            int number = 0;
+            string errorMessage = "";
 
-            if (data == null || data.Count == 0)
-                return number = 1;
+            (int Id, string Lot)? tupleError = null;
+
+            if (data == null || data.Count == 0) return ErrorStore.ErrorNVL[1];
 
             foreach (TTNVL t in data)
             {
                 #region B1) Kiểm tra việc nhập hay không nhập dữ liệu
+                string lot = t.BinNVL;
 
                 // B1.1) Nếu là nguyên vật liệu thì bỏ qua để kiểm tra dòng khác
                 if (t.CdBatDau == -1 && t.KlBatDau == -1) continue;
 
                 // B1.2) Nếu BTP, nếu đơn vị là kg thì phải nhập khối lượng còn lại
                 // Nếu đơn vị là m thì phải nhập chiều dài còn lại
-                if(t.DonVi == "KG" && t.KlConLai == null)
+                if (t.DonVi == "KG" && t.KlConLai == null)
                 {
-                    number = 2;
+                    tupleError = (Id: 2, Lot: lot);
                     break;
                 }
                 if (t.DonVi == "M" && t.CdConLai == null)
                 {
-                    number = 3;
+                    tupleError = (Id: 3, Lot: lot);
                     break;
                 }
 
                 // B1.3) Các dữ liệu yêu cầu phải được nhập
-                if ( t.BanRongBang == null || t.DoDayBang == null || t.KetCauLoi == null || t.DanhSachMaSP_ID == 0 || t.BinNVL == "" )
+                if (t.BanRongBang == null || t.DoDayBang == null || t.KetCauLoi == null || t.DanhSachMaSP_ID == 0 || t.BinNVL == "")
                 {
-                    number = 4;
+                    tupleError = (Id: 4, Lot: lot);
                     break;
                 }
                 #endregion
@@ -62,13 +64,13 @@ namespace DG_TonKhoBTP_v02.Helper
                 // B2.1) Kiểm tra logic trong các dữ liệu nhập
                 if (t.KlBatDau <= t.KlConLai)
                 {
-                    number = 5;
+                    tupleError = (Id: 5, Lot: lot);
                     break;
                 }
 
-                if ( t.CdBatDau <= t.CdConLai)
+                if (t.CdBatDau <= t.CdConLai)
                 {
-                    number = 6;
+                    tupleError = (Id: 6, Lot: lot);
                     break;
                 }
 
@@ -76,7 +78,14 @@ namespace DG_TonKhoBTP_v02.Helper
 
             }
 
-            return number;
+            if (tupleError.HasValue)
+            {
+                string errorName = ErrorStore.ErrorNVL[tupleError.Value.Id];
+                errorMessage = $"Lot {tupleError.Value.Lot}: {errorName}";
+            }
+
+            return errorMessage;
+
         }
 
         public static int TTThanhPham(TTThanhPham data)

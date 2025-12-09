@@ -1,16 +1,14 @@
 ﻿
 using DG_TonKhoBTP_v02.Core;
+using DG_TonKhoBTP_v02.Dictionary;
 using DG_TonKhoBTP_v02.DL_Ben;
 using DG_TonKhoBTP_v02.Models;
 using DocumentFormat.OpenXml.Drawing;
-using DocumentFormat.OpenXml.Spreadsheet;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.SqlClient;
 using System.Data.SQLite;
 using System.Linq;
-using System.Windows.Forms;
 
 namespace DG_TonKhoBTP_v02.Database
 {
@@ -418,7 +416,7 @@ namespace DG_TonKhoBTP_v02.Database
                 UpdateThongTinCaLamViec(conn, tx, caLam, tpId);
 
                 // 2) TTThanhPham
-                UpdateTTThanhPham(conn, tx, tp, tpId);
+                UpdateTTThanhPham(conn, tx, tp, tpId,nvl);
 
                 // 3) TTNVL -> Xoá nvl cũ và Tạo mới
                 Del_InsertTTNVL(conn, tx, tpId, nvl);
@@ -511,7 +509,7 @@ namespace DG_TonKhoBTP_v02.Database
             }
         }
 
-        private static void UpdateTTThanhPham(SQLiteConnection conn, SQLiteTransaction tx, TTThanhPham m, int thongTinCaLamViecId)
+        private static void UpdateTTThanhPham(SQLiteConnection conn, SQLiteTransaction tx, TTThanhPham m, int thongTinCaLamViecId, List<TTNVL> nvl)
         {
             string sqlUpdate = @"UPDATE TTThanhPham 
                                 SET DanhSachSP_ID = @DanhSachSP_ID,
@@ -520,10 +518,24 @@ namespace DG_TonKhoBTP_v02.Database
                                     KhoiLuongSau = @KhoiLuongSau,
                                     ChieuDaiTruoc = @ChieuDaiTruoc,
                                     ChieuDaiSau = @ChieuDaiSau,
+                                    HanNoi = @HanNoi,
                                     Phe = @Phe,
                                     GhiChu = @GhiChu
                                 WHERE id = @id";
             m.GhiChu = m.GhiChu + "- Đã sửa";
+
+            double klHanNoi = 0;
+
+            foreach (var item in nvl)
+            {
+                if (item.CongDoan != ThongTinChungCongDoan.KeoRut.Id)
+                {
+                    klHanNoi = 0;
+                    break;
+                }
+
+                klHanNoi += (item.KlBatDau ?? 0) - (item.KlConLai ?? 0);
+            }
 
             using (var cmd = new SQLiteCommand(sqlUpdate, conn, tx))
             {
@@ -534,6 +546,7 @@ namespace DG_TonKhoBTP_v02.Database
                 cmd.Parameters.AddWithValue("@ChieuDaiTruoc", m.ChieuDaiTruoc);
                 cmd.Parameters.AddWithValue("@ChieuDaiSau", m.ChieuDaiSau);
                 cmd.Parameters.AddWithValue("@Phe", m.Phe);
+                cmd.Parameters.AddWithValue("@HanNoi", klHanNoi);
                 cmd.Parameters.AddWithValue("@GhiChu", m.GhiChu ?? (object)DBNull.Value);
                 cmd.Parameters.AddWithValue("@id", thongTinCaLamViecId);
 
@@ -892,7 +905,7 @@ namespace DG_TonKhoBTP_v02.Database
                 long caId = InsertThongTinCaLamViec(conn, tx, caLam);
 
                 // 2) TTThanhPham
-                long tpId = InsertTTThanhPham(conn, tx, tp, caId);
+                long tpId = InsertTTThanhPham(conn, tx, tp, caId, nvl);
 
                 // 3) TTNVL -> Tạo mới
                 InsertTTNVL(conn, tx, tpId, nvl);
@@ -976,14 +989,29 @@ namespace DG_TonKhoBTP_v02.Database
             return (long)(cmd.ExecuteScalar() ?? 0L);
         }
 
-        private static long InsertTTThanhPham(SQLiteConnection conn, SQLiteTransaction tx, TTThanhPham m, long thongTinCaLamViecId)
+        private static long InsertTTThanhPham(SQLiteConnection conn, SQLiteTransaction tx, TTThanhPham m, long thongTinCaLamViecId, List<TTNVL> nvl)
         {
+
             const string sql = @"
             INSERT INTO TTThanhPham
-                (DanhSachSP_ID, ThongTinCaLamViec_ID, MaBin, KhoiLuongTruoc, KhoiLuongSau, ChieuDaiTruoc, ChieuDaiSau, Phe, CongDoan, GhiChu, DateInsert)
+                (DanhSachSP_ID, ThongTinCaLamViec_ID, MaBin, KhoiLuongTruoc, KhoiLuongSau, ChieuDaiTruoc, ChieuDaiSau, Phe, CongDoan, GhiChu,HanNoi, DateInsert)
             VALUES
-                (@DanhSachSP_ID, @ThongTinCaLamViec_ID, @MaBin, @KhoiLuongTruoc, @KhoiLuongSau, @ChieuDaiTruoc, @ChieuDaiSau, @Phe, @CongDoan, @GhiChu, @DateInsert);
+                (@DanhSachSP_ID, @ThongTinCaLamViec_ID, @MaBin, @KhoiLuongTruoc, @KhoiLuongSau, @ChieuDaiTruoc, @ChieuDaiSau, @Phe, @CongDoan, @GhiChu, @HanNoi, @DateInsert);
             SELECT last_insert_rowid();";
+
+            double klHanNoi = 0;
+
+            foreach (var item in nvl)
+            {
+                if (item.CongDoan != ThongTinChungCongDoan.KeoRut.Id)
+                {
+                    klHanNoi = 0;
+                    break;
+                }
+
+                klHanNoi += (item.KlBatDau ?? 0) - (item.KlConLai ?? 0);
+            }
+
             using var cmd = new SQLiteCommand(sql, conn, tx);
             cmd.Parameters.AddWithValue("@DanhSachSP_ID", m.DanhSachSP_ID);
             cmd.Parameters.AddWithValue("@ThongTinCaLamViec_ID", thongTinCaLamViecId);
@@ -995,6 +1023,7 @@ namespace DG_TonKhoBTP_v02.Database
             cmd.Parameters.AddWithValue("@Phe", m.Phe);
             cmd.Parameters.AddWithValue("@CongDoan", m.CongDoan.Id);
             cmd.Parameters.AddWithValue("@GhiChu", (object?)m.GhiChu ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@HanNoi", klHanNoi);
             cmd.Parameters.AddWithValue("@DateInsert", (object?)m.DateInsert ?? DBNull.Value);
             return (long)(cmd.ExecuteScalar() ?? 0L);
         }

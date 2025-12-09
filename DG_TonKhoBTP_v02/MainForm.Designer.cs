@@ -37,6 +37,7 @@ namespace DG_TonKhoBTP_v02
             this.lblTenCty = new System.Windows.Forms.Label();
             this.imgLogo = new System.Windows.Forms.PictureBox();
             this.grbChucNang = new System.Windows.Forms.GroupBox();
+            this.pnCongDoan = new System.Windows.Forms.FlowLayoutPanel();
             this.grbCongCu = new System.Windows.Forms.GroupBox();
             this.pnEdit = new System.Windows.Forms.FlowLayoutPanel();
             this.grbBaoCao = new System.Windows.Forms.GroupBox();
@@ -49,7 +50,6 @@ namespace DG_TonKhoBTP_v02
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.homeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.setiingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.pnCongDoan = new System.Windows.Forms.FlowLayoutPanel();
             this.btnKeoRut = new DG_TonKhoBTP_v02.UI.Component.CustomButton();
             this.btnBenRuot = new DG_TonKhoBTP_v02.UI.Component.CustomButton();
             this.btnMica = new DG_TonKhoBTP_v02.UI.Component.CustomButton();
@@ -67,6 +67,7 @@ namespace DG_TonKhoBTP_v02
             this.pnLogo.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.imgLogo)).BeginInit();
             this.grbChucNang.SuspendLayout();
+            this.pnCongDoan.SuspendLayout();
             this.grbCongCu.SuspendLayout();
             this.pnEdit.SuspendLayout();
             this.grbBaoCao.SuspendLayout();
@@ -75,7 +76,6 @@ namespace DG_TonKhoBTP_v02
             this.pnMain.SuspendLayout();
             this.panel1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
-            this.pnCongDoan.SuspendLayout();
             this.SuspendLayout();
             // 
             // pnLeft
@@ -85,7 +85,7 @@ namespace DG_TonKhoBTP_v02
             this.pnLeft.Location = new System.Drawing.Point(0, 0);
             this.pnLeft.Margin = new System.Windows.Forms.Padding(4);
             this.pnLeft.Name = "pnLeft";
-            this.pnLeft.Size = new System.Drawing.Size(176, 907);
+            this.pnLeft.Size = new System.Drawing.Size(182, 907);
             this.pnLeft.TabIndex = 0;
             // 
             // fpnButton
@@ -98,7 +98,7 @@ namespace DG_TonKhoBTP_v02
             this.fpnButton.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
             this.fpnButton.Location = new System.Drawing.Point(0, 0);
             this.fpnButton.Name = "fpnButton";
-            this.fpnButton.Size = new System.Drawing.Size(176, 907);
+            this.fpnButton.Size = new System.Drawing.Size(182, 907);
             this.fpnButton.TabIndex = 2;
             // 
             // pnLogo
@@ -108,7 +108,7 @@ namespace DG_TonKhoBTP_v02
             this.pnLogo.Dock = System.Windows.Forms.DockStyle.Top;
             this.pnLogo.Location = new System.Drawing.Point(3, 3);
             this.pnLogo.Name = "pnLogo";
-            this.pnLogo.Size = new System.Drawing.Size(168, 70);
+            this.pnLogo.Size = new System.Drawing.Size(171, 70);
             this.pnLogo.TabIndex = 0;
             // 
             // lblTenCty
@@ -118,7 +118,7 @@ namespace DG_TonKhoBTP_v02
             this.lblTenCty.Font = new System.Drawing.Font("Tahoma", 17.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblTenCty.Location = new System.Drawing.Point(67, 0);
             this.lblTenCty.Name = "lblTenCty";
-            this.lblTenCty.Size = new System.Drawing.Size(101, 67);
+            this.lblTenCty.Size = new System.Drawing.Size(104, 67);
             this.lblTenCty.TabIndex = 1;
             this.lblTenCty.Text = "ĐÔNG GIANG";
             this.lblTenCty.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -140,14 +140,32 @@ namespace DG_TonKhoBTP_v02
             // grbChucNang
             // 
             this.grbChucNang.Controls.Add(this.pnCongDoan);
-            this.grbChucNang.Dock = System.Windows.Forms.DockStyle.Top;
             this.grbChucNang.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.grbChucNang.Location = new System.Drawing.Point(3, 79);
             this.grbChucNang.Name = "grbChucNang";
-            this.grbChucNang.Size = new System.Drawing.Size(168, 456);
+            this.grbChucNang.Size = new System.Drawing.Size(171, 456);
             this.grbChucNang.TabIndex = 0;
             this.grbChucNang.TabStop = false;
             this.grbChucNang.Text = "CÔNG ĐOẠN";
+            // 
+            // pnCongDoan
+            // 
+            this.pnCongDoan.AutoSize = true;
+            this.pnCongDoan.Controls.Add(this.btnKeoRut);
+            this.pnCongDoan.Controls.Add(this.btnBenRuot);
+            this.pnCongDoan.Controls.Add(this.btnMica);
+            this.pnCongDoan.Controls.Add(this.btnBocMach);
+            this.pnCongDoan.Controls.Add(this.btnGhepLoi);
+            this.pnCongDoan.Controls.Add(this.btnBocLot);
+            this.pnCongDoan.Controls.Add(this.btnQuanBang);
+            this.pnCongDoan.Controls.Add(this.btnBocVo);
+            this.pnCongDoan.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pnCongDoan.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
+            this.pnCongDoan.Location = new System.Drawing.Point(3, 17);
+            this.pnCongDoan.Margin = new System.Windows.Forms.Padding(3, 3, 3, 10);
+            this.pnCongDoan.Name = "pnCongDoan";
+            this.pnCongDoan.Size = new System.Drawing.Size(165, 436);
+            this.pnCongDoan.TabIndex = 1;
             // 
             // grbCongCu
             // 
@@ -155,7 +173,7 @@ namespace DG_TonKhoBTP_v02
             this.grbCongCu.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.grbCongCu.Location = new System.Drawing.Point(3, 541);
             this.grbCongCu.Name = "grbCongCu";
-            this.grbCongCu.Size = new System.Drawing.Size(168, 87);
+            this.grbCongCu.Size = new System.Drawing.Size(171, 87);
             this.grbCongCu.TabIndex = 1;
             this.grbCongCu.TabStop = false;
             this.grbCongCu.Text = "CÔNG CỤ";
@@ -166,7 +184,7 @@ namespace DG_TonKhoBTP_v02
             this.pnEdit.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnEdit.Location = new System.Drawing.Point(3, 17);
             this.pnEdit.Name = "pnEdit";
-            this.pnEdit.Size = new System.Drawing.Size(162, 67);
+            this.pnEdit.Size = new System.Drawing.Size(165, 67);
             this.pnEdit.TabIndex = 2;
             // 
             // grbBaoCao
@@ -175,7 +193,7 @@ namespace DG_TonKhoBTP_v02
             this.grbBaoCao.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.grbBaoCao.Location = new System.Drawing.Point(3, 634);
             this.grbBaoCao.Name = "grbBaoCao";
-            this.grbBaoCao.Size = new System.Drawing.Size(168, 197);
+            this.grbBaoCao.Size = new System.Drawing.Size(171, 197);
             this.grbBaoCao.TabIndex = 2;
             this.grbBaoCao.TabStop = false;
             this.grbBaoCao.Text = "BÁO CÁO";
@@ -188,7 +206,7 @@ namespace DG_TonKhoBTP_v02
             this.pnBaoCao.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnBaoCao.Location = new System.Drawing.Point(3, 17);
             this.pnBaoCao.Name = "pnBaoCao";
-            this.pnBaoCao.Size = new System.Drawing.Size(162, 177);
+            this.pnBaoCao.Size = new System.Drawing.Size(165, 177);
             this.pnBaoCao.TabIndex = 3;
             // 
             // pnSign
@@ -234,9 +252,9 @@ namespace DG_TonKhoBTP_v02
             // pnShow
             // 
             this.pnShow.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pnShow.Location = new System.Drawing.Point(176, 0);
+            this.pnShow.Location = new System.Drawing.Point(182, 0);
             this.pnShow.Name = "pnShow";
-            this.pnShow.Size = new System.Drawing.Size(1158, 907);
+            this.pnShow.Size = new System.Drawing.Size(1152, 907);
             this.pnShow.TabIndex = 1;
             // 
             // menuStrip1
@@ -264,24 +282,6 @@ namespace DG_TonKhoBTP_v02
             this.setiingToolStripMenuItem.Size = new System.Drawing.Size(68, 24);
             this.setiingToolStripMenuItem.Text = "Cài đặt";
             this.setiingToolStripMenuItem.Click += new System.EventHandler(this.setiingToolStripMenuItem_Click);
-            // 
-            // pnCongDoan
-            // 
-            this.pnCongDoan.Controls.Add(this.btnKeoRut);
-            this.pnCongDoan.Controls.Add(this.btnBenRuot);
-            this.pnCongDoan.Controls.Add(this.btnMica);
-            this.pnCongDoan.Controls.Add(this.btnBocMach);
-            this.pnCongDoan.Controls.Add(this.btnGhepLoi);
-            this.pnCongDoan.Controls.Add(this.btnBocLot);
-            this.pnCongDoan.Controls.Add(this.btnQuanBang);
-            this.pnCongDoan.Controls.Add(this.btnBocVo);
-            this.pnCongDoan.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pnCongDoan.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-            this.pnCongDoan.Location = new System.Drawing.Point(3, 17);
-            this.pnCongDoan.Margin = new System.Windows.Forms.Padding(3, 3, 3, 10);
-            this.pnCongDoan.Name = "pnCongDoan";
-            this.pnCongDoan.Size = new System.Drawing.Size(162, 436);
-            this.pnCongDoan.TabIndex = 1;
             // 
             // btnKeoRut
             // 
@@ -544,6 +544,9 @@ namespace DG_TonKhoBTP_v02
             this.pnLogo.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.imgLogo)).EndInit();
             this.grbChucNang.ResumeLayout(false);
+            this.grbChucNang.PerformLayout();
+            this.pnCongDoan.ResumeLayout(false);
+            this.pnCongDoan.PerformLayout();
             this.grbCongCu.ResumeLayout(false);
             this.pnEdit.ResumeLayout(false);
             this.grbBaoCao.ResumeLayout(false);
@@ -553,8 +556,6 @@ namespace DG_TonKhoBTP_v02
             this.panel1.ResumeLayout(false);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
-            this.pnCongDoan.ResumeLayout(false);
-            this.pnCongDoan.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 

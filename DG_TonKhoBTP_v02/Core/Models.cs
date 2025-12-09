@@ -18,6 +18,7 @@ namespace DG_TonKhoBTP_v02.Core
         public int? DanhSachMaSP_ID { get; set; }
 
         public string BinNVL { get; set; }       
+        public int? CongDoan { get; set; } = -1;
         public double? KlBatDau { get; set; } = -1;
         public string? Ngay { get; set; } = "";
         public string? Ca { get; set; } = "";

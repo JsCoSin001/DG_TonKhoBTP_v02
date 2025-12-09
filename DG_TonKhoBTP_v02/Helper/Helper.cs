@@ -87,6 +87,7 @@ namespace DG_TonKhoBTP_v02.Helper
             // KHÔNG đặt dấu ; ở cuối vì còn nối UNION ALL ở hàm sau
             return @"
             SELECT
+                t.CongDoan      AS CongDoan,
                 t.KhoiLuongSau  AS KlBatDau,
                 t.ChieuDaiSau   AS CDBatDau,
                 t.id            AS id,
@@ -124,10 +125,11 @@ namespace DG_TonKhoBTP_v02.Helper
             UNION ALL
 
             SELECT
+                -1          AS CongDoan,
                 -1          AS KlBatDau,
                 -1          AS CDBatDau,
                 d.id        AS id,
-                d.ma       AS MaNVL,
+                d.ma        AS MaNVL,
                 d.DonVi     AS DonVi,
                 d.id        AS DanhSachMaSP_ID,
                 d.Ten       AS BinNVL,
@@ -166,7 +168,7 @@ namespace DG_TonKhoBTP_v02.Helper
               tclv.NguoiLam, tclv.ToTruong, tclv.QuanDoc,
               ttp.KhoiLuongTruoc AS KhoiLuongTruoc, ttp.KhoiLuongSau as KhoiLuongSau,
               ttp.ChieuDaiTruoc as ChieuDaiTruoc, ttp.ChieuDaiSau as ChieuDaiSau,
-              ttp.Phe as Phe, ttp.GhiChu as GhiChu ";
+              ttp.Phe as Phe, ttp.HanNoi as HanNoi, ttp.GhiChu as GhiChu ";
         }
 
         public static string TaoSQL_LayDLTruyVet(bool col, string key, out string selectedCol)
@@ -308,6 +310,7 @@ namespace DG_TonKhoBTP_v02.Helper
                         if (string.IsNullOrWhiteSpace(name)) continue;
                         if (string.Equals(name, "id", StringComparison.OrdinalIgnoreCase)) continue; // bỏ nvl.id
                         if (string.Equals(name, "DanhSachMaSP_ID", StringComparison.OrdinalIgnoreCase)) continue; // bỏ nvl.id
+                        if (string.Equals(name, "CongDoan", StringComparison.OrdinalIgnoreCase)) continue; // bỏ nvl.id
                         if (string.Equals(name, "DonVi", StringComparison.OrdinalIgnoreCase)) continue; // bỏ nvl.id
                         if (string.Equals(name, "TenNVL", StringComparison.OrdinalIgnoreCase)) continue; // bỏ nvl.id
                         if (string.Equals(name, "MaNVL", StringComparison.OrdinalIgnoreCase)) continue; // bỏ nvl.id

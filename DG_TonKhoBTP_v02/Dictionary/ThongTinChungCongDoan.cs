@@ -19,6 +19,7 @@ namespace DG_TonKhoBTP_v02.Dictionary
         {
             var list = new List<ColumnDefinition>
             {
+                new ColumnDefinition { Name = "CongDoan",    DataType = typeof(int), Header = "STT Công Đoạn" },
                 new ColumnDefinition { Name = "KlBatDau",    DataType = typeof(double), Header = "KL bắt đầu" },
                 new ColumnDefinition { Name = "CdBatDau",    DataType = typeof(double), Header = "CD bắt đầu" },
                 new ColumnDefinition { Name = "id",          DataType = typeof(int),    Header = "ID" },

@@ -2,18 +2,11 @@
 using DG_TonKhoBTP_v02.Core;
 using DG_TonKhoBTP_v02.Database;
 using DG_TonKhoBTP_v02.Models;
-using DocumentFormat.OpenXml.Drawing.Diagrams;
-using DocumentFormat.OpenXml.Office2010.Excel;
-using DocumentFormat.OpenXml.Spreadsheet;
-using DocumentFormat.OpenXml.Wordprocessing;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
-using System.Reflection;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -28,7 +21,7 @@ namespace DG_TonKhoBTP_v02.UI
         List<ColumnDefinition> _columns;
 
         bool isShow = false;
-        int tongCotCanHide = 9;
+        int tongCotCanHide = 10;
 
         // Nếu true thì tìm Cu phi 8...
         public bool RawMaterial { get; set; } = false;
@@ -37,6 +30,8 @@ namespace DG_TonKhoBTP_v02.UI
         public UC_TTNVL(List<ColumnDefinition> columns)
         {
             InitializeComponent();
+
+            setVisibleTableNVL(true);
 
             _columns = columns;
 
@@ -66,6 +61,8 @@ namespace DG_TonKhoBTP_v02.UI
             // Tuỳ chỉnh style
             dtgTTNVL.DefaultCellStyle.Font = new System.Drawing.Font("Microsoft Sans Serif", 12, FontStyle.Regular);
             dtgTTNVL.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            dtgTTNVL.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
+
             dtgTTNVL.RowTemplate.Height = 30;
 
             // Thêm cột nút Xoá
@@ -109,7 +106,6 @@ namespace DG_TonKhoBTP_v02.UI
             int defaultWidth = 105;
             int defaulHeight = 40;
 
-            // Sẽ thay đổi nội dung này sau
 
             if (headers.Length > 5)
             {
@@ -257,6 +253,7 @@ namespace DG_TonKhoBTP_v02.UI
         {
             if (cbxTimKiem.SelectedItem == null || !(cbxTimKiem.SelectedItem is DataRowView sel))
                 return;
+            setVisibleTableNVL(true);
 
             // Reset combobox SỚM – sau này return kiểu gì cũng đã reset rồi
             cbxTimKiem.SelectedIndex = -1;
@@ -279,10 +276,15 @@ namespace DG_TonKhoBTP_v02.UI
             // Chống trùng theo 'id'
             string key = sel["id"] == DBNull.Value ? string.Empty : Convert.ToString(sel["id"]);
             bool exists = table.AsEnumerable().Any(r => (r["id"] == DBNull.Value ? string.Empty : Convert.ToString(r["id"])) == key);
-            if (exists) return;
+            if (exists)
+            {
+                FrmWaiting.ShowGifAlert("Lot này đã có trong vào danh sách.");
+                return;
+            }
 
             // Tạo dòng mới và gán giá trị
             DataRow newRow = table.NewRow();
+            newRow["CongDoan"] = sel["CongDoan"];
             newRow["KlBatDau"] = sel["KlBatDau"];
             newRow["CdBatDau"] = sel["CdBatDau"];
             newRow["DonVi"] = sel["DonVi"];
@@ -297,6 +299,7 @@ namespace DG_TonKhoBTP_v02.UI
             table.Rows.Add(newRow);
 
             int addedIndex = table.Rows.IndexOf(newRow);
+
             if (addedIndex >= 0 && addedIndex < dtgTTNVL.Rows.Count)
             {
                 dtgTTNVL.ClearSelection();
@@ -320,14 +323,15 @@ namespace DG_TonKhoBTP_v02.UI
                 for (int i = baseCol + 2; i <= _columns.Count; i++)                
                     dtgTTNVL.Rows[addedIndex].Cells[i].Style.BackColor = Color.Yellow;
 
-                
-
-
                 dtgTTNVL.FirstDisplayedScrollingRowIndex = addedIndex;
             }
         }
 
-
+        private void setVisibleTableNVL(bool showTable)
+        {
+            dtgTTNVL.Visible = showTable;
+            lblTieuDe.Visible = showTable;
+        }
 
         #region Hiển thị dữ liệu từ DataTable
         public void LoadData(DataTable dt)
@@ -401,22 +405,6 @@ namespace DG_TonKhoBTP_v02.UI
         #region AI generated code for IFormSection
         public string SectionName => nameof(UC_TTNVL);
 
-        //public object GetData()
-        //{
-        //    var list = new List<TTNVL>();
-
-        //    foreach (DataGridViewRow row in dtgTTNVL.Rows)
-        //    {
-        //        if (row.IsNewRow) continue;
-
-        //        var item = new TTNVL();
-        //        Helper.Helper.MapRowToObject(row, item);
-        //        list.Add(item);
-        //    }
-
-        //    return list;
-        //}
-
         public object GetData()
         {
             var list = new List<TTNVL>();
@@ -430,10 +418,8 @@ namespace DG_TonKhoBTP_v02.UI
                 Helper.Helper.MapRowToObject(row, item); // Map từ row vào object
                 list.Add(item);
             }
-
             return list;
-            // Khi dùng:
-            // var data = section.GetData(); // data là List<TTNVL>
+            
         }
 
 

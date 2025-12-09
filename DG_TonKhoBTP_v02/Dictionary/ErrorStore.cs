@@ -4,7 +4,8 @@ public static class ErrorStore
 {
     public static Dictionary<int, string> ErrorNVL = new Dictionary<int, string>()
     {
-        { 1, "Thông tin về Nguyên liệu phải được nhập" },
+        { 0, "" },
+        { 1, "Thiếu thông tin về Nguyên Liệu" },
         { 2, "Thiếu khối lượng còn lại" },
         { 3, "Thiếu chiều dài còn lại" },
         { 4, "Kiểm tra dữ liệu đo của NVL" },

@@ -15,7 +15,7 @@ namespace DG_TonKhoBTP_v02.Dictionary
             => new List<string>(codes);
 
         // Helper: nhóm cột chung cho hầu hết công đoạn
-        private static List<ColumnDefinition> BaseColumns(params ColumnDefinition[] extras)
+        public static List<ColumnDefinition> BaseColumns(params ColumnDefinition[] extras)
         {
             var list = new List<ColumnDefinition>
             {

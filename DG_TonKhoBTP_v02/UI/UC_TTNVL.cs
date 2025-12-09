@@ -1,6 +1,7 @@
 ﻿
 using DG_TonKhoBTP_v02.Core;
 using DG_TonKhoBTP_v02.Database;
+using DG_TonKhoBTP_v02.Dictionary;
 using DG_TonKhoBTP_v02.Models;
 using System;
 using System.Collections.Generic;
@@ -31,7 +32,7 @@ namespace DG_TonKhoBTP_v02.UI
         {
             InitializeComponent();
 
-            setVisibleTableNVL(true);
+            setVisibleTableNVL(false);
 
             _columns = columns;
 
@@ -59,9 +60,9 @@ namespace DG_TonKhoBTP_v02.UI
             SetColumnHeaders(dtgTTNVL, columns);
 
             // Tuỳ chỉnh style
-            dtgTTNVL.DefaultCellStyle.Font = new System.Drawing.Font("Microsoft Sans Serif", 12, FontStyle.Regular);
+            dtgTTNVL.DefaultCellStyle.Font = new System.Drawing.Font("Microsoft Sans Serif", 10, FontStyle.Regular);
             dtgTTNVL.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
-            dtgTTNVL.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
+            //dtgTTNVL.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
 
             dtgTTNVL.RowTemplate.Height = 30;
 
@@ -99,43 +100,72 @@ namespace DG_TonKhoBTP_v02.UI
 
         private void SetColumnHeaders(DataGridView dgv, List<ColumnDefinition> columns)
         {
-
-            // Tạo mảng headers từ danh sách truyền vào
+            // Lấy header từ danh sách cột truyền vào
             string[] headers = columns.Select(c => c.Header).ToArray();
 
-            int defaultWidth = 105;
+            int defaultWidth = 100;
             int defaulHeight = 40;
 
+            int extraCols = headers.Length - ThongTinChungCongDoan.BaseColumns().Count;
 
-            if (headers.Length > 5)
+            switch (extraCols)
             {
-                defaultWidth = 80;
-                defaulHeight = 50;
+                case 0:
+                    defaultWidth = 150;
+                    defaulHeight = 40;
+                    break;
+
+                case 1:
+                case 2:
+                    defaultWidth = 100;
+                    defaulHeight = 40;
+                    break;
+
+                case 4:
+                    defaultWidth = 85;
+                    defaulHeight = 50;
+                    break;
             }
 
+            // Chiều cao header
             dgv.ColumnHeadersHeight = defaulHeight;
-
             dgv.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
 
-            for (int i = 0; i < headers.Length && i < dgv.Columns.Count; i++)
+            // Duyệt TẤT CẢ các cột có trong DataGridView
+            for (int i = 0; i < dgv.Columns.Count; i++)
             {
-                dgv.Columns[i].HeaderText = headers[i];
-                dgv.Columns[i].Width = defaultWidth;
+                // Gán header và width cho các cột dữ liệu (nằm trong headers)
+                if (i < headers.Length)
+                {
+                    dgv.Columns[i].HeaderText = headers[i];
+                    dgv.Columns[i].Width = defaultWidth;
+                }
+
+                // TẮT SORT cho mọi cột (kể cả cột Delete)
+                dgv.Columns[i].SortMode = DataGridViewColumnSortMode.NotSortable;
             }
 
-            for (int i = 0; i <= tongCotCanHide; i++)
+            // Ẩn/hiện + readonly các cột từ 0 đến tongCotCanHide (có kiểm tra tránh lỗi)
+            for (int i = 0; i <= tongCotCanHide && i < dgv.Columns.Count; i++)
             {
                 dgv.Columns[i].Visible = isShow;
                 dgv.Columns[i].ReadOnly = true;
             }
 
-            dgv.Columns[tongCotCanHide + 1].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            dgv.Columns[tongCotCanHide + 1].ReadOnly = true;
+            // Cột sau cùng "chính" để Fill (kiểm tra index cho chắc chắn)
+            int fillColumnIndex = tongCotCanHide + 1;
+            if (fillColumnIndex >= 0 && fillColumnIndex < dgv.Columns.Count)
+            {
+                dgv.Columns[fillColumnIndex].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+                dgv.Columns[fillColumnIndex].ReadOnly = true;
+            }
 
+            // Style header
             dgv.EnableHeadersVisualStyles = false;
-            dgv.ColumnHeadersDefaultCellStyle.Font = new System.Drawing.Font("Microsoft Sans Serif", 11, FontStyle.Regular);
+            dgv.ColumnHeadersDefaultCellStyle.Font = new System.Drawing.Font("Microsoft Sans Serif", 10, FontStyle.Regular);
             dgv.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
         }
+
 
         private void dtgTTNVL_DataError(object sender, DataGridViewDataErrorEventArgs e)
         {

@@ -24,7 +24,6 @@ namespace DG_TonKhoBTP_v02.UI
         bool isShow = false;
         int tongCotCanHide = 10;
 
-        // Nếu true thì tìm Cu phi 8...
         public bool RawMaterial { get; set; } = false;
         public void SetStatusRawMaterial(bool value) => RawMaterial = value;
 
@@ -104,7 +103,7 @@ namespace DG_TonKhoBTP_v02.UI
             string[] headers = columns.Select(c => c.Header).ToArray();
 
             int defaultWidth = 100;
-            int defaulHeight = 40;
+            int defaulHeight = 30;
 
             int extraCols = headers.Length - ThongTinChungCongDoan.BaseColumns().Count;
 
@@ -112,18 +111,14 @@ namespace DG_TonKhoBTP_v02.UI
             {
                 case 0:
                     defaultWidth = 150;
-                    defaulHeight = 40;
                     break;
-
                 case 1:
                 case 2:
                     defaultWidth = 100;
-                    defaulHeight = 40;
                     break;
-
                 case 4:
                     defaultWidth = 85;
-                    defaulHeight = 50;
+                    defaulHeight = 45;
                     break;
             }
 
@@ -165,7 +160,6 @@ namespace DG_TonKhoBTP_v02.UI
             dgv.ColumnHeadersDefaultCellStyle.Font = new System.Drawing.Font("Microsoft Sans Serif", 10, FontStyle.Regular);
             dgv.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
         }
-
 
         private void dtgTTNVL_DataError(object sender, DataGridViewDataErrorEventArgs e)
         {
@@ -368,6 +362,8 @@ namespace DG_TonKhoBTP_v02.UI
         {
             if (dt == null) return;
 
+            setVisibleTableNVL(true);
+
             // 1) Tạo dtNew theo _columns
             var dtNew = new DataTable("ThongTin");
             foreach (var col in _columns)
@@ -464,7 +460,6 @@ namespace DG_TonKhoBTP_v02.UI
                 //cbxTimKiem.Text = string.Empty;
             }
         }
-
         
         #endregion
     }

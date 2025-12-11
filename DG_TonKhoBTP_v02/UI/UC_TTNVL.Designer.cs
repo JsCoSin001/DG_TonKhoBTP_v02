@@ -89,7 +89,7 @@
             this.lblTieuDe.Name = "lblTieuDe";
             this.lblTieuDe.Size = new System.Drawing.Size(756, 21);
             this.lblTieuDe.TabIndex = 0;
-            this.lblTieuDe.Text = "Các ô màu vàng cần điền dữ liệu";
+            this.lblTieuDe.Text = "Các ô màu vàng PHẢI điền dữ liệu";
             this.lblTieuDe.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.lblTieuDe.UseCompatibleTextRendering = true;
             // 

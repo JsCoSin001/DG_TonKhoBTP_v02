@@ -202,8 +202,8 @@ namespace DG_TonKhoBTP_v02.UI
             Helper.Helper.SetIfPresent(row, "Ma", val => ma.Text = Convert.ToString(val));
             Helper.Helper.SetIfPresent(row, "Ten", val => ten.Text = Convert.ToString(val));
             Helper.Helper.SetIfPresent(row, "donvi", val => donVi.Text = Convert.ToString(val));
-            Helper.Helper.SetIfPresent(row, "KhoiLuongSau", val => khoiLuong.Value = Convert.ToDecimal(val));
-            Helper.Helper.SetIfPresent(row, "ChieuDaiSau", val => chieuDai.Value = Convert.ToDecimal(val));
+            Helper.Helper.SetIfPresent(row, "KhoiLuongTruoc", val => khoiLuong.Value = Convert.ToDecimal(val));
+            Helper.Helper.SetIfPresent(row, "ChieuDaiTruoc", val => chieuDai.Value = Convert.ToDecimal(val));
             Helper.Helper.SetIfPresent(row, "Phe", val => phe.Value = Convert.ToDecimal(val));
             Helper.Helper.SetIfPresent(row, "GhiChu", val => GhiChu.Text = Convert.ToString(val));
 

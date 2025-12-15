@@ -23,6 +23,7 @@ namespace DG_TonKhoBTP_v02.UI
 
         public CD_BenRuot GetSectionData()
         {
+            Console.WriteLine(ChieuXoan.Text);
             return new CD_BenRuot
             {
                 TTThanhPhan_ID = 0,

@@ -182,11 +182,11 @@ namespace DG_TonKhoBTP_v02.UI
                 }, "ĐANG CẬP NHẬT DỮ LIỆU...");
 
                 // >>>> HIỂN THỊ MESSAGEBOX SAU KHI WAITING FORM ĐÃ ĐÓNG <<
-                string icon = "warning";
+                string icon = EnumStore.Icon.Warning;
                 if (string.IsNullOrEmpty(message))
                 {
                     message = "THAO TÁC THÀNH CÔNG";
-                    icon = "ok";
+                    icon = EnumStore.Icon.Success;
                     ClearForm();
                 }                
 
@@ -329,7 +329,7 @@ namespace DG_TonKhoBTP_v02.UI
                 {
                     // QUAN TRỌNG: Không dùng Task.Run cho Excel
                     ExportExcelFile(dt, fileName);
-                    FrmWaiting.ShowGifAlert("XUẤT EXCEL THÀNH CÔNG", "THÔNG BÁO", "ok");
+                    FrmWaiting.ShowGifAlert("XUẤT EXCEL THÀNH CÔNG", "THÔNG BÁO", EnumStore.Icon.Success);
                 }
                 else
                 {

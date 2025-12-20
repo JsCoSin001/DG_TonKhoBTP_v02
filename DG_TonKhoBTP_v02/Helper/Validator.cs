@@ -28,7 +28,7 @@ namespace DG_TonKhoBTP_v02.Helper
 
             (int Id, string Lot)? tupleError = null;
 
-            if (data == null || data.Count == 0) return ErrorStore.ErrorNVL[1];
+            if (data == null || data.Count == 0) return EnumStore.ErrorNVL[1];
 
             foreach (TTNVL t in data)
             {
@@ -80,7 +80,7 @@ namespace DG_TonKhoBTP_v02.Helper
 
             if (tupleError.HasValue)
             {
-                string errorName = ErrorStore.ErrorNVL[tupleError.Value.Id];
+                string errorName = EnumStore.ErrorNVL[tupleError.Value.Id];
                 errorMessage = $"Lot {tupleError.Value.Lot}: {errorName}";
             }
 

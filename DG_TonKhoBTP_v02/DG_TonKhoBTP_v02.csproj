@@ -60,6 +60,9 @@
     <ApplicationIcon>Goldcup-logo-K-ten.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="BCrypt.Net-Next, Version=4.0.3.0, Culture=neutral, PublicKeyToken=1e11be04b6288443, processorArchitecture=MSIL">
+      <HintPath>..\packages\BCrypt.Net-Next.4.0.3\lib\net48\BCrypt.Net-Next.dll</HintPath>
+    </Reference>
     <Reference Include="ClosedXML, Version=0.105.0.0, Culture=neutral, PublicKeyToken=fd1eb21b62ae805b, processorArchitecture=MSIL">
       <HintPath>..\packages\ClosedXML.0.105.0\lib\netstandard2.0\ClosedXML.dll</HintPath>
     </Reference>
@@ -135,7 +138,7 @@
     <Compile Include="Core\SectionMerger.cs" />
     <Compile Include="Core\StateStore.cs" />
     <Compile Include="Database\DatabaseHelper.cs" />
-    <Compile Include="Dictionary\ErrorStore.cs" />
+    <Compile Include="Dictionary\EnumStore.cs" />
     <Compile Include="Dictionary\ThongTinChungCongDoan.cs" />
     <Compile Include="DL_Ben\AutoIncrementAttribute.cs" />
     <Compile Include="DL_Ben\DlBenModel.cs" />
@@ -151,6 +154,7 @@
     <Compile Include="MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Models\LoginClass.cs" />
     <Compile Include="Models\OtherClass.cs" />
     <Compile Include="Printer\LabelConfig.cs" />
     <Compile Include="Printer\PrinterModel.cs" />
@@ -174,6 +178,12 @@
     </Compile>
     <Compile Include="UI\Actions\UC_TruyVetDuLieu.Designer.cs">
       <DependentUpon>UC_TruyVetDuLieu.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Authentication\Login.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\Authentication\Login.Designer.cs">
+      <DependentUpon>Login.cs</DependentUpon>
     </Compile>
     <Compile Include="UI\CustomComponent\CustomButton.cs">
       <SubType>Component</SubType>
@@ -259,6 +269,12 @@
     <Compile Include="UI\Actions\UC_TonKho.Designer.cs">
       <DependentUpon>UC_TonKho.cs</DependentUpon>
     </Compile>
+    <Compile Include="UI\Authentication\FmDangKy.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\Authentication\FmDangKy.Designer.cs">
+      <DependentUpon>FmDangKy.cs</DependentUpon>
+    </Compile>
     <Compile Include="UI\Setting\Setting.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -306,6 +322,7 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <EmbeddedResource Include="UI\Actions\UC_CapNhatSP.resx">
       <DependentUpon>UC_CapNhatSP.cs</DependentUpon>
@@ -318,6 +335,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="UI\Actions\UC_TruyVetDuLieu.resx">
       <DependentUpon>UC_TruyVetDuLieu.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\Authentication\Login.resx">
+      <DependentUpon>Login.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UI\Helper\FrmWaiting.resx">
       <DependentUpon>FrmWaiting.cs</DependentUpon>
@@ -358,6 +378,9 @@
     <EmbeddedResource Include="UI\Actions\UC_TonKho.resx">
       <DependentUpon>UC_TonKho.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="UI\Authentication\FmDangKy.resx">
+      <DependentUpon>FmDangKy.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="UI\Setting\Setting.resx">
       <DependentUpon>Setting.cs</DependentUpon>
     </EmbeddedResource>
@@ -391,6 +414,15 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Assets\logo.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\loginSuccess.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\noneLogin.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Assets\warning.gif">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -401,6 +433,7 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Goldcup-logo-K-ten.ico" />
+    <None Include="Resources\user_131563.png" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

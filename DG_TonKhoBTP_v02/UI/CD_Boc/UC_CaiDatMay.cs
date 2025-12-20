@@ -19,7 +19,7 @@ namespace DG_TonKhoBTP_v02.UI
             InitializeComponent();
         }
 
-        #region AI generated
+        #region Lấy và load dữ liệu vào form
 
         public string SectionName => nameof(UC_CaiDatMay);
 
@@ -27,23 +27,23 @@ namespace DG_TonKhoBTP_v02.UI
         {
             return new CaiDatCDBoc
             {
-                MangNuoc = mangNuoc?.Text,
-                PuliDanDay = puliDanDay?.Text,
-                BoDemMet = boDemMet?.Text,
-                MayIn = mayIn?.Text,
+                MangNuoc = mangNuoc.SelectedIndex == -1 ? null: mangNuoc.Text,
+                PuliDanDay = puliDanDay.SelectedIndex == -1 ? null : puliDanDay.Text,
+                BoDemMet = boDemMet.SelectedIndex == -1 ? null : boDemMet.Text,
+                MayIn = mayIn.SelectedIndex == -1 ? null : mayIn.Text,
 
-                v1 = (double?)v1?.Value,
-                v2 = (double?)v2?.Value,
-                v3 = (double?)v3?.Value,
-                v4 = (double?)v4?.Value,
-                v5 = (double?)v5?.Value,
-                v6 = (double?)v6?.Value,
+                v1 = v1.Value == 0 ? null : (double?)v1.Value,
+                v2 = v2.Value == 0 ? null : (double?)v2.Value,
+                v3 = v3.Value == 0 ? null : (double?)v3.Value,
+                v4 = v4.Value == 0 ? null : (double?)v4.Value,
+                v5 = v5.Value == 0 ? null : (double?)v5.Value,
+                v6 = (double)v6.Value,
 
-                Co = (double?)co?.Value,
-                Dau1 = (double?)dau1?.Value,
-                Dau2 = (double?)dau2?.Value,
-                Khuon = (double?)khuon?.Value,
-                BinhSay = (double?)binhSay?.Value
+                Co = co.Value == 0 ? null : (double?)co.Value,
+                Dau1 = dau1.Value == 0 ? null : (double?)dau1.Value,
+                Dau2 = (double)dau2.Value,
+                Khuon = khuon.Value == 0 ? null : (double?)khuon.Value,
+                BinhSay = binhSay.Value == 0 ? null : (double?)binhSay.Value
             };
         }
 

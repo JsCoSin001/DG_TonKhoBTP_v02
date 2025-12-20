@@ -83,7 +83,7 @@ namespace DG_TonKhoBTP_v02.UI
                 if (string.IsNullOrEmpty(result))
                 {
                     result = "THAO TÁC THÀNH CÔNG";
-                    icon = "ok";
+                    icon = EnumStore.Icon.Success;
                     Clear();
                 }
 
@@ -182,7 +182,7 @@ namespace DG_TonKhoBTP_v02.UI
                         });
 
                         // 3) Thông báo xong (UI thread)
-                        FrmWaiting.ShowGifAlert("Đã xuất Excel thành công!", "Export","ok");
+                        FrmWaiting.ShowGifAlert("Đã xuất Excel thành công!", "Export", EnumStore.Icon.Success);
                         return;
                     }
                     else

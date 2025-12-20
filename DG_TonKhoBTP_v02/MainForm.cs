@@ -6,6 +6,7 @@ using DG_TonKhoBTP_v02.DL_Ben;
 using DG_TonKhoBTP_v02.Models;
 using DG_TonKhoBTP_v02.UI;
 using DG_TonKhoBTP_v02.UI.Actions;
+using DG_TonKhoBTP_v02.UI.Authentication;
 using DG_TonKhoBTP_v02.UI.Setting;
 using DocumentFormat.OpenXml.Drawing;
 using QLDuLieuTonKho_BTP;
@@ -26,6 +27,7 @@ namespace DG_TonKhoBTP_v02
         private string _URL = Properties.Settings.Default.URL;
         private string _ver = "2.0";
 
+
         public MainForm()
         {
             InitializeComponent();
@@ -34,8 +36,13 @@ namespace DG_TonKhoBTP_v02
 
             DatabasehelperVer01.SetDatabasePath(_URL);
 
+            SetThongTinUser();
+
             ShowHomePage();
         }
+
+        
+
 
         #region Hàm log cấu trúc control
         private void button1_Click(object sender, EventArgs e)
@@ -791,5 +798,166 @@ namespace DG_TonKhoBTP_v02
         }
 
         #endregion
+
+        
+        private void lblUserName_MouseLeave(object sender, EventArgs e)
+        { 
+            ThayDoiMau(false);
+        }
+
+        private void ThayDoiMau(bool flg)
+        {
+            tbUser.BackColor = flg ? Color.LightGray : SystemColors.Control;
+        }
+
+        private void lblUserName_MouseEnter(object sender, EventArgs e)
+        {
+            ThayDoiMau(true);
+        }
+
+        private void pdropdown_MouseEnter(object sender, EventArgs e)
+        {
+            ThayDoiMau(true);
+        }
+
+        private void pdropdown_MouseLeave(object sender, EventArgs e)
+        {
+            ThayDoiMau(false);
+        }
+
+        private ContextMenuStrip userMenu;
+        private ToolStripMenuItem mnuLogout;
+
+        private void MnuLogout_Click(object sender, EventArgs e)
+        {
+            DialogResult result = MessageBox.Show("Bạn có chắc muốn logout?", "Xác nhận", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            if (result == DialogResult.No) return;
+
+            UserContext.Clear();
+            SetThongTinUser();
+        }
+
+
+        private void InitUserMenu()
+        {
+            userMenu = new ContextMenuStrip();
+            userMenu.Font = new Font("Tahoma", 10F);
+
+            mnuLogout = new ToolStripMenuItem("Đăng xuất");
+
+            mnuLogout.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+
+            mnuLogout.Click += MnuLogout_Click;
+
+            userMenu.Items.Add(new ToolStripSeparator());
+            userMenu.Items.Add(mnuLogout);
+        }
+
+
+        private void pdropdown_Click(object sender, EventArgs e)
+        {
+            runEventClickUser();
+        }
+
+        private void lblUserName_Click(object sender, EventArgs e)
+        {
+            runEventClickUser();
+        }
+
+        private void lblChucDanh_Click(object sender, EventArgs e)
+        {
+            runEventClickUser();
+        }
+
+        private void avatar_Click(object sender, EventArgs e)
+        {
+            runEventClickUser();
+        }
+
+
+        private void runEventClickUser()
+        {
+            if (!UserContext.IsAuthenticated)
+                ShowLoginForm();
+            else
+            {
+                System.Drawing.Point mousePos = Cursor.Position;
+                InitUserMenu();
+                userMenu.Show(
+                    mousePos.X,
+                    mousePos.Y
+                );
+            }
+        }
+
+
+
+        private void ShowLoginForm()
+        {
+            using (Login fmLogin = new Login())
+            {
+                fmLogin.StartPosition = FormStartPosition.CenterParent;
+
+                var result = fmLogin.ShowDialog(this);
+
+                // 👇 Sau khi LoginForm đóng
+                if (result == DialogResult.OK && UserContext.IsAuthenticated)
+                {
+                    SetThongTinUser();   // cập nhật UI theo user
+                }
+                else
+                {
+                    // login thất bại hoặc user đóng form
+                    // có thể không làm gì
+                }
+            }
+        }
+
+        private void SetThongTinUser()
+        {
+            string iconAvatar = UserContext.IsAuthenticated ? EnumStore.Icon.LoginSuccess : EnumStore.Icon.NoneLogin;
+            lblUserName.Text = UserContext.Name == null? "Đăng nhập" : UserContext.Name;
+            lblChucDanh.Text = UserContext.Roles == null ? "Chưa đăng nhập" : UserContext.Roles[0];
+            avatar.Image = Image.FromFile(@"Assets\" + iconAvatar + ".ico");
+            PhanQuyen(true);
+            //PhanQuyen(UserContext.IsAuthenticated);
+        }
+
+        private void PhanQuyen(bool quyen)
+        {
+            userRegistration.Visible = quyen;
+            grbCongCu.Visible = quyen;
+        }
+
+
+        private void đăngKýToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            FmDangKy fmDangKy = new FmDangKy();
+            {
+                fmDangKy.StartPosition = FormStartPosition.CenterParent;
+                fmDangKy.ShowDialog();
+            }
+        }
+
+        private void lblChucDanh_MouseEnter(object sender, EventArgs e)
+        {
+            ThayDoiMau(true);
+        }
+
+        private void lblChucDanh_MouseLeave(object sender, EventArgs e)
+        {
+            ThayDoiMau(false);
+        }
+
+        private void avatar_MouseEnter(object sender, EventArgs e)
+        {
+            ThayDoiMau(true);
+        }
+
+        private void avatar_MouseLeave(object sender, EventArgs e)
+        {
+            ThayDoiMau(false);
+        }
+
     }
 }

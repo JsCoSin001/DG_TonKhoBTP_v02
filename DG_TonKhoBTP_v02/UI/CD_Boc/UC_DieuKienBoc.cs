@@ -19,25 +19,25 @@ namespace DG_TonKhoBTP_v02.UI
             InitializeComponent();
         }
 
-        #region AI generated
+        #region Lấy và load dữ liệu vào form
         public string SectionName => nameof(UC_DieuKienBoc);
 
         public CaiDatCDBoc GetSectionData()
         {
             return new CaiDatCDBoc
             {
-                DKKhuon1 = (double)dkKhuon1.Value,
-                DKKhuon2 = (double)dkKhuon2.Value,
-                TTNhua = ttNhua?.Text ?? string.Empty,
-                NhuaPhe = (double)nhuaPhe.Value,
+                DKKhuon1 = dkKhuon1.Value == 0m ? null: (double?)dkKhuon1.Value,
+                DKKhuon2 = dkKhuon2.Value == 0m ? null : (double?)dkKhuon2.Value,
+                TTNhua = string.IsNullOrEmpty(ttNhua.Text)? null: ttNhua.Text,
+                NhuaPhe = nhuaPhe.Value == 0m ? null : (double?)nhuaPhe.Value,
                 GhiChuNhuaPhe = ghiChuNhuaPhe?.Text ?? string.Empty,
-                DayPhe = (double)dayPhe.Value,
+                DayPhe = dayPhe.Value == 0m ? null : (double?)dayPhe.Value,
                 GhiChuDayPhe = ghiChuDayPhe?.Text ?? string.Empty,
-                KTDKLan1 = (double)KtDkLan1.Value,
-                KTDKLan2 = (double)KtDkLan2.Value,
-                KTDKLan3 = (double)KtDkLan3.Value,
-                DiemMongLan1 = (double)DiemMongLan1.Value,
-                DiemMongLan2 = (double)DiemMongLan2.Value
+                KTDKLan1 = KtDkLan1.Value == 0m ? null : (double?)KtDkLan1.Value,
+                KTDKLan2 = KtDkLan2.Value == 0m ? null : (double?)KtDkLan2.Value,
+                KTDKLan3 = KtDkLan3.Value == 0m ? null : (double?)KtDkLan3.Value,
+                DiemMongLan1 = DiemMongLan1.Value == 0m ? null : (double?)DiemMongLan1.Value,
+                DiemMongLan2 = DiemMongLan2.Value == 0m ? null : (double?)DiemMongLan2.Value
             };
         }
 

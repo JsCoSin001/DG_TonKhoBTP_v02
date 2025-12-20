@@ -48,7 +48,7 @@ namespace DG_TonKhoBTP_v02.Helper
             ConfigDB configDB = DatabaseHelper.GetConfig();
 
             // Nếu Active == true ⇒ chỉ ẩn label và thoát
-            if (configDB.Active)
+            if (configDB  == null || configDB.Active)
             {
                 if (lb != null) lb.Visible = false;
                 return "";
@@ -103,7 +103,7 @@ namespace DG_TonKhoBTP_v02.Helper
             JOIN DanhSachMaSP AS d
                 ON d.id = t.DanhSachSP_ID
             JOIN ThongTinCaLamViec AS v
-                ON v.id = t.ThongTinCaLamViec_ID
+                ON t.id = v.TTThanhPham_id
             WHERE
                 (
                     (d.DonVi = 'KG' AND t.KhoiLuongSau <> 0)
@@ -202,7 +202,7 @@ namespace DG_TonKhoBTP_v02.Helper
                 INNER JOIN DanhSachMaSP AS SP
                     ON TT.DanhSachSP_ID = SP.id
                 INNER JOIN ThongTinCaLamViec AS CLV
-                    ON TT.ThongTinCaLamViec_ID = CLV.id
+                    ON CLV.TTThanhPham_id = TT.id
                 WHERE {whereCol} LIKE '%' || @{key} || '%';
             ";
             return sql;
@@ -212,7 +212,7 @@ namespace DG_TonKhoBTP_v02.Helper
         {
             return @"
                 FROM TTThanhPham ttp
-                JOIN ThongTinCaLamViec tclv ON tclv.id = ttp.ThongTinCaLamViec_ID
+                JOIN ThongTinCaLamViec tclv ON ttp.id = tclv.TTThanhPham_ID
                 JOIN DanhSachMaSP ds        ON ds.id   = ttp.DanhSachSP_ID
                 LEFT JOIN CaiDatCDBoc  cdb  ON cdb.TTThanhPham_ID   = ttp.id
                 LEFT JOIN CD_BocVo     cbv  ON cbv.CaiDatCDBoc_ID   = cdb.id
@@ -590,6 +590,8 @@ namespace DG_TonKhoBTP_v02.Helper
                                 var col = ExtractTail(msg);
                                 return $"{ten ?? "DỮ LIỆU"} đã tồn tại (trùng khoá chính){FormatField(col)}.";
                             }
+                            if (ex is ArgumentException || ex is InvalidOperationException)
+                                return ex.Message;
 
                             // Fallback chung cho Constraint
                             return $"{ten ?? "DỮ LIỆU"} không thoả ràng buộc. {Normalize(sqliteEx.Message)}";

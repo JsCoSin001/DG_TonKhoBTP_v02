@@ -57,7 +57,7 @@ namespace DG_TonKhoBTP_v02.UI
             maBin.Text = Helper.Helper.LOTGenerated(may, maHanhTrinh, sttCongDoan, sttLo, soBin);
         }
 
-        #region AI generated
+        #region Lấy và load dữ liệu vào form
         public string SectionName => nameof(UC_TTThanhPham);
 
         public object GetData()
@@ -66,7 +66,6 @@ namespace DG_TonKhoBTP_v02.UI
             {
                  
                 DanhSachSP_ID = int.Parse(id.Text),
-                ThongTinCaLamViec_ID = 0,
                 TenTP = ten.Text,
                 MaTP = ma.Text,
                 DonVi = donVi.Text,

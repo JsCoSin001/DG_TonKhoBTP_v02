@@ -50,7 +50,7 @@ namespace DG_TonKhoBTP_v02.UI
             Event_ChonMay?.Invoke(cbMay.SelectedItem?.ToString());
         }
 
-        #region AI generated
+        #region Lấy và load dữ liệu vào form
         public string SectionName => nameof(UC_TTCaLamViec);
 
         public object GetData()

@@ -134,9 +134,22 @@ namespace DG_TonKhoBTP_v02.UI.Actions
                 );
 
                 // Hiển thị kết quả sau khi waiting form đóng
-                string message = flg ? "THAO TÁC THÀNH CÔNG." : "THAO TÁC THẤT BẠI.";                
-                string icon = flg ? "ok" : "warning";
+                string message = "THAO TÁC THẤT BẠI.";                
+                string icon = EnumStore.Icon.Warning;
+
+                if (flg)
+                {
+                    message = "THAO TÁC THÀNH CÔNG.";
+                    icon = EnumStore.Icon.Success;
+                    dgKetQua.DataSource = null;
+                    dgKetQua.Rows.Clear();
+                    dgKetQua.Columns.Clear(); // ⭐ QUAN TRỌNG
+                    cbxCheckAll.Checked = false;
+                    tbNguoiKiemTra.Text = "";
+                }
+
                 FrmWaiting.ShowGifAlert(message, "THÔNG BÁO", icon);
+
             }
             catch (Exception ex)
             {
@@ -157,6 +170,7 @@ namespace DG_TonKhoBTP_v02.UI.Actions
                 // Gán giá trị checked vào cột số 1
                 row.Cells[0].Value = check;
             }
+            lblCanhBao.Visible = check;
         }
     }
 }

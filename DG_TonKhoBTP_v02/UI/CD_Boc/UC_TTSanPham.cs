@@ -34,7 +34,7 @@ namespace DG_TonKhoBTP_v02.UI
 
         }
 
-        #region AI generated
+        #region Lấy và load dữ liệu vào form
         public IDictionary<string, object> GetAggregateSections()
         {
             // Quét từ *chính UC_TTSanPham* trở xuống.

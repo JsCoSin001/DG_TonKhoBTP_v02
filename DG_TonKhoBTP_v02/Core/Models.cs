@@ -1,4 +1,6 @@
-﻿// File: Core/Models.cs
+﻿#nullable enable
+
+// File: Core/Models.cs
 // Mục đích: Các DTO tối thiểu để đóng gói snapshot theo cấu trúc DB đã có.
 // Tham chiếu cột theo file SQL (CaiDatCDBoc, TTNVL, ThongTinCaLamViec, ...).
 // [Luồng 3] Snapshot gom dữ liệu từ nhiều UC vào một biến.
@@ -20,10 +22,10 @@ namespace DG_TonKhoBTP_v02.Core
         public string BinNVL { get; set; }       
         public int? CongDoan { get; set; } = -1;
         public double? KlBatDau { get; set; } = -1;
-        public string? Ngay { get; set; } = "";
-        public string? Ca { get; set; } = "";
-        public string? NguoiLam { get; set; } = "";
-        public string? TenNVL { get; set; } = "";
+        public string Ngay { get; set; } = "";
+        public string Ca { get; set; } = "";
+        public string NguoiLam { get; set; } = "";
+        public string TenNVL { get; set; } = "";
         public string? GhiChu { get; set; } = "";
         public double? CdBatDau { get; set; } = -1;
         public double? KlConLai { get; set; } = -1;
@@ -44,33 +46,33 @@ namespace DG_TonKhoBTP_v02.Core
     // Khớp bảng CaiDatCDBoc (rút gọn thuộc tính thường dùng từ UC_CaiDatMay/UC_DieuKienBoc/UC_CDBocLot)
     public class CaiDatCDBoc
     {
-        public string MangNuoc { get; set; }
-        public string PuliDanDay { get; set; }
-        public string BoDemMet { get; set; }
+        public string? MangNuoc { get; set; }
+        public string? PuliDanDay { get; set; }
+        public string? BoDemMet { get; set; }
         public string? MayIn { get; set; }
         public double? v1 { get; set; }
         public double? v2 { get; set; }
         public double? v3 { get; set; }
         public double? v4 { get; set; }
         public double? v5 { get; set; }
-        public double? v6 { get; set; }
+        public double v6 { get; set; } = -1;
         public double? Co { get; set; }
         public double? Dau1 { get; set; }
-        public double? Dau2 { get; set; }
+        public double Dau2 { get; set; } = -1;
         public double? Khuon { get; set; }
         public double? BinhSay { get; set; }
-        public double DKKhuon1 { get; set; }
-        public double DKKhuon2 { get; set; }
-        public string TTNhua { get; set; }
-        public double NhuaPhe { get; set; }
-        public string GhiChuNhuaPhe { get; set; }
-        public double DayPhe { get; set; }
-        public string GhiChuDayPhe { get; set; }
-        public double KTDKLan1 { get; set; }
-        public double KTDKLan2 { get; set; }
-        public double KTDKLan3 { get; set; }
-        public double DiemMongLan1 { get; set; }
-        public double DiemMongLan2 { get; set; }
+        public double? DKKhuon1 { get; set; }
+        public double? DKKhuon2 { get; set; }
+        public string? TTNhua { get; set; }
+        public double? NhuaPhe { get; set; }
+        public string GhiChuNhuaPhe { get; set; } = "";
+        public double? DayPhe { get; set; }
+        public string GhiChuDayPhe { get; set; } = "";
+        public double? KTDKLan1 { get; set; }
+        public double? KTDKLan2 { get; set; }
+        public double? KTDKLan3 { get; set; }
+        public double? DiemMongLan1 { get; set; }
+        public double? DiemMongLan2 { get; set; }
     }
 
     // Ca làm việc (tối thiểu cho UC_TTCaLamViec)
@@ -78,6 +80,7 @@ namespace DG_TonKhoBTP_v02.Core
     {
         public int Id { get; set; }
         public string Ngay { get; set; }
+        public int TTThanhPham_id { get; set; }
         public string May { get; set; }
         public string Ca { get; set; }
         public string NguoiLam { get; set; }
@@ -93,7 +96,6 @@ namespace DG_TonKhoBTP_v02.Core
         public string TenTP { get; set; }       
         public string MaTP { get; set; }       
         public string DonVi { get; set; }       
-        public int ThongTinCaLamViec_ID { get; set; } // FK -> ThongTinCaLamViec.id
         public string MaBin { get; set; }             // NOT NULL
         public double KhoiLuongTruoc { get; set; }    // NOT NULL
         public double KhoiLuongSau { get; set; }      // NOT NULL DEFAULT 0
@@ -101,7 +103,7 @@ namespace DG_TonKhoBTP_v02.Core
         public double ChieuDaiSau { get; set; }       // NOT NULL
         public double Phe { get; set; }               // NOT NULL DEFAULT 0
         public CongDoan CongDoan { get; set; }               // NOT NULL DEFAULT 0
-        public string GhiChu { get; set; }            // NULL
+        public string GhiChu { get; set; } = "";            // NULL
         public string? DateInsert { get; set; }     // NULL
     }
 
@@ -111,8 +113,8 @@ namespace DG_TonKhoBTP_v02.Core
     {
         public int Id { get; set; }
         public int? TTThanhPhan_ID { get; set; }   // FK -> ThongTinSP.id (NULLABLE trong schema)
-        public double DayVoTB { get; set; }       // NOT NULL
-        public string InAn { get; set; }            // NOT NULL DEFAULT 1
+        public double? DayVoTB { get; set; }       // NOT NULL
+        public string? InAn { get; set; }            // NOT NULL DEFAULT 1
     }
 
     // --------------------------- Công đoạn: Bóc Lót ---------------------------
@@ -121,7 +123,7 @@ namespace DG_TonKhoBTP_v02.Core
     {
         public int Id { get; set; }
         public int? TTThanhPhan_ID { get; set; }   // FK -> ThongTinSP.id (NULLABLE trong schema)
-        public double DoDayTBLot { get; set; }    // NOT NULL
+        public double? DoDayTBLot { get; set; }    // NOT NULL
     }
 
     // --------------------------- Công đoạn: Bóc Mạch ---------------------------
@@ -131,10 +133,10 @@ namespace DG_TonKhoBTP_v02.Core
         public int Id { get; set; }
         public int TTThanhPhan_ID { get; set; }    // NOT NULL
         // NgoaiQuan: 1 - OK ; 0 - NG
-        public string NgoaiQuan { get; set; }       // NOT NULL DEFAULT 1
-        // (ghi số lần và số mét máy báo)
-        public int LanDanhThung { get; set; }     // NOT NULL
-        public double SoMet { get; set; }         // NOT NULL
+        public string? NgoaiQuan { get; set; }       // NOT NULL DEFAULT 1
+        
+        public int? LanDanhThung { get; set; }     // NOT NULL
+        public double? SoMet { get; set; }         // NOT NULL
     }
 
     // --------------------------- Công đoạn: Kéo Rút ---------------------------
@@ -142,13 +144,13 @@ namespace DG_TonKhoBTP_v02.Core
     public class CD_KeoRut
     {
         public int Id { get; set; }
-        public int TTThanhPhan_ID { get; set; }    // NOT NULL
-        public double DKTrucX { get; set; }       // NOT NULL
-        public double DKTrucY { get; set; }       // NOT NULL
-        public string NgoaiQuan { get; set; }       // NOT NULL DEFAULT 1
-        public double TocDo { get; set; }         // NOT NULL
-        public double DienApU { get; set; }       // NOT NULL
-        public double DongDienU { get; set; }     // NOT NULL
+        public int TTThanhPhan_ID { get; set; }    
+        public double? DKTrucX { get; set; }       
+        public double? DKTrucY { get; set; }       
+        public string? NgoaiQuan { get; set; }       
+        public double? TocDo { get; set; }         
+        public double DienApU { get; set; } = -1;       
+        public double DongDienU { get; set; } = -1;   
     }
 
     // --------------------------- Công đoạn: Bện Ruột ---------------------------
@@ -157,10 +159,10 @@ namespace DG_TonKhoBTP_v02.Core
     {
         public int Id { get; set; }
         public int TTThanhPhan_ID { get; set; }    // NOT NULL
-        public double DKSoi { get; set; }         // NOT NULL
+        public double? DKSoi { get; set; }         // NOT NULL
         public int? SoSoi { get; set; }           // NUMERIC -> int?
-        public string ChieuXoan { get; set; }     // NOT NULL 
-        public double BuocBen { get; set; }       // NOT NULL
+        public string? ChieuXoan { get; set; }     // NOT NULL 
+        public double?  BuocBen { get; set; }       // NOT NULL
     }
 
     // --------------------------- Công đoạn: Ghép Lõi + Quấn Băng ---------------------------
@@ -169,10 +171,10 @@ namespace DG_TonKhoBTP_v02.Core
     {
         public int Id { get; set; }
         public int TTThanhPhan_ID { get; set; }    // NOT NULL
-        public double BuocXoan { get; set; }      // NOT NULL
-        public string ChieuXoan { get; set; }     // NOT NULL DEFAULT 'Z'
-        public double GoiCachMep { get; set; }    // NOT NULL
-        public double DKBTP { get; set; }         // NOT NULL
+        public double? BuocXoan { get; set; }      // NOT NULL
+        public string? ChieuXoan { get; set; }     // NOT NULL DEFAULT 'Z'
+        public double? GoiCachMep { get; set; }    // NOT NULL
+        public double? DKBTP { get; set; }         // NOT NULL
     }
 
     public class FormSnapshot
@@ -201,3 +203,5 @@ namespace DG_TonKhoBTP_v02.Core
         public int Id { get; set; }
     }
 }
+
+#nullable restore

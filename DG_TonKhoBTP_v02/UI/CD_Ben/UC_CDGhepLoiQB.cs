@@ -27,12 +27,14 @@ namespace DG_TonKhoBTP_v02.UI
             return new CD_GhepLoiQB
             {
                 TTThanhPhan_ID = 0,
-                BuocXoan = (double)buocXoan.Value,
-                ChieuXoan = chieuXoan?.Text,
-                GoiCachMep = (double)goiCachMep.Value,
-                DKBTP = (double)dkBTP.Value
+                BuocXoan = (double)buocXoan.Value == 0 ? (double?)null : (double)buocXoan.Value,
+                ChieuXoan = chieuXoan.SelectedIndex == -1 ? null : chieuXoan.Text,
+                GoiCachMep = (double)goiCachMep.Value == 0 ? (double?)null : (double)goiCachMep.Value,
+                DKBTP = (double)dkBTP.Value == 0 ? (double?)null : (double)dkBTP.Value
             };
         }
+
+
 
         public void LoadData(DataTable dt)
         {

@@ -339,13 +339,18 @@ namespace DG_TonKhoBTP_v02.UI
 
                 int baseCol = tongCotCanHide + start;
 
+
                 // Tô cột theo DonVi
                 int targetCol = newRow["DonVi"].ToString() == "M" ? baseCol : baseCol + 1;
                 dtgTTNVL.Rows[addedIndex].Cells[targetCol].Style.BackColor = Color.Yellow;
 
                 // Tô các cột còn lại
-                for (int i = baseCol + 2; i <= _columns.Count; i++)                
+                for (int i = baseCol + 2; i <= _columns.Count; i++)
+                {
+                    Console.WriteLine(i);
                     dtgTTNVL.Rows[addedIndex].Cells[i].Style.BackColor = Color.Yellow;
+                }    
+                   
 
                 dtgTTNVL.FirstDisplayedScrollingRowIndex = addedIndex;
             }
@@ -428,7 +433,7 @@ namespace DG_TonKhoBTP_v02.UI
         }
         #endregion
 
-        #region AI generated code for IFormSection
+        #region Lấy và load dữ liệu vào form code for IFormSection
         public string SectionName => nameof(UC_TTNVL);
 
         public object GetData()

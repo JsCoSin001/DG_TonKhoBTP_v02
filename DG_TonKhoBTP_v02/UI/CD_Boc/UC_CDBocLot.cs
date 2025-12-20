@@ -20,7 +20,7 @@ namespace DG_TonKhoBTP_v02.UI
         }
 
 
-        #region AI generated
+        #region Lấy và load dữ liệu vào form
 
         public string SectionName => nameof(UC_CDBocLot);
 
@@ -29,7 +29,7 @@ namespace DG_TonKhoBTP_v02.UI
             return new CD_BocLot
             {
                 TTThanhPhan_ID = 0,
-                DoDayTBLot = (double)doDayTBLot.Value
+                DoDayTBLot = doDayTBLot.Value == 0m ? null : (double?)doDayTBLot.Value
             };
         }
 

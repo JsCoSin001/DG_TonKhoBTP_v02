@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-public static class ErrorStore
+public static class EnumStore
 {
     public static Dictionary<int, string> ErrorNVL = new Dictionary<int, string>()
     {
@@ -26,4 +26,13 @@ public static class ErrorStore
         { 3, "Thiếu khối lượng Thành phẩm" },
         { 4, "Thiếu chiều dài Thành phẩm" },
     };
+
+    public static class Icon
+    {
+        public const string Success = "ok";
+        public const string Warning = "warning";
+        public const string NoneLogin = "noneLogin";
+        public const string LoginSuccess = "loginSuccess";
+    }
+
 }

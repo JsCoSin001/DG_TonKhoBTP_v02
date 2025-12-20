@@ -27,10 +27,10 @@ namespace DG_TonKhoBTP_v02.UI
             return new CD_BenRuot
             {
                 TTThanhPhan_ID = 0,
-                DKSoi = (double)dkSoi.Value,
-                SoSoi = (int)soSoi.Value,
-                ChieuXoan = ChieuXoan.Text,
-                BuocBen = (double)buocBen.Value
+                DKSoi = dkSoi.Value == 0 ? (double?)null : (double)dkSoi.Value,
+                SoSoi = soSoi.Value == 0 ? (int?)null : (int)soSoi.Value,
+                ChieuXoan = string.IsNullOrWhiteSpace(ChieuXoan.Text) ? null : ChieuXoan.Text,
+                BuocBen = buocBen.Value == 0 ? (double?)null : (double)buocBen.Value
             };
         }
 

@@ -25,9 +25,9 @@ namespace DG_TonKhoBTP_v02.UI
         {
             return new CD_BocVo
             {
-                TTThanhPhan_ID = null,                 // gán khi lưu DB
-                DayVoTB = (double)dayVoTB.Value,   // thay nudDayVoTB bằng control thật
-                InAn = inAn.Text,         // nếu không có checkbox, tự quyết theo combobox/text
+                TTThanhPhan_ID = null,                 
+                DayVoTB = dayVoTB.Value == 0m ? null : (double?)dayVoTB.Value,
+                InAn = string.IsNullOrEmpty(inAn.Text)  ? null : inAn.Text,         
             };
         }
 

@@ -46,7 +46,7 @@
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
             this.cbxCheckAll = new System.Windows.Forms.CheckBox();
             this.label6 = new System.Windows.Forms.Label();
-            this.label5 = new System.Windows.Forms.Label();
+            this.lblCanhBao = new System.Windows.Forms.Label();
             this.panel3 = new System.Windows.Forms.Panel();
             this.panel1.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -177,7 +177,7 @@
             this.dtNgay.Name = "dtNgay";
             this.dtNgay.Size = new System.Drawing.Size(114, 26);
             this.dtNgay.TabIndex = 4;
-            this.dtNgay.Value = new System.DateTime(2025, 12, 4, 0, 0, 0, 0);
+            this.dtNgay.Value = new System.DateTime(2025, 12, 12, 0, 0, 0, 0);
             // 
             // btnTimKiem
             // 
@@ -260,7 +260,7 @@
             this.tableLayoutPanel2.Controls.Add(this.cbxCheckAll, 2, 0);
             this.tableLayoutPanel2.Controls.Add(this.tbNguoiKiemTra, 1, 0);
             this.tableLayoutPanel2.Controls.Add(this.label6, 0, 0);
-            this.tableLayoutPanel2.Controls.Add(this.label5, 0, 1);
+            this.tableLayoutPanel2.Controls.Add(this.lblCanhBao, 0, 1);
             this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel2.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel2.Name = "tableLayoutPanel2";
@@ -293,17 +293,18 @@
             this.label6.TabIndex = 10;
             this.label6.Text = "Người KTra";
             // 
-            // label5
+            // lblCanhBao
             // 
-            this.label5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.label5.AutoSize = true;
-            this.tableLayoutPanel2.SetColumnSpan(this.label5, 2);
-            this.label5.ForeColor = System.Drawing.Color.DarkRed;
-            this.label5.Location = new System.Drawing.Point(3, 40);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(218, 18);
-            this.label5.TabIndex = 11;
-            this.label5.Text = "Tick thể hiện đã kiểm tra dữ liệu";
+            this.lblCanhBao.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.lblCanhBao.AutoSize = true;
+            this.tableLayoutPanel2.SetColumnSpan(this.lblCanhBao, 2);
+            this.lblCanhBao.ForeColor = System.Drawing.Color.DarkRed;
+            this.lblCanhBao.Location = new System.Drawing.Point(3, 40);
+            this.lblCanhBao.Name = "lblCanhBao";
+            this.lblCanhBao.Size = new System.Drawing.Size(218, 18);
+            this.lblCanhBao.TabIndex = 11;
+            this.lblCanhBao.Text = "Tick thể hiện đã kiểm tra dữ liệu";
+            this.lblCanhBao.Visible = false;
             // 
             // panel3
             // 
@@ -359,7 +360,7 @@
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
         private System.Windows.Forms.CheckBox cbxCheckAll;
         private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.Label lblCanhBao;
         private System.Windows.Forms.Panel panel3;
     }
 }

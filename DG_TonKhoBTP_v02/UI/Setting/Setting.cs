@@ -148,12 +148,12 @@ namespace DG_TonKhoBTP_v02.UI.Setting
 
             bool flg = DatabaseHelper.InsertConfig(config);
             string ms = "THAO TÁC THẤT BẠI.";
-            string icon = "warning";
+            string icon = EnumStore.Icon.Warning;
 
             if (flg)
             {
                 ms =  "THAO TÁC THÀNH CÔNG";
-                icon = "ok";
+                icon = EnumStore.Icon.Success;
                 tbxNguoiThucHien.Text = "";
             }
 

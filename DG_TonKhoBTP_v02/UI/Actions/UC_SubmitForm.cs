@@ -125,7 +125,9 @@ namespace DG_TonKhoBTP_v02.UI
                 Debug.WriteLine($"Merge UC_TTSanPham: {swStep.ElapsedMilliseconds} ms (tổng: {swTotal.ElapsedMilliseconds} ms)");
 
                 #region Validate dữ liệu 
-                // Validate Ca Làm Việc
+
+                #region Validate Ca Làm Việc
+
                 swStep.Restart();
                 var thongTinCaLamViec = (ThongTinCaLamViec)snap.Sections["UC_TTCaLamViec"];
                 int sttLoi = Validator.TTCaLamViec(thongTinCaLamViec);
@@ -135,13 +137,14 @@ namespace DG_TonKhoBTP_v02.UI
                 {
                     waiting.Close();
                     waiting.Dispose();
-                    FrmWaiting.ShowGifAlert(ErrorStore.ErrorCaLamViec[sttLoi]);
+                    FrmWaiting.ShowGifAlert(EnumStore.ErrorCaLamViec[sttLoi]);
                     btnLuu.Enabled = true;
                     Debug.WriteLine($"Lỗi TTCaLamViec (sttLoi={sttLoi}), thoát: {swTotal.ElapsedMilliseconds} ms");
                     return;
                 }
+                #endregion
 
-                // Validate NVL
+                #region Validate NVL
                 swStep.Restart();
                 var list_TTNVL = snap.Sections["UC_TTNVL"] as List<TTNVL>;
                 string loiNVL = Validator.TTNVL(list_TTNVL);
@@ -156,8 +159,9 @@ namespace DG_TonKhoBTP_v02.UI
                     Debug.WriteLine($"Lỗi TTNVL (sttLoi={sttLoi}), thoát: {swTotal.ElapsedMilliseconds} ms");
                     return;
                 }
+                #endregion
 
-                // Validate TP công đoạn
+                #region Validate TP công đoạn
                 swStep.Restart();
                 var thongTinThanhPham = (TTThanhPham)snap.Sections["UC_TTThanhPham"];
                 sttLoi = Validator.TTThanhPham(thongTinThanhPham);
@@ -167,13 +171,14 @@ namespace DG_TonKhoBTP_v02.UI
                 {
                     waiting.Close();
                     waiting.Dispose();
-                    FrmWaiting.ShowGifAlert(ErrorStore.ErrorTP[sttLoi]);
+                    FrmWaiting.ShowGifAlert(EnumStore.ErrorTP[sttLoi]);
                     btnLuu.Enabled = true;
                     Debug.WriteLine($"Lỗi TTThanhPham (sttLoi={sttLoi}), thoát: {swTotal.ElapsedMilliseconds} ms");
                     return;
                 }
+                #endregion
 
-                // Validate chi tiết công đoạn
+                #region Validate chi tiết công đoạn
                 swStep.Restart();
                 var chiTietCD = Validator.KiemTraChiTietCongDoan(snap);
                 Debug.WriteLine($"Validator.KiemTraChiTietCongDoan: {swStep.ElapsedMilliseconds} ms (tổng: {swTotal.ElapsedMilliseconds} ms)");
@@ -187,6 +192,7 @@ namespace DG_TonKhoBTP_v02.UI
                     Debug.WriteLine($"Chi tiết công đoạn chưa hợp lệ, thoát: {swTotal.ElapsedMilliseconds} ms");
                     return;
                 }
+                #endregion
 
                 #endregion
 
@@ -329,12 +335,12 @@ namespace DG_TonKhoBTP_v02.UI
 
                             // 🔔 Thông báo kết quả lưu
                             string msgSave = (idEdit > 0 ? "SỬA" : "LƯU");
-                            string iconAlert = "warning";
+                            string iconAlert = EnumStore.Icon.Warning;
 
                             if (saveSuccess)
                             {
                                 msgSave += " THÀNH CÔNG ";
-                                iconAlert = "ok";
+                                iconAlert = EnumStore.Icon.Success;
                             }
                             else
                             {

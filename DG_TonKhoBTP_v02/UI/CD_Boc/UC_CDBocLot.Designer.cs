@@ -56,7 +56,7 @@
             this.tableLayoutPanel1.RowCount = 2;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 35F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(798, 65);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(791, 65);
             this.tableLayoutPanel1.TabIndex = 0;
             // 
             // label1
@@ -66,7 +66,7 @@
             this.label1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.label1.Location = new System.Drawing.Point(3, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(220, 30);
+            this.label1.Size = new System.Drawing.Size(218, 30);
             this.label1.TabIndex = 0;
             this.label1.Text = "Độ dày TB lót";
             this.label1.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
@@ -82,7 +82,7 @@
             0,
             0});
             this.doDayTBLot.Name = "doDayTBLot";
-            this.doDayTBLot.Size = new System.Drawing.Size(107, 24);
+            this.doDayTBLot.Size = new System.Drawing.Size(106, 24);
             this.doDayTBLot.TabIndex = 1;
             // 
             // UC_CDBocLot
@@ -93,7 +93,7 @@
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.Controls.Add(this.tableLayoutPanel1);
             this.Name = "UC_CDBocLot";
-            this.Size = new System.Drawing.Size(798, 65);
+            this.Size = new System.Drawing.Size(791, 65);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.doDayTBLot)).EndInit();

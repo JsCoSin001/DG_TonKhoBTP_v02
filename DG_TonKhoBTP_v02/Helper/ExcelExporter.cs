@@ -13,7 +13,7 @@ namespace DG_TonKhoBTP_v02.Helper
         {
             if (table == null || table.Rows.Count == 0)
             {
-                FrmWaiting.ShowGifAlert("Không có dữ liệu để xuất.", "Export");
+                FrmWaiting.ShowGifAlert("Không có dữ liệu để xuất.", "Export", EnumStore.Icon.Warning);
                 return;
             }
 
@@ -30,11 +30,11 @@ namespace DG_TonKhoBTP_v02.Helper
             {
                 // CHẠY TRÊN UI THREAD — OK
                 ExportToPath(table, sfd.FileName);
-                FrmWaiting.ShowGifAlert("Đã xuất Excel thành công!", "Export","ok");
+                FrmWaiting.ShowGifAlert("Đã xuất Excel thành công!", "Export",EnumStore.Icon.Success);
             }
             catch (Exception ex)
             {
-                FrmWaiting.ShowGifAlert($"Lỗi khi xuất Excel: {ex.Message}", "Export Error");
+                FrmWaiting.ShowGifAlert($"Lỗi khi xuất Excel: {ex.Message}", "Export Error", EnumStore.Icon.Warning);
             }
         }
 

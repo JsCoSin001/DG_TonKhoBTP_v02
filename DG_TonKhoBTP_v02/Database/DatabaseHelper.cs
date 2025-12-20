@@ -4,11 +4,14 @@ using DG_TonKhoBTP_v02.Dictionary;
 using DG_TonKhoBTP_v02.DL_Ben;
 using DG_TonKhoBTP_v02.Models;
 using DocumentFormat.OpenXml.Drawing;
+using DocumentFormat.OpenXml.Wordprocessing;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace DG_TonKhoBTP_v02.Database
 {
@@ -354,11 +357,7 @@ namespace DG_TonKhoBTP_v02.Database
                         cmd.CommandText = $@"
                             UPDATE ThongTinCaLamViec
                             SET ToTruong = @nguoiKT
-                            WHERE id IN (
-                                SELECT ThongTinCaLamViec_ID
-                                FROM TTThanhPham
-                                WHERE id IN ({string.Join(",", paramNames)})
-                            );
+                            WHERE TTThanhPham_id IN ({string.Join(",", paramNames)});
                         ";
 
                         rows = cmd.ExecuteNonQuery();
@@ -486,9 +485,7 @@ namespace DG_TonKhoBTP_v02.Database
                             NguoiLam = @NguoiLam,
                             ToTruong = @ToTruong,
                             QuanDoc = @QuanDoc
-                        WHERE id = (SELECT ThongTinCaLamViec_ID 
-                                   FROM TTThanhPham 
-                                   WHERE id = @id)";
+                        WHERE TTThanhPham_id = @id";
 
             using (var cmd = new SQLiteCommand(sqlUpdate, conn, tx))
             {
@@ -901,11 +898,12 @@ namespace DG_TonKhoBTP_v02.Database
                 conn.Open();                  // ✅ MỞ TRƯỚC
                 tx = conn.BeginTransaction(); // ✅ RỒI MỚI BẮT ĐẦU TRANSACTION
 
-                // 1) ThongTinCaLamViec
-                long caId = InsertThongTinCaLamViec(conn, tx, caLam);
+                // 1) TTThanhPham
+                long tpId = InsertTTThanhPham(conn, tx, tp, nvl);
 
-                // 2) TTThanhPham
-                long tpId = InsertTTThanhPham(conn, tx, tp, caId, nvl);
+                // 2) ThongTinCaLamViec
+                InsertThongTinCaLamViec(conn, tx, caLam, tpId);
+
 
                 // 3) TTNVL -> Tạo mới
                 InsertTTNVL(conn, tx, tpId, nvl);
@@ -973,14 +971,15 @@ namespace DG_TonKhoBTP_v02.Database
             }
         }
 
-        private static long InsertThongTinCaLamViec(SQLiteConnection conn, SQLiteTransaction tx, ThongTinCaLamViec m)
+        private static long InsertThongTinCaLamViec(SQLiteConnection conn, SQLiteTransaction tx, ThongTinCaLamViec m, long id)
         {
             const string sql = @"
-            INSERT INTO ThongTinCaLamViec (Ngay, May, Ca, NguoiLam, ToTruong, QuanDoc)
-            VALUES (@Ngay, @May, @Ca, @NguoiLam, @ToTruong, @QuanDoc);
+            INSERT INTO ThongTinCaLamViec (Ngay,TTThanhPham_id, May, Ca, NguoiLam, ToTruong, QuanDoc)
+            VALUES (@Ngay, @TTThanhPham_id, @May, @Ca, @NguoiLam, @ToTruong, @QuanDoc);
             SELECT last_insert_rowid();";
             using var cmd = new SQLiteCommand(sql, conn, tx);
             cmd.Parameters.AddWithValue("@Ngay", m.Ngay);
+            cmd.Parameters.AddWithValue("@TTThanhPham_id", id);
             cmd.Parameters.AddWithValue("@May", m.May);
             cmd.Parameters.AddWithValue("@Ca", m.Ca);
             cmd.Parameters.AddWithValue("@NguoiLam", m.NguoiLam);
@@ -989,14 +988,14 @@ namespace DG_TonKhoBTP_v02.Database
             return (long)(cmd.ExecuteScalar() ?? 0L);
         }
 
-        private static long InsertTTThanhPham(SQLiteConnection conn, SQLiteTransaction tx, TTThanhPham m, long thongTinCaLamViecId, List<TTNVL> nvl)
+        private static long InsertTTThanhPham(SQLiteConnection conn, SQLiteTransaction tx, TTThanhPham m, List<TTNVL> nvl)
         {
 
             const string sql = @"
             INSERT INTO TTThanhPham
-                (DanhSachSP_ID, ThongTinCaLamViec_ID, MaBin, KhoiLuongTruoc, KhoiLuongSau, ChieuDaiTruoc, ChieuDaiSau, Phe, CongDoan, GhiChu,HanNoi, DateInsert)
+                (DanhSachSP_ID,  MaBin, KhoiLuongTruoc, KhoiLuongSau, ChieuDaiTruoc, ChieuDaiSau, Phe, CongDoan, GhiChu,HanNoi, DateInsert)
             VALUES
-                (@DanhSachSP_ID, @ThongTinCaLamViec_ID, @MaBin, @KhoiLuongTruoc, @KhoiLuongSau, @ChieuDaiTruoc, @ChieuDaiSau, @Phe, @CongDoan, @GhiChu, @HanNoi, @DateInsert);
+                (@DanhSachSP_ID,  @MaBin, @KhoiLuongTruoc, @KhoiLuongSau, @ChieuDaiTruoc, @ChieuDaiSau, @Phe, @CongDoan, @GhiChu, @HanNoi, @DateInsert);
             SELECT last_insert_rowid();";
 
             double klHanNoi = 0;
@@ -1014,7 +1013,6 @@ namespace DG_TonKhoBTP_v02.Database
 
             using var cmd = new SQLiteCommand(sql, conn, tx);
             cmd.Parameters.AddWithValue("@DanhSachSP_ID", m.DanhSachSP_ID);
-            cmd.Parameters.AddWithValue("@ThongTinCaLamViec_ID", thongTinCaLamViecId);
             cmd.Parameters.AddWithValue("@MaBin", m.MaBin);
             cmd.Parameters.AddWithValue("@KhoiLuongTruoc", m.KhoiLuongTruoc);
             cmd.Parameters.AddWithValue("@KhoiLuongSau", m.KhoiLuongSau);
@@ -1220,7 +1218,7 @@ namespace DG_TonKhoBTP_v02.Database
             using var cmd = new SQLiteCommand(sql, conn, tx);
             cmd.Parameters.AddWithValue("@TTThanhPham_ID", thongTinSpId);
             cmd.Parameters.AddWithValue("@BuocXoan", m.BuocXoan);
-            cmd.Parameters.AddWithValue("@ChieuXoan", m.ChieuXoan ?? "Z");
+            cmd.Parameters.AddWithValue("@ChieuXoan", m.ChieuXoan);
             cmd.Parameters.AddWithValue("@GoiCachMep", m.GoiCachMep);
             cmd.Parameters.AddWithValue("@DKBTP", m.DKBTP);
             cmd.ExecuteNonQuery();
@@ -1291,6 +1289,348 @@ namespace DG_TonKhoBTP_v02.Database
             return flg;
 
         }
+        #endregion
+
+
+        #region User
+       
+        // 1) Tạo user mới + gán roles (chỉ INSERT)
+        public static bool CreateUserWithRoles(string username, string passwordHash, string name, List<int> roleIds, bool is_active = true)
+        {
+
+            roleIds = NormalizeRoleIds(roleIds);
+
+            using var conn = new SQLiteConnection(_connStr);
+            conn.Open();
+            using var tran = conn.BeginTransaction();
+
+            try
+            {                
+
+                long userId;
+
+                using (var ins = new SQLiteCommand(@"
+                INSERT INTO users(username, password_hash, name, is_active)
+                VALUES(@u, @ph, @n, @ia);", conn, tran))
+                {
+                    ins.Parameters.AddWithValue("@u", username);
+                    ins.Parameters.AddWithValue("@ph", passwordHash);
+                    ins.Parameters.AddWithValue("@n", name);
+                    ins.Parameters.AddWithValue("@ia", is_active ? 1 : 0);
+                    ins.ExecuteNonQuery();
+                    userId = conn.LastInsertRowId;
+                }
+
+                SyncUserRoles(conn, tran, userId, roleIds);
+
+                tran.Commit();
+                return true;
+            }
+            catch
+            {
+                tran.Rollback();
+                throw; 
+            }
+        }
+
+        public static bool UpdateUserWithRoles(string username, string? passwordHash, string name, List<int> roleIds, bool is_active = true)
+        {
+            roleIds = NormalizeRoleIds(roleIds);
+
+            using var conn = new SQLiteConnection(_connStr);
+            conn.Open();
+            using var tran = conn.BeginTransaction();
+
+            try
+            {
+                long userId = GetUserIdByUsername(conn, tran, username);
+                if (userId <= 0) throw new InvalidOperationException("Không tìm thấy user để cập nhật.");
+
+                if (!string.IsNullOrWhiteSpace(passwordHash))
+                {
+                    using var upd = new SQLiteCommand(@"
+                    UPDATE users
+                    SET password_hash=@ph,
+                        name=@n,
+                        is_active=@ia
+                    WHERE user_id=@id;", conn, tran);
+
+                    upd.Parameters.AddWithValue("@ph", passwordHash);
+                    upd.Parameters.AddWithValue("@n", name);
+                    upd.Parameters.AddWithValue("@ia", is_active ? 1 : 0);
+                    upd.Parameters.AddWithValue("@id", userId);
+                    upd.ExecuteNonQuery();
+                }
+                else
+                {
+                    using var upd = new SQLiteCommand(@"
+                    UPDATE users
+                    SET name=@n,
+                        is_active=@ia
+                    WHERE user_id=@id;", conn, tran);
+
+                    upd.Parameters.AddWithValue("@n", name);
+                    upd.Parameters.AddWithValue("@ia", is_active ? 1 : 0);
+                    upd.Parameters.AddWithValue("@id", userId);
+                    upd.ExecuteNonQuery();
+                }
+
+                SyncUserRoles(conn, tran, userId, roleIds);
+
+                tran.Commit();
+                return true;
+            }
+            catch
+            {
+                tran.Rollback();
+                throw;
+            }
+        }
+        private static List<int> NormalizeRoleIds(List<int>? roleIds)
+        {
+            return (roleIds ?? new List<int>())
+                .Where(r => r > 0)
+                .Distinct()
+                .ToList();
+        }
+
+        public static async Task<List<string>> QueryAsync(string typed, CancellationToken ct)
+        {
+            string Esc(string s) => s.Replace(@"\", @"\\").Replace("%", @"\%").Replace("_", @"\_");
+            var list = new List<string>();
+            var prefix = Esc(typed) + "%";
+
+            using (var conn = new SQLiteConnection(_connStr)) // 👈 using (không có await)
+            {
+                await conn.OpenAsync(ct);
+                using (var cmd = conn.CreateCommand()) // 👈 using (không có await)
+                {
+                    cmd.CommandText = @"
+                SELECT username
+                FROM users
+                WHERE @t = '' OR username LIKE @p ESCAPE '\'
+                ORDER BY username
+                LIMIT 20;";
+                    cmd.Parameters.AddWithValue("@t", typed);
+                    cmd.Parameters.AddWithValue("@p", prefix);
+
+                    using (var r = await cmd.ExecuteReaderAsync(ct)) // 👈 using (không có await)
+                    {
+                        while (await r.ReadAsync(ct))
+                        {
+                            list.Add(r.GetString(0));
+                        }
+                    }
+                }
+            }
+            return list;
+        }
+
+        private static long GetUserIdByUsername(SQLiteConnection conn, SQLiteTransaction tran, string username)
+        {
+            using var cmd = new SQLiteCommand("SELECT user_id FROM users WHERE username=@u LIMIT 1;", conn, tran);
+            cmd.Parameters.AddWithValue("@u", username);
+            var obj = cmd.ExecuteScalar();
+            if (obj == null || obj == DBNull.Value) return -1;
+            return Convert.ToInt64(obj);
+        }
+
+        // Sync roles: xóa role không còn + thêm role mới (INSERT OR IGNORE)
+        private static void SyncUserRoles(SQLiteConnection conn, SQLiteTransaction tran, long userId, List<int> roleIds)
+        {
+            // DELETE role không còn được chọn
+            if (roleIds.Count == 0)
+            {
+                using var delAll = new SQLiteCommand("DELETE FROM user_roles WHERE user_id=@uid;", conn, tran);
+                delAll.Parameters.AddWithValue("@uid", userId);
+                delAll.ExecuteNonQuery();
+            }
+            else
+            {
+                var paramNames = roleIds.Select((_, i) => $"@r{i}").ToArray();
+                var sqlDel = $"DELETE FROM user_roles WHERE user_id=@uid AND role_id NOT IN ({string.Join(",", paramNames)});";
+
+                using var del = new SQLiteCommand(sqlDel, conn, tran);
+                del.Parameters.AddWithValue("@uid", userId);
+                for (int i = 0; i < roleIds.Count; i++)
+                    del.Parameters.AddWithValue(paramNames[i], roleIds[i]);
+
+                del.ExecuteNonQuery();
+            }
+
+            // INSERT role đã chọn
+            using var insUR = new SQLiteCommand(
+                "INSERT OR IGNORE INTO user_roles(user_id, role_id) VALUES(@uid, @rid);",
+                conn, tran);
+
+            var pUid = insUR.Parameters.Add("@uid", DbType.Int64);
+            var pRid = insUR.Parameters.Add("@rid", DbType.Int32);
+            pUid.Value = userId;
+
+            insUR.Prepare();
+
+            foreach (var rid in roleIds)
+            {
+                pRid.Value = rid;
+                insUR.ExecuteNonQuery();
+            }
+        }
+
+        public static async Task<UserInfo> GetUserWithRolesByUsernameAsync(string username, CancellationToken ct)
+        {
+            if (string.IsNullOrWhiteSpace(username)) return null;
+
+            using (var conn = new SQLiteConnection(_connStr))
+            {
+                await conn.OpenAsync(ct);
+
+                // 1) user
+                UserInfo u = null;
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"
+                    SELECT user_id, username, name, is_active, created_at
+                    FROM users
+                    WHERE username = @u
+                    LIMIT 1;";
+                    cmd.Parameters.AddWithValue("@u", username.Trim());
+
+                    using (var r = await cmd.ExecuteReaderAsync(ct))
+                    {
+                        if (!await r.ReadAsync(ct)) return null;
+
+                        u = new UserInfo
+                        {
+                            UserId = r.GetInt32(0),
+                            Username = r.GetString(1),
+                            Name = r.IsDBNull(2) ? "" : r.GetString(2),
+                            IsActive = r.GetInt32(3) == 1,
+                            CreatedAt = r.IsDBNull(4) ? "" : r.GetString(4)
+                        };
+                    }
+                }
+
+                // 2) roles
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"
+                        SELECT r.role_name
+                        FROM roles r
+                        JOIN user_roles ur ON ur.role_id = r.role_id
+                        WHERE ur.user_id = @id
+                        ORDER BY r.role_id;";
+                    cmd.Parameters.AddWithValue("@id", u.UserId);
+
+                    using (var r = await cmd.ExecuteReaderAsync(ct))
+                        while (await r.ReadAsync(ct)) u.Roles.Add(r.GetString(0));
+                }
+
+                return u;
+            }
+        }
+
+
+
+        // treeeeview
+
+
+        //end tr
+
+
+        // Đăng nhập
+        public static LoginResult Login(string usernameInput, string passwordInput)
+        {
+            LoginResult result = new LoginResult();            
+
+            using (SQLiteConnection conn = new SQLiteConnection(_connStr))
+            {
+                conn.Open();
+
+                int userId = 0;
+                string storedHash = null;
+                string name = null;
+
+                // ===== QUERY 1: XÁC THỰC USER =====
+                string sqlUser = @"
+                    SELECT user_id,name, password_hash
+                    FROM users
+                    WHERE username = @username
+                      AND is_active = 1 
+                    LIMIT 1;
+                ";
+
+                using (SQLiteCommand cmd = new SQLiteCommand(sqlUser, conn))
+                {
+                    cmd.Parameters.AddWithValue("@username", usernameInput);
+
+                    using (SQLiteDataReader rd = cmd.ExecuteReader())
+                    {
+                        if (!rd.Read())
+                        {
+                            result.Message = "Sai tài khoản hoặc mật khẩu.";
+                            return result;
+                        }
+
+                        userId = Convert.ToInt32(rd["user_id"]);
+                        name = Convert.ToString(rd["name"]);
+                        storedHash = rd["password_hash"].ToString();
+                    }
+                }
+
+                // Verify BCrypt
+                if (!BCrypt.Net.BCrypt.Verify(passwordInput, storedHash))
+                {
+                    result.Message = "Sai tài khoản hoặc mật khẩu.";
+                    return result;
+                }
+
+                // ===== QUERY 2: LOAD ROLES + PERMISSIONS =====
+                string sqlPerms = @"
+                    SELECT DISTINCT
+                        r.role_name,
+                        p.permission_code
+                    FROM user_roles ur
+                    JOIN roles r ON r.role_id = ur.role_id
+                    LEFT JOIN role_permissions rp ON rp.role_id = r.role_id
+                    LEFT JOIN permissions p ON p.permission_id = rp.permission_id
+                    WHERE ur.user_id = @user_id;
+                ";
+
+                HashSet<string> roles = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                HashSet<string> perms = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+                using (SQLiteCommand cmd = new SQLiteCommand(sqlPerms, conn))
+                {
+                    cmd.Parameters.AddWithValue("@user_id", userId);
+
+                    using (SQLiteDataReader rd = cmd.ExecuteReader())
+                    {
+                        while (rd.Read())
+                        {
+                            if (rd["role_name"] != DBNull.Value)
+                                roles.Add(rd["role_name"].ToString());
+
+                            if (rd["permission_code"] != DBNull.Value)
+                                perms.Add(rd["permission_code"].ToString());
+                        }
+                    }
+                }
+
+                // ===== HOÀN TẤT LOGIN =====
+                result.Success = true;
+                result.UserId = userId;
+                result.Name = name;
+                result.Roles = new List<string>(roles);
+                result.Permissions = perms;
+                result.Message = "OK";
+
+                return result;
+            }
+        }
+
+
+
+
         #endregion
 
         #region ===================================

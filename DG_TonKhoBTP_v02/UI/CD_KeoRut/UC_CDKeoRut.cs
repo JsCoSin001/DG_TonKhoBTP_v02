@@ -21,16 +21,15 @@ namespace DG_TonKhoBTP_v02.UI
 
         public string SectionName => nameof(UC_CDKeoRut);
 
-
         public CD_KeoRut GetSectionData()
         {
             return new CD_KeoRut
             {
                 TTThanhPhan_ID = 0, // bind FK khi lưu DB
-                DKTrucX = (double)dkTrucX.Value,
-                DKTrucY = (double)dkTrucY.Value,
-                NgoaiQuan = ngoaiQuan.Text,
-                TocDo = (double)tocDo.Value,
+                DKTrucX = dkTrucX.Value == 0m ? null : (double?)dkTrucX.Value,
+                DKTrucY = dkTrucY.Value == 0m ? null : (double?)dkTrucY.Value,
+                NgoaiQuan = ngoaiQuan.SelectedIndex == -1 ? null : ngoaiQuan.Text,
+                TocDo = tocDo.Value == 0m ? null : (double?)tocDo.Value,
                 DienApU = (double)dienApU.Value,
                 DongDienU = (double)dongDienU.Value
             };

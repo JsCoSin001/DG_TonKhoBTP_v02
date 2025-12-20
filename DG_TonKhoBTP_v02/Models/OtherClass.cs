@@ -13,6 +13,10 @@ namespace DG_TonKhoBTP_v02.Models
         public string Header { get; set; }        // Tên hiển thị
     }
 
+    
+
+
+
     public class CongDoan
     {
         public int Id { get; set; }

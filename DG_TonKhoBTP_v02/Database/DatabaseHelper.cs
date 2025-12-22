@@ -9,9 +9,11 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace DG_TonKhoBTP_v02.Database
 {
@@ -1532,9 +1534,326 @@ namespace DG_TonKhoBTP_v02.Database
 
 
         // treeeeview
+        public static List<UserWithRoles> GetUsersWithSameRoles(int currentUserId)
+        {
+            var users = new List<UserWithRoles>();
+
+            using (var conn = new SQLiteConnection(_connStr))
+            {
+                conn.Open();
+
+                string query = @"
+                SELECT DISTINCT 
+                    u.user_id,
+                    u.username,
+                    u.name,
+                    u.is_active
+                FROM users u
+                INNER JOIN user_roles ur ON u.user_id = ur.user_id
+                WHERE u.is_active = 1
+                  AND ur.role_id IN (
+                      SELECT role_id 
+                      FROM user_roles 
+                      WHERE user_id = @currentUserId
+                  )
+                ORDER BY u.name, u.username";
+
+                using (var cmd = new SQLiteCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@currentUserId", currentUserId);
+
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            var user = new UserWithRoles
+                            {
+                                UserId = reader.GetInt32(0),
+                                Username = reader.GetString(1),
+                                Name = reader.IsDBNull(2) ? reader.GetString(1) : reader.GetString(2),
+                                IsActive = reader.GetInt32(3) == 1,
+                                Roles = new List<RoleInfo>()
+                            };
+
+                            // Load roles cho user này
+                            user.Roles = GetUserRoles(conn, user.UserId);
+
+                            users.Add(user);
+                        }
+                    }
+                }
+            }
+
+            return users;
+        }
+
+        /// <summary>
+        /// Lấy danh sách roles của một user
+        /// </summary>
+        private static List<RoleInfo> GetUserRoles(SQLiteConnection conn, int userId)
+        {
+            var roles = new List<RoleInfo>();
+
+            string query = @"
+            SELECT 
+                r.role_id,
+                r.role_name,
+                r.description
+            FROM roles r
+            INNER JOIN user_roles ur ON r.role_id = ur.role_id
+            WHERE ur.user_id = @userId
+            ORDER BY r.role_name";
+
+            using (var cmd = new SQLiteCommand(query, conn))
+            {
+                cmd.Parameters.AddWithValue("@userId", userId);
+
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        roles.Add(new RoleInfo
+                        {
+                            RoleId = reader.GetInt32(0),
+                            RoleName = reader.GetString(1),
+                            Description = reader.IsDBNull(2) ? null : reader.GetString(2)
+                        });
+                    }
+                }
+            }
+
+            return roles;
+        }
+
+        /// <summary>
+        /// Load với filter theo role cụ thể
+        /// </summary>
+        public static void LoadUsersBySpecificRole(TreeView treeView, string roleName)
+        {
+            treeView.Nodes.Clear();
+            treeView.BeginUpdate();
+
+            try
+            {
+                var users = GetUsersByRole(roleName);
+
+                foreach (var user in users)
+                {
+                    var userNode = new TreeNode($"{user.Name} ({user.Username})")
+                    {
+                        Tag = user,
+                        ImageIndex = 0,
+                        SelectedImageIndex = 0
+                    };
+
+                    foreach (var role in user.Roles)
+                    {
+                        var roleNode = new TreeNode(role.RoleName)
+                        {
+                            Tag = role,
+                            ImageIndex = 1,
+                            SelectedImageIndex = 1,
+                            ForeColor = System.Drawing.Color.Blue
+                        };
+                        userNode.Nodes.Add(roleNode);
+                    }
+
+                    treeView.Nodes.Add(userNode);
+                }
+
+                treeView.ExpandAll();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                treeView.EndUpdate();
+            }
+        }
+
+        private static List<UserWithRoles> GetUsersByRole(string roleName)
+        {
+            var users = new List<UserWithRoles>();
+
+            using (var conn = new SQLiteConnection(_connStr))
+            {
+                conn.Open();
+
+                string query = @"
+                SELECT DISTINCT 
+                    u.user_id,
+                    u.username,
+                    u.name,
+                    u.is_active
+                FROM users u
+                INNER JOIN user_roles ur ON u.user_id = ur.user_id
+                INNER JOIN roles r ON ur.role_id = r.role_id
+                WHERE u.is_active = 1
+                  AND r.role_name = @roleName
+                ORDER BY u.name, u.username";
+
+                using (var cmd = new SQLiteCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@roleName", roleName);
+
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            var user = new UserWithRoles
+                            {
+                                UserId = reader.GetInt32(0),
+                                Username = reader.GetString(1),
+                                Name = reader.IsDBNull(2) ? reader.GetString(1) : reader.GetString(2),
+                                IsActive = reader.GetInt32(3) == 1,
+                                Roles = GetUserRoles(conn, reader.GetInt32(0))
+                            };
+
+                            users.Add(user);
+                        }
+                    }
+                }
+            }
+
+            return users;
+        }
 
 
-        //end tr
+        //end tree
+
+        public static void LoadQuyenTheoRole(int roleId, DataGridView grvQuyen)
+        {
+            // Lấy toàn bộ permission + đánh dấu những permission đã thuộc roleId
+            const string sql = @"
+                SELECT 
+                    p.permission_id,
+                    p.permission_code,
+                    p.permission_name,
+                    CASE WHEN EXISTS (
+                        SELECT 1 
+                        FROM role_permissions rp
+                        WHERE rp.role_id = @roleId
+                          AND rp.permission_id = p.permission_id
+                    ) THEN 1 ELSE 0 END AS IsChecked
+                FROM permissions p;
+            ";
+
+            // Nếu grid có row trống cuối cùng, tắt nó để không bị Add nhầm
+            grvQuyen.AllowUserToAddRows = false;
+
+            grvQuyen.AutoGenerateColumns = false;
+            grvQuyen.Rows.Clear();
+
+            using (var conn = new SQLiteConnection(_connStr))
+            using (var cmd = new SQLiteCommand(sql, conn))
+            {
+                conn.Open();
+                cmd.Parameters.AddWithValue("@roleId", roleId);
+
+                using (var rd = cmd.ExecuteReader())
+                {
+                    while (rd.Read())
+                    {
+                        int rowIndex = grvQuyen.Rows.Add();
+
+                        grvQuyen.Rows[rowIndex].Cells[0].Value = rd.GetInt32(rd.GetOrdinal("IsChecked")) == 1;
+                        grvQuyen.Rows[rowIndex].Cells[1].Value = EnumStore.TransferPermissionName[rd["permission_code"]?.ToString()];
+                        grvQuyen.Rows[rowIndex].Cells[2].Value = rd["permission_name"]?.ToString();
+                        grvQuyen.Rows[rowIndex].Cells[3].Value = rd["permission_code"]?.ToString(); // cột ẩn
+
+                        grvQuyen.Rows[rowIndex].Tag = rd.GetInt32(rd.GetOrdinal("permission_id"));
+
+                    }
+                }
+            }
+        }
+
+        public static void SaveRolePermissions_ByGrid(int roleId, DataGridView grvQuyen)
+        {
+            // Commit trạng thái checkbox vừa click
+            grvQuyen.EndEdit();
+
+            var selected = new HashSet<int>();
+
+            // 1) Lấy permission_id được tick từ grid
+            foreach (DataGridViewRow row in grvQuyen.Rows)
+            {
+                if (row.IsNewRow) continue;
+
+                bool isChecked = row.Cells["cb"].Value != null &&
+                                 row.Cells["cb"].Value != DBNull.Value &&
+                                 Convert.ToBoolean(row.Cells["cb"].Value);
+
+                if (!isChecked) continue;
+
+                if (row.Tag == null) continue; // không có permission_id thì bỏ qua
+
+                selected.Add(Convert.ToInt32(row.Tag));
+            }
+
+            using (var conn = new SQLiteConnection(_connStr))
+            {
+                conn.Open();
+                using (var tran = conn.BeginTransaction())
+                {
+                    // 2) Lấy permission_id hiện có của role trong DB
+                    var existing = new HashSet<int>();
+                    using (var cmd = new SQLiteCommand(
+                        @"SELECT permission_id FROM role_permissions WHERE role_id = @roleId;", conn, tran))
+                    {
+                        cmd.Parameters.AddWithValue("@roleId", roleId);
+                        using (var rd = cmd.ExecuteReader())
+                        {
+                            while (rd.Read())
+                                existing.Add(Convert.ToInt32(rd["permission_id"]));
+                        }
+                    }
+
+                    // 3) INSERT những cái mới tick
+                    using (var cmdIns = new SQLiteCommand(
+                        @"INSERT OR IGNORE INTO role_permissions(role_id, permission_id)
+                            VALUES (@roleId, @pid);", conn, tran))
+                    {
+                        var pRole = cmdIns.Parameters.Add("@roleId", System.Data.DbType.Int32);
+                        var pPid = cmdIns.Parameters.Add("@pid", System.Data.DbType.Int32);
+
+                        foreach (var pid in selected)
+                        {
+                            if (existing.Contains(pid)) continue;
+
+                            pRole.Value = roleId;
+                            pPid.Value = pid;
+                            cmdIns.ExecuteNonQuery();
+                        }
+                    }
+
+                    // 4) DELETE những cái bị bỏ tick
+                    using (var cmdDel = new SQLiteCommand(
+                        @"DELETE FROM role_permissions 
+                  WHERE role_id = @roleId AND permission_id = @pid;", conn, tran))
+                    {
+                        var pRole = cmdDel.Parameters.Add("@roleId", System.Data.DbType.Int32);
+                        var pPid = cmdDel.Parameters.Add("@pid", System.Data.DbType.Int32);
+
+                        foreach (var pid in existing)
+                        {
+                            if (selected.Contains(pid)) continue;
+
+                            pRole.Value = roleId;
+                            pPid.Value = pid;
+                            cmdDel.ExecuteNonQuery();
+                        }
+                    }
+
+                    tran.Commit();
+                }
+            }
+
+            MessageBox.Show("Đã lưu quyền cho role!", "Thông báo",
+                MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
 
 
         // Đăng nhập

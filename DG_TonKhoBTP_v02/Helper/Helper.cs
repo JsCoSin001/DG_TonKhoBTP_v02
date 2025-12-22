@@ -824,6 +824,62 @@ namespace DG_TonKhoBTP_v02.Helper
             FrmWaiting.ShowGifAlert("KHÔNG TÌM THẤY MÁY IN");
         }
 
+
+        public static void LoadUsersWithSameRoles(TreeView treeView)
+        {
+            if (!UserContext.IsAuthenticated)
+            {
+                MessageBox.Show("Người dùng chưa đăng nhập!", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            treeView.Nodes.Clear();
+            treeView.BeginUpdate();
+
+            try
+            {
+                // Lấy danh sách users có chung role
+                var users = DatabaseHelper.GetUsersWithSameRoles(UserContext.UserId);
+
+                foreach (var user in users)
+                {
+                    // Tạo node cho user
+                    var userNode = new TreeNode($"{user.Name} ({user.Username})")
+                    {
+                        Tag = user,
+                        ImageIndex = 0, // Icon user
+                        SelectedImageIndex = 0
+                    };
+
+                    // Thêm các role của user
+                    foreach (var role in user.Roles)
+                    {
+                        var roleNode = new TreeNode(role.RoleName)
+                        {
+                            Tag = role,
+                            ImageIndex = 1, // Icon role
+                            SelectedImageIndex = 1,
+                            ForeColor = System.Drawing.Color.Blue
+                        };
+                        userNode.Nodes.Add(roleNode);
+                    }
+
+                    treeView.Nodes.Add(userNode);
+                }
+
+                // Expand tất cả nodes
+                treeView.ExpandAll();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi khi load dữ liệu: {ex.Message}", "Lỗi",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                treeView.EndUpdate();
+            }
+        }
     }
 
 

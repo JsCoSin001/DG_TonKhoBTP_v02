@@ -917,10 +917,11 @@ namespace DG_TonKhoBTP_v02
         {
             string iconAvatar = UserContext.IsAuthenticated ? EnumStore.Icon.LoginSuccess : EnumStore.Icon.NoneLogin;
             lblUserName.Text = UserContext.Name == null? "Đăng nhập" : UserContext.Name;
-            lblChucDanh.Text = UserContext.Roles == null ? "Chưa đăng nhập" : UserContext.Roles[0];
+            //lblChucDanh.Text = UserContext.Roles == null ? "Chưa đăng nhập" : UserContext.Roles[0];
             avatar.Image = Image.FromFile(@"Assets\" + iconAvatar + ".ico");
             PhanQuyen(true);
-            //PhanQuyen(UserContext.IsAuthenticated);
+            //PhanQuyen(UserContext.IsAuthenticated
+            //);
         }
 
         private void PhanQuyen(bool quyen)

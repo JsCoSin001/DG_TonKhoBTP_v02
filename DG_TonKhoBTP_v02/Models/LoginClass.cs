@@ -30,7 +30,7 @@ namespace DG_TonKhoBTP_v02.Models
 
 
 
-    public class RoleDetail
+    public class RoleInfo
     {
         public int RoleId { get; set; }
         public string RoleName { get; set; }
@@ -47,6 +47,15 @@ namespace DG_TonKhoBTP_v02.Models
         public string CreatedAt { get; set; }
 
         public List<string> Roles { get; set; } = new List<string>();
+    }
+
+    public class UserWithRoles
+    {
+        public int UserId { get; set; }
+        public string Username { get; set; }
+        public string Name { get; set; }
+        public bool IsActive { get; set; }
+        public List<RoleInfo> Roles { get; set; }
     }
 
 

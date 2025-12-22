@@ -35,4 +35,14 @@ public static class EnumStore
         public const string LoginSuccess = "loginSuccess";
     }
 
+    public static Dictionary<string, string> TransferPermissionName = new Dictionary<string, string>()
+    {
+        { "CAN_READ", "Quyền Đọc" },
+        { "CAN_WRITE", "Quyền Thêm mới" },
+        { "CAN_UPDATE", "Quyền Chỉnh sửa" },
+        { "CAN_DELETE", "Quyền Xoá" },
+        { "CAN_PERMISSION", "Phân Quyền" },
+    };
+
+
 }

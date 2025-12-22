@@ -150,7 +150,6 @@ namespace DG_TonKhoBTP_v02.UI.Setting
         }
 
 
-
         private void btnDangKi_Click(object sender, EventArgs e)
         {
             btnDangKi.Enabled = false;
@@ -220,7 +219,43 @@ namespace DG_TonKhoBTP_v02.UI.Setting
             string tabName = tabControl1.SelectedTab?.Name;
             if (tabName != "tbPhanQuyen") return;
 
-            Console.WriteLine(UserContext.Roles);
+            Helper.Helper.LoadUsersWithSameRoles(tvDanhSach);
+        }
+
+        private int idRole = 0;
+        private void tvDanhSach_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
+        {
+            idRole = 0;
+            // Xử lý khi click vào node
+            if (e.Node.Tag is RoleInfo role)
+            {         
+                DatabaseHelper.LoadQuyenTheoRole(role.RoleId, grvQuyen);
+                this.idRole = role.RoleId;
+            }
+        }
+
+        private void btnLuu_Click(object sender, EventArgs e)
+        {
+            if (idRole == 0)
+            {
+                FrmWaiting.ShowGifAlert("Không tìm thấy đối tượng cần đặt quyền");
+                return;
+            }
+            DatabaseHelper.SaveRolePermissions_ByGrid(idRole, grvQuyen);
+        }
+
+        private void grvQuyen_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0 || e.ColumnIndex != 0) return; // chỉ cột checkbox
+
+            var code = grvQuyen.Rows[e.RowIndex].Cells[3].Value?.ToString(); // cột ẩn chứa permission_code
+            if (string.Equals(code, "can_delete", StringComparison.OrdinalIgnoreCase))
+            {
+                // không cho chuyển sang true
+                grvQuyen.EndEdit();
+                grvQuyen.Rows[e.RowIndex].Cells[0].Value = false;
+                FrmWaiting.ShowGifAlert("QUYỀN NÀY KHÔNG ĐƯỢC CẤP!");
+            }
         }
     }
 }

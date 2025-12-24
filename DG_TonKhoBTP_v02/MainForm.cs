@@ -27,22 +27,14 @@ namespace DG_TonKhoBTP_v02
         private string _URL = Properties.Settings.Default.URL;
         private string _ver = "2.0";
 
-
         public MainForm()
         {
             InitializeComponent();
             DatabaseHelper.SetDatabasePath(_URL);
             lblAuthor.Text = $"Được phát triển bởi Linh - Version: {_ver} - All rights reserved.";
-
             DatabasehelperVer01.SetDatabasePath(_URL);
-
-            SetThongTinUser();
-
             ShowHomePage();
         }
-
-        
-
 
         #region Hàm log cấu trúc control
         private void button1_Click(object sender, EventArgs e)
@@ -691,6 +683,7 @@ namespace DG_TonKhoBTP_v02
 
         private async void setiingToolStripMenuItem_Click(object sender, EventArgs e)
         {
+
             Setting settingForm = new Setting();
             settingForm.StartPosition = FormStartPosition.CenterParent;
 
@@ -874,7 +867,6 @@ namespace DG_TonKhoBTP_v02
             runEventClickUser();
         }
 
-
         private void runEventClickUser()
         {
             if (!UserContext.IsAuthenticated)
@@ -889,8 +881,6 @@ namespace DG_TonKhoBTP_v02
                 );
             }
         }
-
-
 
         private void ShowLoginForm()
         {
@@ -917,17 +907,22 @@ namespace DG_TonKhoBTP_v02
         {
             string iconAvatar = UserContext.IsAuthenticated ? EnumStore.Icon.LoginSuccess : EnumStore.Icon.NoneLogin;
             lblUserName.Text = UserContext.Name == null? "Đăng nhập" : UserContext.Name;
-            //lblChucDanh.Text = UserContext.Roles == null ? "Chưa đăng nhập" : UserContext.Roles[0];
+            lblChucDanh.Text = (UserContext.RolesDict == null || UserContext.RolesDict.Count == 0) ? "Chưa đăng nhập" : UserContext.RolesDict.Values.First();
             avatar.Image = Image.FromFile(@"Assets\" + iconAvatar + ".ico");
-            PhanQuyen(true);
-            //PhanQuyen(UserContext.IsAuthenticated
-            //);
+            PhanQuyen();
         }
 
-        private void PhanQuyen(bool quyen)
+        private void PhanQuyen()
         {
-            userRegistration.Visible = quyen;
-            grbCongCu.Visible = quyen;
+            // Hiển thị Chức năng thêm và sửa mã hàng
+            grbCongCu.Visible = UserContext.RolesDict != null &&
+                                (UserContext.RolesDict.ContainsKey("Admin") ||
+                                 UserContext.RolesDict.ContainsKey(EnumStore.Group["ShowCongCu"]));
+
+            userRegistration.Visible = UserContext.IsAuthenticated && UserContext.PermissionsDict.ContainsKey(EnumStore.Group["Admin"]);
+
+            settingApp.Visible = UserContext.IsAuthenticated && UserContext.PermissionsDict.ContainsKey(EnumStore.Group["Chung"]);
+            
         }
 
 

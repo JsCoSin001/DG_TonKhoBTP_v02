@@ -1761,7 +1761,7 @@ namespace DG_TonKhoBTP_v02.Database
                         grvQuyen.Rows[rowIndex].Cells[0].Value = rd.GetInt32(rd.GetOrdinal("IsChecked")) == 1;
                         grvQuyen.Rows[rowIndex].Cells[1].Value = EnumStore.TransferPermissionName[rd["permission_code"]?.ToString()];
                         grvQuyen.Rows[rowIndex].Cells[2].Value = rd["permission_name"]?.ToString();
-                        grvQuyen.Rows[rowIndex].Cells[3].Value = rd["permission_code"]?.ToString(); // cột ẩn
+                        grvQuyen.Rows[rowIndex].Cells[3].Value = rd["permission_code"]?.ToString();
 
                         grvQuyen.Rows[rowIndex].Tag = rd.GetInt32(rd.GetOrdinal("permission_id"));
 
@@ -1770,26 +1770,21 @@ namespace DG_TonKhoBTP_v02.Database
             }
         }
 
+        // Giữ nguyên hàm cũ để tương thích ngược
         public static void SaveRolePermissions_ByGrid(int roleId, DataGridView grvQuyen)
         {
             // Commit trạng thái checkbox vừa click
             grvQuyen.EndEdit();
-
             var selected = new HashSet<int>();
-
             // 1) Lấy permission_id được tick từ grid
             foreach (DataGridViewRow row in grvQuyen.Rows)
             {
                 if (row.IsNewRow) continue;
-
                 bool isChecked = row.Cells["cb"].Value != null &&
                                  row.Cells["cb"].Value != DBNull.Value &&
                                  Convert.ToBoolean(row.Cells["cb"].Value);
-
                 if (!isChecked) continue;
-
-                if (row.Tag == null) continue; // không có permission_id thì bỏ qua
-
+                if (row.Tag == null) continue;
                 selected.Add(Convert.ToInt32(row.Tag));
             }
 
@@ -1814,15 +1809,13 @@ namespace DG_TonKhoBTP_v02.Database
                     // 3) INSERT những cái mới tick
                     using (var cmdIns = new SQLiteCommand(
                         @"INSERT OR IGNORE INTO role_permissions(role_id, permission_id)
-                            VALUES (@roleId, @pid);", conn, tran))
+                    VALUES (@roleId, @pid);", conn, tran))
                     {
                         var pRole = cmdIns.Parameters.Add("@roleId", System.Data.DbType.Int32);
                         var pPid = cmdIns.Parameters.Add("@pid", System.Data.DbType.Int32);
-
                         foreach (var pid in selected)
                         {
                             if (existing.Contains(pid)) continue;
-
                             pRole.Value = roleId;
                             pPid.Value = pid;
                             cmdIns.ExecuteNonQuery();
@@ -1836,11 +1829,9 @@ namespace DG_TonKhoBTP_v02.Database
                     {
                         var pRole = cmdDel.Parameters.Add("@roleId", System.Data.DbType.Int32);
                         var pPid = cmdDel.Parameters.Add("@pid", System.Data.DbType.Int32);
-
                         foreach (var pid in existing)
                         {
                             if (selected.Contains(pid)) continue;
-
                             pRole.Value = roleId;
                             pPid.Value = pid;
                             cmdDel.ExecuteNonQuery();
@@ -1850,16 +1841,100 @@ namespace DG_TonKhoBTP_v02.Database
                     tran.Commit();
                 }
             }
-
-            MessageBox.Show("Đã lưu quyền cho role!", "Thông báo",
-                MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
+
+        //public static void SaveRolePermissions_ByGrid(int roleId, DataGridView grvQuyen)
+        //{
+        //    // Commit trạng thái checkbox vừa click
+        //    grvQuyen.EndEdit();
+
+        //    var selected = new HashSet<int>();
+
+        //    // 1) Lấy permission_id được tick từ grid
+        //    foreach (DataGridViewRow row in grvQuyen.Rows)
+        //    {
+        //        if (row.IsNewRow) continue;
+
+        //        bool isChecked = row.Cells["cb"].Value != null &&
+        //                         row.Cells["cb"].Value != DBNull.Value &&
+        //                         Convert.ToBoolean(row.Cells["cb"].Value);
+
+        //        if (!isChecked) continue;
+
+        //        if (row.Tag == null) continue; // không có permission_id thì bỏ qua
+
+        //        selected.Add(Convert.ToInt32(row.Tag));
+        //    }
+
+        //    using (var conn = new SQLiteConnection(_connStr))
+        //    {
+        //        conn.Open();
+        //        using (var tran = conn.BeginTransaction())
+        //        {
+        //            // 2) Lấy permission_id hiện có của role trong DB
+        //            var existing = new HashSet<int>();
+        //            using (var cmd = new SQLiteCommand(
+        //                @"SELECT permission_id FROM role_permissions WHERE role_id = @roleId;", conn, tran))
+        //            {
+        //                cmd.Parameters.AddWithValue("@roleId", roleId);
+        //                using (var rd = cmd.ExecuteReader())
+        //                {
+        //                    while (rd.Read())
+        //                        existing.Add(Convert.ToInt32(rd["permission_id"]));
+        //                }
+        //            }
+
+        //            // 3) INSERT những cái mới tick
+        //            using (var cmdIns = new SQLiteCommand(
+        //                @"INSERT OR IGNORE INTO role_permissions(role_id, permission_id)
+        //                    VALUES (@roleId, @pid);", conn, tran))
+        //            {
+        //                var pRole = cmdIns.Parameters.Add("@roleId", System.Data.DbType.Int32);
+        //                var pPid = cmdIns.Parameters.Add("@pid", System.Data.DbType.Int32);
+
+        //                foreach (var pid in selected)
+        //                {
+        //                    if (existing.Contains(pid)) continue;
+
+        //                    pRole.Value = roleId;
+        //                    pPid.Value = pid;
+        //                    cmdIns.ExecuteNonQuery();
+        //                }
+        //            }
+
+        //            // 4) DELETE những cái bị bỏ tick
+        //            using (var cmdDel = new SQLiteCommand(
+        //                @"DELETE FROM role_permissions 
+        //                WHERE role_id = @roleId AND permission_id = @pid;", conn, tran))
+        //            {
+        //                var pRole = cmdDel.Parameters.Add("@roleId", System.Data.DbType.Int32);
+        //                var pPid = cmdDel.Parameters.Add("@pid", System.Data.DbType.Int32);
+
+        //                foreach (var pid in existing)
+        //                {
+        //                    if (selected.Contains(pid)) continue;
+
+        //                    pRole.Value = roleId;
+        //                    pPid.Value = pid;
+        //                    cmdDel.ExecuteNonQuery();
+        //                }
+        //            }
+
+        //            tran.Commit();
+        //        }
+        //    }
+
+
+
+        //    MessageBox.Show("Đã lưu quyền cho role!", "Thông báo",
+        //        MessageBoxButtons.OK, MessageBoxIcon.Information);
+        //}
 
 
         // Đăng nhập
         public static LoginResult Login(string usernameInput, string passwordInput)
         {
-            LoginResult result = new LoginResult();            
+            LoginResult result = new LoginResult();
 
             using (SQLiteConnection conn = new SQLiteConnection(_connStr))
             {
@@ -1871,10 +1946,10 @@ namespace DG_TonKhoBTP_v02.Database
 
                 // ===== QUERY 1: XÁC THỰC USER =====
                 string sqlUser = @"
-                    SELECT user_id,name, password_hash
+                    SELECT user_id, name, password_hash
                     FROM users
                     WHERE username = @username
-                      AND is_active = 1 
+                      AND is_active = 1
                     LIMIT 1;
                 ";
 
@@ -1905,8 +1980,9 @@ namespace DG_TonKhoBTP_v02.Database
 
                 // ===== QUERY 2: LOAD ROLES + PERMISSIONS =====
                 string sqlPerms = @"
-                    SELECT DISTINCT
+                    SELECT
                         r.role_name,
+                        r.description AS role_description,
                         p.permission_code
                     FROM user_roles ur
                     JOIN roles r ON r.role_id = ur.role_id
@@ -1915,8 +1991,8 @@ namespace DG_TonKhoBTP_v02.Database
                     WHERE ur.user_id = @user_id;
                 ";
 
-                HashSet<string> roles = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-                HashSet<string> perms = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                var rolesDict = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+                var permsDict = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
 
                 using (SQLiteCommand cmd = new SQLiteCommand(sqlPerms, conn))
                 {
@@ -1926,11 +2002,35 @@ namespace DG_TonKhoBTP_v02.Database
                     {
                         while (rd.Read())
                         {
+                            // role_name -> description
                             if (rd["role_name"] != DBNull.Value)
-                                roles.Add(rd["role_name"].ToString());
+                            {
+                                string roleName = rd["role_name"].ToString();
+                                string roleDesc = rd["role_description"] == DBNull.Value ? null : rd["role_description"].ToString();
 
-                            if (rd["permission_code"] != DBNull.Value)
-                                perms.Add(rd["permission_code"].ToString());
+                                if (!rolesDict.ContainsKey(roleName))
+                                    rolesDict.Add(roleName, roleDesc);
+
+                                // role_name -> set(permission_code)
+                                if (rd["permission_code"] != DBNull.Value)
+                                {
+                                    string permCode = rd["permission_code"].ToString();
+
+                                    if (!permsDict.TryGetValue(roleName, out var set))
+                                    {
+                                        set = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                                        permsDict[roleName] = set;
+                                    }
+
+                                    set.Add(permCode);
+                                }
+                                else
+                                {
+                                    // đảm bảo role vẫn có key dù chưa gán permission nào
+                                    if (!permsDict.ContainsKey(roleName))
+                                        permsDict[roleName] = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                                }
+                            }
                         }
                     }
                 }
@@ -1939,13 +2039,15 @@ namespace DG_TonKhoBTP_v02.Database
                 result.Success = true;
                 result.UserId = userId;
                 result.Name = name;
-                result.Roles = new List<string>(roles);
-                result.Permissions = perms;
+                result.RolesDict = rolesDict;
+                result.PermissionsDict = permsDict;
                 result.Message = "OK";
 
                 return result;
             }
         }
+
+
 
 
 

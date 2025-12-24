@@ -1,12 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DG_TonKhoBTP_v02.Models
 {
-
     public class LoginResult
     {
         public bool Success { get; set; }
@@ -14,8 +10,11 @@ namespace DG_TonKhoBTP_v02.Models
         public int UserId { get; set; }
         public string Name { get; set; }
 
-        public List<string> Roles { get; set; }
-        public HashSet<string> Permissions { get; set; }
+        // role_name -> description
+        public Dictionary<string, string> RolesDict { get; set; }
+
+        // role_name -> set(permission_code)
+        public Dictionary<string, HashSet<string>> PermissionsDict { get; set; }
 
         public LoginResult()
         {
@@ -23,12 +22,10 @@ namespace DG_TonKhoBTP_v02.Models
             Message = "";
             Name = "";
 
-            Roles = new List<string>();
-            Permissions = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            RolesDict = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            PermissionsDict = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
         }
     }
-
-
 
     public class RoleInfo
     {
@@ -36,7 +33,6 @@ namespace DG_TonKhoBTP_v02.Models
         public string RoleName { get; set; }
         public string Description { get; set; }
     }
-
 
     public class UserInfo
     {
@@ -58,16 +54,18 @@ namespace DG_TonKhoBTP_v02.Models
         public List<RoleInfo> Roles { get; set; }
     }
 
-
     public static class UserContext
     {
         public static bool IsAuthenticated { get; private set; }
 
         public static int UserId { get; private set; }
-        //public static string Username { get; private set; }
         public static string Name { get; private set; }
-        public static List<string> Roles { get; private set; }
-        public static HashSet<string> Permissions { get; private set; }
+
+        // role_name -> description
+        public static Dictionary<string, string> RolesDict { get; private set; }
+
+        // role_name -> set(permission_code)
+        public static Dictionary<string, HashSet<string>> PermissionsDict { get; private set; }
 
         /// <summary>
         /// Set session khi login thành công
@@ -80,8 +78,9 @@ namespace DG_TonKhoBTP_v02.Models
             IsAuthenticated = true;
             UserId = login.UserId;
             Name = login.Name;
-            Roles = login.Roles;
-            Permissions = login.Permissions;
+
+            RolesDict = login.RolesDict ?? new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            PermissionsDict = login.PermissionsDict ?? new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
         }
 
         /// <summary>
@@ -92,19 +91,81 @@ namespace DG_TonKhoBTP_v02.Models
             IsAuthenticated = false;
             UserId = 0;
             Name = null;
-            Roles = null;
-            Permissions = null;
+
+            RolesDict = null;
+            PermissionsDict = null;
         }
 
         /// <summary>
-        /// Check quyền nhanh gọn ở mọi nơi
+        /// Check quyền theo permission_code (tìm trong tất cả role)
         /// </summary>
         public static bool HasPermission(string permissionCode)
         {
-            if (!IsAuthenticated || Permissions == null)
+            if (!IsAuthenticated || PermissionsDict == null || string.IsNullOrWhiteSpace(permissionCode))
                 return false;
 
-            return Permissions.Contains(permissionCode);
+            foreach (var set in PermissionsDict.Values)
+            {
+                if (set != null && set.Contains(permissionCode))
+                    return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Check quyền theo permission_code trong 1 role cụ thể
+        /// </summary>
+        public static bool HasPermission(string roleName, string permissionCode)
+        {
+            if (!IsAuthenticated || PermissionsDict == null ||
+                string.IsNullOrWhiteSpace(roleName) || string.IsNullOrWhiteSpace(permissionCode))
+                return false;
+
+            return PermissionsDict.TryGetValue(roleName, out var set) &&
+                   set != null &&
+                   set.Contains(permissionCode);
+        }
+
+        /// <summary>
+        /// Lấy toàn bộ permission_code của user (gộp từ mọi role, không trùng)
+        /// </summary>
+        public static HashSet<string> GetAllPermissions()
+        {
+            var all = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            if (!IsAuthenticated || PermissionsDict == null)
+                return all;
+
+            foreach (var set in PermissionsDict.Values)
+            {
+                if (set == null) continue;
+                foreach (var p in set) all.Add(p);
+            }
+
+            return all;
+        }
+
+        /// <summary>
+        /// Check role theo role_name
+        /// </summary>
+        public static bool HasRole(string roleName)
+        {
+            if (!IsAuthenticated || RolesDict == null || string.IsNullOrWhiteSpace(roleName))
+                return false;
+
+            return RolesDict.ContainsKey(roleName);
+        }
+
+        /// <summary>
+        /// Lấy description của role theo role_name
+        /// </summary>
+        public static string GetRoleDescription(string roleName)
+        {
+            if (!IsAuthenticated || RolesDict == null || string.IsNullOrWhiteSpace(roleName))
+                return null;
+
+            return RolesDict.TryGetValue(roleName, out var desc) ? desc : null;
         }
     }
 }

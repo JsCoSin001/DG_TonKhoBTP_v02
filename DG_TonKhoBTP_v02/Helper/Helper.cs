@@ -738,20 +738,6 @@ namespace DG_TonKhoBTP_v02.Helper
             return result;
         }
 
-        public static bool kiemTraPhanQuyen(string tx)
-        {
-            string password = Properties.Settings.Default.PassApp;
-            if (tx == password)
-            {
-                return true;
-            }
-            else
-            {
-                FrmWaiting.ShowGifAlert("BẠN CẦN CẤP QUYỀN ĐỂ SỬ DỤNG CHỨC NĂNG NÀY!", "THÔNG BÁO");
-                return false;
-            }
-        }
-
         public static string SetURLDatabase()
         {
             string result = "";
@@ -822,6 +808,25 @@ namespace DG_TonKhoBTP_v02.Helper
             }
 
             FrmWaiting.ShowGifAlert("KHÔNG TÌM THẤY MÁY IN");
+        }
+
+        public static bool CheckLoginAndPermission(string k, string requiredPermission = "CAN_WRITE")
+        {
+            if (!UserContext.IsAuthenticated)
+            {
+                FrmWaiting.ShowGifAlert(EnumStore.ThongBao.YeuCauDangNhap);
+                return false;
+            }
+
+            if (!UserContext.PermissionsDict.TryGetValue(k, out var perms)
+                || perms == null
+                || !perms.Contains(requiredPermission))
+            {
+                FrmWaiting.ShowGifAlert(EnumStore.ThongBao.YeuCauCapQuyen);
+                return false;
+            }
+
+            return true;
         }
 
 

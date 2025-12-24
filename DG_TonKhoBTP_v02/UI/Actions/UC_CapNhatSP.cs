@@ -1,6 +1,7 @@
 ﻿using DG_TonKhoBTP_v02.Core;
 using DG_TonKhoBTP_v02.Database;
 using DG_TonKhoBTP_v02.Helper;
+using DG_TonKhoBTP_v02.Models;
 using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 using DocumentFormat.OpenXml.Spreadsheet;
 using System;
@@ -69,9 +70,13 @@ namespace DG_TonKhoBTP_v02.UI
 
                         if (!isInsert)
                         {
-                            if (!int.TryParse(idText, out int parsedId))
-                                return "ID KHÔNG HỢP LỆ.";
+                            if (!int.TryParse(idText, out int parsedId))  return "ID KHÔNG HỢP LỆ.";
                             return DatabaseHelper.UpdateDanhSachMaSP(sp, parsedId);
+                        }
+
+                        if (UserContext.HasPermission("CAN_WRITE") == false)
+                        {
+                            return "BẠN KHÔNG CÓ QUYỀN THÊM MỚI SẢN PHẨM.";
                         }
 
                         return DatabaseHelper.InsertDSMaSP(sp);

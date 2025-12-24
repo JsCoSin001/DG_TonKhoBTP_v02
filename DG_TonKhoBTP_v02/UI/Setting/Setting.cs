@@ -17,7 +17,7 @@ namespace DG_TonKhoBTP_v02.UI.Setting
     public partial class Setting : Form
     {
 
-        private static readonly string _quyenMaster = Properties.Settings.Default.UserPass;
+        //private static readonly string _quyenMaster = Properties.Settings.Default.UserPass;
         private static readonly string _url = Properties.Settings.Default.URL;
         private static readonly string _printerName = Properties.Settings.Default.PrinterName;
 
@@ -68,7 +68,13 @@ namespace DG_TonKhoBTP_v02.UI.Setting
 
         private void btnFindPathDB_Click(object sender, EventArgs e)
         {
-            if (!Helper.Helper.kiemTraPhanQuyen(_quyenMaster)) return;
+            string k = EnumStore.Group["Admin"];
+            string per = "CAN_SET_DB";
+
+            if (!Helper.Helper.CheckLoginAndPermission(k, per)) return;
+
+
+
             string result = Helper.Helper.SetURLDatabase();
 
             if (string.IsNullOrEmpty(result))
@@ -86,17 +92,14 @@ namespace DG_TonKhoBTP_v02.UI.Setting
             Program.RestartApplication();
         }
 
-        private void btnPhanQuyen_Click(object sender, EventArgs e)
-        {
-            string pass = tbQuyenUser.Text.Trim();
-            Helper.Helper.UpdatePassApp(pass);
-            MessageBox.Show("ỨNG DỤNG SẼ KHỞI ĐỘNG LẠI ĐỂ ÁP DỤNG THAY ĐỔI", "THÔNG BÁO", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            Program.RestartApplication();
-        }
 
         private void btnLuuPrinter_Click(object sender, EventArgs e)
         {
-            if (!Helper.Helper.kiemTraPhanQuyen(_quyenMaster)) return;
+            string k = EnumStore.Group["Admin"];
+            string per = "CAN_SET_PRINTER";
+
+            if (!Helper.Helper.CheckLoginAndPermission(k, per)) return;
+
 
             string printerName = "";
 
@@ -122,7 +125,11 @@ namespace DG_TonKhoBTP_v02.UI.Setting
 
         private void btnLuu_Click(object sender, EventArgs e)
         {
-            if (!Helper.Helper.kiemTraPhanQuyen(_quyenMaster)) return;
+            string k = EnumStore.Group["Chung"];
+            string per = "CAN_STOP_SOFTWARE";
+
+            if (!Helper.Helper.CheckLoginAndPermission(k, per)) return;
+
 
             string rtbMsg = rtbMessage.Text.Trim();
 

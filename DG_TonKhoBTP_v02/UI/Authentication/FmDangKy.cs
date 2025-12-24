@@ -22,7 +22,9 @@ namespace DG_TonKhoBTP_v02.UI.Setting
         public FmDangKy()
         {
             InitializeComponent();
-            FirstLoad();
+            //FirstLoad();
+
+            this.Load += FmDangKy_Load;
 
             _t.Tick += async (_, __) =>
             {
@@ -63,6 +65,38 @@ namespace DG_TonKhoBTP_v02.UI.Setting
 
                 ApplyCheckedRolesByName(u.Roles);
             };
+        }
+
+        private async void FmDangKy_Load(object sender, EventArgs e)
+        {
+            await WaitingHelper.RunWithWaiting(async () =>
+            {
+                await FirstLoadAsync();
+            }, "ĐANG TẢI DỮ LIỆU...");
+        }
+
+        private async Task FirstLoadAsync()
+        {
+            // Chạy query database trên background thread
+            DataTable dsNhom = await Task.Run(() =>
+            {
+                string query = "SELECT role_id, role_name, description FROM Roles";
+                return DatabaseHelper.GetData(query);
+            });
+
+            // Phần dưới đây tự động chạy trên UI thread
+            // (vì await trong async method tự động quay về context gốc)
+
+            if (dsNhom == null || dsNhom.Rows.Count == 0)
+            {
+                MessageBox.Show("Không có nhóm/quyền nào trong hệ thống. Vui lòng thêm nhóm/quyền trước.");
+                return;
+            }
+
+            clbDanhSachNhom.DataSource = dsNhom;
+            clbDanhSachNhom.DisplayMember = "role_name";
+            clbDanhSachNhom.ValueMember = "role_id";
+            clbDanhSachNhom.CheckOnClick = true;
         }
 
         private void FirstLoad()
@@ -223,6 +257,8 @@ namespace DG_TonKhoBTP_v02.UI.Setting
         }
 
         private int idRole = 0;
+        private string roleName = "";
+        private string fatherRoleName = "";
         private void tvDanhSach_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
         {
             idRole = 0;
@@ -231,17 +267,43 @@ namespace DG_TonKhoBTP_v02.UI.Setting
             {         
                 DatabaseHelper.LoadQuyenTheoRole(role.RoleId, grvQuyen);
                 this.idRole = role.RoleId;
+                this.roleName = role.RoleName;
+                this.fatherRoleName = e.Node.Parent?.Text ?? "";
+                lblDoiTuongSetQuen.Text = $"Đang gán quyền cho {this.fatherRoleName} ở nhóm {role.RoleName} ";
             }
         }
 
-        private void btnLuu_Click(object sender, EventArgs e)
+        private async void btnLuu_Click(object sender, EventArgs e)
         {
             if (idRole == 0)
             {
                 FrmWaiting.ShowGifAlert("Không tìm thấy đối tượng cần đặt quyền");
                 return;
             }
-            DatabaseHelper.SaveRolePermissions_ByGrid(idRole, grvQuyen);
+
+            btnLuu.Enabled = false; // Disable button khi đang xử lý
+
+            try
+            {
+                await WaitingHelper.RunWithWaiting(async () =>
+                {
+                    await Task.Run(() =>
+                    {
+                        DatabaseHelper.SaveRolePermissions_ByGrid(idRole, grvQuyen);
+                    });
+                }, "ĐANG LƯU QUYỀN...");
+
+                // Thông báo thành công
+                FrmWaiting.ShowGifAlert("Áp quyền thành công cho nhóm: " + roleName, "THÔNG BÁO", EnumStore.Icon.Success);
+            }
+            catch (Exception ex)
+            {
+                FrmWaiting.ShowGifAlert($"Lỗi khi lưu quyền: {ex.Message}", "THÔNG BÁO", EnumStore.Icon.Warning);
+            }
+            finally
+            {
+                btnLuu.Enabled = true; // Enable lại button
+            }
         }
 
         private void grvQuyen_CellContentClick(object sender, DataGridViewCellEventArgs e)

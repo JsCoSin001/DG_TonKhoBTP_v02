@@ -93,6 +93,10 @@ namespace DG_TonKhoBTP_v02.UI.Actions
 
         private async void btnChecked_Click(object sender, EventArgs e)
         {
+            string k = EnumStore.Group["KiemTraBaoCaoSX"];            
+
+            if (!Helper.Helper.CheckLoginAndPermission(k)) return;
+
             string nguoiKT = tbNguoiKiemTra.Text.Trim();
 
             // Kiểm tra người kiểm tra

@@ -37,12 +37,30 @@ public static class EnumStore
 
     public static Dictionary<string, string> TransferPermissionName = new Dictionary<string, string>()
     {
-        { "CAN_READ", "Quyền Đọc" },
-        { "CAN_WRITE", "Quyền Thêm mới" },
-        { "CAN_UPDATE", "Quyền Chỉnh sửa" },
-        { "CAN_DELETE", "Quyền Xoá" },
+        { "CAN_READ", "Chỉ đọc" },
+        { "CAN_WRITE", "Thêm mới" },
+        { "CAN_UPDATE", "Chỉnh sửa" },
+        { "CAN_DELETE", "Xoá" },
         { "CAN_PERMISSION", "Phân Quyền" },
+        { "CAN_SET_DB", "Đặt đường dẫn" },
+        { "CAN_STOP_SOFTWARE", "Dừng chương trình" },
+        { "CAN_SET_PRINTER", "Cài đặt máy in" },
     };
+
+    public static Dictionary<string, string> Group = new Dictionary<string, string>
+    {
+        {"ShowCongCu","Acc" },
+        {"Admin","Admin" },
+        {"KiemTraBaoCaoSX","Pro" },
+        {"CapNhatTonKho","Wh" },
+        {"Chung","Other" },
+    };
+
+    public static class ThongBao
+    {
+        public const string YeuCauDangNhap = "Bạn cần đăng nhập để sử dụng chức năng này";
+        public const string YeuCauCapQuyen = "Bạn cần cấp quyền để sử dụng chức năng này";
+    }
 
 
 }

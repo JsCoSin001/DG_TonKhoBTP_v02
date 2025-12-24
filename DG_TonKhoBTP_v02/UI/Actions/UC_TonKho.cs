@@ -155,7 +155,14 @@ namespace DG_TonKhoBTP_v02.UI
 
         private async void btnLuu_Click(object sender, EventArgs e)
         {
+            // Kiểm tra xem database có sẵn dùng không
             if (Helper.Helper.TaoThongBao() != "") return;
+
+            // Kiểm tra quyền
+            string k = EnumStore.Group["CapNhatTonKho"];
+            string per = "CAN_UPDATE";
+
+            if (!Helper.Helper.CheckLoginAndPermission(k, per)) return;
 
             if (string.IsNullOrWhiteSpace(tbMaBin.Text))
             {
@@ -254,8 +261,19 @@ namespace DG_TonKhoBTP_v02.UI
 
                 if (btnXuatExcel.Checked)
                 {
-                    // Chạy trực tiếp trên UI thread - không dùng Task.Run
-                    ExportExcelFile(dt, fileName);
+                    try
+                    {
+                        ExportExcelFile(dt, fileName);
+                        FrmWaiting.ShowGifAlert("XUẤT EXCEL THÀNH CÔNG", "THÔNG BÁO", EnumStore.Icon.Success);
+                    }
+                    catch (UnauthorizedAccessException ex)
+                    {
+                        FrmWaiting.ShowGifAlert(ex.Message, "THÔNG BÁO", EnumStore.Icon.Warning);
+                    }
+                    catch (Exception ex)
+                    {
+                        FrmWaiting.ShowGifAlert($"Lỗi khi xuất Excel: {ex.Message}", "THÔNG BÁO", EnumStore.Icon.Warning);
+                    }
                 }
                 else
                 {
@@ -276,15 +294,10 @@ namespace DG_TonKhoBTP_v02.UI
 
         private void ExportExcelFile(DataTable master, string defaultFileName)
         {
-            try
-            {
+            if (!UserContext.IsAuthenticated)
+                throw new UnauthorizedAccessException(EnumStore.ThongBao.YeuCauDangNhap);
 
-                ExcelExporter.Export(master, defaultFileName);
-            }
-            catch (Exception ex)
-            {
-                FrmWaiting.ShowGifAlert($"Lỗi khi xuất Excel: {ex.Message}");
-            }
+            ExcelExporter.Export(master, defaultFileName);
         }
 
         private async void btnTonDong_Click(object sender, EventArgs e)
@@ -327,9 +340,19 @@ namespace DG_TonKhoBTP_v02.UI
 
                 if (btnXuatExcel.Checked)
                 {
-                    // QUAN TRỌNG: Không dùng Task.Run cho Excel
-                    ExportExcelFile(dt, fileName);
-                    FrmWaiting.ShowGifAlert("XUẤT EXCEL THÀNH CÔNG", "THÔNG BÁO", EnumStore.Icon.Success);
+                    try
+                    {
+                        ExportExcelFile(dt, fileName);
+                        FrmWaiting.ShowGifAlert("XUẤT EXCEL THÀNH CÔNG", "THÔNG BÁO", EnumStore.Icon.Success);
+                    }
+                    catch (UnauthorizedAccessException ex)
+                    {
+                        FrmWaiting.ShowGifAlert(ex.Message, "THÔNG BÁO", EnumStore.Icon.Warning);
+                    }
+                    catch (Exception ex)
+                    {
+                        FrmWaiting.ShowGifAlert($"Lỗi khi xuất Excel: {ex.Message}", "THÔNG BÁO", EnumStore.Icon.Warning);
+                    }
                 }
                 else
                 {
@@ -342,6 +365,7 @@ namespace DG_TonKhoBTP_v02.UI
         {
             dtBatDau.Enabled = !cbxBaoCaoTon.Checked;
             dtKetThuc.Enabled = !cbxBaoCaoTon.Checked;
+
         }
     }
 }

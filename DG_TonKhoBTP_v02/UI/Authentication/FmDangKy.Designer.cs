@@ -51,15 +51,16 @@
             this.rdoEditUser = new System.Windows.Forms.RadioButton();
             this.tbPhanQuyen = new System.Windows.Forms.TabPage();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.flowLayoutPanel3 = new System.Windows.Forms.FlowLayoutPanel();
-            this.btnLuu = new System.Windows.Forms.Button();
             this.grvQuyen = new System.Windows.Forms.DataGridView();
             this.cb = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             this.permission_code = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.permission_name = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.permission_2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.btnLuu = new System.Windows.Forms.Button();
             this.panel1 = new System.Windows.Forms.Panel();
             this.tvDanhSach = new System.Windows.Forms.TreeView();
+            this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+            this.lblDoiTuongSetQuen = new System.Windows.Forms.Label();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tableLayoutPanel5.SuspendLayout();
@@ -68,9 +69,9 @@
             this.flowLayoutPanel5.SuspendLayout();
             this.tbPhanQuyen.SuspendLayout();
             this.groupBox1.SuspendLayout();
-            this.flowLayoutPanel3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.grvQuyen)).BeginInit();
             this.panel1.SuspendLayout();
+            this.tableLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabControl1
@@ -279,7 +280,7 @@
             this.userName.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.userName.FormattingEnabled = true;
             this.userName.IntegralHeight = false;
-            this.userName.Location = new System.Drawing.Point(107, 55);
+            this.userName.Location = new System.Drawing.Point(107, 52);
             this.userName.MaxDropDownItems = 12;
             this.userName.Name = "userName";
             this.userName.Size = new System.Drawing.Size(289, 26);
@@ -335,8 +336,8 @@
             // 
             // groupBox1
             // 
-            this.groupBox1.Controls.Add(this.flowLayoutPanel3);
             this.groupBox1.Controls.Add(this.grvQuyen);
+            this.groupBox1.Controls.Add(this.tableLayoutPanel1);
             this.groupBox1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.groupBox1.Location = new System.Drawing.Point(282, 3);
             this.groupBox1.Name = "groupBox1";
@@ -345,26 +346,6 @@
             this.groupBox1.TabIndex = 1;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Danh sách quyền";
-            // 
-            // flowLayoutPanel3
-            // 
-            this.flowLayoutPanel3.Controls.Add(this.btnLuu);
-            this.flowLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.flowLayoutPanel3.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
-            this.flowLayoutPanel3.Location = new System.Drawing.Point(10, 272);
-            this.flowLayoutPanel3.Name = "flowLayoutPanel3";
-            this.flowLayoutPanel3.Size = new System.Drawing.Size(487, 45);
-            this.flowLayoutPanel3.TabIndex = 2;
-            // 
-            // btnLuu
-            // 
-            this.btnLuu.Location = new System.Drawing.Point(401, 3);
-            this.btnLuu.Name = "btnLuu";
-            this.btnLuu.Size = new System.Drawing.Size(83, 37);
-            this.btnLuu.TabIndex = 0;
-            this.btnLuu.Text = "Lưu";
-            this.btnLuu.UseVisualStyleBackColor = true;
-            this.btnLuu.Click += new System.EventHandler(this.btnLuu_Click);
             // 
             // grvQuyen
             // 
@@ -385,7 +366,7 @@
             this.grvQuyen.Name = "grvQuyen";
             this.grvQuyen.RowHeadersVisible = false;
             this.grvQuyen.RowTemplate.Height = 30;
-            this.grvQuyen.Size = new System.Drawing.Size(487, 288);
+            this.grvQuyen.Size = new System.Drawing.Size(487, 238);
             this.grvQuyen.TabIndex = 0;
             this.grvQuyen.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.grvQuyen_CellContentClick);
             // 
@@ -419,6 +400,16 @@
             this.permission_2.Name = "permission_2";
             this.permission_2.Visible = false;
             // 
+            // btnLuu
+            // 
+            this.btnLuu.Location = new System.Drawing.Point(388, 3);
+            this.btnLuu.Name = "btnLuu";
+            this.btnLuu.Size = new System.Drawing.Size(83, 37);
+            this.btnLuu.TabIndex = 0;
+            this.btnLuu.Text = "Lưu";
+            this.btnLuu.UseVisualStyleBackColor = true;
+            this.btnLuu.Click += new System.EventHandler(this.btnLuu_Click);
+            // 
             // panel1
             // 
             this.panel1.Controls.Add(this.tvDanhSach);
@@ -439,6 +430,31 @@
             this.tvDanhSach.TabIndex = 0;
             this.tvDanhSach.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.tvDanhSach_NodeMouseClick);
             // 
+            // tableLayoutPanel1
+            // 
+            this.tableLayoutPanel1.ColumnCount = 2;
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 79.05544F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20.94456F));
+            this.tableLayoutPanel1.Controls.Add(this.btnLuu, 1, 0);
+            this.tableLayoutPanel1.Controls.Add(this.lblDoiTuongSetQuen, 0, 0);
+            this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.tableLayoutPanel1.Location = new System.Drawing.Point(10, 267);
+            this.tableLayoutPanel1.Name = "tableLayoutPanel1";
+            this.tableLayoutPanel1.RowCount = 1;
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(487, 50);
+            this.tableLayoutPanel1.TabIndex = 3;
+            // 
+            // lblDoiTuongSetQuen
+            // 
+            this.lblDoiTuongSetQuen.AutoSize = true;
+            this.lblDoiTuongSetQuen.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblDoiTuongSetQuen.ForeColor = System.Drawing.Color.DimGray;
+            this.lblDoiTuongSetQuen.Location = new System.Drawing.Point(3, 0);
+            this.lblDoiTuongSetQuen.Name = "lblDoiTuongSetQuen";
+            this.lblDoiTuongSetQuen.Size = new System.Drawing.Size(0, 16);
+            this.lblDoiTuongSetQuen.TabIndex = 1;
+            // 
             // FmDangKy
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -458,9 +474,10 @@
             this.flowLayoutPanel5.PerformLayout();
             this.tbPhanQuyen.ResumeLayout(false);
             this.groupBox1.ResumeLayout(false);
-            this.flowLayoutPanel3.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.grvQuyen)).EndInit();
             this.panel1.ResumeLayout(false);
+            this.tableLayoutPanel1.ResumeLayout(false);
+            this.tableLayoutPanel1.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -493,11 +510,12 @@
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.TreeView tvDanhSach;
         private System.Windows.Forms.DataGridView grvQuyen;
-        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel3;
         private System.Windows.Forms.Button btnLuu;
         private System.Windows.Forms.DataGridViewCheckBoxColumn cb;
         private System.Windows.Forms.DataGridViewTextBoxColumn permission_code;
         private System.Windows.Forms.DataGridViewTextBoxColumn permission_name;
         private System.Windows.Forms.DataGridViewTextBoxColumn permission_2;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
+        private System.Windows.Forms.Label lblDoiTuongSetQuen;
     }
 }

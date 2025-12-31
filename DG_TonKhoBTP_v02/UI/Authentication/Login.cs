@@ -1,5 +1,6 @@
 ﻿using DG_TonKhoBTP_v02.Database;
 using DG_TonKhoBTP_v02.Models;
+using DG_TonKhoBTP_v02.Properties;
 using DocumentFormat.OpenXml.Office.Word;
 using System;
 using System.Collections.Generic;
@@ -15,15 +16,46 @@ namespace DG_TonKhoBTP_v02.UI.Authentication
 {
     public partial class Login : Form
     {
-        public Login()
+        bool flg = false;
+        public Login(bool flg = false)
         {
             InitializeComponent();
+            this.flg = flg;
         }
 
         private async void btnLogin_Click(object sender, EventArgs e)
         {
             string username = (txtUser.Text ?? "").Trim();
             string passwordInput = (txtPassword.Text ?? "").Trim();
+
+
+            if (flg)
+            {
+                string privateDBPath = Settings.Default.PassApp;
+
+                if (passwordInput == privateDBPath)
+                {
+                    using (var dlg = new OpenFileDialog())
+                    {
+                        dlg.Title = "Chọn file database";
+                        dlg.Multiselect = false;
+                        dlg.CheckFileExists = true;
+
+                        // Lọc theo đuôi file database
+                        dlg.Filter = "Database files (*.db)|*.db|All files (*.*)|*.*";
+
+                        if (dlg.ShowDialog(this) == DialogResult.OK)
+                        {
+                            string dbPath = dlg.FileName;
+                            Properties.Settings.Default.URL = dbPath;
+                            Properties.Settings.Default.Save();
+                        }
+                    }
+                    this.Close();
+                }
+                return;
+            }
+
 
             if (string.IsNullOrWhiteSpace(username) || string.IsNullOrEmpty(passwordInput))
             {

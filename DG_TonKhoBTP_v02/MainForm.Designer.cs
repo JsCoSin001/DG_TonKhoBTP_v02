@@ -32,19 +32,15 @@ namespace DG_TonKhoBTP_v02
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.pnLeft = new System.Windows.Forms.Panel();
-            this.fpnButton = new System.Windows.Forms.TableLayoutPanel();
-            this.tbUser = new System.Windows.Forms.TableLayoutPanel();
-            this.lblUserName = new System.Windows.Forms.Label();
-            this.lblChucDanh = new System.Windows.Forms.Label();
-            this.pdropdown = new System.Windows.Forms.PictureBox();
-            this.panel14 = new System.Windows.Forms.Panel();
-            this.avatar = new System.Windows.Forms.PictureBox();
+            this.fpnButton = new System.Windows.Forms.Panel();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.panel16 = new System.Windows.Forms.Panel();
+            this.grbCongCu = new System.Windows.Forms.GroupBox();
+            this.panel5 = new System.Windows.Forms.Panel();
             this.grbBaoCao = new System.Windows.Forms.GroupBox();
             this.panel4 = new System.Windows.Forms.Panel();
             this.panel3 = new System.Windows.Forms.Panel();
             this.panel2 = new System.Windows.Forms.Panel();
-            this.grbCongCu = new System.Windows.Forms.GroupBox();
-            this.panel5 = new System.Windows.Forms.Panel();
             this.grbChucNang = new System.Windows.Forms.GroupBox();
             this.panel11 = new System.Windows.Forms.Panel();
             this.panel13 = new System.Windows.Forms.Panel();
@@ -54,6 +50,12 @@ namespace DG_TonKhoBTP_v02
             this.panel8 = new System.Windows.Forms.Panel();
             this.panel9 = new System.Windows.Forms.Panel();
             this.panel10 = new System.Windows.Forms.Panel();
+            this.tbUser = new System.Windows.Forms.TableLayoutPanel();
+            this.lblUserName = new System.Windows.Forms.Label();
+            this.lblChucDanh = new System.Windows.Forms.Label();
+            this.pdropdown = new System.Windows.Forms.PictureBox();
+            this.panel14 = new System.Windows.Forms.Panel();
+            this.avatar = new System.Windows.Forms.PictureBox();
             this.pnLogo = new System.Windows.Forms.Panel();
             this.lblTenCty = new System.Windows.Forms.Label();
             this.imgLogo = new System.Windows.Forms.PictureBox();
@@ -61,15 +63,18 @@ namespace DG_TonKhoBTP_v02
             this.lblAuthor = new System.Windows.Forms.Label();
             this.pnMain = new System.Windows.Forms.Panel();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.panel15 = new System.Windows.Forms.Panel();
             this.pnShow = new System.Windows.Forms.Panel();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.homeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.settingApp = new System.Windows.Forms.ToolStripMenuItem();
             this.userRegistration = new System.Windows.Forms.ToolStripMenuItem();
+            this.kếHoạchToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnKeHoach = new DG_TonKhoBTP_v02.UI.Component.CustomButton();
+            this.btnCapNhatMaHang = new DG_TonKhoBTP_v02.UI.Component.CustomButton();
             this.btnTruyVetDL = new DG_TonKhoBTP_v02.UI.Component.CustomButton();
             this.BtnKiemTraBc = new DG_TonKhoBTP_v02.UI.Component.CustomButton();
             this.btnBaoCaoTonKho = new DG_TonKhoBTP_v02.UI.Component.CustomButton();
-            this.btnCapNhatMaHang = new DG_TonKhoBTP_v02.UI.Component.CustomButton();
             this.btnBocLot = new DG_TonKhoBTP_v02.UI.Component.CustomButton();
             this.btnBocVo = new DG_TonKhoBTP_v02.UI.Component.CustomButton();
             this.btnKeoRut = new DG_TonKhoBTP_v02.UI.Component.CustomButton();
@@ -80,16 +85,14 @@ namespace DG_TonKhoBTP_v02
             this.btnGhepLoi = new DG_TonKhoBTP_v02.UI.Component.CustomButton();
             this.pnLeft.SuspendLayout();
             this.fpnButton.SuspendLayout();
-            this.tbUser.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pdropdown)).BeginInit();
-            this.panel14.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.avatar)).BeginInit();
+            this.groupBox1.SuspendLayout();
+            this.panel16.SuspendLayout();
+            this.grbCongCu.SuspendLayout();
+            this.panel5.SuspendLayout();
             this.grbBaoCao.SuspendLayout();
             this.panel4.SuspendLayout();
             this.panel3.SuspendLayout();
             this.panel2.SuspendLayout();
-            this.grbCongCu.SuspendLayout();
-            this.panel5.SuspendLayout();
             this.grbChucNang.SuspendLayout();
             this.panel11.SuspendLayout();
             this.panel13.SuspendLayout();
@@ -99,45 +102,234 @@ namespace DG_TonKhoBTP_v02
             this.panel8.SuspendLayout();
             this.panel9.SuspendLayout();
             this.panel10.SuspendLayout();
+            this.tbUser.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pdropdown)).BeginInit();
+            this.panel14.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.avatar)).BeginInit();
             this.pnLogo.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.imgLogo)).BeginInit();
             this.pnSign.SuspendLayout();
             this.pnMain.SuspendLayout();
             this.panel1.SuspendLayout();
+            this.panel15.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // pnLeft
             // 
             this.pnLeft.Controls.Add(this.fpnButton);
+            this.pnLeft.Controls.Add(this.tbUser);
+            this.pnLeft.Controls.Add(this.pnLogo);
             this.pnLeft.Dock = System.Windows.Forms.DockStyle.Left;
             this.pnLeft.Location = new System.Drawing.Point(0, 0);
             this.pnLeft.Margin = new System.Windows.Forms.Padding(4);
             this.pnLeft.Name = "pnLeft";
-            this.pnLeft.Size = new System.Drawing.Size(201, 1003);
+            this.pnLeft.Size = new System.Drawing.Size(202, 1035);
             this.pnLeft.TabIndex = 0;
             // 
             // fpnButton
             // 
-            this.fpnButton.AutoSize = true;
-            this.fpnButton.ColumnCount = 1;
-            this.fpnButton.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.fpnButton.Controls.Add(this.tbUser, 0, 4);
-            this.fpnButton.Controls.Add(this.grbBaoCao, 0, 3);
-            this.fpnButton.Controls.Add(this.grbCongCu, 0, 2);
-            this.fpnButton.Controls.Add(this.grbChucNang, 0, 1);
-            this.fpnButton.Controls.Add(this.pnLogo, 0, 0);
+            this.fpnButton.AutoScroll = true;
+            this.fpnButton.Controls.Add(this.groupBox1);
+            this.fpnButton.Controls.Add(this.grbCongCu);
+            this.fpnButton.Controls.Add(this.grbBaoCao);
+            this.fpnButton.Controls.Add(this.grbChucNang);
             this.fpnButton.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.fpnButton.Location = new System.Drawing.Point(0, 0);
+            this.fpnButton.Location = new System.Drawing.Point(0, 70);
             this.fpnButton.Name = "fpnButton";
-            this.fpnButton.RowCount = 4;
-            this.fpnButton.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.fpnButton.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.fpnButton.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.fpnButton.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.fpnButton.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.fpnButton.Size = new System.Drawing.Size(201, 1003);
-            this.fpnButton.TabIndex = 0;
+            this.fpnButton.Size = new System.Drawing.Size(202, 919);
+            this.fpnButton.TabIndex = 2;
+            // 
+            // groupBox1
+            // 
+            this.groupBox1.AutoSize = true;
+            this.groupBox1.Controls.Add(this.panel16);
+            this.groupBox1.Dock = System.Windows.Forms.DockStyle.Top;
+            this.groupBox1.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.groupBox1.Location = new System.Drawing.Point(0, 810);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(202, 83);
+            this.groupBox1.TabIndex = 3;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "Kế hoạch";
+            // 
+            // panel16
+            // 
+            this.panel16.Controls.Add(this.btnKeHoach);
+            this.panel16.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panel16.Location = new System.Drawing.Point(3, 17);
+            this.panel16.Name = "panel16";
+            this.panel16.Padding = new System.Windows.Forms.Padding(5, 6, 5, 6);
+            this.panel16.Size = new System.Drawing.Size(196, 63);
+            this.panel16.TabIndex = 7;
+            // 
+            // grbCongCu
+            // 
+            this.grbCongCu.AutoSize = true;
+            this.grbCongCu.Controls.Add(this.panel5);
+            this.grbCongCu.Dock = System.Windows.Forms.DockStyle.Top;
+            this.grbCongCu.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.grbCongCu.Location = new System.Drawing.Point(0, 727);
+            this.grbCongCu.Name = "grbCongCu";
+            this.grbCongCu.Size = new System.Drawing.Size(202, 83);
+            this.grbCongCu.TabIndex = 1;
+            this.grbCongCu.TabStop = false;
+            this.grbCongCu.Text = "CÔNG CỤ";
+            // 
+            // panel5
+            // 
+            this.panel5.Controls.Add(this.btnCapNhatMaHang);
+            this.panel5.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panel5.Location = new System.Drawing.Point(3, 17);
+            this.panel5.Name = "panel5";
+            this.panel5.Padding = new System.Windows.Forms.Padding(5, 6, 5, 6);
+            this.panel5.Size = new System.Drawing.Size(196, 63);
+            this.panel5.TabIndex = 7;
+            // 
+            // grbBaoCao
+            // 
+            this.grbBaoCao.AutoSize = true;
+            this.grbBaoCao.Controls.Add(this.panel4);
+            this.grbBaoCao.Controls.Add(this.panel3);
+            this.grbBaoCao.Controls.Add(this.panel2);
+            this.grbBaoCao.Dock = System.Windows.Forms.DockStyle.Top;
+            this.grbBaoCao.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.grbBaoCao.Location = new System.Drawing.Point(0, 518);
+            this.grbBaoCao.Name = "grbBaoCao";
+            this.grbBaoCao.Size = new System.Drawing.Size(202, 209);
+            this.grbBaoCao.TabIndex = 2;
+            this.grbBaoCao.TabStop = false;
+            this.grbBaoCao.Text = "BÁO CÁO";
+            // 
+            // panel4
+            // 
+            this.panel4.Controls.Add(this.btnTruyVetDL);
+            this.panel4.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panel4.Location = new System.Drawing.Point(3, 143);
+            this.panel4.Name = "panel4";
+            this.panel4.Padding = new System.Windows.Forms.Padding(5, 6, 5, 6);
+            this.panel4.Size = new System.Drawing.Size(196, 63);
+            this.panel4.TabIndex = 6;
+            // 
+            // panel3
+            // 
+            this.panel3.Controls.Add(this.BtnKiemTraBc);
+            this.panel3.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panel3.Location = new System.Drawing.Point(3, 80);
+            this.panel3.Name = "panel3";
+            this.panel3.Padding = new System.Windows.Forms.Padding(5, 6, 5, 6);
+            this.panel3.Size = new System.Drawing.Size(196, 63);
+            this.panel3.TabIndex = 5;
+            // 
+            // panel2
+            // 
+            this.panel2.Controls.Add(this.btnBaoCaoTonKho);
+            this.panel2.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panel2.Location = new System.Drawing.Point(3, 17);
+            this.panel2.Name = "panel2";
+            this.panel2.Padding = new System.Windows.Forms.Padding(5, 6, 5, 6);
+            this.panel2.Size = new System.Drawing.Size(196, 63);
+            this.panel2.TabIndex = 4;
+            // 
+            // grbChucNang
+            // 
+            this.grbChucNang.AutoSize = true;
+            this.grbChucNang.Controls.Add(this.panel11);
+            this.grbChucNang.Controls.Add(this.panel13);
+            this.grbChucNang.Controls.Add(this.panel6);
+            this.grbChucNang.Controls.Add(this.panel12);
+            this.grbChucNang.Controls.Add(this.panel7);
+            this.grbChucNang.Controls.Add(this.panel8);
+            this.grbChucNang.Controls.Add(this.panel9);
+            this.grbChucNang.Controls.Add(this.panel10);
+            this.grbChucNang.Dock = System.Windows.Forms.DockStyle.Top;
+            this.grbChucNang.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.grbChucNang.Location = new System.Drawing.Point(0, 0);
+            this.grbChucNang.Name = "grbChucNang";
+            this.grbChucNang.Size = new System.Drawing.Size(202, 518);
+            this.grbChucNang.TabIndex = 0;
+            this.grbChucNang.TabStop = false;
+            this.grbChucNang.Text = "CÔNG ĐOẠN";
+            // 
+            // panel11
+            // 
+            this.panel11.Controls.Add(this.btnBocLot);
+            this.panel11.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panel11.Location = new System.Drawing.Point(3, 452);
+            this.panel11.Name = "panel11";
+            this.panel11.Padding = new System.Windows.Forms.Padding(5, 6, 5, 6);
+            this.panel11.Size = new System.Drawing.Size(196, 63);
+            this.panel11.TabIndex = 6;
+            // 
+            // panel13
+            // 
+            this.panel13.Controls.Add(this.btnBocVo);
+            this.panel13.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panel13.Location = new System.Drawing.Point(3, 395);
+            this.panel13.Name = "panel13";
+            this.panel13.Padding = new System.Windows.Forms.Padding(5, 6, 5, 6);
+            this.panel13.Size = new System.Drawing.Size(196, 57);
+            this.panel13.TabIndex = 8;
+            // 
+            // panel6
+            // 
+            this.panel6.Controls.Add(this.btnKeoRut);
+            this.panel6.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panel6.Location = new System.Drawing.Point(3, 332);
+            this.panel6.Name = "panel6";
+            this.panel6.Padding = new System.Windows.Forms.Padding(5, 6, 5, 6);
+            this.panel6.Size = new System.Drawing.Size(196, 63);
+            this.panel6.TabIndex = 0;
+            // 
+            // panel12
+            // 
+            this.panel12.Controls.Add(this.btnQuanBang);
+            this.panel12.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panel12.Location = new System.Drawing.Point(3, 269);
+            this.panel12.Name = "panel12";
+            this.panel12.Padding = new System.Windows.Forms.Padding(5, 6, 5, 6);
+            this.panel12.Size = new System.Drawing.Size(196, 63);
+            this.panel12.TabIndex = 7;
+            // 
+            // panel7
+            // 
+            this.panel7.Controls.Add(this.btnBenRuot);
+            this.panel7.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panel7.Location = new System.Drawing.Point(3, 206);
+            this.panel7.Name = "panel7";
+            this.panel7.Padding = new System.Windows.Forms.Padding(5, 6, 5, 6);
+            this.panel7.Size = new System.Drawing.Size(196, 63);
+            this.panel7.TabIndex = 2;
+            // 
+            // panel8
+            // 
+            this.panel8.Controls.Add(this.btnMica);
+            this.panel8.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panel8.Location = new System.Drawing.Point(3, 143);
+            this.panel8.Name = "panel8";
+            this.panel8.Padding = new System.Windows.Forms.Padding(5, 6, 5, 6);
+            this.panel8.Size = new System.Drawing.Size(196, 63);
+            this.panel8.TabIndex = 3;
+            // 
+            // panel9
+            // 
+            this.panel9.Controls.Add(this.btnBocMach);
+            this.panel9.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panel9.Location = new System.Drawing.Point(3, 80);
+            this.panel9.Name = "panel9";
+            this.panel9.Padding = new System.Windows.Forms.Padding(5, 6, 5, 6);
+            this.panel9.Size = new System.Drawing.Size(196, 63);
+            this.panel9.TabIndex = 4;
+            // 
+            // panel10
+            // 
+            this.panel10.Controls.Add(this.btnGhepLoi);
+            this.panel10.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panel10.Location = new System.Drawing.Point(3, 17);
+            this.panel10.Name = "panel10";
+            this.panel10.Padding = new System.Windows.Forms.Padding(5, 6, 5, 6);
+            this.panel10.Size = new System.Drawing.Size(196, 63);
+            this.panel10.TabIndex = 5;
             // 
             // tbUser
             // 
@@ -150,12 +342,12 @@ namespace DG_TonKhoBTP_v02
             this.tbUser.Controls.Add(this.pdropdown, 2, 0);
             this.tbUser.Controls.Add(this.panel14, 0, 0);
             this.tbUser.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.tbUser.Location = new System.Drawing.Point(3, 954);
+            this.tbUser.Location = new System.Drawing.Point(0, 989);
             this.tbUser.Name = "tbUser";
             this.tbUser.RowCount = 2;
             this.tbUser.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 27F));
             this.tbUser.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tbUser.Size = new System.Drawing.Size(195, 46);
+            this.tbUser.Size = new System.Drawing.Size(202, 46);
             this.tbUser.TabIndex = 1;
             // 
             // lblUserName
@@ -165,7 +357,7 @@ namespace DG_TonKhoBTP_v02
             this.lblUserName.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblUserName.Location = new System.Drawing.Point(53, 0);
             this.lblUserName.Name = "lblUserName";
-            this.lblUserName.Size = new System.Drawing.Size(107, 27);
+            this.lblUserName.Size = new System.Drawing.Size(114, 27);
             this.lblUserName.TabIndex = 2;
             this.lblUserName.Text = "Đăng nhập";
             this.lblUserName.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -184,7 +376,7 @@ namespace DG_TonKhoBTP_v02
             this.lblChucDanh.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
             this.lblChucDanh.Location = new System.Drawing.Point(53, 27);
             this.lblChucDanh.Name = "lblChucDanh";
-            this.lblChucDanh.Size = new System.Drawing.Size(139, 13);
+            this.lblChucDanh.Size = new System.Drawing.Size(146, 13);
             this.lblChucDanh.TabIndex = 3;
             this.lblChucDanh.Text = "Chưa đăng nhập";
             this.lblChucDanh.Click += new System.EventHandler(this.lblChucDanh_Click);
@@ -195,7 +387,7 @@ namespace DG_TonKhoBTP_v02
             // 
             this.pdropdown.Cursor = System.Windows.Forms.Cursors.Hand;
             this.pdropdown.Image = ((System.Drawing.Image)(resources.GetObject("pdropdown.Image")));
-            this.pdropdown.Location = new System.Drawing.Point(166, 3);
+            this.pdropdown.Location = new System.Drawing.Point(173, 3);
             this.pdropdown.Name = "pdropdown";
             this.pdropdown.Size = new System.Drawing.Size(26, 21);
             this.pdropdown.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
@@ -231,182 +423,14 @@ namespace DG_TonKhoBTP_v02
             this.avatar.MouseEnter += new System.EventHandler(this.avatar_MouseEnter);
             this.avatar.MouseLeave += new System.EventHandler(this.avatar_MouseLeave);
             // 
-            // grbBaoCao
-            // 
-            this.grbBaoCao.AutoSize = true;
-            this.grbBaoCao.Controls.Add(this.panel4);
-            this.grbBaoCao.Controls.Add(this.panel3);
-            this.grbBaoCao.Controls.Add(this.panel2);
-            this.grbBaoCao.Dock = System.Windows.Forms.DockStyle.Top;
-            this.grbBaoCao.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.grbBaoCao.Location = new System.Drawing.Point(3, 692);
-            this.grbBaoCao.Name = "grbBaoCao";
-            this.grbBaoCao.Size = new System.Drawing.Size(195, 209);
-            this.grbBaoCao.TabIndex = 2;
-            this.grbBaoCao.TabStop = false;
-            this.grbBaoCao.Text = "BÁO CÁO";
-            // 
-            // panel4
-            // 
-            this.panel4.Controls.Add(this.btnTruyVetDL);
-            this.panel4.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panel4.Location = new System.Drawing.Point(3, 143);
-            this.panel4.Name = "panel4";
-            this.panel4.Padding = new System.Windows.Forms.Padding(5, 6, 5, 6);
-            this.panel4.Size = new System.Drawing.Size(189, 63);
-            this.panel4.TabIndex = 6;
-            // 
-            // panel3
-            // 
-            this.panel3.Controls.Add(this.BtnKiemTraBc);
-            this.panel3.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panel3.Location = new System.Drawing.Point(3, 80);
-            this.panel3.Name = "panel3";
-            this.panel3.Padding = new System.Windows.Forms.Padding(5, 6, 5, 6);
-            this.panel3.Size = new System.Drawing.Size(189, 63);
-            this.panel3.TabIndex = 5;
-            // 
-            // panel2
-            // 
-            this.panel2.Controls.Add(this.btnBaoCaoTonKho);
-            this.panel2.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panel2.Location = new System.Drawing.Point(3, 17);
-            this.panel2.Name = "panel2";
-            this.panel2.Padding = new System.Windows.Forms.Padding(5, 6, 5, 6);
-            this.panel2.Size = new System.Drawing.Size(189, 63);
-            this.panel2.TabIndex = 4;
-            // 
-            // grbCongCu
-            // 
-            this.grbCongCu.AutoSize = true;
-            this.grbCongCu.Controls.Add(this.panel5);
-            this.grbCongCu.Dock = System.Windows.Forms.DockStyle.Top;
-            this.grbCongCu.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.grbCongCu.Location = new System.Drawing.Point(3, 603);
-            this.grbCongCu.Name = "grbCongCu";
-            this.grbCongCu.Size = new System.Drawing.Size(195, 83);
-            this.grbCongCu.TabIndex = 1;
-            this.grbCongCu.TabStop = false;
-            this.grbCongCu.Text = "CÔNG CỤ";
-            this.grbCongCu.Visible = false;
-            // 
-            // panel5
-            // 
-            this.panel5.Controls.Add(this.btnCapNhatMaHang);
-            this.panel5.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panel5.Location = new System.Drawing.Point(3, 17);
-            this.panel5.Name = "panel5";
-            this.panel5.Padding = new System.Windows.Forms.Padding(5, 6, 5, 6);
-            this.panel5.Size = new System.Drawing.Size(189, 63);
-            this.panel5.TabIndex = 7;
-            // 
-            // grbChucNang
-            // 
-            this.grbChucNang.AutoSize = true;
-            this.grbChucNang.Controls.Add(this.panel11);
-            this.grbChucNang.Controls.Add(this.panel13);
-            this.grbChucNang.Controls.Add(this.panel6);
-            this.grbChucNang.Controls.Add(this.panel12);
-            this.grbChucNang.Controls.Add(this.panel7);
-            this.grbChucNang.Controls.Add(this.panel8);
-            this.grbChucNang.Controls.Add(this.panel9);
-            this.grbChucNang.Controls.Add(this.panel10);
-            this.grbChucNang.Dock = System.Windows.Forms.DockStyle.Top;
-            this.grbChucNang.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.grbChucNang.Location = new System.Drawing.Point(3, 79);
-            this.grbChucNang.Name = "grbChucNang";
-            this.grbChucNang.Size = new System.Drawing.Size(195, 518);
-            this.grbChucNang.TabIndex = 0;
-            this.grbChucNang.TabStop = false;
-            this.grbChucNang.Text = "CÔNG ĐOẠN";
-            // 
-            // panel11
-            // 
-            this.panel11.Controls.Add(this.btnBocLot);
-            this.panel11.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panel11.Location = new System.Drawing.Point(3, 452);
-            this.panel11.Name = "panel11";
-            this.panel11.Padding = new System.Windows.Forms.Padding(5, 6, 5, 6);
-            this.panel11.Size = new System.Drawing.Size(189, 63);
-            this.panel11.TabIndex = 6;
-            // 
-            // panel13
-            // 
-            this.panel13.Controls.Add(this.btnBocVo);
-            this.panel13.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panel13.Location = new System.Drawing.Point(3, 395);
-            this.panel13.Name = "panel13";
-            this.panel13.Padding = new System.Windows.Forms.Padding(5, 6, 5, 6);
-            this.panel13.Size = new System.Drawing.Size(189, 57);
-            this.panel13.TabIndex = 8;
-            // 
-            // panel6
-            // 
-            this.panel6.Controls.Add(this.btnKeoRut);
-            this.panel6.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panel6.Location = new System.Drawing.Point(3, 332);
-            this.panel6.Name = "panel6";
-            this.panel6.Padding = new System.Windows.Forms.Padding(5, 6, 5, 6);
-            this.panel6.Size = new System.Drawing.Size(189, 63);
-            this.panel6.TabIndex = 0;
-            // 
-            // panel12
-            // 
-            this.panel12.Controls.Add(this.btnQuanBang);
-            this.panel12.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panel12.Location = new System.Drawing.Point(3, 269);
-            this.panel12.Name = "panel12";
-            this.panel12.Padding = new System.Windows.Forms.Padding(5, 6, 5, 6);
-            this.panel12.Size = new System.Drawing.Size(189, 63);
-            this.panel12.TabIndex = 7;
-            // 
-            // panel7
-            // 
-            this.panel7.Controls.Add(this.btnBenRuot);
-            this.panel7.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panel7.Location = new System.Drawing.Point(3, 206);
-            this.panel7.Name = "panel7";
-            this.panel7.Padding = new System.Windows.Forms.Padding(5, 6, 5, 6);
-            this.panel7.Size = new System.Drawing.Size(189, 63);
-            this.panel7.TabIndex = 2;
-            // 
-            // panel8
-            // 
-            this.panel8.Controls.Add(this.btnMica);
-            this.panel8.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panel8.Location = new System.Drawing.Point(3, 143);
-            this.panel8.Name = "panel8";
-            this.panel8.Padding = new System.Windows.Forms.Padding(5, 6, 5, 6);
-            this.panel8.Size = new System.Drawing.Size(189, 63);
-            this.panel8.TabIndex = 3;
-            // 
-            // panel9
-            // 
-            this.panel9.Controls.Add(this.btnBocMach);
-            this.panel9.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panel9.Location = new System.Drawing.Point(3, 80);
-            this.panel9.Name = "panel9";
-            this.panel9.Padding = new System.Windows.Forms.Padding(5, 6, 5, 6);
-            this.panel9.Size = new System.Drawing.Size(189, 63);
-            this.panel9.TabIndex = 4;
-            // 
-            // panel10
-            // 
-            this.panel10.Controls.Add(this.btnGhepLoi);
-            this.panel10.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panel10.Location = new System.Drawing.Point(3, 17);
-            this.panel10.Name = "panel10";
-            this.panel10.Padding = new System.Windows.Forms.Padding(5, 6, 5, 6);
-            this.panel10.Size = new System.Drawing.Size(189, 63);
-            this.panel10.TabIndex = 5;
-            // 
             // pnLogo
             // 
             this.pnLogo.Controls.Add(this.lblTenCty);
             this.pnLogo.Controls.Add(this.imgLogo);
-            this.pnLogo.Location = new System.Drawing.Point(3, 3);
+            this.pnLogo.Dock = System.Windows.Forms.DockStyle.Top;
+            this.pnLogo.Location = new System.Drawing.Point(0, 0);
             this.pnLogo.Name = "pnLogo";
-            this.pnLogo.Size = new System.Drawing.Size(171, 70);
+            this.pnLogo.Size = new System.Drawing.Size(202, 70);
             this.pnLogo.TabIndex = 0;
             // 
             // lblTenCty
@@ -416,7 +440,7 @@ namespace DG_TonKhoBTP_v02
             this.lblTenCty.Font = new System.Drawing.Font("Tahoma", 17.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblTenCty.Location = new System.Drawing.Point(67, 0);
             this.lblTenCty.Name = "lblTenCty";
-            this.lblTenCty.Size = new System.Drawing.Size(104, 67);
+            this.lblTenCty.Size = new System.Drawing.Size(135, 67);
             this.lblTenCty.TabIndex = 1;
             this.lblTenCty.Text = "ĐÔNG GIANG";
             this.lblTenCty.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -439,18 +463,19 @@ namespace DG_TonKhoBTP_v02
             // 
             this.pnSign.Controls.Add(this.lblAuthor);
             this.pnSign.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.pnSign.Location = new System.Drawing.Point(0, 1003);
+            this.pnSign.Location = new System.Drawing.Point(0, 1016);
+            this.pnSign.Margin = new System.Windows.Forms.Padding(0);
             this.pnSign.Name = "pnSign";
-            this.pnSign.Size = new System.Drawing.Size(1334, 30);
+            this.pnSign.Size = new System.Drawing.Size(1132, 19);
             this.pnSign.TabIndex = 4;
             // 
             // lblAuthor
             // 
-            this.lblAuthor.Dock = System.Windows.Forms.DockStyle.Top;
+            this.lblAuthor.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lblAuthor.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblAuthor.Location = new System.Drawing.Point(0, 0);
             this.lblAuthor.Name = "lblAuthor";
-            this.lblAuthor.Size = new System.Drawing.Size(1334, 19);
+            this.lblAuthor.Size = new System.Drawing.Size(1132, 19);
             this.lblAuthor.TabIndex = 3;
             this.lblAuthor.Text = "label1";
             this.lblAuthor.TextAlign = System.Drawing.ContentAlignment.TopRight;
@@ -458,55 +483,65 @@ namespace DG_TonKhoBTP_v02
             // pnMain
             // 
             this.pnMain.Controls.Add(this.panel1);
-            this.pnMain.Controls.Add(this.pnSign);
             this.pnMain.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pnMain.Location = new System.Drawing.Point(0, 28);
+            this.pnMain.Location = new System.Drawing.Point(0, 26);
             this.pnMain.Name = "pnMain";
-            this.pnMain.Size = new System.Drawing.Size(1334, 1033);
+            this.pnMain.Size = new System.Drawing.Size(1334, 1035);
             this.pnMain.TabIndex = 1;
             // 
             // panel1
             // 
-            this.panel1.Controls.Add(this.pnShow);
+            this.panel1.Controls.Add(this.panel15);
             this.panel1.Controls.Add(this.pnLeft);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(1334, 1003);
+            this.panel1.Size = new System.Drawing.Size(1334, 1035);
             this.panel1.TabIndex = 5;
+            // 
+            // panel15
+            // 
+            this.panel15.Controls.Add(this.pnShow);
+            this.panel15.Controls.Add(this.pnSign);
+            this.panel15.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panel15.Location = new System.Drawing.Point(202, 0);
+            this.panel15.Name = "panel15";
+            this.panel15.Size = new System.Drawing.Size(1132, 1035);
+            this.panel15.TabIndex = 5;
             // 
             // pnShow
             // 
             this.pnShow.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pnShow.Location = new System.Drawing.Point(201, 0);
+            this.pnShow.Location = new System.Drawing.Point(0, 0);
             this.pnShow.Name = "pnShow";
-            this.pnShow.Size = new System.Drawing.Size(1133, 1003);
+            this.pnShow.Size = new System.Drawing.Size(1132, 1016);
             this.pnShow.TabIndex = 1;
             // 
             // menuStrip1
             // 
-            this.menuStrip1.Font = new System.Drawing.Font("Segoe UI", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.menuStrip1.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.homeToolStripMenuItem,
             this.settingApp,
-            this.userRegistration});
+            this.userRegistration,
+            this.kếHoạchToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(1334, 28);
+            this.menuStrip1.Size = new System.Drawing.Size(1334, 26);
             this.menuStrip1.TabIndex = 2;
             this.menuStrip1.Text = "menuStrip1";
             // 
             // homeToolStripMenuItem
             // 
             this.homeToolStripMenuItem.Name = "homeToolStripMenuItem";
-            this.homeToolStripMenuItem.Size = new System.Drawing.Size(85, 24);
+            this.homeToolStripMenuItem.Size = new System.Drawing.Size(87, 22);
             this.homeToolStripMenuItem.Text = "Trang chủ";
             this.homeToolStripMenuItem.Click += new System.EventHandler(this.homeToolStripMenuItem_Click);
             // 
             // settingApp
             // 
             this.settingApp.Name = "settingApp";
-            this.settingApp.Size = new System.Drawing.Size(68, 24);
+            this.settingApp.Size = new System.Drawing.Size(66, 22);
             this.settingApp.Text = "Cài đặt";
             this.settingApp.Visible = false;
             this.settingApp.Click += new System.EventHandler(this.setiingToolStripMenuItem_Click);
@@ -514,10 +549,57 @@ namespace DG_TonKhoBTP_v02
             // userRegistration
             // 
             this.userRegistration.Name = "userRegistration";
-            this.userRegistration.Size = new System.Drawing.Size(75, 24);
+            this.userRegistration.Size = new System.Drawing.Size(75, 22);
             this.userRegistration.Text = "Nhân sự";
             this.userRegistration.Visible = false;
             this.userRegistration.Click += new System.EventHandler(this.đăngKýToolStripMenuItem_Click);
+            // 
+            // kếHoạchToolStripMenuItem
+            // 
+            this.kếHoạchToolStripMenuItem.Name = "kếHoạchToolStripMenuItem";
+            this.kếHoạchToolStripMenuItem.Size = new System.Drawing.Size(81, 22);
+            this.kếHoạchToolStripMenuItem.Text = "Kế hoạch";
+            this.kếHoạchToolStripMenuItem.Click += new System.EventHandler(this.kếHoạchToolStripMenuItem_Click);
+            // 
+            // btnKeHoach
+            // 
+            this.btnKeHoach.BackColor = System.Drawing.Color.Snow;
+            this.btnKeHoach.BorderRadius = 10;
+            this.btnKeHoach.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnKeHoach.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.btnKeHoach.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnKeHoach.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnKeHoach.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.btnKeHoach.Location = new System.Drawing.Point(5, 6);
+            this.btnKeHoach.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
+            this.btnKeHoach.Name = "btnKeHoach";
+            this.btnKeHoach.Size = new System.Drawing.Size(186, 51);
+            this.btnKeHoach.TabIndex = 9;
+            this.btnKeHoach.TabStop = false;
+            this.btnKeHoach.Text = "LÊN KẾ HOẠCH";
+            this.btnKeHoach.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnKeHoach.UseVisualStyleBackColor = false;
+            this.btnKeHoach.Click += new System.EventHandler(this.btnKeHoach_Click);
+            // 
+            // btnCapNhatMaHang
+            // 
+            this.btnCapNhatMaHang.BackColor = System.Drawing.Color.Snow;
+            this.btnCapNhatMaHang.BorderRadius = 10;
+            this.btnCapNhatMaHang.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnCapNhatMaHang.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.btnCapNhatMaHang.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnCapNhatMaHang.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnCapNhatMaHang.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.btnCapNhatMaHang.Location = new System.Drawing.Point(5, 6);
+            this.btnCapNhatMaHang.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
+            this.btnCapNhatMaHang.Name = "btnCapNhatMaHang";
+            this.btnCapNhatMaHang.Size = new System.Drawing.Size(186, 51);
+            this.btnCapNhatMaHang.TabIndex = 9;
+            this.btnCapNhatMaHang.TabStop = false;
+            this.btnCapNhatMaHang.Text = "UPDATE MÃ HÀNG";
+            this.btnCapNhatMaHang.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnCapNhatMaHang.UseVisualStyleBackColor = false;
+            this.btnCapNhatMaHang.Click += new System.EventHandler(this.btnCapNhatMaHang_Click);
             // 
             // btnTruyVetDL
             // 
@@ -531,7 +613,7 @@ namespace DG_TonKhoBTP_v02
             this.btnTruyVetDL.Location = new System.Drawing.Point(5, 6);
             this.btnTruyVetDL.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
             this.btnTruyVetDL.Name = "btnTruyVetDL";
-            this.btnTruyVetDL.Size = new System.Drawing.Size(179, 51);
+            this.btnTruyVetDL.Size = new System.Drawing.Size(186, 51);
             this.btnTruyVetDL.TabIndex = 9;
             this.btnTruyVetDL.TabStop = false;
             this.btnTruyVetDL.Text = "TRUY VẾT DỮ LIỆU";
@@ -551,7 +633,7 @@ namespace DG_TonKhoBTP_v02
             this.BtnKiemTraBc.Location = new System.Drawing.Point(5, 6);
             this.BtnKiemTraBc.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
             this.BtnKiemTraBc.Name = "BtnKiemTraBc";
-            this.BtnKiemTraBc.Size = new System.Drawing.Size(179, 51);
+            this.BtnKiemTraBc.Size = new System.Drawing.Size(186, 51);
             this.BtnKiemTraBc.TabIndex = 10;
             this.BtnKiemTraBc.TabStop = false;
             this.BtnKiemTraBc.Text = "KIỂM TRA BÁO CÁO";
@@ -571,33 +653,13 @@ namespace DG_TonKhoBTP_v02
             this.btnBaoCaoTonKho.Location = new System.Drawing.Point(5, 6);
             this.btnBaoCaoTonKho.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
             this.btnBaoCaoTonKho.Name = "btnBaoCaoTonKho";
-            this.btnBaoCaoTonKho.Size = new System.Drawing.Size(179, 51);
+            this.btnBaoCaoTonKho.Size = new System.Drawing.Size(186, 51);
             this.btnBaoCaoTonKho.TabIndex = 8;
             this.btnBaoCaoTonKho.TabStop = false;
             this.btnBaoCaoTonKho.Text = "TỒN KHO";
             this.btnBaoCaoTonKho.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.btnBaoCaoTonKho.UseVisualStyleBackColor = false;
             this.btnBaoCaoTonKho.Click += new System.EventHandler(this.btnBaoCaoTonKho_Click);
-            // 
-            // btnCapNhatMaHang
-            // 
-            this.btnCapNhatMaHang.BackColor = System.Drawing.Color.Snow;
-            this.btnCapNhatMaHang.BorderRadius = 10;
-            this.btnCapNhatMaHang.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnCapNhatMaHang.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.btnCapNhatMaHang.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnCapNhatMaHang.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnCapNhatMaHang.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.btnCapNhatMaHang.Location = new System.Drawing.Point(5, 6);
-            this.btnCapNhatMaHang.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
-            this.btnCapNhatMaHang.Name = "btnCapNhatMaHang";
-            this.btnCapNhatMaHang.Size = new System.Drawing.Size(179, 51);
-            this.btnCapNhatMaHang.TabIndex = 9;
-            this.btnCapNhatMaHang.TabStop = false;
-            this.btnCapNhatMaHang.Text = "UPDATE MÃ HÀNG";
-            this.btnCapNhatMaHang.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.btnCapNhatMaHang.UseVisualStyleBackColor = false;
-            this.btnCapNhatMaHang.Click += new System.EventHandler(this.btnCapNhatMaHang_Click);
             // 
             // btnBocLot
             // 
@@ -612,7 +674,7 @@ namespace DG_TonKhoBTP_v02
             this.btnBocLot.Location = new System.Drawing.Point(5, 6);
             this.btnBocLot.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
             this.btnBocLot.Name = "btnBocLot";
-            this.btnBocLot.Size = new System.Drawing.Size(179, 51);
+            this.btnBocLot.Size = new System.Drawing.Size(186, 51);
             this.btnBocLot.TabIndex = 6;
             this.btnBocLot.TabStop = false;
             this.btnBocLot.Text = "CĐ BỌC LÓT";
@@ -633,7 +695,7 @@ namespace DG_TonKhoBTP_v02
             this.btnBocVo.Location = new System.Drawing.Point(5, 6);
             this.btnBocVo.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
             this.btnBocVo.Name = "btnBocVo";
-            this.btnBocVo.Size = new System.Drawing.Size(179, 45);
+            this.btnBocVo.Size = new System.Drawing.Size(186, 45);
             this.btnBocVo.TabIndex = 8;
             this.btnBocVo.TabStop = false;
             this.btnBocVo.Text = "CĐ BỌC VỎ";
@@ -655,7 +717,7 @@ namespace DG_TonKhoBTP_v02
             this.btnKeoRut.Location = new System.Drawing.Point(5, 6);
             this.btnKeoRut.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
             this.btnKeoRut.Name = "btnKeoRut";
-            this.btnKeoRut.Size = new System.Drawing.Size(179, 51);
+            this.btnKeoRut.Size = new System.Drawing.Size(186, 51);
             this.btnKeoRut.TabIndex = 1;
             this.btnKeoRut.TabStop = false;
             this.btnKeoRut.Text = "CĐ KÉO - RÚT";
@@ -676,7 +738,7 @@ namespace DG_TonKhoBTP_v02
             this.btnQuanBang.Location = new System.Drawing.Point(5, 6);
             this.btnQuanBang.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
             this.btnQuanBang.Name = "btnQuanBang";
-            this.btnQuanBang.Size = new System.Drawing.Size(179, 51);
+            this.btnQuanBang.Size = new System.Drawing.Size(186, 51);
             this.btnQuanBang.TabIndex = 7;
             this.btnQuanBang.TabStop = false;
             this.btnQuanBang.Text = "CĐ QB THÉP-CU-AL";
@@ -697,7 +759,7 @@ namespace DG_TonKhoBTP_v02
             this.btnBenRuot.Location = new System.Drawing.Point(5, 6);
             this.btnBenRuot.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
             this.btnBenRuot.Name = "btnBenRuot";
-            this.btnBenRuot.Size = new System.Drawing.Size(179, 51);
+            this.btnBenRuot.Size = new System.Drawing.Size(186, 51);
             this.btnBenRuot.TabIndex = 2;
             this.btnBenRuot.TabStop = false;
             this.btnBenRuot.Text = "CĐ BỆN CU - AL";
@@ -718,7 +780,7 @@ namespace DG_TonKhoBTP_v02
             this.btnMica.Location = new System.Drawing.Point(5, 6);
             this.btnMica.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
             this.btnMica.Name = "btnMica";
-            this.btnMica.Size = new System.Drawing.Size(179, 51);
+            this.btnMica.Size = new System.Drawing.Size(186, 51);
             this.btnMica.TabIndex = 3;
             this.btnMica.TabStop = false;
             this.btnMica.Text = "CĐ QB MICA";
@@ -739,7 +801,7 @@ namespace DG_TonKhoBTP_v02
             this.btnBocMach.Location = new System.Drawing.Point(5, 6);
             this.btnBocMach.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
             this.btnBocMach.Name = "btnBocMach";
-            this.btnBocMach.Size = new System.Drawing.Size(179, 51);
+            this.btnBocMach.Size = new System.Drawing.Size(186, 51);
             this.btnBocMach.TabIndex = 4;
             this.btnBocMach.TabStop = false;
             this.btnBocMach.Text = "CĐ BỌC CÁCH ĐIỆN";
@@ -760,7 +822,7 @@ namespace DG_TonKhoBTP_v02
             this.btnGhepLoi.Location = new System.Drawing.Point(5, 6);
             this.btnGhepLoi.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
             this.btnGhepLoi.Name = "btnGhepLoi";
-            this.btnGhepLoi.Size = new System.Drawing.Size(179, 51);
+            this.btnGhepLoi.Size = new System.Drawing.Size(186, 51);
             this.btnGhepLoi.TabIndex = 5;
             this.btnGhepLoi.TabStop = false;
             this.btnGhepLoi.Text = "CĐ GHÉP LÕI";
@@ -780,27 +842,23 @@ namespace DG_TonKhoBTP_v02
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuStrip1;
             this.Margin = new System.Windows.Forms.Padding(4);
-            this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Home";
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
+            this.Shown += new System.EventHandler(this.MainForm_Shown);
             this.pnLeft.ResumeLayout(false);
-            this.pnLeft.PerformLayout();
             this.fpnButton.ResumeLayout(false);
             this.fpnButton.PerformLayout();
-            this.tbUser.ResumeLayout(false);
-            this.tbUser.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pdropdown)).EndInit();
-            this.panel14.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.avatar)).EndInit();
+            this.groupBox1.ResumeLayout(false);
+            this.panel16.ResumeLayout(false);
+            this.grbCongCu.ResumeLayout(false);
+            this.panel5.ResumeLayout(false);
             this.grbBaoCao.ResumeLayout(false);
             this.panel4.ResumeLayout(false);
             this.panel3.ResumeLayout(false);
             this.panel2.ResumeLayout(false);
-            this.grbCongCu.ResumeLayout(false);
-            this.panel5.ResumeLayout(false);
             this.grbChucNang.ResumeLayout(false);
             this.panel11.ResumeLayout(false);
             this.panel11.PerformLayout();
@@ -818,11 +876,17 @@ namespace DG_TonKhoBTP_v02
             this.panel9.PerformLayout();
             this.panel10.ResumeLayout(false);
             this.panel10.PerformLayout();
+            this.tbUser.ResumeLayout(false);
+            this.tbUser.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pdropdown)).EndInit();
+            this.panel14.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.avatar)).EndInit();
             this.pnLogo.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.imgLogo)).EndInit();
             this.pnSign.ResumeLayout(false);
             this.pnMain.ResumeLayout(false);
             this.panel1.ResumeLayout(false);
+            this.panel15.ResumeLayout(false);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.ResumeLayout(false);
@@ -882,7 +946,6 @@ namespace DG_TonKhoBTP_v02
 
         private System.Windows.Forms.Label lblAuthor;
         private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.TableLayoutPanel fpnButton;
         private System.Windows.Forms.Panel panel4;
         private System.Windows.Forms.Panel panel3;
         private System.Windows.Forms.Panel panel2;
@@ -895,13 +958,19 @@ namespace DG_TonKhoBTP_v02
         private System.Windows.Forms.Panel panel9;
         private System.Windows.Forms.Panel panel10;
         private System.Windows.Forms.Panel panel11;
+        private System.Windows.Forms.ToolStripMenuItem userRegistration;
+        private System.Windows.Forms.ToolStripMenuItem kếHoạchToolStripMenuItem;
         private System.Windows.Forms.TableLayoutPanel tbUser;
         private System.Windows.Forms.Label lblUserName;
         private System.Windows.Forms.Label lblChucDanh;
         private System.Windows.Forms.PictureBox pdropdown;
-        private System.Windows.Forms.ToolStripMenuItem userRegistration;
         private System.Windows.Forms.Panel panel14;
         private System.Windows.Forms.PictureBox avatar;
+        private System.Windows.Forms.Panel fpnButton;
+        private System.Windows.Forms.Panel panel15;
+        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.Panel panel16;
+        private CustomButton btnKeHoach;
     }
 }
 

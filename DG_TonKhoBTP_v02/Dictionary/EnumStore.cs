@@ -1,4 +1,14 @@
-﻿using System.Collections.Generic;
+﻿
+using System;
+using System.Collections.Generic;
+
+public enum StoreKeyKeHoach
+{
+    TrangThaiDonHang,
+    TrangThaiBanHanhKH,
+    TrangThaiThucHienTheoKH,
+    // sau này thêm nữa thì add vào đây
+}
 
 public static class EnumStore
 {
@@ -61,6 +71,55 @@ public static class EnumStore
         public const string YeuCauDangNhap = "Bạn cần đăng nhập để sử dụng chức năng này";
         public const string YeuCauCapQuyen = "Bạn cần cấp quyền để sử dụng chức năng này";
     }
+
+
+    // Là tình trạng thực hiện kế hoạch của sản xuất:
+    public static Dictionary<int, string> TrangThaiThucHienTheoKH = new Dictionary<int, string>()
+    {
+        { -1, "-- Không chọn --" },
+        { 0, "Chưa ban hành" },
+        { 1, "Đang thực hiện" },
+        { 2, "Đã xong" },
+        { 3, "Đã huỷ" }
+    };
+
+    // Là tình trạng của kế hoạch đưa xuống dưới sản xuất
+    public static Dictionary<int, string> TrangThaiBanHanhKH = new Dictionary<int, string>()
+    {
+        { -1, "-- Không chọn --" },
+        { 0, "Tạm thời" },
+        { 1, "Đã ban hành" },
+        { 2, "Huỷ" }
+    };
+
+    // Là tình trạng của đơn hàng theo yêu cầu của các bên
+    public static Dictionary<int, string> TrangThaiDonHang = new Dictionary<int, string>()
+    {
+        { -1, "-- Không chọn --" },
+        { 0, "Gấp" },
+        { 1,  "Đúng kế hoạch"},
+        { 2, "Bình thường" }
+    };
+
+    public static Dictionary<int, string> Get(StoreKeyKeHoach key)
+        {
+            switch (key)
+            {
+                case StoreKeyKeHoach.TrangThaiDonHang:
+                    return TrangThaiDonHang;
+
+                case StoreKeyKeHoach.TrangThaiBanHanhKH:
+                    return TrangThaiBanHanhKH;
+
+                case StoreKeyKeHoach.TrangThaiThucHienTheoKH:
+                    return TrangThaiThucHienTheoKH;
+
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(key), key, "StoreKey không hợp lệ");
+            }
+        }
+
+
 
 
 }

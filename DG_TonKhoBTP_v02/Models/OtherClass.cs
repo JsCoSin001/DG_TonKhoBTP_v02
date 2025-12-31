@@ -13,10 +13,6 @@ namespace DG_TonKhoBTP_v02.Models
         public string Header { get; set; }        // Tên hiển thị
     }
 
-    
-
-
-
     public class CongDoan
     {
         public int Id { get; set; }
@@ -68,6 +64,17 @@ namespace DG_TonKhoBTP_v02.Models
         public string Message { get; set; }
         public string Ngay { get; set; }
     }
+
+    public class Item { public string Ten { get; set; } public string Ma { get; set; } }
+
+    public sealed class DbResult
+    {
+        public bool Ok { get; set; }
+        public string Message { get; set; } = "";
+        public long? Id { get; set; }
+    }
+
+    
 
 
 }

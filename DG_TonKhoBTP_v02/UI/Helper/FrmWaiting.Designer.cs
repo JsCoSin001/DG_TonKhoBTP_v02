@@ -65,14 +65,12 @@
             // 
             // lblMessage
             // 
-            this.lblMessage.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
             this.lblMessage.AutoSize = true;
             this.lblMessage.Font = new System.Drawing.Font("Tahoma", 12.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblMessage.Location = new System.Drawing.Point(3, 60);
             this.lblMessage.MaximumSize = new System.Drawing.Size(300, 0);
             this.lblMessage.Name = "lblMessage";
-            this.lblMessage.Size = new System.Drawing.Size(288, 21);
+            this.lblMessage.Size = new System.Drawing.Size(96, 21);
             this.lblMessage.TabIndex = 1;
             this.lblMessage.Text = "XIN CHỜ ...";
             this.lblMessage.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;

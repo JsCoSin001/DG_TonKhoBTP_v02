@@ -2,18 +2,23 @@
 using DG_TonKhoBTP_v02.Core;
 using DG_TonKhoBTP_v02.Dictionary;
 using DG_TonKhoBTP_v02.DL_Ben;
+using DG_TonKhoBTP_v02.Helper;
 using DG_TonKhoBTP_v02.Models;
+using DG_TonKhoBTP_v02.UI;
+using DG_TonKhoBTP_v02.UI.KeHoach;
 using DocumentFormat.OpenXml.Drawing;
 using DocumentFormat.OpenXml.Wordprocessing;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.SqlClient;
 using System.Data.SQLite;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Windows.Input;
 
 namespace DG_TonKhoBTP_v02.Database
 {
@@ -31,6 +36,581 @@ namespace DG_TonKhoBTP_v02.Database
         {
             get { return _connStr; }
         }
+
+
+        public static bool TryPing(string dbPath, int timeoutSeconds = 3)
+        {
+
+            if (string.IsNullOrWhiteSpace(dbPath))
+            {
+                return false;
+            }
+
+            dbPath = System.IO.Path.GetFullPath(dbPath);
+
+            if (!File.Exists(dbPath))
+            {
+                return false;
+            }
+
+            try
+            {
+                // Read Only để chỉ kiểm tra (không ghi/không tạo mới)
+                // FailIfMissing để báo lỗi rõ nếu file thiếu
+                // Default Timeout áp dụng cho các thao tác lock/chờ
+                string connStr =
+                    $"Data Source={dbPath};Version=3;Read Only=True;FailIfMissing=True;Default Timeout={timeoutSeconds};";
+
+                using (var conn = new SQLiteConnection(connStr))
+                {
+                    conn.Open();
+
+                    using (var cmd = new SQLiteCommand("SELECT 1;", conn))
+                    {
+                        cmd.CommandTimeout = timeoutSeconds;
+                        cmd.ExecuteScalar();
+                    }
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
+
+        #region Kế hoạch sản xuất
+
+        public static int TaoKeHoachMoi(DataGridView dgv)
+        {
+            if (dgv == null || dgv.Rows.Count == 0)
+            {
+                FrmWaiting.ShowGifAlert("KHÔNG CÓ DỮ LIỆU ĐỂ THÊM");
+                return 0;
+            }
+
+            var errors = new List<string>();
+            int successCount = 0;
+
+            try
+            {
+                // BƯỚC 1: Map DataGridView → List<KeHoachSX>
+                var keHoachList = MapDataGridViewToKeHoachList(dgv);
+
+                if (keHoachList.Count == 0)
+                {
+                    FrmWaiting.ShowGifAlert("KHÔNG CÓ DỮ LIỆU ĐỂ THÊM");
+                    return 0;
+                }
+
+                // BƯỚC 2: Batch lookup Ma → ID
+                var lookupErrors = AssignDanhSachMaSP_IDs(keHoachList);
+                errors.AddRange(lookupErrors);
+
+                // BƯỚC 3: Insert - Để database validate
+                var insertErrors = BulkInsertKeHoachSX(keHoachList, out successCount);
+                errors.AddRange(insertErrors);
+
+                // Hiển thị kết quả
+                ShowInsertResult(successCount, errors);
+
+                return successCount;
+            }
+            catch (Exception ex)
+            {
+                FrmWaiting.ShowGifAlert(Helper.Helper.ShowErrorDatabase(ex, "KẾ HOẠCH"), "LỖI HỆ THỐNG");
+                return 0;
+            }
+        }
+
+        // ============================================================
+        // BƯỚC 1: MAP DATAGRIDVIEW → LIST<KEHOACHSX>
+        // ============================================================
+
+        /// <summary>
+        /// Map DataGridView → List<KeHoachSX>
+        /// ✅ KHÔNG VALIDATE - Để database làm việc đó
+        /// ✅ CHỈ CHUẨN HÓA DỮ LIỆU (uppercase, trim, format date)
+        /// </summary>
+        private static List<KeHoachSX> MapDataGridViewToKeHoachList(DataGridView dgv)
+        {
+            var keHoachList = new List<KeHoachSX>();
+
+            foreach (DataGridViewRow row in dgv.Rows)
+            {
+                if (row.IsNewRow) continue;
+
+                try
+                {
+                    // ✅ SỬ DỤNG MapRowToObject có sẵn
+                    var keHoach = new KeHoachSX();
+                    Helper.Helper.MapRowToObject(row, keHoach);
+
+                    // Chuẩn hóa dữ liệu
+                    NormalizeKeHoachSX(keHoach);
+
+                    keHoachList.Add(keHoach);
+                }
+                catch (Exception ex)
+                {
+                    // Chỉ log lỗi mapping, không dừng
+                    System.Diagnostics.Debug.WriteLine($"Lỗi map dòng {row.Index + 1}: {ex.Message}");
+                }
+            }
+
+            return keHoachList;
+        }
+
+        /// <summary>
+        /// Chuẩn hóa dữ liệu KeHoachSX (không validate)
+        /// </summary>
+        private static void NormalizeKeHoachSX(KeHoachSX keHoach)
+        {
+            // Chuẩn hóa Ma, Lot sang chữ hoa
+            if (!string.IsNullOrWhiteSpace(keHoach.Ma))
+                keHoach.Ma = keHoach.Ma.ToUpper().Trim();
+
+            if (!string.IsNullOrWhiteSpace(keHoach.Lot))
+                keHoach.Lot = keHoach.Lot.ToUpper().Trim();
+
+            // Chuẩn hóa ngày về format yyyy-MM-dd
+            keHoach.NgayNhan = NormalizeDate(keHoach.NgayNhan);
+            keHoach.NgayGiao = NormalizeDate(keHoach.NgayGiao);
+
+            // Trim các string khác
+            if (!string.IsNullOrWhiteSpace(keHoach.Ten))
+                keHoach.Ten = keHoach.Ten.Trim();
+
+            if (!string.IsNullOrWhiteSpace(keHoach.Mau))
+                keHoach.Mau = keHoach.Mau.Trim();
+
+            if (!string.IsNullOrWhiteSpace(keHoach.GhiChu))
+                keHoach.GhiChu = keHoach.GhiChu.Trim();
+        }
+
+        /// <summary>
+        /// Chuẩn hóa ngày về format yyyy-MM-dd (giống GetNgayHienTai)
+        /// </summary>
+        private static string NormalizeDate(string dateStr)
+        {
+            if (string.IsNullOrWhiteSpace(dateStr))
+                return null;
+
+            if (DateTime.TryParse(dateStr, out DateTime date))
+                return date.ToString("yyyy-MM-dd");
+
+            return dateStr;
+        }
+
+        // ============================================================
+        // BƯỚC 2: BATCH LOOKUP Ma → ID
+        // ============================================================
+
+        /// <summary>
+        /// Batch lookup Ma → DanhSachMaSP_ID
+        /// </summary>
+        private static List<string> AssignDanhSachMaSP_IDs(List<KeHoachSX> keHoachList)
+        {
+            var errors = new List<string>();
+
+            try
+            {
+                // Thu thập unique Ma
+                var uniqueMaList = keHoachList
+                    .Select(k => k.Ma)
+                    .Where(ma => !string.IsNullOrWhiteSpace(ma))
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+                if (uniqueMaList.Count == 0)
+                    return errors;
+
+                // Batch lookup trong 1 query
+                Dictionary<string, int> maToIdMap;
+                using (var conn = new SQLiteConnection(_connStr))
+                {
+                    conn.Open();
+                    maToIdMap = BatchLookupMaToId(uniqueMaList, conn);
+                }
+
+                // Gán ID vào objects
+                foreach (var keHoach in keHoachList)
+                {
+                    if (maToIdMap.TryGetValue(keHoach.Ma, out int id))
+                    {
+                        keHoach.DanhSachMaSP_ID = id;
+                    }
+                    else
+                    {
+                        // Không tìm thấy Ma → đánh dấu không hợp lệ
+                        keHoach.DanhSachMaSP_ID = 0;
+                        errors.Add($"Mã '{keHoach.Ma}' ({keHoach.Ten ?? ""}): Không tìm thấy trong danh sách sản phẩm");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                errors.Add($"Lỗi lookup mã SP: {Helper.Helper.ShowErrorDatabase(ex)}");
+            }
+
+            return errors;
+        }
+
+        /// <summary>
+        /// Batch lookup: Query tất cả Ma trong 1 query
+        /// </summary>
+        private static Dictionary<string, int> BatchLookupMaToId(
+            HashSet<string> maList,
+            SQLiteConnection conn)
+        {
+            var result = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+
+            if (maList == null || maList.Count == 0)
+                return result;
+
+            // SQLite giới hạn 999 parameters → chia batch
+            const int maxParams = 900;
+            var maArray = maList.ToArray();
+
+            for (int i = 0; i < maArray.Length; i += maxParams)
+            {
+                var batch = maArray.Skip(i).Take(maxParams).ToList();
+
+                // Tạo SQL: WHERE Ma IN (@p0, @p1, ...)
+                var paramNames = Enumerable.Range(0, batch.Count)
+                    .Select(idx => $"@p{idx}")
+                    .ToList();
+
+                string sql = $@"
+                    SELECT Ma, id 
+                    FROM DanhSachMaSP 
+                    WHERE Ma IN ({string.Join(", ", paramNames)});
+                ";
+
+                using (var cmd = new SQLiteCommand(sql, conn))
+                {
+                    for (int j = 0; j < batch.Count; j++)
+                        cmd.Parameters.AddWithValue($"@p{j}", batch[j]);
+
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            string ma = reader.GetString(0);
+                            int id = reader.GetInt32(1);
+                            result[ma] = id;
+                        }
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        // ============================================================
+        // BƯỚC 3: BULK INSERT - ĐỂ DATABASE VALIDATE
+        // ============================================================
+
+        /// <summary>
+        /// Bulk insert với transaction
+        /// ✅ ĐỂ DATABASE VALIDATE: NOT NULL, UNIQUE, FOREIGN KEY...
+        /// ✅ ShowErrorDatabase sẽ format lỗi thân thiện
+        /// </summary>
+        private static List<string> BulkInsertKeHoachSX(
+            List<KeHoachSX> keHoachList,
+            out int successCount)
+        {
+            var errors = new List<string>();
+            successCount = 0;
+
+            // Chỉ insert các record có DanhSachMaSP_ID hợp lệ
+            var validKeHoachList = keHoachList
+                .Where(k => k.DanhSachMaSP_ID > 0)
+                .ToList();
+
+            if (validKeHoachList.Count == 0)
+                return errors;
+
+            using (var conn = new SQLiteConnection(_connStr))
+            {
+                conn.Open();
+
+                // ✅ TRANSACTION - Quan trọng nhất cho hiệu suất
+                using (var tran = conn.BeginTransaction())
+                {
+                    try
+                    {
+                        // ✅ TÁI SỬ DỤNG COMMAND
+                        using (var cmd = CreateInsertKeHoachSXCommand(conn, tran))
+                        {
+                            foreach (var keHoach in validKeHoachList)
+                            {
+                                try
+                                {
+                                    BindInsertKeHoachSXParameters(cmd, keHoach);
+                                    cmd.ExecuteNonQuery();
+                                    successCount++;
+                                }
+                                catch (Exception ex)
+                                {
+                                    // ✅ DATABASE TRẢ VỀ LỖI → ShowErrorDatabase xử lý
+                                    // - NOT NULL constraint → "Thiếu dữ liệu bắt buộc (Lot)"
+                                    // - UNIQUE constraint → "DỮ LIỆU đã tồn tại (Lot)"
+                                    // - CHECK constraint → "Dữ liệu vi phạm ràng buộc"
+                                    string errorMsg = Helper.Helper.ShowErrorDatabase(ex, keHoach.Lot);
+                                    errors.Add($"Lot '{keHoach.Lot}': {errorMsg}");
+                                }
+                            }
+                        }
+
+                        tran.Commit();
+                    }
+                    catch (Exception ex)
+                    {
+                        tran.Rollback();
+                        errors.Add($"Lỗi hệ thống: {Helper.Helper.ShowErrorDatabase(ex)}");
+                    }
+                }
+            }
+
+            return errors;
+        }
+
+        /// <summary>
+        /// Tạo prepared statement cho INSERT
+        /// </summary>
+        private static SQLiteCommand CreateInsertKeHoachSXCommand(
+            SQLiteConnection conn,
+            SQLiteTransaction tran)
+        {
+            var cmd = new SQLiteCommand(conn);
+            cmd.Transaction = tran;
+            cmd.CommandText = @"
+                INSERT INTO KeHoachSX (
+                    DanhSachMaSP_ID, NgayNhan, Lot, SLHangDat, SLHangBan,
+                    Mau, NgayGiao, GhiChu, TinhTrangKH, TinhTrangSX
+                ) VALUES (
+                    @DanhSachMaSP_ID, @NgayNhan, @Lot, @SLHangDat, @SLHangBan,
+                    @Mau, @NgayGiao, @GhiChu, @TinhTrangKH, @TinhTrangSX
+                );
+            ";
+
+            cmd.Parameters.Add("@DanhSachMaSP_ID", DbType.Int32);
+            cmd.Parameters.Add("@NgayNhan", DbType.String);
+            cmd.Parameters.Add("@Lot", DbType.String);
+            cmd.Parameters.Add("@SLHangDat", DbType.Double);
+            cmd.Parameters.Add("@SLHangBan", DbType.Double);
+            cmd.Parameters.Add("@Mau", DbType.String);
+            cmd.Parameters.Add("@NgayGiao", DbType.String);
+            cmd.Parameters.Add("@GhiChu", DbType.String);
+            cmd.Parameters.Add("@TinhTrangKH", DbType.Int32);
+            cmd.Parameters.Add("@TinhTrangSX", DbType.Int32);
+
+            return cmd;
+        }
+
+        /// <summary>
+        /// Bind parameters từ object
+        /// </summary>
+        private static void BindInsertKeHoachSXParameters(SQLiteCommand cmd, KeHoachSX keHoach)
+        {
+            cmd.Parameters["@DanhSachMaSP_ID"].Value = keHoach.DanhSachMaSP_ID;
+            cmd.Parameters["@NgayNhan"].Value = keHoach.NgayNhan ?? (object)DBNull.Value;
+            cmd.Parameters["@Lot"].Value = keHoach.Lot ?? (object)DBNull.Value;
+            cmd.Parameters["@SLHangDat"].Value = keHoach.SLHangDat ?? (object)DBNull.Value;
+            cmd.Parameters["@SLHangBan"].Value = keHoach.SLHangBan ?? (object)DBNull.Value;
+            cmd.Parameters["@Mau"].Value = keHoach.Mau ?? (object)DBNull.Value;
+            cmd.Parameters["@NgayGiao"].Value = keHoach.NgayGiao ?? (object)DBNull.Value;
+            cmd.Parameters["@GhiChu"].Value = keHoach.GhiChu ?? (object)DBNull.Value;
+            cmd.Parameters["@TinhTrangKH"].Value = keHoach.TinhTrangKH;
+            cmd.Parameters["@TinhTrangDon"].Value = keHoach.TinhTrangDon;
+            cmd.Parameters["@TrangThaiSX"].Value = keHoach.TrangThaiSX;
+        }
+
+        /// <summary>
+        /// Hiển thị kết quả
+        /// </summary>
+        private static void ShowInsertResult(int successCount, List<string> errors)
+        {
+            if (errors.Count > 0)
+            {
+                string errorMsg = $"{successCount} kế hoạch được thêm\n\n";
+                errorMsg += $"Có ({errors.Count}) lỗi\n";
+                errorMsg += string.Join("\n", errors.Take(10));
+
+                if (errors.Count > 10)
+                    errorMsg += $"\n... và {errors.Count - 10} lỗi khác";
+
+                FrmWaiting.ShowGifAlert(errorMsg, "KẾT QUẢ");
+            }
+            else if (successCount > 0)
+            {
+                FrmWaiting.ShowGifAlert(
+                    $"{successCount} kế hoạch được thêm",
+                    "THÀNH CÔNG",EnumStore.Icon.Success
+                );
+            }
+            else
+            {
+                FrmWaiting.ShowGifAlert("KHÔNG CÓ DỮ LIỆU NÀO ĐƯỢC THÊM", "THÔNG BÁO");
+            }
+        }
+
+
+
+        public static DbResult InsertKeHoachSX(KeHoachSX dto)
+        {
+            try
+            {
+                using var conn = new SQLiteConnection(_connStr);
+                conn.Open();
+
+                using var tx = conn.BeginTransaction();
+
+                using var cmd = conn.CreateCommand();
+                cmd.Transaction = tx;
+                cmd.CommandText = @"
+                    INSERT INTO KeHoachSX
+                    (
+                        DanhSachMaSP_ID, NgayNhan, Lot, SLHangDat, SLHangBan, Mau,
+                        NgayGiao, GhiChu, TenKhachHang, TinhTrangKH, TrangThaiSX, TinhTrangDon
+                    )
+                    VALUES
+                    (
+                        @DanhSachMaSP_ID, @NgayNhan, @Lot, @SLHangDat, @SLHangBan, @Mau,
+                        @NgayGiao, @GhiChu, @TenKhachHang, @TinhTrangKH, @TrangThaiSX, @TinhTrangDon
+                    );
+                    SELECT last_insert_rowid();
+                    ";
+
+                BindParams(cmd, dto, isUpdate: false);
+
+                var newIdObj = cmd.ExecuteScalar();
+                var newId = Convert.ToInt64(newIdObj);
+
+                tx.Commit();
+
+                return new DbResult
+                {
+                    Ok = true,
+                    Id = newId,
+                    Message = "thành công."
+                };
+            }
+            catch (Exception ex)
+            {
+                return new DbResult
+                {
+                    Ok = false,
+                    Id = null,
+                    Message = Helper.Helper.ShowErrorDatabase(ex)
+                };
+            }
+        }
+
+        public static DbResult UpdateKeHoachSX( KeHoachSX dto)
+        {
+            try
+            {
+                using var conn = new SQLiteConnection(_connStr);
+                conn.Open();
+
+                using var tx = conn.BeginTransaction();
+
+                using var cmd = conn.CreateCommand();
+                cmd.Transaction = tx;
+                cmd.CommandText = @"
+                UPDATE KeHoachSX
+                SET
+                    DanhSachMaSP_ID = @DanhSachMaSP_ID,
+                    NgayNhan        = @NgayNhan,
+                    SLHangDat       = @SLHangDat,
+                    SLHangBan       = @SLHangBan,
+                    Mau             = @Mau,
+                    NgayGiao        = @NgayGiao,
+                    GhiChu          = @GhiChu,
+                    TenKhachHang    = @TenKhachHang,
+                    TinhTrangKH     = @TinhTrangKH,
+                    TrangThaiSX     = @TrangThaiSX,
+                    TinhTrangDon    = @TinhTrangDon
+                WHERE Lot = @Lot;
+                ";
+
+                BindParams(cmd, dto, isUpdate: true);
+
+                var affected = cmd.ExecuteNonQuery();
+                if (affected == 0)
+                {
+                    tx.Rollback();
+                    return new DbResult
+                    {
+                        Ok = false,
+                        Id = dto.id,
+                        Message = "Không tìm thấy bản ghi để cập nhật (id không tồn tại)."
+                    };
+                }
+
+                tx.Commit();
+
+                return new DbResult
+                {
+                    Ok = true,
+                    Id = dto.id,
+                    Message = "Thành công."
+                };
+            }
+            catch (Exception ex)
+            {
+                return new DbResult
+                {
+                    Ok = false,
+                    Id = dto.id,
+                   Message = Helper.Helper.ShowErrorDatabase(ex)
+                };
+            }
+        }
+
+
+        // ========= PRIVATE HELPERS =========
+
+        private static void BindParams(SQLiteCommand cmd, KeHoachSX dto, bool isUpdate)
+        {
+            cmd.Parameters.Clear();
+
+            
+                
+
+            AddParam(cmd, "@DanhSachMaSP_ID", DbType.Int64, dto.DanhSachMaSP_ID);
+            AddParam(cmd, "@NgayNhan", DbType.String, dto.NgayNhan);
+            AddParam(cmd, "@Lot", DbType.Int64, dto.Lot);
+            // Lot & NgayGiao: nếu null/"" => DB sẽ báo NOT NULL constraint failed (đúng ý bạn)
+            AddParam(cmd, "@SLHangDat", DbType.Double, dto.SLHangDat);
+            AddParam(cmd, "@SLHangBan", DbType.Double, dto.SLHangBan);
+            AddParam(cmd, "@Mau", DbType.String, dto.Mau);
+
+            AddParam(cmd, "@NgayGiao", DbType.String, dto.NgayGiao);
+
+            AddParam(cmd, "@GhiChu", DbType.String, dto.GhiChu);
+            AddParam(cmd, "@TenKhachHang", DbType.String, dto.TenKhachHang);
+
+            AddParam(cmd, "@TinhTrangKH", DbType.Int32, dto.TinhTrangKH);
+            AddParam(cmd, "@TrangThaiSX", DbType.Int32, dto.TrangThaiSX);
+            AddParam(cmd, "@TinhTrangDon", DbType.Int32, dto.TinhTrangDon);
+        }
+
+        private static void AddParam(SQLiteCommand cmd, string name, DbType type, object? value)
+        {
+            var p = cmd.CreateParameter();
+            p.ParameterName = name;
+            p.DbType = type;
+            p.Value = value ?? DBNull.Value;
+            cmd.Parameters.Add(p);
+        }
+
+
+        #endregion
 
         #region Lấy dữ liệu
         // Lấy dữ liệu theo 1 điều kiện
@@ -55,6 +635,22 @@ namespace DG_TonKhoBTP_v02.Database
                 }
             }
         }
+
+
+        public static List<Item> LoadTen(string kw)
+        {
+            var list = new List<Item>();
+            using var cn = new SQLiteConnection(_connStr);
+            using var cmd = cn.CreateCommand();
+            cn.Open();
+            cmd.CommandText = "SELECT Ten, Ma FROM DanhSachMaSP WHERE Ten LIKE @kw ORDER BY Ten LIMIT 30";
+            cmd.Parameters.AddWithValue("@kw", "%" + kw + "%");
+            using var r = cmd.ExecuteReader();
+            while (r.Read()) list.Add(new Item { Ten = r.GetString(0), Ma = r.GetString(1) });
+            return list;
+        }
+
+
 
         public static DataTable GetDataByCongDoan(DateTime selectedDate, CongDoan cd,int ca, string nguoiKiemTra)
         {
@@ -1260,7 +1856,6 @@ namespace DG_TonKhoBTP_v02.Database
         }
         #endregion
 
-
         #region setup config
         public static bool InsertConfig(ConfigDB config)
         {
@@ -1628,51 +2223,6 @@ namespace DG_TonKhoBTP_v02.Database
         /// <summary>
         /// Load với filter theo role cụ thể
         /// </summary>
-        public static void LoadUsersBySpecificRole(TreeView treeView, string roleName)
-        {
-            treeView.Nodes.Clear();
-            treeView.BeginUpdate();
-
-            try
-            {
-                var users = GetUsersByRole(roleName);
-
-                foreach (var user in users)
-                {
-                    var userNode = new TreeNode($"{user.Name} ({user.Username})")
-                    {
-                        Tag = user,
-                        ImageIndex = 0,
-                        SelectedImageIndex = 0
-                    };
-
-                    foreach (var role in user.Roles)
-                    {
-                        var roleNode = new TreeNode(role.RoleName)
-                        {
-                            Tag = role,
-                            ImageIndex = 1,
-                            SelectedImageIndex = 1,
-                            ForeColor = System.Drawing.Color.Blue
-                        };
-                        userNode.Nodes.Add(roleNode);
-                    }
-
-                    treeView.Nodes.Add(userNode);
-                }
-
-                treeView.ExpandAll();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Lỗi: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-            finally
-            {
-                treeView.EndUpdate();
-            }
-        }
-
         private static List<UserWithRoles> GetUsersByRole(string roleName)
         {
             var users = new List<UserWithRoles>();
@@ -2054,7 +2604,7 @@ namespace DG_TonKhoBTP_v02.Database
 
         #endregion
 
-        #region ===================================
+        #region Sau này sẽ xoá ===================================
         private static void insertVersion1(TTThanhPham tp,ThongTinCaLamViec tt, List<TTNVL> nvlList)
         {
             TonKho tonKho = new TonKho

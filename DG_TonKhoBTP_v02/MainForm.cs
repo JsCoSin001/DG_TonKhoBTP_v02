@@ -7,6 +7,8 @@ using DG_TonKhoBTP_v02.Models;
 using DG_TonKhoBTP_v02.UI;
 using DG_TonKhoBTP_v02.UI.Actions;
 using DG_TonKhoBTP_v02.UI.Authentication;
+using DG_TonKhoBTP_v02.UI.KeHoach;
+using DG_TonKhoBTP_v02.UI.NghiepVu;
 using DG_TonKhoBTP_v02.UI.Setting;
 using DocumentFormat.OpenXml.Drawing;
 using QLDuLieuTonKho_BTP;
@@ -882,9 +884,9 @@ namespace DG_TonKhoBTP_v02
             }
         }
 
-        private void ShowLoginForm()
+        private void ShowLoginForm(bool flg = false)
         {
-            using (Login fmLogin = new Login())
+            using (Login fmLogin = new Login(flg))
             {
                 fmLogin.StartPosition = FormStartPosition.CenterParent;
 
@@ -955,5 +957,58 @@ namespace DG_TonKhoBTP_v02
             ThayDoiMau(false);
         }
 
+
+
+        private void kếHoạchToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            using (var fmKeHoach = new KeHoach())
+            {
+                fmKeHoach.StartPosition = FormStartPosition.CenterScreen; // hoặc CenterParent
+                fmKeHoach.WindowState = FormWindowState.Maximized;
+                fmKeHoach.ShowDialog(this);
+            }
+        }
+
+        private void MainForm_Shown(object sender, EventArgs e)
+        {
+            if (!DatabaseHelper.TryPing(_URL))
+            {
+                ShowLoginForm(true);
+                Program.RestartApplication();
+            }
+        }
+
+        private void btnKeHoach_Click(object sender, EventArgs e)
+        {
+            using (var waiting = new FrmWaiting("ĐANG KHỞI TẠO GIAO DIỆN..."))
+            {
+                try
+                {
+                    waiting.ShowAndRefresh();
+
+                    pnShow.SuspendLayout();
+                    pnShow.Visible = false;
+
+                    pnShow.Controls.Clear();
+
+                    var uc = new UC_KeHoach
+                    {
+                        Dock = DockStyle.Fill
+                    };
+                    pnShow.Controls.Add(uc);
+                }
+                catch (Exception ex)
+                {
+                    FrmWaiting.ShowGifAlert($"Lỗi khởi tạo giao diện cập nhật mã hàng: {ex.Message}");
+                }
+                finally
+                {
+                    pnShow.Visible = true;
+                    pnShow.ResumeLayout(true);
+                    waiting?.CloseAndDispose();
+                    btnCapNhatMaHang.Enabled = true;
+                }
+            }
+        }
     }
 }

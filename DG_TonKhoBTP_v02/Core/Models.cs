@@ -43,7 +43,7 @@ namespace DG_TonKhoBTP_v02.Core
         public bool IsChecked { get; set; }
     }
 
-    // Khớp bảng CaiDatCDBoc (rút gọn thuộc tính thường dùng từ UC_CaiDatMay/UC_DieuKienBoc/UC_CDBocLot)
+    
     public class CaiDatCDBoc
     {
         public string? MangNuoc { get; set; }
@@ -88,7 +88,6 @@ namespace DG_TonKhoBTP_v02.Core
         public string QuanDoc { get; set; }
     }
 
-
     public class TTThanhPham
     {
         public int Id { get; set; }
@@ -108,7 +107,6 @@ namespace DG_TonKhoBTP_v02.Core
     }
 
     // --------------------------- Công đoạn: Bóc Vỏ ---------------------------
-
     public class CD_BocVo
     {
         public int Id { get; set; }
@@ -118,7 +116,6 @@ namespace DG_TonKhoBTP_v02.Core
     }
 
     // --------------------------- Công đoạn: Bóc Lót ---------------------------
-
     public class CD_BocLot
     {
         public int Id { get; set; }
@@ -127,7 +124,6 @@ namespace DG_TonKhoBTP_v02.Core
     }
 
     // --------------------------- Công đoạn: Bóc Mạch ---------------------------
-
     public class CD_BocMach
     {
         public int Id { get; set; }
@@ -140,7 +136,6 @@ namespace DG_TonKhoBTP_v02.Core
     }
 
     // --------------------------- Công đoạn: Kéo Rút ---------------------------
-
     public class CD_KeoRut
     {
         public int Id { get; set; }
@@ -166,7 +161,6 @@ namespace DG_TonKhoBTP_v02.Core
     }
 
     // --------------------------- Công đoạn: Ghép Lõi + Quấn Băng ---------------------------
-
     public class CD_GhepLoiQB
     {
         public int Id { get; set; }
@@ -202,6 +196,31 @@ namespace DG_TonKhoBTP_v02.Core
     {
         public int Id { get; set; }
     }
+
+    public class KeHoachSX
+    {
+        public int id { get; set; }
+        public int DanhSachMaSP_ID { get; set; }
+
+        // Properties tạm để mapping và lookup
+        public string Ma { get; set; }
+        public string Ten { get; set; }
+
+        // Properties chính
+        public string NgayNhan { get; set; }
+        public string Lot { get; set; }
+        public double? SLHangDat { get; set; }
+        public double? SLHangBan { get; set; }
+        public string Mau { get; set; }
+        public string NgayGiao { get; set; }
+        public string? TenKhachHang { get; set; }
+        public string GhiChu { get; set; }
+        public int TinhTrangKH { get; set; }
+        public int TinhTrangDon { get; set; }
+        public int TrangThaiSX { get; set; }
+
+    }
+
 }
 
 #nullable restore

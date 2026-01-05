@@ -166,6 +166,9 @@ namespace DG_TonKhoBTP_v02
 
         private void btnGhepLoi_Click(object sender, EventArgs e)
         {
+            FrmWaiting.ShowGifAlert($"Công đoạn này chưa sẵn sàn. \nThử lại sau...");
+            return;
+
             if (Helper.Helper.KiemTraEmpty(_URL))
                 return;
 
@@ -204,6 +207,9 @@ namespace DG_TonKhoBTP_v02
 
         private void btnQuanBang_Click(object sender, EventArgs e)
         {
+            FrmWaiting.ShowGifAlert($"Công đoạn này chưa sẵn sàn. \nThử lại sau...");
+            return;
+
             if (Helper.Helper.KiemTraEmpty(_URL))
                 return;
 
@@ -242,6 +248,10 @@ namespace DG_TonKhoBTP_v02
 
         private void btnMica_Click(object sender, EventArgs e)
         {
+
+            FrmWaiting.ShowGifAlert($"Công đoạn này chưa sẵn sàn. \nThử lại sau...");
+            return;
+
             if (Helper.Helper.KiemTraEmpty(_URL))
                 return;
 
@@ -280,6 +290,9 @@ namespace DG_TonKhoBTP_v02
 
         private void btnBocLot_Click(object sender, EventArgs e)
         {
+            FrmWaiting.ShowGifAlert($"Công đoạn này chưa sẵn sàn. \nThử lại sau...");
+            return;
+
             if (Helper.Helper.KiemTraEmpty(_URL))
                 return;
 
@@ -322,6 +335,9 @@ namespace DG_TonKhoBTP_v02
 
         private void btnBocMach_Click(object sender, EventArgs e)
         {
+            FrmWaiting.ShowGifAlert($"Công đoạn này chưa sẵn sàn. \nThử lại sau...");
+            return;
+
             if (Helper.Helper.KiemTraEmpty(_URL))
                 return;
 
@@ -364,6 +380,9 @@ namespace DG_TonKhoBTP_v02
 
         private void btnBocVo_Click(object sender, EventArgs e)
         {
+            FrmWaiting.ShowGifAlert($"Công đoạn này chưa sẵn sàn. \nThử lại sau...");
+            return;
+
             if (Helper.Helper.KiemTraEmpty(_URL))
                 return;
 
@@ -961,6 +980,9 @@ namespace DG_TonKhoBTP_v02
 
         private void kếHoạchToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            FrmWaiting.ShowGifAlert($"Công đoạn này chưa sẵn sàn. \nThử lại sau...");
+            return;
+
             using (var fmKeHoach = new KeHoach())
             {
                 fmKeHoach.StartPosition = FormStartPosition.CenterScreen; // hoặc CenterParent
@@ -980,6 +1002,9 @@ namespace DG_TonKhoBTP_v02
 
         private void btnKeHoach_Click(object sender, EventArgs e)
         {
+            FrmWaiting.ShowGifAlert($"Công đoạn này chưa sẵn sàn. \nThử lại sau...");
+            return;
+
             using (var waiting = new FrmWaiting("ĐANG KHỞI TẠO GIAO DIỆN..."))
             {
                 try

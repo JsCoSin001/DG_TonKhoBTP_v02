@@ -2,6 +2,7 @@
 using DG_TonKhoBTP_v02.Dictionary;
 using DG_TonKhoBTP_v02.Models;
 using DG_TonKhoBTP_v02.UI;
+using DocumentFormat.OpenXml.Wordprocessing;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -14,12 +15,16 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using WinControl = System.Windows.Forms.Control;
+using WinCheckBox = System.Windows.Forms.CheckBox;
 
 namespace DG_TonKhoBTP_v02.Helper
 {
     public static class Helper
     {
         public static string _connStr;
+
+
 
         public static bool KiemTraEmpty(string values)
         {
@@ -30,6 +35,8 @@ namespace DG_TonKhoBTP_v02.Helper
             }
             return false;
         }
+
+
 
         public static List<CongDoan> GetDanhSachCongDoan()
         {
@@ -381,9 +388,9 @@ namespace DG_TonKhoBTP_v02.Helper
             return lot;
         }
 
-        public static T FindControlRecursive<T>(Control root) where T : Control
+        public static T FindControlRecursive<T>(WinControl root) where T : WinControl
         {
-            foreach (Control c in root.Controls)
+            foreach (WinControl c in root.Controls)
             {
                 if (c is T t)
                     return t;
@@ -543,6 +550,21 @@ namespace DG_TonKhoBTP_v02.Helper
             return input.Split(separators, StringSplitOptions.RemoveEmptyEntries);
         }
 
+
+
+        public static string? TrimToNull(string? s)
+        {
+            s = (s ?? "").Trim();
+            return string.IsNullOrWhiteSpace(s) ? null : s;
+        }
+        public static string? GetDateOrNull(DateTimePicker dtp)
+        {
+            const string DbDateFormat = "dd/MM/yyyy";
+            // Quy ước: nếu < 02/01/2020 thì coi như không lọc
+            return dtp.Value.Date < new DateTime(2000, 1, 2)
+                ? null
+                : dtp.Value.ToString(DbDateFormat);
+        }
         public static string ShowErrorDatabase(Exception ex, string? ten = null)
         {
             // Bóc lớp Aggregate/TargetInvocation/InnerException thường gặp
@@ -724,14 +746,12 @@ namespace DG_TonKhoBTP_v02.Helper
         {
             var result = new List<CongDoan>();
 
-            foreach (Control control in tbCheckBox.Controls)
+            foreach (WinControl control in tbCheckBox.Controls)
             {
-                if (control is CheckBox cb && cb.Checked)
+                if (control is WinCheckBox cb && cb.Checked)
                 {
                     if (cb.Tag is CongDoan congDoan)
-                    {
                         result.Add(congDoan);
-                    }
                 }
             }
 

@@ -320,6 +320,26 @@ namespace DG_TonKhoBTP_v02.DL_Ben
         }
 
 
+        public static TonKho HoanThienTonKhoV1(string maSp, TonKho tonKho)
+        {
+            using (var conn = new SQLiteConnection(_connStr))
+            {
+                conn.Open();
+                using var cmd = new SQLiteCommand(
+                "SELECT ID FROM DanhSachMaSP WHERE Ma = @ma LIMIT 1;",
+                conn
+            );
+                cmd.Parameters.AddWithValue("@ma", maSp);
+
+                var id = cmd.ExecuteScalar();
+                if (id == null || id == DBNull.Value) return null; // hoặc throw nếu bạn muốn
+
+                tonKho.MaSP_ID = Convert.ToInt32(id);
+            }
+            return tonKho;
+        }
+
+
         public static void UpdateTonKho_NVL(List<TTNVL> nvlList, int tonKho_ID, SQLiteConnection conn)
         {
             string sql = @"UPDATE TonKho

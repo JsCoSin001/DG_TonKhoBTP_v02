@@ -1,15 +1,20 @@
 ﻿using DG_TonKhoBTP_v02.Core;
 using DG_TonKhoBTP_v02.Database;
 using DG_TonKhoBTP_v02.Models;
+using DocumentFormat.OpenXml.Spreadsheet;
+using DocumentFormat.OpenXml.Wordprocessing;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
 using System.Globalization;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using static System.Windows.Forms.AxHost;
+using Control = System.Windows.Forms.Control;
+using helperApp = DG_TonKhoBTP_v02.Helper.Helper;
 
 namespace DG_TonKhoBTP_v02.UI.NghiepVu
 {
@@ -18,6 +23,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVu
         private Control _lastControl = null;
 
         private readonly System.Windows.Forms.Timer _debounce = new System.Windows.Forms.Timer { Interval = 250 };
+        private const string DbDateFormat = "dd/MM/yyyy";
 
 
         // Chặn TextChanged khi update UI bằng code (tránh loop)
@@ -114,8 +120,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVu
                 NgayGiao = dtNgayGiao.Value.ToString("yyyy-MM-dd"),
                 TenKhachHang = tbTenKhachHang.Text.Trim(),
                 GhiChu = rtbGhiChu.Text.Trim(),
-                TinhTrangKH = cbxTinhTrangKH.SelectedIndex >= 0 ? cbxTinhTrangKH.SelectedIndex : 0,
-                TinhTrangDon = cbxTinhTrangDon.SelectedIndex >= 0 ? cbxTinhTrangDon.SelectedIndex : 0,
+                TinhTrang = cbxTinhTrang.SelectedIndex >= 0 ? cbxTinhTrang.SelectedIndex : 0,
+                TinhTrangDon = cbxMucDoUuTien.SelectedIndex >= 0 ? cbxMucDoUuTien.SelectedIndex : 0,
                 TrangThaiSX = 0,
             };
 
@@ -157,12 +163,12 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVu
                     rtbGhiChu.Clear();
                     tbTenKhachHang.Clear();
 
-                    cbxTinhTrangDon.SelectedIndex = 0;
+                    cbxMucDoUuTien.SelectedIndex = 0;
                     KieuKH.SelectedIndex = 0;
 
                     dtime.Value = DateTime.Now;
                     dtNgayGiao.Value = DateTime.Now;
-                    cbxTinhTrangKH.SelectedIndex = 0;
+                    cbxTinhTrang.SelectedIndex = 0;
 
                 });
             });
@@ -451,8 +457,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVu
                 int tinhTrangKH = ToIntOrZero(r["TinhTrangKH"]);
                 int tinhTrangDon = ToIntOrZero(r["TinhTrangDon"]);
 
-                cbxTinhTrangKH.SelectedIndex = ClampIndex(tinhTrangKH, cbxTinhTrangKH.Items.Count);
-                cbxTinhTrangDon.SelectedIndex = ClampIndex(tinhTrangDon, cbxTinhTrangDon.Items.Count);
+                cbxTinhTrang.SelectedIndex = ClampIndex(tinhTrangKH, cbxTinhTrang.Items.Count);
+                cbxMucDoUuTien.SelectedIndex = ClampIndex(tinhTrangDon, cbxMucDoUuTien.Items.Count);
 
                 // Số lượng (đảm bảo tbHangDat = tbTong - tbHangBan đúng theo dữ liệu)
                 SafeCalc(() =>
@@ -510,23 +516,74 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVu
         private void btnTimKiem_Click(object sender, EventArgs e)
         {
 
+            TimKiemKeHoachSX k = LayDL_TimKiemKH();
+            List<ResultFindKeHoachSX>  lsData = DatabaseHelper.SearchKeHoachSX(k);
+
+            dtgKetQuaTimKiemKH.AutoGenerateColumns = true;
+            dtgKetQuaTimKiemKH.DataSource = null;
+            dtgKetQuaTimKiemKH.DataSource = lsData;
+
+        }
+
+
+        private  TimKiemKeHoachSX LayDL_TimKiemKH()
+        {
+            var f = new TimKiemKeHoachSX
+            {
+                // Ten: lấy theo combobox sản phẩm (hiển thị Ten)
+                //Ten = Helper.TrimToNull(cbxTenSP.Text),
+
+                Ten = helperApp.TrimToNull(cbxTenSP.Text),
+
+                // NgayNhan / NgayGiao: DateTimePicker
+                NgayNhan = helperApp.GetDateOrNull(dtNgayNhanKH),
+                NgayGiao = helperApp.GetDateOrNull(dtNgayGiaoKH),
+
+                // Lot
+                Lot = helperApp.TrimToNull(cbxLot.Text),
+
+                // Số lượng: NumericUpDown (0 => null)
+                SLHangDat = nbHangDat.Value > 0 ? (double?)nbHangDat.Value : null,
+                SLHangBan = nmHangBan.Value > 0 ? (double?)nmHangBan.Value : null,
+                SLTong = nbTong.Value > 0 ? (double?)nbTong.Value : null,
+
+                // Mau
+                Mau = helperApp.TrimToNull(cbxMauSac.Text),
+
+                
+
+                // TenKhachHang
+                TenKhachHang = helperApp.TrimToNull(cbxTenKhach.Text),
+
+                // GhiChu
+                GhiChu = helperApp.TrimToNull(tbGhiChu.Text),
+
+                TinhTrangCuaKH = cbxTinhTrangCuaKH.SelectedIndex == 0 ? (int?)cbxTinhTrangCuaKH.SelectedIndex : null,
+
+                MucDoUuTienKH = cbxMucDoUuTienKH.SelectedIndex == 0 ? null : (int?)cbxMucDoUuTienKH.SelectedIndex ,
+
+                TrangThaiThucHienKH = cbxTrangThaiThucHienKH.SelectedIndex == 0 ? null : (int?)cbxTrangThaiThucHienKH.SelectedIndex,
+            };
+
+            return f;
         }
 
         private void UC_KeHoach_Load(object sender, EventArgs e)
         {
-            SetThongSo(cbxTinhTrangKH, StoreKeyKeHoach.TrangThaiBanHanhKH,false);
-            SetThongSo(cbxTinhTrangDon, StoreKeyKeHoach.TrangThaiDonHang,false);
+            SetThongSo(cbxTinhTrang, StoreKeyKeHoach.TrangThaiBanHanhKH,false);
+            SetThongSo(cbxMucDoUuTien, StoreKeyKeHoach.MucDoUuTien, false);
 
             // Set thông số tìm kiếm
-            SetThongSo(cbxTrangThaiThucHien, StoreKeyKeHoach.TrangThaiThucHienTheoKH);
-            SetThongSo(cbxTinhTrang, StoreKeyKeHoach.TrangThaiBanHanhKH);
-            SetThongSo(cbxTinhTrangDonKH, StoreKeyKeHoach.TrangThaiDonHang);
+            SetThongSo(cbxTrangThaiThucHienKH, StoreKeyKeHoach.TrangThaiThucHienTheoKH);
+            SetThongSo(cbxTinhTrangCuaKH, StoreKeyKeHoach.TrangThaiBanHanhKH);
+            SetThongSo(cbxMucDoUuTienKH, StoreKeyKeHoach.MucDoUuTien);
         }
 
         private void SetThongSo(ComboBox cbx, StoreKeyKeHoach key, bool findData = true)
         {
             var dict0 = EnumStore.Get(key);
 
+            int keyActive = dict0.Keys.Min(); 
 
             var dict = new Dictionary<int, string>();
             if (!findData)
@@ -536,6 +593,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVu
                     if (kv.Key != -1)
                         dict[kv.Key] = kv.Value;
                 }
+                keyActive = dict0.Keys.Max();
             }
             else
             {
@@ -548,6 +606,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVu
             cbx.DataSource = new BindingSource(dict, null);
             cbx.DisplayMember = "Value"; // hiển thị chữ
             cbx.ValueMember = "Key";     // giá trị int
+            cbx.SelectedValue = keyActive;
+
         }
 
     }

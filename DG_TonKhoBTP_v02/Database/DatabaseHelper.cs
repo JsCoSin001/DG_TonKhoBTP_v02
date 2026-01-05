@@ -15,6 +15,7 @@ using System.Data.SqlClient;
 using System.Data.SQLite;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -424,7 +425,7 @@ namespace DG_TonKhoBTP_v02.Database
             cmd.Parameters["@Mau"].Value = keHoach.Mau ?? (object)DBNull.Value;
             cmd.Parameters["@NgayGiao"].Value = keHoach.NgayGiao ?? (object)DBNull.Value;
             cmd.Parameters["@GhiChu"].Value = keHoach.GhiChu ?? (object)DBNull.Value;
-            cmd.Parameters["@TinhTrangKH"].Value = keHoach.TinhTrangKH;
+            cmd.Parameters["@TinhTrangKH"].Value = keHoach.TinhTrang;
             cmd.Parameters["@TinhTrangDon"].Value = keHoach.TinhTrangDon;
             cmd.Parameters["@TrangThaiSX"].Value = keHoach.TrangThaiSX;
         }
@@ -457,7 +458,6 @@ namespace DG_TonKhoBTP_v02.Database
                 FrmWaiting.ShowGifAlert("KHÔNG CÓ DỮ LIỆU NÀO ĐƯỢC THÊM", "THÔNG BÁO");
             }
         }
-
 
 
         public static DbResult InsertKeHoachSX(KeHoachSX dto)
@@ -572,6 +572,183 @@ namespace DG_TonKhoBTP_v02.Database
             }
         }
 
+        public static List<ResultFindKeHoachSX> SearchKeHoachSX(TimKiemKeHoachSX f)
+        {
+            var result = new List<ResultFindKeHoachSX>();
+            var (sql, pars) = BuildSqlSearchKeHoachSX(f);
+
+            using (var conn = new SQLiteConnection(_connStr))
+            {
+                conn.Open();
+                using (var cmd = new SQLiteCommand(sql, conn))
+                {
+                    // add parameters
+                    foreach (var kv in pars)
+                        cmd.Parameters.AddWithValue(kv.Key, kv.Value ?? DBNull.Value);
+
+                    using (var rd = cmd.ExecuteReader())
+                    {
+                        while (rd.Read())
+                        {
+                            ResultFindKeHoachSX item = new ResultFindKeHoachSX();
+
+                            int TinhTrangCuaKH = rd["TinhTrangKH"] != DBNull.Value ? Convert.ToInt32(rd["TinhTrangKH"]) : 0;
+                            int MucDoUuTienKH = rd["TinhTrangDon"] != DBNull.Value ? Convert.ToInt32(rd["TinhTrangDon"]) : 0;
+                            int TrangThaiThucHienKH = rd["TrangThaiSX"] != DBNull.Value ? Convert.ToInt32(rd["TrangThaiSX"]) : 0;
+
+                            item.Ten = rd["Ten"] != DBNull.Value ? rd["Ten"].ToString() : "";
+
+                            item.NgayNhan = rd["NgayNhan"] != DBNull.Value ? rd["NgayNhan"].ToString() : "";
+                            item.Lot = rd["Lot"] != DBNull.Value ? rd["Lot"].ToString() : "";
+
+                            item.SLHangDat = rd["SLHangDat"] != DBNull.Value ? (double?)Convert.ToDouble(rd["SLHangDat"]) : null;
+                            item.SLHangBan = rd["SLHangBan"] != DBNull.Value ? (double?)Convert.ToDouble(rd["SLHangBan"]) : null;
+                            item.SLTong = item.SLHangDat + item.SLHangBan;
+
+                            item.Mau = rd["Mau"] != DBNull.Value ? rd["Mau"].ToString() : "";
+                            item.NgayGiao = rd["NgayGiao"] != DBNull.Value ? rd["NgayGiao"].ToString() : "";
+
+                            item.GhiChu = rd["GhiChu"] != DBNull.Value ? rd["GhiChu"].ToString() : "";
+                            item.TenKhachHang = rd["TenKhachHang"] != DBNull.Value ? rd["TenKhachHang"].ToString() : null;
+
+                            item.KieuKH = EnumStore.TrangThaiBanHanhKH[TinhTrangCuaKH]; 
+
+                            item.DoUuTien = EnumStore.MucDoUuTien[MucDoUuTienKH];
+
+                            item.TrangThaiDon = EnumStore.TrangThaiThucHienTheoKH[TrangThaiThucHienKH];
+
+                            result.Add(item);
+                        }
+                    }
+                }
+            }
+
+            return result;
+        }
+
+
+        private static (string sql, Dictionary<string, object> pars) BuildSqlSearchKeHoachSX(TimKiemKeHoachSX f)
+        {
+            var pars = new Dictionary<string, object>();
+            var where = new List<string>();
+
+            var sb = new StringBuilder();
+            sb.Append(@"
+                SELECT
+                    k.id,
+                    k.DanhSachMaSP_ID,
+                    ds.Ma,
+                    ds.Ten,
+                    k.NgayNhan,
+                    k.Lot,
+                    k.SLHangDat,
+                    k.SLHangBan,
+                    k.Mau,
+                    k.NgayGiao,
+                    k.GhiChu,
+                    k.TenKhachHang,
+                    k.TinhTrangKH,
+                    k.TinhTrangDon,
+                    k.TrangThaiSX
+                FROM KeHoachSX k
+                LEFT JOIN DanhSachMaSP ds ON ds.id = k.DanhSachMaSP_ID
+            ");
+
+            // ===== int filters =====
+            if (f.TrangThaiThucHienKH.HasValue)
+            {
+                where.Add("k.TrangThaiSX = @TrangThaiSX");
+                pars["@TrangThaiSX"] = f.TrangThaiThucHienKH.Value;
+            }
+
+            if (f.TinhTrangCuaKH.HasValue)
+            {
+                where.Add("k.TinhTrangKH = @TinhTrangKH");
+                pars["@TinhTrangKH"] = f.TinhTrangCuaKH.Value;
+            }
+
+            if (f.MucDoUuTienKH.HasValue)
+            {
+                where.Add("k.TinhTrangDon = @TinhTrangDon");
+                pars["@TinhTrangDon"] = f.MucDoUuTienKH.Value;
+            }
+
+            // ===== text filters =====
+            if (!string.IsNullOrWhiteSpace(f.Lot))
+            {
+                where.Add("k.Lot = @Lot");
+                pars["@Lot"] = f.Lot.Trim();
+            }
+
+            if (!string.IsNullOrWhiteSpace(f.TenKhachHang))
+            {
+                where.Add("k.TenKhachHang LIKE @TenKhachHang");
+                pars["@TenKhachHang"] = "%" + f.TenKhachHang.Trim() + "%";
+            }
+
+            if (!string.IsNullOrWhiteSpace(f.Mau))
+            {
+                where.Add("k.Mau LIKE @Mau");
+                pars["@Mau"] = "%" + f.Mau.Trim() + "%";
+            }
+
+            if (!string.IsNullOrWhiteSpace(f.GhiChu))
+            {
+                where.Add("k.GhiChu LIKE @GhiChu");
+                pars["@GhiChu"] = "%" + f.GhiChu.Trim() + "%";
+            }
+
+            // ===== date filters =====
+            // DB lưu TEXT dạng "dd/MM/yyyy" => so sánh chuỗi đã format
+            if (!string.IsNullOrWhiteSpace(f.NgayNhan))
+            {
+                where.Add("k.NgayNhan = @NgayNhan");
+                pars["@NgayNhan"] = f.NgayNhan.Trim();
+            }
+
+            if (!string.IsNullOrWhiteSpace(f.NgayGiao))
+            {
+                where.Add("k.NgayGiao = @NgayGiao");
+                pars["@NgayGiao"] = f.NgayGiao.Trim();
+            }
+
+            // ===== numeric filters =====
+            if (f.SLTong.HasValue)
+            {
+                where.Add("(IFNULL(k.SLHangDat,0) + IFNULL(k.SLHangBan,0)) = @TongMin");
+                pars["@TongMin"] = f.SLTong.Value;
+            }
+
+            if (f.SLHangBan.HasValue)
+            {
+                where.Add("IFNULL(k.SLHangBan,0) = @HangBanMin");
+                pars["@HangBanMin"] = f.SLHangBan.Value;
+            }
+
+            if (f.SLHangDat.HasValue )
+            {
+                where.Add("IFNULL(k.SLHangDat,0) == @HangDatMin");
+                pars["@HangDatMin"] = f.SLHangDat.Value;
+            }
+
+            if (where.Count > 0)
+            {
+                sb.Append("WHERE ");
+                sb.Append(string.Join(" AND ", where));
+                sb.AppendLine();
+            }
+
+            sb.AppendLine("ORDER BY k.TinhTrangDon ASC;");
+            return (sb.ToString(), pars);
+        }
+
+
+        private static string FormatDateForDb(DateTime d)
+        {
+            // Đồng bộ với cách bạn đang hiển thị DateTimePicker (dd/MM/yyyy)
+            return d.ToString("dd/MM/yyyy");
+        }
+
 
         // ========= PRIVATE HELPERS =========
 
@@ -595,7 +772,7 @@ namespace DG_TonKhoBTP_v02.Database
             AddParam(cmd, "@GhiChu", DbType.String, dto.GhiChu);
             AddParam(cmd, "@TenKhachHang", DbType.String, dto.TenKhachHang);
 
-            AddParam(cmd, "@TinhTrangKH", DbType.Int32, dto.TinhTrangKH);
+            AddParam(cmd, "@TinhTrangKH", DbType.Int32, dto.TinhTrang);
             AddParam(cmd, "@TrangThaiSX", DbType.Int32, dto.TrangThaiSX);
             AddParam(cmd, "@TinhTrangDon", DbType.Int32, dto.TinhTrangDon);
         }
@@ -634,20 +811,6 @@ namespace DG_TonKhoBTP_v02.Database
                     }
                 }
             }
-        }
-
-
-        public static List<Item> LoadTen(string kw)
-        {
-            var list = new List<Item>();
-            using var cn = new SQLiteConnection(_connStr);
-            using var cmd = cn.CreateCommand();
-            cn.Open();
-            cmd.CommandText = "SELECT Ten, Ma FROM DanhSachMaSP WHERE Ten LIKE @kw ORDER BY Ten LIMIT 30";
-            cmd.Parameters.AddWithValue("@kw", "%" + kw + "%");
-            using var r = cmd.ExecuteReader();
-            while (r.Read()) list.Add(new Item { Ten = r.GetString(0), Ma = r.GetString(1) });
-            return list;
         }
 
 
@@ -849,7 +1012,7 @@ namespace DG_TonKhoBTP_v02.Database
                     t.NguoiLam AS TenCN,
                     tp.GhiChu AS GhiChu
                 FROM TTThanhPham tp
-                JOIN ThongTinCaLamViec t ON tp.ThongTinCaLamViec_ID = t.id
+                JOIN ThongTinCaLamViec t ON t.TTThanhPham_id = tp.id
                 JOIN DanhSachMaSP d ON tp.DanhSachSP_ID = d.id
                 WHERE tp.MaBin IN ({inClause});
                 ";
@@ -2597,11 +2760,6 @@ namespace DG_TonKhoBTP_v02.Database
             }
         }
 
-
-
-
-
-
         #endregion
 
         #region Sau này sẽ xoá ===================================
@@ -2625,6 +2783,9 @@ namespace DG_TonKhoBTP_v02.Database
                 SoMay = tt.May,
                 GhiChu = tp.GhiChu,
             };
+
+            tonKho = DatabasehelperVer01.HoanThienTonKhoV1(tp.MaTP,tonKho);
+
             DatabasehelperVer01.InsertSanPhamTonKhoDL<TonKho, DL_CD_Ben>(tonKho, dL_CD_Ben, "dL_CD_Ben", nvlList);
         }
 
@@ -2647,6 +2808,9 @@ namespace DG_TonKhoBTP_v02.Database
                 SoMay = tt.May,
                 GhiChu = tp.GhiChu,
             };
+
+            tonKho = DatabasehelperVer01.HoanThienTonKhoV1(tp.MaTP, tonKho);
+
             DatabasehelperVer01.UpdateDL_CDBen(id, tonKho, dL_CD_Ben);
         }
 

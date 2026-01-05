@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public enum StoreKeyKeHoach
 {
-    TrangThaiDonHang,
+    MucDoUuTien,
     TrangThaiBanHanhKH,
     TrangThaiThucHienTheoKH,
     // sau này thêm nữa thì add vào đây
@@ -73,7 +73,7 @@ public static class EnumStore
     }
 
 
-    // Là tình trạng thực hiện kế hoạch của sản xuất:
+    // Là tình trạng thực hiện kế hoạch của sản xuất: cbxTrangThaiThucHienKH : TrangThaiSXKH_Text
     public static Dictionary<int, string> TrangThaiThucHienTheoKH = new Dictionary<int, string>()
     {
         { -1, "-- Không chọn --" },
@@ -83,7 +83,7 @@ public static class EnumStore
         { 3, "Đã huỷ" }
     };
 
-    // Là tình trạng của kế hoạch đưa xuống dưới sản xuất
+    // Là tình trạng của kế hoạch đưa xuống dưới sản xuất: cbxTinhTrangKH: TinhTrangKH_Text
     public static Dictionary<int, string> TrangThaiBanHanhKH = new Dictionary<int, string>()
     {
         { -1, "-- Không chọn --" },
@@ -92,32 +92,32 @@ public static class EnumStore
         { 2, "Huỷ" }
     };
 
-    // Là tình trạng của đơn hàng theo yêu cầu của các bên
-    public static Dictionary<int, string> TrangThaiDonHang = new Dictionary<int, string>()
+    // Là tình trạng của đơn hàng theo yêu cầu của các bên: TinhTrangDonKH_Text
+    public static Dictionary<int, string> MucDoUuTien = new Dictionary<int, string>()
     {
         { -1, "-- Không chọn --" },
         { 0, "Gấp" },
-        { 1,  "Đúng kế hoạch"},
+        { 1, "Đúng kế hoạch"},
         { 2, "Bình thường" }
     };
 
     public static Dictionary<int, string> Get(StoreKeyKeHoach key)
+    {
+        switch (key)
         {
-            switch (key)
-            {
-                case StoreKeyKeHoach.TrangThaiDonHang:
-                    return TrangThaiDonHang;
+            case StoreKeyKeHoach.MucDoUuTien:
+                return MucDoUuTien;
 
-                case StoreKeyKeHoach.TrangThaiBanHanhKH:
-                    return TrangThaiBanHanhKH;
+            case StoreKeyKeHoach.TrangThaiBanHanhKH:
+                return TrangThaiBanHanhKH;
 
-                case StoreKeyKeHoach.TrangThaiThucHienTheoKH:
-                    return TrangThaiThucHienTheoKH;
+            case StoreKeyKeHoach.TrangThaiThucHienTheoKH:
+                return TrangThaiThucHienTheoKH;
 
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(key), key, "StoreKey không hợp lệ");
-            }
+            default:
+                throw new ArgumentOutOfRangeException(nameof(key), key, "StoreKey không hợp lệ");
         }
+    }
 
 
 

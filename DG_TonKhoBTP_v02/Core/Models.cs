@@ -215,9 +215,49 @@ namespace DG_TonKhoBTP_v02.Core
         public string NgayGiao { get; set; }
         public string? TenKhachHang { get; set; }
         public string GhiChu { get; set; }
-        public int TinhTrangKH { get; set; }
+        public int TinhTrang { get; set; }
         public int TinhTrangDon { get; set; }
         public int TrangThaiSX { get; set; }
+
+    }
+
+    public class TimKiemKeHoachSX
+    {
+        public string? Ten { get; set; }
+        public string? NgayNhan { get; set; }
+        public string? Lot { get; set; }
+        public double? SLHangDat { get; set; }
+        public double? SLHangBan { get; set; }
+        public double? SLTong { get; set; }
+        public string? Mau { get; set; }
+        public string? NgayGiao { get; set; }
+        public string? TenKhachHang { get; set; }
+        public string? GhiChu { get; set; }
+        public int? TinhTrangCuaKH { get; set; }
+        public int? MucDoUuTienKH { get; set; }
+        public int? TrangThaiThucHienKH { get; set; }
+
+        public string? TinhTrangCuaKH_Text { get; set; }
+        public string? MucDoUuTienKH_Text { get; set; }
+        public string? TrangThaiThucHienKH_Text { get; set; }
+
+    }
+
+    public class ResultFindKeHoachSX
+    {
+        public string? TrangThaiDon { get; set; }
+        public string? Ten { get; set; }
+        public string? NgayNhan { get; set; }
+        public string? Lot { get; set; }
+        public double? SLHangDat { get; set; }
+        public double? SLHangBan { get; set; }
+        public double? SLTong { get; set; }
+        public string? Mau { get; set; }
+        public string? NgayGiao { get; set; }
+        public string? TenKhachHang { get; set; }
+        public string? GhiChu { get; set; }
+        public string? KieuKH { get; set; }
+        public string? DoUuTien{ get; set; }
 
     }
 

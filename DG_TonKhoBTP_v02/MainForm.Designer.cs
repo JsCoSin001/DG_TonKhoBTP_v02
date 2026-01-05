@@ -234,14 +234,14 @@ namespace DG_TonKhoBTP_v02
             // grbChucNang
             // 
             this.grbChucNang.AutoSize = true;
-            this.grbChucNang.Controls.Add(this.panel11);
             this.grbChucNang.Controls.Add(this.panel13);
-            this.grbChucNang.Controls.Add(this.panel6);
             this.grbChucNang.Controls.Add(this.panel12);
-            this.grbChucNang.Controls.Add(this.panel7);
-            this.grbChucNang.Controls.Add(this.panel8);
-            this.grbChucNang.Controls.Add(this.panel9);
+            this.grbChucNang.Controls.Add(this.panel11);
             this.grbChucNang.Controls.Add(this.panel10);
+            this.grbChucNang.Controls.Add(this.panel9);
+            this.grbChucNang.Controls.Add(this.panel8);
+            this.grbChucNang.Controls.Add(this.panel7);
+            this.grbChucNang.Controls.Add(this.panel6);
             this.grbChucNang.Dock = System.Windows.Forms.DockStyle.Top;
             this.grbChucNang.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.grbChucNang.Location = new System.Drawing.Point(0, 0);

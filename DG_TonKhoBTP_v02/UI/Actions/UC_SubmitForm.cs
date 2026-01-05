@@ -284,6 +284,8 @@ namespace DG_TonKhoBTP_v02.UI
                                     dsBin.Add(nvl.BinNVL);
                                 }
 
+                                if (dsBin.Count == 0) return;
+
                                 var swGetPrinterData = Stopwatch.StartNew();
                                 List<PrinterModel> nvl_printer = DatabaseHelper.GetPrinterDataByListBin(dsBin);
                                 Debug.WriteLine($"GetPrinterDataByListBin: {swGetPrinterData.ElapsedMilliseconds} ms");

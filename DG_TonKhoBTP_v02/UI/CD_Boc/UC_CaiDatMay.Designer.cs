@@ -126,7 +126,7 @@
             // 
             // binhSay
             // 
-            this.binhSay.DecimalPlaces = 1;
+            this.binhSay.DecimalPlaces = 3;
             this.binhSay.Dock = System.Windows.Forms.DockStyle.Fill;
             this.binhSay.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.binhSay.Increment = new decimal(new int[] {
@@ -146,7 +146,7 @@
             // 
             // khuon
             // 
-            this.khuon.DecimalPlaces = 1;
+            this.khuon.DecimalPlaces = 3;
             this.khuon.Dock = System.Windows.Forms.DockStyle.Fill;
             this.khuon.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.khuon.Increment = new decimal(new int[] {
@@ -166,7 +166,7 @@
             // 
             // dau2
             // 
-            this.dau2.DecimalPlaces = 1;
+            this.dau2.DecimalPlaces = 3;
             this.dau2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dau2.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.dau2.Increment = new decimal(new int[] {
@@ -186,7 +186,7 @@
             // 
             // dau1
             // 
-            this.dau1.DecimalPlaces = 1;
+            this.dau1.DecimalPlaces = 3;
             this.dau1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dau1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.dau1.Increment = new decimal(new int[] {
@@ -206,7 +206,7 @@
             // 
             // co
             // 
-            this.co.DecimalPlaces = 1;
+            this.co.DecimalPlaces = 3;
             this.co.Dock = System.Windows.Forms.DockStyle.Fill;
             this.co.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.co.Increment = new decimal(new int[] {
@@ -226,7 +226,7 @@
             // 
             // v6
             // 
-            this.v6.DecimalPlaces = 1;
+            this.v6.DecimalPlaces = 3;
             this.v6.Dock = System.Windows.Forms.DockStyle.Fill;
             this.v6.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.v6.Increment = new decimal(new int[] {
@@ -246,7 +246,7 @@
             // 
             // v5
             // 
-            this.v5.DecimalPlaces = 1;
+            this.v5.DecimalPlaces = 3;
             this.v5.Dock = System.Windows.Forms.DockStyle.Fill;
             this.v5.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.v5.Increment = new decimal(new int[] {
@@ -266,7 +266,7 @@
             // 
             // v4
             // 
-            this.v4.DecimalPlaces = 1;
+            this.v4.DecimalPlaces = 3;
             this.v4.Dock = System.Windows.Forms.DockStyle.Fill;
             this.v4.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.v4.Increment = new decimal(new int[] {
@@ -286,7 +286,7 @@
             // 
             // v3
             // 
-            this.v3.DecimalPlaces = 1;
+            this.v3.DecimalPlaces = 3;
             this.v3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.v3.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.v3.Increment = new decimal(new int[] {
@@ -306,7 +306,7 @@
             // 
             // v2
             // 
-            this.v2.DecimalPlaces = 1;
+            this.v2.DecimalPlaces = 3;
             this.v2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.v2.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.v2.Increment = new decimal(new int[] {
@@ -562,7 +562,7 @@
             // 
             // v1
             // 
-            this.v1.DecimalPlaces = 1;
+            this.v1.DecimalPlaces = 3;
             this.v1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.v1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.v1.Increment = new decimal(new int[] {

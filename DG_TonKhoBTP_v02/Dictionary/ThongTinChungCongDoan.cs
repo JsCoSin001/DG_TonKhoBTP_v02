@@ -11,9 +11,7 @@ namespace DG_TonKhoBTP_v02.Dictionary
     ThongTinChungCongDoan
     {
         // Helper: danh sách máy
-        private static List<string> May(params string[] codes)
-            => new List<string>(codes);
-
+       
         // Helper: nhóm cột chung cho hầu hết công đoạn
         public static List<ColumnDefinition> BaseColumns(params ColumnDefinition[] extras)
         {
@@ -84,7 +82,7 @@ namespace DG_TonKhoBTP_v02.Dictionary
         public static readonly CongDoan KeoRut = new CongDoan(
             0,
             "Kéo rút",
-            May("R6", "R10",  "R12", "MD16A4"),
+            EnumStore.MayTheoCongDoan["KeoRut"],
             BaseColumns(),                     // chỉ dùng cột base
             new List<string> { "BTP.20101%", "BTP.20201%" },
             Select_TP_CoKhoiLuong()
@@ -93,7 +91,7 @@ namespace DG_TonKhoBTP_v02.Dictionary
         public static readonly CongDoan BenRuot = new CongDoan(
             1,
             "bện đồng - nhôm",
-            May("B1", "B2", "B3", "B4", "B5", "B6", "B7", "B8", "B9", "B10", "B13", "B14", "B15", "B16", "B17"),
+            EnumStore.MayTheoCongDoan["Ben_CU_AL"],
             BaseColumns(
                 new ColumnDefinition { Name = "DuongKinhSoiDong", DataType = typeof(double), Header = "ĐK sợi đồng" }
             ),
@@ -104,7 +102,7 @@ namespace DG_TonKhoBTP_v02.Dictionary
         public static readonly CongDoan BocMach = new CongDoan(
             3,
             "Bọc cách điện",
-            May("E2", "E3", "E4", "E5", "E6", "E8", "E9", "E11", "E12", "E13"),
+            EnumStore.MayTheoCongDoan["BocCachDien"],
             BaseColumns(
                 new ColumnDefinition { Name = "DuongKinhSoiDong", DataType = typeof(double), Header = "ĐK sợi đồng" },
                 new ColumnDefinition { Name = "SoSoi", DataType = typeof(double), Header = "Số sợi" }
@@ -116,7 +114,7 @@ namespace DG_TonKhoBTP_v02.Dictionary
         public static readonly CongDoan BocLot = new CongDoan(
             4,
             "Bọc lót",
-            May("E1", "E4", "E7", "E13", "E14", "E15"),
+            EnumStore.MayTheoCongDoan["BocLot"],
             BaseColumns(),                         // giống KeoRut: chỉ base
             new List<string> { "BTP.20105%", "BTP.20205%" },
             Select_TP_CoCaiDatCDBoc()
@@ -125,7 +123,7 @@ namespace DG_TonKhoBTP_v02.Dictionary
         public static readonly CongDoan BocVo = new CongDoan(
             5,
             "Bọc vỏ",
-            May("E1", "E4", "E6", "E8", "E9", "E10", "E13", "E15"),
+            EnumStore.MayTheoCongDoan["BocVo"],
             BaseColumns(
                 new ColumnDefinition { Name = "KetCauLoi", DataType = typeof(double), Header = "Kết cấu lõi" }
             ),
@@ -136,7 +134,7 @@ namespace DG_TonKhoBTP_v02.Dictionary
         public static readonly CongDoan GhepLoi_QB = new CongDoan(
             2,
             "ghép lõi - quấn băng",
-            May("N/A"),
+             EnumStore.MayTheoCongDoan["QB_Mica"],
             BaseColumns(
                 new ColumnDefinition { Name = "DuongKinhSoiDong", DataType = typeof(double), Header = "ĐK sợi đồng" },
                 new ColumnDefinition { Name = "DuongKinhSoiMach", DataType = typeof(double), Header = "ĐK sợi mạch" },
@@ -151,7 +149,7 @@ namespace DG_TonKhoBTP_v02.Dictionary
         {
             Id = 6,
             TenCongDoan = "ghép lõi",
-            DanhSachMay = May("P1", "P2", "P3", "P4", "P5", "P6", "B6", "B10", "B13", "B14", "B15", "B16"),
+            DanhSachMay = EnumStore.MayTheoCongDoan["GhepLoi"],
             ListMa_Accept = new List<string> { "BTP.20104%", "BTP.20204%" }
         };
 
@@ -159,16 +157,14 @@ namespace DG_TonKhoBTP_v02.Dictionary
         {
             Id = 7,
             TenCongDoan = "Quấn băng thép - đồng - nhôm",
-            DanhSachMay = May("T1", "T2","B10", "B13", "B14", "B15", "B16"),
+            DanhSachMay = EnumStore.MayTheoCongDoan["QB_AL_Cu"],
             ListMa_Accept = new List<string> { "BTP.20106%", "BTP.20206%" }
         };
 
         public static readonly CongDoan Mica = new CongDoan(GhepLoi_QB)
         {
             Id = 8,
-            DanhSachMay = May("T3", "T4", "T5", "T6"),
             TenCongDoan = "quấn băng mica",
-            // nếu cần ListMa_Accept riêng thì set thêm ở đây
         };
 
         public static readonly List<CongDoan> TatCaCongDoan = new List<CongDoan>

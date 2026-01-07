@@ -22,7 +22,15 @@ namespace DG_TonKhoBTP_v02.UI
 
         public string tenCongDoan { get; set; }
         public CongDoan congDoan;
+
+
         public void SetTenCongDoan(string value) => tenCongDoan = value;
+
+        public event Action<decimal> KhoiLuongChanged;
+        public decimal KhoiLuongValue => khoiLuong.Value;
+
+        public event Action<string> SoLOTChanged;
+        public string SoLOTValue => soLOT.Text;
 
         public UC_TTThanhPham(CongDoan cd)
         {
@@ -31,30 +39,37 @@ namespace DG_TonKhoBTP_v02.UI
             congDoan = cd;
         }
 
+        public void FocusKhoiLuong()
+        {
+            khoiLuong.Focus();
+            khoiLuong.Select(0, khoiLuong.Text.Length); // chọn hết để gõ lại nhanh
+        }
+
+
         public void ChonMay(string value)
         {
             may.Text = value;
-            maBin.Text = Helper.Helper.LOTGenerated(may, maHanhTrinh, sttCongDoan, sttLo, soBin);
+            soLOT.Text = Helper.Helper.LOTGenerated(may, maHanhTrinh, sttCongDoan, sttLo, soBin);
         }
 
         private void maHanhTrinh_ValueChanged(object sender, EventArgs e)
         {
-            maBin.Text = Helper.Helper.LOTGenerated(may, maHanhTrinh, sttCongDoan, sttLo, soBin);
+            soLOT.Text = Helper.Helper.LOTGenerated(may, maHanhTrinh, sttCongDoan, sttLo, soBin);
         }
 
         private void sttCongDoan_SelectedIndexChanged(object sender, EventArgs e)
         {
-            maBin.Text = Helper.Helper.LOTGenerated(may, maHanhTrinh, sttCongDoan, sttLo, soBin);
+            soLOT.Text = Helper.Helper.LOTGenerated(may, maHanhTrinh, sttCongDoan, sttLo, soBin);
         }
 
         private void sttLo_ValueChanged(object sender, EventArgs e)
         {
-            maBin.Text = Helper.Helper.LOTGenerated(may, maHanhTrinh, sttCongDoan, sttLo, soBin);
+            soLOT.Text = Helper.Helper.LOTGenerated(may, maHanhTrinh, sttCongDoan, sttLo, soBin);
         }
 
         private void soBin_ValueChanged(object sender, EventArgs e)
         {
-            maBin.Text = Helper.Helper.LOTGenerated(may, maHanhTrinh, sttCongDoan, sttLo, soBin);
+            soLOT.Text = Helper.Helper.LOTGenerated(may, maHanhTrinh, sttCongDoan, sttLo, soBin);
         }
 
         #region Lấy và load dữ liệu vào form
@@ -70,7 +85,7 @@ namespace DG_TonKhoBTP_v02.UI
                 MaTP = ma.Text,
                 DonVi = donVi.Text,
                 CongDoan = congDoan,
-                MaBin = maBin?.Text ?? string.Empty,
+                MaBin = soLOT?.Text ?? string.Empty,
                 KhoiLuongTruoc = (double)khoiLuong.Value, // Tạo mới đặt KL trước = kl sau
                 KhoiLuongSau = (double)khoiLuong.Value,
                 ChieuDaiTruoc = (double)chieuDai.Value, // Tạo mới đặt CD trước = CD sau
@@ -90,7 +105,7 @@ namespace DG_TonKhoBTP_v02.UI
             sttCongDoan.SelectedIndex = -1;
             sttLo.Value = sttLo.Minimum;
             soBin.Value = soBin.Minimum;
-            maBin.Text = string.Empty;
+            soLOT.Text = string.Empty;
             khoiLuong.Value = khoiLuong.Minimum;
             chieuDai.Value = chieuDai.Minimum;
             phe.Value = phe.Minimum;
@@ -216,8 +231,18 @@ namespace DG_TonKhoBTP_v02.UI
                 soBin.Value = Convert.ToDecimal(mabin[4]);
             }
 
-            maBin.Text = bin;
+            soLOT.Text = bin;
 
+        }
+
+        private void khoiLuong_ValueChanged(object sender, EventArgs e)
+        {
+            KhoiLuongChanged?.Invoke(khoiLuong.Value);
+        }
+
+        private void soLOT_TextChanged(object sender, EventArgs e)
+        {
+            SoLOTChanged?.Invoke(soLOT.Text);
         }
     }
 }

@@ -60,16 +60,16 @@
             this.tableLayoutPanel1.RowCount = 2;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 35F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(805, 65);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(798, 65);
             this.tableLayoutPanel1.TabIndex = 0;
             // 
             // label2
             // 
             this.label2.AutoSize = true;
             this.label2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label2.Location = new System.Drawing.Point(117, 0);
+            this.label2.Location = new System.Drawing.Point(116, 0);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(108, 30);
+            this.label2.Size = new System.Drawing.Size(107, 30);
             this.label2.TabIndex = 1;
             this.label2.Text = "Dày vỏ TB";
             this.label2.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
@@ -80,7 +80,7 @@
             this.label1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.label1.Location = new System.Drawing.Point(3, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(108, 30);
+            this.label1.Size = new System.Drawing.Size(107, 30);
             this.label1.TabIndex = 0;
             this.label1.Text = "In ấn";
             this.label1.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
@@ -94,26 +94,26 @@
             "Xấu"});
             this.inAn.Location = new System.Drawing.Point(3, 33);
             this.inAn.Name = "inAn";
-            this.inAn.Size = new System.Drawing.Size(108, 26);
+            this.inAn.Size = new System.Drawing.Size(107, 26);
             this.inAn.TabIndex = 17;
             // 
             // dayVoTB
             // 
-            this.dayVoTB.DecimalPlaces = 1;
+            this.dayVoTB.DecimalPlaces = 3;
             this.dayVoTB.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dayVoTB.Increment = new decimal(new int[] {
             1,
             0,
             0,
             65536});
-            this.dayVoTB.Location = new System.Drawing.Point(117, 33);
+            this.dayVoTB.Location = new System.Drawing.Point(116, 33);
             this.dayVoTB.Maximum = new decimal(new int[] {
             1569325055,
             23283064,
             0,
             0});
             this.dayVoTB.Name = "dayVoTB";
-            this.dayVoTB.Size = new System.Drawing.Size(108, 24);
+            this.dayVoTB.Size = new System.Drawing.Size(107, 24);
             this.dayVoTB.TabIndex = 16;
             // 
             // UC_CDBocVo
@@ -124,7 +124,7 @@
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.Controls.Add(this.tableLayoutPanel1);
             this.Name = "UC_CDBocVo";
-            this.Size = new System.Drawing.Size(805, 65);
+            this.Size = new System.Drawing.Size(798, 65);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dayVoTB)).EndInit();

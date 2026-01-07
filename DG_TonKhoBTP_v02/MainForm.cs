@@ -36,10 +36,11 @@ namespace DG_TonKhoBTP_v02
             lblAuthor.Text = $"Được phát triển bởi Linh - Version: {_ver} - All rights reserved.";
             DatabasehelperVer01.SetDatabasePath(_URL);
             ShowHomePage();
+
         }
 
         #region Hàm log cấu trúc control
-        private void button1_Click(object sender, EventArgs e)
+        private void HienThiCauTruc()
         {
             // Log cấu trúc control sau khi ShowUI
             LogControlsTree(pnShow, s => Console.WriteLine(s));
@@ -90,6 +91,7 @@ namespace DG_TonKhoBTP_v02
 
         private void btnKeoRut_Click(object sender, EventArgs e)
         {
+
             if (Helper.Helper.KiemTraEmpty(_URL))
                 return;
 
@@ -111,6 +113,29 @@ namespace DG_TonKhoBTP_v02
                     Panel pnBottom = UI_BottomPanel(columns, ucSanPham, thongTinCD, rawMaterial: true);
 
                     ShowUI(thongTinCD, pnBottom);
+
+
+                    var ucNVL = FindChild<UC_TTNVL>(pnShow);
+                    var ucTP = FindChild<UC_TTThanhPham>(pnShow);
+
+                    // UC_TTNVL đọc giá trị khoiLuong khi cần
+                    ucNVL.GetKhoiLuong = () => ucTP.KhoiLuongValue;
+
+                    // UC_TTNVL đọc soLOT khi cần
+                    ucNVL.GetSoLOT = () => ucTP.SoLOTValue;
+
+
+                    // UC_TTNVL có thể focus sang khoiLuong khi khoiLuong = 0
+                    ucNVL.FocusKhoiLuong = () => ucTP.FocusKhoiLuong();
+
+                    // khoiLuong thay đổi -> UC_TTNVL xóa hết rows grid (giữ header)
+                    ucTP.KhoiLuongChanged -= ucNVL.OnKhoiLuongChanged;
+                    ucTP.KhoiLuongChanged += (v) => ucNVL.OnKhoiLuongChanged(v);
+
+                    // soLOT thay đổi -> UC_TTNVL xử lý
+                    ucTP.SoLOTChanged -= ucNVL.OnSoLOTChanged;
+                    ucTP.SoLOTChanged += ucNVL.OnSoLOTChanged;
+
                 }
                 catch (Exception ex)
                 {
@@ -123,8 +148,12 @@ namespace DG_TonKhoBTP_v02
                     waiting?.CloseAndDispose();
                     btnKeoRut.Enabled = true;
                 }
-            }
+            }  
+            
+            HienThiCauTruc();
         }
+
+        //LogControlsTree(pnShow, s => Console.WriteLine(s));
 
         private void btnBenRuot_Click(object sender, EventArgs e)
         {
@@ -166,8 +195,8 @@ namespace DG_TonKhoBTP_v02
 
         private void btnGhepLoi_Click(object sender, EventArgs e)
         {
-            FrmWaiting.ShowGifAlert($"Công đoạn này chưa sẵn sàn. \nThử lại sau...");
-            return;
+            //FrmWaiting.ShowGifAlert($"Công đoạn này chưa sẵn sàn. \nThử lại sau...");
+            //return;
 
             if (Helper.Helper.KiemTraEmpty(_URL))
                 return;
@@ -207,8 +236,8 @@ namespace DG_TonKhoBTP_v02
 
         private void btnQuanBang_Click(object sender, EventArgs e)
         {
-            FrmWaiting.ShowGifAlert($"Công đoạn này chưa sẵn sàn. \nThử lại sau...");
-            return;
+            //FrmWaiting.ShowGifAlert($"Công đoạn này chưa sẵn sàn. \nThử lại sau...");
+            //return;
 
             if (Helper.Helper.KiemTraEmpty(_URL))
                 return;
@@ -249,8 +278,8 @@ namespace DG_TonKhoBTP_v02
         private void btnMica_Click(object sender, EventArgs e)
         {
 
-            FrmWaiting.ShowGifAlert($"Công đoạn này chưa sẵn sàn. \nThử lại sau...");
-            return;
+            //FrmWaiting.ShowGifAlert($"Công đoạn này chưa sẵn sàn. \nThử lại sau...");
+            //return;
 
             if (Helper.Helper.KiemTraEmpty(_URL))
                 return;
@@ -290,8 +319,8 @@ namespace DG_TonKhoBTP_v02
 
         private void btnBocLot_Click(object sender, EventArgs e)
         {
-            FrmWaiting.ShowGifAlert($"Công đoạn này chưa sẵn sàn. \nThử lại sau...");
-            return;
+            //FrmWaiting.ShowGifAlert($"Công đoạn này chưa sẵn sàn. \nThử lại sau...");
+            //return;
 
             if (Helper.Helper.KiemTraEmpty(_URL))
                 return;
@@ -335,8 +364,8 @@ namespace DG_TonKhoBTP_v02
 
         private void btnBocMach_Click(object sender, EventArgs e)
         {
-            FrmWaiting.ShowGifAlert($"Công đoạn này chưa sẵn sàn. \nThử lại sau...");
-            return;
+           //FrmWaiting.ShowGifAlert($"Công đoạn này chưa sẵn sàn. \nThử lại sau...");
+            //return;
 
             if (Helper.Helper.KiemTraEmpty(_URL))
                 return;
@@ -380,8 +409,8 @@ namespace DG_TonKhoBTP_v02
 
         private void btnBocVo_Click(object sender, EventArgs e)
         {
-            FrmWaiting.ShowGifAlert($"Công đoạn này chưa sẵn sàn. \nThử lại sau...");
-            return;
+           //FrmWaiting.ShowGifAlert($"Công đoạn này chưa sẵn sàn. \nThử lại sau...");
+            //return;
 
             if (Helper.Helper.KiemTraEmpty(_URL))
                 return;
@@ -980,8 +1009,8 @@ namespace DG_TonKhoBTP_v02
 
         private void kếHoạchToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            FrmWaiting.ShowGifAlert($"Công đoạn này chưa sẵn sàn. \nThử lại sau...");
-            return;
+           //FrmWaiting.ShowGifAlert($"Công đoạn này chưa sẵn sàn. \nThử lại sau...");
+           // return;
 
             using (var fmKeHoach = new KeHoach())
             {
@@ -1002,8 +1031,6 @@ namespace DG_TonKhoBTP_v02
 
         private void btnKeHoach_Click(object sender, EventArgs e)
         {
-            FrmWaiting.ShowGifAlert($"Công đoạn này chưa sẵn sàn. \nThử lại sau...");
-            return;
 
             using (var waiting = new FrmWaiting("ĐANG KHỞI TẠO GIAO DIỆN..."))
             {

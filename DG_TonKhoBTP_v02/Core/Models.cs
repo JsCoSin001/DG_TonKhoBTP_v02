@@ -216,7 +216,7 @@ namespace DG_TonKhoBTP_v02.Core
         public string? TenKhachHang { get; set; }
         public string GhiChu { get; set; }
         public int TinhTrang { get; set; }
-        public int TinhTrangDon { get; set; }
+        public int MucDoUuTienKH { get; set; }
         public int TrangThaiSX { get; set; }
 
     }
@@ -245,9 +245,8 @@ namespace DG_TonKhoBTP_v02.Core
 
     public class ResultFindKeHoachSX
     {
-        public string? TrangThaiDon { get; set; }
-        public string? Ten { get; set; }
         public string? NgayNhan { get; set; }
+        public string? Ten { get; set; }
         public string? Lot { get; set; }
         public double? SLHangDat { get; set; }
         public double? SLHangBan { get; set; }
@@ -258,6 +257,7 @@ namespace DG_TonKhoBTP_v02.Core
         public string? GhiChu { get; set; }
         public string? KieuKH { get; set; }
         public string? DoUuTien{ get; set; }
+        public string? TrangThaiDon { get; set; }
 
     }
 

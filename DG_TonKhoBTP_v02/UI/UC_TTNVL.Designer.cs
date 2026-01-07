@@ -70,6 +70,7 @@
             this.dtgTTNVL.Size = new System.Drawing.Size(756, 363);
             this.dtgTTNVL.TabIndex = 1;
             this.dtgTTNVL.Visible = false;
+            this.dtgTTNVL.CellEndEdit += new System.Windows.Forms.DataGridViewCellEventHandler(this.dtgTTNVL_CellEndEdit);
             // 
             // panel1
             // 
@@ -118,6 +119,8 @@
             this.cbxTimKiem.Size = new System.Drawing.Size(675, 28);
             this.cbxTimKiem.TabIndex = 1;
             this.cbxTimKiem.TextUpdate += new System.EventHandler(this.tbxTimKiem_TextUpdate);
+            this.cbxTimKiem.Enter += new System.EventHandler(this.cbxTimKiem_Enter);
+            this.cbxTimKiem.KeyDown += new System.Windows.Forms.KeyEventHandler(this.cbxTimKiem_KeyDown);
             // 
             // label1
             // 

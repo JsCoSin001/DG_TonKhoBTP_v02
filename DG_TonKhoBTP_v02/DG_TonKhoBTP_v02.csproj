@@ -275,17 +275,23 @@
     <Compile Include="UI\Authentication\FmDangKy.Designer.cs">
       <DependentUpon>FmDangKy.cs</DependentUpon>
     </Compile>
-    <Compile Include="UI\NghiepVu\KeHoach.cs">
+    <Compile Include="UI\NghiepVu\KeHoach\KeHoach.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="UI\NghiepVu\KeHoach.Designer.cs">
+    <Compile Include="UI\NghiepVu\KeHoach\KeHoach.Designer.cs">
       <DependentUpon>KeHoach.cs</DependentUpon>
     </Compile>
-    <Compile Include="UI\NghiepVu\UC_KeHoach.cs">
+    <Compile Include="UI\NghiepVu\KeHoach\UC_KeHoach.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="UI\NghiepVu\UC_KeHoach.Designer.cs">
+    <Compile Include="UI\NghiepVu\KeHoach\UC_KeHoach.Designer.cs">
       <DependentUpon>UC_KeHoach.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\NghiepVu\SanXuat\BanHanh_KHSX.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\NghiepVu\SanXuat\BanHanh_KHSX.Designer.cs">
+      <DependentUpon>BanHanh_KHSX.cs</DependentUpon>
     </Compile>
     <Compile Include="UI\Setting\Setting.cs">
       <SubType>Form</SubType>
@@ -393,11 +399,14 @@
     <EmbeddedResource Include="UI\Authentication\FmDangKy.resx">
       <DependentUpon>FmDangKy.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="UI\NghiepVu\KeHoach.resx">
+    <EmbeddedResource Include="UI\NghiepVu\KeHoach\KeHoach.resx">
       <DependentUpon>KeHoach.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="UI\NghiepVu\UC_KeHoach.resx">
+    <EmbeddedResource Include="UI\NghiepVu\KeHoach\UC_KeHoach.resx">
       <DependentUpon>UC_KeHoach.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\NghiepVu\SanXuat\BanHanh_KHSX.resx">
+      <DependentUpon>BanHanh_KHSX.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UI\Setting\Setting.resx">
       <DependentUpon>Setting.cs</DependentUpon>

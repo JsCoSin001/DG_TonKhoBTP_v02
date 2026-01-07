@@ -55,7 +55,7 @@
             this.label8 = new System.Windows.Forms.Label();
             this.soBin = new System.Windows.Forms.NumericUpDown();
             this.may = new System.Windows.Forms.ComboBox();
-            this.maBin = new System.Windows.Forms.TextBox();
+            this.soLOT = new System.Windows.Forms.TextBox();
             this.label15 = new System.Windows.Forms.Label();
             this.panel3 = new System.Windows.Forms.Panel();
             this.tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
@@ -194,6 +194,7 @@
             this.khoiLuong.Name = "khoiLuong";
             this.khoiLuong.Size = new System.Drawing.Size(84, 26);
             this.khoiLuong.TabIndex = 7;
+            this.khoiLuong.ValueChanged += new System.EventHandler(this.khoiLuong_ValueChanged);
             // 
             // phe
             // 
@@ -262,7 +263,7 @@
             this.tableLayoutPanel1.Controls.Add(this.label8, 7, 1);
             this.tableLayoutPanel1.Controls.Add(this.soBin, 8, 1);
             this.tableLayoutPanel1.Controls.Add(this.may, 0, 1);
-            this.tableLayoutPanel1.Controls.Add(this.maBin, 10, 1);
+            this.tableLayoutPanel1.Controls.Add(this.soLOT, 10, 1);
             this.tableLayoutPanel1.Controls.Add(this.label15, 10, 0);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Left;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
@@ -453,14 +454,15 @@
             this.may.Size = new System.Drawing.Size(94, 28);
             this.may.TabIndex = 2;
             // 
-            // maBin
+            // soLOT
             // 
-            this.maBin.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.maBin.Enabled = false;
-            this.maBin.Location = new System.Drawing.Point(543, 23);
-            this.maBin.Name = "maBin";
-            this.maBin.Size = new System.Drawing.Size(267, 26);
-            this.maBin.TabIndex = 37;
+            this.soLOT.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.soLOT.Enabled = false;
+            this.soLOT.Location = new System.Drawing.Point(543, 23);
+            this.soLOT.Name = "soLOT";
+            this.soLOT.Size = new System.Drawing.Size(267, 26);
+            this.soLOT.TabIndex = 37;
+            this.soLOT.TextChanged += new System.EventHandler(this.soLOT_TextChanged);
             // 
             // label15
             // 
@@ -668,7 +670,7 @@
         private System.Windows.Forms.TextBox ten;
         private System.Windows.Forms.TextBox ma;
         private System.Windows.Forms.TextBox id;
-        private System.Windows.Forms.TextBox maBin;
+        private System.Windows.Forms.TextBox soLOT;
         private System.Windows.Forms.Timer timer1;
         private System.Windows.Forms.Label label20;
         private System.Windows.Forms.TextBox donVi;

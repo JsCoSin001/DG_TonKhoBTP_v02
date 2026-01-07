@@ -36,7 +36,13 @@ namespace DG_TonKhoBTP_v02.Helper
             return false;
         }
 
+        // Hàm cho phép điền khối lượng còn lại hay không: Trả về true là yêu cầu phải điền
+        public static bool CanFillKLConLai(string tenMay)
+        {
+            return EnumStore.dsTenMayBoQuaKiemTraKhoiLuongConLai
+                    .Contains(tenMay, StringComparer.OrdinalIgnoreCase);
 
+        }
 
         public static List<CongDoan> GetDanhSachCongDoan()
         {

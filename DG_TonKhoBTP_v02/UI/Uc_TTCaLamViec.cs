@@ -17,6 +17,7 @@ namespace DG_TonKhoBTP_v02.UI
     {
         private string _URL;
 
+        public string MayText => cbMay?.Text?.Trim() ?? "";
         public event Action<string> Event_ChonMay;
         public UC_TTCaLamViec()
         {
@@ -47,7 +48,7 @@ namespace DG_TonKhoBTP_v02.UI
 
         private void cbMay_SelectedIndexChanged(object sender, EventArgs e)
         {
-            Event_ChonMay?.Invoke(cbMay.SelectedItem?.ToString());
+            Event_ChonMay?.Invoke(MayText);
         }
 
         #region Lấy và load dữ liệu vào form

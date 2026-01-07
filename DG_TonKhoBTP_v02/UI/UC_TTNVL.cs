@@ -6,6 +6,7 @@ using DG_TonKhoBTP_v02.Models;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Threading;
@@ -20,6 +21,17 @@ namespace DG_TonKhoBTP_v02.UI
         private CancellationTokenSource _searchCts;
 
         List<ColumnDefinition> _columns;
+
+        public Func<decimal> GetKhoiLuong { get; set; }
+
+        public Func<string> GetSoLOT { get; set; }
+
+        private bool _warnedThisFocus = false;
+
+        public Action FocusKhoiLuong { get; set; }
+
+        private bool _autoFilling = false;
+
 
         bool isShow = false;
         int tongCotCanHide = 10;
@@ -95,6 +107,11 @@ namespace DG_TonKhoBTP_v02.UI
                     dtgTTNVL.Rows.RemoveAt(e.RowIndex);
                 }
             }
+        }
+
+        public void OnSoLOTChanged(string soLot)
+        {
+            ClearGridKeepHeader();
         }
 
         private void SetColumnHeaders(DataGridView dgv, List<ColumnDefinition> columns)
@@ -208,7 +225,8 @@ namespace DG_TonKhoBTP_v02.UI
             //ResetController_TimTenSP();
             string tenNL = cbxTimKiem.Text;
 
-            if (string.IsNullOrEmpty(tenNL)) return;
+
+            if (string.IsNullOrWhiteSpace(tenNL) || !CheckKhoiLuongBeforeTyping() || !CheckSoLotBeforeTyping()) return;
 
             // --- thêm debounce + cancel ---
             _searchCts?.Cancel();
@@ -337,11 +355,34 @@ namespace DG_TonKhoBTP_v02.UI
 
                 if (maSP == "NVL") return; 
 
+                // vị trí bắt đầu tô màu
                 int baseCol = tongCotCanHide + start;
 
 
-                // Tô cột theo DonVi
+                // số cột chứa đơn vị là m
+                //int targetCol =  baseCol + 1;
                 int targetCol = newRow["DonVi"].ToString() == "M" ? baseCol : baseCol + 1;
+
+                // Số cột chứa đơn vị là kg
+                //if (newRow["DonVi"].ToString() == "M")
+                //{
+                //    targetCol = baseCol;
+
+                //    if (table.Rows.Count == 1)
+                //    {
+                //        CalcAndSet_KlBatDauMinusKhoiLuong(table, addedIndex, targetCol);
+                //    }
+                //    else
+                //    {
+                //        int prevRowIndex = addedIndex - 1;
+                //        if (prevRowIndex >= 0)
+                //        {
+                //            SetValue_TargetCell_ByIndex(table, prevRowIndex, targetCol, null);
+                //        }
+                //    }
+
+                //}
+
                 dtgTTNVL.Rows[addedIndex].Cells[targetCol].Style.BackColor = Color.Yellow;
 
                 // Tô các cột còn lại
@@ -354,6 +395,33 @@ namespace DG_TonKhoBTP_v02.UI
 
                 dtgTTNVL.FirstDisplayedScrollingRowIndex = addedIndex;
             }
+        }
+
+
+        private void SetValue_TargetCell_ByIndex(DataTable table, int rowIndex, int gridColIndex, decimal? value)
+        {
+            string dataCol = dtgTTNVL.Columns[gridColIndex].DataPropertyName;
+            if (string.IsNullOrWhiteSpace(dataCol))
+                dataCol = dtgTTNVL.Columns[gridColIndex].Name;
+
+            table.Rows[rowIndex][dataCol] = value.HasValue ? (object)value.Value : DBNull.Value;
+        }
+
+        private void CalcAndSet_KlBatDauMinusKhoiLuong(DataTable table, int addedIndex, int targetCol)
+        {
+            // Lấy KlBatDau từ dòng vừa add
+            decimal klBatDau = 0m;
+            object objKl = table.Rows[addedIndex]["KlBatDau"];
+            if (objKl != null && objKl != DBNull.Value)
+                klBatDau = Convert.ToDecimal(objKl);
+
+            // Lấy khoiLuong hiện tại từ UC_TTThanhPham (qua delegate đã nối)
+            decimal khoiLuong = GetKhoiLuong?.Invoke() ?? 0m;
+
+            decimal result = klBatDau - khoiLuong;
+            if (result >= 0) SetValue_TargetCell_ByIndex(table, addedIndex, targetCol, result);
+
+
         }
 
         private void setVisibleTableNVL(bool showTable)
@@ -465,8 +533,183 @@ namespace DG_TonKhoBTP_v02.UI
                 //cbxTimKiem.Text = string.Empty;
             }
         }
-        
+
         #endregion
+
+        private void cbxTimKiem_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (!CheckKhoiLuongBeforeTyping())
+            {
+                e.SuppressKeyPress = true;
+                e.Handled = true;
+                return;
+            }
+        }
+
+        public void OnKhoiLuongChanged(decimal newValue)
+        {
+            ClearGridKeepHeader();
+        }
+
+        private void ClearGridKeepHeader()
+        {
+            // Nếu đang bind datasource -> xóa data nguồn để giữ cột/header (đặc biệt khi auto-generate)
+            if (dtgTTNVL.DataSource is DataTable dt)
+            {
+                dt.Rows.Clear();
+                return;
+            }
+
+            if (dtgTTNVL.DataSource is BindingSource bs && bs.DataSource is DataTable dt2)
+            {
+                dt2.Rows.Clear();
+                return;
+            }
+
+            // Unbound grid
+            dtgTTNVL.Rows.Clear(); // KHÔNG đụng Columns => không mất header
+        }
+
+        private bool CheckKhoiLuongBeforeTyping()
+        {
+            var v = ReadKhoiLuong();
+            if (v != 0m) return true;
+
+            if (!_warnedThisFocus)
+            {
+                _warnedThisFocus = true;
+
+                FrmWaiting.ShowGifAlert("Nhập khối lượng TP trước khi nhập nguyên liệu.");
+            }
+
+            BeginInvoke(new Action(() =>
+            {
+                cbxTimKiem.Text = "";
+                FocusKhoiLuong?.Invoke();   // <<< focus sang khoiLuong
+            }));
+
+            return false;
+        }
+
+        private bool CheckSoLotBeforeTyping()
+        {
+            if (ReadSoLot() != "") return true;
+            FrmWaiting.ShowGifAlert("LOT SX cần được hoàn thiện trước khi nhập nguyên liệu.");
+            return false;
+        }
+
+
+        private decimal ReadKhoiLuong()
+        => GetKhoiLuong?.Invoke() ?? 0m;
+
+        private string ReadSoLot()
+        => GetSoLOT?.Invoke() ?? "";
+
+        private void cbxTimKiem_Enter(object sender, EventArgs e)
+        {
+            _warnedThisFocus = false;
+        }
+
+
+        private void dtgTTNVL_CellEndEdit(object sender, DataGridViewCellEventArgs e)
+        {
+            return; 
+            if (_autoFilling) return;
+
+            // chỉ xử lý khi edit cột KlConLai
+            var col = dtgTTNVL.Columns[e.ColumnIndex];
+            if (col.Name != "KlConLai" && col.DataPropertyName != "KlConLai")
+                return;
+
+            var table = GetBoundTable();
+            if (table == null) return;
+
+            // 1) tính tổng KlBatDau
+            decimal totalKlBatDau = table.AsEnumerable()
+                .Where(r => r.RowState != DataRowState.Deleted)
+                .Sum(r => ToDec(r["KlBatDau"]));
+
+            // 2) tính tổng KlConLai đã nhập
+            decimal sumKlConLai = table.AsEnumerable()
+                .Where(r => r.RowState != DataRowState.Deleted)
+                .Where(r => !IsNullOrEmptyCell(r["KlConLai"]))
+                .Sum(r => ToDec(r["KlConLai"]));
+
+            // 3) đếm dòng còn trống KlConLai
+            int emptyIndex = -1, emptyCount = 0;
+            for (int i = 0; i < table.Rows.Count; i++)
+            {
+                var r = table.Rows[i];
+                if (r.RowState == DataRowState.Deleted) continue;
+
+                if (IsNullOrEmptyCell(r["KlConLai"]))
+                {
+                    emptyCount++;
+                    emptyIndex = i;
+                }
+            }
+
+            decimal khoiLuong = ReadKhoiLuong();
+
+            // 4) nếu còn đúng 1 dòng trống -> auto fill
+            if (emptyCount == 1 && emptyIndex >= 0)
+            {
+                decimal klConLaiAuto = totalKlBatDau - sumKlConLai - khoiLuong;
+
+                _autoFilling = true;
+                table.Rows[emptyIndex]["KlConLai"] = klConLaiAuto;
+                _autoFilling = false;
+
+                // cập nhật lại tổng KlConLai sau khi auto fill
+                sumKlConLai += klConLaiAuto;
+                emptyCount = 0;
+            }
+
+            // 5) nếu đã điền đủ (không còn dòng trống) -> kiểm tra cân bằng
+            if (emptyCount == 0)
+            {
+                decimal diff = totalKlBatDau - (sumKlConLai + khoiLuong);
+
+                // cho phép sai số rất nhỏ (tránh lỗi do làm tròn)
+                if (Math.Abs(diff) > 0.0001m)
+                {
+                    FrmWaiting.ShowGifAlert("Khối lượng còn lại không hợp lệ. Hãy kiểm tra và nhập lại");
+
+                    ResetAllKlConLai(table);
+                }
+            }
+        }
+
+        private void ResetAllKlConLai(DataTable table)
+        {
+            _autoFilling = true;
+            foreach (DataRow r in table.Rows)
+            {
+                if (r.RowState == DataRowState.Deleted) continue;
+                r["KlConLai"] = DBNull.Value; // reset về null
+            }
+            _autoFilling = false;
+        }
+
+        private static bool IsNullOrEmptyCell(object o)
+        {
+            if (o == null || o == DBNull.Value) return true;
+            if (o is string s) return string.IsNullOrWhiteSpace(s);
+            return false;
+        }
+
+        private static decimal ToDec(object o)
+        {
+            if (o == null || o == DBNull.Value) return 0m;
+            return Convert.ToDecimal(o);
+        }
+
+        private DataTable GetBoundTable()
+        {
+            if (dtgTTNVL.DataSource is BindingSource bs) return bs.DataSource as DataTable;
+            return dtgTTNVL.DataSource as DataTable;
+        }
+
     }
 
 

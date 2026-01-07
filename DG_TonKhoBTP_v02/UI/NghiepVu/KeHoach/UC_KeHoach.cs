@@ -1,5 +1,6 @@
 ﻿using DG_TonKhoBTP_v02.Core;
 using DG_TonKhoBTP_v02.Database;
+using DG_TonKhoBTP_v02.Helper;
 using DG_TonKhoBTP_v02.Models;
 using DocumentFormat.OpenXml.Spreadsheet;
 using DocumentFormat.OpenXml.Wordprocessing;
@@ -65,6 +66,27 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVu
                     TimKH(tbLot.Text.Trim());
             };
 
+           ClearForm();
+           KieuKH.SelectedIndex = 0;
+        }
+
+
+        private void UC_KeHoach_Load(object sender, EventArgs e)
+        {
+           ResetForm();
+        }
+
+        private void ResetForm()
+        {
+            SetThongSo(cbxTinhTrang, StoreKeyKeHoach.TrangThaiBanHanhKH, false);
+            SetThongSo(cbxMucDoUuTien, StoreKeyKeHoach.MucDoUuTien, false);
+
+            // Set thông số tìm kiếm
+            SetThongSo(cbxTrangThaiThucHienKH, StoreKeyKeHoach.TrangThaiThucHienTheoKH);
+            SetThongSo(cbxTinhTrangCuaKH, StoreKeyKeHoach.TrangThaiBanHanhKH);
+            SetThongSo(cbxMucDoUuTienKH, StoreKeyKeHoach.MucDoUuTien);
+
+
             ClearForm();
         }
 
@@ -114,14 +136,14 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVu
                 DanhSachMaSP_ID = (int)tbIDMaSP.Value,
                 NgayNhan = dtime.Value.ToString("yyyy-MM-dd"),
                 Lot = tbLot.Text.Trim(),
-                SLHangDat = tbHangDat.Value > 0 ? (double?)tbHangDat.Value : null,
-                SLHangBan = tbHangBan.Value > 0 ? (double?)tbHangBan.Value : null,
+                SLHangDat = tbHangDat.Value > 0 ? (double?)tbHangDat.Value : 0,
+                SLHangBan = tbHangBan.Value > 0 ? (double?)tbHangBan.Value : 0,
                 Mau = rtbMauSac.Text.Trim(),
                 NgayGiao = dtNgayGiao.Value.ToString("yyyy-MM-dd"),
                 TenKhachHang = tbTenKhachHang.Text.Trim(),
                 GhiChu = rtbGhiChu.Text.Trim(),
                 TinhTrang = cbxTinhTrang.SelectedIndex >= 0 ? cbxTinhTrang.SelectedIndex : 0,
-                TinhTrangDon = cbxMucDoUuTien.SelectedIndex >= 0 ? cbxMucDoUuTien.SelectedIndex : 0,
+                MucDoUuTienKH = cbxMucDoUuTien.SelectedIndex >= 0 ? cbxMucDoUuTien.SelectedIndex : 0,
                 TrangThaiSX = 0,
             };
 
@@ -137,7 +159,10 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVu
 
             FrmWaiting.ShowGifAlert(mess + status, "THÔNG BÁO", icon);
 
-            if (result.Ok) ClearForm();
+            if (result.Ok) {
+                ResetForm();
+                KieuKH.SelectedIndex = 0; 
+            }
         }
 
         private void ClearForm()
@@ -153,7 +178,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVu
                     tbIDMaSP.Value = 0;
 
                     tbLot.DataSource = null;
-                    tbLot.Text = "";
+                    tbLot.Text = DatabaseHelper.GenerateLotCode();
 
                     tbTong.Value = 0;
                     tbHangBan.Value = 0;
@@ -163,12 +188,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVu
                     rtbGhiChu.Clear();
                     tbTenKhachHang.Clear();
 
-                    cbxMucDoUuTien.SelectedIndex = 0;
-                    KieuKH.SelectedIndex = 0;
-
                     dtime.Value = DateTime.Now;
                     dtNgayGiao.Value = DateTime.Now;
-                    cbxTinhTrang.SelectedIndex = 0;
 
                 });
             });
@@ -283,7 +304,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVu
                         d.Ten AS SP_Ten,
                         d.Ma  AS SP_Ma,
                         k.NgayNhan, k.Lot, k.SLHangDat, k.SLHangBan, k.Mau, k.NgayGiao, k.GhiChu,
-                        k.TenKhachHang, k.TinhTrangKH, k.TinhTrangDon
+                        k.TenKhachHang, k.TinhTrangKH, k.MucDoUuTienKH
                 FROM KeHoachSX k
                 LEFT JOIN DanhSachMaSP d ON d.id = k.DanhSachMaSP_ID
                 WHERE k.Lot LIKE @kw
@@ -358,60 +379,6 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVu
                 bindAction();
         }
 
-        //private void TimKH(string kw)
-        //{
-
-        //    if (KieuKH.SelectedIndex == 0) return;
-
-        //    kw = (kw ?? "").Trim();
-        //    if (kw.Length == 0) { SafeUI(() => tbLot.DroppedDown = false); return; }
-
-        //    int caret = tbLot.SelectionStart;
-
-        //    const string sql = @"
-        //        SELECT  k.DanhSachMaSP_ID,
-        //                d.id  AS SP_ID,
-        //                d.Ten AS SP_Ten,
-        //                d.Ma  AS SP_Ma,
-        //                k.NgayNhan, k.Lot, k.SLHangDat, k.SLHangBan, k.Mau, k.NgayGiao, k.GhiChu,
-        //                k.TenKhachHang, k.TinhTrangKH, k.TinhTrangDon
-        //        FROM KeHoachSX k
-        //        LEFT JOIN DanhSachMaSP d ON d.id = k.DanhSachMaSP_ID
-        //        WHERE k.Lot LIKE @kw
-        //        ORDER BY k.Lot
-        //        LIMIT 30;";
-
-        //    var dt = DatabaseHelper.GetData(sql, "%" + kw + "%", "kw");
-
-        //    if (dt.Rows.Count == 0)
-        //    {
-        //        SafeUI(() =>
-        //        {
-        //            tbLot.DroppedDown = false;
-        //            tbLot.DataSource = null;
-        //            tbLot.Text = kw;
-        //            tbLot.SelectionStart = Math.Min(caret, tbLot.Text.Length);
-        //        });
-        //        return;
-        //    }
-
-        //    SafeUI(() =>
-        //    {
-        //        tbLot.BeginUpdate();
-
-        //        tbLot.DataSource = dt;
-        //        tbLot.DisplayMember = "Lot";
-        //        tbLot.ValueMember = "Lot";
-        //        tbLot.SelectedIndex = -1;
-
-        //        tbLot.Text = kw;
-        //        tbLot.SelectionStart = Math.Min(caret, tbLot.Text.Length);
-
-        //        tbLot.EndUpdate();
-        //        tbLot.DroppedDown = true;
-        //    });
-        //}
-
         private void tbLot_SelectionChangeCommitted(object sender, EventArgs e)
         {
             DataRowView r = tbLot.SelectedItem as DataRowView;
@@ -455,10 +422,10 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVu
 
                 // Tình trạng
                 int tinhTrangKH = ToIntOrZero(r["TinhTrangKH"]);
-                int tinhTrangDon = ToIntOrZero(r["TinhTrangDon"]);
+                int MucDoUuTienKH = ToIntOrZero(r["MucDoUuTienKH"]);
 
                 cbxTinhTrang.SelectedIndex = ClampIndex(tinhTrangKH, cbxTinhTrang.Items.Count);
-                cbxMucDoUuTien.SelectedIndex = ClampIndex(tinhTrangDon, cbxMucDoUuTien.Items.Count);
+                cbxMucDoUuTien.SelectedIndex = ClampIndex(MucDoUuTienKH, cbxMucDoUuTien.Items.Count);
 
                 // Số lượng (đảm bảo tbHangDat = tbTong - tbHangBan đúng theo dữ liệu)
                 SafeCalc(() =>
@@ -517,12 +484,27 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVu
         {
 
             TimKiemKeHoachSX k = LayDL_TimKiemKH();
-            List<ResultFindKeHoachSX>  lsData = DatabaseHelper.SearchKeHoachSX(k);
+            //List<ResultFindKeHoachSX>  lsData = DatabaseHelper.SearchKeHoachSX(k);
+
+            DataTable lsData = DatabaseHelper.SearchKeHoachSX_DataTable(k);
+
+
+            // check lsdata null or empty
+            if (lsData.Rows.Count == 0)
+            {
+                FrmWaiting.ShowGifAlert($"Không tìm thấy kết quả phù hợp.", "KẾT QUẢ TÌM KIẾM", EnumStore.Icon.Warning);
+                return;
+            }
+
+            if (cbxXuatExcel.Checked)
+            {
+                ExcelExporter.Export(lsData, "BangThongHopKH");
+                return;
+            }
 
             dtgKetQuaTimKiemKH.AutoGenerateColumns = true;
             dtgKetQuaTimKiemKH.DataSource = null;
             dtgKetQuaTimKiemKH.DataSource = lsData;
-
         }
 
 
@@ -558,7 +540,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVu
                 // GhiChu
                 GhiChu = helperApp.TrimToNull(tbGhiChu.Text),
 
-                TinhTrangCuaKH = cbxTinhTrangCuaKH.SelectedIndex == 0 ? (int?)cbxTinhTrangCuaKH.SelectedIndex : null,
+                TinhTrangCuaKH = cbxTinhTrangCuaKH.SelectedIndex == 0 ? null: (int?)cbxTinhTrangCuaKH.SelectedIndex,
 
                 MucDoUuTienKH = cbxMucDoUuTienKH.SelectedIndex == 0 ? null : (int?)cbxMucDoUuTienKH.SelectedIndex ,
 
@@ -568,16 +550,6 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVu
             return f;
         }
 
-        private void UC_KeHoach_Load(object sender, EventArgs e)
-        {
-            SetThongSo(cbxTinhTrang, StoreKeyKeHoach.TrangThaiBanHanhKH,false);
-            SetThongSo(cbxMucDoUuTien, StoreKeyKeHoach.MucDoUuTien, false);
-
-            // Set thông số tìm kiếm
-            SetThongSo(cbxTrangThaiThucHienKH, StoreKeyKeHoach.TrangThaiThucHienTheoKH);
-            SetThongSo(cbxTinhTrangCuaKH, StoreKeyKeHoach.TrangThaiBanHanhKH);
-            SetThongSo(cbxMucDoUuTienKH, StoreKeyKeHoach.MucDoUuTien);
-        }
 
         private void SetThongSo(ComboBox cbx, StoreKeyKeHoach key, bool findData = true)
         {
@@ -610,5 +582,11 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVu
 
         }
 
+        private void KieuKH_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+            ResetForm();
+
+        }
     }
 }

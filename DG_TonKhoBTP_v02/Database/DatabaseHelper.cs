@@ -82,6 +82,44 @@ namespace DG_TonKhoBTP_v02.Database
         }
 
 
+        public static string GenerateLotCode()
+        {
+            // Lấy 2 số cuối của năm hiện tại
+            string yearSuffix = DateTime.Now.ToString("yy");
+
+            // Lấy năm hiện tại để filter
+            int currentYear = DateTime.Now.Year;
+
+            using (var connection = new SQLiteConnection(_connStr))
+            {
+                connection.Open();
+
+                // Đếm số lượng lot đã được tạo trong năm hiện tại
+                string query = @"
+                    SELECT COUNT(*) 
+                    FROM KeHoachSX 
+                    WHERE strftime('%Y', InsertedAt) = @currentYear";
+
+                using (var command = new SQLiteCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@currentYear", currentYear.ToString());
+
+                    long count = (long)command.ExecuteScalar();
+
+                    // Số thứ tự mới = count + 1
+                    int sequenceNumber = (int)count + 1;
+
+                    // Format thành chuỗi 4 chữ số (padding với số 0)
+                    string sequenceSuffix = sequenceNumber.ToString("D4");
+
+                    // Kết hợp thành mã Lot
+                    string lotCode = yearSuffix + sequenceSuffix;
+
+                    return lotCode;
+                }
+            }
+        }
+
         #region Kế hoạch sản xuất
 
         public static int TaoKeHoachMoi(DataGridView dgv)
@@ -426,7 +464,7 @@ namespace DG_TonKhoBTP_v02.Database
             cmd.Parameters["@NgayGiao"].Value = keHoach.NgayGiao ?? (object)DBNull.Value;
             cmd.Parameters["@GhiChu"].Value = keHoach.GhiChu ?? (object)DBNull.Value;
             cmd.Parameters["@TinhTrangKH"].Value = keHoach.TinhTrang;
-            cmd.Parameters["@TinhTrangDon"].Value = keHoach.TinhTrangDon;
+            cmd.Parameters["@MucDoUuTienKH"].Value = keHoach.MucDoUuTienKH;
             cmd.Parameters["@TrangThaiSX"].Value = keHoach.TrangThaiSX;
         }
 
@@ -475,12 +513,12 @@ namespace DG_TonKhoBTP_v02.Database
                     INSERT INTO KeHoachSX
                     (
                         DanhSachMaSP_ID, NgayNhan, Lot, SLHangDat, SLHangBan, Mau,
-                        NgayGiao, GhiChu, TenKhachHang, TinhTrangKH, TrangThaiSX, TinhTrangDon
+                        NgayGiao, GhiChu, TenKhachHang, TinhTrangKH, TrangThaiSX, MucDoUuTienKH
                     )
                     VALUES
                     (
                         @DanhSachMaSP_ID, @NgayNhan, @Lot, @SLHangDat, @SLHangBan, @Mau,
-                        @NgayGiao, @GhiChu, @TenKhachHang, @TinhTrangKH, @TrangThaiSX, @TinhTrangDon
+                        @NgayGiao, @GhiChu, @TenKhachHang, @TinhTrangKH, @TrangThaiSX, @MucDoUuTienKH
                     );
                     SELECT last_insert_rowid();
                     ";
@@ -534,7 +572,7 @@ namespace DG_TonKhoBTP_v02.Database
                     TenKhachHang    = @TenKhachHang,
                     TinhTrangKH     = @TinhTrangKH,
                     TrangThaiSX     = @TrangThaiSX,
-                    TinhTrangDon    = @TinhTrangDon
+                    MucDoUuTienKH    = @MucDoUuTienKH
                 WHERE Lot = @Lot;
                 ";
 
@@ -572,17 +610,84 @@ namespace DG_TonKhoBTP_v02.Database
             }
         }
 
-        public static List<ResultFindKeHoachSX> SearchKeHoachSX(TimKiemKeHoachSX f)
+        //public static List<ResultFindKeHoachSX> SearchKeHoachSX(TimKiemKeHoachSX f)
+        //{
+        //    var result = new List<ResultFindKeHoachSX>();
+        //    var (sql, pars) = BuildSqlSearchKeHoachSX(f);
+
+        //    using (var conn = new SQLiteConnection(_connStr))
+        //    {
+        //        conn.Open();
+        //        using (var cmd = new SQLiteCommand(sql, conn))
+        //        {
+        //            // add parameters
+        //            foreach (var kv in pars)
+        //                cmd.Parameters.AddWithValue(kv.Key, kv.Value ?? DBNull.Value);
+
+        //            using (var rd = cmd.ExecuteReader())
+        //            {
+        //                while (rd.Read())
+        //                {
+        //                    ResultFindKeHoachSX item = new ResultFindKeHoachSX();
+
+        //                    int TinhTrangCuaKH = rd["TinhTrangKH"] != DBNull.Value ? Convert.ToInt32(rd["TinhTrangKH"]) : 0;
+        //                    int MucDoUuTienKH = rd["MucDoUuTienKH"] != DBNull.Value ? Convert.ToInt32(rd["MucDoUuTienKH"]) : 0;
+        //                    int TrangThaiThucHienKH = rd["TrangThaiSX"] != DBNull.Value ? Convert.ToInt32(rd["TrangThaiSX"]) : 0;
+
+        //                    item.Ten = rd["Ten"] != DBNull.Value ? rd["Ten"].ToString() : "";
+
+        //                    item.NgayNhan = rd["NgayNhan"] != DBNull.Value ? rd["NgayNhan"].ToString() : "";
+        //                    item.Lot = rd["Lot"] != DBNull.Value ? rd["Lot"].ToString() : "";
+
+        //                    item.SLHangDat = rd["SLHangDat"] != DBNull.Value ? (double?)Convert.ToDouble(rd["SLHangDat"]) : null;
+        //                    item.SLHangBan = rd["SLHangBan"] != DBNull.Value ? (double?)Convert.ToDouble(rd["SLHangBan"]) : null;
+        //                    item.SLTong = item.SLHangDat + item.SLHangBan;
+
+        //                    item.Mau = rd["Mau"] != DBNull.Value ? rd["Mau"].ToString() : "";
+        //                    item.NgayGiao = rd["NgayGiao"] != DBNull.Value ? rd["NgayGiao"].ToString() : "";
+
+        //                    item.GhiChu = rd["GhiChu"] != DBNull.Value ? rd["GhiChu"].ToString() : "";
+        //                    item.TenKhachHang = rd["TenKhachHang"] != DBNull.Value ? rd["TenKhachHang"].ToString() : null;
+
+        //                    item.KieuKH = EnumStore.TrangThaiBanHanhKH[TinhTrangCuaKH]; 
+
+        //                    item.DoUuTien = EnumStore.MucDoUuTien[MucDoUuTienKH];
+
+        //                    item.TrangThaiDon = EnumStore.TrangThaiThucHienTheoKH[TrangThaiThucHienKH];
+
+        //                    result.Add(item);
+        //                }
+        //            }
+        //        }
+        //    }
+
+        //    return result;
+        //}
+
+        public static DataTable SearchKeHoachSX_DataTable(TimKiemKeHoachSX f)
         {
-            var result = new List<ResultFindKeHoachSX>();
             var (sql, pars) = BuildSqlSearchKeHoachSX(f);
+
+            var dt = new DataTable();
+            dt.Columns.Add("Ten", typeof(string));
+            dt.Columns.Add("NgayNhan", typeof(string));
+            dt.Columns.Add("Lot", typeof(string));
+            dt.Columns.Add("SLHangDat", typeof(double));
+            dt.Columns.Add("SLHangBan", typeof(double));
+            dt.Columns.Add("SLTong", typeof(double));
+            dt.Columns.Add("Mau", typeof(string));
+            dt.Columns.Add("NgayGiao", typeof(string));
+            dt.Columns.Add("GhiChu", typeof(string));
+            dt.Columns.Add("TenKhachHang", typeof(string));
+            dt.Columns.Add("KieuKH", typeof(string));
+            dt.Columns.Add("DoUuTien", typeof(string));
+            dt.Columns.Add("TrangThaiDon", typeof(string));
 
             using (var conn = new SQLiteConnection(_connStr))
             {
                 conn.Open();
                 using (var cmd = new SQLiteCommand(sql, conn))
                 {
-                    // add parameters
                     foreach (var kv in pars)
                         cmd.Parameters.AddWithValue(kv.Key, kv.Value ?? DBNull.Value);
 
@@ -590,40 +695,43 @@ namespace DG_TonKhoBTP_v02.Database
                     {
                         while (rd.Read())
                         {
-                            ResultFindKeHoachSX item = new ResultFindKeHoachSX();
+                            int tinhTrangKH = rd["TinhTrangKH"] != DBNull.Value ? Convert.ToInt32(rd["TinhTrangKH"]) : 0;
+                            int mucDoUuTienKH = rd["MucDoUuTienKH"] != DBNull.Value ? Convert.ToInt32(rd["MucDoUuTienKH"]) : 0;
+                            int trangThaiSX = rd["TrangThaiSX"] != DBNull.Value ? Convert.ToInt32(rd["TrangThaiSX"]) : 0;
 
-                            int TinhTrangCuaKH = rd["TinhTrangKH"] != DBNull.Value ? Convert.ToInt32(rd["TinhTrangKH"]) : 0;
-                            int MucDoUuTienKH = rd["TinhTrangDon"] != DBNull.Value ? Convert.ToInt32(rd["TinhTrangDon"]) : 0;
-                            int TrangThaiThucHienKH = rd["TrangThaiSX"] != DBNull.Value ? Convert.ToInt32(rd["TrangThaiSX"]) : 0;
+                            string ten = rd["Ten"] != DBNull.Value ? rd["Ten"].ToString() : "";
+                            string ngayNhan = rd["NgayNhan"] != DBNull.Value ? rd["NgayNhan"].ToString() : "";
+                            string lot = rd["Lot"] != DBNull.Value ? rd["Lot"].ToString() : "";
 
-                            item.Ten = rd["Ten"] != DBNull.Value ? rd["Ten"].ToString() : "";
+                            double? slDat = rd["SLHangDat"] != DBNull.Value ? (double?)Convert.ToDouble(rd["SLHangDat"]) : null;
+                            double? slBan = rd["SLHangBan"] != DBNull.Value ? (double?)Convert.ToDouble(rd["SLHangBan"]) : null;
+                            double? slTong = (slDat ?? 0) + (slBan ?? 0);
 
-                            item.NgayNhan = rd["NgayNhan"] != DBNull.Value ? rd["NgayNhan"].ToString() : "";
-                            item.Lot = rd["Lot"] != DBNull.Value ? rd["Lot"].ToString() : "";
+                            string mau = rd["Mau"] != DBNull.Value ? rd["Mau"].ToString() : "";
+                            string ngayGiao = rd["NgayGiao"] != DBNull.Value ? rd["NgayGiao"].ToString() : "";
 
-                            item.SLHangDat = rd["SLHangDat"] != DBNull.Value ? (double?)Convert.ToDouble(rd["SLHangDat"]) : null;
-                            item.SLHangBan = rd["SLHangBan"] != DBNull.Value ? (double?)Convert.ToDouble(rd["SLHangBan"]) : null;
-                            item.SLTong = item.SLHangDat + item.SLHangBan;
+                            string ghiChu = rd["GhiChu"] != DBNull.Value ? rd["GhiChu"].ToString() : "";
+                            string tenKH = rd["TenKhachHang"] != DBNull.Value ? rd["TenKhachHang"].ToString() : null;
 
-                            item.Mau = rd["Mau"] != DBNull.Value ? rd["Mau"].ToString() : "";
-                            item.NgayGiao = rd["NgayGiao"] != DBNull.Value ? rd["NgayGiao"].ToString() : "";
+                            string kieuKH = EnumStore.TrangThaiBanHanhKH.TryGetValue(tinhTrangKH, out var v1) ? v1 : "";
 
-                            item.GhiChu = rd["GhiChu"] != DBNull.Value ? rd["GhiChu"].ToString() : "";
-                            item.TenKhachHang = rd["TenKhachHang"] != DBNull.Value ? rd["TenKhachHang"].ToString() : null;
+                            string doUuTien = EnumStore.MucDoUuTien.TryGetValue(mucDoUuTienKH, out var v2) ? v2 : "";
 
-                            item.KieuKH = EnumStore.TrangThaiBanHanhKH[TinhTrangCuaKH]; 
+                            string trangThaiDon = EnumStore.TrangThaiThucHienTheoKH.TryGetValue(trangThaiSX, out var v3) ? v3 : "";
 
-                            item.DoUuTien = EnumStore.MucDoUuTien[MucDoUuTienKH];
 
-                            item.TrangThaiDon = EnumStore.TrangThaiThucHienTheoKH[TrangThaiThucHienKH];
-
-                            result.Add(item);
+                            dt.Rows.Add(ten, ngayNhan, lot,
+                                        slDat.HasValue ? (object)slDat.Value : DBNull.Value,
+                                        slBan.HasValue ? (object)slBan.Value : DBNull.Value,
+                                        (object)slTong,
+                                        mau, ngayGiao, ghiChu, (object)tenKH ?? DBNull.Value,
+                                        kieuKH, doUuTien, trangThaiDon);
                         }
                     }
                 }
             }
 
-            return result;
+            return dt;
         }
 
 
@@ -648,7 +756,7 @@ namespace DG_TonKhoBTP_v02.Database
                     k.GhiChu,
                     k.TenKhachHang,
                     k.TinhTrangKH,
-                    k.TinhTrangDon,
+                    k.MucDoUuTienKH,
                     k.TrangThaiSX
                 FROM KeHoachSX k
                 LEFT JOIN DanhSachMaSP ds ON ds.id = k.DanhSachMaSP_ID
@@ -669,8 +777,8 @@ namespace DG_TonKhoBTP_v02.Database
 
             if (f.MucDoUuTienKH.HasValue)
             {
-                where.Add("k.TinhTrangDon = @TinhTrangDon");
-                pars["@TinhTrangDon"] = f.MucDoUuTienKH.Value;
+                where.Add("k.MucDoUuTienKH = @MucDoUuTienKH");
+                pars["@MucDoUuTienKH"] = f.MucDoUuTienKH.Value;
             }
 
             // ===== text filters =====
@@ -738,7 +846,7 @@ namespace DG_TonKhoBTP_v02.Database
                 sb.AppendLine();
             }
 
-            sb.AppendLine("ORDER BY k.TinhTrangDon ASC;");
+            sb.AppendLine("ORDER BY k.MucDoUuTienKH ASC;");
             return (sb.ToString(), pars);
         }
 
@@ -774,7 +882,7 @@ namespace DG_TonKhoBTP_v02.Database
 
             AddParam(cmd, "@TinhTrangKH", DbType.Int32, dto.TinhTrang);
             AddParam(cmd, "@TrangThaiSX", DbType.Int32, dto.TrangThaiSX);
-            AddParam(cmd, "@TinhTrangDon", DbType.Int32, dto.TinhTrangDon);
+            AddParam(cmd, "@MucDoUuTienKH", DbType.Int32, dto.MucDoUuTienKH);
         }
 
         private static void AddParam(SQLiteCommand cmd, string name, DbType type, object? value)

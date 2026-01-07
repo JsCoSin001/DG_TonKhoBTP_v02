@@ -142,7 +142,7 @@
             // 
             // dkTrucY
             // 
-            this.dkTrucY.DecimalPlaces = 1;
+            this.dkTrucY.DecimalPlaces = 3;
             this.dkTrucY.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dkTrucY.Increment = new decimal(new int[] {
             1,
@@ -227,7 +227,7 @@
             // 
             // dkTrucX
             // 
-            this.dkTrucX.DecimalPlaces = 1;
+            this.dkTrucX.DecimalPlaces = 3;
             this.dkTrucX.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dkTrucX.Increment = new decimal(new int[] {
             1,

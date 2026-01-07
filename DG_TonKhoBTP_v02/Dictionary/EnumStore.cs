@@ -1,4 +1,5 @@
 ﻿
+using DG_TonKhoBTP_v02.Dictionary;
 using System;
 using System.Collections.Generic;
 
@@ -12,6 +13,10 @@ public enum StoreKeyKeHoach
 
 public static class EnumStore
 {
+
+    private static List<string> May(params string[] codes)
+           => new List<string>(codes);
+
     public static Dictionary<int, string> ErrorNVL = new Dictionary<int, string>()
     {
         { 0, "" },
@@ -23,11 +28,26 @@ public static class EnumStore
         { 6, "Chiều dài còn lại phải nhỏ hơn chiều dài bắt đầu" }
     };
 
+
+
     public static Dictionary<int, string> ErrorCaLamViec = new Dictionary<int, string>()
     {
         { 1, "Máy chưa được chọn" },
         { 2, "Người thực hiện đang bị trống" }
     };
+
+    public static readonly Dictionary<string, List<string>> MayTheoCongDoan =
+        new Dictionary<string, List<string>>
+        {
+            { "KeoRut", May("R6", "R10", "R12", "MD16A4") },
+            { "Ben_CU_AL", May("B1", "B2", "B3", "B4", "B5", "B6", "B7", "B8", "B9", "B10", "B13", "B14", "B15", "B16", "B17") },
+            { "BocCachDien", May("E2", "E3", "E4", "E5", "E6", "E8", "E9", "E11", "E12", "E13") },
+            { "BocLot", May("E1", "E4", "E7", "E13", "E14", "E15") },
+            { "BocVo", May("E1", "E4", "E6", "E8", "E9", "E10", "E13", "E15") },
+            { "GhepLoi", May("P1", "P2", "P3", "P4", "P5", "P6", "B6", "B10", "B13", "B14", "B15", "B16") },
+            { "QB_AL_Cu", May("T1", "T2","B10", "B13", "B14", "B15", "B16") },
+            { "QB_Mica", May("T3", "T4", "T5", "T6") },
+        };
 
     public static Dictionary<int, string> ErrorTP = new Dictionary<int, string>()
     {
@@ -36,6 +56,9 @@ public static class EnumStore
         { 3, "Thiếu khối lượng Thành phẩm" },
         { 4, "Thiếu chiều dài Thành phẩm" },
     };
+
+    // Danh sách này chứa tên các máy không cần kiểm tra khối lượng còn lại
+    public static string[] dsTenMayBoQuaKiemTraKhoiLuongConLai = { "MD16A4", "B9", "B10" };
 
     public static class Icon
     {
@@ -87,9 +110,9 @@ public static class EnumStore
     public static Dictionary<int, string> TrangThaiBanHanhKH = new Dictionary<int, string>()
     {
         { -1, "-- Không chọn --" },
-        { 0, "Tạm thời" },
+        { 0, "Huỷ" },
         { 1, "Đã ban hành" },
-        { 2, "Huỷ" }
+        { 2, "Tạm thời" }
     };
 
     // Là tình trạng của đơn hàng theo yêu cầu của các bên: TinhTrangDonKH_Text
@@ -100,6 +123,8 @@ public static class EnumStore
         { 1, "Đúng kế hoạch"},
         { 2, "Bình thường" }
     };
+
+
 
     public static Dictionary<int, string> Get(StoreKeyKeHoach key)
     {

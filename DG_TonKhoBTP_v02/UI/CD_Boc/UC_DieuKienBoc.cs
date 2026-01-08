@@ -4,10 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using CoreHelper = DG_TonKhoBTP_v02.Helper.Helper;
 using System.Windows.Forms;
 
 namespace DG_TonKhoBTP_v02.UI
@@ -46,18 +43,18 @@ namespace DG_TonKhoBTP_v02.UI
             if (dt == null || dt.Rows.Count == 0) return;
             var row = dt.Rows[0];
 
-            Helper.Helper.SetIfPresent(row, "DKKhuon1", val => dkKhuon1.Value = Convert.ToDecimal(val));
-            Helper.Helper.SetIfPresent(row, "DKKhuon2", val => dkKhuon2.Value = Convert.ToDecimal(val));
-            Helper.Helper.SetIfPresent(row, "TTNhua", val => ttNhua.Text = Convert.ToString(val));
-            Helper.Helper.SetIfPresent(row, "NhuaPhe", val => nhuaPhe.Value = Convert.ToDecimal(val));
-            Helper.Helper.SetIfPresent(row, "GhiChuNhuaPhe", val => ghiChuNhuaPhe.Text = Convert.ToString(val));
-            Helper.Helper.SetIfPresent(row, "DayPhe", val => dayPhe.Value = Convert.ToDecimal(val));
-            Helper.Helper.SetIfPresent(row, "GhiChuDayPhe", val => ghiChuDayPhe.Text = Convert.ToString(val));
-            Helper.Helper.SetIfPresent(row, "KTDKLan1", val => KtDkLan1.Value = Convert.ToDecimal(val));
-            Helper.Helper.SetIfPresent(row, "KTDKLan2", val => KtDkLan2.Value = Convert.ToDecimal(val));
-            Helper.Helper.SetIfPresent(row, "KTDKLan3", val => KtDkLan3.Value = Convert.ToDecimal(val));
-            Helper.Helper.SetIfPresent(row, "DiemMongLan1", val => DiemMongLan1.Value = Convert.ToDecimal(val));
-            Helper.Helper.SetIfPresent(row, "DiemMongLan2", val => DiemMongLan2.Value = Convert.ToDecimal(val));
+            CoreHelper.SetIfPresent(row, "DKKhuon1", val => dkKhuon1.Value = Convert.ToDecimal(val));
+            CoreHelper.SetIfPresent(row, "DKKhuon2", val => dkKhuon2.Value = Convert.ToDecimal(val));
+            CoreHelper.SetIfPresent(row, "TTNhua", val => ttNhua.Text = Convert.ToString(val));
+            CoreHelper.SetIfPresent(row, "NhuaPhe", val => nhuaPhe.Value = Convert.ToDecimal(val));
+            CoreHelper.SetIfPresent(row, "GhiChuNhuaPhe", val => ghiChuNhuaPhe.Text = Convert.ToString(val));
+            CoreHelper.SetIfPresent(row, "DayPhe", val => dayPhe.Value = Convert.ToDecimal(val));
+            CoreHelper.SetIfPresent(row, "GhiChuDayPhe", val => ghiChuDayPhe.Text = Convert.ToString(val));
+            CoreHelper.SetIfPresent(row, "KTDKLan1", val => KtDkLan1.Value = Convert.ToDecimal(val));
+            CoreHelper.SetIfPresent(row, "KTDKLan2", val => KtDkLan2.Value = Convert.ToDecimal(val));
+            CoreHelper.SetIfPresent(row, "KTDKLan3", val => KtDkLan3.Value = Convert.ToDecimal(val));
+            CoreHelper.SetIfPresent(row, "DiemMongLan1", val => DiemMongLan1.Value = Convert.ToDecimal(val));
+            CoreHelper.SetIfPresent(row, "DiemMongLan2", val => DiemMongLan2.Value = Convert.ToDecimal(val));
         }
         #endregion
     }

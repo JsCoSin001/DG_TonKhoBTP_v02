@@ -353,11 +353,6 @@
             this.maHanhTrinh.Name = "maHanhTrinh";
             this.maHanhTrinh.Size = new System.Drawing.Size(94, 27);
             this.maHanhTrinh.TabIndex = 3;
-            this.maHanhTrinh.Value = new decimal(new int[] {
-            25,
-            0,
-            0,
-            0});
             this.maHanhTrinh.ValueChanged += new System.EventHandler(this.maHanhTrinh_ValueChanged);
             // 
             // label6

@@ -8,10 +8,11 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
-using System.Security.Policy;
+using CoreHelper = DG_TonKhoBTP_v02.Helper.Helper;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using DG_TonKhoBTP_v02.UI.Helper;
 
 namespace DG_TonKhoBTP_v02.UI.Actions
 {
@@ -25,7 +26,7 @@ namespace DG_TonKhoBTP_v02.UI.Actions
 
         private void LoadCongDoanComboBox()
         {
-            cbxDSCongDoan.DataSource = Helper.Helper.GetDanhSachCongDoan();
+            cbxDSCongDoan.DataSource = CoreHelper.GetDanhSachCongDoan();
             cbxDSCongDoan.DisplayMember = "TenCongDoan";  // tên hiển thị
             cbxDSCongDoan.ValueMember = "Id";             // giá trị
 
@@ -95,7 +96,7 @@ namespace DG_TonKhoBTP_v02.UI.Actions
         {
             string k = EnumStore.Group["KiemTraBaoCaoSX"];            
 
-            if (!Helper.Helper.CheckLoginAndPermission(k)) return;
+            if (!CoreHelper.CheckLoginAndPermission(k)) return;
 
             string nguoiKT = tbNguoiKiemTra.Text.Trim();
 

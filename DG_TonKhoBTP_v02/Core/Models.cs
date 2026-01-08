@@ -37,6 +37,8 @@ namespace DG_TonKhoBTP_v02.Core
         public double? BanRongBang { get; set; } = -1;
         public double? DoDayBang { get; set; } = -1;
         public string? DonVi { get; set; } = "";
+        // Lưu thay cho TTThanhPham.QC
+        public string? QC { get; set; }
     }
 
     public class Submit {
@@ -103,6 +105,8 @@ namespace DG_TonKhoBTP_v02.Core
         public double Phe { get; set; }               // NOT NULL DEFAULT 0
         public CongDoan CongDoan { get; set; }               // NOT NULL DEFAULT 0
         public string GhiChu { get; set; } = "";            // NULL
+        public string QC { get; set; } = "";    // NULL
+        public int Active { get; set; } = 1;
         public string? DateInsert { get; set; }     // NULL
     }
 

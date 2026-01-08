@@ -1,14 +1,9 @@
 ﻿using DG_TonKhoBTP_v02.Database;
 using DG_TonKhoBTP_v02.Models;
+using DG_TonKhoBTP_v02.UI.Helper;
 using DocumentFormat.OpenXml.Wordprocessing;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Security.Policy;
-using System.Text;
+using CoreHelper = DG_TonKhoBTP_v02.Helper.Helper;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -71,11 +66,11 @@ namespace DG_TonKhoBTP_v02.UI.Setting
             string k = EnumStore.Group["Admin"];
             string per = "CAN_SET_DB";
 
-            if (!Helper.Helper.CheckLoginAndPermission(k, per)) return;
+            if (!CoreHelper.CheckLoginAndPermission(k, per)) return;
 
 
 
-            string result = Helper.Helper.SetURLDatabase();
+            string result = CoreHelper.SetURLDatabase();
 
             if (string.IsNullOrEmpty(result))
             {
@@ -98,7 +93,7 @@ namespace DG_TonKhoBTP_v02.UI.Setting
             string k = EnumStore.Group["Admin"];
             string per = "CAN_SET_PRINTER";
 
-            if (!Helper.Helper.CheckLoginAndPermission(k, per)) return;
+            if (!CoreHelper.CheckLoginAndPermission(k, per)) return;
 
 
             string printerName = "";
@@ -128,7 +123,7 @@ namespace DG_TonKhoBTP_v02.UI.Setting
             string k = EnumStore.Group["Chung"];
             string per = "CAN_STOP_SOFTWARE";
 
-            if (!Helper.Helper.CheckLoginAndPermission(k, per)) return;
+            if (!CoreHelper.CheckLoginAndPermission(k, per)) return;
 
 
             string rtbMsg = rtbMessage.Text.Trim();
@@ -184,7 +179,7 @@ namespace DG_TonKhoBTP_v02.UI.Setting
 
             if (selectedTab.Name == "pinterTab") {
 
-                Helper.Helper.LoadPrinters(cbxPrinterName);
+                CoreHelper.LoadPrinters(cbxPrinterName);
 
                 cbxMayIn.Checked = _printerName != "";
                 cbxPrinterName.Enabled = cbxMayIn.Checked;

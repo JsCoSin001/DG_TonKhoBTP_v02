@@ -31,6 +31,7 @@ namespace DG_TonKhoBTP_v02.Dictionary
                 new ColumnDefinition { Name = "BinNVL",      DataType = typeof(string), Header = "LOT nguyên liệu" },
                 new ColumnDefinition { Name = "CdConLai",    DataType = typeof(double), Header = "CD còn lại" },
                 new ColumnDefinition { Name = "KlConLai",    DataType = typeof(double), Header = "KL còn lại" },
+                new ColumnDefinition { Name = "QC",    DataType = typeof(string), Header = "QC" },
             };
 
             list.AddRange(extras);

@@ -1,15 +1,10 @@
 ﻿using ClosedXML.Excel;
 using DG_TonKhoBTP_v02.Database;
 using DG_TonKhoBTP_v02.Dictionary;
-using DocumentFormat.OpenXml.Spreadsheet;
-using DocumentFormat.OpenXml.Wordprocessing;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+using CoreHelper = DG_TonKhoBTP_v02.Helper.Helper;
 using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -66,7 +61,7 @@ namespace DG_TonKhoBTP_v02.UI.Actions
 
             string para = "key";
             bool stt = (cbxLoaiTimKiem.SelectedIndex > 1);
-            string query = Helper.Helper.TaoSQL_LayDLTruyVet(stt, para, out selectedCol);
+            string query = CoreHelper.TaoSQL_LayDLTruyVet(stt, para, out selectedCol);
 
             FrmWaiting waiting = null;
             DataTable sp = null;
@@ -226,7 +221,7 @@ namespace DG_TonKhoBTP_v02.UI.Actions
                     {
                         string para = "key";
                         string tempCol;
-                        string query = Helper.Helper.TaoSQL_LayDLTruyVet(loai_MaBin, para, out tempCol);
+                        string query = CoreHelper.TaoSQL_LayDLTruyVet(loai_MaBin, para, out tempCol);
                         return DatabaseHelper.GetData(query, maBin, para);
                     }
                 }, ct);

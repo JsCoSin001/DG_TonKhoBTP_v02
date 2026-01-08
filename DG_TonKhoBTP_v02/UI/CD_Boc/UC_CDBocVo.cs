@@ -4,10 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using CoreHelper = DG_TonKhoBTP_v02.Helper.Helper;
 using System.Windows.Forms;
 
 namespace DG_TonKhoBTP_v02.UI
@@ -36,8 +33,8 @@ namespace DG_TonKhoBTP_v02.UI
             if (dt == null || dt.Rows.Count == 0) return;
             var row = dt.Rows[0];
 
-            Helper.Helper.SetIfPresent(row, "DayVoTB", val => dayVoTB.Value = Convert.ToDecimal(val));
-            Helper.Helper.SetIfPresent(row, "InAn", val => inAn.Text = Convert.ToString(val));
+            CoreHelper.SetIfPresent(row, "DayVoTB", val => dayVoTB.Value = Convert.ToDecimal(val));
+            CoreHelper.SetIfPresent(row, "InAn", val => inAn.Text = Convert.ToString(val));
         }
     }
 }

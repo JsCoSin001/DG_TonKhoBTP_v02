@@ -4,11 +4,11 @@ using DG_TonKhoBTP_v02.Dictionary;
 using DG_TonKhoBTP_v02.Helper;
 using DG_TonKhoBTP_v02.Models;
 using DG_TonKhoBTP_v02.Printer;
+using DG_TonKhoBTP_v02.UI.Helper;
 using DocumentFormat.OpenXml.Office2010.Excel;
 using DocumentFormat.OpenXml.Office2019.Excel.RichData2;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+using CoreHelper = DG_TonKhoBTP_v02.Helper.Helper;
 using System.Data;
 using System.Drawing;
 using System.Linq;
@@ -156,13 +156,13 @@ namespace DG_TonKhoBTP_v02.UI
         private async void btnLuu_Click(object sender, EventArgs e)
         {
             // Kiểm tra xem database có sẵn dùng không
-            if (Helper.Helper.TaoThongBao() != "") return;
+            if (CoreHelper.TaoThongBao() != "") return;
 
             // Kiểm tra quyền
             string k = EnumStore.Group["CapNhatTonKho"];
             string per = "CAN_UPDATE";
 
-            if (!Helper.Helper.CheckLoginAndPermission(k, per)) return;
+            if (!CoreHelper.CheckLoginAndPermission(k, per)) return;
 
             if (string.IsNullOrWhiteSpace(tbMaBin.Text))
             {
@@ -233,7 +233,7 @@ namespace DG_TonKhoBTP_v02.UI
                 FrmWaiting.ShowGifAlert("Thời gian kết thúc phải lớn hơn thời gian bắt đầu!");
                 return;
             }
-            var selectedCongDoans = Helper.Helper.GetCheckedCongDoans(tbCheckBox);
+            var selectedCongDoans = CoreHelper.GetCheckedCongDoans(tbCheckBox);
             if (selectedCongDoans == null || selectedCongDoans.Count == 0)
             {
                 FrmWaiting.ShowGifAlert("Vui lòng chọn ít nhất một công đoạn!");

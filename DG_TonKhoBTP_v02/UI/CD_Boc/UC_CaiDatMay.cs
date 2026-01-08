@@ -4,10 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using CoreHelper = DG_TonKhoBTP_v02.Helper.Helper;
 using System.Windows.Forms;
 
 namespace DG_TonKhoBTP_v02.UI
@@ -51,21 +48,21 @@ namespace DG_TonKhoBTP_v02.UI
         {
             if (dt == null || dt.Rows.Count == 0) return;
             var row = dt.Rows[0];
-            Helper.Helper.SetIfPresent(row, "MangNuoc", val => mangNuoc.Text = Convert.ToString(val));
-            Helper.Helper.SetIfPresent(row, "PuliDanDay", val => puliDanDay.Text = Convert.ToString(val));
-            Helper.Helper.SetIfPresent(row, "BoDemMet", val => boDemMet.Text = Convert.ToString(val));
-            Helper.Helper.SetIfPresent(row, "MayIn", val => mayIn.Text = Convert.ToString(val));
-            Helper.Helper.SetIfPresent(row, "v1", val => v1.Text = Convert.ToString(val));
-            Helper.Helper.SetIfPresent(row, "v2", val => v2.Text = Convert.ToString(val));
-            Helper.Helper.SetIfPresent(row, "v3", val => v3.Text = Convert.ToString(val));
-            Helper.Helper.SetIfPresent(row, "v4", val => v4.Text = Convert.ToString(val));
-            Helper.Helper.SetIfPresent(row, "v5", val => v5.Text = Convert.ToString(val));
-            Helper.Helper.SetIfPresent(row, "v6", val => v6.Text = Convert.ToString(val));
-            Helper.Helper.SetIfPresent(row, "Co", val => co.Text = Convert.ToString(val));
-            Helper.Helper.SetIfPresent(row, "Dau1", val => dau1.Text = Convert.ToString(val));
-            Helper.Helper.SetIfPresent(row, "Dau2", val => dau2.Text = Convert.ToString(val));
-            Helper.Helper.SetIfPresent(row, "Khuon", val => khuon.Text = Convert.ToString(val));
-            Helper.Helper.SetIfPresent(row, "BinhSay", val => binhSay.Text = Convert.ToString(val));
+            CoreHelper.SetIfPresent(row, "MangNuoc", val => mangNuoc.Text = Convert.ToString(val));
+            CoreHelper.SetIfPresent(row, "PuliDanDay", val => puliDanDay.Text = Convert.ToString(val));
+            CoreHelper.SetIfPresent(row, "BoDemMet", val => boDemMet.Text = Convert.ToString(val));
+            CoreHelper.SetIfPresent(row, "MayIn", val => mayIn.Text = Convert.ToString(val));
+            CoreHelper.SetIfPresent(row, "v1", val => v1.Text = Convert.ToString(val));
+            CoreHelper.SetIfPresent(row, "v2", val => v2.Text = Convert.ToString(val));
+            CoreHelper.SetIfPresent(row, "v3", val => v3.Text = Convert.ToString(val));
+            CoreHelper.SetIfPresent(row, "v4", val => v4.Text = Convert.ToString(val));
+            CoreHelper.SetIfPresent(row, "v5", val => v5.Text = Convert.ToString(val));
+            CoreHelper.SetIfPresent(row, "v6", val => v6.Text = Convert.ToString(val));
+            CoreHelper.SetIfPresent(row, "Co", val => co.Text = Convert.ToString(val));
+            CoreHelper.SetIfPresent(row, "Dau1", val => dau1.Text = Convert.ToString(val));
+            CoreHelper.SetIfPresent(row, "Dau2", val => dau2.Text = Convert.ToString(val));
+            CoreHelper.SetIfPresent(row, "Khuon", val => khuon.Text = Convert.ToString(val));
+            CoreHelper.SetIfPresent(row, "BinhSay", val => binhSay.Text = Convert.ToString(val));
         }
         #endregion
 

@@ -3,16 +3,21 @@ using DG_TonKhoBTP_v02.Core;
 using DG_TonKhoBTP_v02.Database;
 using DG_TonKhoBTP_v02.Dictionary;
 using DG_TonKhoBTP_v02.Models;
+using DG_TonKhoBTP_v02.UI.Helper;
+using Microsoft.VisualBasic;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Color = System.Drawing.Color;
+using CoreHelper = DG_TonKhoBTP_v02.Helper.Helper;
+
 
 namespace DG_TonKhoBTP_v02.UI
 {
@@ -22,9 +27,11 @@ namespace DG_TonKhoBTP_v02.UI
 
         List<ColumnDefinition> _columns;
 
+        public decimal? klDongThua = null;
+
         public Func<decimal> GetKhoiLuong { get; set; }
 
-        public Func<string> GetSoLOT { get; set; }
+        public Func<string> GetTenMay { get; set; }
 
         private bool _warnedThisFocus = false;
 
@@ -33,7 +40,7 @@ namespace DG_TonKhoBTP_v02.UI
         private bool _autoFilling = false;
 
 
-        bool isShow = false;
+        bool isShow = true;
         int tongCotCanHide = 10;
 
         public bool RawMaterial { get; set; } = false;
@@ -42,6 +49,7 @@ namespace DG_TonKhoBTP_v02.UI
         public UC_TTNVL(List<ColumnDefinition> columns)
         {
             InitializeComponent();
+
 
             setVisibleTableNVL(false);
 
@@ -55,6 +63,25 @@ namespace DG_TonKhoBTP_v02.UI
             // Hạn chế nhập ký tự không hợp lệ cho các cột số
             dtgTTNVL.EditingControlShowing += dtgTTNVL_EditingControlShowing;
         }
+
+
+        //private void HookDbg()
+        //{
+        //    dtgTTNVL.DataSourceChanged += (s, e) =>
+        //        Debug.WriteLine($"[DBG] DataSourceChanged: DS={dtgTTNVL.DataSource?.GetType().Name}, AutoGen={dtgTTNVL.AutoGenerateColumns}, Cols={dtgTTNVL.Columns.Count}, Rows={dtgTTNVL.Rows.Count}");
+
+        //    dtgTTNVL.DataBindingComplete += (s, e) =>
+        //        Debug.WriteLine($"[DBG] DataBindingComplete: Cols={dtgTTNVL.Columns.Count}, Rows={dtgTTNVL.Rows.Count}");
+
+        //    dtgTTNVL.BindingContextChanged += (s, e) =>
+        //        Debug.WriteLine($"[DBG] BindingContextChanged: null? {dtgTTNVL.BindingContext == null}");
+
+        //    dtgTTNVL.ColumnAdded += (s, e) =>
+        //        Debug.WriteLine($"[DBG] ColumnAdded: {e.Column?.Name}, Cols={dtgTTNVL.Columns.Count}");
+
+        //    dtgTTNVL.ColumnRemoved += (s, e) =>
+        //        Debug.WriteLine($"[DBG] ColumnRemoved: {e.Column?.Name}, Cols={dtgTTNVL.Columns.Count}");
+        //}
 
         private void TaoBang(List<ColumnDefinition> columns)
         {
@@ -222,11 +249,14 @@ namespace DG_TonKhoBTP_v02.UI
 
         private async void tbxTimKiem_TextUpdate(object sender, EventArgs e)
         {
-            //ResetController_TimTenSP();
             string tenNL = cbxTimKiem.Text;
 
+            if (string.IsNullOrWhiteSpace(tenNL) || !TenMayDaNhap()) return;
 
-            if (string.IsNullOrWhiteSpace(tenNL) || !CheckKhoiLuongBeforeTyping() || !CheckSoLotBeforeTyping()) return;
+            bool tuDongTinh = EnumStore.dsTenMayTuDongTinhKLConLai.Contains(ReadTenMay());
+
+            // Yêu cầu nhập khối lượng đồng thừa
+            if (tuDongTinh && klDongThua == null) SetKhoiLuongDongThua();
 
             // --- thêm debounce + cancel ---
             _searchCts?.Cancel();
@@ -259,23 +289,23 @@ namespace DG_TonKhoBTP_v02.UI
 
             if (RawMaterial)
             {
-                query = Helper.Helper.TaoSQL_LayDLNVL_TTThanhPham();
+                query = CoreHelper.TaoSQL_LayDLNVL_TTThanhPham();
             }
             else
             {
-                query = Helper.Helper.TaoSQL_LayDLTTThanhPham();
+                query = CoreHelper.TaoSQL_LayDLTTThanhPham();
             }
 
             DataTable sp = await Task.Run(() =>
             {
-                return DatabaseHelper.GetData( query, keyword, para);
+                return DatabaseHelper.GetData(query, keyword, para);
             }, ct);
 
             ct.ThrowIfCancellationRequested();
 
             cbxTimKiem.DroppedDown = false;
 
-            cbxTimKiem.SelectionChangeCommitted -= cbxTimKiem_SelectionChangeCommitted; 
+            cbxTimKiem.SelectionChangeCommitted -= cbxTimKiem_SelectionChangeCommitted;
             if (sp.Rows.Count == 0) return;
 
             cbxTimKiem.DataSource = sp;
@@ -293,6 +323,7 @@ namespace DG_TonKhoBTP_v02.UI
 
         private void cbxTimKiem_SelectionChangeCommitted(object sender, EventArgs e)
         {
+
             if (cbxTimKiem.SelectedItem == null || !(cbxTimKiem.SelectedItem is DataRowView sel))
                 return;
             setVisibleTableNVL(true);
@@ -338,6 +369,7 @@ namespace DG_TonKhoBTP_v02.UI
             newRow["GhiChu"] = sel["GhiChu"];
             newRow["DanhSachMaSP_ID"] = sel["DanhSachMaSP_ID"];
             newRow["BinNVL"] = sel["BinNVL"];
+            newRow["QC"] = sel["QC"];
             table.Rows.Add(newRow);
 
             int addedIndex = table.Rows.IndexOf(newRow);
@@ -353,7 +385,7 @@ namespace DG_TonKhoBTP_v02.UI
 
                 int start = 3;
 
-                if (maSP == "NVL") return; 
+                if (maSP == "NVL") return;
 
                 // vị trí bắt đầu tô màu
                 int baseCol = tongCotCanHide + start;
@@ -363,65 +395,36 @@ namespace DG_TonKhoBTP_v02.UI
                 //int targetCol =  baseCol + 1;
                 int targetCol = newRow["DonVi"].ToString() == "M" ? baseCol : baseCol + 1;
 
-                // Số cột chứa đơn vị là kg
-                //if (newRow["DonVi"].ToString() == "M")
-                //{
-                //    targetCol = baseCol;
+                bool special = EnumStore.dsTenMayBoQuaKiemTraKhoiLuongConLai.Contains(ReadTenMay());
 
-                //    if (table.Rows.Count == 1)
-                //    {
-                //        CalcAndSet_KlBatDauMinusKhoiLuong(table, addedIndex, targetCol);
-                //    }
-                //    else
-                //    {
-                //        int prevRowIndex = addedIndex - 1;
-                //        if (prevRowIndex >= 0)
-                //        {
-                //            SetValue_TargetCell_ByIndex(table, prevRowIndex, targetCol, null);
-                //        }
-                //    }
+                if (special)
+                {
+                    object obj = newRow["KlBatDau"];
+                    decimal klBatDau = (obj == null || obj == DBNull.Value) ? 0m : Convert.ToDecimal(obj);
+                    decimal gtConLai_New = (klBatDau <= -1m) ? (klBatDau - 1m) : -1m;
 
-                //}
+                    dtgTTNVL.Rows[addedIndex].Cells[targetCol].Value = gtConLai_New;
+                    dtgTTNVL.Rows[addedIndex].Cells[targetCol].ReadOnly = true;
+                }
 
-                dtgTTNVL.Rows[addedIndex].Cells[targetCol].Style.BackColor = Color.Yellow;
+                bool autoFilling = EnumStore.dsTenMayTuDongTinhKLConLai.Contains(ReadTenMay());
+
+                if (autoFilling && klDongThua != null)
+                    PhanBoKLConLai(dtgTTNVL, klDongThua.Value, targetCol);
+
+                if (!autoFilling && !special)
+                    dtgTTNVL.Rows[addedIndex].Cells[targetCol].Style.BackColor = Color.Yellow;
+
 
                 // Tô các cột còn lại
                 for (int i = baseCol + 2; i <= _columns.Count; i++)
                 {
                     Console.WriteLine(i);
                     dtgTTNVL.Rows[addedIndex].Cells[i].Style.BackColor = Color.Yellow;
-                }    
-                   
+                }
 
                 dtgTTNVL.FirstDisplayedScrollingRowIndex = addedIndex;
             }
-        }
-
-
-        private void SetValue_TargetCell_ByIndex(DataTable table, int rowIndex, int gridColIndex, decimal? value)
-        {
-            string dataCol = dtgTTNVL.Columns[gridColIndex].DataPropertyName;
-            if (string.IsNullOrWhiteSpace(dataCol))
-                dataCol = dtgTTNVL.Columns[gridColIndex].Name;
-
-            table.Rows[rowIndex][dataCol] = value.HasValue ? (object)value.Value : DBNull.Value;
-        }
-
-        private void CalcAndSet_KlBatDauMinusKhoiLuong(DataTable table, int addedIndex, int targetCol)
-        {
-            // Lấy KlBatDau từ dòng vừa add
-            decimal klBatDau = 0m;
-            object objKl = table.Rows[addedIndex]["KlBatDau"];
-            if (objKl != null && objKl != DBNull.Value)
-                klBatDau = Convert.ToDecimal(objKl);
-
-            // Lấy khoiLuong hiện tại từ UC_TTThanhPham (qua delegate đã nối)
-            decimal khoiLuong = GetKhoiLuong?.Invoke() ?? 0m;
-
-            decimal result = klBatDau - khoiLuong;
-            if (result >= 0) SetValue_TargetCell_ByIndex(table, addedIndex, targetCol, result);
-
-
         }
 
         private void setVisibleTableNVL(bool showTable)
@@ -440,13 +443,18 @@ namespace DG_TonKhoBTP_v02.UI
             // 1) Tạo dtNew theo _columns
             var dtNew = new DataTable("ThongTin");
             foreach (var col in _columns)
+            {
                 dtNew.Columns.Add(col.Name, col.DataType);
+            }    
+
 
             foreach (DataRow src in dt.Rows)
             {
                 var row = dtNew.NewRow();
                 foreach (var col in _columns)
+                {
                     if (dt.Columns.Contains(col.Name)) row[col.Name] = src[col.Name];
+                }
                 dtNew.Rows.Add(row);
             }
 
@@ -470,7 +478,9 @@ namespace DG_TonKhoBTP_v02.UI
                 {
                     var name = _columns[i].Name;
                     if (dtgTTNVL.Columns.Contains(name))
+                    {
                         dtgTTNVL.Columns[name].DisplayIndex = i;
+                    }
                 }
 
                 // 6) Đảm bảo cột Delete là cột CUỐI CÙNG
@@ -488,7 +498,8 @@ namespace DG_TonKhoBTP_v02.UI
                 }
 
                 // Đặt DisplayIndex cho Delete là cuối
-                dtgTTNVL.Columns["Delete"].DisplayIndex = dtgTTNVL.Columns.Count - 1;
+                dtgTTNVL.Columns["Delete"].DisplayIndex = dtgTTNVL.Columns.Count-1;
+
 
                 // (Giữ nguyên các tuỳ chỉnh khác của bạn)
                 dtgTTNVL.CellClick -= dtgTTNVL_CellClick;
@@ -513,12 +524,14 @@ namespace DG_TonKhoBTP_v02.UI
                 // Bỏ qua dòng "New Row" (dòng trống cuối cùng của DataGridView)
                 if (row.IsNewRow) continue;
 
-                var item = new TTNVL(); // Lúc này các field đang có default = -1
-                Helper.Helper.MapRowToObject(row, item); // Map từ row vào object
+                TTNVL item = new TTNVL(); // Lúc này các field đang có default = -1
+                CoreHelper.MapRowToObject(row, item); // Map từ row vào object
+
+
                 list.Add(item);
             }
             return list;
-            
+
         }
 
         public void ClearInputs()
@@ -538,12 +551,12 @@ namespace DG_TonKhoBTP_v02.UI
 
         private void cbxTimKiem_KeyDown(object sender, KeyEventArgs e)
         {
-            if (!CheckKhoiLuongBeforeTyping())
-            {
-                e.SuppressKeyPress = true;
-                e.Handled = true;
-                return;
-            }
+            //if (!CheckKhoiLuongBeforeTyping())
+            //{
+            //    e.SuppressKeyPress = true;
+            //    e.Handled = true;
+            //    return;
+            //}
         }
 
         public void OnKhoiLuongChanged(decimal newValue)
@@ -565,6 +578,8 @@ namespace DG_TonKhoBTP_v02.UI
                 dt2.Rows.Clear();
                 return;
             }
+            klDongThua = null;
+            //lblKlDongThua.Text = "";
 
             // Unbound grid
             dtgTTNVL.Rows.Clear(); // KHÔNG đụng Columns => không mất header
@@ -591,9 +606,9 @@ namespace DG_TonKhoBTP_v02.UI
             return false;
         }
 
-        private bool CheckSoLotBeforeTyping()
+        private bool TenMayDaNhap()
         {
-            if (ReadSoLot() != "") return true;
+            if (ReadTenMay() != "") return true;
             FrmWaiting.ShowGifAlert("LOT SX cần được hoàn thiện trước khi nhập nguyên liệu.");
             return false;
         }
@@ -602,8 +617,8 @@ namespace DG_TonKhoBTP_v02.UI
         private decimal ReadKhoiLuong()
         => GetKhoiLuong?.Invoke() ?? 0m;
 
-        private string ReadSoLot()
-        => GetSoLOT?.Invoke() ?? "";
+        private string ReadTenMay()
+        => GetTenMay?.Invoke() ?? "";
 
         private void cbxTimKiem_Enter(object sender, EventArgs e)
         {
@@ -611,106 +626,47 @@ namespace DG_TonKhoBTP_v02.UI
         }
 
 
-        private void dtgTTNVL_CellEndEdit(object sender, DataGridViewCellEventArgs e)
+        private void SetKhoiLuongDongThua()
         {
-            return; 
-            if (_autoFilling) return;
+            using var f = new GetUserInputValue_Simple();
+            f.StartPosition = FormStartPosition.CenterScreen;
+            var result = f.ShowDialog(this);
 
-            // chỉ xử lý khi edit cột KlConLai
-            var col = dtgTTNVL.Columns[e.ColumnIndex];
-            if (col.Name != "KlConLai" && col.DataPropertyName != "KlConLai")
-                return;
-
-            var table = GetBoundTable();
-            if (table == null) return;
-
-            // 1) tính tổng KlBatDau
-            decimal totalKlBatDau = table.AsEnumerable()
-                .Where(r => r.RowState != DataRowState.Deleted)
-                .Sum(r => ToDec(r["KlBatDau"]));
-
-            // 2) tính tổng KlConLai đã nhập
-            decimal sumKlConLai = table.AsEnumerable()
-                .Where(r => r.RowState != DataRowState.Deleted)
-                .Where(r => !IsNullOrEmptyCell(r["KlConLai"]))
-                .Sum(r => ToDec(r["KlConLai"]));
-
-            // 3) đếm dòng còn trống KlConLai
-            int emptyIndex = -1, emptyCount = 0;
-            for (int i = 0; i < table.Rows.Count; i++)
+            if (result == DialogResult.OK)
             {
-                var r = table.Rows[i];
-                if (r.RowState == DataRowState.Deleted) continue;
-
-                if (IsNullOrEmptyCell(r["KlConLai"]))
-                {
-                    emptyCount++;
-                    emptyIndex = i;
-                }
+                klDongThua = f.TongDongThuaValue;
+                tbKLDongThua.Visible = true;
+                nmrKlDongThua.Value = klDongThua.Value;
             }
 
-            decimal khoiLuong = ReadKhoiLuong();
 
-            // 4) nếu còn đúng 1 dòng trống -> auto fill
-            if (emptyCount == 1 && emptyIndex >= 0)
+        }
+
+        // Phân bổ khối lượng đồng thừa đều cho các dòng
+        private static void PhanBoKLConLai(DataGridView dtgTTNVL, decimal klDongThua, int colIndex)
+        {
+
+            // Đếm số dòng dữ liệu thật (bỏ dòng NewRow nếu có)
+            int rowCount = dtgTTNVL.Rows.Cast<DataGridViewRow>()
+                                        .Count(r => !r.IsNewRow);
+
+            if (rowCount <= 0) return;
+
+            decimal giaTriMoiDong = klDongThua / rowCount;
+
+
+            foreach (DataGridViewRow row in dtgTTNVL.Rows)
             {
-                decimal klConLaiAuto = totalKlBatDau - sumKlConLai - khoiLuong;
-
-                _autoFilling = true;
-                table.Rows[emptyIndex]["KlConLai"] = klConLaiAuto;
-                _autoFilling = false;
-
-                // cập nhật lại tổng KlConLai sau khi auto fill
-                sumKlConLai += klConLaiAuto;
-                emptyCount = 0;
-            }
-
-            // 5) nếu đã điền đủ (không còn dòng trống) -> kiểm tra cân bằng
-            if (emptyCount == 0)
-            {
-                decimal diff = totalKlBatDau - (sumKlConLai + khoiLuong);
-
-                // cho phép sai số rất nhỏ (tránh lỗi do làm tròn)
-                if (Math.Abs(diff) > 0.0001m)
-                {
-                    FrmWaiting.ShowGifAlert("Khối lượng còn lại không hợp lệ. Hãy kiểm tra và nhập lại");
-
-                    ResetAllKlConLai(table);
-                }
+                if (row.IsNewRow) continue;
+                row.Cells[colIndex].Value = giaTriMoiDong;
+                row.Cells[colIndex].ReadOnly = true;
             }
         }
 
-        private void ResetAllKlConLai(DataTable table)
+        private void nmrKlDongThua_Leave(object sender, EventArgs e)
         {
-            _autoFilling = true;
-            foreach (DataRow r in table.Rows)
-            {
-                if (r.RowState == DataRowState.Deleted) continue;
-                r["KlConLai"] = DBNull.Value; // reset về null
-            }
-            _autoFilling = false;
-        }
-
-        private static bool IsNullOrEmptyCell(object o)
-        {
-            if (o == null || o == DBNull.Value) return true;
-            if (o is string s) return string.IsNullOrWhiteSpace(s);
-            return false;
-        }
-
-        private static decimal ToDec(object o)
-        {
-            if (o == null || o == DBNull.Value) return 0m;
-            return Convert.ToDecimal(o);
-        }
-
-        private DataTable GetBoundTable()
-        {
-            if (dtgTTNVL.DataSource is BindingSource bs) return bs.DataSource as DataTable;
-            return dtgTTNVL.DataSource as DataTable;
+            
         }
 
     }
-
-
 }

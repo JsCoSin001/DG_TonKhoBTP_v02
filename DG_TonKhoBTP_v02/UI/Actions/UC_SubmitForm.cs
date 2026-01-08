@@ -7,7 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
-using System.Reflection;
+using CoreHelper = DG_TonKhoBTP_v02.Helper.Helper;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using PrinterModel = DG_TonKhoBTP_v02.Models.PrinterModel;
@@ -58,7 +58,7 @@ namespace DG_TonKhoBTP_v02.UI
                 Debug.WriteLine("btnLuu.Enabled = false");
 
                 // === VALIDATION & CAPTURE DATA ===
-                string tb = Helper.Helper.TaoThongBao(lblTrangThai);
+                string tb = CoreHelper.TaoThongBao(lblTrangThai);
                 Debug.WriteLine($"TaoThongBao: {swTotal.ElapsedMilliseconds} ms");
 
                 if (tb != "")
@@ -115,7 +115,7 @@ namespace DG_TonKhoBTP_v02.UI
 
                 // Lấy UC_TTSanPham & gộp Sections
                 swStep.Restart();
-                var ucSanPham = Helper.Helper.FindControlRecursive<UC_TTSanPham>(host);
+                var ucSanPham = CoreHelper.FindControlRecursive<UC_TTSanPham>(host);
                 if (ucSanPham != null)
                 {
                     var extra = ucSanPham.GetAggregateSections();
@@ -129,7 +129,7 @@ namespace DG_TonKhoBTP_v02.UI
                 #region Validate Ca Làm Việc
 
                 swStep.Restart();
-                var thongTinCaLamViec = (ThongTinCaLamViec)snap.Sections["UC_TTCaLamViec"];
+                ThongTinCaLamViec thongTinCaLamViec = (ThongTinCaLamViec)snap.Sections["UC_TTCaLamViec"];
                 int sttLoi = Validator.TTCaLamViec(thongTinCaLamViec);
                 Debug.WriteLine($"Validator.TTCaLamViec: {swStep.ElapsedMilliseconds} ms (tổng: {swTotal.ElapsedMilliseconds} ms)");
 
@@ -147,7 +147,8 @@ namespace DG_TonKhoBTP_v02.UI
                 #region Validate NVL
                 swStep.Restart();
                 var list_TTNVL = snap.Sections["UC_TTNVL"] as List<TTNVL>;
-                string loiNVL = Validator.TTNVL(list_TTNVL);
+                string loiNVL = Validator.TTNVL(list_TTNVL, thongTinCaLamViec.May);
+
                 Debug.WriteLine($"Validator.TTNVL: {swStep.ElapsedMilliseconds} ms (tổng: {swTotal.ElapsedMilliseconds} ms)");
 
                 if (loiNVL != "")
@@ -227,8 +228,8 @@ namespace DG_TonKhoBTP_v02.UI
                         MaBin = thongTinThanhPham.MaBin,
                         MaSP = thongTinThanhPham.MaTP,
                         DanhGia = "",
-                        TenCN = Helper.Helper.ConvertTiengVietKhongDau(thongTinCaLamViec.NguoiLam),
-                        GhiChu = Helper.Helper.ConvertTiengVietKhongDau(thongTinThanhPham.GhiChu)
+                        TenCN = CoreHelper.ConvertTiengVietKhongDau(thongTinCaLamViec.NguoiLam),
+                        GhiChu = CoreHelper.ConvertTiengVietKhongDau(thongTinThanhPham.GhiChu)
                     };
                 }
 
@@ -405,7 +406,7 @@ namespace DG_TonKhoBTP_v02.UI
         //        Debug.WriteLine("btnLuu.Enabled = false");
 
         //        // === VALIDATION & CAPTURE DATA ===
-        //        string tb = Helper.Helper.TaoThongBao(lblTrangThai);
+        //        string tb = CoreHelper.TaoThongBao(lblTrangThai);
         //        Debug.WriteLine($"TaoThongBao: {swTotal.ElapsedMilliseconds} ms");
 
         //        if (tb != "")
@@ -464,7 +465,7 @@ namespace DG_TonKhoBTP_v02.UI
 
         //        // Lấy UC_TTSanPham & gộp Sections
         //        swStep.Restart();
-        //        var ucSanPham = Helper.Helper.FindControlRecursive<UC_TTSanPham>(host);
+        //        var ucSanPham = CoreHelper.FindControlRecursive<UC_TTSanPham>(host);
         //        if (ucSanPham != null)
         //        {
         //            var extra = ucSanPham.GetAggregateSections();
@@ -569,8 +570,8 @@ namespace DG_TonKhoBTP_v02.UI
         //                MaBin = thongTinThanhPham.MaBin,
         //                MaSP = thongTinThanhPham.MaTP,
         //                DanhGia = "",
-        //                TenCN = Helper.Helper.ConvertTiengVietKhongDau(thongTinCaLamViec.NguoiLam),
-        //                GhiChu = Helper.Helper.ConvertTiengVietKhongDau(thongTinThanhPham.GhiChu)
+        //                TenCN = CoreHelper.ConvertTiengVietKhongDau(thongTinCaLamViec.NguoiLam),
+        //                GhiChu = CoreHelper.ConvertTiengVietKhongDau(thongTinThanhPham.GhiChu)
         //            };
         //        }
 
@@ -744,7 +745,7 @@ namespace DG_TonKhoBTP_v02.UI
         //    var swTotal = Stopwatch.StartNew();
         //    Debug.WriteLine("=== [BTN LƯU] BẮT ĐẦU ===");
 
-        //    string tb = Helper.Helper.TaoThongBao(lblTrangThai);
+        //    string tb = CoreHelper.TaoThongBao(lblTrangThai);
         //    Debug.WriteLine($"TaoThongBao: {swTotal.ElapsedMilliseconds} ms");
 
         //    if (tb != "")
@@ -794,7 +795,7 @@ namespace DG_TonKhoBTP_v02.UI
 
         //    // --- Lấy UC_TTSanPham & gộp Sections ---
         //    swStep.Restart();
-        //    var ucSanPham = Helper.Helper.FindControlRecursive<UC_TTSanPham>(host);
+        //    var ucSanPham = CoreHelper.FindControlRecursive<UC_TTSanPham>(host);
         //    if (ucSanPham != null)
         //    {
         //        var extra = ucSanPham.GetAggregateSections();
@@ -876,8 +877,8 @@ namespace DG_TonKhoBTP_v02.UI
         //            MaBin = thongTinThanhPham.MaBin,
         //            MaSP = thongTinThanhPham.MaTP,
         //            DanhGia = "",
-        //            TenCN = Helper.Helper.ConvertTiengVietKhongDau(thongTinCaLamViec.NguoiLam),
-        //            GhiChu = Helper.Helper.ConvertTiengVietKhongDau(thongTinThanhPham.GhiChu)
+        //            TenCN = CoreHelper.ConvertTiengVietKhongDau(thongTinCaLamViec.NguoiLam),
+        //            GhiChu = CoreHelper.ConvertTiengVietKhongDau(thongTinThanhPham.GhiChu)
         //        };
         //        Debug.WriteLine($"BuildPrinter: {swLocal.ElapsedMilliseconds} ms");
         //        return model;
@@ -1090,7 +1091,7 @@ namespace DG_TonKhoBTP_v02.UI
         // ver 0
         //private void btnLuu_Click(object sender, EventArgs e)
         //{
-        //    string tb = Helper.Helper.TaoThongBao(lblTrangThai);
+        //    string tb = CoreHelper.TaoThongBao(lblTrangThai);
 
         //    if (tb != "")
         //    {
@@ -1118,7 +1119,7 @@ namespace DG_TonKhoBTP_v02.UI
         //        return;
         //    }
 
-        //    var ucSanPham = Helper.Helper.FindControlRecursive<UC_TTSanPham>(host);
+        //    var ucSanPham = CoreHelper.FindControlRecursive<UC_TTSanPham>(host);
         //    if (ucSanPham != null)
         //    {
         //        var extra = ucSanPham.GetAggregateSections();
@@ -1180,8 +1181,8 @@ namespace DG_TonKhoBTP_v02.UI
         //            MaBin = thongTinThanhPham.MaBin,
         //            MaSP = thongTinThanhPham.MaTP,
         //            DanhGia = "",
-        //            TenCN = Helper.Helper.ConvertTiengVietKhongDau(thongTinCaLamViec.NguoiLam),
-        //            GhiChu = Helper.Helper.ConvertTiengVietKhongDau(thongTinThanhPham.GhiChu)
+        //            TenCN = CoreHelper.ConvertTiengVietKhongDau(thongTinCaLamViec.NguoiLam),
+        //            GhiChu = CoreHelper.ConvertTiengVietKhongDau(thongTinThanhPham.GhiChu)
         //        };
         //    }
 

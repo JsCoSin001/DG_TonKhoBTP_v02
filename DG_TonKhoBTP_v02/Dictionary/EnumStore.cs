@@ -25,7 +25,8 @@ public static class EnumStore
         { 3, "Thiếu chiều dài còn lại" },
         { 4, "Kiểm tra dữ liệu đo của NVL" },
         { 5, "Khối lượng còn lại phải nhỏ hơn khối lượng bắt đầu" },
-        { 6, "Chiều dài còn lại phải nhỏ hơn chiều dài bắt đầu" }
+        { 6, "Chiều dài còn lại phải nhỏ hơn chiều dài bắt đầu" },
+        { 7, "QC chưa được nhập" }
     };
 
 
@@ -58,7 +59,10 @@ public static class EnumStore
     };
 
     // Danh sách này chứa tên các máy không cần kiểm tra khối lượng còn lại
-    public static string[] dsTenMayBoQuaKiemTraKhoiLuongConLai = { "MD16A4", "B9", "B10" };
+    public static string[] dsTenMayBoQuaKiemTraKhoiLuongConLai = { "MD16A4" };
+
+    // Danh sách này chứa tên các máy không cần kiểm tra khối lượng còn lại
+    public static string[] dsTenMayTuDongTinhKLConLai = { "B9" , "B10" };
 
     public static class Icon
     {

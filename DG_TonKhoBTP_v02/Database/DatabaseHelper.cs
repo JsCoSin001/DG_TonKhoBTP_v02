@@ -5,9 +5,8 @@ using DG_TonKhoBTP_v02.DL_Ben;
 using DG_TonKhoBTP_v02.Helper;
 using DG_TonKhoBTP_v02.Models;
 using DG_TonKhoBTP_v02.UI;
-using DG_TonKhoBTP_v02.UI.KeHoach;
-using DocumentFormat.OpenXml.Drawing;
-using DocumentFormat.OpenXml.Wordprocessing;
+
+using CoreHelper = DG_TonKhoBTP_v02.Helper.Helper;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -159,7 +158,7 @@ namespace DG_TonKhoBTP_v02.Database
             }
             catch (Exception ex)
             {
-                FrmWaiting.ShowGifAlert(Helper.Helper.ShowErrorDatabase(ex, "KẾ HOẠCH"), "LỖI HỆ THỐNG");
+                FrmWaiting.ShowGifAlert(CoreHelper.ShowErrorDatabase(ex, "KẾ HOẠCH"), "LỖI HỆ THỐNG");
                 return 0;
             }
         }
@@ -185,7 +184,7 @@ namespace DG_TonKhoBTP_v02.Database
                 {
                     // ✅ SỬ DỤNG MapRowToObject có sẵn
                     var keHoach = new KeHoachSX();
-                    Helper.Helper.MapRowToObject(row, keHoach);
+                    CoreHelper.MapRowToObject(row, keHoach);
 
                     // Chuẩn hóa dữ liệu
                     NormalizeKeHoachSX(keHoach);
@@ -291,7 +290,7 @@ namespace DG_TonKhoBTP_v02.Database
             }
             catch (Exception ex)
             {
-                errors.Add($"Lỗi lookup mã SP: {Helper.Helper.ShowErrorDatabase(ex)}");
+                errors.Add($"Lỗi lookup mã SP: {CoreHelper.ShowErrorDatabase(ex)}");
             }
 
             return errors;
@@ -398,7 +397,7 @@ namespace DG_TonKhoBTP_v02.Database
                                     // - NOT NULL constraint → "Thiếu dữ liệu bắt buộc (Lot)"
                                     // - UNIQUE constraint → "DỮ LIỆU đã tồn tại (Lot)"
                                     // - CHECK constraint → "Dữ liệu vi phạm ràng buộc"
-                                    string errorMsg = Helper.Helper.ShowErrorDatabase(ex, keHoach.Lot);
+                                    string errorMsg = CoreHelper.ShowErrorDatabase(ex, keHoach.Lot);
                                     errors.Add($"Lot '{keHoach.Lot}': {errorMsg}");
                                 }
                             }
@@ -409,7 +408,7 @@ namespace DG_TonKhoBTP_v02.Database
                     catch (Exception ex)
                     {
                         tran.Rollback();
-                        errors.Add($"Lỗi hệ thống: {Helper.Helper.ShowErrorDatabase(ex)}");
+                        errors.Add($"Lỗi hệ thống: {CoreHelper.ShowErrorDatabase(ex)}");
                     }
                 }
             }
@@ -543,7 +542,7 @@ namespace DG_TonKhoBTP_v02.Database
                 {
                     Ok = false,
                     Id = null,
-                    Message = Helper.Helper.ShowErrorDatabase(ex)
+                    Message = CoreHelper.ShowErrorDatabase(ex)
                 };
             }
         }
@@ -605,7 +604,7 @@ namespace DG_TonKhoBTP_v02.Database
                 {
                     Ok = false,
                     Id = dto.id,
-                   Message = Helper.Helper.ShowErrorDatabase(ex)
+                   Message = CoreHelper.ShowErrorDatabase(ex)
                 };
             }
         }
@@ -927,13 +926,13 @@ namespace DG_TonKhoBTP_v02.Database
         {
             string key = selectedDate.ToString("yyyy-MM-dd");
 
-            string sqlSelect = Helper.Helper.TaoSqL_LayThongTinBaoCaoChung();
+            string sqlSelect = CoreHelper.TaoSqL_LayThongTinBaoCaoChung();
 
-            string sqlLayChiTietCD = Helper.Helper.TaoSQL_LayChiTiet_1CD(cd.Id);
+            string sqlLayChiTietCD = CoreHelper.TaoSQL_LayChiTiet_1CD(cd.Id);
 
-            string sqlTenNVL = Helper.Helper.TaoSQL_LayDuLieuNVL(cd.Columns);
+            string sqlTenNVL = CoreHelper.TaoSQL_LayDuLieuNVL(cd.Columns);
 
-            string sqlJoin = Helper.Helper.TaoSQL_TaoKetNoiCacBang();
+            string sqlJoin = CoreHelper.TaoSQL_TaoKetNoiCacBang();
 
             string sqlDk1 = " WHERE date(tclv.Ngay) = date(@para) ";
 
@@ -960,13 +959,13 @@ namespace DG_TonKhoBTP_v02.Database
         {
             string key = selectedDate.ToString("yyyy-MM-dd");
             
-            string sqlSelect = Helper.Helper.TaoSqL_LayThongTinBaoCaoChung();
+            string sqlSelect = CoreHelper.TaoSqL_LayThongTinBaoCaoChung();
 
-            string sqlLayChiTietCD = Helper.Helper.TaoSQL_LayChiTiet_1CD(cd.Id);
+            string sqlLayChiTietCD = CoreHelper.TaoSQL_LayChiTiet_1CD(cd.Id);
             
-            string sqlTenNVL = Helper.Helper.TaoSQL_LayDuLieuNVL(cd.Columns);
+            string sqlTenNVL = CoreHelper.TaoSQL_LayDuLieuNVL(cd.Columns);
 
-            string sqlJoin = Helper.Helper.TaoSQL_TaoKetNoiCacBang();
+            string sqlJoin = CoreHelper.TaoSQL_TaoKetNoiCacBang();
 
             string sqlDk1 = " WHERE strftime('%Y-%m', tclv.Ngay) = strftime('%Y-%m', @para) ";
 
@@ -984,16 +983,16 @@ namespace DG_TonKhoBTP_v02.Database
         public static DataTable GetDataByID(string key, CongDoan cd)
         {
             // Tạo select
-            string sqlSelect = Helper.Helper.TaoSqL_LayThongTinBaoCaoChung();
+            string sqlSelect = CoreHelper.TaoSqL_LayThongTinBaoCaoChung();
 
             // Lấy thông tin chi tiết công đoạn
-            string sqlLayChiTietCD = Helper.Helper.TaoSQL_LayChiTiet_1CD(cd.Id);
+            string sqlLayChiTietCD = CoreHelper.TaoSQL_LayChiTiet_1CD(cd.Id);
 
             // Lấy dữ liệu nvl theo công đoạn
-            string sqlTenNVL = Helper.Helper.TaoSQL_LayDuLieuNVL(cd.Columns);
+            string sqlTenNVL = CoreHelper.TaoSQL_LayDuLieuNVL(cd.Columns);
 
             // Tạo câu nối các bảng
-            string sqlJoin = Helper.Helper.TaoSQL_TaoKetNoiCacBang();
+            string sqlJoin = CoreHelper.TaoSQL_TaoKetNoiCacBang();
 
             // Tạo điều kiện lọc theo ID
             string sqlDk1 = " WHERE ttp.id = @id";
@@ -1009,17 +1008,17 @@ namespace DG_TonKhoBTP_v02.Database
         public static DataTable GetDataBaoCaoSX(DateTime ngayBatDau, DateTime ngayKetThuc, List<CongDoan> selectedCongDoans)
         {
             // Tạo phần SELECT chung
-            string sqlSelect = Helper.Helper.TaoSqL_LayThongTinBaoCaoChung();
+            string sqlSelect = CoreHelper.TaoSqL_LayThongTinBaoCaoChung();
 
             // Lấy dữ liệu NVL theo danh sách công đoạn
-            string sqlTenNVL = Helper.Helper.TaoSQL_LayDuLieuNVL(selectedCongDoans.Select(cd => cd.Columns).ToArray());
+            string sqlTenNVL = CoreHelper.TaoSQL_LayDuLieuNVL(selectedCongDoans.Select(cd => cd.Columns).ToArray());
 
             // Lấy chi tiết công đoạn
-            var(sqlLayChiTietCD, loaiCD) = Helper.Helper.TaoSQL_LayChiTiet_NhieuCD(selectedCongDoans) ;
+            var(sqlLayChiTietCD, loaiCD) = CoreHelper.TaoSQL_LayChiTiet_NhieuCD(selectedCongDoans) ;
 
 
             // Câu nối các bảng
-            string sqlJoin = Helper.Helper.TaoSQL_TaoKetNoiCacBang();
+            string sqlJoin = CoreHelper.TaoSQL_TaoKetNoiCacBang();
 
             // Format ngày sang dạng SQLite hiểu được
             string ngayBD = ngayBatDau.Date.AddHours(5).AddMinutes(59).ToString("yyyy-MM-dd HH:mm:ss");
@@ -1042,16 +1041,16 @@ namespace DG_TonKhoBTP_v02.Database
         public static DataTable GetTonKhoCD( List<CongDoan> selectedCongDoans)
         {
             // Tạo phần SELECT chung
-            string sqlSelect = Helper.Helper.TaoSqL_LayThongTinBaoCaoChung();
+            string sqlSelect = CoreHelper.TaoSqL_LayThongTinBaoCaoChung();
 
             // Lấy dữ liệu NVL theo danh sách công đoạn
-            string sqlTenNVL = Helper.Helper.TaoSQL_LayDuLieuNVL(selectedCongDoans.Select(cd => cd.Columns).ToArray());
+            string sqlTenNVL = CoreHelper.TaoSQL_LayDuLieuNVL(selectedCongDoans.Select(cd => cd.Columns).ToArray());
 
             // Lấy chi tiết công đoạn
-            var (sqlLayChiTietCD, loaiCD) = Helper.Helper.TaoSQL_LayChiTiet_NhieuCD(selectedCongDoans);
+            var (sqlLayChiTietCD, loaiCD) = CoreHelper.TaoSQL_LayChiTiet_NhieuCD(selectedCongDoans);
 
             // Câu nối các bảng
-            string sqlJoin = Helper.Helper.TaoSQL_TaoKetNoiCacBang();
+            string sqlJoin = CoreHelper.TaoSQL_TaoKetNoiCacBang();
 
             loaiCD = loaiCD.Replace("AND", "WHERE")
                     + @"
@@ -1247,6 +1246,7 @@ namespace DG_TonKhoBTP_v02.Database
                 UPDATE TTThanhPham
                 SET KhoiLuongSau = @KhoiLuongSau,
                     ChieuDaiSau = @ChieuDaiSau,
+                    QC = @QC,
                     LastEdit_ID = @LastEdit_ID
                 WHERE MaBin = @MaBin;";
 
@@ -1255,6 +1255,7 @@ namespace DG_TonKhoBTP_v02.Database
             cmd.Parameters.Add("@ChieuDaiSau", System.Data.DbType.Double);
             cmd.Parameters.Add("@LastEdit_ID", System.Data.DbType.Int64);
             cmd.Parameters.Add("@MaBin", System.Data.DbType.String);
+            cmd.Parameters.Add("@QC", System.Data.DbType.String);
 
             foreach (var nvl in nvlList)
             {
@@ -1262,6 +1263,7 @@ namespace DG_TonKhoBTP_v02.Database
                 cmd.Parameters["@ChieuDaiSau"].Value = nvl.CdConLai;
                 cmd.Parameters["@LastEdit_ID"].Value = thongTinSpId;
                 cmd.Parameters["@MaBin"].Value = nvl.BinNVL;
+                cmd.Parameters["@QC"].Value = nvl.QC;
 
                 cmd.ExecuteNonQuery(); 
             }
@@ -1338,7 +1340,7 @@ namespace DG_TonKhoBTP_v02.Database
             {
                 tx.Rollback();
 
-                errorMsg = Helper.Helper.ShowErrorDatabase(ex, tp.MaBin);
+                errorMsg = CoreHelper.ShowErrorDatabase(ex, tp.MaBin);
 
                 return false;
             }
@@ -1447,12 +1449,14 @@ namespace DG_TonKhoBTP_v02.Database
 
             using var cmd = new SQLiteCommand(@"
             UPDATE TTThanhPham
-               SET KhoiLuongSau = @kl,
-                   ChieuDaiSau  = @cd
+               SET  KhoiLuongSau = @kl,
+                    QC = @QC,
+                    ChieuDaiSau  = @cd
              WHERE MaBin       = @mabin
                AND LastEdit_id = @lastEditId;", conn, tx);
 
             var pKL = cmd.Parameters.Add("@kl", DbType.Double);
+            var QC = cmd.Parameters.Add("@QC", DbType.String);
             var pCD = cmd.Parameters.Add("@cd", DbType.Double);
             var pBin = cmd.Parameters.Add("@mabin", DbType.String);
             var pLE = cmd.Parameters.Add("@lastEditId", DbType.Int64);
@@ -1465,6 +1469,7 @@ namespace DG_TonKhoBTP_v02.Database
                     continue;
 
                 pKL.Value = nvl.KlConLai;
+                QC.Value = nvl.QC;
                 pCD.Value = nvl.CdConLai;
                 pBin.Value = nvl.BinNVL.Trim();
 
@@ -1699,7 +1704,7 @@ namespace DG_TonKhoBTP_v02.Database
             catch (Exception ex)
             {
                 // Trả về lỗi từ helper
-                return Helper.Helper.ShowErrorDatabase(ex, sp.Ten);
+                return CoreHelper.ShowErrorDatabase(ex, sp.Ten);
             }
         }
 
@@ -1736,7 +1741,7 @@ namespace DG_TonKhoBTP_v02.Database
             catch (Exception ex)
             {
                 // Gọi helper hiển thị lỗi giống phong cách bạn đang dùng
-                return Helper.Helper.ShowErrorDatabase(ex, bt.MaBin);
+                return CoreHelper.ShowErrorDatabase(ex, bt.MaBin);
             }
         }
         #endregion
@@ -1835,7 +1840,7 @@ namespace DG_TonKhoBTP_v02.Database
             {
                 try { tx?.Rollback(); } catch { /* nuốt lỗi rollback để không che mất lỗi chính */ }
 
-                errorMsg = Helper.Helper.ShowErrorDatabase(ex, tp.MaBin);
+                errorMsg = CoreHelper.ShowErrorDatabase(ex, tp.MaBin);
                 return false;
             }
         }
@@ -1862,9 +1867,9 @@ namespace DG_TonKhoBTP_v02.Database
 
             const string sql = @"
             INSERT INTO TTThanhPham
-                (DanhSachSP_ID,  MaBin, KhoiLuongTruoc, KhoiLuongSau, ChieuDaiTruoc, ChieuDaiSau, Phe, CongDoan, GhiChu,HanNoi, DateInsert)
+                (DanhSachSP_ID,QC ,  MaBin, KhoiLuongTruoc, KhoiLuongSau, ChieuDaiTruoc, ChieuDaiSau, Phe, CongDoan, GhiChu,HanNoi, DateInsert)
             VALUES
-                (@DanhSachSP_ID,  @MaBin, @KhoiLuongTruoc, @KhoiLuongSau, @ChieuDaiTruoc, @ChieuDaiSau, @Phe, @CongDoan, @GhiChu, @HanNoi, @DateInsert);
+                (@DanhSachSP_ID,@QC,  @MaBin, @KhoiLuongTruoc, @KhoiLuongSau, @ChieuDaiTruoc, @ChieuDaiSau, @Phe, @CongDoan, @GhiChu, @HanNoi, @DateInsert);
             SELECT last_insert_rowid();";
 
             double klHanNoi = 0;
@@ -1882,6 +1887,7 @@ namespace DG_TonKhoBTP_v02.Database
 
             using var cmd = new SQLiteCommand(sql, conn, tx);
             cmd.Parameters.AddWithValue("@DanhSachSP_ID", m.DanhSachSP_ID);
+            cmd.Parameters.AddWithValue("@QC", m.QC);
             cmd.Parameters.AddWithValue("@MaBin", m.MaBin);
             cmd.Parameters.AddWithValue("@KhoiLuongTruoc", m.KhoiLuongTruoc);
             cmd.Parameters.AddWithValue("@KhoiLuongSau", m.KhoiLuongSau);
@@ -2122,7 +2128,7 @@ namespace DG_TonKhoBTP_v02.Database
             }
             catch (Exception ex)
             {
-                return Helper.Helper.ShowErrorDatabase(ex, sp.Ma);
+                return CoreHelper.ShowErrorDatabase(ex, sp.Ma);
             }
         }
         #endregion

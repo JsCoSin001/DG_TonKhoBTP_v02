@@ -188,6 +188,7 @@
     <Compile Include="UI\CustomComponent\CustomButton.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="UI\Helper\CongDoanUiService.cs" />
     <Compile Include="UI\Helper\FrmWaiting.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -275,6 +276,13 @@
     <Compile Include="UI\Authentication\FmDangKy.Designer.cs">
       <DependentUpon>FmDangKy.cs</DependentUpon>
     </Compile>
+    <Compile Include="UI\Helper\GetUserInputValue_Simple.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\Helper\GetUserInputValue_Simple.Designer.cs">
+      <DependentUpon>GetUserInputValue_Simple.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Helper\WaitingHelper.cs" />
     <Compile Include="UI\NghiepVu\KeHoach\KeHoach.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -398,6 +406,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="UI\Authentication\FmDangKy.resx">
       <DependentUpon>FmDangKy.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\Helper\GetUserInputValue_Simple.resx">
+      <DependentUpon>GetUserInputValue_Simple.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UI\NghiepVu\KeHoach\KeHoach.resx">
       <DependentUpon>KeHoach.cs</DependentUpon>

@@ -36,12 +36,13 @@ namespace DG_TonKhoBTP_v02.Helper
             return false;
         }
 
-        // Hàm cho phép điền khối lượng còn lại hay không: Trả về true là yêu cầu phải điền
-        public static bool CanFillKLConLai(string tenMay)
-        {
-            return EnumStore.dsTenMayBoQuaKiemTraKhoiLuongConLai
-                    .Contains(tenMay, StringComparer.OrdinalIgnoreCase);
+        // có phải tên máy thuộc danh sách máy đặc biệt hay không: true là thuộc
+        
 
+        // kiểm tra khối lượng đầu vào có lớn hơn khối lượng cuối không: true là khối lượng đầu vào lớn hơn
+        public static bool KLDauVaoLonHonKLCuoi(decimal klDau, decimal klCuoi)
+        {
+            return klDau > klCuoi;
         }
 
         public static List<CongDoan> GetDanhSachCongDoan()
@@ -107,6 +108,7 @@ namespace DG_TonKhoBTP_v02.Helper
                 d.Ma           AS MaNVL,
                 d.DonVi         AS DonVi,
                 d.id            as DanhSachMaSP_ID,
+                t.Qc            as Qc,
                 t.MaBin         AS BinNVL,
                 v.Ngay          AS Ngay,
                 v.Ca            AS Ca,
@@ -123,9 +125,14 @@ namespace DG_TonKhoBTP_v02.Helper
                     OR
                     (d.DonVi = 'M' AND t.ChieuDaiSau  <> 0)
                 )
-                AND (
+                AND 
+                (
                     @ten IS NULL OR TRIM(@ten) = ''
                     OR t.MaBin LIKE '%' || @ten || '%' COLLATE NOCASE
+                )
+                AND
+                (
+                    t.Active = 1    
                 )
             ";
         }
@@ -145,6 +152,7 @@ namespace DG_TonKhoBTP_v02.Helper
                 d.ma        AS MaNVL,
                 d.DonVi     AS DonVi,
                 d.id        AS DanhSachMaSP_ID,
+                'N/A'       As Qc,
                 d.Ten       AS BinNVL,
                 NULL        AS Ngay,
                 ''          AS Ca,
@@ -176,7 +184,7 @@ namespace DG_TonKhoBTP_v02.Helper
             return @"
             SELECT
               ttp.id AS STT,
-              tclv.Ngay, tclv.Ca, tclv.May,
+              tclv.Ngay, tclv.Ca, tclv.May,ttp.QC,
               ttp.MaBin as MaBin, ds.Ten AS Ten, ds.Ma AS Ma,ds.DonVi, ds.id AS id,
               tclv.NguoiLam, tclv.ToTruong, tclv.QuanDoc,
               ttp.KhoiLuongTruoc AS KhoiLuongTruoc, ttp.KhoiLuongSau as KhoiLuongSau,
@@ -331,6 +339,7 @@ namespace DG_TonKhoBTP_v02.Helper
                         if (string.Equals(name, "Ca", StringComparison.OrdinalIgnoreCase)) continue; // bỏ nvl.id
                         if (string.Equals(name, "NguoiLam", StringComparison.OrdinalIgnoreCase)) continue; // bỏ nvl.id
                         if (string.Equals(name, "GhiChu", StringComparison.OrdinalIgnoreCase)) continue; // bỏ nvl.id
+                        if (string.Equals(name, "QC", StringComparison.OrdinalIgnoreCase)) continue; // bỏ nvl.id
                         names.Add(name);
                     }
                 }

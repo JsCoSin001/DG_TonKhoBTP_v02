@@ -22,7 +22,7 @@ namespace DG_TonKhoBTP_v02.Helper
             return 0;
         }
 
-        public static string TTNVL(List<TTNVL> data)
+        public static string TTNVL(List<TTNVL> data, string tenMay)
         {
             string errorMessage = "";
 
@@ -35,6 +35,7 @@ namespace DG_TonKhoBTP_v02.Helper
                 #region B1) Kiểm tra việc nhập hay không nhập dữ liệu
                 string lot = t.BinNVL;
 
+
                 // B1.1) Nếu là nguyên vật liệu thì bỏ qua để kiểm tra dòng khác
                 if (t.CdBatDau == -1 && t.KlBatDau == -1) continue;
 
@@ -45,6 +46,7 @@ namespace DG_TonKhoBTP_v02.Helper
                     tupleError = (Id: 2, Lot: lot);
                     break;
                 }
+
                 if (t.DonVi == "M" && t.CdConLai == null)
                 {
                     tupleError = (Id: 3, Lot: lot);
@@ -57,6 +59,15 @@ namespace DG_TonKhoBTP_v02.Helper
                     tupleError = (Id: 4, Lot: lot);
                     break;
                 }
+
+
+                // B1.3) Tên QC phải nhập
+                if (t.QC == "")
+                {
+                    tupleError = (Id: 7, Lot: lot);
+                    break;
+                }
+
                 #endregion
 
 

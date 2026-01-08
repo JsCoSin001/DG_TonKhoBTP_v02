@@ -3,14 +3,10 @@ using DG_TonKhoBTP_v02.Models;
 using DG_TonKhoBTP_v02.Properties;
 using DocumentFormat.OpenXml.Office.Word;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
+using CoreHelper = DG_TonKhoBTP_v02.Helper.Helper;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using DG_TonKhoBTP_v02.UI.Helper;
 
 namespace DG_TonKhoBTP_v02.UI.Authentication
 {

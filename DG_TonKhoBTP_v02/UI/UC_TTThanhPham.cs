@@ -4,8 +4,7 @@ using DG_TonKhoBTP_v02.Dictionary;
 using DG_TonKhoBTP_v02.Helper;
 using DG_TonKhoBTP_v02.Models;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+using CoreHelper = DG_TonKhoBTP_v02.Helper.Helper;
 using System.Data;
 using System.Drawing;
 using System.Linq;
@@ -49,27 +48,27 @@ namespace DG_TonKhoBTP_v02.UI
         public void ChonMay(string value)
         {
             may.Text = value;
-            soLOT.Text = Helper.Helper.LOTGenerated(may, maHanhTrinh, sttCongDoan, sttLo, soBin);
+            soLOT.Text = CoreHelper.LOTGenerated(may, maHanhTrinh, sttCongDoan, sttLo, soBin);
         }
 
         private void maHanhTrinh_ValueChanged(object sender, EventArgs e)
         {
-            soLOT.Text = Helper.Helper.LOTGenerated(may, maHanhTrinh, sttCongDoan, sttLo, soBin);
+            soLOT.Text = CoreHelper.LOTGenerated(may, maHanhTrinh, sttCongDoan, sttLo, soBin);
         }
 
         private void sttCongDoan_SelectedIndexChanged(object sender, EventArgs e)
         {
-            soLOT.Text = Helper.Helper.LOTGenerated(may, maHanhTrinh, sttCongDoan, sttLo, soBin);
+            soLOT.Text = CoreHelper.LOTGenerated(may, maHanhTrinh, sttCongDoan, sttLo, soBin);
         }
 
         private void sttLo_ValueChanged(object sender, EventArgs e)
         {
-            soLOT.Text = Helper.Helper.LOTGenerated(may, maHanhTrinh, sttCongDoan, sttLo, soBin);
+            soLOT.Text = CoreHelper.LOTGenerated(may, maHanhTrinh, sttCongDoan, sttLo, soBin);
         }
 
         private void soBin_ValueChanged(object sender, EventArgs e)
         {
-            soLOT.Text = Helper.Helper.LOTGenerated(may, maHanhTrinh, sttCongDoan, sttLo, soBin);
+            soLOT.Text = CoreHelper.LOTGenerated(may, maHanhTrinh, sttCongDoan, sttLo, soBin);
         }
 
         #region Lấy và load dữ liệu vào form
@@ -212,16 +211,16 @@ namespace DG_TonKhoBTP_v02.UI
 
             string bin = row["MaBin"].ToString();
 
-            Helper.Helper.SetIfPresent(row, "id", val => id.Text = Convert.ToString(val));
-            Helper.Helper.SetIfPresent(row, "Ma", val => ma.Text = Convert.ToString(val));
-            Helper.Helper.SetIfPresent(row, "Ten", val => ten.Text = Convert.ToString(val));
-            Helper.Helper.SetIfPresent(row, "donvi", val => donVi.Text = Convert.ToString(val));
-            Helper.Helper.SetIfPresent(row, "KhoiLuongTruoc", val => khoiLuong.Value = Convert.ToDecimal(val));
-            Helper.Helper.SetIfPresent(row, "ChieuDaiTruoc", val => chieuDai.Value = Convert.ToDecimal(val));
-            Helper.Helper.SetIfPresent(row, "Phe", val => phe.Value = Convert.ToDecimal(val));
-            Helper.Helper.SetIfPresent(row, "GhiChu", val => GhiChu.Text = Convert.ToString(val));
+            CoreHelper.SetIfPresent(row, "id", val => id.Text = Convert.ToString(val));
+            CoreHelper.SetIfPresent(row, "Ma", val => ma.Text = Convert.ToString(val));
+            CoreHelper.SetIfPresent(row, "Ten", val => ten.Text = Convert.ToString(val));
+            CoreHelper.SetIfPresent(row, "donvi", val => donVi.Text = Convert.ToString(val));
+            CoreHelper.SetIfPresent(row, "KhoiLuongTruoc", val => khoiLuong.Value = Convert.ToDecimal(val));
+            CoreHelper.SetIfPresent(row, "ChieuDaiTruoc", val => chieuDai.Value = Convert.ToDecimal(val));
+            CoreHelper.SetIfPresent(row, "Phe", val => phe.Value = Convert.ToDecimal(val));
+            CoreHelper.SetIfPresent(row, "GhiChu", val => GhiChu.Text = Convert.ToString(val));
 
-            string[] mabin = Helper.Helper.CatMaBin(bin);
+            string[] mabin = CoreHelper.CatMaBin(bin);
 
             if (mabin.Length == 5)
             {

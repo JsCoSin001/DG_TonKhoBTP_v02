@@ -1,7 +1,8 @@
 ﻿using BCrypt.Net;
 using DG_TonKhoBTP_v02.Database;
 using DG_TonKhoBTP_v02.Models;
-using DocumentFormat.OpenXml.Math;
+using DG_TonKhoBTP_v02.UI.Helper;
+using CoreHelper = DG_TonKhoBTP_v02.Helper.Helper;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -232,7 +233,7 @@ namespace DG_TonKhoBTP_v02.UI.Setting
             }
             catch (Exception ex)
             {
-                var mess = Helper.Helper.ShowErrorDatabase(ex, "TÀI KHOẢN");
+                var mess = CoreHelper.ShowErrorDatabase(ex, "TÀI KHOẢN");
                 FrmWaiting.ShowGifAlert(mess, "THÔNG BÁO", EnumStore.Icon.Warning);
             }
             finally
@@ -253,7 +254,7 @@ namespace DG_TonKhoBTP_v02.UI.Setting
             string tabName = tabControl1.SelectedTab?.Name;
             if (tabName != "tbPhanQuyen") return;
 
-            Helper.Helper.LoadUsersWithSameRoles(tvDanhSach);
+            CoreHelper.LoadUsersWithSameRoles(tvDanhSach);
         }
 
         private int idRole = 0;

@@ -59,7 +59,7 @@ public static class EnumStore
     };
 
     // Danh sách này chứa tên các máy không cần kiểm tra khối lượng còn lại
-    public static string[] dsTenMayBoQuaKiemTraKhoiLuongConLai = { "MD16A4" };
+    public static string[] dsTenMayBoQuaKiemTraKhoiLuongConLai = { "MD16A4", "R6", "R10", "R12" };
 
     // Danh sách này chứa tên các máy không cần kiểm tra khối lượng còn lại
     public static string[] dsTenMayTuDongTinhKLConLai = { "B9" , "B10" };

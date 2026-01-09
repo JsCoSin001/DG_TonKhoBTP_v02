@@ -74,7 +74,6 @@
             this.dtgTTNVL.RowHeadersVisible = false;
             this.dtgTTNVL.Size = new System.Drawing.Size(756, 363);
             this.dtgTTNVL.TabIndex = 1;
-            this.dtgTTNVL.Visible = false;
             // 
             // panel1
             // 

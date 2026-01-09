@@ -13,6 +13,7 @@ namespace DG_TonKhoBTP_v02.Models
         public string KhoiLuong { get; set; }
         public string ChieuDai { get; set; }
         public string TenSP { get; set; }
+        public string QC { get; set; } = "";
         public string MaBin { get; set; }
         public string MaSP { get; set; }
         public string DanhGia { get; set; }

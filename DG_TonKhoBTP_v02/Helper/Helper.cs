@@ -152,7 +152,7 @@ namespace DG_TonKhoBTP_v02.Helper
                 d.ma        AS MaNVL,
                 d.DonVi     AS DonVi,
                 d.id        AS DanhSachMaSP_ID,
-                'N/A'       As Qc,
+                'NA'         As Qc,
                 d.Ten       AS BinNVL,
                 NULL        AS Ngay,
                 ''          AS Ca,
@@ -184,7 +184,7 @@ namespace DG_TonKhoBTP_v02.Helper
             return @"
             SELECT
               ttp.id AS STT,
-              tclv.Ngay, tclv.Ca, tclv.May,ttp.QC,
+              tclv.Ngay, tclv.Ca, tclv.May,nvl.QC,
               ttp.MaBin as MaBin, ds.Ten AS Ten, ds.Ma AS Ma,ds.DonVi, ds.id AS id,
               tclv.NguoiLam, tclv.ToTruong, tclv.QuanDoc,
               ttp.KhoiLuongTruoc AS KhoiLuongTruoc, ttp.KhoiLuongSau as KhoiLuongSau,

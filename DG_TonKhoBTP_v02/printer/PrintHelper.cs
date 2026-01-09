@@ -38,37 +38,6 @@ namespace DG_TonKhoBTP_v02.Printer
             }
         }
 
-        //public static bool IsPrinterReady(string printerName)
-        //{
-        //    try
-        //    {
-        //        string query = $"SELECT * FROM Win32_Printer WHERE Name = '{printerName.Replace("\\", "\\\\")}'";
-
-        //        using (var searcher = new ManagementObjectSearcher(query))
-        //        {
-        //            foreach (ManagementObject printer in searcher.Get())
-        //            {
-        //                bool workOffline = printer["WorkOffline"] != null && (bool)printer["WorkOffline"];
-
-        //                // 3 = Idle, 4 = Printing, 5 = Warming Up => coi là OK
-        //                ushort status = 0;
-        //                if (printer["PrinterStatus"] != null)
-        //                    status = (ushort)printer["PrinterStatus"];
-
-        //                bool statusOk = (status == 3 || status == 4 || status == 5);
-
-        //                return !workOffline && statusOk;
-        //            }
-        //        }
-        //    }
-        //    catch
-        //    {
-        //        return false;
-        //    }
-
-        //    return false;
-        //}
-
 
         public static bool IsPrinterReady(string printerName)
         {
@@ -310,6 +279,13 @@ namespace DG_TonKhoBTP_v02.Printer
                     y += lineHeightVal + 50;
 
                     graphics.DrawString("KCS", labelFont, brush, 180, y);
+
+                    if (data.QC != "")
+                    {
+                        graphics.DrawString("KCS: " + data.QC, labelBoldFont, brush, 100, y + 90);
+
+                        graphics.DrawString("ĐÃ KIỂM TRA", labelFont, brush, 70, y + 160);
+                    }
 
                     // QR
                     if (!string.IsNullOrEmpty(qrContent))

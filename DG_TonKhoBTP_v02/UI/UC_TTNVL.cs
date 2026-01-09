@@ -4,6 +4,7 @@ using DG_TonKhoBTP_v02.Database;
 using DG_TonKhoBTP_v02.Dictionary;
 using DG_TonKhoBTP_v02.Models;
 using DG_TonKhoBTP_v02.UI.Helper;
+using DocumentFormat.OpenXml.Wordprocessing;
 using Microsoft.VisualBasic;
 using System;
 using System.Collections.Generic;
@@ -37,10 +38,8 @@ namespace DG_TonKhoBTP_v02.UI
 
         public Action FocusKhoiLuong { get; set; }
 
-        private bool _autoFilling = false;
 
-
-        bool isShow = true;
+        bool isShow = false;
         int tongCotCanHide = 10;
 
         public bool RawMaterial { get; set; } = false;
@@ -64,24 +63,6 @@ namespace DG_TonKhoBTP_v02.UI
             dtgTTNVL.EditingControlShowing += dtgTTNVL_EditingControlShowing;
         }
 
-
-        //private void HookDbg()
-        //{
-        //    dtgTTNVL.DataSourceChanged += (s, e) =>
-        //        Debug.WriteLine($"[DBG] DataSourceChanged: DS={dtgTTNVL.DataSource?.GetType().Name}, AutoGen={dtgTTNVL.AutoGenerateColumns}, Cols={dtgTTNVL.Columns.Count}, Rows={dtgTTNVL.Rows.Count}");
-
-        //    dtgTTNVL.DataBindingComplete += (s, e) =>
-        //        Debug.WriteLine($"[DBG] DataBindingComplete: Cols={dtgTTNVL.Columns.Count}, Rows={dtgTTNVL.Rows.Count}");
-
-        //    dtgTTNVL.BindingContextChanged += (s, e) =>
-        //        Debug.WriteLine($"[DBG] BindingContextChanged: null? {dtgTTNVL.BindingContext == null}");
-
-        //    dtgTTNVL.ColumnAdded += (s, e) =>
-        //        Debug.WriteLine($"[DBG] ColumnAdded: {e.Column?.Name}, Cols={dtgTTNVL.Columns.Count}");
-
-        //    dtgTTNVL.ColumnRemoved += (s, e) =>
-        //        Debug.WriteLine($"[DBG] ColumnRemoved: {e.Column?.Name}, Cols={dtgTTNVL.Columns.Count}");
-        //}
 
         private void TaoBang(List<ColumnDefinition> columns)
         {
@@ -161,7 +142,7 @@ namespace DG_TonKhoBTP_v02.UI
                     defaultWidth = 100;
                     break;
                 case 4:
-                    defaultWidth = 85;
+                    defaultWidth = 70;
                     defaulHeight = 45;
                     break;
             }
@@ -434,82 +415,166 @@ namespace DG_TonKhoBTP_v02.UI
         }
 
         #region Hiển thị dữ liệu từ DataTable
+        //public void LoadData(DataTable dt)
+        //{
+        
+
+        //    if (dt == null) return;
+
+        //    setVisibleTableNVL(true);
+
+        //    // 1) Tạo dtNew theo _columns
+        //    var dtNew = new DataTable("ThongTin");
+        //    foreach (var col in _columns)
+        //    {
+        //        dtNew.Columns.Add(col.Name, col.DataType);
+        //    }
+
+        //    foreach (DataRow src in dt.Rows)
+        //    {
+        //        var row = dtNew.NewRow();
+        //        foreach (var col in _columns)
+        //        {
+        //            if (dt.Columns.Contains(col.Name)) row[col.Name] = src[col.Name];
+        //        }
+        //        dtNew.Rows.Add(row);
+        //    }
+
+        //    dtgTTNVL.SuspendLayout();
+
+        //    try
+        //    {
+        //        // 2) Dọn cột cũ để tránh duplicate / lệch mapping
+        //        dtgTTNVL.DataSource = null;
+        //        dtgTTNVL.Columns.Clear();             // quan trọng
+
+        //        // 3) Bind
+        //        dtgTTNVL.AutoGenerateColumns = true;
+        //        dtgTTNVL.DataSource = dtNew;
+
+        //        // 4) Gọi lại cấu hình header/width…
+        //        SetColumnHeaders(dtgTTNVL, _columns);
+
+        //        // 5) Ép lại thứ tự hiển thị theo _columns (đảm bảo index ổn định cho SetColumnHeaders)
+        //        for (int i = 0; i < _columns.Count; i++)
+        //        {
+        //            var name = _columns[i].Name;
+        //            if (dtgTTNVL.Columns.Contains(name))
+        //            {
+        //                dtgTTNVL.Columns[name].DisplayIndex = i;
+        //            }
+        //        }
+
+        //        // 6) Đảm bảo cột Delete là cột CUỐI CÙNG
+        //        if (!dtgTTNVL.Columns.Contains("Delete"))
+        //        {
+        //            var btnDelete = new DataGridViewButtonColumn
+        //            {
+        //                Name = "Delete",
+        //                HeaderText = "",
+        //                Text = "Xoá",
+        //                UseColumnTextForButtonValue = true,
+        //                Width = 60
+        //            };
+        //            dtgTTNVL.Columns.Add(btnDelete);
+        //        }
+
+        //        // Đặt DisplayIndex cho Delete là cuối
+        //        dtgTTNVL.Columns["Delete"].DisplayIndex = dtgTTNVL.Columns.Count - 1;
+
+        //    }
+        //    finally
+        //    {
+        //        dtgTTNVL.ResumeLayout();
+        //    }
+
+        //}
+
         public void LoadData(DataTable dt)
         {
             if (dt == null) return;
 
             setVisibleTableNVL(true);
 
-            // 1) Tạo dtNew theo _columns
-            var dtNew = new DataTable("ThongTin");
-            foreach (var col in _columns)
+            // Nếu DataGridView chưa tạo Handle (thường xảy ra khi UC vừa mới show)
+            if (!dtgTTNVL.IsHandleCreated)
             {
-                dtNew.Columns.Add(col.Name, col.DataType);
-            }    
+                dtgTTNVL.HandleCreated += (_, __) => LoadData(dt); // gọi lại khi handle sẵn sàng
+                return;
+            }
 
-
-            foreach (DataRow src in dt.Rows)
+            // Đẩy việc bind sang vòng message loop kế tiếp để đảm bảo render đủ rows ngay lần 1
+            dtgTTNVL.BeginInvoke(new Action(() =>
             {
-                var row = dtNew.NewRow();
+                // 1) Tạo dtNew theo _columns
+                var dtNew = new DataTable("ThongTin");
                 foreach (var col in _columns)
                 {
-                    if (dt.Columns.Contains(col.Name)) row[col.Name] = src[col.Name];
+                    dtNew.Columns.Add(col.Name, col.DataType);
                 }
-                dtNew.Rows.Add(row);
-            }
 
-            dtgTTNVL.SuspendLayout();
-
-            try
-            {
-                // 2) Dọn cột cũ để tránh duplicate / lệch mapping
-                dtgTTNVL.DataSource = null;
-                dtgTTNVL.Columns.Clear();             // quan trọng
-
-                // 3) Bind
-                dtgTTNVL.AutoGenerateColumns = true;
-                dtgTTNVL.DataSource = dtNew;
-
-                // 4) Gọi lại cấu hình header/width…
-                SetColumnHeaders(dtgTTNVL, _columns);
-
-                // 5) Ép lại thứ tự hiển thị theo _columns (đảm bảo index ổn định cho SetColumnHeaders)
-                for (int i = 0; i < _columns.Count; i++)
+                foreach (DataRow src in dt.Rows)
                 {
-                    var name = _columns[i].Name;
-                    if (dtgTTNVL.Columns.Contains(name))
+                    var row = dtNew.NewRow();
+                    foreach (var col in _columns)
                     {
-                        dtgTTNVL.Columns[name].DisplayIndex = i;
+                        if (dt.Columns.Contains(col.Name))
+                            row[col.Name] = src[col.Name];
                     }
+                    dtNew.Rows.Add(row);
                 }
 
-                // 6) Đảm bảo cột Delete là cột CUỐI CÙNG
-                if (!dtgTTNVL.Columns.Contains("Delete"))
+
+                dtgTTNVL.SuspendLayout();
+                try
                 {
-                    var btnDelete = new DataGridViewButtonColumn
+                    // 3) Dọn cột cũ để tránh duplicate / lệch mapping
+                    dtgTTNVL.DataSource = null;
+                    dtgTTNVL.Columns.Clear();
+
+                    // 4) Bind từ field
+                    dtgTTNVL.AutoGenerateColumns = true;
+                    dtgTTNVL.DataSource = dtNew;
+
+                    // 5) Cấu hình header/width…
+                    SetColumnHeaders(dtgTTNVL, _columns);
+
+                    // 6) Ép thứ tự hiển thị theo _columns
+                    for (int i = 0; i < _columns.Count; i++)
                     {
-                        Name = "Delete",
-                        HeaderText = "",
-                        Text = "Xoá",
-                        UseColumnTextForButtonValue = true,
-                        Width = 60
-                    };
-                    dtgTTNVL.Columns.Add(btnDelete);
+                        var name = _columns[i].Name;
+                        if (dtgTTNVL.Columns.Contains(name))
+                            dtgTTNVL.Columns[name].DisplayIndex = i;
+                    }
+
+                    // 7) Đảm bảo cột Delete là cuối
+                    if (!dtgTTNVL.Columns.Contains("Delete"))
+                    {
+                        var btnDelete = new DataGridViewButtonColumn
+                        {
+                            Name = "Delete",
+                            HeaderText = "",
+                            Text = "Xoá",
+                            UseColumnTextForButtonValue = true,
+                            Width = 60
+                        };
+                        dtgTTNVL.Columns.Add(btnDelete);
+                    }
+
+                    dtgTTNVL.Columns["Delete"].DisplayIndex = dtgTTNVL.Columns.Count - 1;
+
+                    // 8) Ép refresh (không bắt buộc nhưng giúp chắc ăn)
+                    dtgTTNVL.Refresh();
                 }
-
-                // Đặt DisplayIndex cho Delete là cuối
-                dtgTTNVL.Columns["Delete"].DisplayIndex = dtgTTNVL.Columns.Count-1;
-
-
-                // (Giữ nguyên các tuỳ chỉnh khác của bạn)
-                dtgTTNVL.CellClick -= dtgTTNVL_CellClick;
-                dtgTTNVL.CellClick += dtgTTNVL_CellClick;
-            }
-            finally
-            {
-                dtgTTNVL.ResumeLayout();
-            }
+                finally
+                {
+                    dtgTTNVL.ResumeLayout();
+                }
+            }));
         }
+
+
+
         #endregion
 
         #region Lấy và load dữ liệu vào form code for IFormSection

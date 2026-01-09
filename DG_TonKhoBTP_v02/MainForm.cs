@@ -50,7 +50,10 @@ namespace DG_TonKhoBTP_v02
             InitializeComponent();
             DatabaseHelper.SetDatabasePath(_URL);
             lblAuthor.Text = $"Được phát triển bởi Linh - Version: {_ver} - All rights reserved.";
+
+
             DatabasehelperVer01.SetDatabasePath(_URL);
+
             ShowHomePage();
 
         }
@@ -115,6 +118,7 @@ namespace DG_TonKhoBTP_v02
                 errorMessagePrefix: "kéo rút",
                 afterShowUI: root => _ui.HookNvlThanhPham(root)
             );
+            //HienThiCauTruc();
         }
 
         private void btnBenRuot_Click(object sender, EventArgs e)
@@ -169,7 +173,8 @@ namespace DG_TonKhoBTP_v02
                 thongTinCD: ThongTinChungCongDoan.Mica,
                 createSanPham: () => new UC_TTSanPham(new UC_CDGhepLoiQB()),
                 rawMaterial: false,
-                errorMessagePrefix: "mica"
+                errorMessagePrefix: "mica",
+                afterShowUI: root => _ui.HookNvlThanhPham(root)
             );
         }
 
@@ -1072,7 +1077,6 @@ namespace DG_TonKhoBTP_v02
             SetThongTinUser();
         }
 
-
         private void InitUserMenu()
         {
             userMenu = new ContextMenuStrip();
@@ -1087,7 +1091,6 @@ namespace DG_TonKhoBTP_v02
             userMenu.Items.Add(new ToolStripSeparator());
             userMenu.Items.Add(mnuLogout);
         }
-
 
         private void pdropdown_Click(object sender, EventArgs e)
         {
@@ -1220,6 +1223,8 @@ namespace DG_TonKhoBTP_v02
 
         private void btnKeHoach_Click(object sender, EventArgs e)
         {
+            FrmWaiting.ShowGifAlert($"Chức năng này chưa hoàn thiện. \nVui lòng thử lại sau...");
+            return;
 
             using (var waiting = new FrmWaiting("ĐANG KHỞI TẠO GIAO DIỆN..."))
             {

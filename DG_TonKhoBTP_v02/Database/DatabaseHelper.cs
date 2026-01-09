@@ -920,8 +920,6 @@ namespace DG_TonKhoBTP_v02.Database
             }
         }
 
-
-
         public static DataTable GetDataByCongDoan(DateTime selectedDate, CongDoan cd,int ca, string nguoiKiemTra)
         {
             string key = selectedDate.ToString("yyyy-MM-dd");
@@ -1111,6 +1109,7 @@ namespace DG_TonKhoBTP_v02.Database
                 SELECT  
                     t.Ngay AS NgaySX,
                     t.Ca AS CaSX,
+                    tp.QC AS QC,
                     tp.KhoiLuongSau AS KhoiLuong,
                     tp.ChieuDaiSau AS ChieuDai,
                     d.ten AS TenSP,
@@ -1139,7 +1138,9 @@ namespace DG_TonKhoBTP_v02.Database
                     using (SQLiteDataReader reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())
-                        {
+                        {                        
+
+
                             var model = new PrinterModel
                             {
                                 NgaySX = DateTime.Parse(reader["NgaySX"].ToString()).ToString("dd/MM/yyyy"),
@@ -1148,8 +1149,9 @@ namespace DG_TonKhoBTP_v02.Database
                                 ChieuDai = reader["ChieuDai"].ToString(),
                                 TenSP = reader["TenSP"].ToString(),
                                 MaBin = reader["MaBin"].ToString(),
-                                MaSP = reader["MaSP"].ToString(),
+                                MaSP = reader["MaSP"].ToString(), 
                                 DanhGia = "",
+                                QC = reader["QC"].ToString(),
                                 TenCN = reader["TenCN"].ToString(),
                                 GhiChu = reader["GhiChu"].ToString()
                             };
@@ -1262,8 +1264,8 @@ namespace DG_TonKhoBTP_v02.Database
                 cmd.Parameters["@KhoiLuongSau"].Value = nvl.KlConLai;
                 cmd.Parameters["@ChieuDaiSau"].Value = nvl.CdConLai;
                 cmd.Parameters["@LastEdit_ID"].Value = thongTinSpId;
-                cmd.Parameters["@MaBin"].Value = nvl.BinNVL;
                 cmd.Parameters["@QC"].Value = nvl.QC;
+                cmd.Parameters["@MaBin"].Value = nvl.BinNVL;
 
                 cmd.ExecuteNonQuery(); 
             }
@@ -1907,9 +1909,9 @@ namespace DG_TonKhoBTP_v02.Database
 
             const string sql = @"
             INSERT INTO TTNVL
-                (TTThanhPham_ID, BinNVL, DanhSachMaSP_ID, KlBatDau, CdBatDau, KlConLai, CdConLai, DuongKinhSoiDong, SoSoi, KetCauLoi, DuongKinhSoiMach, BanRongBang, DoDayBang)
+                (TTThanhPham_ID, BinNVL,QC, DanhSachMaSP_ID, KlBatDau, CdBatDau, KlConLai, CdConLai, DuongKinhSoiDong, SoSoi, KetCauLoi, DuongKinhSoiMach, BanRongBang, DoDayBang)
             VALUES
-                (@TTThanhPham_ID, @BinNVL,@DanhSachMaSP_ID, @KlBatDau, @CdBatDau, @KlConLai, @CdConLai, @DuongKinhSoiDong, @SoSoi, @KetCauLoi, @DuongKinhSoiMach, @BanRongBang, @DoDayBang);";
+                (@TTThanhPham_ID, @BinNVL,@QC,@DanhSachMaSP_ID, @KlBatDau, @CdBatDau, @KlConLai, @CdConLai, @DuongKinhSoiDong, @SoSoi, @KetCauLoi, @DuongKinhSoiMach, @BanRongBang, @DoDayBang);";
 
             using var cmd = new SQLiteCommand(sql, conn, tx);
 
@@ -1917,6 +1919,7 @@ namespace DG_TonKhoBTP_v02.Database
             var pBinNVL = cmd.Parameters.Add("@BinNVL", DbType.String);
             var DanhSachMaSP_ID = cmd.Parameters.Add("@DanhSachMaSP_ID", DbType.Int64);
             var KlBatDau = cmd.Parameters.Add("@KlBatDau", DbType.Double);
+            var QC = cmd.Parameters.Add("@QC", DbType.String);
             var CdBatDau = cmd.Parameters.Add("@CdBatDau", DbType.Double);
             var KlConLai = cmd.Parameters.Add("@KlConLai", DbType.Double);
             var CdConLai = cmd.Parameters.Add("@CdConLai", DbType.Double);
@@ -1936,6 +1939,7 @@ namespace DG_TonKhoBTP_v02.Database
                 CdBatDau.Value = m.CdBatDau;
                 KlConLai.Value = m.KlConLai;
                 CdConLai.Value = m.CdConLai;
+                QC.Value = m.QC;
                 pDuongKinhSoiDong.Value = m.DuongKinhSoiDong;
                 pSoSoi.Value = m.SoSoi;
                 pKetCauLoi.Value = m.KetCauLoi;

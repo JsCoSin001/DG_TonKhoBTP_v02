@@ -67,11 +67,13 @@
             this.dtgTTNVL.AllowUserToAddRows = false;
             this.dtgTTNVL.BackgroundColor = System.Drawing.SystemColors.Control;
             this.dtgTTNVL.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.dtgTTNVL.ClipboardCopyMode = System.Windows.Forms.DataGridViewClipboardCopyMode.EnableWithoutHeaderText;
             this.dtgTTNVL.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dtgTTNVL.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dtgTTNVL.Location = new System.Drawing.Point(10, 81);
             this.dtgTTNVL.Name = "dtgTTNVL";
             this.dtgTTNVL.RowHeadersVisible = false;
+            this.dtgTTNVL.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
             this.dtgTTNVL.Size = new System.Drawing.Size(756, 363);
             this.dtgTTNVL.TabIndex = 1;
             // 
@@ -191,6 +193,7 @@
             this.Name = "UC_TTNVL";
             this.Padding = new System.Windows.Forms.Padding(10);
             this.Size = new System.Drawing.Size(796, 474);
+            this.Load += new System.EventHandler(this.UC_TTNVL_Load);
             this.groupBox1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dtgTTNVL)).EndInit();
             this.panel1.ResumeLayout(false);

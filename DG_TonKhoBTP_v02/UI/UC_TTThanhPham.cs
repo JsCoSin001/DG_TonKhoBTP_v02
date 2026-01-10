@@ -239,9 +239,9 @@ namespace DG_TonKhoBTP_v02.UI
             KhoiLuongChanged?.Invoke(khoiLuong.Value);
         }
 
-        private void soLOT_TextChanged(object sender, EventArgs e)
+        private void may_TextChanged(object sender, EventArgs e)
         {
-            SoLOTChanged?.Invoke(soLOT.Text);
+            SoLOTChanged?.Invoke(may.Text);
         }
     }
 }

@@ -448,6 +448,7 @@
             this.may.Name = "may";
             this.may.Size = new System.Drawing.Size(94, 28);
             this.may.TabIndex = 2;
+            this.may.TextChanged += new System.EventHandler(this.may_TextChanged);
             // 
             // soLOT
             // 
@@ -457,7 +458,6 @@
             this.soLOT.Name = "soLOT";
             this.soLOT.Size = new System.Drawing.Size(267, 26);
             this.soLOT.TabIndex = 37;
-            this.soLOT.TextChanged += new System.EventHandler(this.soLOT_TextChanged);
             // 
             // label15
             // 

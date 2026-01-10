@@ -2,6 +2,7 @@
 using DG_TonKhoBTP_v02.Core;
 using DG_TonKhoBTP_v02.Database;
 using DG_TonKhoBTP_v02.Dictionary;
+using DG_TonKhoBTP_v02.Helper.Reuseable;
 using DG_TonKhoBTP_v02.Models;
 using DG_TonKhoBTP_v02.UI.Helper;
 using DocumentFormat.OpenXml.Wordprocessing;
@@ -415,80 +416,6 @@ namespace DG_TonKhoBTP_v02.UI
         }
 
         #region Hiển thị dữ liệu từ DataTable
-        //public void LoadData(DataTable dt)
-        //{
-        
-
-        //    if (dt == null) return;
-
-        //    setVisibleTableNVL(true);
-
-        //    // 1) Tạo dtNew theo _columns
-        //    var dtNew = new DataTable("ThongTin");
-        //    foreach (var col in _columns)
-        //    {
-        //        dtNew.Columns.Add(col.Name, col.DataType);
-        //    }
-
-        //    foreach (DataRow src in dt.Rows)
-        //    {
-        //        var row = dtNew.NewRow();
-        //        foreach (var col in _columns)
-        //        {
-        //            if (dt.Columns.Contains(col.Name)) row[col.Name] = src[col.Name];
-        //        }
-        //        dtNew.Rows.Add(row);
-        //    }
-
-        //    dtgTTNVL.SuspendLayout();
-
-        //    try
-        //    {
-        //        // 2) Dọn cột cũ để tránh duplicate / lệch mapping
-        //        dtgTTNVL.DataSource = null;
-        //        dtgTTNVL.Columns.Clear();             // quan trọng
-
-        //        // 3) Bind
-        //        dtgTTNVL.AutoGenerateColumns = true;
-        //        dtgTTNVL.DataSource = dtNew;
-
-        //        // 4) Gọi lại cấu hình header/width…
-        //        SetColumnHeaders(dtgTTNVL, _columns);
-
-        //        // 5) Ép lại thứ tự hiển thị theo _columns (đảm bảo index ổn định cho SetColumnHeaders)
-        //        for (int i = 0; i < _columns.Count; i++)
-        //        {
-        //            var name = _columns[i].Name;
-        //            if (dtgTTNVL.Columns.Contains(name))
-        //            {
-        //                dtgTTNVL.Columns[name].DisplayIndex = i;
-        //            }
-        //        }
-
-        //        // 6) Đảm bảo cột Delete là cột CUỐI CÙNG
-        //        if (!dtgTTNVL.Columns.Contains("Delete"))
-        //        {
-        //            var btnDelete = new DataGridViewButtonColumn
-        //            {
-        //                Name = "Delete",
-        //                HeaderText = "",
-        //                Text = "Xoá",
-        //                UseColumnTextForButtonValue = true,
-        //                Width = 60
-        //            };
-        //            dtgTTNVL.Columns.Add(btnDelete);
-        //        }
-
-        //        // Đặt DisplayIndex cho Delete là cuối
-        //        dtgTTNVL.Columns["Delete"].DisplayIndex = dtgTTNVL.Columns.Count - 1;
-
-        //    }
-        //    finally
-        //    {
-        //        dtgTTNVL.ResumeLayout();
-        //    }
-
-        //}
 
         public void LoadData(DataTable dt)
         {
@@ -572,9 +499,6 @@ namespace DG_TonKhoBTP_v02.UI
                 }
             }));
         }
-
-
-
         #endregion
 
         #region Lấy và load dữ liệu vào form code for IFormSection
@@ -731,6 +655,15 @@ namespace DG_TonKhoBTP_v02.UI
         private void nmrKlDongThua_Leave(object sender, EventArgs e)
         {
             
+        }
+
+        private void UC_TTNVL_Load(object sender, EventArgs e)
+        {
+            DataGridViewClipboardHelper.Attach(dtgTTNVL,
+                includeHeaderWhenCopy: false,
+                enableTsvBlockPaste: true,
+                useDBNullForEmpty: true // DataTable => true, List<T> => false
+            );
         }
 
     }

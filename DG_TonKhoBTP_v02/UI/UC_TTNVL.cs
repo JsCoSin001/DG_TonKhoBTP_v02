@@ -235,10 +235,10 @@ namespace DG_TonKhoBTP_v02.UI
 
             if (string.IsNullOrWhiteSpace(tenNL) || !TenMayDaNhap()) return;
 
-            bool tuDongTinh = EnumStore.dsTenMayTuDongTinhKLConLai.Contains(ReadTenMay());
+            //bool tuDongTinh = EnumStore.dsTenMayTuDongTinhKLConLai.Contains(ReadTenMay());
 
             // Yêu cầu nhập khối lượng đồng thừa
-            if (tuDongTinh && klDongThua == null) SetKhoiLuongDongThua();
+            //if (tuDongTinh && klDongThua == null) SetKhoiLuongDongThua();
 
             // --- thêm debounce + cancel ---
             _searchCts?.Cancel();
@@ -386,7 +386,7 @@ namespace DG_TonKhoBTP_v02.UI
                     decimal gtConLai_New = (klBatDau <= -1m) ? (klBatDau - 1m) : -1m;
 
                     dtgTTNVL.Rows[addedIndex].Cells[targetCol].Value = gtConLai_New;
-                    dtgTTNVL.Rows[addedIndex].Cells[targetCol].ReadOnly = true;
+                    //dtgTTNVL.Rows[addedIndex].Cells[targetCol].ReadOnly = true;
                 }
 
                 bool autoFilling = EnumStore.dsTenMayTuDongTinhKLConLai.Contains(ReadTenMay());

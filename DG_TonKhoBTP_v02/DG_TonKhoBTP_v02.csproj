@@ -162,6 +162,12 @@
     <Compile Include="Printer\PrintHelper.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UI\Actions\UC_TachBin.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\Actions\UC_TachBin.Designer.cs">
+      <DependentUpon>UC_TachBin.cs</DependentUpon>
+    </Compile>
     <Compile Include="UI\Actions\UC_CapNhatSP.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -284,11 +290,23 @@
       <DependentUpon>GetUserInputValue_Simple.cs</DependentUpon>
     </Compile>
     <Compile Include="UI\Helper\WaitingHelper.cs" />
+    <Compile Include="UI\NghiepVu\KeHoach\BanHanhKH_SX.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\NghiepVu\KeHoach\BanHanhKH_SX.Designer.cs">
+      <DependentUpon>BanHanhKH_SX.cs</DependentUpon>
+    </Compile>
     <Compile Include="UI\NghiepVu\KeHoach\KeHoach.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="UI\NghiepVu\KeHoach\KeHoach.Designer.cs">
       <DependentUpon>KeHoach.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\NghiepVu\KeHoach\ThietLap_KH.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\NghiepVu\KeHoach\ThietLap_KH.Designer.cs">
+      <DependentUpon>ThietLap_KH.cs</DependentUpon>
     </Compile>
     <Compile Include="UI\NghiepVu\KeHoach\UC_KeHoach.cs">
       <SubType>UserControl</SubType>
@@ -351,6 +369,9 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <EmbeddedResource Include="UI\Actions\UC_TachBin.resx">
+      <DependentUpon>UC_TachBin.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="UI\Actions\UC_CapNhatSP.resx">
       <DependentUpon>UC_CapNhatSP.cs</DependentUpon>
     </EmbeddedResource>
@@ -411,8 +432,14 @@
     <EmbeddedResource Include="UI\Helper\GetUserInputValue_Simple.resx">
       <DependentUpon>GetUserInputValue_Simple.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="UI\NghiepVu\KeHoach\BanHanhKH_SX.resx">
+      <DependentUpon>BanHanhKH_SX.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="UI\NghiepVu\KeHoach\KeHoach.resx">
       <DependentUpon>KeHoach.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\NghiepVu\KeHoach\ThietLap_KH.resx">
+      <DependentUpon>ThietLap_KH.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UI\NghiepVu\KeHoach\UC_KeHoach.resx">
       <DependentUpon>UC_KeHoach.cs</DependentUpon>

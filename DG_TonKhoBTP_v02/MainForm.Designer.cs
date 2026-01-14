@@ -37,6 +37,8 @@ namespace DG_TonKhoBTP_v02
             this.panel16 = new System.Windows.Forms.Panel();
             this.btnKeHoach = new DG_TonKhoBTP_v02.UI.Component.CustomButton();
             this.grbCongCu = new System.Windows.Forms.GroupBox();
+            this.panel17 = new System.Windows.Forms.Panel();
+            this.btnTachBin = new DG_TonKhoBTP_v02.UI.Component.CustomButton();
             this.panel5 = new System.Windows.Forms.Panel();
             this.btnCapNhatMaHang = new DG_TonKhoBTP_v02.UI.Component.CustomButton();
             this.grbBaoCao = new System.Windows.Forms.GroupBox();
@@ -88,6 +90,7 @@ namespace DG_TonKhoBTP_v02
             this.groupBox1.SuspendLayout();
             this.panel16.SuspendLayout();
             this.grbCongCu.SuspendLayout();
+            this.panel17.SuspendLayout();
             this.panel5.SuspendLayout();
             this.grbBaoCao.SuspendLayout();
             this.panel4.SuspendLayout();
@@ -146,9 +149,9 @@ namespace DG_TonKhoBTP_v02
             this.groupBox1.Controls.Add(this.panel16);
             this.groupBox1.Dock = System.Windows.Forms.DockStyle.Top;
             this.groupBox1.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.groupBox1.Location = new System.Drawing.Point(0, 810);
+            this.groupBox1.Location = new System.Drawing.Point(0, 873);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(202, 83);
+            this.groupBox1.Size = new System.Drawing.Size(185, 83);
             this.groupBox1.TabIndex = 3;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Kế hoạch";
@@ -160,7 +163,7 @@ namespace DG_TonKhoBTP_v02
             this.panel16.Location = new System.Drawing.Point(3, 17);
             this.panel16.Name = "panel16";
             this.panel16.Padding = new System.Windows.Forms.Padding(5, 6, 5, 6);
-            this.panel16.Size = new System.Drawing.Size(196, 63);
+            this.panel16.Size = new System.Drawing.Size(179, 63);
             this.panel16.TabIndex = 7;
             // 
             // btnKeHoach
@@ -175,7 +178,7 @@ namespace DG_TonKhoBTP_v02
             this.btnKeHoach.Location = new System.Drawing.Point(5, 6);
             this.btnKeHoach.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
             this.btnKeHoach.Name = "btnKeHoach";
-            this.btnKeHoach.Size = new System.Drawing.Size(186, 51);
+            this.btnKeHoach.Size = new System.Drawing.Size(169, 51);
             this.btnKeHoach.TabIndex = 9;
             this.btnKeHoach.TabStop = false;
             this.btnKeHoach.Text = "LÊN KẾ HOẠCH";
@@ -186,15 +189,46 @@ namespace DG_TonKhoBTP_v02
             // grbCongCu
             // 
             this.grbCongCu.AutoSize = true;
+            this.grbCongCu.Controls.Add(this.panel17);
             this.grbCongCu.Controls.Add(this.panel5);
             this.grbCongCu.Dock = System.Windows.Forms.DockStyle.Top;
             this.grbCongCu.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.grbCongCu.Location = new System.Drawing.Point(0, 727);
             this.grbCongCu.Name = "grbCongCu";
-            this.grbCongCu.Size = new System.Drawing.Size(202, 83);
+            this.grbCongCu.Size = new System.Drawing.Size(185, 146);
             this.grbCongCu.TabIndex = 1;
             this.grbCongCu.TabStop = false;
             this.grbCongCu.Text = "CÔNG CỤ";
+            // 
+            // panel17
+            // 
+            this.panel17.Controls.Add(this.btnTachBin);
+            this.panel17.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panel17.Location = new System.Drawing.Point(3, 80);
+            this.panel17.Name = "panel17";
+            this.panel17.Padding = new System.Windows.Forms.Padding(5, 6, 5, 6);
+            this.panel17.Size = new System.Drawing.Size(179, 63);
+            this.panel17.TabIndex = 8;
+            // 
+            // btnTachBin
+            // 
+            this.btnTachBin.BackColor = System.Drawing.Color.Snow;
+            this.btnTachBin.BorderRadius = 10;
+            this.btnTachBin.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnTachBin.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.btnTachBin.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnTachBin.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnTachBin.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.btnTachBin.Location = new System.Drawing.Point(5, 6);
+            this.btnTachBin.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
+            this.btnTachBin.Name = "btnTachBin";
+            this.btnTachBin.Size = new System.Drawing.Size(169, 51);
+            this.btnTachBin.TabIndex = 9;
+            this.btnTachBin.TabStop = false;
+            this.btnTachBin.Text = "TÁCH BIN";
+            this.btnTachBin.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnTachBin.UseVisualStyleBackColor = false;
+            this.btnTachBin.Click += new System.EventHandler(this.btnTachBin_Click);
             // 
             // panel5
             // 
@@ -203,7 +237,7 @@ namespace DG_TonKhoBTP_v02
             this.panel5.Location = new System.Drawing.Point(3, 17);
             this.panel5.Name = "panel5";
             this.panel5.Padding = new System.Windows.Forms.Padding(5, 6, 5, 6);
-            this.panel5.Size = new System.Drawing.Size(196, 63);
+            this.panel5.Size = new System.Drawing.Size(179, 63);
             this.panel5.TabIndex = 7;
             // 
             // btnCapNhatMaHang
@@ -218,7 +252,7 @@ namespace DG_TonKhoBTP_v02
             this.btnCapNhatMaHang.Location = new System.Drawing.Point(5, 6);
             this.btnCapNhatMaHang.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
             this.btnCapNhatMaHang.Name = "btnCapNhatMaHang";
-            this.btnCapNhatMaHang.Size = new System.Drawing.Size(186, 51);
+            this.btnCapNhatMaHang.Size = new System.Drawing.Size(169, 51);
             this.btnCapNhatMaHang.TabIndex = 9;
             this.btnCapNhatMaHang.TabStop = false;
             this.btnCapNhatMaHang.Text = "UPDATE MÃ HÀNG";
@@ -236,7 +270,7 @@ namespace DG_TonKhoBTP_v02
             this.grbBaoCao.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.grbBaoCao.Location = new System.Drawing.Point(0, 518);
             this.grbBaoCao.Name = "grbBaoCao";
-            this.grbBaoCao.Size = new System.Drawing.Size(202, 209);
+            this.grbBaoCao.Size = new System.Drawing.Size(185, 209);
             this.grbBaoCao.TabIndex = 2;
             this.grbBaoCao.TabStop = false;
             this.grbBaoCao.Text = "BÁO CÁO";
@@ -248,7 +282,7 @@ namespace DG_TonKhoBTP_v02
             this.panel4.Location = new System.Drawing.Point(3, 143);
             this.panel4.Name = "panel4";
             this.panel4.Padding = new System.Windows.Forms.Padding(5, 6, 5, 6);
-            this.panel4.Size = new System.Drawing.Size(196, 63);
+            this.panel4.Size = new System.Drawing.Size(179, 63);
             this.panel4.TabIndex = 6;
             // 
             // btnTruyVetDL
@@ -263,7 +297,7 @@ namespace DG_TonKhoBTP_v02
             this.btnTruyVetDL.Location = new System.Drawing.Point(5, 6);
             this.btnTruyVetDL.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
             this.btnTruyVetDL.Name = "btnTruyVetDL";
-            this.btnTruyVetDL.Size = new System.Drawing.Size(186, 51);
+            this.btnTruyVetDL.Size = new System.Drawing.Size(169, 51);
             this.btnTruyVetDL.TabIndex = 9;
             this.btnTruyVetDL.TabStop = false;
             this.btnTruyVetDL.Text = "TRUY VẾT DỮ LIỆU";
@@ -278,7 +312,7 @@ namespace DG_TonKhoBTP_v02
             this.panel3.Location = new System.Drawing.Point(3, 80);
             this.panel3.Name = "panel3";
             this.panel3.Padding = new System.Windows.Forms.Padding(5, 6, 5, 6);
-            this.panel3.Size = new System.Drawing.Size(196, 63);
+            this.panel3.Size = new System.Drawing.Size(179, 63);
             this.panel3.TabIndex = 5;
             // 
             // BtnKiemTraBc
@@ -293,7 +327,7 @@ namespace DG_TonKhoBTP_v02
             this.BtnKiemTraBc.Location = new System.Drawing.Point(5, 6);
             this.BtnKiemTraBc.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
             this.BtnKiemTraBc.Name = "BtnKiemTraBc";
-            this.BtnKiemTraBc.Size = new System.Drawing.Size(186, 51);
+            this.BtnKiemTraBc.Size = new System.Drawing.Size(169, 51);
             this.BtnKiemTraBc.TabIndex = 10;
             this.BtnKiemTraBc.TabStop = false;
             this.BtnKiemTraBc.Text = "KIỂM TRA BÁO CÁO";
@@ -308,7 +342,7 @@ namespace DG_TonKhoBTP_v02
             this.panel2.Location = new System.Drawing.Point(3, 17);
             this.panel2.Name = "panel2";
             this.panel2.Padding = new System.Windows.Forms.Padding(5, 6, 5, 6);
-            this.panel2.Size = new System.Drawing.Size(196, 63);
+            this.panel2.Size = new System.Drawing.Size(179, 63);
             this.panel2.TabIndex = 4;
             // 
             // btnBaoCaoTonKho
@@ -323,7 +357,7 @@ namespace DG_TonKhoBTP_v02
             this.btnBaoCaoTonKho.Location = new System.Drawing.Point(5, 6);
             this.btnBaoCaoTonKho.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
             this.btnBaoCaoTonKho.Name = "btnBaoCaoTonKho";
-            this.btnBaoCaoTonKho.Size = new System.Drawing.Size(186, 51);
+            this.btnBaoCaoTonKho.Size = new System.Drawing.Size(169, 51);
             this.btnBaoCaoTonKho.TabIndex = 8;
             this.btnBaoCaoTonKho.TabStop = false;
             this.btnBaoCaoTonKho.Text = "TỒN KHO";
@@ -346,7 +380,7 @@ namespace DG_TonKhoBTP_v02
             this.grbChucNang.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.grbChucNang.Location = new System.Drawing.Point(0, 0);
             this.grbChucNang.Name = "grbChucNang";
-            this.grbChucNang.Size = new System.Drawing.Size(202, 518);
+            this.grbChucNang.Size = new System.Drawing.Size(185, 518);
             this.grbChucNang.TabIndex = 0;
             this.grbChucNang.TabStop = false;
             this.grbChucNang.Text = "CÔNG ĐOẠN";
@@ -358,7 +392,7 @@ namespace DG_TonKhoBTP_v02
             this.panel13.Location = new System.Drawing.Point(3, 458);
             this.panel13.Name = "panel13";
             this.panel13.Padding = new System.Windows.Forms.Padding(5, 6, 5, 6);
-            this.panel13.Size = new System.Drawing.Size(196, 57);
+            this.panel13.Size = new System.Drawing.Size(179, 57);
             this.panel13.TabIndex = 8;
             // 
             // btnBocVo
@@ -374,7 +408,7 @@ namespace DG_TonKhoBTP_v02
             this.btnBocVo.Location = new System.Drawing.Point(5, 6);
             this.btnBocVo.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
             this.btnBocVo.Name = "btnBocVo";
-            this.btnBocVo.Size = new System.Drawing.Size(186, 45);
+            this.btnBocVo.Size = new System.Drawing.Size(169, 45);
             this.btnBocVo.TabIndex = 8;
             this.btnBocVo.TabStop = false;
             this.btnBocVo.Text = "CĐ BỌC VỎ";
@@ -389,7 +423,7 @@ namespace DG_TonKhoBTP_v02
             this.panel12.Location = new System.Drawing.Point(3, 395);
             this.panel12.Name = "panel12";
             this.panel12.Padding = new System.Windows.Forms.Padding(5, 6, 5, 6);
-            this.panel12.Size = new System.Drawing.Size(196, 63);
+            this.panel12.Size = new System.Drawing.Size(179, 63);
             this.panel12.TabIndex = 7;
             // 
             // btnQuanBang
@@ -405,7 +439,7 @@ namespace DG_TonKhoBTP_v02
             this.btnQuanBang.Location = new System.Drawing.Point(5, 6);
             this.btnQuanBang.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
             this.btnQuanBang.Name = "btnQuanBang";
-            this.btnQuanBang.Size = new System.Drawing.Size(186, 51);
+            this.btnQuanBang.Size = new System.Drawing.Size(169, 51);
             this.btnQuanBang.TabIndex = 7;
             this.btnQuanBang.TabStop = false;
             this.btnQuanBang.Text = "CĐ QB THÉP-CU-AL";
@@ -420,7 +454,7 @@ namespace DG_TonKhoBTP_v02
             this.panel11.Location = new System.Drawing.Point(3, 332);
             this.panel11.Name = "panel11";
             this.panel11.Padding = new System.Windows.Forms.Padding(5, 6, 5, 6);
-            this.panel11.Size = new System.Drawing.Size(196, 63);
+            this.panel11.Size = new System.Drawing.Size(179, 63);
             this.panel11.TabIndex = 6;
             // 
             // btnBocLot
@@ -436,7 +470,7 @@ namespace DG_TonKhoBTP_v02
             this.btnBocLot.Location = new System.Drawing.Point(5, 6);
             this.btnBocLot.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
             this.btnBocLot.Name = "btnBocLot";
-            this.btnBocLot.Size = new System.Drawing.Size(186, 51);
+            this.btnBocLot.Size = new System.Drawing.Size(169, 51);
             this.btnBocLot.TabIndex = 6;
             this.btnBocLot.TabStop = false;
             this.btnBocLot.Text = "CĐ BỌC LÓT";
@@ -451,7 +485,7 @@ namespace DG_TonKhoBTP_v02
             this.panel10.Location = new System.Drawing.Point(3, 269);
             this.panel10.Name = "panel10";
             this.panel10.Padding = new System.Windows.Forms.Padding(5, 6, 5, 6);
-            this.panel10.Size = new System.Drawing.Size(196, 63);
+            this.panel10.Size = new System.Drawing.Size(179, 63);
             this.panel10.TabIndex = 5;
             // 
             // btnGhepLoi
@@ -467,7 +501,7 @@ namespace DG_TonKhoBTP_v02
             this.btnGhepLoi.Location = new System.Drawing.Point(5, 6);
             this.btnGhepLoi.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
             this.btnGhepLoi.Name = "btnGhepLoi";
-            this.btnGhepLoi.Size = new System.Drawing.Size(186, 51);
+            this.btnGhepLoi.Size = new System.Drawing.Size(169, 51);
             this.btnGhepLoi.TabIndex = 5;
             this.btnGhepLoi.TabStop = false;
             this.btnGhepLoi.Text = "CĐ GHÉP LÕI";
@@ -482,7 +516,7 @@ namespace DG_TonKhoBTP_v02
             this.panel9.Location = new System.Drawing.Point(3, 206);
             this.panel9.Name = "panel9";
             this.panel9.Padding = new System.Windows.Forms.Padding(5, 6, 5, 6);
-            this.panel9.Size = new System.Drawing.Size(196, 63);
+            this.panel9.Size = new System.Drawing.Size(179, 63);
             this.panel9.TabIndex = 4;
             // 
             // btnBocMach
@@ -498,7 +532,7 @@ namespace DG_TonKhoBTP_v02
             this.btnBocMach.Location = new System.Drawing.Point(5, 6);
             this.btnBocMach.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
             this.btnBocMach.Name = "btnBocMach";
-            this.btnBocMach.Size = new System.Drawing.Size(186, 51);
+            this.btnBocMach.Size = new System.Drawing.Size(169, 51);
             this.btnBocMach.TabIndex = 4;
             this.btnBocMach.TabStop = false;
             this.btnBocMach.Text = "CĐ BỌC CÁCH ĐIỆN";
@@ -513,7 +547,7 @@ namespace DG_TonKhoBTP_v02
             this.panel8.Location = new System.Drawing.Point(3, 143);
             this.panel8.Name = "panel8";
             this.panel8.Padding = new System.Windows.Forms.Padding(5, 6, 5, 6);
-            this.panel8.Size = new System.Drawing.Size(196, 63);
+            this.panel8.Size = new System.Drawing.Size(179, 63);
             this.panel8.TabIndex = 3;
             // 
             // btnMica
@@ -529,7 +563,7 @@ namespace DG_TonKhoBTP_v02
             this.btnMica.Location = new System.Drawing.Point(5, 6);
             this.btnMica.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
             this.btnMica.Name = "btnMica";
-            this.btnMica.Size = new System.Drawing.Size(186, 51);
+            this.btnMica.Size = new System.Drawing.Size(169, 51);
             this.btnMica.TabIndex = 3;
             this.btnMica.TabStop = false;
             this.btnMica.Text = "CĐ QB MICA";
@@ -544,7 +578,7 @@ namespace DG_TonKhoBTP_v02
             this.panel7.Location = new System.Drawing.Point(3, 80);
             this.panel7.Name = "panel7";
             this.panel7.Padding = new System.Windows.Forms.Padding(5, 6, 5, 6);
-            this.panel7.Size = new System.Drawing.Size(196, 63);
+            this.panel7.Size = new System.Drawing.Size(179, 63);
             this.panel7.TabIndex = 2;
             // 
             // btnBenRuot
@@ -560,7 +594,7 @@ namespace DG_TonKhoBTP_v02
             this.btnBenRuot.Location = new System.Drawing.Point(5, 6);
             this.btnBenRuot.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
             this.btnBenRuot.Name = "btnBenRuot";
-            this.btnBenRuot.Size = new System.Drawing.Size(186, 51);
+            this.btnBenRuot.Size = new System.Drawing.Size(169, 51);
             this.btnBenRuot.TabIndex = 2;
             this.btnBenRuot.TabStop = false;
             this.btnBenRuot.Text = "CĐ BỆN CU - AL";
@@ -575,7 +609,7 @@ namespace DG_TonKhoBTP_v02
             this.panel6.Location = new System.Drawing.Point(3, 17);
             this.panel6.Name = "panel6";
             this.panel6.Padding = new System.Windows.Forms.Padding(5, 6, 5, 6);
-            this.panel6.Size = new System.Drawing.Size(196, 63);
+            this.panel6.Size = new System.Drawing.Size(179, 63);
             this.panel6.TabIndex = 0;
             // 
             // btnKeoRut
@@ -592,7 +626,7 @@ namespace DG_TonKhoBTP_v02
             this.btnKeoRut.Location = new System.Drawing.Point(5, 6);
             this.btnKeoRut.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
             this.btnKeoRut.Name = "btnKeoRut";
-            this.btnKeoRut.Size = new System.Drawing.Size(186, 51);
+            this.btnKeoRut.Size = new System.Drawing.Size(169, 51);
             this.btnKeoRut.TabIndex = 1;
             this.btnKeoRut.TabStop = false;
             this.btnKeoRut.Text = "CĐ KÉO - RÚT";
@@ -855,6 +889,7 @@ namespace DG_TonKhoBTP_v02
             this.groupBox1.ResumeLayout(false);
             this.panel16.ResumeLayout(false);
             this.grbCongCu.ResumeLayout(false);
+            this.panel17.ResumeLayout(false);
             this.panel5.ResumeLayout(false);
             this.grbBaoCao.ResumeLayout(false);
             this.panel4.ResumeLayout(false);
@@ -972,6 +1007,8 @@ namespace DG_TonKhoBTP_v02
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.Panel panel16;
         private CustomButton btnKeHoach;
+        private System.Windows.Forms.Panel panel17;
+        private CustomButton btnTachBin;
     }
 }
 

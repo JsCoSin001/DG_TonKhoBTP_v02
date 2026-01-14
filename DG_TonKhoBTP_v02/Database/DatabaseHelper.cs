@@ -584,7 +584,7 @@ namespace DG_TonKhoBTP_v02.Database
                     return new DbResult
                     {
                         Ok = false,
-                        Id = dto.id,
+                        Id = dto.Id,
                         Message = "Không tìm thấy bản ghi để cập nhật (id không tồn tại)."
                     };
                 }
@@ -594,7 +594,7 @@ namespace DG_TonKhoBTP_v02.Database
                 return new DbResult
                 {
                     Ok = true,
-                    Id = dto.id,
+                    Id = dto.Id,
                     Message = "Thành công."
                 };
             }
@@ -603,7 +603,7 @@ namespace DG_TonKhoBTP_v02.Database
                 return new DbResult
                 {
                     Ok = false,
-                    Id = dto.id,
+                    Id = dto.Id,
                    Message = CoreHelper.ShowErrorDatabase(ex)
                 };
             }
@@ -1749,6 +1749,61 @@ namespace DG_TonKhoBTP_v02.Database
         #endregion
 
         #region Insert dữ liệu các công đoạn
+
+        public static bool SaveTachBin(ThongTinCaLamViec caLam, List<TTThanhPham> list_tp, List<TTNVL> nvl, out string errorMsg)
+        {
+            errorMsg = string.Empty;
+            using var conn = new SQLiteConnection(_connStr);
+            SQLiteTransaction tx = null;
+
+            try
+            {
+                conn.Open();                  
+                tx = conn.BeginTransaction();
+
+                foreach (TTThanhPham tp in list_tp)
+                {                
+
+                    // 1) Tạo mới thông tin thành phẩm
+                    long tpId = InsertTTThanhPham(conn, tx, tp, nvl);
+
+                    // 2) ThongTinCaLamViec
+                    InsertThongTinCaLamViec(conn, tx, caLam, tpId);
+
+                    // 3) TTNVL -> Tạo mới
+                    InsertTTNVL(conn, tx, tpId, nvl);
+
+                    // 3.1) Update Khối lượng sau, Chiều dài sau và thêm ID được update ở TTThanhPham 
+                    List<TTNVL> t = new List<TTNVL>
+                    {
+                        new TTNVL{
+                            BinNVL = nvl[0].BinNVL,
+                            KlConLai = 0,
+                            CdConLai = 0,
+                            QC = tp.QC
+                        }
+                    };
+                    
+                    UpdateKL_CD_TTThanhPham(conn, tx, t, tpId);
+                }
+                tx.Commit();
+
+
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                try { tx?.Rollback(); } catch { /* nuốt lỗi rollback để không che mất lỗi chính */ }
+
+                errorMsg = CoreHelper.ShowErrorDatabase(ex);
+                return false;
+            }
+
+        }
+
+
+
         public static bool SaveDataSanPham( ThongTinCaLamViec caLam, TTThanhPham tp, List<TTNVL> nvl, List<object> chiTietCD, out string errorMsg)
         {
             errorMsg = string.Empty;

@@ -566,6 +566,22 @@ namespace DG_TonKhoBTP_v02.Helper
         }
 
 
+        public static bool SplitByLastDash(string input, out string left, out string right)
+        {
+            left = "";
+            right = "";
+
+            if (string.IsNullOrWhiteSpace(input)) return false;
+
+            int lastDash = input.LastIndexOf('-');
+            if (lastDash <= 0 || lastDash >= input.Length - 1) return false;
+
+            left = input.Substring(0, lastDash);
+            right = input.Substring(lastDash + 1);
+            return true;
+        }
+
+
 
         public static string? TrimToNull(string? s)
         {

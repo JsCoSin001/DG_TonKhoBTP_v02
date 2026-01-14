@@ -74,7 +74,18 @@ namespace DG_TonKhoBTP_v02.Models
         public long? Id { get; set; }
     }
 
+
+    public class TachBinModel
+    {
+        public string Lot { get; set; }
+        public string Bin { get; set; }
+        public string DanhSachSP_ID { get; set; }
+        public string qc { get; set; }
+        public decimal KhoiLuongSau { get; set; }
+        public decimal ChieuDaiSau { get; set; }
+    }
     
+
 
 
 }

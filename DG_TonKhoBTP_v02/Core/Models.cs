@@ -201,69 +201,84 @@ namespace DG_TonKhoBTP_v02.Core
         public int Id { get; set; }
     }
 
-    public class KeHoachSX
+    // 1) Phần chung dùng lại cho cả Search/Result/Entity
+    public abstract class KeHoachSXBase
     {
-        public int id { get; set; }
-        public int DanhSachMaSP_ID { get; set; }
-
-        // Properties tạm để mapping và lookup
-        public string Ma { get; set; }
-        public string Ten { get; set; }
-
-        // Properties chính
-        public string NgayNhan { get; set; }
-        public string Lot { get; set; }
+        public string? Ten { get; set; }
+        public string? NgayNhan { get; set; }
+        public string? Lot { get; set; }
         public double? SLHangDat { get; set; }
         public double? SLHangBan { get; set; }
-        public string Mau { get; set; }
-        public string NgayGiao { get; set; }
+        public double? SLTong { get; set; }      // chỉ class nào cần thì dùng
+        public string? Mau { get; set; }
+        public string? NgayGiao { get; set; }
         public string? TenKhachHang { get; set; }
-        public string GhiChu { get; set; }
+        public string? GhiChu { get; set; }
+    }
+
+    // 2) Entity chính
+    public class KeHoachSX : KeHoachSXBase
+    {
+        public int Id { get; set; }
+        public int DanhSachMaSP_ID { get; set; }
+
+        // mapping/lookup
+        public string Ma { get; set; } = string.Empty;
+
+        // riêng
+        public string? GhiChu_QuanDoc { get; set; }
+
+        // trạng thái (entity là bắt buộc => int)
         public int TinhTrang { get; set; }
         public int MucDoUuTienKH { get; set; }
         public int TrangThaiSX { get; set; }
 
+        // Nếu bạn muốn giữ Lot/NgayGiao non-null như code cũ:
+        // public new string Lot { get => base.Lot ?? ""; set => base.Lot = value; }
+        // public new string NgayGiao { get => base.NgayGiao ?? ""; set => base.NgayGiao = value; }
     }
 
-    public class TimKiemKeHoachSX
+    // 3) DTO tìm kiếm (filter)
+    public class TimKiemKeHoachSX : KeHoachSXBase
     {
-        public string? Ten { get; set; }
-        public string? NgayNhan { get; set; }
-        public string? Lot { get; set; }
-        public double? SLHangDat { get; set; }
-        public double? SLHangBan { get; set; }
-        public double? SLTong { get; set; }
-        public string? Mau { get; set; }
-        public string? NgayGiao { get; set; }
-        public string? TenKhachHang { get; set; }
-        public string? GhiChu { get; set; }
-        public int? TinhTrangCuaKH { get; set; }
-        public int? MucDoUuTienKH { get; set; }
-        public int? TrangThaiThucHienKH { get; set; }
+        // filter trạng thái là nullable => int?
+        public int? TinhTrang { get; set; }
+        public int? MucDoUuTienKH_Filter { get; set; }
+        public int? TrangThaiSX { get; set; }
 
+        // Alias để giữ tên property cũ (đỡ sửa code đang dùng)
+        public int? TinhTrangCuaKH
+        {
+            get => TinhTrang;
+            set => TinhTrang = value;
+        }
+
+        public int? TrangThaiThucHienKH
+        {
+            get => TrangThaiSX;
+            set => TrangThaiSX = value;
+        }
+
+        // Nếu muốn giữ đúng tên cũ MucDoUuTienKH (nhưng tránh trùng với entity):
+        public int? MucDoUuTienKH
+        {
+            get => MucDoUuTienKH_Filter;
+            set => MucDoUuTienKH_Filter = value;
+        }
+
+        // text hiển thị
         public string? TinhTrangCuaKH_Text { get; set; }
         public string? MucDoUuTienKH_Text { get; set; }
         public string? TrangThaiThucHienKH_Text { get; set; }
-
     }
 
-    public class ResultFindKeHoachSX
+    public class ResultFindKeHoachSX : KeHoachSXBase
     {
-        public string? NgayNhan { get; set; }
-        public string? Ten { get; set; }
-        public string? Lot { get; set; }
-        public double? SLHangDat { get; set; }
-        public double? SLHangBan { get; set; }
-        public double? SLTong { get; set; }
-        public string? Mau { get; set; }
-        public string? NgayGiao { get; set; }
-        public string? TenKhachHang { get; set; }
-        public string? GhiChu { get; set; }
         public string? KieuKH { get; set; }
-        public string? DoUuTien{ get; set; }
+        public string? DoUuTien { get; set; }
         public string? TrangThaiDon { get; set; }
-
     }
+
 
 }
 

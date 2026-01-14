@@ -277,7 +277,6 @@ namespace DG_TonKhoBTP_v02.UI
                                 PrintHelper.PrintLabel(printer);
                                 Debug.WriteLine($"In tem thành phẩm: {swPrintTP.ElapsedMilliseconds} ms");
 
-
                                 // In tem NVL
                                 if (thongTinCaLamViec.Id == 0) return;  // Không in tem NVL ở công đoạn rút
 

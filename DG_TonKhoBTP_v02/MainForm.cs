@@ -233,6 +233,9 @@ namespace DG_TonKhoBTP_v02
 
         private void btnCapNhatMaHang_Click(object sender, EventArgs e)
         {
+            FrmWaiting.ShowGifAlert($"Chức năng này chưa hoàn thiện. \nVui lòng thử lại sau...");
+            return;
+
             _ui.InitCustomUI(
                 clickedButton: (Button)sender,
                 errorMessagePrefix: "cập nhật mã hàng",
@@ -1221,8 +1224,8 @@ namespace DG_TonKhoBTP_v02
 
         private void btnKeHoach_Click(object sender, EventArgs e)
         {
-            FrmWaiting.ShowGifAlert($"Chức năng này chưa hoàn thiện. \nVui lòng thử lại sau...");
-            return;
+            //FrmWaiting.ShowGifAlert($"Chức năng này chưa hoàn thiện. \nVui lòng thử lại sau...");
+            //return;
 
             using (var waiting = new FrmWaiting("ĐANG KHỞI TẠO GIAO DIỆN..."))
             {
@@ -1258,6 +1261,39 @@ namespace DG_TonKhoBTP_v02
         private void MainForm_Load(object sender, EventArgs e)
         {
             InitUiService();
+        }
+
+        private void btnTachBin_Click(object sender, EventArgs e)
+        {
+            using (var waiting = new FrmWaiting("ĐANG KHỞI TẠO GIAO DIỆN..."))
+            {
+                try
+                {
+                    waiting.ShowAndRefresh();
+
+                    pnShow.SuspendLayout();
+                    pnShow.Visible = false;
+
+                    pnShow.Controls.Clear();
+
+                    var uc = new UC_TachBin
+                    {
+                        Dock = DockStyle.Fill
+                    };
+                    pnShow.Controls.Add(uc);
+                }
+                catch (Exception ex)
+                {
+                    FrmWaiting.ShowGifAlert($"Lỗi khởi tạo giao diện cập nhật mã hàng: {ex.Message}");
+                }
+                finally
+                {
+                    pnShow.Visible = true;
+                    pnShow.ResumeLayout(true);
+                    waiting?.CloseAndDispose();
+                    btnCapNhatMaHang.Enabled = true;
+                }
+            }
         }
     }
 }

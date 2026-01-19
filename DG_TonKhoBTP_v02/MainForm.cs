@@ -760,6 +760,7 @@ namespace DG_TonKhoBTP_v02
             pnBottom.Controls.Add(pnRight);
             pnBottom.Controls.Add(pnLeft);
 
+
             return pnBottom;
         }
 

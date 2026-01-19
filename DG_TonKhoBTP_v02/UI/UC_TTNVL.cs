@@ -40,7 +40,7 @@ namespace DG_TonKhoBTP_v02.UI
         public Action FocusKhoiLuong { get; set; }
 
 
-        bool isShow = false;
+        bool isShow = true;
         int tongCotCanHide = 10;
 
         public bool RawMaterial { get; set; } = false;
@@ -51,7 +51,7 @@ namespace DG_TonKhoBTP_v02.UI
             InitializeComponent();
 
 
-            setVisibleTableNVL(false);
+            setVisibleTableNVL(true);
 
             _columns = columns;
 
@@ -62,6 +62,15 @@ namespace DG_TonKhoBTP_v02.UI
 
             // Hạn chế nhập ký tự không hợp lệ cho các cột số
             dtgTTNVL.EditingControlShowing += dtgTTNVL_EditingControlShowing;
+
+
+
+            for (int i = 0; i <= _columns.Count - 1; i++)
+            {
+                string colName = dtgTTNVL.Columns[i].Name;
+                string header = dtgTTNVL.Columns[i].HeaderText;
+                Console.WriteLine($"i={i}, Name={colName}, Header={header}");
+            }
         }
 
 
@@ -233,6 +242,16 @@ namespace DG_TonKhoBTP_v02.UI
         {
             string tenNL = cbxTimKiem.Text;
 
+
+            for (int i = 0; i <= _columns.Count - 1; i++)
+            {
+                string colName = dtgTTNVL.Columns[i].Name;
+                string header = dtgTTNVL.Columns[i].HeaderText;
+                Console.WriteLine($"i={i}, Name={colName}, Header={header}");
+            }
+
+
+
             if (string.IsNullOrWhiteSpace(tenNL) || !TenMayDaNhap()) return;
 
             //bool tuDongTinh = EnumStore.dsTenMayTuDongTinhKLConLai.Contains(ReadTenMay());
@@ -261,6 +280,9 @@ namespace DG_TonKhoBTP_v02.UI
 
         private async Task ShowDanhSachLuaChon(string keyword, CancellationToken ct)
         {
+            tbTem1.Text=  "";
+            nbrTemp2.Value = 0;
+
             if (string.IsNullOrWhiteSpace(keyword))
             {
                 cbxTimKiem.DroppedDown = false;
@@ -305,6 +327,12 @@ namespace DG_TonKhoBTP_v02.UI
 
         private void cbxTimKiem_SelectionChangeCommitted(object sender, EventArgs e)
         {
+            for (int i = 0; i <= _columns.Count - 1; i++)
+            {
+                string colName = dtgTTNVL.Columns[i].Name;
+                string header = dtgTTNVL.Columns[i].HeaderText;
+                Console.WriteLine($"i={i}, Name={colName}, Header={header}");
+            }
 
             if (cbxTimKiem.SelectedItem == null || !(cbxTimKiem.SelectedItem is DataRowView sel))
                 return;
@@ -354,6 +382,9 @@ namespace DG_TonKhoBTP_v02.UI
             newRow["QC"] = sel["QC"];
             table.Rows.Add(newRow);
 
+            tbTem1.Text= newRow["MaNVL"].ToString();
+            nbrTemp2.Value = Convert.ToDecimal( newRow["KlBatDau"] == DBNull.Value ? 0 : newRow["KlBatDau"]);
+
             int addedIndex = table.Rows.IndexOf(newRow);
 
             if (addedIndex >= 0 && addedIndex < dtgTTNVL.Rows.Count)
@@ -397,11 +428,19 @@ namespace DG_TonKhoBTP_v02.UI
                 if (!autoFilling && !special)
                     dtgTTNVL.Rows[addedIndex].Cells[targetCol].Style.BackColor = Color.Yellow;
 
-
-                // Tô các cột còn lại
-                for (int i = baseCol + 2; i <= _columns.Count; i++)
+                for (int i = 0; i <= _columns.Count-1; i++)
                 {
-                    Console.WriteLine(i);
+                    string colName = dtgTTNVL.Columns[i].Name;
+                    string header = dtgTTNVL.Columns[i].HeaderText;
+                    Console.WriteLine($"i={i}, Name={colName}, Header={header}");
+                }
+
+                    // Tô các cột còn lại
+                    for (int i = baseCol + 2; i <= _columns.Count; i++)
+                {
+                   
+
+
                     dtgTTNVL.Rows[addedIndex].Cells[i].Style.BackColor = Color.Yellow;
                 }
 
@@ -462,6 +501,9 @@ namespace DG_TonKhoBTP_v02.UI
                     // 4) Bind từ field
                     dtgTTNVL.AutoGenerateColumns = true;
                     dtgTTNVL.DataSource = dtNew;
+
+
+                    Console.WriteLine(_columns);
 
                     // 5) Cấu hình header/width…
                     SetColumnHeaders(dtgTTNVL, _columns);
@@ -627,8 +669,6 @@ namespace DG_TonKhoBTP_v02.UI
                 tbKLDongThua.Visible = true;
                 nmrKlDongThua.Value = klDongThua.Value;
             }
-
-
         }
 
         // Phân bổ khối lượng đồng thừa đều cho các dòng

@@ -8,6 +8,8 @@
 using DG_TonKhoBTP_v02.Models;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DG_TonKhoBTP_v02.Core
 {
@@ -45,7 +47,39 @@ namespace DG_TonKhoBTP_v02.Core
         public bool IsChecked { get; set; }
     }
 
-    
+    public class Backup
+    {
+        [Key]
+        [Column("id")]
+        public int Id { get; set; }
+
+        [Required]
+        [Column("DanhSachSP_ID")]
+        public int DanhSachSpId { get; set; }
+
+        [Required]
+        [Column("TTThanhPham_ID")]
+        public int TtThanhPhamId { get; set; }
+
+        [Column("ChieuDai")]
+        public double? ChieuDai { get; set; }   // REAL -> double?
+
+        [Column("KhoiLuong")]
+        public double? KhoiLuong { get; set; }  // REAL -> double?
+
+        [Required]
+        [Column("DateInsert")]
+        public string DateInsert { get; set; } = default!; // TEXT NOT NULL (có thể đổi sang DateTime nếu bạn lưu ISO)
+
+        [Required]
+        [Column("LastEdit_ID")]
+        public int LastEditId { get; set; }
+
+        // Navigation properties (nếu bạn có entity tương ứng)
+        public virtual TTThanhPham? TTThanhPham { get; set; }
+        public virtual DanhSachMaSP? DanhSachMaSP { get; set; }
+    }
+
     public class CaiDatCDBoc
     {
         public string? MangNuoc { get; set; }
@@ -107,6 +141,7 @@ namespace DG_TonKhoBTP_v02.Core
         public string GhiChu { get; set; } = "";            // NULL
         public string QC { get; set; } = "";    // NULL
         public int Active { get; set; } = 1;
+        public int? LastEdit_id { get; set; }
         public string? DateInsert { get; set; }     // NULL
     }
 

@@ -146,7 +146,7 @@ namespace DG_TonKhoBTP_v02.UI
 
                 #region Validate NVL
                 swStep.Restart();
-                var list_TTNVL = snap.Sections["UC_TTNVL"] as List<TTNVL>;
+                List<TTNVL> list_TTNVL = snap.Sections["UC_TTNVL"] as List<TTNVL>;
                 string loiNVL = Validator.TTNVL(list_TTNVL, thongTinCaLamViec.May);
 
                 Debug.WriteLine($"Validator.TTNVL: {swStep.ElapsedMilliseconds} ms (tổng: {swTotal.ElapsedMilliseconds} ms)");
@@ -164,7 +164,7 @@ namespace DG_TonKhoBTP_v02.UI
 
                 #region Validate TP công đoạn
                 swStep.Restart();
-                var thongTinThanhPham = (TTThanhPham)snap.Sections["UC_TTThanhPham"];
+                TTThanhPham thongTinThanhPham = (TTThanhPham)snap.Sections["UC_TTThanhPham"];
                 sttLoi = Validator.TTThanhPham(thongTinThanhPham);
                 Debug.WriteLine($"Validator.TTThanhPham: {swStep.ElapsedMilliseconds} ms (tổng: {swTotal.ElapsedMilliseconds} ms)");
 

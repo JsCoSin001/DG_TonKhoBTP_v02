@@ -37,7 +37,8 @@ namespace DG_TonKhoBTP_v02.Helper
 
 
                 // B1.1) Nếu là nguyên vật liệu thì bỏ qua để kiểm tra dòng khác
-                if (t.CdBatDau == -1 && t.KlBatDau == -1) continue;
+                if (t.CdBatDau < 0 && t.KlBatDau < 0) continue;
+                
 
                 // B1.2) Nếu BTP, nếu đơn vị là kg thì phải nhập khối lượng còn lại
                 // Nếu đơn vị là m thì phải nhập chiều dài còn lại
@@ -72,18 +73,24 @@ namespace DG_TonKhoBTP_v02.Helper
 
 
                 #region B2) Kiểm tra logic khi nhập dữ liệu
+
                 // B2.1) Kiểm tra logic trong các dữ liệu nhập
-                if (t.KlBatDau <= t.KlConLai)
-                {
-                    tupleError = (Id: 5, Lot: lot);
-                    break;
-                }
+
 
                 if (t.CdBatDau <= t.CdConLai)
                 {
                     tupleError = (Id: 6, Lot: lot);
                     break;
                 }
+
+
+                if (EnumStore.dsTenMayBoQuaKiemTraKhoiLuongConLai.Contains(tenMay)) continue;
+                if (t.KlBatDau <= t.KlConLai)
+                {
+                    tupleError = (Id: 5, Lot: lot);
+                    break;
+                }
+
 
                 #endregion
 

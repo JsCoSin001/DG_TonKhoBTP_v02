@@ -13,8 +13,9 @@ namespace DG_TonKhoBTP_v02.UI.Helper
         public GetUserInputValue_Simple()
         {
             InitializeComponent();
+            this.StartPosition = FormStartPosition.CenterScreen;
+            this.FormClosing += GetUserInputValue_Simple_FormClosing;
 
-            btnOk.Click += btnOk_Click;
         }
 
         private void GetUserInputValue_Simple_Load(object sender, EventArgs e)
@@ -29,9 +30,22 @@ namespace DG_TonKhoBTP_v02.UI.Helper
 
         private void btnOk_Click(object sender, EventArgs e)
         {
-            _confirmed = true;
-            this.DialogResult = DialogResult.OK;
-            this.Close();
+            if (nbrTongDongThua.Value <= 0)
+            {
+                FrmWaiting.ShowGifAlert("Giá trị phải > 0");
+
+                nbrTongDongThua.Focus();
+                nbrTongDongThua.Select(0, nbrTongDongThua.Text.Length);
+                return;
+            }
+            else
+            {
+
+                _confirmed = true;
+                this.DialogResult = DialogResult.OK;
+                this.Close();
+            }
+
         }
 
         private void GetUserInputValue_Simple_FormClosing(object? sender, FormClosingEventArgs e)

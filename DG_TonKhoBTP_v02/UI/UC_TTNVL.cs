@@ -36,11 +36,41 @@ namespace DG_TonKhoBTP_v02.UI
 
         public Action FocusKhoiLuong { get; set; }
 
-        bool isShow = true;
+        bool isShow = false;
         int tongCotCanHide = 10;
 
         public bool RawMaterial { get; set; } = false;
         public void SetStatusRawMaterial(bool value) => RawMaterial = value;
+
+        //void HideRow(TableLayoutPanel tlp, int row)
+        //{
+        //    if (row < 0 || row >= tlp.RowCount) return;
+
+        //    // ẩn tất cả control trong row
+        //    for (int col = 0; col < tlp.ColumnCount; col++)
+        //    {
+        //        var ctl = tlp.GetControlFromPosition(col, row);
+        //        if (ctl != null) ctl.Visible = false;
+        //    }
+
+        //    tlp.RowStyles[row].SizeType = SizeType.Absolute;
+        //    tlp.RowStyles[row].Height = 0;
+        //}
+
+        void ShowRow(TableLayoutPanel tlp, int row, float height)
+        {
+            if (row < 0 || row >= tlp.RowCount) return;
+
+            // hiện tất cả control trong row
+            for (int col = 0; col < tlp.ColumnCount; col++)
+            {
+                var ctl = tlp.GetControlFromPosition(col, row);
+                if (ctl != null) ctl.Visible = true;
+            }
+
+            tlp.RowStyles[row].SizeType = SizeType.Absolute; // hoặc AutoSize/Percent tùy layout của bạn
+            tlp.RowStyles[row].Height = height;
+        }
 
         public UC_TTNVL(List<ColumnDefinition> columns)
         {
@@ -56,7 +86,11 @@ namespace DG_TonKhoBTP_v02.UI
                 EnsureColumnOrderAndDeleteLast();
             };
 
+
             TaoBang(columns);
+
+            //HideRow(tbTimKiem, 1);
+            //HideRow(tbTimKiem, 2);            
 
             // Bắt lỗi nhập sai định dạng
             dtgTTNVL.DataError += dtgTTNVL_DataError;
@@ -177,6 +211,23 @@ namespace DG_TonKhoBTP_v02.UI
         public void OnSoLOTChanged(string soLot)
         {
             ClearGridKeepHeader();
+
+            string may = soLot?.Split('-')[0] ?? "";
+
+
+            //if (!EnumStore.dsTenMayBoQuaKiemTraKhoiLuongConLai.Contains(may))
+            //{
+            //    // hide row 1 và row 2
+            //    HideRow(tbTimKiem, 1);
+            //    HideRow(tbTimKiem, 2);
+            //}
+            //else
+            //{
+            //    // show lại row 1 và row 2
+            //    ShowRow(tbTimKiem, 1, 40);
+            //    ShowRow(tbTimKiem, 2, 40);
+            //}
+            
         }
 
         private void SetColumnHeaders(DataGridView dgv, List<ColumnDefinition> columns)
@@ -221,19 +272,23 @@ namespace DG_TonKhoBTP_v02.UI
             // ==========================================================================================
 
             // Ẩn/hiện + readonly các cột từ 0 đến tongCotCanHide (tránh đụng Delete)
-            for (int i = 0; i <= tongCotCanHide && i < dgv.Columns.Count; i++)
+            var colsByDisplay = dgv.Columns.Cast<DataGridViewColumn>()
+                               .OrderBy(c => c.DisplayIndex)
+                               .ToList();
+
+            for (int i = 0; i <= tongCotCanHide && i < colsByDisplay.Count; i++)
             {
-                if (dgv.Columns[i].Name == "Delete") continue;
-                dgv.Columns[i].Visible = isShow;
-                dgv.Columns[i].ReadOnly = true;
+                if (colsByDisplay[i].Name == "Delete") continue;
+                colsByDisplay[i].Visible = isShow;      // isShow=false => ẩn
+                colsByDisplay[i].ReadOnly = true;
             }
 
             // ====== FIX: chọn cột fill theo _columns (tên), tránh bị lệch vì Delete ======
-            int fillDefIndex = tongCotCanHide + 1;
+            int fillDefIndex = tongCotCanHide;
             if (fillDefIndex < 0) fillDefIndex = 0;
             if (fillDefIndex > columns.Count - 1) fillDefIndex = columns.Count - 1;
 
-            string fillColName = columns[fillDefIndex].Name;
+            string fillColName = columns[fillDefIndex+1].Name;
             if (dgv.Columns.Contains(fillColName))
             {
                 dgv.Columns[fillColName].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
@@ -382,6 +437,9 @@ namespace DG_TonKhoBTP_v02.UI
             }
 
             string key = sel["id"] == DBNull.Value ? string.Empty : Convert.ToString(sel["id"]);
+
+            Console.WriteLine(key);
+
             bool exists = table.AsEnumerable().Any(r => (r["id"] == DBNull.Value ? string.Empty : Convert.ToString(r["id"])) == key);
             if (exists)
             {
@@ -435,7 +493,7 @@ namespace DG_TonKhoBTP_v02.UI
                     decimal klBatDau = (obj == null || obj == DBNull.Value) ? 0m : Convert.ToDecimal(obj);
                     decimal gtConLai_New = (klBatDau <= -1m) ? (klBatDau - 1m) : -1m;
 
-                    dtgTTNVL.Rows[addedIndex].Cells[targetCol].Value = gtConLai_New;
+                    dtgTTNVL.Rows[addedIndex].Cells["KlConLai"].Value = gtConLai_New;
                 }
 
                 bool autoFilling = EnumStore.dsTenMayTuDongTinhKLConLai.Contains(ReadTenMay());
@@ -616,7 +674,7 @@ namespace DG_TonKhoBTP_v02.UI
             _warnedThisFocus = false;
         }
 
-        private void SetKhoiLuongDongThua()
+        public void SetKhoiLuongDongThua()
         {
             using var f = new GetUserInputValue_Simple();
             f.StartPosition = FormStartPosition.CenterScreen;

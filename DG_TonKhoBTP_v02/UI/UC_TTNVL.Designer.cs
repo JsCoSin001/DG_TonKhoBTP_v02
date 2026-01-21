@@ -32,7 +32,7 @@
             this.dtgTTNVL = new System.Windows.Forms.DataGridView();
             this.panel1 = new System.Windows.Forms.Panel();
             this.lblTieuDe = new System.Windows.Forms.Label();
-            this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+            this.tbTimKiem = new System.Windows.Forms.TableLayoutPanel();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
             this.label4 = new System.Windows.Forms.Label();
             this.nbrTemp2 = new System.Windows.Forms.NumericUpDown();
@@ -46,7 +46,7 @@
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dtgTTNVL)).BeginInit();
             this.panel1.SuspendLayout();
-            this.tableLayoutPanel1.SuspendLayout();
+            this.tbTimKiem.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nbrTemp2)).BeginInit();
             this.tbKLDongThua.SuspendLayout();
@@ -57,7 +57,7 @@
             // 
             this.groupBox1.Controls.Add(this.dtgTTNVL);
             this.groupBox1.Controls.Add(this.panel1);
-            this.groupBox1.Controls.Add(this.tableLayoutPanel1);
+            this.groupBox1.Controls.Add(this.tbTimKiem);
             this.groupBox1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.groupBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.groupBox1.Location = new System.Drawing.Point(10, 10);
@@ -106,27 +106,27 @@
             this.lblTieuDe.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
             this.lblTieuDe.UseCompatibleTextRendering = true;
             // 
-            // tableLayoutPanel1
+            // tbTimKiem
             // 
-            this.tableLayoutPanel1.AutoSize = true;
-            this.tableLayoutPanel1.ColumnCount = 3;
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 234F));
-            this.tableLayoutPanel1.Controls.Add(this.tableLayoutPanel2, 2, 1);
-            this.tableLayoutPanel1.Controls.Add(this.label3, 0, 1);
-            this.tableLayoutPanel1.Controls.Add(this.cbxTimKiem, 1, 0);
-            this.tableLayoutPanel1.Controls.Add(this.label1, 0, 0);
-            this.tableLayoutPanel1.Controls.Add(this.tbKLDongThua, 2, 0);
-            this.tableLayoutPanel1.Controls.Add(this.tbTem1, 1, 1);
-            this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Top;
-            this.tableLayoutPanel1.Location = new System.Drawing.Point(10, 25);
-            this.tableLayoutPanel1.Name = "tableLayoutPanel1";
-            this.tableLayoutPanel1.RowCount = 2;
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(756, 80);
-            this.tableLayoutPanel1.TabIndex = 3;
+            this.tbTimKiem.AutoSize = true;
+            this.tbTimKiem.ColumnCount = 3;
+            this.tbTimKiem.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+            this.tbTimKiem.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tbTimKiem.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 234F));
+            this.tbTimKiem.Controls.Add(this.tableLayoutPanel2, 2, 1);
+            this.tbTimKiem.Controls.Add(this.label3, 0, 1);
+            this.tbTimKiem.Controls.Add(this.cbxTimKiem, 1, 0);
+            this.tbTimKiem.Controls.Add(this.label1, 0, 0);
+            this.tbTimKiem.Controls.Add(this.tbKLDongThua, 2, 0);
+            this.tbTimKiem.Controls.Add(this.tbTem1, 1, 1);
+            this.tbTimKiem.Dock = System.Windows.Forms.DockStyle.Top;
+            this.tbTimKiem.Location = new System.Drawing.Point(10, 25);
+            this.tbTimKiem.Name = "tbTimKiem";
+            this.tbTimKiem.RowCount = 2;
+            this.tbTimKiem.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tbTimKiem.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tbTimKiem.Size = new System.Drawing.Size(756, 80);
+            this.tbTimKiem.TabIndex = 3;
             // 
             // tableLayoutPanel2
             // 
@@ -149,11 +149,11 @@
             // 
             this.label4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(3, 0);
+            this.label4.Location = new System.Drawing.Point(3, 9);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(74, 36);
+            this.label4.Size = new System.Drawing.Size(74, 18);
             this.label4.TabIndex = 0;
-            this.label4.Text = "Khối lượng";
+            this.label4.Text = "KL còn lại";
             this.label4.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // nbrTemp2
@@ -284,8 +284,8 @@
             this.groupBox1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dtgTTNVL)).EndInit();
             this.panel1.ResumeLayout(false);
-            this.tableLayoutPanel1.ResumeLayout(false);
-            this.tableLayoutPanel1.PerformLayout();
+            this.tbTimKiem.ResumeLayout(false);
+            this.tbTimKiem.PerformLayout();
             this.tableLayoutPanel2.ResumeLayout(false);
             this.tableLayoutPanel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nbrTemp2)).EndInit();
@@ -302,7 +302,7 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.ComboBox cbxTimKiem;
         private System.Windows.Forms.DataGridView dtgTTNVL;
-        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
+        private System.Windows.Forms.TableLayoutPanel tbTimKiem;
         private System.Windows.Forms.Label lblTieuDe;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.TableLayoutPanel tbKLDongThua;

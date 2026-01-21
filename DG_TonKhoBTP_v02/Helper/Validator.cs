@@ -85,6 +85,7 @@ namespace DG_TonKhoBTP_v02.Helper
 
 
                 if (EnumStore.dsTenMayBoQuaKiemTraKhoiLuongConLai.Contains(tenMay)) continue;
+
                 if (t.KlBatDau <= t.KlConLai)
                 {
                     tupleError = (Id: 5, Lot: lot);

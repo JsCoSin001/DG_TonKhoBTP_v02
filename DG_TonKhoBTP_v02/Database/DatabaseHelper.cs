@@ -975,7 +975,7 @@ namespace DG_TonKhoBTP_v02.Database
         public static DataTable GetDataByID(string key, CongDoan cd)
         {
             // Tạo select
-            string sqlSelect = CoreHelper.TaoSqL_LayThongTinBaoCaoChung();
+            string sqlSelect = CoreHelper.TaoSqL_LayThongTinBaoCaoChung_Edit();
 
             // Lấy thông tin chi tiết công đoạn
             string sqlLayChiTietCD = CoreHelper.TaoSQL_LayChiTiet_1CD(cd.Id);
@@ -985,6 +985,9 @@ namespace DG_TonKhoBTP_v02.Database
 
             // Tạo câu nối các bảng
             string sqlJoin = CoreHelper.TaoSQL_TaoKetNoiCacBang();
+
+            sqlJoin += "LEFT JOIN TTThanhPham ttp_bin ON ttp_bin.MaBin = nvl.BinNVL ";
+
 
             // Tạo điều kiện lọc theo ID
             string sqlDk1 = " WHERE ttp.id = @id";
@@ -1288,7 +1291,7 @@ namespace DG_TonKhoBTP_v02.Database
                 Del_InsertTTNVL(conn, tx, tpId, nvl);
 
                 // 3.2) Kiểm tra lot có thay đổi hay không
-                CapNhatTrangThaiLast_Id(conn, tx, nvl, tpId);
+                //CapNhatTrangThaiLast_Id(conn, tx, nvl, tpId);
 
                 // 3.1) Update Khối lượng sau, Chiều dài sau và thêm ID được update ở TTThanhPham 
                 UpdateKhoiLuongConLai_TTThanhPham(conn, tx, nvl, tpId);
@@ -1507,6 +1510,7 @@ namespace DG_TonKhoBTP_v02.Database
             }
         }
 
+        
         private static void UpdateTTThanhPham(SQLiteConnection conn, SQLiteTransaction tx, TTThanhPham m, int thongTinCaLamViecId, List<TTNVL> nvl)
         {
             string sqlUpdate = @"UPDATE TTThanhPham 
@@ -1522,18 +1526,6 @@ namespace DG_TonKhoBTP_v02.Database
                                 WHERE id = @id";
             m.GhiChu = m.GhiChu + "- Đã sửa";
 
-            double klHanNoi = 0;
-
-            foreach (var item in nvl)
-            {
-                if (item.CongDoan != ThongTinChungCongDoan.KeoRut.Id)
-                {
-                    klHanNoi = 0;
-                    break;
-                }
-
-                klHanNoi += (item.KlBatDau ?? 0) - (item.KlConLai ?? 0);
-            }
 
             using (var cmd = new SQLiteCommand(sqlUpdate, conn, tx))
             {
@@ -1544,7 +1536,7 @@ namespace DG_TonKhoBTP_v02.Database
                 cmd.Parameters.AddWithValue("@ChieuDaiTruoc", m.ChieuDaiTruoc);
                 cmd.Parameters.AddWithValue("@ChieuDaiSau", m.ChieuDaiSau);
                 cmd.Parameters.AddWithValue("@Phe", m.Phe);
-                cmd.Parameters.AddWithValue("@HanNoi", klHanNoi);
+                cmd.Parameters.AddWithValue("@HanNoi", m.HanNoi);
                 cmd.Parameters.AddWithValue("@GhiChu", m.GhiChu ?? (object)DBNull.Value);
                 cmd.Parameters.AddWithValue("@id", thongTinCaLamViecId);
 
@@ -1559,7 +1551,7 @@ namespace DG_TonKhoBTP_v02.Database
 
         private static void Del_InsertTTNVL(SQLiteConnection conn, SQLiteTransaction tx, long thongTinSpId, List<TTNVL> items)
         {
-            // Tạo backup cho dữ liệu cũ 
+            // Restore cho dữ liệu cũ 
 
 
             // Xoá dữ liệu cũ
@@ -1968,7 +1960,7 @@ namespace DG_TonKhoBTP_v02.Database
                 InsertTTNVL(conn, tx, tpId, nvl);
 
                 // 3.2) Tạo backup
-                InsertBackup(conn, tx, nvl, tpId);
+                //InsertBackup(conn, tx, nvl, tpId);
 
                 // 3.1) Update Khối lượng sau, Chiều dài sau và thêm ID được update ở TTThanhPham 
                 UpdateKL_CD_TTThanhPham(conn, tx, nvl, tpId);
@@ -2063,20 +2055,6 @@ namespace DG_TonKhoBTP_v02.Database
                 (@DanhSachSP_ID,@QC,  @MaBin, @KhoiLuongTruoc, @KhoiLuongSau, @ChieuDaiTruoc, @ChieuDaiSau, @Phe, @CongDoan, @GhiChu, @HanNoi, @DateInsert);
             SELECT last_insert_rowid();";
 
-            double klHanNoi = 0;
-
-            foreach (var item in nvl)
-            {
-                if (item.CongDoan != ThongTinChungCongDoan.KeoRut.Id || item.CongDoan != ThongTinChungCongDoan.BenRuot.Id)
-                {
-                    klHanNoi = 0;
-                    break;
-                }
-
-                m.KhoiLuongSau = m.KhoiLuongSau < 0 ? 0 : m.KhoiLuongSau;
-
-                klHanNoi += (item.KlBatDau ?? 0) - (item.KlConLai ?? 0);
-            }
 
             using var cmd = new SQLiteCommand(sql, conn, tx);
             cmd.Parameters.AddWithValue("@DanhSachSP_ID", m.DanhSachSP_ID);
@@ -2089,7 +2067,7 @@ namespace DG_TonKhoBTP_v02.Database
             cmd.Parameters.AddWithValue("@Phe", m.Phe);
             cmd.Parameters.AddWithValue("@CongDoan", m.CongDoan.Id);
             cmd.Parameters.AddWithValue("@GhiChu", (object?)m.GhiChu ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("@HanNoi", klHanNoi);
+            cmd.Parameters.AddWithValue("@HanNoi", m.HanNoi);
             cmd.Parameters.AddWithValue("@DateInsert", (object?)m.DateInsert ?? DBNull.Value);
             return (long)(cmd.ExecuteScalar() ?? 0L);
         }

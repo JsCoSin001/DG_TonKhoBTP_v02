@@ -141,6 +141,7 @@ namespace DG_TonKhoBTP_v02.Core
         public string GhiChu { get; set; } = "";            // NULL
         public string QC { get; set; } = "";    // NULL
         public int Active { get; set; } = 1;
+        public double HanNoi { get; set; } = 0;
         public int? LastEdit_id { get; set; }
         public string? DateInsert { get; set; }     // NULL
     }

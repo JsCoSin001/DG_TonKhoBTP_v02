@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using PrinterModel = DG_TonKhoBTP_v02.Models.PrinterModel;
 using Validator = DG_TonKhoBTP_v02.Helper.Validator;
+using DG_TonKhoBTP_v02.UI.Helper;
 
 namespace DG_TonKhoBTP_v02.UI
 {
@@ -177,6 +178,53 @@ namespace DG_TonKhoBTP_v02.UI
                     Debug.WriteLine($"Lỗi TTThanhPham (sttLoi={sttLoi}), thoát: {swTotal.ElapsedMilliseconds} ms");
                     return;
                 }
+
+                // Cập nhật hàn nối
+
+                int cd = thongTinThanhPham.CongDoan.Id;
+                bool isHanNoi = true;
+
+                foreach (TTNVL nvl in list_TTNVL)
+                {
+                   if(cd != nvl.CongDoan)
+                    {
+                        isHanNoi = false;
+                        break;
+                    }
+                }
+
+
+                if (isHanNoi)
+                {
+                    try
+                    {
+                        // 1) Tắt/ẩn waiting trước khi mở dialog
+                        waiting.Hide();               // hoặc waiting.Visible = false;
+                        Application.DoEvents();       // để UI kịp refresh (optional nhưng hay dùng)
+
+                        using (var f = new GetUserInputValue_Simple())
+                        {
+                            f.StartPosition = FormStartPosition.CenterParent;
+                            var result = f.ShowDialog(this); // this = form cha (nếu đang ở trong form)
+
+                            if (result == DialogResult.OK) thongTinThanhPham.HanNoi = (double) f.TongDongThuaValue;
+                        }
+
+                        // 2) Sau khi dialog đóng -> hiện waiting lại
+                        waiting.Show();
+                        waiting.ShowAndRefresh();
+
+                        foreach (TTNVL nvl in list_TTNVL)
+                        {
+                            nvl.KlConLai = 0;
+                            nvl.CdConLai = 0;
+                        }
+                    }
+                    catch (Exception) { }                    
+                }
+               
+                
+
                 #endregion
 
                 #region Validate chi tiết công đoạn

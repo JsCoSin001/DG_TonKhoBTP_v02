@@ -2,6 +2,7 @@
 using DG_TonKhoBTP_v02.Dictionary;
 using DG_TonKhoBTP_v02.Models;
 using DG_TonKhoBTP_v02.UI;
+using DG_TonKhoBTP_v02.UI.Helper;
 using DocumentFormat.OpenXml.Wordprocessing;
 using System;
 using System.Collections.Generic;
@@ -15,16 +16,14 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using WinControl = System.Windows.Forms.Control;
 using WinCheckBox = System.Windows.Forms.CheckBox;
+using WinControl = System.Windows.Forms.Control;
 
 namespace DG_TonKhoBTP_v02.Helper
 {
     public static class Helper
     {
         public static string _connStr;
-
-
 
         public static bool KiemTraEmpty(string values)
         {
@@ -56,6 +55,20 @@ namespace DG_TonKhoBTP_v02.Helper
                 .OrderBy(cd => cd.Id)
                 .ToList();
         }
+
+        public static double GetKhoiLuongDongThua()
+        {
+            using var f = new GetUserInputValue_Simple();
+            f.StartPosition = FormStartPosition.CenterScreen;
+            var result = f.ShowDialog();
+
+            if (result == DialogResult.OK)
+            {
+                return (double)f.TongDongThuaValue;
+            }else
+                return 0;
+        }
+
 
         public static string TaoThongBao(Label lb = null)
         {
@@ -186,6 +199,20 @@ namespace DG_TonKhoBTP_v02.Helper
               ttp.id AS STT,
               tclv.Ngay, tclv.Ca, tclv.May,nvl.QC,
               ttp.MaBin as MaBin, ds.Ten AS Ten, ds.Ma AS Ma,ds.DonVi, ds.id AS id,
+              tclv.NguoiLam, tclv.ToTruong, tclv.QuanDoc,
+              ttp.KhoiLuongTruoc AS KhoiLuongTruoc, ttp.KhoiLuongSau as KhoiLuongSau,
+              ttp.ChieuDaiTruoc as ChieuDaiTruoc, ttp.ChieuDaiSau as ChieuDaiSau,
+              ttp.Phe as Phe, ttp.HanNoi as HanNoi, ttp.GhiChu as GhiChu ";
+        }
+
+        public static string TaoSqL_LayThongTinBaoCaoChung_Edit()
+        {
+            return @"
+            SELECT
+              ttp.id AS STT,
+              ttp_bin.id AS id, 
+              tclv.Ngay, tclv.Ca, tclv.May,nvl.QC,
+              ttp.MaBin as MaBin, ds.Ten AS Ten, ds.Ma AS Ma,ds.DonVi, ds.id AS DanhSachMaSP_ID,
               tclv.NguoiLam, tclv.ToTruong, tclv.QuanDoc,
               ttp.KhoiLuongTruoc AS KhoiLuongTruoc, ttp.KhoiLuongSau as KhoiLuongSau,
               ttp.ChieuDaiTruoc as ChieuDaiTruoc, ttp.ChieuDaiSau as ChieuDaiSau,

@@ -154,6 +154,7 @@ namespace DG_TonKhoBTP_v02.UI.Helper
                 return may;
             };
 
+
             ucTP.SoLOTChanged -= ucNVL.OnSoLOTChanged;
             ucTP.SoLOTChanged += ucNVL.OnSoLOTChanged;
         }

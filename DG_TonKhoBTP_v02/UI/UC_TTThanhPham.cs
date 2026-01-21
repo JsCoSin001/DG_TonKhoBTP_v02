@@ -211,7 +211,7 @@ namespace DG_TonKhoBTP_v02.UI
 
             string bin = row["MaBin"].ToString();
 
-            CoreHelper.SetIfPresent(row, "id", val => id.Text = Convert.ToString(val));
+            CoreHelper.SetIfPresent(row, "DanhSachMaSP_ID", val => id.Text = Convert.ToString(val));
             CoreHelper.SetIfPresent(row, "Ma", val => ma.Text = Convert.ToString(val));
             CoreHelper.SetIfPresent(row, "Ten", val => ten.Text = Convert.ToString(val));
             CoreHelper.SetIfPresent(row, "donvi", val => donVi.Text = Convert.ToString(val));

@@ -21,12 +21,14 @@ using helperApp = DG_TonKhoBTP_v02.Helper.Helper;
 namespace DG_TonKhoBTP_v02.UI.NghiepVu
 {
     public partial class UC_KeHoach : UserControl
-    {     
+    {
+        // Dùng để hiển thị chức năng theo bộ phận
+        bool keHoachStaff = true;
         public UC_KeHoach()
         {
             InitializeComponent();      
             
-            this.LoatChucNang(false);
+            this.LoatChucNang(keHoachStaff);
         }
 
         private void LoatChucNang(bool banhanh)
@@ -43,7 +45,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVu
             {
                 ThietLap_KH thietLap_KH = new ThietLap_KH
                 {
-                    Dock = DockStyle.Top,
+                    Dock = DockStyle.Fill,
                 };
                 pnChucNang.Controls.Add(thietLap_KH);
             }
@@ -97,10 +99,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVu
         {
 
             TimKiemKeHoachSX k = LayDL_TimKiemKH();
-            //List<ResultFindKeHoachSX>  lsData = DatabaseHelper.SearchKeHoachSX(k);
 
             DataTable lsData = DatabaseHelper.SearchKeHoachSX_DataTable(k);
-
 
             // check lsdata null or empty
             if (lsData.Rows.Count == 0)
@@ -115,9 +115,13 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVu
                 return;
             }
 
+
             dtgKetQuaTimKiemKH.AutoGenerateColumns = true;
             dtgKetQuaTimKiemKH.DataSource = null;
             dtgKetQuaTimKiemKH.DataSource = lsData;
+            var col = dtgKetQuaTimKiemKH.Columns["GhiChu"];
+            col.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+
         }
 
         private  TimKiemKeHoachSX LayDL_TimKiemKH()
@@ -152,12 +156,14 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVu
                 // GhiChu
                 GhiChu = helperApp.TrimToNull(tbGhiChu.Text),
 
-                TinhTrangCuaKH = cbxTinhTrangCuaKH.SelectedIndex == 0 ? null: (int?)cbxTinhTrangCuaKH.SelectedIndex,
+                TinhTrangCuaKH = cbxTinhTrangCuaKH.SelectedIndex == 0 ? null: (int?)cbxTinhTrangCuaKH.SelectedIndex -1 ,
+                
 
-                MucDoUuTienKH = cbxMucDoUuTienKH.SelectedIndex == 0 ? null : (int?)cbxMucDoUuTienKH.SelectedIndex ,
+                MucDoUuTienKH = cbxMucDoUuTienKH.SelectedIndex == 0 ? null : (int?)cbxMucDoUuTienKH.SelectedIndex -1 ,
 
-                TrangThaiThucHienKH = cbxTrangThaiThucHienKH.SelectedIndex == 0 ? null : (int?)cbxTrangThaiThucHienKH.SelectedIndex,
+                TrangThaiThucHienKH = cbxTrangThaiThucHienKH.SelectedIndex == 0 ? null : (int?)cbxTrangThaiThucHienKH.SelectedIndex - 1,
             };
+
 
             return f;
         }

@@ -24,7 +24,7 @@ namespace DG_TonKhoBTP_v02.UI.Helper
             this.AcceptButton = btnOk;
 
             // Không có nút X
-            this.ControlBox = false;
+            //this.ControlBox = false;
 
         }
 
@@ -51,10 +51,10 @@ namespace DG_TonKhoBTP_v02.UI.Helper
         private void GetUserInputValue_Simple_FormClosing(object? sender, FormClosingEventArgs e)
         {
             // ✅ Chặn user đóng bằng Alt+F4/taskbar close... nếu chưa bấm OK
-            if (!_confirmed && e.CloseReason == CloseReason.UserClosing)
-            {
-                e.Cancel = true;
-            }
+            //if (!_confirmed && e.CloseReason == CloseReason.UserClosing)
+            //{
+            //    e.Cancel = true;
+            //}
         }
 
     }

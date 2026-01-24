@@ -46,7 +46,7 @@
             this.tableLayoutPanel1.ColumnCount = 3;
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 51.26904F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 48.73096F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 125F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 126F));
             this.tableLayoutPanel1.Controls.Add(this.label1, 0, 0);
             this.tableLayoutPanel1.Controls.Add(this.label2, 0, 1);
             this.tableLayoutPanel1.Controls.Add(this.nbrTongDongThua, 1, 1);
@@ -113,7 +113,7 @@
             this.flowLayoutPanel1.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
             this.flowLayoutPanel1.Location = new System.Drawing.Point(3, 103);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(404, 46);
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(403, 46);
             this.flowLayoutPanel1.TabIndex = 3;
             // 
             // label3
@@ -132,18 +132,18 @@
             this.label4.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label4.Location = new System.Drawing.Point(3, 16);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(320, 16);
+            this.label4.Size = new System.Drawing.Size(309, 16);
             this.label4.TabIndex = 1;
-            this.label4.Text = "Đây là tổng khối lượng các bin còn lại sau khi bên xong";
+            this.label4.Text = "Đây là tổng khối lượng các bin được hàn nối với nhau";
             // 
             // btnOk
             // 
             this.btnOk.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.btnOk.BackColor = System.Drawing.Color.DarkViolet;
             this.btnOk.ForeColor = System.Drawing.SystemColors.Control;
-            this.btnOk.Location = new System.Drawing.Point(413, 103);
+            this.btnOk.Location = new System.Drawing.Point(412, 103);
             this.btnOk.Name = "btnOk";
-            this.btnOk.Size = new System.Drawing.Size(120, 45);
+            this.btnOk.Size = new System.Drawing.Size(121, 45);
             this.btnOk.TabIndex = 1;
             this.btnOk.Text = "Xác nhận";
             this.btnOk.UseVisualStyleBackColor = false;
@@ -157,6 +157,8 @@
             this.Controls.Add(this.tableLayoutPanel1);
             this.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Margin = new System.Windows.Forms.Padding(4);
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
             this.Name = "GetUserInputValue_Simple";
             this.Padding = new System.Windows.Forms.Padding(7);
             this.Text = "Bảng nhập liệu";

@@ -148,6 +148,7 @@
     <Compile Include="Helper\Helper.cs" />
     <Compile Include="Helper\ReportHelper.cs" />
     <Compile Include="Helper\Reuseable\DataGridViewClipboardHelper.cs" />
+    <Compile Include="Helper\Reuseable\TableListPrinter.cs" />
     <Compile Include="Helper\Validator.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
@@ -321,12 +322,6 @@
     <Compile Include="UI\NghiepVu\KeHoach\UC_KeHoach.Designer.cs">
       <DependentUpon>UC_KeHoach.cs</DependentUpon>
     </Compile>
-    <Compile Include="UI\NghiepVu\SanXuat\BanHanh_KHSX.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="UI\NghiepVu\SanXuat\BanHanh_KHSX.Designer.cs">
-      <DependentUpon>BanHanh_KHSX.cs</DependentUpon>
-    </Compile>
     <Compile Include="UI\Setting\Setting.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -453,9 +448,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="UI\NghiepVu\KeHoach\UC_KeHoach.resx">
       <DependentUpon>UC_KeHoach.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="UI\NghiepVu\SanXuat\BanHanh_KHSX.resx">
-      <DependentUpon>BanHanh_KHSX.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UI\Setting\Setting.resx">
       <DependentUpon>Setting.cs</DependentUpon>

@@ -79,14 +79,13 @@
             this.groupBox1.Margin = new System.Windows.Forms.Padding(5);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Padding = new System.Windows.Forms.Padding(10);
-            this.groupBox1.Size = new System.Drawing.Size(933, 340);
+            this.groupBox1.Size = new System.Drawing.Size(933, 371);
             this.groupBox1.TabIndex = 1;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Thiết lập kế hoạch";
             // 
             // tableLayoutPanel1
             // 
-            this.tableLayoutPanel1.AutoSize = true;
             this.tableLayoutPanel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.tableLayoutPanel1.ColumnCount = 5;
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
@@ -94,7 +93,6 @@
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
-            this.tableLayoutPanel1.Controls.Add(this.btnSave, 4, 8);
             this.tableLayoutPanel1.Controls.Add(this.KieuKH, 0, 1);
             this.tableLayoutPanel1.Controls.Add(this.cbxTinhTrang, 1, 1);
             this.tableLayoutPanel1.Controls.Add(this.label11, 1, 0);
@@ -125,6 +123,7 @@
             this.tableLayoutPanel1.Controls.Add(this.rtbMauSac, 1, 7);
             this.tableLayoutPanel1.Controls.Add(this.label10, 2, 4);
             this.tableLayoutPanel1.Controls.Add(this.rtbGhiChu, 2, 5);
+            this.tableLayoutPanel1.Controls.Add(this.btnSave, 4, 8);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Top;
             this.tableLayoutPanel1.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.tableLayoutPanel1.Location = new System.Drawing.Point(10, 26);
@@ -138,19 +137,18 @@
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 32F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 27F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 32F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 60F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(913, 296);
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 80F));
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(913, 294);
             this.tableLayoutPanel1.TabIndex = 0;
             // 
             // btnSave
             // 
-            this.btnSave.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.btnSave.BackColor = System.Drawing.Color.SeaGreen;
             this.btnSave.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnSave.ForeColor = System.Drawing.SystemColors.Control;
             this.btnSave.Location = new System.Drawing.Point(731, 239);
             this.btnSave.Name = "btnSave";
-            this.btnSave.Size = new System.Drawing.Size(122, 54);
+            this.btnSave.Size = new System.Drawing.Size(122, 55);
             this.btnSave.TabIndex = 9;
             this.btnSave.Text = "LƯU";
             this.btnSave.UseVisualStyleBackColor = false;
@@ -235,10 +233,9 @@
             // 
             // btnUploadExcel
             // 
-            this.btnUploadExcel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.btnUploadExcel.Location = new System.Drawing.Point(549, 241);
+            this.btnUploadExcel.Location = new System.Drawing.Point(549, 239);
             this.btnUploadExcel.Name = "btnUploadExcel";
-            this.btnUploadExcel.Size = new System.Drawing.Size(122, 52);
+            this.btnUploadExcel.Size = new System.Drawing.Size(122, 53);
             this.btnUploadExcel.TabIndex = 16;
             this.btnUploadExcel.Text = "Upload excel";
             this.btnUploadExcel.UseVisualStyleBackColor = true;
@@ -358,10 +355,6 @@
             this.cbTen.DisplayMember = "Ten";
             this.cbTen.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cbTen.FormattingEnabled = true;
-            this.cbTen.Items.AddRange(new object[] {
-            "Tạm thời",
-            "Ban hành",
-            "Huỷ"});
             this.cbTen.Location = new System.Drawing.Point(367, 89);
             this.cbTen.Name = "cbTen";
             this.cbTen.Size = new System.Drawing.Size(358, 26);
@@ -541,10 +534,9 @@
             this.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "ThietLap_KH";
-            this.Size = new System.Drawing.Size(933, 340);
+            this.Size = new System.Drawing.Size(933, 371);
             this.Load += new System.EventHandler(this.ThietLap_KH_Load);
             this.groupBox1.ResumeLayout(false);
-            this.groupBox1.PerformLayout();
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.tbIDMaSP)).EndInit();

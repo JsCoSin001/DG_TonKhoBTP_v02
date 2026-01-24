@@ -103,7 +103,7 @@ public static class EnumStore
     // Là tình trạng thực hiện kế hoạch của sản xuất: cbxTrangThaiThucHienKH : TrangThaiSXKH_Text
     public static Dictionary<int, string> TrangThaiThucHienTheoKH = new Dictionary<int, string>()
     {
-        { -1, "-- Không chọn --" },
+        { -1, "-- Toàn bộ --" },
         { 0, "Chưa ban hành" },
         { 1, "Đang thực hiện" },
         { 2, "Đã xong" },
@@ -113,7 +113,7 @@ public static class EnumStore
     // Là tình trạng của kế hoạch đưa xuống dưới sản xuất: cbxTinhTrangKH: TinhTrangKH_Text
     public static Dictionary<int, string> TrangThaiBanHanhKH = new Dictionary<int, string>()
     {
-        { -1, "-- Không chọn --" },
+        { -1, "-- Toàn bộ --" },
         { 0, "Huỷ" },
         { 1, "Đã ban hành" },
         { 2, "Tạm thời" }
@@ -122,7 +122,7 @@ public static class EnumStore
     // Là tình trạng của đơn hàng theo yêu cầu của các bên: TinhTrangDonKH_Text
     public static Dictionary<int, string> MucDoUuTien = new Dictionary<int, string>()
     {
-        { -1, "-- Không chọn --" },
+        { -1, "-- Toàn bộ --" },
         { 0, "Gấp" },
         { 1, "Đúng kế hoạch"},
         { 2, "Bình thường" }

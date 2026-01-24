@@ -668,6 +668,8 @@ namespace DG_TonKhoBTP_v02.Database
             var (sql, pars) = BuildSqlSearchKeHoachSX(f);
 
             var dt = new DataTable();
+            dt.Columns.Add("DoUuTien", typeof(string));
+            dt.Columns.Add("TrangThaiDon", typeof(string));
             dt.Columns.Add("Ten", typeof(string));
             dt.Columns.Add("NgayNhan", typeof(string));
             dt.Columns.Add("Lot", typeof(string));
@@ -679,8 +681,6 @@ namespace DG_TonKhoBTP_v02.Database
             dt.Columns.Add("GhiChu", typeof(string));
             dt.Columns.Add("TenKhachHang", typeof(string));
             dt.Columns.Add("KieuKH", typeof(string));
-            dt.Columns.Add("DoUuTien", typeof(string));
-            dt.Columns.Add("TrangThaiDon", typeof(string));
 
             using (var conn = new SQLiteConnection(_connStr))
             {
@@ -719,12 +719,12 @@ namespace DG_TonKhoBTP_v02.Database
                             string trangThaiDon = EnumStore.TrangThaiThucHienTheoKH.TryGetValue(trangThaiSX, out var v3) ? v3 : "";
 
 
-                            dt.Rows.Add(ten, ngayNhan, lot,
+                            dt.Rows.Add(doUuTien, trangThaiDon, ten, ngayNhan, lot,
                                         slDat.HasValue ? (object)slDat.Value : DBNull.Value,
                                         slBan.HasValue ? (object)slBan.Value : DBNull.Value,
                                         (object)slTong,
                                         mau, ngayGiao, ghiChu, (object)tenKH ?? DBNull.Value,
-                                        kieuKH, doUuTien, trangThaiDon);
+                                        kieuKH);
                         }
                     }
                 }

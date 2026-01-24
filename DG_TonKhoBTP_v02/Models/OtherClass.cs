@@ -74,7 +74,6 @@ namespace DG_TonKhoBTP_v02.Models
         public long? Id { get; set; }
     }
 
-
     public class TachBinModel
     {
         public string Lot { get; set; }

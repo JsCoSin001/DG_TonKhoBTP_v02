@@ -92,6 +92,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVu.KeHoach
         private void KieuKH_SelectedIndexChanged(object sender, EventArgs e)
         {
             ResetForm();
+            ComboBox cb = (ComboBox)sender;
+            tbLot.Text = cb.SelectedIndex == 1 ? "" : DatabaseHelper.GenerateLotCode();
         }        
 
         private void AnyCombo_TextUpdate(object sender, EventArgs e)
@@ -169,7 +171,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVu.KeHoach
             }
         }
 
-        private void ClearForm()
+        private void ClearForm(bool genLot = false)
         {
             SafeUI(() =>
             {
@@ -315,10 +317,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVu.KeHoach
                 ORDER BY k.Lot
                 LIMIT 30;";
 
-            // Nếu DatabaseHelper của bạn nhận tên param là "kw" thì giữ như vậy.
             var dt = DatabaseHelper.GetData(sql, "%" + kw + "%", "kw");
 
-            // --- 5) Không có dữ liệu: đóng dropdown, giữ text người dùng ---
             if (dt == null || dt.Rows.Count == 0)
             {
                 if (tbLot.IsHandleCreated)
@@ -437,11 +437,14 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVu.KeHoach
                     decimal slDat = ToDecimalOrZero(r["SLHangDat"]);
                     decimal slBan = ToDecimalOrZero(r["SLHangBan"]);
 
-                    tbHangBan.Value = ClampDecimal(slBan, tbHangBan.Minimum, tbHangBan.Maximum);
+                    decimal min = tbHangBan.Minimum;
+                    decimal max = tbHangBan.Maximum;
+
 
                     decimal tong = slDat + slBan;
                     tbTong.Value = ClampDecimal(tong, tbTong.Minimum, tbTong.Maximum);
 
+                    tbHangBan.Value = ClampDecimal(slBan, min, max);
                 });
             });
         }

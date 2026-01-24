@@ -69,7 +69,6 @@ namespace DG_TonKhoBTP_v02.Helper
                 return 0;
         }
 
-
         public static string TaoThongBao(Label lb = null)
         {
             ConfigDB configDB = DatabaseHelper.GetConfig();
@@ -592,7 +591,6 @@ namespace DG_TonKhoBTP_v02.Helper
             return input.Split(separators, StringSplitOptions.RemoveEmptyEntries);
         }
 
-
         public static bool SplitByLastDash(string input, out string left, out string right)
         {
             left = "";
@@ -607,7 +605,6 @@ namespace DG_TonKhoBTP_v02.Helper
             right = input.Substring(lastDash + 1);
             return true;
         }
-
 
 
         public static string? TrimToNull(string? s)

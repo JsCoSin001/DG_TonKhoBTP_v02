@@ -208,6 +208,8 @@ namespace DG_TonKhoBTP_v02.UI
                             var result = f.ShowDialog(this); // this = form cha (nếu đang ở trong form)
 
                             if (result == DialogResult.OK) thongTinThanhPham.HanNoi = (double) f.TongDongThuaValue;
+                            if (result == DialogResult.Cancel) return;
+                            
                         }
 
                         // 2) Sau khi dialog đóng -> hiện waiting lại
@@ -419,7 +421,6 @@ namespace DG_TonKhoBTP_v02.UI
                                 Debug.WriteLine($"ClearAll host: {swClear.ElapsedMilliseconds} ms");
                             }
 
-                            btnLuu.Enabled = true;
                             Debug.WriteLine($"UI cập nhật xong - thời gian: {swUi.ElapsedMilliseconds} ms; Tổng: {swTotal.ElapsedMilliseconds} ms");
                         }));
                     }
@@ -434,6 +435,10 @@ namespace DG_TonKhoBTP_v02.UI
                 FrmWaiting.ShowGifAlert("LỖI: " + ex.Message, "LỖI");
                 btnLuu.Enabled = true;
                 Debug.WriteLine($"Kết thúc trong catch, tổng thời gian: {swTotal.ElapsedMilliseconds} ms");
+            }
+            finally
+            {
+                btnLuu.Enabled = true;
             }
         }        
 

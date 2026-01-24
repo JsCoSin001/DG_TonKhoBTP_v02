@@ -30,76 +30,75 @@
         {
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
-            this.comboBox1 = new System.Windows.Forms.ComboBox();
+            this.cbxTimTenSP = new System.Windows.Forms.ComboBox();
             this.label29 = new System.Windows.Forms.Label();
-            this.dataGridView1 = new System.Windows.Forms.DataGridView();
+            this.dtgDSKeHoach = new System.Windows.Forms.DataGridView();
             this.flowLayoutPanel2 = new System.Windows.Forms.FlowLayoutPanel();
-            this.button1 = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
-            this.maKH = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.btnInKHSX = new System.Windows.Forms.Button();
+            this.btnClear = new System.Windows.Forms.Button();
+            this.lot = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.ten = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.ghiChu = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ghiChuKH = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.ghiChuSX = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.cdRut = new System.Windows.Forms.DataGridViewCheckBoxColumn();
-            this.benRuot = new System.Windows.Forms.DataGridViewCheckBoxColumn();
-            this.ghepLoiQB = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+            this.rut = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+            this.ben = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+            this.qb = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             this.bocLot = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             this.bocMach = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             this.bocVo = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             this.groupBox2.SuspendLayout();
             this.tableLayoutPanel3.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dtgDSKeHoach)).BeginInit();
             this.flowLayoutPanel2.SuspendLayout();
             this.SuspendLayout();
             // 
             // groupBox2
             // 
-            this.groupBox2.AutoSize = true;
             this.groupBox2.Controls.Add(this.tableLayoutPanel3);
             this.groupBox2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.groupBox2.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.groupBox2.Location = new System.Drawing.Point(0, 0);
-            this.groupBox2.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.groupBox2.Margin = new System.Windows.Forms.Padding(4);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Padding = new System.Windows.Forms.Padding(7);
-            this.groupBox2.Size = new System.Drawing.Size(908, 575);
+            this.groupBox2.Size = new System.Drawing.Size(908, 289);
             this.groupBox2.TabIndex = 1;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Ban hành KH - SX";
             // 
             // tableLayoutPanel3
             // 
-            this.tableLayoutPanel3.AutoSize = true;
             this.tableLayoutPanel3.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.tableLayoutPanel3.ColumnCount = 2;
             this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 12.80724F));
             this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 87.19276F));
-            this.tableLayoutPanel3.Controls.Add(this.comboBox1, 1, 0);
+            this.tableLayoutPanel3.Controls.Add(this.cbxTimTenSP, 1, 0);
             this.tableLayoutPanel3.Controls.Add(this.label29, 0, 0);
-            this.tableLayoutPanel3.Controls.Add(this.dataGridView1, 0, 1);
+            this.tableLayoutPanel3.Controls.Add(this.dtgDSKeHoach, 0, 1);
             this.tableLayoutPanel3.Controls.Add(this.flowLayoutPanel2, 1, 2);
-            this.tableLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Top;
+            this.tableLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel3.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.tableLayoutPanel3.Location = new System.Drawing.Point(7, 23);
-            this.tableLayoutPanel3.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.tableLayoutPanel3.Margin = new System.Windows.Forms.Padding(4);
             this.tableLayoutPanel3.Name = "tableLayoutPanel3";
             this.tableLayoutPanel3.RowCount = 3;
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 99.99999F));
-            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 84F));
-            this.tableLayoutPanel3.Size = new System.Drawing.Size(894, 580);
+            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 60F));
+            this.tableLayoutPanel3.Size = new System.Drawing.Size(894, 259);
             this.tableLayoutPanel3.TabIndex = 0;
             // 
-            // comboBox1
+            // cbxTimTenSP
             // 
-            this.comboBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.comboBox1.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Location = new System.Drawing.Point(118, 4);
-            this.comboBox1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
-            this.comboBox1.Name = "comboBox1";
-            this.comboBox1.Size = new System.Drawing.Size(772, 26);
-            this.comboBox1.TabIndex = 23;
+            this.cbxTimTenSP.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.cbxTimTenSP.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cbxTimTenSP.FormattingEnabled = true;
+            this.cbxTimTenSP.Location = new System.Drawing.Point(118, 4);
+            this.cbxTimTenSP.Margin = new System.Windows.Forms.Padding(4);
+            this.cbxTimTenSP.Name = "cbxTimTenSP";
+            this.cbxTimTenSP.Size = new System.Drawing.Size(772, 26);
+            this.cbxTimTenSP.TabIndex = 23;
+            this.cbxTimTenSP.SelectionChangeCommitted += new System.EventHandler(this.cbxTimTenSP_SelectionChangeCommitted);
             // 
             // label29
             // 
@@ -112,114 +111,130 @@
             this.label29.TabIndex = 2;
             this.label29.Text = "Tìm tên SP";
             // 
-            // dataGridView1
+            // dtgDSKeHoach
             // 
-            this.dataGridView1.AllowUserToAddRows = false;
-            this.dataGridView1.AllowUserToDeleteRows = false;
-            this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridView1.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.maKH,
+            this.dtgDSKeHoach.AllowUserToAddRows = false;
+            this.dtgDSKeHoach.AllowUserToDeleteRows = false;
+            this.dtgDSKeHoach.BackgroundColor = System.Drawing.SystemColors.Control;
+            this.dtgDSKeHoach.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dtgDSKeHoach.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.lot,
             this.ten,
-            this.ghiChu,
+            this.ghiChuKH,
             this.ghiChuSX,
-            this.cdRut,
-            this.benRuot,
-            this.ghepLoiQB,
+            this.rut,
+            this.ben,
+            this.qb,
             this.bocLot,
             this.bocMach,
             this.bocVo});
-            this.tableLayoutPanel3.SetColumnSpan(this.dataGridView1, 2);
-            this.dataGridView1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dataGridView1.Location = new System.Drawing.Point(4, 38);
-            this.dataGridView1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
-            this.dataGridView1.MinimumSize = new System.Drawing.Size(0, 250);
-            this.dataGridView1.Name = "dataGridView1";
-            this.dataGridView1.Size = new System.Drawing.Size(886, 454);
-            this.dataGridView1.TabIndex = 24;
+            this.tableLayoutPanel3.SetColumnSpan(this.dtgDSKeHoach, 2);
+            this.dtgDSKeHoach.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dtgDSKeHoach.Location = new System.Drawing.Point(4, 38);
+            this.dtgDSKeHoach.Margin = new System.Windows.Forms.Padding(4);
+            this.dtgDSKeHoach.Name = "dtgDSKeHoach";
+            this.dtgDSKeHoach.RowHeadersVisible = false;
+            this.dtgDSKeHoach.Size = new System.Drawing.Size(886, 157);
+            this.dtgDSKeHoach.TabIndex = 24;
             // 
             // flowLayoutPanel2
             // 
-            this.flowLayoutPanel2.Controls.Add(this.button1);
-            this.flowLayoutPanel2.Controls.Add(this.button2);
+            this.flowLayoutPanel2.Controls.Add(this.btnInKHSX);
+            this.flowLayoutPanel2.Controls.Add(this.btnClear);
             this.flowLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanel2.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
-            this.flowLayoutPanel2.Location = new System.Drawing.Point(118, 500);
-            this.flowLayoutPanel2.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.flowLayoutPanel2.Location = new System.Drawing.Point(118, 203);
+            this.flowLayoutPanel2.Margin = new System.Windows.Forms.Padding(4);
             this.flowLayoutPanel2.Name = "flowLayoutPanel2";
-            this.flowLayoutPanel2.Size = new System.Drawing.Size(772, 76);
+            this.flowLayoutPanel2.Size = new System.Drawing.Size(772, 52);
             this.flowLayoutPanel2.TabIndex = 25;
             // 
-            // button1
+            // btnInKHSX
             // 
-            this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button1.Location = new System.Drawing.Point(623, 4);
-            this.button1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(145, 57);
-            this.button1.TabIndex = 0;
-            this.button1.Text = "button1";
-            this.button1.UseVisualStyleBackColor = true;
+            this.btnInKHSX.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnInKHSX.Location = new System.Drawing.Point(648, 4);
+            this.btnInKHSX.Margin = new System.Windows.Forms.Padding(4);
+            this.btnInKHSX.Name = "btnInKHSX";
+            this.btnInKHSX.Size = new System.Drawing.Size(120, 48);
+            this.btnInKHSX.TabIndex = 0;
+            this.btnInKHSX.Text = "BAN HÀNH KH";
+            this.btnInKHSX.UseVisualStyleBackColor = true;
+            this.btnInKHSX.Click += new System.EventHandler(this.btnInKHSX_Click);
             // 
-            // button2
+            // btnClear
             // 
-            this.button2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button2.Location = new System.Drawing.Point(470, 4);
-            this.button2.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(145, 57);
-            this.button2.TabIndex = 1;
-            this.button2.Text = "button2";
-            this.button2.UseVisualStyleBackColor = true;
+            this.btnClear.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnClear.Location = new System.Drawing.Point(520, 4);
+            this.btnClear.Margin = new System.Windows.Forms.Padding(4);
+            this.btnClear.Name = "btnClear";
+            this.btnClear.Size = new System.Drawing.Size(120, 48);
+            this.btnClear.TabIndex = 1;
+            this.btnClear.Text = "Làm lại";
+            this.btnClear.UseVisualStyleBackColor = true;
+            this.btnClear.Click += new System.EventHandler(this.btnClear_Click);
             // 
-            // maKH
+            // lot
             // 
-            this.maKH.HeaderText = "Mã kế hoạch";
-            this.maKH.Name = "maKH";
+            this.lot.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
+            this.lot.HeaderText = "Mã KH";
+            this.lot.Name = "lot";
+            this.lot.Width = 70;
             // 
             // ten
             // 
             this.ten.HeaderText = "Tên TP";
             this.ten.Name = "ten";
+            this.ten.Width = 160;
             // 
-            // ghiChu
+            // ghiChuKH
             // 
-            this.ghiChu.HeaderText = "Ghi chú KH";
-            this.ghiChu.Name = "ghiChu";
+            this.ghiChuKH.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.ghiChuKH.HeaderText = "Ghi chú KH";
+            this.ghiChuKH.Name = "ghiChuKH";
             // 
             // ghiChuSX
             // 
             this.ghiChuSX.HeaderText = "Ghi chú SX";
             this.ghiChuSX.Name = "ghiChuSX";
+            this.ghiChuSX.Width = 150;
             // 
-            // cdRut
+            // rut
             // 
-            this.cdRut.HeaderText = "Rút";
-            this.cdRut.Name = "cdRut";
+            this.rut.HeaderText = "Rút";
+            this.rut.Name = "rut";
+            this.rut.Visible = false;
+            this.rut.Width = 50;
             // 
-            // benRuot
+            // ben
             // 
-            this.benRuot.HeaderText = "Bện ruột";
-            this.benRuot.Name = "benRuot";
+            this.ben.HeaderText = "Bện";
+            this.ben.Name = "ben";
+            this.ben.Visible = false;
+            this.ben.Width = 50;
             // 
-            // ghepLoiQB
+            // qb
             // 
-            this.ghepLoiQB.HeaderText = "Ghép lõi - QB";
-            this.ghepLoiQB.Name = "ghepLoiQB";
+            this.qb.HeaderText = "GL-QB";
+            this.qb.Name = "qb";
+            this.qb.Width = 70;
             // 
             // bocLot
             // 
-            this.bocLot.HeaderText = "Bọc lót";
+            this.bocLot.HeaderText = "B.Lót";
             this.bocLot.Name = "bocLot";
+            this.bocLot.Width = 70;
             // 
             // bocMach
             // 
-            this.bocMach.HeaderText = "Bọc Mạch";
+            this.bocMach.HeaderText = "B.Mạch";
             this.bocMach.Name = "bocMach";
+            this.bocMach.Width = 70;
             // 
             // bocVo
             // 
-            this.bocVo.HeaderText = "Bọc Vỏ";
+            this.bocVo.HeaderText = "B.Vỏ";
             this.bocVo.Name = "bocVo";
+            this.bocVo.Width = 70;
             // 
             // BanHanhKH_SX
             // 
@@ -227,17 +242,16 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.groupBox2);
             this.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "BanHanhKH_SX";
-            this.Size = new System.Drawing.Size(908, 575);
+            this.Size = new System.Drawing.Size(908, 289);
+            this.Load += new System.EventHandler(this.BanHanhKH_SX_Load);
             this.groupBox2.ResumeLayout(false);
-            this.groupBox2.PerformLayout();
             this.tableLayoutPanel3.ResumeLayout(false);
             this.tableLayoutPanel3.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dtgDSKeHoach)).EndInit();
             this.flowLayoutPanel2.ResumeLayout(false);
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 
@@ -245,19 +259,19 @@
 
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel3;
-        private System.Windows.Forms.ComboBox comboBox1;
+        private System.Windows.Forms.ComboBox cbxTimTenSP;
         private System.Windows.Forms.Label label29;
-        private System.Windows.Forms.DataGridView dataGridView1;
+        private System.Windows.Forms.DataGridView dtgDSKeHoach;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel2;
-        private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.Button button2;
-        private System.Windows.Forms.DataGridViewTextBoxColumn maKH;
+        private System.Windows.Forms.Button btnInKHSX;
+        private System.Windows.Forms.Button btnClear;
+        private System.Windows.Forms.DataGridViewTextBoxColumn lot;
         private System.Windows.Forms.DataGridViewTextBoxColumn ten;
-        private System.Windows.Forms.DataGridViewTextBoxColumn ghiChu;
+        private System.Windows.Forms.DataGridViewTextBoxColumn ghiChuKH;
         private System.Windows.Forms.DataGridViewTextBoxColumn ghiChuSX;
-        private System.Windows.Forms.DataGridViewCheckBoxColumn cdRut;
-        private System.Windows.Forms.DataGridViewCheckBoxColumn benRuot;
-        private System.Windows.Forms.DataGridViewCheckBoxColumn ghepLoiQB;
+        private System.Windows.Forms.DataGridViewCheckBoxColumn rut;
+        private System.Windows.Forms.DataGridViewCheckBoxColumn ben;
+        private System.Windows.Forms.DataGridViewCheckBoxColumn qb;
         private System.Windows.Forms.DataGridViewCheckBoxColumn bocLot;
         private System.Windows.Forms.DataGridViewCheckBoxColumn bocMach;
         private System.Windows.Forms.DataGridViewCheckBoxColumn bocVo;

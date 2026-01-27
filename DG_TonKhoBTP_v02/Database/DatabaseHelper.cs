@@ -838,6 +838,12 @@ namespace DG_TonKhoBTP_v02.Database
                 pars["@HangDatMin"] = f.SLHangDat.Value;
             }
 
+            if (!string.IsNullOrWhiteSpace(f.Ten))
+            {
+                where.Add("ds.Ten LIKE @Ten");
+                pars["@Ten"] = "%" + f.Ten.Trim() + "%";
+            }
+
             if (where.Count > 0)
             {
                 sb.Append("WHERE ");
@@ -1191,6 +1197,110 @@ namespace DG_TonKhoBTP_v02.Database
         #endregion
 
         #region Update dữ liệu
+
+
+        public static int UpdateTrangThaiSX_ByLots(
+        HashSet<(string Lot, int TrangThai, string Ten)> items,
+        string userUpdate)
+        {
+            if (items == null || items.Count == 0) return 0;
+
+            var list = items
+                .Where(x => !string.IsNullOrWhiteSpace(x.Lot))
+                .Select(x => (Lot: x.Lot.Trim(), TrangThai: x.TrangThai, Ten: (x.Ten ?? "").Trim()))
+                .Where(x => x.Ten.Length > 0)
+                .ToList();
+
+            if (list.Count == 0) return 0;
+
+            try
+            {
+                using var conn = new SQLiteConnection(_connStr);
+                conn.Open();
+
+                using var tx = conn.BeginTransaction();
+                using var cmd = conn.CreateCommand();
+                cmd.Transaction = tx;
+
+                cmd.CommandText = @"
+                UPDATE KeHoachSX
+                SET UpdateTrangThaiSX = @userUpdate,
+                    TrangThaiSX = @tt
+                WHERE Lot = @lot
+                  AND EXISTS (
+                      SELECT 1
+                      FROM DanhSachMaSP sp
+                      WHERE sp.id = KeHoachSX.DanhSachMaSP_ID
+                        AND sp.Ten = @ten
+                  );";
+
+                var pUser = cmd.CreateParameter();
+                pUser.ParameterName = "@userUpdate";
+                pUser.DbType = DbType.String;
+                cmd.Parameters.Add(pUser);
+
+                var pTt = cmd.CreateParameter();
+                pTt.ParameterName = "@tt";
+                pTt.DbType = DbType.Int32;
+                cmd.Parameters.Add(pTt);
+
+                var pLot = cmd.CreateParameter();
+                pLot.ParameterName = "@lot";
+                pLot.DbType = DbType.String;
+                cmd.Parameters.Add(pLot);
+
+                var pTen = cmd.CreateParameter();
+                pTen.ParameterName = "@ten";
+                pTen.DbType = DbType.String;
+                cmd.Parameters.Add(pTen);
+
+                int affectedTotal = 0;
+
+                foreach (var (lot, tt, ten) in list)
+                {
+                    pUser.Value = userUpdate ?? string.Empty;
+                    pLot.Value = lot;
+                    pTt.Value = tt;
+                    pTen.Value = ten;
+
+                    affectedTotal += cmd.ExecuteNonQuery();
+                }
+
+                tx.Commit();
+                return affectedTotal; // ✅ số dòng update
+            }
+            catch (Exception ex)
+            {
+                FrmWaiting.ShowGifAlert(CoreHelper.ShowErrorDatabase(ex, "TRẠNG THÁI SX"));
+                return -1; // ✅ lỗi
+            }
+        }
+
+        /// <summary>
+        /// Helper nội bộ: add params vào SQLiteCommand.
+        /// Hỗ trợ truyền key có/không có '@'.
+        /// </summary>
+        private static void AddParams(SQLiteCommand cmd, Dictionary<string, object?>? parameters)
+        {
+            cmd.Parameters.Clear();
+
+            if (parameters == null || parameters.Count == 0) return;
+
+            foreach (var kv in parameters)
+            {
+                var name = (kv.Key ?? "").Trim();
+                if (name.Length == 0) continue;
+                if (!name.StartsWith("@")) name = "@" + name;
+
+                var p = cmd.CreateParameter();
+                p.ParameterName = name;
+
+                // auto map null -> DBNull
+                p.Value = kv.Value ?? DBNull.Value;
+
+                cmd.Parameters.Add(p);
+            }
+        }
         public static bool UpdateNguoiKiemTra(List<int> listStt, string nguoiKT)
         {
             if (listStt == null || listStt.Count == 0)
@@ -1287,16 +1397,16 @@ namespace DG_TonKhoBTP_v02.Database
                 // 2) TTThanhPham
                 UpdateTTThanhPham(conn, tx, tp, tpId,nvl);
 
-                // 3) TTNVL -> Xoá nvl cũ và Tạo mới
-                Del_InsertTTNVL(conn, tx, tpId, nvl);
-
-                // 3.2) Kiểm tra lot có thay đổi hay không
-                //CapNhatTrangThaiLast_Id(conn, tx, nvl, tpId);
+                // restore lại
+                RestoreFromNVL(conn, tx,tpId);
 
                 // 3.1) Update Khối lượng sau, Chiều dài sau và thêm ID được update ở TTThanhPham 
                 UpdateKhoiLuongConLai_TTThanhPham(conn, tx, nvl, tpId);
 
-                // 3.2) Dùng cho db v1
+                // 3.2) TTNVL -> Xoá nvl cũ và Tạo mới
+                Del_InsertTTNVL(conn, tx, tpId, nvl);
+
+                // 3.3) Dùng cho db v1
                 DatabasehelperVer01.UpdateTonKho_NVL_Lan2(nvl,tp.MaBin);
 
                 // 4) CaiDatCDBoc - Nếu có
@@ -1347,139 +1457,6 @@ namespace DG_TonKhoBTP_v02.Database
             }
 
         }
-
-
-
-        private static void CapNhatTrangThaiLast_Id(SQLiteConnection conn, SQLiteTransaction tx, List<TTNVL> dsNVLMoi, int idTTThanhPham)
-        {
-            dsNVLMoi ??= new List<TTNVL>();
-
-            // Bước 1: lấy danh sách BinNVL (distinct, bỏ rỗng)
-            var bins = dsNVLMoi
-                .Select(x => x?.BinNVL?.Trim())
-                .Where(s => !string.IsNullOrWhiteSpace(s))
-                .Distinct(StringComparer.OrdinalIgnoreCase)
-                .ToList();
-
-            // Nếu không có bin mới thì dsMoi = rỗng => vẫn có thể chạy logic cập nhật nếu dsCuID > 0
-            // (tùy business, bạn có thể return sớm nếu muốn)
-            // if (bins.Count == 0) return;
-
-            // Dùng TEMP TABLE để “đẩy” so sánh xuống SQL (anti-join) và vẫn parameterized
-            const string tempTable = "TEMP_NewBins_LastId";
-
-            // 1) Tạo temp table + clear dữ liệu cũ
-            using (var cmd = new SQLiteCommand($@"
-            CREATE TEMP TABLE IF NOT EXISTS {tempTable} (
-                Bin TEXT PRIMARY KEY
-            );
-            DELETE FROM {tempTable};", conn, tx))
-            {
-                cmd.ExecuteNonQuery();
-            }
-
-            // 2) Insert bins vào temp table
-            using (var cmd = new SQLiteCommand($"INSERT OR IGNORE INTO {tempTable}(Bin) VALUES(@Bin);", conn, tx))
-            {
-                var pBin = cmd.Parameters.Add("@Bin", System.Data.DbType.String);
-
-                foreach (var b in bins)
-                {
-                    pBin.Value = b!;
-                    cmd.ExecuteNonQuery();
-                }
-            }
-
-            // 3) Phương án 1: 1 câu UPDATE theo anti-join + điều kiện (dsCuID.Count > dsMoi.Count)
-            // - dsMoi: DanhSachSP_ID của TTThanhPham theo các bin mới
-            // - dsCu:  DanhSachSP_ID trong Backup theo idTTThanhPham
-            // - update các phần tử thuộc dsCu nhưng KHÔNG còn trong dsMoi
-            // - chỉ update khi COUNT(dsCu) > COUNT(dsMoi)
-            string sqlUpdate = $@"
-            WITH
-            dsMoi AS (
-                SELECT DISTINCT t.DanhSachSP_ID
-                FROM TTThanhPham t
-                INNER JOIN {tempTable} nb ON nb.Bin = t.MaBin
-            ),
-            dsCu AS (
-                SELECT DISTINCT b.DanhSachSP_ID
-                FROM Backup b
-                WHERE b.TTThanhPham_ID = @TTThanhPham_ID
-            ),
-            canUpdate AS (
-                SELECT
-                    (SELECT COUNT(*) FROM dsCu) AS CuCount,
-                    (SELECT COUNT(*) FROM dsMoi) AS MoiCount
-            ),
-            toUpdate AS (
-                SELECT c.DanhSachSP_ID
-                FROM dsCu c
-                WHERE NOT EXISTS (
-                    SELECT 1
-                    FROM dsMoi m
-                    WHERE m.DanhSachSP_ID = c.DanhSachSP_ID
-                )
-            )
-            UPDATE TTThanhPham
-            SET
-                -- Lấy dòng backup mới nhất theo DateInsert (nếu bạn muốn theo id thì đổi ORDER BY b.id DESC)
-                KhoiLuongSau = COALESCE(
-                    (SELECT b.KhoiLuong
-                     FROM Backup b
-                     WHERE b.TTThanhPham_ID = @TTThanhPham_ID
-                       AND b.DanhSachSP_ID = TTThanhPham.id
-                     ORDER BY b.DateInsert DESC
-                     LIMIT 1),
-                    KhoiLuongSau
-                ),
-                ChieuDaiSau = COALESCE(
-                    (SELECT b.ChieuDai
-                     FROM Backup b
-                     WHERE b.TTThanhPham_ID = @TTThanhPham_ID
-                       AND b.DanhSachSP_ID = TTThanhPham.id
-                     ORDER BY b.DateInsert DESC
-                     LIMIT 1),
-                    ChieuDaiSau
-                ),
-                DateInsert = COALESCE(
-                    (SELECT b.DateInsert
-                     FROM Backup b
-                     WHERE b.TTThanhPham_ID = @TTThanhPham_ID
-                       AND b.DanhSachSP_ID = TTThanhPham.id
-                     ORDER BY b.DateInsert DESC
-                     LIMIT 1),
-                    DateInsert
-                ),
-                LastEdit_id = COALESCE(
-                    (SELECT b.LastEdit_ID
-                     FROM Backup b
-                     WHERE b.TTThanhPham_ID = @TTThanhPham_ID
-                       AND b.DanhSachSP_ID = TTThanhPham.id
-                     ORDER BY b.DateInsert DESC
-                     LIMIT 1),
-                    LastEdit_id
-                )
-            WHERE
-                -- Điều kiện mapping theo yêu cầu: backup.DanhSachSP_ID = ttthanhpham.id
-                id IN (SELECT DanhSachSP_ID FROM toUpdate)
-                AND (SELECT CuCount FROM canUpdate) > (SELECT MoiCount FROM canUpdate);";
-
-            using (var cmd = new SQLiteCommand(sqlUpdate, conn, tx))
-            {
-                cmd.Parameters.AddWithValue("@TTThanhPham_ID", idTTThanhPham);
-
-                // rowsAffected có thể = 0 là bình thường (khi không thỏa điều kiện hoặc không có gì để update)
-                cmd.ExecuteNonQuery();
-            }
-
-            // (Optional) Dọn temp table
-            using (var cmd = new SQLiteCommand($"DELETE FROM {tempTable};", conn, tx))
-            {
-                cmd.ExecuteNonQuery();
-            }
-        }
-
         private static void UpdateThongTinCaLamViec(SQLiteConnection conn, SQLiteTransaction tx, ThongTinCaLamViec m, int id)
         {
             string sqlUpdate = @"UPDATE ThongTinCaLamViec 
@@ -1509,8 +1486,7 @@ namespace DG_TonKhoBTP_v02.Database
                 }
             }
         }
-
-        
+                
         private static void UpdateTTThanhPham(SQLiteConnection conn, SQLiteTransaction tx, TTThanhPham m, int thongTinCaLamViecId, List<TTNVL> nvl)
         {
             string sqlUpdate = @"UPDATE TTThanhPham 
@@ -1576,9 +1552,9 @@ namespace DG_TonKhoBTP_v02.Database
             UPDATE TTThanhPham
                SET  KhoiLuongSau = @kl,
                     QC = @QC,
-                    ChieuDaiSau  = @cd
-             WHERE MaBin       = @mabin
-               AND LastEdit_id = @lastEditId;", conn, tx);
+                    ChieuDaiSau  = @cd,
+                    LastEdit_id = @lastEditId
+             WHERE MaBin       = @mabin ;", conn, tx);
 
             var pKL = cmd.Parameters.Add("@kl", DbType.Double);
             var QC = cmd.Parameters.Add("@QC", DbType.String);
@@ -1999,8 +1975,8 @@ namespace DG_TonKhoBTP_v02.Database
                         InsertCDGhepLoiQB(conn, tx, tpId, qb);
                         break;
 
-                    case CD_BocLot lot:
-                        InsertCDBocLot(conn, tx, idCaiDatCDBoc, lot);
+                    case CD_BocLot bocLot:
+                        InsertCDBocLot(conn, tx, idCaiDatCDBoc, bocLot);
                         break;
 
                     case CD_BocMach mach:
@@ -2009,6 +1985,34 @@ namespace DG_TonKhoBTP_v02.Database
 
                     case CD_BocVo vo:
                         InsertCDBocVo(conn, tx, idCaiDatCDBoc, vo);
+
+                        // Cập nhật trạng thái của kế hoạch sx
+                        //var parts = CoreHelper.CatMaBin(tp.MaBin);
+                        //string lot = parts.Length == 5 ? parts[1] : parts[0];
+                        //string ttUpdate = $"{caLam.NguoiLam}_Ca {caLam.Ca}";
+
+                        //int trangThai = 2;  // EnumStore.TrangThaiThucHienTheoKH[2] = "Đã xong"
+                        //var items = new HashSet<(string Lot, int TrangThai, string Ten)>{
+                        //    (Lot: lot, TrangThai: trangThai, Ten: tp.TenTP)
+                        //};
+
+                        //int nb = DatabaseHelper.UpdateTrangThaiSX_ByLots(items, ttUpdate);
+                        //string tb = "";
+                        //switch (nb)
+                        //{   
+                        //    case 1:
+                        //        tb = $"{tp.TenTP} với số kế hoạch {lot} đã hoàn thành";
+                        //        break;
+                        //    case 0:
+                        //        tb = $"Lưu thành công. Nhưng không tìm thấy {tp.TenTP} / {lot} trong kế hoạch SX";
+                        //        break;
+                        //    default:
+                        //        tb = "Cập nhật trạng thái Kế hoạch SX thất bại. Hãy kiểm tra lại";
+                        //        break;
+                        //}
+
+                        //FrmWaiting.ShowGifAlert(tb);
+
                         break;
 
                     default:
@@ -2027,7 +2031,44 @@ namespace DG_TonKhoBTP_v02.Database
             }
         }
 
+        private static void RestoreFromNVL(SQLiteConnection conn, SQLiteTransaction tx, long tpId)
+        {
+            if (conn == null) throw new ArgumentNullException(nameof(conn));
+            if (tx == null) throw new ArgumentNullException(nameof(tx));
 
+            // Update TTThanhPham theo đúng điều kiện:
+            // tp.LastEdit_id = nvl.TTThanhPham_ID  và  tp.MaBin = nvl.BinNVL
+            // đồng thời chỉ update cho đúng tpId (tpId = ttthanhpham_id của dòng TTNVL)
+            const string sql = @"
+            UPDATE TTThanhPham AS tp
+            SET
+              KhoiLuongSau = (
+                SELECT nvl.KlBatDau
+                FROM TTNVL AS nvl
+                WHERE nvl.TTThanhPham_ID = tp.LastEdit_id
+                  AND nvl.BinNVL = tp.MaBin
+              ),
+              ChieuDaiSau = (
+                SELECT nvl.CdBatDau
+                FROM TTNVL AS nvl
+                WHERE nvl.TTThanhPham_ID = tp.LastEdit_id
+                  AND nvl.BinNVL = tp.MaBin
+              ),
+              LastEdit_id = NULL 
+            WHERE tp.LastEdit_id = @tpId
+              AND EXISTS (
+                SELECT 1
+                FROM TTNVL AS nvl
+                WHERE nvl.TTThanhPham_ID = tp.LastEdit_id
+                  AND nvl.BinNVL = tp.MaBin
+              );";
+
+            using var cmd = new SQLiteCommand(sql, conn, tx);
+            cmd.CommandType = CommandType.Text;
+            cmd.Parameters.AddWithValue("@tpId", tpId);
+
+            var rowsAffected = cmd.ExecuteNonQuery();
+        }
         private static long InsertThongTinCaLamViec(SQLiteConnection conn, SQLiteTransaction tx, ThongTinCaLamViec m, long id)
         {
             const string sql = @"

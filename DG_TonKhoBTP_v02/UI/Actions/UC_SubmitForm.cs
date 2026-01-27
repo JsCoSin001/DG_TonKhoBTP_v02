@@ -305,6 +305,8 @@ namespace DG_TonKhoBTP_v02.UI
                         {
                             saveSuccess = DatabaseHelper.UpdateDataSanPham(
                                 idEdit, thongTinCaLamViec, thongTinThanhPham, list_TTNVL, chiTietCD, out err);
+
+
                             Debug.WriteLine($"UpdateDataSanPham: {swDb.ElapsedMilliseconds} ms");
                         }
 

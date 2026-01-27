@@ -13,6 +13,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Media;
+using CoreHelper = DG_TonKhoBTP_v02.Helper.Helper;
 
 namespace DG_TonKhoBTP_v02.UI.NghiepVu.KeHoach
 {
@@ -25,6 +26,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVu.KeHoach
         private readonly BindingSource _bs = new BindingSource();
 
         private Control _lastControl = null;
+        
+        private bool isEdit = false;
 
         public BanHanhKH_SX()
         {
@@ -53,8 +56,10 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVu.KeHoach
             JOIN DanhSachMaSP d ON k.DanhSachMaSP_ID = d.id
             WHERE d.Ten LIKE @kw
               AND k.TinhTrangKH = 1
-              AND k.TrangThaiSX = 0
-            ORDER BY d.Ten;";
+              ";
+
+            sql += !isEdit ? "AND k.TrangThaiSX = 0" : "";
+            sql += " ORDER BY d.Ten;";
 
             DataTable dt = DatabaseHelper.GetData(sql, "%" + t + "%", "kw");
 
@@ -120,13 +125,16 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVu.KeHoach
                 SELECT
                   k.Lot   AS lot,
                   d.Ten   AS Ten,
-                  k.GhiChu AS GhiChuKH
+                  k.GhiChu AS GhiChuKH,
+                   k.TrangThaiSX AS TrangThai
                 FROM KeHoachSX k
                 JOIN DanhSachMaSP d ON k.DanhSachMaSP_ID = d.id
                 WHERE d.Ten = @ten COLLATE NOCASE
                   AND k.TinhTrangKH = 1
-                  AND k.TrangThaiSX = 0
-                ORDER BY k.id DESC;";
+            ";
+
+            sql += !isEdit ? "AND k.TrangThaiSX = 0" : "";
+            sql += " ORDER BY k.id DESC;";
 
             DataTable dt = DatabaseHelper.GetData(sql, ten, "ten");
             if (dt == null || dt.Rows.Count == 0) return;
@@ -151,10 +159,13 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVu.KeHoach
                 string ghiChu = (row["GhiChuKH"] != null ? row["GhiChuKH"].ToString() : "");
                 ghiChu = (ghiChu ?? "").Trim();
 
+                int trangThai = row["TrangThai"] == DBNull.Value ? 0 : Convert.ToInt32(row["TrangThai"]);
+
                 DSPhatHanhKHSX item = new DSPhatHanhKHSX();
                 item.Lot = lot;
                 item.Ten = tenDb;
                 item.GhiChuKH = ghiChu;
+                item.TrangThai = trangThai;
 
                 _items.Add(item);     // ✅ add vào BindingList -> grid tự cập nhật
                 existing.Add(lot);
@@ -190,8 +201,10 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVu.KeHoach
             dtgDSKeHoach.RowTemplate.MinimumHeight = 35;
             dtgDSKeHoach.RowTemplate.Height = 35;
 
+
+
             // ✅ BINDING
-            dtgDSKeHoach.AutoGenerateColumns = false; // vì bạn đã tạo cột sẵn theo Name
+            dtgDSKeHoach.AutoGenerateColumns = false; 
 
             // Map cột -> property (Name cột: maKH, ten, ghiChu)
             if (dtgDSKeHoach.Columns.Contains("lot"))
@@ -205,6 +218,30 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVu.KeHoach
 
             if (dtgDSKeHoach.Columns.Contains("GhiChuSX"))
                 dtgDSKeHoach.Columns["GhiChuSX"].DataPropertyName = nameof(DSPhatHanhKHSX.GhiChuSX);
+
+            if (dtgDSKeHoach.Columns.Contains("TrangThai"))
+            {
+                var col = dtgDSKeHoach.Columns["TrangThai"];
+
+                // map value int từ object
+                col.DataPropertyName = nameof(DSPhatHanhKHSX.TrangThai);
+
+                // cấu hình combobox hiển thị text theo dictionary
+                if (col is DataGridViewComboBoxColumn cbCol)
+                {
+                    // Nên bỏ -1 "-- Toàn bộ --" khỏi grid (chỉ dùng cho combobox lọc)
+                    var ds = EnumStore.TrangThaiThucHienTheoKH
+                        .Where(kv => kv.Key >= 0)
+                        .Select(kv => new { Key = kv.Key, Value = kv.Value })
+                        .ToList();
+
+                    cbCol.DataSource = ds;
+                    cbCol.ValueMember = "Key";
+                    cbCol.DisplayMember = "Value";
+
+                    cbCol.Visible = isEdit;
+                }
+            }    
 
             // Nếu có các cột bool thì map thêm (chỉ map nếu tồn tại)
             if (dtgDSKeHoach.Columns.Contains("Rut"))
@@ -280,19 +317,53 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVu.KeHoach
         private void btnInKHSX_Click(object sender, EventArgs e)
         {
             List<DSPhatHanhKHSX> danhSach = _items.ToList();
-
             float[] colMm = { 70f, 28f, 55f, 55f };
 
-            KhsxPrintService.PrintDsPhatHanh_ByFlags(
+            var printedLots = KhsxPrintService.PrintDsPhatHanh_ByFlags(
                 danhSach: danhSach,
                 colWidthsMm: colMm,
-                printerName: null,   // hoặc "Tên máy in" / "Microsoft Print to PDF"
+                printerName: null,
                 paperName: "A5",
                 landscape: true,
                 nguoiLap: "Người lập",
-                tenNguoiLap: ""
+                tenNguoiLap: "",
+                isEdit: isEdit
             );
+
+            if (printedLots.Count > 0)
+            {
+                int nb = DatabaseHelper.UpdateTrangThaiSX_ByLots(printedLots, "Quản Đốc");
+                
+                if (nb <= 0) {
+                    FrmWaiting.ShowGifAlert("Có lỗi trong quá trình cập nhật");
+                }
+            }
         }
 
+        private void rdoEdit_CheckedChanged(object sender, EventArgs e)
+        {
+            isEdit = rdoEdit.Checked;
+
+            if (dtgDSKeHoach.Columns.Contains("TrangThai"))
+                dtgDSKeHoach.Columns["TrangThai"].Visible = isEdit;
+
+            if (dtgDSKeHoach.Columns.Contains("qb"))
+                dtgDSKeHoach.Columns["qb"].Visible = !isEdit;
+
+            if (dtgDSKeHoach.Columns.Contains("bocLot"))
+                dtgDSKeHoach.Columns["bocLot"].Visible = !isEdit;
+
+            if (dtgDSKeHoach.Columns.Contains("bocMach"))
+                dtgDSKeHoach.Columns["bocMach"].Visible = !isEdit;
+
+            if (dtgDSKeHoach.Columns.Contains("bocVo"))
+                dtgDSKeHoach.Columns["bocVo"].Visible = !isEdit;
+
+            btnInKHSX.Text = isEdit ? "CẬP NHẬT KH" : "BAN HÀNH KH";
+
+
+            _items.Clear();
+            _bs.ResetBindings(false);
+        }
     }
 }

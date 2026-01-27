@@ -463,7 +463,7 @@ namespace DG_TonKhoBTP_v02.UI
             newRow["QC"] = sel["QC"];
             table.Rows.Add(newRow);
 
-            tbTem1.Text = newRow["MaNVL"].ToString();
+            tbTem1.Text = newRow["BinNVL"].ToString();
             nbrTemp2.Value = Convert.ToDecimal(newRow["KlBatDau"] == DBNull.Value ? 0 : newRow["KlBatDau"]);
 
             int addedIndex = table.Rows.IndexOf(newRow);

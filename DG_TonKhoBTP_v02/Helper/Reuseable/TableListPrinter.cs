@@ -10,6 +10,7 @@ public class DSPhatHanhKHSX
     public string Lot { get; set; }
     public string GhiChuKH { get; set; } = "";
     public string GhiChuSX { get; set; } = "";
+    public int TrangThai { get;set; } = 0;
     public bool Rut { get; set; } = false;
     public bool Ben { get; set; } = false;
     public bool QB { get; set; } = false;
@@ -68,16 +69,16 @@ public sealed class TableListPrinter<T>
     /// paperName: ví dụ "A5", "A4", hoặc đúng tên PaperSize trên driver.
     /// landscape: true = ngang, false = dọc
     /// </summary>
-    public void Print(
-        string printerName = null,
-        string paperName = "A5",
-        bool landscape = true,
-        Margins margins = null,
-        Font titleFont = null,
-        Font headerFont = null,
-        Font cellFont = null)
+    public bool Print(
+    string printerName = null,
+    string paperName = "A5",
+    bool landscape = true,
+    Margins margins = null,
+    Font titleFont = null,
+    Font headerFont = null,
+    Font cellFont = null)
     {
-        if (_items.Count == 0) return;
+        if (_items.Count == 0) return false;
 
         using var doc = new PrintDocument();
 
@@ -98,9 +99,11 @@ public sealed class TableListPrinter<T>
         headerFont ??= new Font("Arial", 10f, FontStyle.Bold);
         cellFont ??= new Font("Arial", 9.5f, FontStyle.Regular);
 
+        bool canceled = false;
+        doc.EndPrint += (s, e) => { if (e.Cancel) canceled = true; };
+
         doc.PrintPage += (s, e) =>
         {
-            // Bù hard margin để hạn chế lệch
             e.Graphics.TranslateTransform(-e.PageSettings.HardMarginX, -e.PageSettings.HardMarginY);
 
             e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
@@ -109,14 +112,9 @@ public sealed class TableListPrinter<T>
             var area = e.MarginBounds;
 
             using var pen = new Pen(Color.Black, 1);
-            //using var brush = Brushes.Black;
-            Brush brush = Brushes.Black;
+            Brush brush = Brushes.Black; // KHÔNG dispose Brushes.Black
 
-            var sf = new StringFormat(StringFormatFlags.LineLimit)
-            {
-                Trimming = StringTrimming.Word
-            };
-
+            var sf = new StringFormat(StringFormatFlags.LineLimit) { Trimming = StringTrimming.Word };
             int paddingPx = 4;
 
             float[] colWpx = BuildColumnWidthsPx(e.Graphics, area.Width, _colWidthsMm);
@@ -124,7 +122,7 @@ public sealed class TableListPrinter<T>
             float x = area.Left;
             float y = area.Top;
 
-            // ===== TITLE (in trên mỗi trang của "file/print job") =====
+            // TITLE
             if (!string.IsNullOrWhiteSpace(_title))
             {
                 var titleSf = new StringFormat(StringFormatFlags.NoClip)
@@ -137,7 +135,6 @@ public sealed class TableListPrinter<T>
                 float titleGap = 6f;
                 float titleH = MeasureTextBlockHeight(e.Graphics, _title, titleFont, area.Width);
 
-                // nếu title quá sát đáy (hiếm), sang trang
                 if (y + titleH + titleGap > area.Bottom)
                 {
                     e.HasMorePages = true;
@@ -180,7 +177,7 @@ public sealed class TableListPrinter<T>
                 _index++;
             }
 
-            // Footer (chỉ trang cuối của print job)
+            // Footer (chỉ trang cuối)
             if (_index >= _items.Count && _footerLines != null && _footerLines.Length > 0)
             {
                 using var footerFont = new Font("Arial", 10f, FontStyle.Regular);
@@ -199,7 +196,7 @@ public sealed class TableListPrinter<T>
 
                 y += gap;
 
-                float fx = area.Left; // canh trái
+                float fx = area.Left;
                 foreach (var line in _footerLines)
                 {
                     e.Graphics.DrawString(line, footerFont, Brushes.Black, fx, y);
@@ -210,8 +207,17 @@ public sealed class TableListPrinter<T>
             e.HasMorePages = false;
         };
 
-        doc.Print();
+        try
+        {
+            doc.Print();
+            return !canceled; // không cancel => success
+        }
+        catch
+        {
+            return false;     // throw => fail
+        }
     }
+
 
     private static float MeasureTextBlockHeight(Graphics g, string text, Font font, float maxWidthPx)
     {
@@ -349,76 +355,90 @@ public static class KhsxPrintService
     /// <summary>
     /// In 1 danh sách DSPhatHanhKHSX theo bảng (có Title).
     /// </summary>
-    public static void PrintDsPhatHanh(
-        List<DSPhatHanhKHSX> data,
-        float[] colWidthsMm,
-        string printerName = null,
-        string paperName = "A5",
-        bool landscape = true,
-        string title = null,
-        string nguoiLap = "Người lập",
-        string tenNguoiLap = "")
+    public static bool PrintDsPhatHanh(
+    List<DSPhatHanhKHSX> data,
+    float[] colWidthsMm,
+    string printerName = null,
+    string paperName = "A5",
+    bool landscape = true,
+    string title = null,
+    string nguoiLap = "Người lập",
+    string tenNguoiLap = "")
     {
-        if (data == null || data.Count == 0) return;
+        if (data == null || data.Count == 0) return false;
 
         var headers = new[]
         {
-            "Tên SP",
-            "Mã KH",
-            "Ghi Chú SX",
-            "Ghi Chú Kế Hoạch"
-        };
+        "Tên SP",
+        "Mã KH",
+        "Ghi Chú SX",
+        "Ghi Chú Kế Hoạch"
+    };
 
         var selectors = new Func<DSPhatHanhKHSX, string>[]
         {
-            x => x?.Ten ?? "",
-            x => x?.Lot ?? "",
-            x => x?.GhiChuSX ?? "",
-            x => x?.GhiChuKH ?? ""
+        x => x?.Ten ?? "",
+        x => x?.Lot ?? "",
+        x => x?.GhiChuSX ?? "",
+        x => x?.GhiChuKH ?? ""
         };
 
-        var printer = new TableListPrinter<DSPhatHanhKHSX>(
-            data,
-            headers,
-            selectors,
-            colWidthsMm
-        );
+        var printer = new TableListPrinter<DSPhatHanhKHSX>(data, headers, selectors, colWidthsMm);
 
-        printer
-            .SetTitle(title)
-            .SetFooterLines(nguoiLap, tenNguoiLap)
-            .Print(
-                printerName: printerName,
-                paperName: paperName,
-                landscape: landscape
-            );
+        printer.SetTitle(title)
+               .SetFooterLines(nguoiLap, tenNguoiLap);
+
+        return printer.Print(
+            printerName: printerName,
+            paperName: paperName,
+            landscape: landscape
+        );
     }
+
 
     /// <summary>
     /// Tách danhSach thành 6 list theo cờ (Rut/Ben/QB/BocLot/BocMach/BocVo),
     /// rồi in từng list (mỗi list = 1 print job / 1 file PDF nếu dùng Print to PDF).
     /// </summary>
-    public static void PrintDsPhatHanh_ByFlags(
+    public static HashSet<(string Lot, int TrangThai, string Ten)> PrintDsPhatHanh_ByFlags(
         List<DSPhatHanhKHSX> danhSach,
         float[] colWidthsMm,
         string printerName = null,
         string paperName = "A5",
         bool landscape = true,
         string nguoiLap = "Người lập",
-        string tenNguoiLap = "")
+        string tenNguoiLap = "",
+        bool isEdit = false
+    )
     {
-        if (danhSach == null || danhSach.Count == 0) return;
+        var printed = new HashSet<(string Lot, int TrangThai, string Ten)>();
 
-        // Mỗi phần tử có thể thuộc nhiều list nếu nhiều flag = true
-        var groups = new List<(string Key, Func<DSPhatHanhKHSX, bool> Pred)>
+        if (danhSach == null || danhSach.Count == 0) return printed;
+
+        // ✅ Nếu đang edit: không in, không check flags, nhưng vẫn trả HashSet
+        if (isEdit)
         {
-            ("Rut",     x => x != null && x.Rut),
-            ("Ben",     x => x != null && x.Ben),
-            ("QB",      x => x != null && x.QB),
-            ("BocLot",  x => x != null && x.BocLot),
-            ("BocMach", x => x != null && x.BocMach),
-            ("BocVo",   x => x != null && x.BocVo),
-        };
+            foreach (var x in danhSach)
+            {
+                var lot = (x?.Lot ?? "").Trim();
+                if (lot.Length == 0) continue;
+
+                var ten = (x?.Ten ?? "").Trim();
+                printed.Add((lot, x?.TrangThai ?? 0, ten));
+            }
+            return printed;
+        }
+
+        // --- logic cũ: lọc theo flags + in ---
+        var groups = new List<(string Key, Func<DSPhatHanhKHSX, bool> Pred)>
+    {
+        ("Rut",     x => x != null && x.Rut),
+        ("Ben",     x => x != null && x.Ben),
+        ("QB",      x => x != null && x.QB),
+        ("BocLot",  x => x != null && x.BocLot),
+        ("BocMach", x => x != null && x.BocMach),
+        ("BocVo",   x => x != null && x.BocVo),
+    };
 
         foreach (var (key, pred) in groups)
         {
@@ -427,7 +447,7 @@ public static class KhsxPrintService
 
             var title = TitleMap.TryGetValue(key, out var t) ? t : $"Kế hoạch sản xuất {key}";
 
-            PrintDsPhatHanh(
+            bool ok = PrintDsPhatHanh(
                 data: list,
                 colWidthsMm: colWidthsMm,
                 printerName: printerName,
@@ -437,6 +457,24 @@ public static class KhsxPrintService
                 nguoiLap: nguoiLap,
                 tenNguoiLap: tenNguoiLap
             );
+
+            if (ok)
+            {
+                foreach (var x in list)
+                {
+                    var lot = (x?.Lot ?? "").Trim();
+                    if (lot.Length == 0) continue;
+
+                    var ten = (x?.Ten ?? "").Trim();
+                    printed.Add((lot, x?.TrangThai ?? 0, ten));
+                }
+            }
         }
+
+        return printed;
     }
+
+
+
+
 }

@@ -142,7 +142,8 @@ namespace DG_TonKhoBTP_v02
                 thongTinCD: ThongTinChungCongDoan.GhepLoi,
                 createSanPham: () => new UC_TTSanPham(new UC_CDGhepLoiQB()),
                 rawMaterial: false,
-                errorMessagePrefix: "ghép lõi"
+                errorMessagePrefix: "ghép lõi",
+                afterShowUI: root => _ui.HookNvlThanhPham(root)
             );
         }
 
@@ -157,7 +158,8 @@ namespace DG_TonKhoBTP_v02
                 thongTinCD: ThongTinChungCongDoan.QuanBang,
                 createSanPham: () => new UC_TTSanPham(new UC_CDGhepLoiQB()),
                 rawMaterial: false,
-                errorMessagePrefix: "quấn băng"
+                errorMessagePrefix: "quấn băng",
+                afterShowUI: root => _ui.HookNvlThanhPham(root)
             );
         }
 
@@ -190,7 +192,8 @@ namespace DG_TonKhoBTP_v02
                     new UC_CaiDatMay()
                 ),
                 rawMaterial: false,
-                errorMessagePrefix: "bọc lót"
+                errorMessagePrefix: "bọc lót",
+                afterShowUI: root => _ui.HookNvlThanhPham(root)
             );
         }
 
@@ -208,15 +211,16 @@ namespace DG_TonKhoBTP_v02
                     new UC_CaiDatMay()
                 ),
                 rawMaterial: false,
-                errorMessagePrefix: "bọc mạch"
+                errorMessagePrefix: "bọc mạch",
+                afterShowUI: root => _ui.HookNvlThanhPham(root)
             );
         }
 
         private void btnBocVo_Click(object sender, EventArgs e)
         {
 
-            FrmWaiting.ShowGifAlert($"Chức năng này chưa hoàn thiện. \nVui lòng thử lại sau...");
-            return;
+            //FrmWaiting.ShowGifAlert($"Chức năng này chưa hoàn thiện. \nVui lòng thử lại sau...");
+            //return;
 
             _ui.InitCongDoanUI(
                 clickedButton: (Button)sender,
@@ -227,7 +231,8 @@ namespace DG_TonKhoBTP_v02
                     new UC_CaiDatMay()
                 ),
                 rawMaterial: false,
-                errorMessagePrefix: "bọc vỏ"
+                errorMessagePrefix: "bọc vỏ",
+                afterShowUI: root => _ui.HookNvlThanhPham(root)
             );
         }
 

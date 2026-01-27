@@ -961,6 +961,53 @@ namespace DG_TonKhoBTP_v02.Helper
             }
         }
 
+        public static bool UpdateTrangThaiSX_ByLots(HashSet<(string Lot, int TrangThai)> printed)
+        {
+            if (printed == null || printed.Count == 0) return false;
+
+            try
+            {
+                using var conn = new SQLiteConnection(DatabaseHelper.GetStringConnector);
+                conn.Open();
+
+                using var tx = conn.BeginTransaction();
+
+                using var cmd = conn.CreateCommand();
+                cmd.Transaction = tx;
+                cmd.CommandText = @"UPDATE KeHoachSX SET TrangThaiSX = @tt WHERE Lot = @lot;";
+
+                var pTt = cmd.CreateParameter();
+                pTt.ParameterName = "@tt";
+                pTt.DbType = DbType.Int32;
+                cmd.Parameters.Add(pTt);
+
+                var pLot = cmd.CreateParameter();
+                pLot.ParameterName = "@lot";
+                pLot.DbType = DbType.String;
+                cmd.Parameters.Add(pLot);
+
+                int affectedTotal = 0;
+
+                foreach (var x in printed)
+                {
+                    var lot = (x.Lot ?? "").Trim();
+                    if (lot.Length == 0) continue;
+
+                    pTt.Value = x.TrangThai;
+                    pLot.Value = lot;
+
+                    affectedTotal += cmd.ExecuteNonQuery();
+                }
+
+                tx.Commit();
+                return affectedTotal > 0;
+            }
+            catch (Exception ex)
+            {
+                FrmWaiting.ShowGifAlert(Helper.ShowErrorDatabase(ex, "CẬP NHẬT TRẠNG THÁI"));
+                return false;
+            }
+        }
 
 
     }

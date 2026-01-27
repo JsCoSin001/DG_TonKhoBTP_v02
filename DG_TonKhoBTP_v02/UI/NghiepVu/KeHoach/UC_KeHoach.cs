@@ -28,10 +28,10 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVu
         {
             InitializeComponent();      
             
-            this.LoatChucNang(keHoachStaff);
+            this.LoadChucNang(keHoachStaff);
         }
 
-        private void LoatChucNang(bool banhanh)
+        private void LoadChucNang(bool banhanh)
         {
             if (banhanh)
             {
@@ -168,5 +168,46 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVu
             return f;
         }
 
+        private void ResetTimKiemControls()
+        {
+            // 1) ComboBox: bỏ chọn
+            //cbxTrangThaiThucHienKH.SelectedIndex = -1;
+            //cbxTinhTrangCuaKH.SelectedIndex = -1;
+            //cbxMucDoUuTienKH.SelectedIndex = -1;
+            //cbxLot.SelectedIndex = -1;
+            ResetForm();
+
+            // cbxTenSP là ComboBox: đưa về mặc định
+            cbxTenSP.SelectedIndex = -1;
+            cbxTenSP.Text = "";
+
+            // 2) TextBox: clear
+            tbGhiChu.Clear();
+            cbxTenKhach.Clear();
+            cbxMauSac.Clear();
+
+            // 3) NumericUpDown: về 0
+            nbTong.Value = 0;
+            nmHangBan.Value = 0;
+            nbHangDat.Value = 0;
+
+            // 4) DateTimePicker: về mặc định
+            var defaultDate = new DateTime(2000, 1, 1);
+            dtNgayNhanKH.Value = defaultDate;
+            dtNgayGiaoKH.Value = defaultDate;
+
+            // 5) CheckBox: bỏ chọn
+            cbxXuatExcel.Checked = false;
+
+            // (Tuỳ chọn) đặt focus về control đầu tiên
+            cbxTrangThaiThucHienKH.Focus();
+        }
+
+
+        private void btnClear_Click(object sender, EventArgs e)
+        {
+            dtgKetQuaTimKiemKH.DataSource = null;
+            ResetTimKiemControls();
+        }
     }
 }

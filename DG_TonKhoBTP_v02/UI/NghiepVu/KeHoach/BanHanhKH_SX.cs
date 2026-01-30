@@ -57,8 +57,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVu.KeHoach
             WHERE d.Ten LIKE @kw
               AND k.TinhTrangKH = 1
               ";
-
-            sql += !isEdit ? "AND k.TrangThaiSX = 0" : "";
+            sql += !isEdit ? "AND k.TrangThaiSX = 0" : "AND k.TrangThaiSX != 0";
             sql += " ORDER BY d.Ten;";
 
             DataTable dt = DatabaseHelper.GetData(sql, "%" + t + "%", "kw");
@@ -125,15 +124,18 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVu.KeHoach
                 SELECT
                   k.Lot   AS lot,
                   d.Ten   AS Ten,
-                  k.GhiChu AS GhiChuKH,
-                   k.TrangThaiSX AS TrangThai
+                  k.GhiChu AS GhiChuKH,";
+
+            sql += !isEdit ? "1 AS TrangThai " : "k.TrangThaiSX AS TrangThai ";
+
+            sql += @"
                 FROM KeHoachSX k
                 JOIN DanhSachMaSP d ON k.DanhSachMaSP_ID = d.id
                 WHERE d.Ten = @ten COLLATE NOCASE
                   AND k.TinhTrangKH = 1
             ";
 
-            sql += !isEdit ? "AND k.TrangThaiSX = 0" : "";
+            sql += !isEdit ? "AND k.TrangThaiSX = 0" : "AND k.TrangThaiSX != 0";
             sql += " ORDER BY k.id DESC;";
 
             DataTable dt = DatabaseHelper.GetData(sql, ten, "ten");
@@ -310,35 +312,109 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVu.KeHoach
 
         private void btnClear_Click(object sender, EventArgs e)
         {
-            dtgDSKeHoach.Rows.Clear();
+            _items.Clear();
             dtgDSKeHoach.ClearSelection();
         }
 
-        private void btnInKHSX_Click(object sender, EventArgs e)
+        private async void btnInKHSX_Click(object sender, EventArgs e)
         {
-            List<DSPhatHanhKHSX> danhSach = _items.ToList();
-            float[] colMm = { 70f, 28f, 55f, 55f };
+            btnInKHSX.Enabled = false;
+            FrmWaiting waiting = null;
 
-            var printedLots = KhsxPrintService.PrintDsPhatHanh_ByFlags(
-                danhSach: danhSach,
-                colWidthsMm: colMm,
-                printerName: null,
-                paperName: "A5",
-                landscape: true,
-                nguoiLap: "Người lập",
-                tenNguoiLap: "",
-                isEdit: isEdit
-            );
-
-            if (printedLots.Count > 0)
+            try
             {
-                int nb = DatabaseHelper.UpdateTrangThaiSX_ByLots(printedLots, "Quản Đốc");
-                
-                if (nb <= 0) {
-                    FrmWaiting.ShowGifAlert("Có lỗi trong quá trình cập nhật");
+                // 1) Mở waiting form ngay khi click
+                waiting = new FrmWaiting("Đang xử lý, vui lòng đợi...");
+                waiting.ControlBox = false;
+                waiting.MinimizeBox = false;
+                waiting.MaximizeBox = false;
+                waiting.TopMost = true;
+                waiting.StartPosition = FormStartPosition.CenterScreen;
+                waiting.ShowAndRefresh();
+
+                // Chuẩn bị dữ liệu
+                List<DSPhatHanhKHSX> danhSach = _items.ToList();
+                float[] colMm = { 70f, 28f, 55f, 55f };
+
+                // 2) Chạy tác vụ nặng ở background thread
+                var result = await Task.Run(() =>
+                {
+                    string mes = "Thao tác thành công";
+                    string icon = EnumStore.Icon.Success;
+
+                    var printedLots = KhsxPrintService.PrintDsPhatHanh_ByFlags(
+                        danhSach: danhSach,
+                        colWidthsMm: colMm,
+                        printerName: null,
+                        paperName: "A5",
+                        landscape: true,
+                        nguoiLap: "Người lập",
+                        tenNguoiLap: "",
+                        isPrint: cbIn.Checked
+                    );
+
+                    int nb = 0;
+
+                    if (printedLots != null && printedLots.Count > 0)
+                    {
+                        nb = DatabaseHelper.UpdateTrangThaiSX(printedLots, "Quản Đốc");
+
+                        if (nb <= 0)
+                        {
+                            mes = "Cập nhật trạng thái Kế hoạch thất bại";
+                            icon = EnumStore.Icon.Warning;
+                        }
+                    }
+                    else
+                    {
+                        mes = "Không thấy dữ liệu";
+                        icon = EnumStore.Icon.Warning;
+                    }
+
+                    return (mes: mes, icon: icon, printedLots: printedLots, nb: nb);
+                });
+
+                // 3) Sau await: đang ở UI thread → cập nhật UI
+                if (result.printedLots != null && result.printedLots.Count > 0 && result.nb > 0)
+                {
+                    dtgDSKeHoach.EndEdit();
+                    _bs.EndEdit();
+
+                    _items.Clear();
+                    _bs.ResetBindings(false); // refresh grid
+                }
+
+                // 4) Đóng waiting rồi mới show alert
+                waiting.SafeClose();
+                waiting.Dispose();
+                waiting = null;
+
+                FrmWaiting.ShowGifAlert(result.mes, "THÔNG BÁO", result.icon);
+            }
+            catch (Exception ex)
+            {
+                // Đảm bảo waiting luôn được đóng
+                if (waiting != null)
+                {
+                    waiting.SafeClose();
+                    waiting.Dispose();
+                    waiting = null;
+                }
+
+                FrmWaiting.ShowGifAlert("Có lỗi xảy ra: " + ex.Message, "THÔNG BÁO", EnumStore.Icon.Warning);
+            }
+            finally
+            {
+                btnInKHSX.Enabled = true;
+                // Nếu vì lý do nào đó waiting vẫn còn sống thì đóng nốt
+                if (waiting != null)
+                {
+                    waiting.SafeClose();
+                    waiting.Dispose();
                 }
             }
         }
+
 
         private void rdoEdit_CheckedChanged(object sender, EventArgs e)
         {

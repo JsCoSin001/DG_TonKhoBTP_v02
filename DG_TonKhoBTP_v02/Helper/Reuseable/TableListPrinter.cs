@@ -395,11 +395,6 @@ public static class KhsxPrintService
         );
     }
 
-
-    /// <summary>
-    /// Tách danhSach thành 6 list theo cờ (Rut/Ben/QB/BocLot/BocMach/BocVo),
-    /// rồi in từng list (mỗi list = 1 print job / 1 file PDF nếu dùng Print to PDF).
-    /// </summary>
     public static HashSet<(string Lot, int TrangThai, string Ten)> PrintDsPhatHanh_ByFlags(
         List<DSPhatHanhKHSX> danhSach,
         float[] colWidthsMm,
@@ -408,73 +403,70 @@ public static class KhsxPrintService
         bool landscape = true,
         string nguoiLap = "Người lập",
         string tenNguoiLap = "",
-        bool isEdit = false
+        bool isPrint = false
     )
     {
         var printed = new HashSet<(string Lot, int TrangThai, string Ten)>();
 
         if (danhSach == null || danhSach.Count == 0) return printed;
 
-        // ✅ Nếu đang edit: không in, không check flags, nhưng vẫn trả HashSet
-        if (isEdit)
-        {
-            foreach (var x in danhSach)
+        // Nếu in
+        if (isPrint)
+        {            
+            var groups = new List<(string Key, Func<DSPhatHanhKHSX, bool> Pred)>
             {
-                var lot = (x?.Lot ?? "").Trim();
-                if (lot.Length == 0) continue;
+                ("Rut",     x => x != null && x.Rut),
+                ("Ben",     x => x != null && x.Ben),
+                ("QB",      x => x != null && x.QB),
+                ("BocLot",  x => x != null && x.BocLot),
+                ("BocMach", x => x != null && x.BocMach),
+                ("BocVo",   x => x != null && x.BocVo),
+            };
 
-                var ten = (x?.Ten ?? "").Trim();
-                printed.Add((lot, x?.TrangThai ?? 0, ten));
+            foreach (var (key, pred) in groups)
+            {
+                var list = danhSach.Where(pred).ToList();
+                if (list.Count == 0) continue;
+
+                var title = TitleMap.TryGetValue(key, out var t) ? t : $"Kế hoạch sản xuất {key}";
+
+                bool ok = PrintDsPhatHanh(
+                    data: list,
+                    colWidthsMm: colWidthsMm,
+                    printerName: printerName,
+                    paperName: paperName,
+                    landscape: landscape,
+                    title: title,
+                    nguoiLap: nguoiLap,
+                    tenNguoiLap: tenNguoiLap
+                );
+
+                if (ok)
+                {
+                    foreach (var x in list)
+                    {
+                        var lot = (x?.Lot ?? "").Trim();
+                        if (lot.Length == 0) continue;
+
+                        var ten = (x?.Ten ?? "").Trim();
+                        printed.Add((lot, x?.TrangThai ?? 0, ten));
+                    }
+                }
             }
+                       
             return printed;
         }
 
-        // --- logic cũ: lọc theo flags + in ---
-        var groups = new List<(string Key, Func<DSPhatHanhKHSX, bool> Pred)>
-    {
-        ("Rut",     x => x != null && x.Rut),
-        ("Ben",     x => x != null && x.Ben),
-        ("QB",      x => x != null && x.QB),
-        ("BocLot",  x => x != null && x.BocLot),
-        ("BocMach", x => x != null && x.BocMach),
-        ("BocVo",   x => x != null && x.BocVo),
-    };
-
-        foreach (var (key, pred) in groups)
+        // Nếu khôgn in
+        foreach (var x in danhSach)
         {
-            var list = danhSach.Where(pred).ToList();
-            if (list.Count == 0) continue;
+            var lot = (x?.Lot ?? "").Trim();
+            if (lot.Length == 0) continue;
 
-            var title = TitleMap.TryGetValue(key, out var t) ? t : $"Kế hoạch sản xuất {key}";
-
-            bool ok = PrintDsPhatHanh(
-                data: list,
-                colWidthsMm: colWidthsMm,
-                printerName: printerName,
-                paperName: paperName,
-                landscape: landscape,
-                title: title,
-                nguoiLap: nguoiLap,
-                tenNguoiLap: tenNguoiLap
-            );
-
-            if (ok)
-            {
-                foreach (var x in list)
-                {
-                    var lot = (x?.Lot ?? "").Trim();
-                    if (lot.Length == 0) continue;
-
-                    var ten = (x?.Ten ?? "").Trim();
-                    printed.Add((lot, x?.TrangThai ?? 0, ten));
-                }
-            }
+            var ten = (x?.Ten ?? "").Trim();
+            printed.Add((lot, x?.TrangThai ?? 0, ten));
         }
 
         return printed;
     }
-
-
-
-
 }

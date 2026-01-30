@@ -22,7 +22,8 @@ namespace DG_TonKhoBTP_v02.Printer
 
         public static void PrintLabel(PrinterModel printer)
         {
-            string qrLabel = $"{printer.MaBin}_{printer.KhoiLuong}kg_{printer.ChieuDai}m";
+            //string qrLabel = $"{printer.MaBin}_{printer.KhoiLuong}kg_{printer.ChieuDai}m";
+            string qrLabel = $"{printer.MaBin}";
 
             using (Bitmap image = ConvertToImage(printer, qrLabel))
             {

@@ -105,71 +105,120 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVu.KeHoach
             _debounce.Start();
         }
 
-        private void btnSave_Click(object sender, EventArgs e)
+        private async void btnSave_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(cbTen.Text) || string.IsNullOrWhiteSpace(tbMa.Text))
+            btnSave.Enabled = false;
+            FrmWaiting waiting = null;
+
+            try
             {
-                FrmWaiting.ShowGifAlert("Tên hoặc Mã sản phẩm không phù hợp");
-                cbTen.Focus();
-                return;
+                // Validate (nếu fail thì bật lại nút rồi return)
+                if (string.IsNullOrWhiteSpace(cbTen.Text) || string.IsNullOrWhiteSpace(tbMa.Text))
+                {
+                    FrmWaiting.ShowGifAlert("Tên hoặc Mã sản phẩm không phù hợp");
+                    cbTen.Focus();
+                    return;
+                }
+
+                if (tbTong.Value < tbHangDat.Value)
+                {
+                    FrmWaiting.ShowGifAlert("Tổng hoặc khối lượng hàng bán không phù hợp");
+                    return;
+                }
+
+                if (tbLot.Text.Trim() == "")
+                {
+                    FrmWaiting.ShowGifAlert("Vui lòng nhập LOT!");
+                    tbLot.Focus();
+                    return;
+                }
+
+                if (string.IsNullOrWhiteSpace(dtNgayGiao.Text))
+                {
+                    FrmWaiting.ShowGifAlert("Vui lòng chọn ngày giao!", "CẢNH BÁO");
+                    dtNgayGiao.Focus();
+                    return;
+                }
+
+                // Show waiting
+                waiting = new FrmWaiting("Đang lưu dữ liệu, vui lòng đợi...");
+                waiting.ControlBox = false;
+                waiting.MinimizeBox = false;
+                waiting.MaximizeBox = false;
+                waiting.TopMost = true;
+                waiting.StartPosition = FormStartPosition.CenterScreen;
+                waiting.ShowAndRefresh();
+
+                // Build object
+                var keHoach = new KeHoachSX
+                {
+                    Ma = tbMa.Text.Trim(),
+                    Ten = cbTen.Text.Trim(),
+                    DanhSachMaSP_ID = (int)tbIDMaSP.Value,
+                    NgayNhan = dtime.Value.ToString("yyyy-MM-dd"),
+                    Lot = tbLot.Text.Trim(),
+                    SLHangDat = tbHangDat.Value > 0 ? (double?)tbHangDat.Value : 0,
+                    SLHangBan = tbHangBan.Value > 0 ? (double?)tbHangBan.Value : 0,
+                    Mau = rtbMauSac.Text.Trim(),
+                    NgayGiao = dtNgayGiao.Value.ToString("yyyy-MM-dd"),
+                    TenKhachHang = tbTenKhachHang.Text.Trim(),
+                    GhiChu = rtbGhiChu.Text.Trim(),
+                    TinhTrang = cbxTinhTrang.SelectedIndex >= 0 ? cbxTinhTrang.SelectedIndex : 0,
+                    MucDoUuTienKH = cbxMucDoUuTien.SelectedIndex >= 0 ? cbxMucDoUuTien.SelectedIndex : 0,
+                    TrangThaiSX = 0,
+                };
+
+                int isNewPlan = KieuKH.SelectedIndex;
+
+                // DB work in background
+                DbResult result = await Task.Run(() =>
+                {
+                    return isNewPlan == 0
+                        ? DatabaseHelper.InsertKeHoachSX(keHoach)
+                        : DatabaseHelper.UpdateKeHoachSX(keHoach);
+                });
+
+                // Close waiting then show alert
+                waiting.SafeClose();
+                waiting.Dispose();
+                waiting = null;
+
+                string mess = isNewPlan == 0 ? "Tạo mới: " : "Cập nhât: ";
+                string status = (result.Ok ? "" : "Lỗi\n") + result.Message;
+                string icon = result.Ok ? EnumStore.Icon.Success : EnumStore.Icon.Warning;
+
+                FrmWaiting.ShowGifAlert(mess + status, "THÔNG BÁO", icon);
+
+                if (result.Ok)
+                {
+                    ResetForm();
+                    KieuKH.SelectedIndex = 0;
+                }
             }
-
-            if (tbTong.Value < tbHangDat.Value)
+            catch (Exception ex)
             {
-                FrmWaiting.ShowGifAlert("Tổng hoặc khối lượng hàng bán không phù hợp");
-                return;
+                if (waiting != null)
+                {
+                    waiting.SafeClose();
+                    waiting.Dispose();
+                    waiting = null;
+                }
+
+                FrmWaiting.ShowGifAlert("Có lỗi xảy ra: " + ex.Message, "THÔNG BÁO", EnumStore.Icon.Warning);
             }
-
-            if (tbLot.Text.Trim() == "")
+            finally
             {
-                FrmWaiting.ShowGifAlert("Vui lòng nhập LOT!");
-                tbLot.Focus();
-                return;
-            }
+                // Enable lại sau khi thông báo đã đóng (ShowGifAlert là ShowDialog)
+                btnSave.Enabled = true;
 
-            if (string.IsNullOrWhiteSpace(dtNgayGiao.Text))
-            {
-                FrmWaiting.ShowGifAlert("Vui lòng chọn ngày giao!", "CẢNH BÁO");
-                dtNgayGiao.Focus();
-                return;
-            }
-
-            var keHoach = new KeHoachSX
-            {
-                Ma = tbMa.Text.Trim(),
-                Ten = cbTen.Text.Trim(),
-                DanhSachMaSP_ID = (int)tbIDMaSP.Value,
-                NgayNhan = dtime.Value.ToString("yyyy-MM-dd"),
-                Lot = tbLot.Text.Trim(),
-                SLHangDat = tbHangDat.Value > 0 ? (double?)tbHangDat.Value : 0,
-                SLHangBan = tbHangBan.Value > 0 ? (double?)tbHangBan.Value : 0,
-                Mau = rtbMauSac.Text.Trim(),
-                NgayGiao = dtNgayGiao.Value.ToString("yyyy-MM-dd"),
-                TenKhachHang = tbTenKhachHang.Text.Trim(),
-                GhiChu = rtbGhiChu.Text.Trim(),
-                TinhTrang = cbxTinhTrang.SelectedIndex >= 0 ? cbxTinhTrang.SelectedIndex : 0,
-                MucDoUuTienKH = cbxMucDoUuTien.SelectedIndex >= 0 ? cbxMucDoUuTien.SelectedIndex : 0,
-                TrangThaiSX = 0,
-            };
-
-            int isNewPlan = KieuKH.SelectedIndex;
-
-            DbResult result = isNewPlan == 0
-                ? DatabaseHelper.InsertKeHoachSX(keHoach)
-                : DatabaseHelper.UpdateKeHoachSX(keHoach);
-
-            string mess = isNewPlan == 0 ? "Tạo mới: " : "Cập nhât: ";
-            string status = (result.Ok ? "" : "Lỗi\n") + result.Message;
-            string icon = result.Ok ? EnumStore.Icon.Success : EnumStore.Icon.Warning;
-
-            FrmWaiting.ShowGifAlert(mess + status, "THÔNG BÁO", icon);
-
-            if (result.Ok)
-            {
-                ResetForm();
-                KieuKH.SelectedIndex = 0;
+                if (waiting != null)
+                {
+                    waiting.SafeClose();
+                    waiting.Dispose();
+                }
             }
         }
+
 
         private void ClearForm(bool genLot = false)
         {

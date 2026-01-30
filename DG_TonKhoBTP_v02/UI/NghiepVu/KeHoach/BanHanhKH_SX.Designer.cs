@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
             this.dtgDSKeHoach = new System.Windows.Forms.DataGridView();
@@ -52,6 +52,8 @@
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.cbxTimTenSP = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
+            this.cbIn = new System.Windows.Forms.CheckBox();
+            this.label2 = new System.Windows.Forms.Label();
             this.groupBox2.SuspendLayout();
             this.tableLayoutPanel3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dtgDSKeHoach)).BeginInit();
@@ -81,18 +83,20 @@
             this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20.69351F));
             this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 79.30649F));
             this.tableLayoutPanel3.Controls.Add(this.dtgDSKeHoach, 0, 1);
-            this.tableLayoutPanel3.Controls.Add(this.flowLayoutPanel2, 1, 2);
             this.tableLayoutPanel3.Controls.Add(this.flowLayoutPanel1, 0, 0);
             this.tableLayoutPanel3.Controls.Add(this.tableLayoutPanel1, 1, 0);
+            this.tableLayoutPanel3.Controls.Add(this.flowLayoutPanel2, 1, 3);
+            this.tableLayoutPanel3.Controls.Add(this.label2, 0, 2);
             this.tableLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel3.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.tableLayoutPanel3.Location = new System.Drawing.Point(7, 23);
             this.tableLayoutPanel3.Margin = new System.Windows.Forms.Padding(4);
             this.tableLayoutPanel3.Name = "tableLayoutPanel3";
-            this.tableLayoutPanel3.RowCount = 3;
+            this.tableLayoutPanel3.RowCount = 4;
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 60F));
+            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 18F));
+            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 65F));
             this.tableLayoutPanel3.Size = new System.Drawing.Size(894, 259);
             this.tableLayoutPanel3.TabIndex = 0;
             // 
@@ -102,14 +106,14 @@
             this.dtgDSKeHoach.AllowUserToDeleteRows = false;
             this.dtgDSKeHoach.BackgroundColor = System.Drawing.SystemColors.Control;
             this.dtgDSKeHoach.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Control;
-            dataGridViewCellStyle2.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.WindowText;
-            dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dtgDSKeHoach.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle4.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle4.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle4.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle4.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle4.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle4.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dtgDSKeHoach.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle4;
             this.dtgDSKeHoach.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dtgDSKeHoach.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.lot,
@@ -129,7 +133,7 @@
             this.dtgDSKeHoach.Margin = new System.Windows.Forms.Padding(4);
             this.dtgDSKeHoach.Name = "dtgDSKeHoach";
             this.dtgDSKeHoach.RowHeadersVisible = false;
-            this.dtgDSKeHoach.Size = new System.Drawing.Size(886, 150);
+            this.dtgDSKeHoach.Size = new System.Drawing.Size(886, 127);
             this.dtgDSKeHoach.TabIndex = 24;
             // 
             // lot
@@ -207,12 +211,13 @@
             // 
             this.flowLayoutPanel2.Controls.Add(this.btnInKHSX);
             this.flowLayoutPanel2.Controls.Add(this.btnClear);
+            this.flowLayoutPanel2.Controls.Add(this.cbIn);
             this.flowLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanel2.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
-            this.flowLayoutPanel2.Location = new System.Drawing.Point(188, 203);
+            this.flowLayoutPanel2.Location = new System.Drawing.Point(188, 198);
             this.flowLayoutPanel2.Margin = new System.Windows.Forms.Padding(4);
             this.flowLayoutPanel2.Name = "flowLayoutPanel2";
-            this.flowLayoutPanel2.Size = new System.Drawing.Size(702, 52);
+            this.flowLayoutPanel2.Size = new System.Drawing.Size(702, 57);
             this.flowLayoutPanel2.TabIndex = 25;
             // 
             // btnInKHSX
@@ -314,6 +319,31 @@
             this.label1.TabIndex = 24;
             this.label1.Text = "Tìm Tên SP";
             // 
+            // cbIn
+            // 
+            this.cbIn.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.cbIn.AutoSize = true;
+            this.cbIn.Checked = true;
+            this.cbIn.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.cbIn.Location = new System.Drawing.Point(328, 18);
+            this.cbIn.Name = "cbIn";
+            this.cbIn.Size = new System.Drawing.Size(92, 20);
+            this.cbIn.TabIndex = 2;
+            this.cbIn.Text = "In kế hoạch";
+            this.cbIn.UseVisualStyleBackColor = true;
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.tableLayoutPanel3.SetColumnSpan(this.label2, 2);
+            this.label2.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label2.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.label2.Location = new System.Drawing.Point(3, 176);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(346, 13);
+            this.label2.TabIndex = 28;
+            this.label2.Text = "Khi tạo mới: kế hoạch cần ban hành lệnh thì mới tìm được tên sản phẩm";
+            // 
             // BanHanhKH_SX
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 16F);
@@ -329,6 +359,7 @@
             this.tableLayoutPanel3.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dtgDSKeHoach)).EndInit();
             this.flowLayoutPanel2.ResumeLayout(false);
+            this.flowLayoutPanel2.PerformLayout();
             this.flowLayoutPanel1.ResumeLayout(false);
             this.flowLayoutPanel1.PerformLayout();
             this.tableLayoutPanel1.ResumeLayout(false);
@@ -362,5 +393,7 @@
         private System.Windows.Forms.DataGridViewCheckBoxColumn bocLot;
         private System.Windows.Forms.DataGridViewCheckBoxColumn bocMach;
         private System.Windows.Forms.DataGridViewCheckBoxColumn bocVo;
+        private System.Windows.Forms.CheckBox cbIn;
+        private System.Windows.Forms.Label label2;
     }
 }

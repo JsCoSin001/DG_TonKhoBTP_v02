@@ -235,6 +235,7 @@ namespace DG_TonKhoBTP_v02.Core
     public class EditModel
     {
         public int Id { get; set; }
+        public int KieuXuLy { get; set; } = 0;
     }
 
     // 1) Phần chung dùng lại cho cả Search/Result/Entity

@@ -134,8 +134,8 @@ namespace DG_TonKhoBTP_v02
         private void btnGhepLoi_Click(object sender, EventArgs e)
         {
 
-            FrmWaiting.ShowGifAlert($"Chức năng này chưa hoàn thiện. \nVui lòng thử lại sau...");
-            return;
+            //FrmWaiting.ShowGifAlert($"Chức năng này chưa hoàn thiện. \nVui lòng thử lại sau...");
+            //return;
 
             _ui.InitCongDoanUI(
                 clickedButton: (Button)sender,
@@ -150,8 +150,8 @@ namespace DG_TonKhoBTP_v02
         private void btnQuanBang_Click(object sender, EventArgs e)
         {
 
-            FrmWaiting.ShowGifAlert($"Chức năng này chưa hoàn thiện. \nVui lòng thử lại sau...");
-            return;
+            //FrmWaiting.ShowGifAlert($"Chức năng này chưa hoàn thiện. \nVui lòng thử lại sau...");
+            //return;
 
             _ui.InitCongDoanUI(
                 clickedButton: (Button)sender,
@@ -165,8 +165,8 @@ namespace DG_TonKhoBTP_v02
 
         private void btnMica_Click(object sender, EventArgs e)
         {
-            FrmWaiting.ShowGifAlert($"Chức năng này chưa hoàn thiện. \nVui lòng thử lại sau...");
-            return;
+            //FrmWaiting.ShowGifAlert($"Chức năng này chưa hoàn thiện. \nVui lòng thử lại sau...");
+            //return;
 
             _ui.InitCongDoanUI(
                 clickedButton: (Button)sender,
@@ -180,8 +180,8 @@ namespace DG_TonKhoBTP_v02
 
         private void btnBocLot_Click(object sender, EventArgs e)
         {
-            FrmWaiting.ShowGifAlert($"Chức năng này chưa hoàn thiện. \nVui lòng thử lại sau...");
-            return;
+            //FrmWaiting.ShowGifAlert($"Chức năng này chưa hoàn thiện. \nVui lòng thử lại sau...");
+            //return;
 
             _ui.InitCongDoanUI(
                 clickedButton: (Button)sender,
@@ -199,8 +199,8 @@ namespace DG_TonKhoBTP_v02
 
         private void btnBocMach_Click(object sender, EventArgs e)
         {
-            FrmWaiting.ShowGifAlert($"Chức năng này chưa hoàn thiện. \nVui lòng thử lại sau...");
-            return;
+            //FrmWaiting.ShowGifAlert($"Chức năng này chưa hoàn thiện. \nVui lòng thử lại sau...");
+            //return;
 
             _ui.InitCongDoanUI(
                 clickedButton: (Button)sender,
@@ -238,8 +238,8 @@ namespace DG_TonKhoBTP_v02
 
         private void btnCapNhatMaHang_Click(object sender, EventArgs e)
         {
-            FrmWaiting.ShowGifAlert($"Chức năng này chưa hoàn thiện. \nVui lòng thử lại sau...");
-            return;
+            //FrmWaiting.ShowGifAlert($"Chức năng này chưa hoàn thiện. \nVui lòng thử lại sau...");
+            //return;
 
             _ui.InitCustomUI(
                 clickedButton: (Button)sender,

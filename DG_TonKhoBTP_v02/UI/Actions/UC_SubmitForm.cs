@@ -48,13 +48,31 @@ namespace DG_TonKhoBTP_v02.UI
             var swTotal = Stopwatch.StartNew();
             Debug.WriteLine("=== [BTN LƯU] BẮT ĐẦU ===");
 
-            // ✅ HIỂN THỊ WAITING NGAY TỪ ĐẦU
-            var waiting = new FrmWaiting("ĐANG XỬ LÝ...");
-            waiting.ShowAndRefresh();
-            Debug.WriteLine($"Hiển thị waiting: {swTotal.ElapsedMilliseconds} ms");
+            FrmWaiting waiting = null;
+
+            void CloseWaitingSafe()
+            {
+                try
+                {
+                    if (waiting != null && !waiting.IsDisposed)
+                        waiting.CloseAndDispose();
+                }
+                catch { /* ignore */ }
+            }
+
+            void ExitEarly()
+            {
+                CloseWaitingSafe();
+                btnLuu.Enabled = true;
+            }
 
             try
             {
+                // ✅ HIỂN THỊ WAITING NGAY TỪ ĐẦU
+                waiting = new FrmWaiting("ĐANG XỬ LÝ...");
+                waiting.ShowAndRefresh();
+                Debug.WriteLine($"Hiển thị waiting: {swTotal.ElapsedMilliseconds} ms");
+
                 btnLuu.Enabled = false;
                 Debug.WriteLine("btnLuu.Enabled = false");
 
@@ -62,17 +80,16 @@ namespace DG_TonKhoBTP_v02.UI
                 string tb = CoreHelper.TaoThongBao(lblTrangThai);
                 Debug.WriteLine($"TaoThongBao: {swTotal.ElapsedMilliseconds} ms");
 
-                if (tb != "")
+                if (!string.IsNullOrEmpty(tb))
                 {
-                    waiting.CloseAndDispose();
-
                     if (!string.IsNullOrEmpty(tb))
                     {
                         _timerThongBao.Stop();
                         _timerThongBao.Start();
                     }
-                    btnLuu.Enabled = true;
+
                     Debug.WriteLine($"Thoát sớm vì tb != \"\": {swTotal.ElapsedMilliseconds} ms");
+                    ExitEarly();
                     return;
                 }
 
@@ -82,10 +99,8 @@ namespace DG_TonKhoBTP_v02.UI
 
                 if (host == null)
                 {
-                    waiting.Close();
-                    waiting.Dispose();
-                    btnLuu.Enabled = true;
                     Debug.WriteLine($"host == null, thoát: {swTotal.ElapsedMilliseconds} ms");
+                    ExitEarly();
                     return;
                 }
 
@@ -98,19 +113,54 @@ namespace DG_TonKhoBTP_v02.UI
                 catch (Exception ex)
                 {
                     Debug.WriteLine($"Lỗi Capture snapshot: {ex.Message}");
-                    waiting.Close();
-                    waiting.Dispose();
-                    btnLuu.Enabled = true;
+                    ExitEarly();
                     return;
                 }
+
+                // === CHUẨN BỊ DỮ LIỆU ===
+                var editmodel = (EditModel)snap.Sections["UC_Edit"];
+                int kieuXL = editmodel.KieuXuLy;
+                int idEdit = kieuXL == 2 ? editmodel.Id : 0;
+
+                // ✅ UI: Ẩn waiting trước khi hỏi MessageBox
+                if (idEdit != 0)
+                {
+                    try
+                    {
+                        waiting.Hide();
+                        Application.DoEvents();
+                    }
+                    catch { }
+
+                    DialogResult result = MessageBox.Show(
+                        "BẠN ĐANG SỬA DỮ LIỆU?",
+                        "Xác nhận",
+                        MessageBoxButtons.YesNo,
+                        MessageBoxIcon.Question
+                    );
+
+                    if (result == DialogResult.No)
+                    {
+                        Debug.WriteLine("User chọn NO (không sửa) -> thoát");
+                        ExitEarly();
+                        return;
+                    }
+
+                    // user chọn Yes -> hiện waiting lại
+                    try
+                    {
+                        waiting.Show();
+                        waiting.ShowAndRefresh();
+                    }
+                    catch { }
+                }
+
                 Debug.WriteLine($"Capture snapshot: {swStep.ElapsedMilliseconds} ms (tổng: {swTotal.ElapsedMilliseconds} ms)");
 
                 if (snap == null || snap.Sections.Count < 4)
                 {
-                    waiting.Close();
-                    waiting.Dispose();
-                    btnLuu.Enabled = true;
                     Debug.WriteLine($"Snapshot null/invalid: {swTotal.ElapsedMilliseconds} ms");
+                    ExitEarly();
                     return;
                 }
 
@@ -125,10 +175,9 @@ namespace DG_TonKhoBTP_v02.UI
                 }
                 Debug.WriteLine($"Merge UC_TTSanPham: {swStep.ElapsedMilliseconds} ms (tổng: {swTotal.ElapsedMilliseconds} ms)");
 
-                #region Validate dữ liệu 
+                #region Validate dữ liệu
 
                 #region Validate Ca Làm Việc
-
                 swStep.Restart();
                 ThongTinCaLamViec thongTinCaLamViec = (ThongTinCaLamViec)snap.Sections["UC_TTCaLamViec"];
                 int sttLoi = Validator.TTCaLamViec(thongTinCaLamViec);
@@ -136,8 +185,7 @@ namespace DG_TonKhoBTP_v02.UI
 
                 if (sttLoi > 0)
                 {
-                    waiting.Close();
-                    waiting.Dispose();
+                    CloseWaitingSafe();
                     FrmWaiting.ShowGifAlert(EnumStore.ErrorCaLamViec[sttLoi]);
                     btnLuu.Enabled = true;
                     Debug.WriteLine($"Lỗi TTCaLamViec (sttLoi={sttLoi}), thoát: {swTotal.ElapsedMilliseconds} ms");
@@ -149,16 +197,14 @@ namespace DG_TonKhoBTP_v02.UI
                 swStep.Restart();
                 List<TTNVL> list_TTNVL = snap.Sections["UC_TTNVL"] as List<TTNVL>;
                 string loiNVL = Validator.TTNVL(list_TTNVL, thongTinCaLamViec.May);
-
                 Debug.WriteLine($"Validator.TTNVL: {swStep.ElapsedMilliseconds} ms (tổng: {swTotal.ElapsedMilliseconds} ms)");
 
-                if (loiNVL != "")
+                if (!string.IsNullOrEmpty(loiNVL))
                 {
-                    waiting.Close();
-                    waiting.Dispose();
+                    CloseWaitingSafe();
                     FrmWaiting.ShowGifAlert(loiNVL);
                     btnLuu.Enabled = true;
-                    Debug.WriteLine($"Lỗi TTNVL (sttLoi={sttLoi}), thoát: {swTotal.ElapsedMilliseconds} ms");
+                    Debug.WriteLine($"Lỗi TTNVL, thoát: {swTotal.ElapsedMilliseconds} ms");
                     return;
                 }
                 #endregion
@@ -171,8 +217,7 @@ namespace DG_TonKhoBTP_v02.UI
 
                 if (sttLoi > 0)
                 {
-                    waiting.Close();
-                    waiting.Dispose();
+                    CloseWaitingSafe();
                     FrmWaiting.ShowGifAlert(EnumStore.ErrorTP[sttLoi]);
                     btnLuu.Enabled = true;
                     Debug.WriteLine($"Lỗi TTThanhPham (sttLoi={sttLoi}), thoát: {swTotal.ElapsedMilliseconds} ms");
@@ -180,39 +225,44 @@ namespace DG_TonKhoBTP_v02.UI
                 }
 
                 // Cập nhật hàn nối
-
                 int cd = thongTinThanhPham.CongDoan.Id;
                 bool isHanNoi = true;
 
                 foreach (TTNVL nvl in list_TTNVL)
                 {
-                   if(cd != nvl.CongDoan)
+                    if (cd != nvl.CongDoan)
                     {
                         isHanNoi = false;
                         break;
                     }
                 }
 
-
                 if (isHanNoi)
                 {
                     try
                     {
-                        // 1) Tắt/ẩn waiting trước khi mở dialog
-                        waiting.Hide();               // hoặc waiting.Visible = false;
-                        Application.DoEvents();       // để UI kịp refresh (optional nhưng hay dùng)
+                        // ✅ UI: Tắt/ẩn waiting trước khi mở dialog
+                        waiting.Hide();
+                        Application.DoEvents();
 
                         using (var f = new GetUserInputValue_Simple())
                         {
                             f.StartPosition = FormStartPosition.CenterParent;
-                            var result = f.ShowDialog(this); // this = form cha (nếu đang ở trong form)
+                            var result = f.ShowDialog(this);
 
-                            if (result == DialogResult.OK) thongTinThanhPham.HanNoi = (double) f.TongDongThuaValue;
-                            if (result == DialogResult.Cancel) return;
-                            
+                            if (result == DialogResult.OK)
+                                thongTinThanhPham.HanNoi = (double)f.TongDongThuaValue;
+
+                            if (result == DialogResult.Cancel)
+                            {
+                                // ✅ UI: Cancel thì phải dọn waiting + enable nút rồi thoát
+                                Debug.WriteLine("User Cancel hàn nối -> thoát");
+                                ExitEarly();
+                                return;
+                            }
                         }
 
-                        // 2) Sau khi dialog đóng -> hiện waiting lại
+                        // ✅ UI: Sau khi dialog đóng -> hiện waiting lại
                         waiting.Show();
                         waiting.ShowAndRefresh();
 
@@ -222,11 +272,13 @@ namespace DG_TonKhoBTP_v02.UI
                             nvl.CdConLai = 0;
                         }
                     }
-                    catch (Exception) { }                    
+                    catch (Exception exHN)
+                    {
+                        Debug.WriteLine($"Lỗi hàn nối: {exHN.Message}");
+                        // giữ logic "catch {}" như bạn, nhưng vẫn đảm bảo waiting đang hiển thị
+                        try { waiting.Show(); waiting.ShowAndRefresh(); } catch { }
+                    }
                 }
-               
-                
-
                 #endregion
 
                 #region Validate chi tiết công đoạn
@@ -236,8 +288,7 @@ namespace DG_TonKhoBTP_v02.UI
 
                 if (chiTietCD[0] == null)
                 {
-                    waiting.Close();
-                    waiting.Dispose();
+                    CloseWaitingSafe();
                     FrmWaiting.ShowGifAlert("Chi tiết công đoạn chưa hợp lệ");
                     btnLuu.Enabled = true;
                     Debug.WriteLine($"Chi tiết công đoạn chưa hợp lệ, thoát: {swTotal.ElapsedMilliseconds} ms");
@@ -253,24 +304,12 @@ namespace DG_TonKhoBTP_v02.UI
                     ? "ĐANG LƯU DỮ LIỆU VÀ IN TEM..."
                     : "ĐANG LƯU DỮ LIỆU...";
 
-                // === CHUẨN BỊ DỮ LIỆU ===
-                var editmodel = (EditModel)snap.Sections["UC_Edit"];
-                int idEdit = editmodel.Id;
-
-                bool saveSuccess = false;
-                bool hasPrintError = false;
-                string saveError = null;
-                string printError = null;
-
                 PrinterModel BuildPrinter()
                 {
                     return new PrinterModel
                     {
-                        NgaySX = DateTime.ParseExact(
-                            thongTinCaLamViec.Ngay,
-                            "yyyy-MM-dd",
-                            CultureInfo.InvariantCulture
-                        ).ToString("dd/MM/yyyy"),
+                        NgaySX = DateTime.ParseExact(thongTinCaLamViec.Ngay, "yyyy-MM-dd", CultureInfo.InvariantCulture)
+                                         .ToString("dd/MM/yyyy"),
                         CaSX = thongTinCaLamViec.Ca,
                         KhoiLuong = thongTinThanhPham.KhoiLuongSau.ToString(),
                         ChieuDai = thongTinThanhPham.ChieuDaiSau.ToString(),
@@ -289,6 +328,11 @@ namespace DG_TonKhoBTP_v02.UI
                     var swTask = Stopwatch.StartNew();
                     Debug.WriteLine("=== [BTN LƯU] Task.Run BẮT ĐẦU ===");
 
+                    bool saveSuccessLocal = false;
+                    bool hasPrintErrorLocal = false;
+                    string saveErrorLocal = null;
+                    string printErrorLocal = null;
+
                     try
                     {
                         // 1) Lưu dữ liệu
@@ -297,23 +341,21 @@ namespace DG_TonKhoBTP_v02.UI
 
                         if (idEdit == 0)
                         {
-                            saveSuccess = DatabaseHelper.SaveDataSanPham(
+                            saveSuccessLocal = DatabaseHelper.SaveDataSanPham(
                                 thongTinCaLamViec, thongTinThanhPham, list_TTNVL, chiTietCD, out err);
                             Debug.WriteLine($"SaveDataSanPham: {swDb.ElapsedMilliseconds} ms");
                         }
                         else
                         {
-                            saveSuccess = DatabaseHelper.UpdateDataSanPham(
+                            saveSuccessLocal = DatabaseHelper.UpdateDataSanPham(
                                 idEdit, thongTinCaLamViec, thongTinThanhPham, list_TTNVL, chiTietCD, out err);
-
-
                             Debug.WriteLine($"UpdateDataSanPham: {swDb.ElapsedMilliseconds} ms");
                         }
 
-                        if (!saveSuccess)
+                        if (!saveSuccessLocal)
                         {
-                            saveError = string.IsNullOrEmpty(err) ? "LƯU KHÔNG THÀNH CÔNG." : err;
-                            Debug.WriteLine($"Lưu thất bại sau: {swTask.ElapsedMilliseconds} ms, lỗi: {saveError}");
+                            saveErrorLocal = string.IsNullOrEmpty(err) ? "LƯU KHÔNG THÀNH CÔNG." : err;
+                            Debug.WriteLine($"Lưu thất bại sau: {swTask.ElapsedMilliseconds} ms, lỗi: {saveErrorLocal}");
                             return;
                         }
 
@@ -330,7 +372,7 @@ namespace DG_TonKhoBTP_v02.UI
                                 Debug.WriteLine($"In tem thành phẩm: {swPrintTP.ElapsedMilliseconds} ms");
 
                                 // In tem NVL
-                                if (thongTinCaLamViec.Id == 0) return;  // Không in tem NVL ở công đoạn rút
+                                if (thongTinCaLamViec.Id == 0) return; // Không in tem NVL ở công đoạn rút
 
                                 List<string> dsBin = new List<string>();
                                 foreach (TTNVL nvl in list_TTNVL)
@@ -339,6 +381,7 @@ namespace DG_TonKhoBTP_v02.UI
                                         (nvl.DonVi == "M" && nvl.CdConLai == 0) ||
                                         nvl.CdBatDau == -1 || nvl.KlBatDau == -1)
                                         continue;
+
                                     dsBin.Add(nvl.BinNVL);
                                 }
 
@@ -352,16 +395,15 @@ namespace DG_TonKhoBTP_v02.UI
                                 {
                                     var swPrintNVL = Stopwatch.StartNew();
                                     foreach (PrinterModel item in nvl_printer)
-                                    {
                                         PrintHelper.PrintLabel(item);
-                                    }
+
                                     Debug.WriteLine($"In tem NVL: {swPrintNVL.ElapsedMilliseconds} ms");
                                 }
                             }
                             catch (Exception exPrint)
                             {
-                                hasPrintError = true;
-                                printError = exPrint.Message;
+                                hasPrintErrorLocal = true;
+                                printErrorLocal = exPrint.Message;
                                 Debug.WriteLine($"Lỗi in tem: {exPrint.Message}");
                             }
                         }
@@ -370,15 +412,15 @@ namespace DG_TonKhoBTP_v02.UI
                     {
                         Debug.WriteLine($"Exception trong Task.Run: {ex}");
 
-                        if (!saveSuccess)
+                        if (!saveSuccessLocal)
                         {
-                            saveSuccess = false;
-                            saveError = "LỖI LƯU DỮ LIỆU: " + ex.Message;
+                            saveSuccessLocal = false;
+                            saveErrorLocal = "LỖI LƯU DỮ LIỆU: " + ex.Message;
                         }
                         else
                         {
-                            hasPrintError = true;
-                            printError = "\n" + ex.Message;
+                            hasPrintErrorLocal = true;
+                            printErrorLocal = "\n" + ex.Message;
                         }
                     }
                     finally
@@ -390,38 +432,39 @@ namespace DG_TonKhoBTP_v02.UI
                         {
                             var swUi = Stopwatch.StartNew();
 
-                            waiting.CloseAndDispose();
+                            CloseWaitingSafe();
                             Debug.WriteLine("Đã đóng FrmWaiting");
 
                             // 🔔 Thông báo kết quả lưu
                             string msgSave = (idEdit > 0 ? "SỬA" : "LƯU");
                             string iconAlert = EnumStore.Icon.Warning;
 
-                            if (saveSuccess)
+                            if (saveSuccessLocal)
                             {
                                 msgSave += " THÀNH CÔNG ";
                                 iconAlert = EnumStore.Icon.Success;
                             }
                             else
                             {
-                                msgSave += " KHÔNG THÀNH CÔNG\nLỗi: " + saveError;
+                                msgSave += " KHÔNG THÀNH CÔNG\nLỗi: " + saveErrorLocal;
                             }
 
                             FrmWaiting.ShowGifAlert(msgSave, "THÔNG BÁO", iconAlert);
 
                             // 🔔 Thông báo lỗi in (nếu có)
-                            if (saveSuccess && hasPrintError && !string.IsNullOrEmpty(printError))
-                            {
-                                FrmWaiting.ShowGifAlert(printError.ToUpper(), "LỖI IN");
-                            }
+                            if (saveSuccessLocal && hasPrintErrorLocal && !string.IsNullOrEmpty(printErrorLocal))
+                                FrmWaiting.ShowGifAlert(printErrorLocal.ToUpper(), "LỖI IN");
 
                             // Clear form nếu lưu thành công
-                            if (saveSuccess)
+                            if (saveSuccessLocal)
                             {
                                 var swClear = Stopwatch.StartNew();
                                 ControlCleaner.ClearAll(host);
                                 Debug.WriteLine($"ClearAll host: {swClear.ElapsedMilliseconds} ms");
                             }
+
+                            // ✅ UI: enable nút đúng thời điểm (sau khi xong hết)
+                            btnLuu.Enabled = true;
 
                             Debug.WriteLine($"UI cập nhật xong - thời gian: {swUi.ElapsedMilliseconds} ms; Tổng: {swTotal.ElapsedMilliseconds} ms");
                         }));
@@ -432,17 +475,15 @@ namespace DG_TonKhoBTP_v02.UI
             {
                 Debug.WriteLine($"Exception ngoài Task.Run: {ex}");
 
-                waiting?.CloseAndDispose();
-
+                CloseWaitingSafe();
                 FrmWaiting.ShowGifAlert("LỖI: " + ex.Message, "LỖI");
+
                 btnLuu.Enabled = true;
                 Debug.WriteLine($"Kết thúc trong catch, tổng thời gian: {swTotal.ElapsedMilliseconds} ms");
             }
-            finally
-            {
-                btnLuu.Enabled = true;
-            }
-        }        
+            
+        }
+ 
 
         private void btnClear_Click(object sender, EventArgs e)
         {

@@ -17,7 +17,6 @@ namespace DG_TonKhoBTP_v02.UI
     {
         CongDoan _cd;
 
-
         public event EventHandler<DataTable> DataTableSubmitted;
 
         public UC_Edit(CongDoan cd)
@@ -72,6 +71,8 @@ namespace DG_TonKhoBTP_v02.UI
         {
             int value = 0;
 
+            int kieuEdit = cbKieuXuLyDL.SelectedIndex;
+
             if (!string.IsNullOrWhiteSpace(sttLoi.Text))
             {
                 value = (int)sttLoi.Value;
@@ -79,13 +80,31 @@ namespace DG_TonKhoBTP_v02.UI
 
             return new EditModel
             {
-                Id = value
+                Id = value,
+                KieuXuLy = kieuEdit,
             };
         }
 
         public void ClearInputs()
         {
             sttLoi.Value = 0;
+            cbKieuXuLyDL.SelectedIndex = 0;
+        }
+
+
+        private void cbKieuXuLyDL_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            ComboBox cb = (ComboBox)sender;
+
+            int kieuEdit = cb.SelectedIndex;
+
+            sttLoi.Enabled = cb.SelectedIndex > 0 ? true : false;
+            sttLoi.Value = 0;
+        }
+
+        private void UC_Edit_Load(object sender, EventArgs e)
+        {
+            cbKieuXuLyDL.SelectedIndex = 0;
         }
     }
 }

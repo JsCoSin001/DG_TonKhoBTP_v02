@@ -30,7 +30,7 @@ namespace DG_TonKhoBTP_v02
     public partial class MainForm : Form
     {
         private string _URL = Properties.Settings.Default.URL;
-        private string _ver = "2.1";
+        private string _ver = "2.2";
         private CongDoanUiService _ui;
         private void InitUiService()
         {

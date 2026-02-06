@@ -137,10 +137,9 @@ namespace DG_TonKhoBTP_v02.Helper
                     OR
                     (d.DonVi = 'M' AND t.ChieuDaiSau  <> 0)
                 )
-                AND 
-                (
+                AND (
                     @ten IS NULL OR TRIM(@ten) = ''
-                    OR t.MaBin LIKE '%' || @ten || '%' COLLATE NOCASE
+                    OR t.MaBin = @ten COLLATE NOCASE
                 )
                 AND
                 (
@@ -175,8 +174,8 @@ namespace DG_TonKhoBTP_v02.Helper
                 d.Ma LIKE 'NVL.%' COLLATE NOCASE
                 AND (
                     @ten IS NULL OR TRIM(@ten) = ''
-                    OR d.Ten LIKE '%' || @ten || '%' COLLATE NOCASE
-                    OR d.Ma  LIKE '%' || @ten || '%' COLLATE NOCASE
+                    OR d.Ten = @ten COLLATE NOCASE
+                    OR d.Ma  = @ten COLLATE NOCASE
                 )
             ";
         }

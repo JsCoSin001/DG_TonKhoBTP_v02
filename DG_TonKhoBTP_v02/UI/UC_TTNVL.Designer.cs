@@ -196,7 +196,6 @@
             this.cbxTimKiem.Name = "cbxTimKiem";
             this.cbxTimKiem.Size = new System.Drawing.Size(441, 28);
             this.cbxTimKiem.TabIndex = 1;
-            this.cbxTimKiem.TextUpdate += new System.EventHandler(this.tbxTimKiem_TextUpdate);
             this.cbxTimKiem.Enter += new System.EventHandler(this.cbxTimKiem_Enter);
             this.cbxTimKiem.KeyDown += new System.Windows.Forms.KeyEventHandler(this.cbxTimKiem_KeyDown);
             // 

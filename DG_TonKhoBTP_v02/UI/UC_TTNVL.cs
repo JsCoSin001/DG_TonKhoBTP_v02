@@ -22,7 +22,7 @@ namespace DG_TonKhoBTP_v02.UI
 {
     public partial class UC_TTNVL : UserControl, IFormSection, IDataReceiver
     {
-        private CancellationTokenSource _searchCts;
+        //private CancellationTokenSource _searchCts;
 
         List<ColumnDefinition> _columns;
 
@@ -346,184 +346,7 @@ namespace DG_TonKhoBTP_v02.UI
                 e.Handled = true;
         }
 
-        private async void tbxTimKiem_TextUpdate(object sender, EventArgs e)
-        {
-            // BẢO HIỂM: trước khi dùng index/logic tô màu, đảm bảo thứ tự cột đúng & Delete cuối
-            EnsureColumnOrderAndDeleteLast();
-
-            string tenNL = cbxTimKiem.Text;
-
-            DebugPrintColumnsByDefinitions();
-
-            if (string.IsNullOrWhiteSpace(tenNL) || !TenMayDaNhap()) return;
-
-            _searchCts?.Cancel();
-            _searchCts = new CancellationTokenSource();
-            var token = _searchCts.Token;
-
-            try
-            {
-                await Task.Delay(250, token);
-                await ShowDanhSachLuaChon(tenNL, token);
-            }
-            catch (OperationCanceledException)
-            {
-            }
-        }
-
-        private async Task ShowDanhSachLuaChon(string keyword, CancellationToken ct)
-        {
-            tbTem1.Text = "";
-            nbrTemp2.Value = 0;
-
-            if (string.IsNullOrWhiteSpace(keyword))
-            {
-                cbxTimKiem.DroppedDown = false;
-                return;
-            }
-            string para = "ten";
-            string query = RawMaterial ? CoreHelper.TaoSQL_LayDLNVL_TTThanhPham()
-                                      : CoreHelper.TaoSQL_LayDLTTThanhPham();
-
-            DataTable sp = await Task.Run(() =>
-            {
-                return DatabaseHelper.GetData(query, keyword, para);
-            }, ct);
-
-            ct.ThrowIfCancellationRequested();
-
-            cbxTimKiem.DroppedDown = false;
-
-            cbxTimKiem.SelectionChangeCommitted -= cbxTimKiem_SelectionChangeCommitted;
-            if (sp.Rows.Count == 0) return;
-
-            cbxTimKiem.DataSource = sp;
-            cbxTimKiem.DisplayMember = "BinNVL";
-
-            string currentText = keyword;
-
-            cbxTimKiem.DroppedDown = true;
-            cbxTimKiem.Text = currentText;
-            cbxTimKiem.SelectionStart = cbxTimKiem.Text.Length;
-            cbxTimKiem.SelectionLength = 0;
-
-            cbxTimKiem.SelectionChangeCommitted += cbxTimKiem_SelectionChangeCommitted;
-        }
-
-        private void cbxTimKiem_SelectionChangeCommitted(object sender, EventArgs e)
-        {
-            // BẢO HIỂM
-            EnsureColumnOrderAndDeleteLast();
-            DebugPrintColumnsByDefinitions();
-
-            if (cbxTimKiem.SelectedItem == null || !(cbxTimKiem.SelectedItem is DataRowView sel))
-                return;
-            setVisibleTableNVL(true);
-
-            cbxTimKiem.SelectedIndex = -1;
-            cbxTimKiem.Text = string.Empty;
-
-            DataTable table = null;
-            BindingSource bs = dtgTTNVL.DataSource as BindingSource;
-            if (bs != null)
-                table = bs.DataSource as DataTable;
-            else
-                table = dtgTTNVL.DataSource as DataTable;
-
-            if (table == null)
-            {
-                FrmWaiting.ShowGifAlert("DataGridView chưa bind với DataTable.");
-                return;
-            }
-
-            string key = sel["id"] == DBNull.Value ? string.Empty : Convert.ToString(sel["id"]);
-
-            Console.WriteLine(key);
-
-            bool exists = table.AsEnumerable().Any(r => (r["id"] == DBNull.Value ? string.Empty : Convert.ToString(r["id"])) == key);
-            if (exists)
-            {
-                FrmWaiting.ShowGifAlert("Lot này đã có trong vào danh sách.");
-                return;
-            }
-
-            DataRow newRow = table.NewRow();
-            newRow["CongDoan"] = sel["CongDoan"];
-            newRow["KlBatDau"] = sel["KlBatDau"];
-            newRow["CdBatDau"] = sel["CdBatDau"];
-            newRow["DonVi"] = sel["DonVi"];
-            newRow["id"] = sel["id"];
-            newRow["MaNVL"] = sel["MaNVL"];
-            newRow["Ngay"] = sel["Ngay"];
-            newRow["Ca"] = sel["Ca"];
-            newRow["NguoiLam"] = sel["NguoiLam"];
-            newRow["GhiChu"] = sel["GhiChu"];
-            newRow["DanhSachMaSP_ID"] = sel["DanhSachMaSP_ID"];
-            newRow["BinNVL"] = sel["BinNVL"];
-            newRow["QC"] = sel["QC"];
-            table.Rows.Add(newRow);
-
-            tbTem1.Text = newRow["BinNVL"].ToString();
-            nbrTemp2.Value = Convert.ToDecimal(newRow["KlBatDau"] == DBNull.Value ? 0 : newRow["KlBatDau"]);
-
-            int addedIndex = table.Rows.IndexOf(newRow);
-
-            if (addedIndex >= 0 && addedIndex < dtgTTNVL.Rows.Count)
-            {
-                dtgTTNVL.ClearSelection();
-
-                string maSP = newRow["MaNVL"].ToString();
-                int dotIndex = maSP.IndexOf(".");
-                if (dotIndex > 0)
-                    maSP = maSP.Substring(0, dotIndex);
-
-                int start = 3;
-
-                if (maSP == "NVL") return;
-
-                int baseCol = tongCotCanHide + start;
-
-                int targetCol = newRow["DonVi"].ToString() == "M" ? baseCol : baseCol + 1;
-
-                bool special = EnumStore.dsTenMayBoQuaKiemTraKhoiLuongConLai.Contains(ReadTenMay());
-
-                if (special)
-                {
-                    object obj = newRow["KlBatDau"];
-                    decimal klBatDau = (obj == null || obj == DBNull.Value) ? 0m : Convert.ToDecimal(obj);
-                    decimal gtConLai_New = (klBatDau <= -1m) ? (klBatDau - 1m) : -1m;
-
-                    dtgTTNVL.Rows[addedIndex].Cells["KlConLai"].Value = gtConLai_New;
-                }
-
-                bool autoFilling = EnumStore.dsTenMayTuDongTinhKLConLai.Contains(ReadTenMay());
-
-                if (autoFilling && klDongThua != null)
-                    PhanBoKLConLai(dtgTTNVL, klDongThua.Value, targetCol);
-
-                if (!autoFilling && !special)
-                    dtgTTNVL.Rows[addedIndex].Cells[targetCol].Style.BackColor = Color.Yellow;
-
-                DebugPrintColumnsByDefinitions();
-
-                // ===== FIX: tô đến "cột dữ liệu cuối cùng" theo _columns (không bị dính Delete) =====
-                int lastDataIndex = -1;
-                string lastDataName = _columns.Count > 0 ? _columns[_columns.Count - 1].Name : null;
-                if (!string.IsNullOrEmpty(lastDataName) && dtgTTNVL.Columns.Contains(lastDataName))
-                    lastDataIndex = dtgTTNVL.Columns[lastDataName].Index;
-
-                if (lastDataIndex >= 0)
-                {
-                    for (int i = baseCol + 2; i <= lastDataIndex; i++)
-                    {
-                        dtgTTNVL.Rows[addedIndex].Cells[i].Style.BackColor = Color.Yellow;
-                    }
-                }
-                // ==================================================================================
-
-                dtgTTNVL.FirstDisplayedScrollingRowIndex = addedIndex;
-            }
-        }
+        
 
         private void setVisibleTableNVL(bool showTable)
         {
@@ -609,9 +432,177 @@ namespace DG_TonKhoBTP_v02.UI
         }
         #endregion
 
-        private void cbxTimKiem_KeyDown(object sender, KeyEventArgs e)
+        private async void cbxTimKiem_KeyDown(object sender, KeyEventArgs e)
         {
+            if (e.KeyCode != Keys.Enter) return;
+            e.Handled = true;
+            e.SuppressKeyPress = true;
+
+            EnsureColumnOrderAndDeleteLast();
+
+            string keyword = cbxTimKiem.Text?.Trim().Split('_')[0];
+
+            cbxTimKiem.Text = "";   // luôn clear sau khi scan
+
+            if (string.IsNullOrEmpty(keyword)) return;
+            if (!TenMayDaNhap()) return;
+
+            string para = "ten";
+            string query = RawMaterial
+                ? CoreHelper.TaoSQL_LayDLNVL_TTThanhPham()
+                : CoreHelper.TaoSQL_LayDLTTThanhPham();
+
+            DataTable result;
+
+            try
+            {
+                result = await Task.Run(() =>
+                    DatabaseHelper.GetData(query, keyword, para)
+                );
+            }
+            catch (Exception ex)
+            {
+                FrmWaiting.ShowGifAlert("Lỗi truy vấn dữ liệu: " + ex.Message);
+                return;
+            }
+
+            if (result == null || result.Rows.Count == 0)
+            {
+                FrmWaiting.ShowGifAlert("Không tìm thấy dữ liệu cho mã QR vừa quét.");
+                return;
+            }
+
+            // ===== ADD DATA =====
+            AddRowsToGrid(result);
         }
+
+
+        private void AddRowsToGrid(DataTable source)
+        {
+            DataTable table = null;
+
+            if (dtgTTNVL.DataSource is BindingSource bs)
+                table = bs.DataSource as DataTable;
+            else
+                table = dtgTTNVL.DataSource as DataTable;
+
+            if (table == null)
+            {
+                FrmWaiting.ShowGifAlert("DataGridView chưa bind DataTable.");
+                return;
+            }
+
+            foreach (DataRow src in source.Rows)
+            {
+                string key = src["id"] == DBNull.Value ? "" : src["id"].ToString();
+
+                bool exists = table.AsEnumerable().Any(r =>
+                    (r["id"] == DBNull.Value ? "" : r["id"].ToString()) == key);
+
+                if (exists) continue;
+
+                DataRow newRow = table.NewRow();
+
+                foreach (DataColumn col in table.Columns)
+                {
+                    if (source.Columns.Contains(col.ColumnName))
+                        newRow[col.ColumnName] = src[col.ColumnName];
+                }
+
+                table.Rows.Add(newRow);
+
+                // ===== UI phụ =====
+                tbTem1.Text = newRow["BinNVL"]?.ToString();
+                nbrTemp2.Value = Convert.ToDecimal(
+                    newRow["KlBatDau"] == DBNull.Value ? 0 : newRow["KlBatDau"]
+                );
+
+                // ================== TÔ MÀU (copy từ cbxTimKiem) ==================
+                int addedIndex = table.Rows.IndexOf(newRow);
+
+                if (addedIndex >= 0 && addedIndex < dtgTTNVL.Rows.Count)
+                {
+                    string maSP = newRow["MaNVL"]?.ToString() ?? string.Empty;
+                    int dotIndex = maSP.IndexOf(".");
+                    if (dotIndex > 0)
+                        maSP = maSP.Substring(0, dotIndex);
+
+                    if (maSP != "NVL")
+                    {
+                        int start = 3;
+                        int baseCol = tongCotCanHide + start;
+
+                        int targetCol =
+                            newRow["DonVi"]?.ToString() == "M"
+                                ? baseCol
+                                : baseCol + 1;
+
+                        bool special =
+                            EnumStore.dsTenMayBoQuaKiemTraKhoiLuongConLai
+                                .Contains(ReadTenMay());
+
+                        if (special)
+                        {
+                            object obj = newRow["KlBatDau"];
+                            decimal klBatDau =
+                                (obj == null || obj == DBNull.Value)
+                                    ? 0m
+                                    : Convert.ToDecimal(obj);
+
+                            decimal gtConLai_New =
+                                (klBatDau <= -1m) ? (klBatDau - 1m) : -1m;
+
+                            dtgTTNVL.Rows[addedIndex]
+                                      .Cells["KlConLai"].Value = gtConLai_New;
+                        }
+
+                        bool autoFilling =
+                            EnumStore.dsTenMayTuDongTinhKLConLai
+                                .Contains(ReadTenMay());
+
+                        if (autoFilling && klDongThua != null)
+                            PhanBoKLConLai(dtgTTNVL, klDongThua.Value, targetCol);
+
+                        if (!autoFilling && !special)
+                            dtgTTNVL.Rows[addedIndex]
+                                      .Cells[targetCol]
+                                      .Style.BackColor = Color.Yellow;
+
+                        // ===== tô tới cột dữ liệu cuối cùng =====
+                        int lastDataIndex = -1;
+                        string lastDataName =
+                            _columns.Count > 0
+                                ? _columns[_columns.Count - 1].Name
+                                : null;
+
+                        if (!string.IsNullOrEmpty(lastDataName)
+                            && dtgTTNVL.Columns.Contains(lastDataName))
+                        {
+                            lastDataIndex =
+                                dtgTTNVL.Columns[lastDataName].Index;
+                        }
+
+                        if (lastDataIndex >= 0)
+                        {
+                            for (int i = baseCol + 2; i <= lastDataIndex; i++)
+                            {
+                                dtgTTNVL.Rows[addedIndex]
+                                          .Cells[i]
+                                          .Style.BackColor = Color.Yellow;
+                            }
+                        }
+                    }
+
+                    dtgTTNVL.FirstDisplayedScrollingRowIndex = addedIndex;
+                }
+                // ================================================================
+            }
+
+            EnsureColumnOrderAndDeleteLast();
+            dtgTTNVL.Refresh();
+        }
+
+
 
         public void OnKhoiLuongChanged(decimal newValue)
         {

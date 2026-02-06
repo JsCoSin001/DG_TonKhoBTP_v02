@@ -50,10 +50,7 @@ namespace DG_TonKhoBTP_v02.UI
                     TTThanhPham.MaBin,
                     TTThanhPham.KhoiLuongSau
                 FROM 
-                    CD_KeoRut
-                JOIN 
-                    TTThanhPham 
-                    ON CD_KeoRut.TTThanhPham_ID = TTThanhPham.id
+                    TTThanhPham                
                 WHERE 
                     TTThanhPham.KhoiLuongSau <> 0
                     AND TTThanhPham.MaBin LIKE '%' || @{para} || '%';
@@ -159,10 +156,10 @@ namespace DG_TonKhoBTP_v02.UI
             if (CoreHelper.TaoThongBao() != "") return;
 
             // Kiểm tra quyền
-            string k = EnumStore.Group["CapNhatTonKho"];
-            string per = "CAN_UPDATE";
+            //string k = EnumStore.Group["CapNhatTonKho"];
+            //string per = "CAN_UPDATE";
 
-            if (!CoreHelper.CheckLoginAndPermission(k, per)) return;
+            //if (!CoreHelper.CheckLoginAndPermission(k, per)) return;
 
             if (string.IsNullOrWhiteSpace(tbMaBin.Text))
             {
@@ -320,9 +317,16 @@ namespace DG_TonKhoBTP_v02.UI
                 INNER JOIN DanhSachMaSP 
                     ON TTThanhPham.DanhSachSP_ID = DanhSachMaSP.id
                 WHERE 
-                    (DanhSachMaSP.DonVi = 'KG' AND TTThanhPham.KhoiLuongSau <> 0)
-                    OR
-                    (DanhSachMaSP.DonVi = 'M' AND TTThanhPham.ChieuDaiSau <> 0)
+                    (
+                        (DanhSachMaSP.DonVi = 'KG' AND TTThanhPham.KhoiLuongSau <> 0)
+                        OR
+                        (DanhSachMaSP.DonVi = 'M' AND TTThanhPham.ChieuDaiSau <> 0)
+                    )
+                    AND (DanhSachMaSP.Ten LIKE 'C %'  or DanhSachMaSP.Ten LIKE 'C-AWG %'  or DanhSachMaSP.Ten LIKE 'A %' )
+                    AND DanhSachMaSP.Ten NOT LIKE '%/T'
+                    AND TTThanhPham.MaBin NOT LIKE 'R%-%' 
+                    AND TTThanhPham.MaBin NOT LIKE 'MD%-%' 
+                    
                 ORDER BY TTThanhPham.id DESC
             ";
             string col = null;
@@ -342,8 +346,7 @@ namespace DG_TonKhoBTP_v02.UI
                 {
                     try
                     {
-                        ExportExcelFile(dt, fileName);
-                        FrmWaiting.ShowGifAlert("XUẤT EXCEL THÀNH CÔNG", "THÔNG BÁO", EnumStore.Icon.Success);
+                        ExportExcelFile(dt, fileName);                       
                     }
                     catch (UnauthorizedAccessException ex)
                     {

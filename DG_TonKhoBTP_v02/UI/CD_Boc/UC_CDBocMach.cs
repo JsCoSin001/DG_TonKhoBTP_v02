@@ -24,8 +24,11 @@ namespace DG_TonKhoBTP_v02.UI
             {
                 TTThanhPhan_ID = 0, // bind khi lưu DB
                 NgoaiQuan = string.IsNullOrEmpty(ngoaiQuan.Text) ? null : ngoaiQuan.Text,
-                LanDanhThung = lanDanhThung.Value == 0m ? null : (int?)lanDanhThung.Value,
-                SoMet = soMet.Value == 0m ? null : (double?)soMet.Value,
+                LanDanhThung = (int) lanDanhThung.Value ,
+                SoMet =(double?)soMet.Value,
+
+                //LanDanhThung = lanDanhThung.Value == 0m ? null : (int?)lanDanhThung.Value,
+                //SoMet = soMet.Value == 0m ? null : (double?)soMet.Value,
             };
         }
 

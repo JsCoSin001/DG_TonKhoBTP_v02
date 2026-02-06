@@ -674,19 +674,19 @@ namespace DG_TonKhoBTP_v02.UI
             _warnedThisFocus = false;
         }
 
-        public void SetKhoiLuongDongThua()
-        {
-            using var f = new GetUserInputValue_Simple();
-            f.StartPosition = FormStartPosition.CenterScreen;
-            var result = f.ShowDialog(this);
+        //public void SetKhoiLuongDongThua()
+        //{
+        //    using var f = new GetUserInputValue_Simple();
+        //    f.StartPosition = FormStartPosition.CenterScreen;
+        //    var result = f.ShowDialog(this);
 
-            if (result == DialogResult.OK)
-            {
-                klDongThua = f.TongDongThuaValue;
-                tbKLDongThua.Visible = true;
-                nmrKlDongThua.Value = klDongThua.Value;
-            }
-        }
+        //    if (result == DialogResult.OK)
+        //    {
+        //        klDongThua = f.TongDongThuaValue;
+        //        tbKLDongThua.Visible = true;
+        //        nmrKlDongThua.Value = klDongThua.Value;
+        //    }
+        //}
 
         private static void PhanBoKLConLai(DataGridView dtgTTNVL, decimal klDongThua, int colIndex)
         {

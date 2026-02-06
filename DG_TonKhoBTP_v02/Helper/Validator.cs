@@ -1,11 +1,8 @@
 ﻿using DG_TonKhoBTP_v02.Core;
-using DG_TonKhoBTP_v02.UI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static ClosedXML.Excel.XLPredefinedFormat;
+using CoreHelper = DG_TonKhoBTP_v02.Helper.Helper;
 
 namespace DG_TonKhoBTP_v02.Helper
 {
@@ -83,8 +80,9 @@ namespace DG_TonKhoBTP_v02.Helper
                     break;
                 }
 
+                string tenMayNVL = CoreHelper.CatMaBin(t.BinNVL)[0];
 
-                if (EnumStore.dsTenMayBoQuaKiemTraKhoiLuongConLai.Contains(tenMay)) continue;
+                if (EnumStore.dsTenMayBoQuaKiemTraKhoiLuongConLai.Contains(tenMay) || EnumStore.dsTenMayBoQuaKiemTraKhoiLuongConLai.Contains(tenMayNVL)) continue;
 
                 if (t.KlBatDau <= t.KlConLai)
                 {

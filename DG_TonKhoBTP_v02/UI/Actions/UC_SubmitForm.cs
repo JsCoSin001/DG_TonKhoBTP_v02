@@ -3,16 +3,17 @@ using DG_TonKhoBTP_v02.Database;
 using DG_TonKhoBTP_v02.Helper;
 using DG_TonKhoBTP_v02.Models;
 using DG_TonKhoBTP_v02.Printer;
+using DG_TonKhoBTP_v02.UI.Helper;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
-using CoreHelper = DG_TonKhoBTP_v02.Helper.Helper;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using CoreHelper = DG_TonKhoBTP_v02.Helper.Helper;
 using PrinterModel = DG_TonKhoBTP_v02.Models.PrinterModel;
 using Validator = DG_TonKhoBTP_v02.Helper.Validator;
-using DG_TonKhoBTP_v02.UI.Helper;
 
 namespace DG_TonKhoBTP_v02.UI
 {
@@ -237,7 +238,7 @@ namespace DG_TonKhoBTP_v02.UI
                     }
                 }
 
-                if (isHanNoi)
+                if (isHanNoi && thongTinThanhPham.CongDoan.Id != 0)
                 {
                     try
                     {
@@ -294,6 +295,8 @@ namespace DG_TonKhoBTP_v02.UI
                     Debug.WriteLine($"Chi tiết công đoạn chưa hợp lệ, thoát: {swTotal.ElapsedMilliseconds} ms");
                     return;
                 }
+                
+
                 #endregion
 
                 #endregion
@@ -304,8 +307,16 @@ namespace DG_TonKhoBTP_v02.UI
                     ? "ĐANG LƯU DỮ LIỆU VÀ IN TEM..."
                     : "ĐANG LƯU DỮ LIỆU...";
 
+                
                 PrinterModel BuildPrinter()
                 {
+                    bool inSoSoi = EnumStore.dsTenMayBoQuaKiemTraKhoiLuongConLai.Contains(thongTinCaLamViec.May);
+
+                    string ghiChu = CoreHelper.ConvertTiengVietKhongDau(thongTinThanhPham.GhiChu);
+
+                    if (inSoSoi && chiTietCD[0] is CD_BenRuot obj)
+                        ghiChu = $"{obj.DKSoi}x{obj.SoSoi?.ToString() ?? ""} sợi\n" + ghiChu;
+
                     return new PrinterModel
                     {
                         NgaySX = DateTime.ParseExact(thongTinCaLamViec.Ngay, "yyyy-MM-dd", CultureInfo.InvariantCulture)
@@ -318,7 +329,7 @@ namespace DG_TonKhoBTP_v02.UI
                         MaSP = thongTinThanhPham.MaTP,
                         DanhGia = "",
                         TenCN = CoreHelper.ConvertTiengVietKhongDau(thongTinCaLamViec.NguoiLam),
-                        GhiChu = CoreHelper.ConvertTiengVietKhongDau(thongTinThanhPham.GhiChu)
+                        GhiChu = ghiChu
                     };
                 }
 

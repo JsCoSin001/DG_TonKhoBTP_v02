@@ -10,7 +10,9 @@ using DG_TonKhoBTP_v02.UI.Authentication;
 using DG_TonKhoBTP_v02.UI.Helper;
 using DG_TonKhoBTP_v02.UI.KeHoach;
 using DG_TonKhoBTP_v02.UI.NghiepVu;
+using DG_TonKhoBTP_v02.UI.NghiepVu.KeHoach;
 using DG_TonKhoBTP_v02.UI.Setting;
+using DocumentFormat.OpenXml.Office.SpreadSheetML.Y2023.MsForms;
 using QLDuLieuTonKho_BTP;
 using System;
 using System.Collections.Generic;
@@ -28,7 +30,7 @@ namespace DG_TonKhoBTP_v02
     public partial class MainForm : Form
     {
         private string _URL = Properties.Settings.Default.URL;
-        private string _ver = "2.0";
+        private string _ver = "2.1";
         private CongDoanUiService _ui;
         private void InitUiService()
         {
@@ -1302,39 +1304,14 @@ namespace DG_TonKhoBTP_v02
             }
         }
 
-        //private void customButton1_Click(object sender, EventArgs e)
-        //{
-        //    using (var waiting = new FrmWaiting("ĐANG KHỞI TẠO GIAO DIỆN..."))
-        //    {
-        //        try
-        //        {
-        //            waiting.ShowAndRefresh();
+        private void môPhỏngSXToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            using (var f = new FrmMoPhongSX())
+            {
+                f.ShowDialog(this); // this là form cha
+            }
+        }
 
-        //            pnShow.SuspendLayout();
-        //            pnShow.Visible = false;
-
-        //            pnShow.Controls.Clear();
-
-        //            var uc = new UC_HanNoi
-        //            {
-        //                Dock = DockStyle.Fill
-                        
-        //            };
-        //            pnShow.Controls.Add(uc);
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            FrmWaiting.ShowGifAlert($"Lỗi khởi tạo giao diện cập nhật mã hàng: {ex.Message}");
-        //        }
-        //        finally
-        //        {
-        //            pnShow.Visible = true;
-        //            pnShow.ResumeLayout(true);
-        //            waiting?.CloseAndDispose();
-        //            btnCapNhatMaHang.Enabled = true;
-        //        }
-        //    }
-        //}
-
+        
     }
 }

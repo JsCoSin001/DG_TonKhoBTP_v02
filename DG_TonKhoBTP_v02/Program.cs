@@ -136,10 +136,10 @@ namespace DG_TonKhoBTP_v02
             // ================================
             var mainForm = new MainForm();
 
-//#if DEBUG
-//            // GIẢ LẬP KHỞI ĐỘNG CHẬM 15 GIÂY ĐỂ TEST CASE 2
-//            Thread.Sleep(8000);
-//#endif
+            //#if DEBUG
+            //            // GIẢ LẬP KHỞI ĐỘNG CHẬM 15 GIÂY ĐỂ TEST CASE 2
+            //            Thread.Sleep(8000);
+            //#endif
 
 
             // Khi form chính load xong → báo hiệu ứng dụng đã sẵn sàng

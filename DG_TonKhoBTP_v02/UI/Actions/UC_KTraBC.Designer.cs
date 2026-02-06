@@ -177,7 +177,7 @@
             this.dtNgay.Name = "dtNgay";
             this.dtNgay.Size = new System.Drawing.Size(114, 26);
             this.dtNgay.TabIndex = 4;
-            this.dtNgay.Value = new System.DateTime(2025, 12, 12, 0, 0, 0, 0);
+            this.dtNgay.Value = new System.DateTime(2026, 2, 5, 0, 0, 0, 0);
             // 
             // btnTimKiem
             // 

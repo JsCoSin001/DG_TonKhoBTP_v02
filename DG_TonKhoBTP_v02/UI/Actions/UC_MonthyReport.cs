@@ -68,7 +68,7 @@ namespace DG_TonKhoBTP_v02.UI
             // 
             // UC_MonthyReport
             // 
-            this.ClientSize = new System.Drawing.Size(284, 261);
+            this.ClientSize = new System.Drawing.Size(594, 354);
             this.Name = "UC_MonthyReport";
             this.ResumeLayout(false);
 

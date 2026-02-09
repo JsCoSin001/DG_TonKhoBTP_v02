@@ -532,41 +532,71 @@ namespace DG_TonKhoBTP_v02.UI
                         int start = 3;
                         int baseCol = tongCotCanHide + start;
 
-                        int targetCol =
-                            newRow["DonVi"]?.ToString() == "M"
-                                ? baseCol
-                                : baseCol + 1;
 
-                        bool special =
-                            EnumStore.dsTenMayBoQuaKiemTraKhoiLuongConLai
-                                .Contains(ReadTenMay());
+                        object obj = newRow["KlBatDau"];
+                        decimal klBatDau =
+                            (obj == null || obj == DBNull.Value)
+                                ? 0m
+                                : Convert.ToDecimal(obj);
 
-                        if (special)
-                        {
-                            object obj = newRow["KlBatDau"];
-                            decimal klBatDau =
-                                (obj == null || obj == DBNull.Value)
-                                    ? 0m
-                                    : Convert.ToDecimal(obj);
+                        decimal gtConLai_New =
+                            (klBatDau <= -1m) ? (klBatDau - 1m) : -1m;
 
-                            decimal gtConLai_New =
-                                (klBatDau <= -1m) ? (klBatDau - 1m) : -1m;
+                        dtgTTNVL.Rows[addedIndex]
+                                  .Cells["KlConLai"].Value = gtConLai_New;
 
-                            dtgTTNVL.Rows[addedIndex]
-                                      .Cells["KlConLai"].Value = gtConLai_New;
-                        }
 
-                        bool autoFilling =
-                            EnumStore.dsTenMayTuDongTinhKLConLai
-                                .Contains(ReadTenMay());
 
-                        if (autoFilling && klDongThua != null)
-                            PhanBoKLConLai(dtgTTNVL, klDongThua.Value, targetCol);
+                        object obj_CD = newRow["cdBatDau"];
+                        decimal cdBatDau =
+                            (obj_CD == null || obj_CD == DBNull.Value)
+                                ? 0m
+                                : Convert.ToDecimal(obj);
 
-                        if (!autoFilling && !special)
-                            dtgTTNVL.Rows[addedIndex]
-                                      .Cells[targetCol]
-                                      .Style.BackColor = Color.Yellow;
+                        decimal cdConLai_New =
+                            (cdBatDau <= -1m) ? (cdBatDau - 1m) : -1m;
+
+                        dtgTTNVL.Rows[addedIndex]
+                                  .Cells["CdConLai"].Value = gtConLai_New;
+
+
+
+
+                        //int targetCol =
+                        //    newRow["DonVi"]?.ToString() == "M"
+                        //        ? baseCol
+                        //        : baseCol + 1;
+
+                        //bool special =
+                        //    EnumStore.dsTenMayBoQuaKiemTraKhoiLuongConLai
+                        //        .Contains(ReadTenMay());
+
+                        //if (special)
+                        //{
+                        //    object obj = newRow["KlBatDau"];
+                        //    decimal klBatDau =
+                        //        (obj == null || obj == DBNull.Value)
+                        //            ? 0m
+                        //            : Convert.ToDecimal(obj);
+
+                        //    decimal gtConLai_New =
+                        //        (klBatDau <= -1m) ? (klBatDau - 1m) : -1m;
+
+                        //    dtgTTNVL.Rows[addedIndex]
+                        //              .Cells["KlConLai"].Value = gtConLai_New;
+                        //}
+
+                        //bool autoFilling =
+                        //    EnumStore.dsTenMayTuDongTinhKLConLai
+                        //        .Contains(ReadTenMay());
+
+                        //if (autoFilling && klDongThua != null)
+                        //    PhanBoKLConLai(dtgTTNVL, klDongThua.Value, targetCol);
+
+                        //if (!autoFilling && !special)
+                        //    dtgTTNVL.Rows[addedIndex]
+                        //              .Cells[targetCol]
+                        //              .Style.BackColor = Color.Yellow;
 
                         // ===== tô tới cột dữ liệu cuối cùng =====
                         int lastDataIndex = -1;

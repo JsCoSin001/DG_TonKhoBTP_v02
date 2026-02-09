@@ -39,17 +39,17 @@ namespace DG_TonKhoBTP_v02.Helper
 
                 // B1.2) Nếu BTP, nếu đơn vị là kg thì phải nhập khối lượng còn lại
                 // Nếu đơn vị là m thì phải nhập chiều dài còn lại
-                if (t.DonVi == "KG" && t.KlConLai == null)
-                {
-                    tupleError = (Id: 2, Lot: lot);
-                    break;
-                }
+                //if (t.DonVi == "KG" && t.KlConLai == null)
+                //{
+                //    tupleError = (Id: 2, Lot: lot);
+                //    break;
+                //}
 
-                if (t.DonVi == "M" && t.CdConLai == null)
-                {
-                    tupleError = (Id: 3, Lot: lot);
-                    break;
-                }
+                //if (t.DonVi == "M" && t.CdConLai == null)
+                //{
+                //    tupleError = (Id: 3, Lot: lot);
+                //    break;
+                //}
 
                 // B1.3) Các dữ liệu yêu cầu phải được nhập
                 if (t.BanRongBang == null || t.DoDayBang == null || t.KetCauLoi == null || t.DanhSachMaSP_ID == 0 || t.BinNVL == "")
@@ -74,21 +74,21 @@ namespace DG_TonKhoBTP_v02.Helper
                 // B2.1) Kiểm tra logic trong các dữ liệu nhập
 
 
-                if (t.CdBatDau <= t.CdConLai)
-                {
-                    tupleError = (Id: 6, Lot: lot);
-                    break;
-                }
+                //if (t.CdBatDau <= t.CdConLai)
+                //{
+                //    tupleError = (Id: 6, Lot: lot);
+                //    break;
+                //}
 
-                string tenMayNVL = CoreHelper.CatMaBin(t.BinNVL)[0];
+                //string tenMayNVL = CoreHelper.CatMaBin(t.BinNVL)[0];
 
-                if (EnumStore.dsTenMayBoQuaKiemTraKhoiLuongConLai.Contains(tenMay) || EnumStore.dsTenMayBoQuaKiemTraKhoiLuongConLai.Contains(tenMayNVL)) continue;
+                //if (EnumStore.dsTenMayBoQuaKiemTraKhoiLuongConLai.Contains(tenMay) || EnumStore.dsTenMayBoQuaKiemTraKhoiLuongConLai.Contains(tenMayNVL)) continue;
 
-                if (t.KlBatDau <= t.KlConLai)
-                {
-                    tupleError = (Id: 5, Lot: lot);
-                    break;
-                }
+                //if (t.KlBatDau <= t.KlConLai)
+                //{
+                //    tupleError = (Id: 5, Lot: lot);
+                //    break;
+                //}
 
 
                 #endregion

@@ -11,6 +11,7 @@ using DG_TonKhoBTP_v02.UI.Helper;
 using DG_TonKhoBTP_v02.UI.KeHoach;
 using DG_TonKhoBTP_v02.UI.NghiepVu;
 using DG_TonKhoBTP_v02.UI.NghiepVu.KeHoach;
+using DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho;
 using DG_TonKhoBTP_v02.UI.Setting;
 using DocumentFormat.OpenXml.Office.SpreadSheetML.Y2023.MsForms;
 using QLDuLieuTonKho_BTP;
@@ -49,8 +50,7 @@ namespace DG_TonKhoBTP_v02
         {
             InitializeComponent();
             DatabaseHelper.SetDatabasePath(_URL);
-            lblAuthor.Text = $"Được phát triển bởi Linh - Version: {_ver} - All rights reserved.";
-
+            lblAuthor.Text = $"Make by Linh - Ver: {_ver} - All rights reserved";
 
             DatabasehelperVer01.SetDatabasePath(_URL);
 
@@ -1213,7 +1213,7 @@ namespace DG_TonKhoBTP_v02
            //FrmWaiting.ShowGifAlert($"Công đoạn này chưa sẵn sàn. \nThử lại sau...");
            // return;
 
-            using (var fmKeHoach = new KeHoach())
+            using (var fmKeHoach = new UI.KeHoach.KeHoach())
             {
                 fmKeHoach.StartPosition = FormStartPosition.CenterScreen; // hoặc CenterParent
                 fmKeHoach.WindowState = FormWindowState.Maximized;
@@ -1312,6 +1312,13 @@ namespace DG_TonKhoBTP_v02
             }
         }
 
-        
+        private void btnHaLo_Click(object sender, EventArgs e)
+        {
+            using (var f = new UC_HaLo())
+            {
+                f.StartPosition = FormStartPosition.CenterScreen;
+                f.ShowDialog(this); // this là form cha
+            }
+        }
     }
 }

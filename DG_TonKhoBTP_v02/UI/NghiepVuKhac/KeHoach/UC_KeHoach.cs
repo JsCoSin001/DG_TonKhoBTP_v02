@@ -23,7 +23,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVu
     public partial class UC_KeHoach : UserControl
     {
         // Dùng để hiển thị chức năng theo bộ phận
-        bool keHoachStaff = true;
+        bool keHoachStaff = false;
         public UC_KeHoach()
         {
             InitializeComponent();      

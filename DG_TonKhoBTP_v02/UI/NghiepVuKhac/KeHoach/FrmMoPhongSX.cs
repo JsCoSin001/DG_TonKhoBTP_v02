@@ -3,11 +3,13 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Data.SQLite;
 using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static DG_TonKhoBTP_v02.Models.KeHoach;
 
 namespace DG_TonKhoBTP_v02.UI.NghiepVu.KeHoach
 {
@@ -18,76 +20,6 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVu.KeHoach
             InitializeComponent();
         }
 
-        public static void EnableRowNumber(DataGridView dgv, string sttColumnName = "STT", int sttWidth = 50)
-        {
-            if (dgv == null) throw new ArgumentNullException(nameof(dgv));
-
-            // 1) Thêm cột STT nếu chưa có
-            if (!dgv.Columns.Contains(sttColumnName))
-            {
-                var col = new DataGridViewTextBoxColumn
-                {
-                    Name = sttColumnName,
-                    HeaderText = sttColumnName,
-                    Width = sttWidth,
-                    ReadOnly = true,
-                    SortMode = DataGridViewColumnSortMode.NotSortable // STT không nên sort
-                };
-
-                dgv.Columns.Insert(0, col);
-            }
-            else
-            {
-                // Nếu đã có thì đưa nó lên đầu
-                dgv.Columns[sttColumnName].DisplayIndex = 0;
-                dgv.Columns[sttColumnName].SortMode = DataGridViewColumnSortMode.NotSortable;
-            }
-
-            // 2) Tránh đăng ký event nhiều lần (gọi hàm nhiều lần vẫn an toàn)
-            dgv.RowPostPaint -= Dgv_RowPostPaint_RowNumber;
-            dgv.RowPostPaint += Dgv_RowPostPaint_RowNumber;
-
-            // 3) Lưu tên cột STT vào Tag để handler dùng lại
-            dgv.Tag = sttColumnName;
-
-            // 4) Refresh để thấy STT ngay
-            dgv.Invalidate();
-        }
-
-        private static void Dgv_RowPostPaint_RowNumber(object sender, DataGridViewRowPostPaintEventArgs e)
-        {
-            var dgv = sender as DataGridView;
-            if (dgv == null) return;
-
-            // Bỏ qua dòng "new row" nếu AllowUserToAddRows = true
-            if (dgv.Rows[e.RowIndex].IsNewRow) return;
-
-            string sttColumnName = dgv.Tag as string ?? "STT";
-            if (!dgv.Columns.Contains(sttColumnName)) return;
-
-            // STT theo thứ tự hiển thị: 1,2,3...
-            dgv.Rows[e.RowIndex].Cells[sttColumnName].Value = (e.RowIndex + 1).ToString();
-        }
-
-        public static void EnableEditableOrderColumn(DataGridView dgv, string colName = "ThuTu", int width = 60)
-        {
-            if (dgv.Columns.Contains(colName))
-            {
-                dgv.Columns[colName].DisplayIndex = 0;
-                dgv.Columns[colName].ReadOnly = false;
-                dgv.Columns[colName].Width = width;
-                return;
-            }
-
-            var col = new DataGridViewTextBoxColumn
-            {
-                Name = colName,
-                HeaderText = colName,
-                Width = width,
-                ReadOnly = false
-            };
-            dgv.Columns.Insert(0, col);
-        }
 
         private void btnLayKQ_Click(object sender, EventArgs e)
         {
@@ -158,9 +90,41 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVu.KeHoach
             }
         }
 
-        private void button1_Click(object sender, EventArgs e)
+
+        public  Dictionary<string, decimal> LaydsKH()
+        {
+            // Tạo Dictionary demandPlan từ DataGridView dsKH
+            var demandPlan = new Dictionary<string, decimal>();
+
+            foreach (DataGridViewRow row in dsKH.Rows)
+            {
+                // Lấy các giá trị từ DataGridView (cột 1 là "TenSP", cột 6 và cột 7 là các cột có giá trị cần tính)
+                if (row.Cells[0].Value != null && row.Cells[0].Value.ToString() != "")
+                {
+                    string tenSP = row.Cells[2].Value.ToString();
+                    decimal value6 = Convert.ToDecimal(row.Cells[5].Value ?? 0);
+                    decimal value7 = Convert.ToDecimal(row.Cells[6].Value ?? 0);
+
+                    // Điều kiện: Chỉ tính khi cột số 1 có giá trị khác rỗng hoặc = 0
+                    if (row.Cells[0].Value.ToString() != "")
+                    {
+                        decimal totalValue = value6 + value7;
+
+                        // Thêm vào demandPlan mà không cộng dồn
+                        demandPlan[tenSP] = totalValue; // Mỗi dòng sẽ có một kết quả riêng
+                    }
+                }
+            }
+
+            return demandPlan;
+        }
+
+        private void btnDuToanNVL_Click(object sender, EventArgs e)
         {
 
+            Dictionary<string, decimal> dsKH_data = LaydsKH();
+            Dictionary<string, decimal> dsNVL = DatabaseHelper.LayNVLCanTheoKeHoach(dsKH_data, cbBaoGomNVL.Checked);
+            Console.WriteLine(dsNVL);
         }
     }
 }

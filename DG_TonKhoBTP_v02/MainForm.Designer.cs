@@ -35,46 +35,29 @@ namespace DG_TonKhoBTP_v02
             this.fpnButton = new System.Windows.Forms.Panel();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.panel16 = new System.Windows.Forms.Panel();
-            this.btnKeHoach = new DG_TonKhoBTP_v02.UI.Component.CustomButton();
             this.grbCongCu = new System.Windows.Forms.GroupBox();
             this.panel17 = new System.Windows.Forms.Panel();
-            this.btnTachBin = new DG_TonKhoBTP_v02.UI.Component.CustomButton();
             this.panel5 = new System.Windows.Forms.Panel();
-            this.btnCapNhatMaHang = new DG_TonKhoBTP_v02.UI.Component.CustomButton();
             this.grbBaoCao = new System.Windows.Forms.GroupBox();
             this.panel4 = new System.Windows.Forms.Panel();
-            this.btnTruyVetDL = new DG_TonKhoBTP_v02.UI.Component.CustomButton();
             this.panel3 = new System.Windows.Forms.Panel();
-            this.BtnKiemTraBc = new DG_TonKhoBTP_v02.UI.Component.CustomButton();
             this.panel2 = new System.Windows.Forms.Panel();
-            this.btnBaoCaoTonKho = new DG_TonKhoBTP_v02.UI.Component.CustomButton();
             this.grbChucNang = new System.Windows.Forms.GroupBox();
             this.panel13 = new System.Windows.Forms.Panel();
-            this.btnBocVo = new DG_TonKhoBTP_v02.UI.Component.CustomButton();
             this.panel12 = new System.Windows.Forms.Panel();
-            this.btnQuanBang = new DG_TonKhoBTP_v02.UI.Component.CustomButton();
             this.panel11 = new System.Windows.Forms.Panel();
-            this.btnBocLot = new DG_TonKhoBTP_v02.UI.Component.CustomButton();
             this.panel10 = new System.Windows.Forms.Panel();
-            this.btnGhepLoi = new DG_TonKhoBTP_v02.UI.Component.CustomButton();
             this.panel9 = new System.Windows.Forms.Panel();
-            this.btnBocMach = new DG_TonKhoBTP_v02.UI.Component.CustomButton();
             this.panel8 = new System.Windows.Forms.Panel();
-            this.btnMica = new DG_TonKhoBTP_v02.UI.Component.CustomButton();
             this.panel7 = new System.Windows.Forms.Panel();
-            this.btnBenRuot = new DG_TonKhoBTP_v02.UI.Component.CustomButton();
             this.panel6 = new System.Windows.Forms.Panel();
-            this.btnKeoRut = new DG_TonKhoBTP_v02.UI.Component.CustomButton();
             this.panel18 = new System.Windows.Forms.Panel();
             this.tbUser = new System.Windows.Forms.TableLayoutPanel();
             this.lblUserName = new System.Windows.Forms.Label();
             this.lblChucDanh = new System.Windows.Forms.Label();
-            this.pdropdown = new System.Windows.Forms.PictureBox();
             this.panel14 = new System.Windows.Forms.Panel();
-            this.avatar = new System.Windows.Forms.PictureBox();
             this.pnLogo = new System.Windows.Forms.Panel();
             this.lblTenCty = new System.Windows.Forms.Label();
-            this.imgLogo = new System.Windows.Forms.PictureBox();
             this.pnSign = new System.Windows.Forms.Panel();
             this.lblAuthor = new System.Windows.Forms.Label();
             this.pnMain = new System.Windows.Forms.Panel();
@@ -87,6 +70,25 @@ namespace DG_TonKhoBTP_v02
             this.userRegistration = new System.Windows.Forms.ToolStripMenuItem();
             this.kếHoạchToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.môPhỏngSXToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.panel19 = new System.Windows.Forms.Panel();
+            this.btnKeHoach = new DG_TonKhoBTP_v02.UI.Component.CustomButton();
+            this.btnHaLo = new DG_TonKhoBTP_v02.UI.Component.CustomButton();
+            this.btnTachBin = new DG_TonKhoBTP_v02.UI.Component.CustomButton();
+            this.btnCapNhatMaHang = new DG_TonKhoBTP_v02.UI.Component.CustomButton();
+            this.btnTruyVetDL = new DG_TonKhoBTP_v02.UI.Component.CustomButton();
+            this.BtnKiemTraBc = new DG_TonKhoBTP_v02.UI.Component.CustomButton();
+            this.btnBaoCaoTonKho = new DG_TonKhoBTP_v02.UI.Component.CustomButton();
+            this.btnBocVo = new DG_TonKhoBTP_v02.UI.Component.CustomButton();
+            this.btnQuanBang = new DG_TonKhoBTP_v02.UI.Component.CustomButton();
+            this.btnBocLot = new DG_TonKhoBTP_v02.UI.Component.CustomButton();
+            this.btnGhepLoi = new DG_TonKhoBTP_v02.UI.Component.CustomButton();
+            this.btnBocMach = new DG_TonKhoBTP_v02.UI.Component.CustomButton();
+            this.btnMica = new DG_TonKhoBTP_v02.UI.Component.CustomButton();
+            this.btnBenRuot = new DG_TonKhoBTP_v02.UI.Component.CustomButton();
+            this.btnKeoRut = new DG_TonKhoBTP_v02.UI.Component.CustomButton();
+            this.pdropdown = new System.Windows.Forms.PictureBox();
+            this.avatar = new System.Windows.Forms.PictureBox();
+            this.imgLogo = new System.Windows.Forms.PictureBox();
             this.pnLeft.SuspendLayout();
             this.fpnButton.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -109,16 +111,17 @@ namespace DG_TonKhoBTP_v02
             this.panel6.SuspendLayout();
             this.panel18.SuspendLayout();
             this.tbUser.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pdropdown)).BeginInit();
             this.panel14.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.avatar)).BeginInit();
             this.pnLogo.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.imgLogo)).BeginInit();
             this.pnSign.SuspendLayout();
             this.pnMain.SuspendLayout();
             this.panel1.SuspendLayout();
             this.panel15.SuspendLayout();
             this.menuStrip1.SuspendLayout();
+            this.panel19.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pdropdown)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.avatar)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.imgLogo)).BeginInit();
             this.SuspendLayout();
             // 
             // pnLeft
@@ -152,7 +155,7 @@ namespace DG_TonKhoBTP_v02
             this.groupBox1.Controls.Add(this.panel16);
             this.groupBox1.Dock = System.Windows.Forms.DockStyle.Top;
             this.groupBox1.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.groupBox1.Location = new System.Drawing.Point(0, 873);
+            this.groupBox1.Location = new System.Drawing.Point(0, 936);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(185, 83);
             this.groupBox1.TabIndex = 3;
@@ -169,36 +172,17 @@ namespace DG_TonKhoBTP_v02
             this.panel16.Size = new System.Drawing.Size(179, 63);
             this.panel16.TabIndex = 7;
             // 
-            // btnKeHoach
-            // 
-            this.btnKeHoach.BackColor = System.Drawing.Color.Snow;
-            this.btnKeHoach.BorderRadius = 10;
-            this.btnKeHoach.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnKeHoach.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.btnKeHoach.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnKeHoach.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnKeHoach.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.btnKeHoach.Location = new System.Drawing.Point(5, 6);
-            this.btnKeHoach.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
-            this.btnKeHoach.Name = "btnKeHoach";
-            this.btnKeHoach.Size = new System.Drawing.Size(169, 51);
-            this.btnKeHoach.TabIndex = 9;
-            this.btnKeHoach.TabStop = false;
-            this.btnKeHoach.Text = "LÊN KẾ HOẠCH";
-            this.btnKeHoach.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.btnKeHoach.UseVisualStyleBackColor = false;
-            this.btnKeHoach.Click += new System.EventHandler(this.btnKeHoach_Click);
-            // 
             // grbCongCu
             // 
             this.grbCongCu.AutoSize = true;
+            this.grbCongCu.Controls.Add(this.panel19);
             this.grbCongCu.Controls.Add(this.panel17);
             this.grbCongCu.Controls.Add(this.panel5);
             this.grbCongCu.Dock = System.Windows.Forms.DockStyle.Top;
             this.grbCongCu.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.grbCongCu.Location = new System.Drawing.Point(0, 727);
             this.grbCongCu.Name = "grbCongCu";
-            this.grbCongCu.Size = new System.Drawing.Size(185, 146);
+            this.grbCongCu.Size = new System.Drawing.Size(185, 209);
             this.grbCongCu.TabIndex = 1;
             this.grbCongCu.TabStop = false;
             this.grbCongCu.Text = "CÔNG CỤ";
@@ -213,26 +197,6 @@ namespace DG_TonKhoBTP_v02
             this.panel17.Size = new System.Drawing.Size(179, 63);
             this.panel17.TabIndex = 8;
             // 
-            // btnTachBin
-            // 
-            this.btnTachBin.BackColor = System.Drawing.Color.Snow;
-            this.btnTachBin.BorderRadius = 10;
-            this.btnTachBin.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnTachBin.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.btnTachBin.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnTachBin.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnTachBin.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.btnTachBin.Location = new System.Drawing.Point(5, 6);
-            this.btnTachBin.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
-            this.btnTachBin.Name = "btnTachBin";
-            this.btnTachBin.Size = new System.Drawing.Size(169, 51);
-            this.btnTachBin.TabIndex = 9;
-            this.btnTachBin.TabStop = false;
-            this.btnTachBin.Text = "TÁCH BIN";
-            this.btnTachBin.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.btnTachBin.UseVisualStyleBackColor = false;
-            this.btnTachBin.Click += new System.EventHandler(this.btnTachBin_Click);
-            // 
             // panel5
             // 
             this.panel5.Controls.Add(this.btnCapNhatMaHang);
@@ -242,26 +206,6 @@ namespace DG_TonKhoBTP_v02
             this.panel5.Padding = new System.Windows.Forms.Padding(5, 6, 5, 6);
             this.panel5.Size = new System.Drawing.Size(179, 63);
             this.panel5.TabIndex = 7;
-            // 
-            // btnCapNhatMaHang
-            // 
-            this.btnCapNhatMaHang.BackColor = System.Drawing.Color.Snow;
-            this.btnCapNhatMaHang.BorderRadius = 10;
-            this.btnCapNhatMaHang.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnCapNhatMaHang.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.btnCapNhatMaHang.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnCapNhatMaHang.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnCapNhatMaHang.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.btnCapNhatMaHang.Location = new System.Drawing.Point(5, 6);
-            this.btnCapNhatMaHang.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
-            this.btnCapNhatMaHang.Name = "btnCapNhatMaHang";
-            this.btnCapNhatMaHang.Size = new System.Drawing.Size(169, 51);
-            this.btnCapNhatMaHang.TabIndex = 9;
-            this.btnCapNhatMaHang.TabStop = false;
-            this.btnCapNhatMaHang.Text = "UPDATE MÃ HÀNG";
-            this.btnCapNhatMaHang.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.btnCapNhatMaHang.UseVisualStyleBackColor = false;
-            this.btnCapNhatMaHang.Click += new System.EventHandler(this.btnCapNhatMaHang_Click);
             // 
             // grbBaoCao
             // 
@@ -288,26 +232,6 @@ namespace DG_TonKhoBTP_v02
             this.panel4.Size = new System.Drawing.Size(179, 63);
             this.panel4.TabIndex = 6;
             // 
-            // btnTruyVetDL
-            // 
-            this.btnTruyVetDL.BackColor = System.Drawing.Color.Snow;
-            this.btnTruyVetDL.BorderRadius = 10;
-            this.btnTruyVetDL.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnTruyVetDL.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.btnTruyVetDL.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnTruyVetDL.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnTruyVetDL.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.btnTruyVetDL.Location = new System.Drawing.Point(5, 6);
-            this.btnTruyVetDL.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
-            this.btnTruyVetDL.Name = "btnTruyVetDL";
-            this.btnTruyVetDL.Size = new System.Drawing.Size(169, 51);
-            this.btnTruyVetDL.TabIndex = 9;
-            this.btnTruyVetDL.TabStop = false;
-            this.btnTruyVetDL.Text = "TRUY VẾT DỮ LIỆU";
-            this.btnTruyVetDL.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.btnTruyVetDL.UseVisualStyleBackColor = false;
-            this.btnTruyVetDL.Click += new System.EventHandler(this.btnTruyVetDL_Click);
-            // 
             // panel3
             // 
             this.panel3.Controls.Add(this.BtnKiemTraBc);
@@ -318,26 +242,6 @@ namespace DG_TonKhoBTP_v02
             this.panel3.Size = new System.Drawing.Size(179, 63);
             this.panel3.TabIndex = 5;
             // 
-            // BtnKiemTraBc
-            // 
-            this.BtnKiemTraBc.BackColor = System.Drawing.Color.Snow;
-            this.BtnKiemTraBc.BorderRadius = 10;
-            this.BtnKiemTraBc.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.BtnKiemTraBc.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.BtnKiemTraBc.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.BtnKiemTraBc.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.BtnKiemTraBc.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.BtnKiemTraBc.Location = new System.Drawing.Point(5, 6);
-            this.BtnKiemTraBc.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
-            this.BtnKiemTraBc.Name = "BtnKiemTraBc";
-            this.BtnKiemTraBc.Size = new System.Drawing.Size(169, 51);
-            this.BtnKiemTraBc.TabIndex = 10;
-            this.BtnKiemTraBc.TabStop = false;
-            this.BtnKiemTraBc.Text = "KIỂM TRA BÁO CÁO";
-            this.BtnKiemTraBc.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.BtnKiemTraBc.UseVisualStyleBackColor = false;
-            this.BtnKiemTraBc.Click += new System.EventHandler(this.BtnKiemTraBc_Click);
-            // 
             // panel2
             // 
             this.panel2.Controls.Add(this.btnBaoCaoTonKho);
@@ -347,26 +251,6 @@ namespace DG_TonKhoBTP_v02
             this.panel2.Padding = new System.Windows.Forms.Padding(5, 6, 5, 6);
             this.panel2.Size = new System.Drawing.Size(179, 63);
             this.panel2.TabIndex = 4;
-            // 
-            // btnBaoCaoTonKho
-            // 
-            this.btnBaoCaoTonKho.BackColor = System.Drawing.Color.Snow;
-            this.btnBaoCaoTonKho.BorderRadius = 10;
-            this.btnBaoCaoTonKho.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnBaoCaoTonKho.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.btnBaoCaoTonKho.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnBaoCaoTonKho.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnBaoCaoTonKho.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.btnBaoCaoTonKho.Location = new System.Drawing.Point(5, 6);
-            this.btnBaoCaoTonKho.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
-            this.btnBaoCaoTonKho.Name = "btnBaoCaoTonKho";
-            this.btnBaoCaoTonKho.Size = new System.Drawing.Size(169, 51);
-            this.btnBaoCaoTonKho.TabIndex = 8;
-            this.btnBaoCaoTonKho.TabStop = false;
-            this.btnBaoCaoTonKho.Text = "TỒN KHO";
-            this.btnBaoCaoTonKho.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.btnBaoCaoTonKho.UseVisualStyleBackColor = false;
-            this.btnBaoCaoTonKho.Click += new System.EventHandler(this.btnBaoCaoTonKho_Click);
             // 
             // grbChucNang
             // 
@@ -398,27 +282,6 @@ namespace DG_TonKhoBTP_v02
             this.panel13.Size = new System.Drawing.Size(179, 57);
             this.panel13.TabIndex = 8;
             // 
-            // btnBocVo
-            // 
-            this.btnBocVo.AutoSize = true;
-            this.btnBocVo.BackColor = System.Drawing.Color.Snow;
-            this.btnBocVo.BorderRadius = 10;
-            this.btnBocVo.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnBocVo.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.btnBocVo.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnBocVo.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnBocVo.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.btnBocVo.Location = new System.Drawing.Point(5, 6);
-            this.btnBocVo.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
-            this.btnBocVo.Name = "btnBocVo";
-            this.btnBocVo.Size = new System.Drawing.Size(169, 45);
-            this.btnBocVo.TabIndex = 8;
-            this.btnBocVo.TabStop = false;
-            this.btnBocVo.Text = "CĐ BỌC VỎ";
-            this.btnBocVo.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.btnBocVo.UseVisualStyleBackColor = false;
-            this.btnBocVo.Click += new System.EventHandler(this.btnBocVo_Click);
-            // 
             // panel12
             // 
             this.panel12.Controls.Add(this.btnQuanBang);
@@ -428,27 +291,6 @@ namespace DG_TonKhoBTP_v02
             this.panel12.Padding = new System.Windows.Forms.Padding(5, 6, 5, 6);
             this.panel12.Size = new System.Drawing.Size(179, 63);
             this.panel12.TabIndex = 7;
-            // 
-            // btnQuanBang
-            // 
-            this.btnQuanBang.AutoSize = true;
-            this.btnQuanBang.BackColor = System.Drawing.Color.Snow;
-            this.btnQuanBang.BorderRadius = 10;
-            this.btnQuanBang.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnQuanBang.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.btnQuanBang.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnQuanBang.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnQuanBang.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.btnQuanBang.Location = new System.Drawing.Point(5, 6);
-            this.btnQuanBang.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
-            this.btnQuanBang.Name = "btnQuanBang";
-            this.btnQuanBang.Size = new System.Drawing.Size(169, 51);
-            this.btnQuanBang.TabIndex = 7;
-            this.btnQuanBang.TabStop = false;
-            this.btnQuanBang.Text = "CĐ QB THÉP-CU-AL";
-            this.btnQuanBang.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.btnQuanBang.UseVisualStyleBackColor = false;
-            this.btnQuanBang.Click += new System.EventHandler(this.btnQuanBang_Click);
             // 
             // panel11
             // 
@@ -460,27 +302,6 @@ namespace DG_TonKhoBTP_v02
             this.panel11.Size = new System.Drawing.Size(179, 63);
             this.panel11.TabIndex = 6;
             // 
-            // btnBocLot
-            // 
-            this.btnBocLot.AutoSize = true;
-            this.btnBocLot.BackColor = System.Drawing.Color.Snow;
-            this.btnBocLot.BorderRadius = 10;
-            this.btnBocLot.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnBocLot.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.btnBocLot.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnBocLot.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnBocLot.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.btnBocLot.Location = new System.Drawing.Point(5, 6);
-            this.btnBocLot.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
-            this.btnBocLot.Name = "btnBocLot";
-            this.btnBocLot.Size = new System.Drawing.Size(169, 51);
-            this.btnBocLot.TabIndex = 6;
-            this.btnBocLot.TabStop = false;
-            this.btnBocLot.Text = "CĐ BỌC LÓT";
-            this.btnBocLot.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.btnBocLot.UseVisualStyleBackColor = false;
-            this.btnBocLot.Click += new System.EventHandler(this.btnBocLot_Click);
-            // 
             // panel10
             // 
             this.panel10.Controls.Add(this.btnGhepLoi);
@@ -490,27 +311,6 @@ namespace DG_TonKhoBTP_v02
             this.panel10.Padding = new System.Windows.Forms.Padding(5, 6, 5, 6);
             this.panel10.Size = new System.Drawing.Size(179, 63);
             this.panel10.TabIndex = 5;
-            // 
-            // btnGhepLoi
-            // 
-            this.btnGhepLoi.AutoSize = true;
-            this.btnGhepLoi.BackColor = System.Drawing.Color.Snow;
-            this.btnGhepLoi.BorderRadius = 10;
-            this.btnGhepLoi.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnGhepLoi.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.btnGhepLoi.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnGhepLoi.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnGhepLoi.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.btnGhepLoi.Location = new System.Drawing.Point(5, 6);
-            this.btnGhepLoi.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
-            this.btnGhepLoi.Name = "btnGhepLoi";
-            this.btnGhepLoi.Size = new System.Drawing.Size(169, 51);
-            this.btnGhepLoi.TabIndex = 5;
-            this.btnGhepLoi.TabStop = false;
-            this.btnGhepLoi.Text = "CĐ GHÉP LÕI";
-            this.btnGhepLoi.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.btnGhepLoi.UseVisualStyleBackColor = false;
-            this.btnGhepLoi.Click += new System.EventHandler(this.btnGhepLoi_Click);
             // 
             // panel9
             // 
@@ -522,27 +322,6 @@ namespace DG_TonKhoBTP_v02
             this.panel9.Size = new System.Drawing.Size(179, 63);
             this.panel9.TabIndex = 4;
             // 
-            // btnBocMach
-            // 
-            this.btnBocMach.AutoSize = true;
-            this.btnBocMach.BackColor = System.Drawing.Color.Snow;
-            this.btnBocMach.BorderRadius = 10;
-            this.btnBocMach.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnBocMach.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.btnBocMach.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnBocMach.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnBocMach.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.btnBocMach.Location = new System.Drawing.Point(5, 6);
-            this.btnBocMach.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
-            this.btnBocMach.Name = "btnBocMach";
-            this.btnBocMach.Size = new System.Drawing.Size(169, 51);
-            this.btnBocMach.TabIndex = 4;
-            this.btnBocMach.TabStop = false;
-            this.btnBocMach.Text = "CĐ BỌC CÁCH ĐIỆN";
-            this.btnBocMach.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.btnBocMach.UseVisualStyleBackColor = false;
-            this.btnBocMach.Click += new System.EventHandler(this.btnBocMach_Click);
-            // 
             // panel8
             // 
             this.panel8.Controls.Add(this.btnMica);
@@ -552,27 +331,6 @@ namespace DG_TonKhoBTP_v02
             this.panel8.Padding = new System.Windows.Forms.Padding(5, 6, 5, 6);
             this.panel8.Size = new System.Drawing.Size(179, 63);
             this.panel8.TabIndex = 3;
-            // 
-            // btnMica
-            // 
-            this.btnMica.AutoSize = true;
-            this.btnMica.BackColor = System.Drawing.Color.Snow;
-            this.btnMica.BorderRadius = 10;
-            this.btnMica.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnMica.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.btnMica.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnMica.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnMica.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.btnMica.Location = new System.Drawing.Point(5, 6);
-            this.btnMica.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
-            this.btnMica.Name = "btnMica";
-            this.btnMica.Size = new System.Drawing.Size(169, 51);
-            this.btnMica.TabIndex = 3;
-            this.btnMica.TabStop = false;
-            this.btnMica.Text = "CĐ QB MICA";
-            this.btnMica.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.btnMica.UseVisualStyleBackColor = false;
-            this.btnMica.Click += new System.EventHandler(this.btnMica_Click);
             // 
             // panel7
             // 
@@ -584,27 +342,6 @@ namespace DG_TonKhoBTP_v02
             this.panel7.Size = new System.Drawing.Size(179, 63);
             this.panel7.TabIndex = 2;
             // 
-            // btnBenRuot
-            // 
-            this.btnBenRuot.AutoSize = true;
-            this.btnBenRuot.BackColor = System.Drawing.Color.Snow;
-            this.btnBenRuot.BorderRadius = 10;
-            this.btnBenRuot.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnBenRuot.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.btnBenRuot.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnBenRuot.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnBenRuot.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.btnBenRuot.Location = new System.Drawing.Point(5, 6);
-            this.btnBenRuot.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
-            this.btnBenRuot.Name = "btnBenRuot";
-            this.btnBenRuot.Size = new System.Drawing.Size(169, 51);
-            this.btnBenRuot.TabIndex = 2;
-            this.btnBenRuot.TabStop = false;
-            this.btnBenRuot.Text = "CĐ BỆN CU - AL";
-            this.btnBenRuot.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.btnBenRuot.UseVisualStyleBackColor = false;
-            this.btnBenRuot.Click += new System.EventHandler(this.btnBenRuot_Click);
-            // 
             // panel6
             // 
             this.panel6.Controls.Add(this.btnKeoRut);
@@ -614,28 +351,6 @@ namespace DG_TonKhoBTP_v02
             this.panel6.Padding = new System.Windows.Forms.Padding(5, 6, 5, 6);
             this.panel6.Size = new System.Drawing.Size(179, 63);
             this.panel6.TabIndex = 0;
-            // 
-            // btnKeoRut
-            // 
-            this.btnKeoRut.AutoSize = true;
-            this.btnKeoRut.BackColor = System.Drawing.Color.Snow;
-            this.btnKeoRut.BorderRadius = 10;
-            this.btnKeoRut.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnKeoRut.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.btnKeoRut.FlatAppearance.BorderSize = 0;
-            this.btnKeoRut.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnKeoRut.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnKeoRut.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.btnKeoRut.Location = new System.Drawing.Point(5, 6);
-            this.btnKeoRut.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
-            this.btnKeoRut.Name = "btnKeoRut";
-            this.btnKeoRut.Size = new System.Drawing.Size(169, 51);
-            this.btnKeoRut.TabIndex = 1;
-            this.btnKeoRut.TabStop = false;
-            this.btnKeoRut.Text = "CĐ KÉO - RÚT";
-            this.btnKeoRut.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.btnKeoRut.UseVisualStyleBackColor = false;
-            this.btnKeoRut.Click += new System.EventHandler(this.btnKeoRut_Click);
             // 
             // panel18
             // 
@@ -699,20 +414,6 @@ namespace DG_TonKhoBTP_v02
             this.lblChucDanh.MouseEnter += new System.EventHandler(this.lblChucDanh_MouseEnter);
             this.lblChucDanh.MouseLeave += new System.EventHandler(this.lblChucDanh_MouseLeave);
             // 
-            // pdropdown
-            // 
-            this.pdropdown.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.pdropdown.Image = ((System.Drawing.Image)(resources.GetObject("pdropdown.Image")));
-            this.pdropdown.Location = new System.Drawing.Point(156, 3);
-            this.pdropdown.Name = "pdropdown";
-            this.pdropdown.Size = new System.Drawing.Size(26, 21);
-            this.pdropdown.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.pdropdown.TabIndex = 4;
-            this.pdropdown.TabStop = false;
-            this.pdropdown.Click += new System.EventHandler(this.pdropdown_Click);
-            this.pdropdown.MouseEnter += new System.EventHandler(this.pdropdown_MouseEnter);
-            this.pdropdown.MouseLeave += new System.EventHandler(this.pdropdown_MouseLeave);
-            // 
             // panel14
             // 
             this.panel14.Controls.Add(this.avatar);
@@ -723,21 +424,6 @@ namespace DG_TonKhoBTP_v02
             this.tbUser.SetRowSpan(this.panel14, 2);
             this.panel14.Size = new System.Drawing.Size(44, 38);
             this.panel14.TabIndex = 5;
-            // 
-            // avatar
-            // 
-            this.avatar.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.avatar.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.avatar.Image = global::DG_TonKhoBTP_v02.Properties.Resources.noneLogin;
-            this.avatar.Location = new System.Drawing.Point(3, 3);
-            this.avatar.Name = "avatar";
-            this.avatar.Size = new System.Drawing.Size(38, 32);
-            this.avatar.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.avatar.TabIndex = 0;
-            this.avatar.TabStop = false;
-            this.avatar.Click += new System.EventHandler(this.avatar_Click);
-            this.avatar.MouseEnter += new System.EventHandler(this.avatar_MouseEnter);
-            this.avatar.MouseLeave += new System.EventHandler(this.avatar_MouseLeave);
             // 
             // pnLogo
             // 
@@ -761,19 +447,6 @@ namespace DG_TonKhoBTP_v02
             this.lblTenCty.Text = "ĐÔNG GIANG";
             this.lblTenCty.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.lblTenCty.Click += new System.EventHandler(this.lblTenCty_Click);
-            // 
-            // imgLogo
-            // 
-            this.imgLogo.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.imgLogo.Dock = System.Windows.Forms.DockStyle.Left;
-            this.imgLogo.Image = ((System.Drawing.Image)(resources.GetObject("imgLogo.Image")));
-            this.imgLogo.Location = new System.Drawing.Point(0, 0);
-            this.imgLogo.Name = "imgLogo";
-            this.imgLogo.Padding = new System.Windows.Forms.Padding(10);
-            this.imgLogo.Size = new System.Drawing.Size(67, 70);
-            this.imgLogo.TabIndex = 0;
-            this.imgLogo.TabStop = false;
-            this.imgLogo.Click += new System.EventHandler(this.imgLogo_Click);
             // 
             // pnSign
             // 
@@ -885,6 +558,367 @@ namespace DG_TonKhoBTP_v02
             this.môPhỏngSXToolStripMenuItem.Text = "Mô Phỏng SX";
             this.môPhỏngSXToolStripMenuItem.Click += new System.EventHandler(this.môPhỏngSXToolStripMenuItem_Click);
             // 
+            // panel19
+            // 
+            this.panel19.Controls.Add(this.btnHaLo);
+            this.panel19.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panel19.Location = new System.Drawing.Point(3, 143);
+            this.panel19.Name = "panel19";
+            this.panel19.Padding = new System.Windows.Forms.Padding(5, 6, 5, 6);
+            this.panel19.Size = new System.Drawing.Size(179, 63);
+            this.panel19.TabIndex = 10;
+            // 
+            // btnKeHoach
+            // 
+            this.btnKeHoach.BackColor = System.Drawing.Color.Snow;
+            this.btnKeHoach.BorderRadius = 10;
+            this.btnKeHoach.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnKeHoach.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.btnKeHoach.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnKeHoach.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnKeHoach.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.btnKeHoach.Location = new System.Drawing.Point(5, 6);
+            this.btnKeHoach.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
+            this.btnKeHoach.Name = "btnKeHoach";
+            this.btnKeHoach.Size = new System.Drawing.Size(169, 51);
+            this.btnKeHoach.TabIndex = 9;
+            this.btnKeHoach.TabStop = false;
+            this.btnKeHoach.Text = "LÊN KẾ HOẠCH";
+            this.btnKeHoach.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnKeHoach.UseVisualStyleBackColor = false;
+            this.btnKeHoach.Click += new System.EventHandler(this.btnKeHoach_Click);
+            // 
+            // btnHaLo
+            // 
+            this.btnHaLo.BackColor = System.Drawing.Color.Snow;
+            this.btnHaLo.BorderRadius = 10;
+            this.btnHaLo.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnHaLo.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.btnHaLo.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnHaLo.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnHaLo.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.btnHaLo.Location = new System.Drawing.Point(5, 6);
+            this.btnHaLo.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
+            this.btnHaLo.Name = "btnHaLo";
+            this.btnHaLo.Size = new System.Drawing.Size(169, 51);
+            this.btnHaLo.TabIndex = 9;
+            this.btnHaLo.TabStop = false;
+            this.btnHaLo.Text = "HẠ LÔ";
+            this.btnHaLo.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnHaLo.UseVisualStyleBackColor = false;
+            this.btnHaLo.Click += new System.EventHandler(this.btnHaLo_Click);
+            // 
+            // btnTachBin
+            // 
+            this.btnTachBin.BackColor = System.Drawing.Color.Snow;
+            this.btnTachBin.BorderRadius = 10;
+            this.btnTachBin.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnTachBin.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.btnTachBin.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnTachBin.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnTachBin.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.btnTachBin.Location = new System.Drawing.Point(5, 6);
+            this.btnTachBin.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
+            this.btnTachBin.Name = "btnTachBin";
+            this.btnTachBin.Size = new System.Drawing.Size(169, 51);
+            this.btnTachBin.TabIndex = 9;
+            this.btnTachBin.TabStop = false;
+            this.btnTachBin.Text = "TÁCH BIN";
+            this.btnTachBin.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnTachBin.UseVisualStyleBackColor = false;
+            this.btnTachBin.Click += new System.EventHandler(this.btnTachBin_Click);
+            // 
+            // btnCapNhatMaHang
+            // 
+            this.btnCapNhatMaHang.BackColor = System.Drawing.Color.Snow;
+            this.btnCapNhatMaHang.BorderRadius = 10;
+            this.btnCapNhatMaHang.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnCapNhatMaHang.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.btnCapNhatMaHang.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnCapNhatMaHang.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnCapNhatMaHang.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.btnCapNhatMaHang.Location = new System.Drawing.Point(5, 6);
+            this.btnCapNhatMaHang.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
+            this.btnCapNhatMaHang.Name = "btnCapNhatMaHang";
+            this.btnCapNhatMaHang.Size = new System.Drawing.Size(169, 51);
+            this.btnCapNhatMaHang.TabIndex = 9;
+            this.btnCapNhatMaHang.TabStop = false;
+            this.btnCapNhatMaHang.Text = "UPDATE MÃ HÀNG";
+            this.btnCapNhatMaHang.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnCapNhatMaHang.UseVisualStyleBackColor = false;
+            this.btnCapNhatMaHang.Click += new System.EventHandler(this.btnCapNhatMaHang_Click);
+            // 
+            // btnTruyVetDL
+            // 
+            this.btnTruyVetDL.BackColor = System.Drawing.Color.Snow;
+            this.btnTruyVetDL.BorderRadius = 10;
+            this.btnTruyVetDL.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnTruyVetDL.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.btnTruyVetDL.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnTruyVetDL.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnTruyVetDL.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.btnTruyVetDL.Location = new System.Drawing.Point(5, 6);
+            this.btnTruyVetDL.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
+            this.btnTruyVetDL.Name = "btnTruyVetDL";
+            this.btnTruyVetDL.Size = new System.Drawing.Size(169, 51);
+            this.btnTruyVetDL.TabIndex = 9;
+            this.btnTruyVetDL.TabStop = false;
+            this.btnTruyVetDL.Text = "TRUY VẾT DỮ LIỆU";
+            this.btnTruyVetDL.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnTruyVetDL.UseVisualStyleBackColor = false;
+            this.btnTruyVetDL.Click += new System.EventHandler(this.btnTruyVetDL_Click);
+            // 
+            // BtnKiemTraBc
+            // 
+            this.BtnKiemTraBc.BackColor = System.Drawing.Color.Snow;
+            this.BtnKiemTraBc.BorderRadius = 10;
+            this.BtnKiemTraBc.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.BtnKiemTraBc.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.BtnKiemTraBc.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.BtnKiemTraBc.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.BtnKiemTraBc.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.BtnKiemTraBc.Location = new System.Drawing.Point(5, 6);
+            this.BtnKiemTraBc.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
+            this.BtnKiemTraBc.Name = "BtnKiemTraBc";
+            this.BtnKiemTraBc.Size = new System.Drawing.Size(169, 51);
+            this.BtnKiemTraBc.TabIndex = 10;
+            this.BtnKiemTraBc.TabStop = false;
+            this.BtnKiemTraBc.Text = "KIỂM TRA BÁO CÁO";
+            this.BtnKiemTraBc.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.BtnKiemTraBc.UseVisualStyleBackColor = false;
+            this.BtnKiemTraBc.Click += new System.EventHandler(this.BtnKiemTraBc_Click);
+            // 
+            // btnBaoCaoTonKho
+            // 
+            this.btnBaoCaoTonKho.BackColor = System.Drawing.Color.Snow;
+            this.btnBaoCaoTonKho.BorderRadius = 10;
+            this.btnBaoCaoTonKho.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnBaoCaoTonKho.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.btnBaoCaoTonKho.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnBaoCaoTonKho.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnBaoCaoTonKho.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.btnBaoCaoTonKho.Location = new System.Drawing.Point(5, 6);
+            this.btnBaoCaoTonKho.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
+            this.btnBaoCaoTonKho.Name = "btnBaoCaoTonKho";
+            this.btnBaoCaoTonKho.Size = new System.Drawing.Size(169, 51);
+            this.btnBaoCaoTonKho.TabIndex = 8;
+            this.btnBaoCaoTonKho.TabStop = false;
+            this.btnBaoCaoTonKho.Text = "TỒN KHO";
+            this.btnBaoCaoTonKho.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnBaoCaoTonKho.UseVisualStyleBackColor = false;
+            this.btnBaoCaoTonKho.Click += new System.EventHandler(this.btnBaoCaoTonKho_Click);
+            // 
+            // btnBocVo
+            // 
+            this.btnBocVo.AutoSize = true;
+            this.btnBocVo.BackColor = System.Drawing.Color.Snow;
+            this.btnBocVo.BorderRadius = 10;
+            this.btnBocVo.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnBocVo.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.btnBocVo.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnBocVo.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnBocVo.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.btnBocVo.Location = new System.Drawing.Point(5, 6);
+            this.btnBocVo.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
+            this.btnBocVo.Name = "btnBocVo";
+            this.btnBocVo.Size = new System.Drawing.Size(169, 45);
+            this.btnBocVo.TabIndex = 8;
+            this.btnBocVo.TabStop = false;
+            this.btnBocVo.Text = "CĐ BỌC VỎ";
+            this.btnBocVo.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnBocVo.UseVisualStyleBackColor = false;
+            this.btnBocVo.Click += new System.EventHandler(this.btnBocVo_Click);
+            // 
+            // btnQuanBang
+            // 
+            this.btnQuanBang.AutoSize = true;
+            this.btnQuanBang.BackColor = System.Drawing.Color.Snow;
+            this.btnQuanBang.BorderRadius = 10;
+            this.btnQuanBang.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnQuanBang.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.btnQuanBang.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnQuanBang.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnQuanBang.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.btnQuanBang.Location = new System.Drawing.Point(5, 6);
+            this.btnQuanBang.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
+            this.btnQuanBang.Name = "btnQuanBang";
+            this.btnQuanBang.Size = new System.Drawing.Size(169, 51);
+            this.btnQuanBang.TabIndex = 7;
+            this.btnQuanBang.TabStop = false;
+            this.btnQuanBang.Text = "CĐ QB THÉP-CU-AL";
+            this.btnQuanBang.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnQuanBang.UseVisualStyleBackColor = false;
+            this.btnQuanBang.Click += new System.EventHandler(this.btnQuanBang_Click);
+            // 
+            // btnBocLot
+            // 
+            this.btnBocLot.AutoSize = true;
+            this.btnBocLot.BackColor = System.Drawing.Color.Snow;
+            this.btnBocLot.BorderRadius = 10;
+            this.btnBocLot.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnBocLot.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.btnBocLot.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnBocLot.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnBocLot.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.btnBocLot.Location = new System.Drawing.Point(5, 6);
+            this.btnBocLot.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
+            this.btnBocLot.Name = "btnBocLot";
+            this.btnBocLot.Size = new System.Drawing.Size(169, 51);
+            this.btnBocLot.TabIndex = 6;
+            this.btnBocLot.TabStop = false;
+            this.btnBocLot.Text = "CĐ BỌC LÓT";
+            this.btnBocLot.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnBocLot.UseVisualStyleBackColor = false;
+            this.btnBocLot.Click += new System.EventHandler(this.btnBocLot_Click);
+            // 
+            // btnGhepLoi
+            // 
+            this.btnGhepLoi.AutoSize = true;
+            this.btnGhepLoi.BackColor = System.Drawing.Color.Snow;
+            this.btnGhepLoi.BorderRadius = 10;
+            this.btnGhepLoi.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnGhepLoi.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.btnGhepLoi.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnGhepLoi.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnGhepLoi.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.btnGhepLoi.Location = new System.Drawing.Point(5, 6);
+            this.btnGhepLoi.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
+            this.btnGhepLoi.Name = "btnGhepLoi";
+            this.btnGhepLoi.Size = new System.Drawing.Size(169, 51);
+            this.btnGhepLoi.TabIndex = 5;
+            this.btnGhepLoi.TabStop = false;
+            this.btnGhepLoi.Text = "CĐ GHÉP LÕI";
+            this.btnGhepLoi.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnGhepLoi.UseVisualStyleBackColor = false;
+            this.btnGhepLoi.Click += new System.EventHandler(this.btnGhepLoi_Click);
+            // 
+            // btnBocMach
+            // 
+            this.btnBocMach.AutoSize = true;
+            this.btnBocMach.BackColor = System.Drawing.Color.Snow;
+            this.btnBocMach.BorderRadius = 10;
+            this.btnBocMach.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnBocMach.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.btnBocMach.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnBocMach.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnBocMach.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.btnBocMach.Location = new System.Drawing.Point(5, 6);
+            this.btnBocMach.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
+            this.btnBocMach.Name = "btnBocMach";
+            this.btnBocMach.Size = new System.Drawing.Size(169, 51);
+            this.btnBocMach.TabIndex = 4;
+            this.btnBocMach.TabStop = false;
+            this.btnBocMach.Text = "CĐ BỌC CÁCH ĐIỆN";
+            this.btnBocMach.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnBocMach.UseVisualStyleBackColor = false;
+            this.btnBocMach.Click += new System.EventHandler(this.btnBocMach_Click);
+            // 
+            // btnMica
+            // 
+            this.btnMica.AutoSize = true;
+            this.btnMica.BackColor = System.Drawing.Color.Snow;
+            this.btnMica.BorderRadius = 10;
+            this.btnMica.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnMica.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.btnMica.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnMica.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnMica.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.btnMica.Location = new System.Drawing.Point(5, 6);
+            this.btnMica.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
+            this.btnMica.Name = "btnMica";
+            this.btnMica.Size = new System.Drawing.Size(169, 51);
+            this.btnMica.TabIndex = 3;
+            this.btnMica.TabStop = false;
+            this.btnMica.Text = "CĐ QB MICA";
+            this.btnMica.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnMica.UseVisualStyleBackColor = false;
+            this.btnMica.Click += new System.EventHandler(this.btnMica_Click);
+            // 
+            // btnBenRuot
+            // 
+            this.btnBenRuot.AutoSize = true;
+            this.btnBenRuot.BackColor = System.Drawing.Color.Snow;
+            this.btnBenRuot.BorderRadius = 10;
+            this.btnBenRuot.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnBenRuot.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.btnBenRuot.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnBenRuot.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnBenRuot.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.btnBenRuot.Location = new System.Drawing.Point(5, 6);
+            this.btnBenRuot.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
+            this.btnBenRuot.Name = "btnBenRuot";
+            this.btnBenRuot.Size = new System.Drawing.Size(169, 51);
+            this.btnBenRuot.TabIndex = 2;
+            this.btnBenRuot.TabStop = false;
+            this.btnBenRuot.Text = "CĐ BỆN CU - AL";
+            this.btnBenRuot.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnBenRuot.UseVisualStyleBackColor = false;
+            this.btnBenRuot.Click += new System.EventHandler(this.btnBenRuot_Click);
+            // 
+            // btnKeoRut
+            // 
+            this.btnKeoRut.AutoSize = true;
+            this.btnKeoRut.BackColor = System.Drawing.Color.Snow;
+            this.btnKeoRut.BorderRadius = 10;
+            this.btnKeoRut.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnKeoRut.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.btnKeoRut.FlatAppearance.BorderSize = 0;
+            this.btnKeoRut.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnKeoRut.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnKeoRut.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.btnKeoRut.Location = new System.Drawing.Point(5, 6);
+            this.btnKeoRut.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
+            this.btnKeoRut.Name = "btnKeoRut";
+            this.btnKeoRut.Size = new System.Drawing.Size(169, 51);
+            this.btnKeoRut.TabIndex = 1;
+            this.btnKeoRut.TabStop = false;
+            this.btnKeoRut.Text = "CĐ KÉO - RÚT";
+            this.btnKeoRut.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnKeoRut.UseVisualStyleBackColor = false;
+            this.btnKeoRut.Click += new System.EventHandler(this.btnKeoRut_Click);
+            // 
+            // pdropdown
+            // 
+            this.pdropdown.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.pdropdown.Image = ((System.Drawing.Image)(resources.GetObject("pdropdown.Image")));
+            this.pdropdown.Location = new System.Drawing.Point(156, 3);
+            this.pdropdown.Name = "pdropdown";
+            this.pdropdown.Size = new System.Drawing.Size(26, 21);
+            this.pdropdown.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.pdropdown.TabIndex = 4;
+            this.pdropdown.TabStop = false;
+            this.pdropdown.Click += new System.EventHandler(this.pdropdown_Click);
+            this.pdropdown.MouseEnter += new System.EventHandler(this.pdropdown_MouseEnter);
+            this.pdropdown.MouseLeave += new System.EventHandler(this.pdropdown_MouseLeave);
+            // 
+            // avatar
+            // 
+            this.avatar.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.avatar.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.avatar.Image = global::DG_TonKhoBTP_v02.Properties.Resources.noneLogin;
+            this.avatar.Location = new System.Drawing.Point(3, 3);
+            this.avatar.Name = "avatar";
+            this.avatar.Size = new System.Drawing.Size(38, 32);
+            this.avatar.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.avatar.TabIndex = 0;
+            this.avatar.TabStop = false;
+            this.avatar.Click += new System.EventHandler(this.avatar_Click);
+            this.avatar.MouseEnter += new System.EventHandler(this.avatar_MouseEnter);
+            this.avatar.MouseLeave += new System.EventHandler(this.avatar_MouseLeave);
+            // 
+            // imgLogo
+            // 
+            this.imgLogo.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.imgLogo.Dock = System.Windows.Forms.DockStyle.Left;
+            this.imgLogo.Image = ((System.Drawing.Image)(resources.GetObject("imgLogo.Image")));
+            this.imgLogo.Location = new System.Drawing.Point(0, 0);
+            this.imgLogo.Name = "imgLogo";
+            this.imgLogo.Padding = new System.Windows.Forms.Padding(10);
+            this.imgLogo.Size = new System.Drawing.Size(67, 70);
+            this.imgLogo.TabIndex = 0;
+            this.imgLogo.TabStop = false;
+            this.imgLogo.Click += new System.EventHandler(this.imgLogo_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 16F);
@@ -936,17 +970,18 @@ namespace DG_TonKhoBTP_v02
             this.panel18.ResumeLayout(false);
             this.tbUser.ResumeLayout(false);
             this.tbUser.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pdropdown)).EndInit();
             this.panel14.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.avatar)).EndInit();
             this.pnLogo.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.imgLogo)).EndInit();
             this.pnSign.ResumeLayout(false);
             this.pnMain.ResumeLayout(false);
             this.panel1.ResumeLayout(false);
             this.panel15.ResumeLayout(false);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
+            this.panel19.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.pdropdown)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.avatar)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.imgLogo)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -1033,6 +1068,8 @@ namespace DG_TonKhoBTP_v02
         private CustomButton btnTachBin;
         private System.Windows.Forms.Panel panel18;
         private System.Windows.Forms.ToolStripMenuItem môPhỏngSXToolStripMenuItem;
+        private System.Windows.Forms.Panel panel19;
+        private CustomButton btnHaLo;
     }
 }
 

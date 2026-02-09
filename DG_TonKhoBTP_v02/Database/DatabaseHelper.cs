@@ -5,8 +5,6 @@ using DG_TonKhoBTP_v02.DL_Ben;
 using DG_TonKhoBTP_v02.Helper;
 using DG_TonKhoBTP_v02.Models;
 using DG_TonKhoBTP_v02.UI;
-
-using CoreHelper = DG_TonKhoBTP_v02.Helper.Helper;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -14,12 +12,14 @@ using System.Data.SqlClient;
 using System.Data.SQLite;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Input;
-using System.Runtime.CompilerServices;
+using static DG_TonKhoBTP_v02.Models.KeHoach;
+using CoreHelper = DG_TonKhoBTP_v02.Helper.Helper;
 
 namespace DG_TonKhoBTP_v02.Database
 {
@@ -81,6 +81,7 @@ namespace DG_TonKhoBTP_v02.Database
             }
         }
 
+        
 
         public static string GenerateLotCode()
         {
@@ -1418,7 +1419,7 @@ namespace DG_TonKhoBTP_v02.Database
 
                     case CD_KeoRut keo:
                         UpdateCDKeoRut(conn, tx, tpId, keo);
-                        updateVersion1(tpId, tp, caLam);
+                        //updateVersion1(tpId, tp, caLam);
                         break;
 
                     case CD_GhepLoiQB qb:
@@ -1974,13 +1975,13 @@ namespace DG_TonKhoBTP_v02.Database
                         InsertCDKeoRut(conn, tx, tpId, keo);
 
                         // Tạo mới dữ liệu cho db v1
-                        insertVersion1(tp,caLam, nvl);
+                        //insertVersion1(tp,caLam, nvl);
                         break;
 
                     case CD_BenRuot ben:
                         InsertCDBenRuot(conn, tx, tpId, ben);
                         // Tạo mới dữ liệu cho db v1
-                        insertVersion1(tp, caLam, nvl);
+                        //insertVersion1(tp, caLam, nvl);
                         break;
 
                     case CD_GhepLoiQB qb:
@@ -3088,57 +3089,135 @@ namespace DG_TonKhoBTP_v02.Database
 
         #endregion
 
-        #region Sau này sẽ xoá ===================================
-        private static void insertVersion1(TTThanhPham tp,ThongTinCaLamViec tt, List<TTNVL> nvlList)
+
+        #region KẾ hoạch ===================
+
+        public static Dictionary<string, decimal> LayNVLCanTheoKeHoach(Dictionary<string, decimal> demandPlan, bool kTinhTon)
         {
-            TonKho tonKho = new TonKho
+            using (var connection = new SQLiteConnection(_connStr))
             {
-                Lot = tp.MaBin,
-                MaSP_ID = tp.DanhSachSP_ID,
-                KhoiLuongDauVao = (decimal)tp.KhoiLuongTruoc,
-                KhoiLuongConLai = (decimal)tp.KhoiLuongSau,
-                HanNoi = 0,
-                ChieuDai = (decimal)tp.ChieuDaiTruoc
-            };
+                connection.Open();
 
-            DL_CD_Ben dL_CD_Ben = new DL_CD_Ben
-            {
-                Ngay = tt.Ngay,
-                Ca = tt.Ca,
-                NguoiLam = tt.NguoiLam,
-                SoMay = tt.May,
-                GhiChu = tp.GhiChu,
-            };
+                // 1. Lấy danh sách mã sản phẩm từ demandPlan
+                var demandKeys = string.Join(",", demandPlan.Keys.Select(key => $"'{key}'"));
 
-            tonKho = DatabasehelperVer01.HoanThienTonKhoV1(tp.MaTP,tonKho);
+                // 2. SQL để lấy dữ liệu từ bảng DanhSachMaSP và BOMStructure
+                string sql = $@"
+                SELECT sp.Ma, sp.DonVi, sp.KieuSP, sp.Ten, sp.id, bom.ParentProduct, bom.Component, bom.TyLe, bom.TyLeHoanDoi
+                FROM DanhSachMaSP sp
+                INNER JOIN BOMStructure bom ON bom.Component = sp.id
+                WHERE sp.Ten IN ({demandKeys}) AND sp.KieuSP = 'TP'";
 
-            DatabasehelperVer01.InsertSanPhamTonKhoDL<TonKho, DL_CD_Ben>(tonKho, dL_CD_Ben, "dL_CD_Ben", nvlList);
+                var command = new SQLiteCommand(sql, connection);
+                var reader = command.ExecuteReader();
+
+                // 3. Tạo dictionary chứa thông tin về vật liệu (donvi, tyle, v.v.)
+                var materials = new Dictionary<string, (string DonVi, string KieuSP, decimal TyLe, decimal TyLeHoanDoi)>();
+
+                while (reader.Read())
+                {
+                    string ma = reader["Ma"].ToString();
+                    string donVi = reader["DonVi"].ToString();
+                    string kieuSP = reader["KieuSP"].ToString();
+                    decimal tyLe = Convert.ToDecimal(reader["TyLe"]);
+                    decimal tyLeHoanDoi = Convert.ToDecimal(reader["TyLeHoanDoi"]);
+
+                    materials[ma] = (donVi, kieuSP, tyLe, tyLeHoanDoi);
+                }
+
+                // 4. Tính toán nguyên vật liệu (NVL) cần thiết dựa trên demandPlan
+                var result = new Dictionary<string, decimal>();
+
+                foreach (var demand in demandPlan)
+                {
+                    string ten = demand.Key;
+                    decimal quantity = demand.Value;
+
+                    // Kiểm tra nếu vật liệu có trong dữ liệu
+                    if (materials.ContainsKey(ten))
+                    {
+                        var material = materials[ten];
+
+                        if (kTinhTon)
+                        {
+                            // Trường hợp 1: Tính toán nguyên vật liệu trực tiếp
+                            // Tính toán theo TyLe và TyLeHoanDoi
+                            decimal nvlRequired = quantity * material.TyLe;
+                            decimal nvlConverted = nvlRequired * material.TyLeHoanDoi;
+                            result[ten] = nvlConverted;
+                        }
+                        else
+                        {
+                            // Trường hợp 2: Tính toán với BTP đã sản xuất
+                            // Trừ đi lượng BTP đã sản xuất (dựa vào KhoiLuongSau hoặc ChieuDaiSau)
+                            decimal btpProduced = GetProducedBTP(ten, connection); // Truyền kết nối đã mở
+                            decimal btpRequired = quantity - btpProduced;
+                            decimal nvlRequired = btpRequired * material.TyLe;
+                            decimal nvlConverted = nvlRequired * material.TyLeHoanDoi;
+                            result[ten] = nvlConverted;
+                        }
+                    }
+                }
+
+                return result;
+            }
         }
 
-        private static void updateVersion1(int id, TTThanhPham tp, ThongTinCaLamViec tt)
+        private static decimal GetProducedBTP(string maSP, SQLiteConnection connection)
         {
-            TonKho tonKho = new TonKho
-            {
-                Lot = tp.MaBin,
-                MaSP_ID = tp.DanhSachSP_ID,
-                KhoiLuongDauVao = (decimal)tp.KhoiLuongTruoc,
-                KhoiLuongConLai = (decimal)tp.KhoiLuongSau,
-                HanNoi = 0,
-                ChieuDai = (decimal)tp.ChieuDaiTruoc
-            };
-            DL_CD_Ben dL_CD_Ben = new DL_CD_Ben
-            {
-                Ngay = tt.Ngay,
-                Ca = tt.Ca,
-                NguoiLam = tt.NguoiLam,
-                SoMay = tt.May,
-                GhiChu = tp.GhiChu,
-            };
+            // Sử dụng kết nối đã mở thay vì mở kết nối mới
+            string sql = $@"
+            SELECT 
+                CASE 
+                    WHEN sp.DonVi = 'KG' THEN sp.KhoiLuongSau
+                    WHEN sp.DonVi = 'M' THEN sp.ChieuDaiSau
+                    ELSE 0 
+                END AS ProducedQuantity
+            FROM DanhSachMaSP sp
+            WHERE sp.Ma = '{maSP}'";
 
-            tonKho = DatabasehelperVer01.HoanThienTonKhoV1(tp.MaTP, tonKho);
+            var command = new SQLiteCommand(sql, connection);
+            var result = command.ExecuteScalar();
 
-            DatabasehelperVer01.UpdateDL_CDBen(id, tonKho, dL_CD_Ben);
+            // Nếu có giá trị trả về, chuyển sang kiểu decimal, nếu không trả về 0
+            return result != DBNull.Value ? Convert.ToDecimal(result) : 0;
         }
+
+        // Hàm hiển thị kết quả (có thể thay thế bằng logic giao diện người dùng của bạn)
+        private static void DisplayResults(Dictionary<string, decimal> result)
+        {
+            foreach (var res in result)
+            {
+                Console.WriteLine($"Vật liệu: {res.Key}, Cần thiết: {res.Value} kg");
+            }
+        }
+
+        #endregion
+
+
+        #region Hạ Bin
+        public static void Update_KhoiLuongSau_ChieuDaiSau(string maBin, decimal khoiLuongSau, decimal chieuDaiSau)
+        {
+            using (var connection = new SQLiteConnection(_connStr))
+            {
+                connection.Open();
+                string sql = @"
+                UPDATE TTThanhPham
+                SET KhoiLuongSau = @khoiLuongSau,
+                    ChieuDaiSau  = @chieuDaiSau
+                WHERE MaBin = @maBin;";
+
+                using var command = new SQLiteCommand(sql, connection);
+                command.Parameters.AddWithValue("@khoiLuongSau", khoiLuongSau);
+                command.Parameters.AddWithValue("@chieuDaiSau", chieuDaiSau);
+                command.Parameters.AddWithValue("@maBin", maBin);
+
+                int affected = command.ExecuteNonQuery();
+                if (affected == 0)
+                    throw new Exception($"Không tìm thấy MaBin: {maBin}");
+            }
+        }
+
 
         #endregion
 

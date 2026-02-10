@@ -34,7 +34,7 @@ namespace DG_TonKhoBTP_v02.UI
 
             if (_printer != "")
             {
-                cbInTem.Text = _printer;
+                cbInTem.Text = "InTem";
             }
             else
             {
@@ -307,15 +307,20 @@ namespace DG_TonKhoBTP_v02.UI
                     ? "ĐANG LƯU DỮ LIỆU VÀ IN TEM..."
                     : "ĐANG LƯU DỮ LIỆU...";
 
-                
+
+                // ========== TEM CHO SP MỚI ==========
                 PrinterModel BuildPrinter()
                 {
-                    bool inSoSoi = EnumStore.dsTenMayBoQuaKiemTraKhoiLuongConLai.Contains(thongTinCaLamViec.May);
 
                     string ghiChu = CoreHelper.ConvertTiengVietKhongDau(thongTinThanhPham.GhiChu);
 
-                    if (inSoSoi && chiTietCD[0] is CD_BenRuot obj)
+                    if (EnumStore.MayTheoCongDoan.TryGetValue("Ben_CU_AL", out var dsMay) &&
+                       dsMay.Contains(thongTinCaLamViec.May, StringComparer.OrdinalIgnoreCase) && 
+                       chiTietCD[0] is CD_BenRuot obj)
+                    {
                         ghiChu = $"{obj.DKSoi}x{obj.SoSoi?.ToString() ?? ""} sợi\n" + ghiChu;
+                    }
+
 
                     return new PrinterModel
                     {
@@ -388,9 +393,9 @@ namespace DG_TonKhoBTP_v02.UI
                                 List<string> dsBin = new List<string>();
                                 foreach (TTNVL nvl in list_TTNVL)
                                 {
+                                    // Không in tem nếu NVL <= 0
                                     if ((nvl.DonVi == "KG" && nvl.KlConLai == 0) ||
-                                        (nvl.DonVi == "M" && nvl.CdConLai == 0) ||
-                                        nvl.CdBatDau == -1 || nvl.KlBatDau == -1)
+                                        (nvl.DonVi == "M" && nvl.CdConLai == 0))
                                         continue;
 
                                     dsBin.Add(nvl.BinNVL);

@@ -1,4 +1,5 @@
 ﻿using DG_TonKhoBTP_v02.Core;
+using DG_TonKhoBTP_v02.Models;
 using DocumentFormat.OpenXml.Spreadsheet;
 using System;
 using System.Collections.Generic;
@@ -17,7 +18,7 @@ namespace DG_TonKhoBTP_v02.UI
     public partial class UC_TTCaLamViec : UserControl, IFormSection, IDataReceiver
     {
         private string _URL;
-
+        private CongDoan _CD;
         public string MayText => cbMay?.Text?.Trim() ?? "";
         public event Action<string> Event_ChonMay;
         public UC_TTCaLamViec()
@@ -25,10 +26,11 @@ namespace DG_TonKhoBTP_v02.UI
             InitializeComponent();
         }
 
-        public UC_TTCaLamViec(List<string> dsMay, string uRL, string tieuDe)
+        public UC_TTCaLamViec(List<string> dsMay, string uRL, CongDoan cd)
         {
             InitializeComponent();
-            this.StartForm(dsMay, uRL, tieuDe);
+            _CD = cd;
+            this.StartForm(dsMay, uRL, _CD.TenCongDoan);
         }
         
 
@@ -59,6 +61,7 @@ namespace DG_TonKhoBTP_v02.UI
         {
             return new ThongTinCaLamViec
             {
+                Id = _CD.Id,
                 Ngay = ngay.Value.ToString("yyyy-MM-dd"),
                 May = cbMay?.Text ?? string.Empty,
                 Ca = ca?.Text ?? string.Empty,

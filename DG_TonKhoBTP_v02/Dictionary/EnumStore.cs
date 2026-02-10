@@ -58,11 +58,10 @@ public static class EnumStore
         { 4, "Thiếu chiều dài Thành phẩm" },
     };
 
-    // Danh sách này chứa tên các máy không cần kiểm tra khối lượng còn lại
-    public static string[] dsTenMayBoQuaKiemTraKhoiLuongConLai = { "MD16A4", "R6", "R10", "R12" , "B1", "B2", "B3", "B4", "B5", "B6", "B7", "B8", "B9", "B10", "B13", "B14", "B15", "B16", "B17" };
 
-    // Danh sách này chứa tên các máy không cần kiểm tra khối lượng còn lại
-    public static string[] dsTenMayTuDongTinhKLConLai = { "B9" , "B10" };
+    //public static string[] dsTenMayBoQuaKiemTraKhoiLuongConLai = { "MD16A4", "R6", "R10", "R12" , "B1", "B2", "B3", "B4", "B5", "B6", "B7", "B8", "B9", "B10", "B13", "B14", "B15", "B16", "B17" };
+
+    //public static string[] dsTenMayTuDongTinhKLConLai = { "B9" , "B10" };
 
     public static class Icon
     {

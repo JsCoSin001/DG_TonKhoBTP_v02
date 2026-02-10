@@ -16,7 +16,8 @@ namespace DG_TonKhoBTP_v02.Printer
         // ===============================
         public const double LabelWidthMm = 100.0; // Rộng giấy 10 cm
         public const double MarginMm = 4.0;      // Lề 4 mm quanh ảnh
-                                                 // ===============================
+
+        // ===============================
 
         // Rộng vùng nội dung
         public static double ContentWidthMm => LabelWidthMm - 2 * MarginMm;
@@ -25,12 +26,15 @@ namespace DG_TonKhoBTP_v02.Printer
         public static int MmToPx(double mm) =>
             (int)Math.Round(mm / 25.4 * Dpi);
 
+        // ⭐ Chuyển đổi pixel → mm (thêm hàm này)
+        public static double PxToMm(int px) =>
+            Math.Round(px * 25.4 / Dpi, 2);
+
         // mm → đơn vị 1/100 inch (PaperSize)
         public static int MmToHi(double mm) =>
             (int)Math.Round(mm / 25.4 * 100);
 
         public const double TopMarginMm = 8.0;
-
         public static int TopMarginPx => MmToPx(TopMarginMm);
     }
 }

@@ -42,9 +42,10 @@ namespace DG_TonKhoBTP_v02.UI
             {
                 await WaitingHelper.RunWithWaiting(async () =>
                 {
+                    int kieuEdit = cbKieuXuLyDL.SelectedIndex;
                     // Chạy query trên thread nền
                     DataTable dt = await Task.Run(() =>
-                        Database.DatabaseHelper.GetDataByID(stt.ToString(), _cd));
+                        Database.DatabaseHelper.GetDataByID(stt.ToString(), _cd , kieuEdit));
 
                     // Sau await, ta đã quay lại UI thread (WinForms SynchronizationContext)
                     if (dt == null || dt.Rows.Count == 0)

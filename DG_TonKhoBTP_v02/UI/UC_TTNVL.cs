@@ -551,7 +551,7 @@ namespace DG_TonKhoBTP_v02.UI
                         decimal cdBatDau =
                             (obj_CD == null || obj_CD == DBNull.Value)
                                 ? 0m
-                                : Convert.ToDecimal(obj);
+                                : Convert.ToDecimal(obj_CD);
 
                         decimal cdConLai_New =
                             (cdBatDau <= -1m) ? (cdBatDau - 1m) : -1m;

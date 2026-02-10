@@ -31,7 +31,7 @@ namespace DG_TonKhoBTP_v02
     public partial class MainForm : Form
     {
         private string _URL = Properties.Settings.Default.URL;
-        private string _ver = "2.2";
+        private string _ver = "2.2.1";
         private CongDoanUiService _ui;
         private void InitUiService()
         {
@@ -734,7 +734,7 @@ namespace DG_TonKhoBTP_v02
         {
             Panel pnTop = new Panel { Dock = DockStyle.Top, AutoSize = true };
 
-            UC_TTCaLamViec uc_caLamViec = new UC_TTCaLamViec(cd.DanhSachMay, _URL, cd.TenCongDoan);
+            UC_TTCaLamViec uc_caLamViec = new UC_TTCaLamViec(cd.DanhSachMay, _URL, cd);
             uc_caLamViec.Dock = DockStyle.Top;
 
             UC_TTThanhPham uc_TTThanhPham = new UC_TTThanhPham(cd);

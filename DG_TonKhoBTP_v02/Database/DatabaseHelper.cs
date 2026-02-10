@@ -976,7 +976,7 @@ namespace DG_TonKhoBTP_v02.Database
             return GetData(query, key, "para");
         }
         // Lấy dữ liệu theo ID
-        public static DataTable GetDataByID(string key, CongDoan cd)
+        public static DataTable GetDataByID(string key, CongDoan cd, int kieuDL)
         {
             // Tạo select
             string sqlSelect = CoreHelper.TaoSqL_LayThongTinBaoCaoChung_Edit();
@@ -992,14 +992,15 @@ namespace DG_TonKhoBTP_v02.Database
 
             sqlJoin += "LEFT JOIN TTThanhPham ttp_bin ON ttp_bin.MaBin = nvl.BinNVL ";
 
-
             // Tạo điều kiện lọc theo ID
             string sqlDk1 = " WHERE ttp.id = @id";
 
             string sqlDk2 = " AND ttp.CongDoan = " + cd.Id;
 
+            string sqlDk3 = kieuDL == 0 ? " AND ( (ds.DonVi = 'M'  AND IFNULL(ttp.ChieuDaiSau, 0) <> 0)  OR (ds.DonVi = 'KG' AND IFNULL(ttp.KhoiLuongSau, 0) <> 0)) " : "";
+
             // Kết hợp câu truy vấn
-            string query = sqlSelect + " ,"+ sqlLayChiTietCD + " ," + sqlTenNVL + sqlJoin + sqlDk1 +sqlDk2;
+            string query = sqlSelect + " ,"+ sqlLayChiTietCD + " ," + sqlTenNVL + sqlJoin + sqlDk1 + sqlDk2 + sqlDk3;
 
             return GetData(query, key, "id");
         }

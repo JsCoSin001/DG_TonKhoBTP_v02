@@ -6,13 +6,13 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Drawing.Printing;
+using System.Management;
+using System.Printing;
 using System.Text;
 using System.Windows;
+using System.Windows.Forms;
 using FontStyle = System.Drawing.FontStyle;
-using System.Management;
-
-
-using System.Printing;
+using Size = System.Drawing.Size;
 
 
 namespace DG_TonKhoBTP_v02.Printer
@@ -170,155 +170,297 @@ namespace DG_TonKhoBTP_v02.Printer
 
         public static Bitmap ConvertToImage(PrinterModel data, string qrContent)
         {
-            try
+            // ===== Cấu hình kích thước (px) =====
+            int labelWidthPx = LabelConfig.MmToPx(100);
+            int margin = LabelConfig.MmToPx(5);
+            int qrSize = LabelConfig.MmToPx(35);
+            int marginA1A2 = LabelConfig.MmToPx(0);
+
+            string fontName = "Times New Roman";
+            float lineHeight = LabelConfig.MmToPx(5);
+
+            // ===== PHASE 1: Tính chiều cao A =====
+            int heightA1 = margin + qrSize;
+
+            float heightA2Content = 0;
+            heightA2Content += lineHeight + 50;
+            heightA2Content += lineHeight * 5;
+
+            int heightA2 = margin + (int)Math.Ceiling(heightA2Content);
+            int heightA = Math.Max(heightA1, heightA2);
+
+            // ===== PHASE 1: Tính chiều cao B (Ghi chú) =====
+            float noteWidth = labelWidthPx - 2f * margin;
+            float paddingGhiChu = LabelConfig.MmToPx(5);
+            float heightGhiChu = 0;
+
+            if (!string.IsNullOrWhiteSpace(data.GhiChu))
             {
-                int widthPx = LabelConfig.MmToPx(LabelConfig.ContentWidthMm);
-                float maxWidth = widthPx - 100;
+                using var noteFont = new Font(fontName, 11, FontStyle.Regular);
 
-                //==============================
-                //  PHASE 1: TÍNH CHIỀU CAO THẬT
-                //==============================
-                float chieuCaoGhiChu = CalculateNeededHeight(data, maxWidth);
+                using Bitmap tmpBmp = new Bitmap(1, 1);
+                tmpBmp.SetResolution(LabelConfig.Dpi, LabelConfig.Dpi);
 
-                // Chiều cao các phần cố định (tính theo thứ tự từ trên xuống)
-                float lineHeight = 80;
-                float baseHeight = LabelConfig.TopMarginPx;  // top margin
-                baseHeight += lineHeight;  // Tiêu đề "PHIẾU QUẢN LÝ SẢN PHẨM"
-                baseHeight += lineHeight;  // BC-ISO-09-08
-                baseHeight += lineHeight;  // Ngày SX + Ca SX
-                baseHeight += lineHeight;  // Khối lượng + Chiều dài
-                baseHeight += lineHeight;  // Sản phẩm
-                baseHeight += lineHeight;  // Mã SP
-                baseHeight += lineHeight;  // Đánh Giá
-                baseHeight += lineHeight;  // CN Vận hành
-                baseHeight += 25;          // Spacing trước "Ghi chú"
-                baseHeight += chieuCaoGhiChu;  // Chiều cao ghi chú (có thể = 0 nếu không có)
-                baseHeight += 25;          // Spacing sau "Ghi chú"
-                baseHeight += lineHeight;  // KCS + QR section
-                baseHeight += LabelConfig.MmToPx(30);  // QR size (30mm)
-                baseHeight += 50;          // Bottom padding
+                using Graphics gTmp = Graphics.FromImage(tmpBmp);
+                gTmp.PageUnit = GraphicsUnit.Pixel;
 
-                int totalHeightPx = (int)Math.Ceiling(baseHeight);
+                SizeF measuredSize = gTmp.MeasureString(
+                    data.GhiChu,
+                    noteFont,
+                    (int)noteWidth
+                );
 
-                Bitmap bitmap = new Bitmap(widthPx, totalHeightPx, PixelFormat.Format24bppRgb);
-                bitmap.SetResolution(LabelConfig.Dpi, LabelConfig.Dpi);
+                heightGhiChu = measuredSize.Height;
+            }
 
-                using (Graphics graphics = Graphics.FromImage(bitmap))
+            // ===== Tổng chiều cao =====
+            int totalHeight =
+                heightA +
+                (int)Math.Ceiling(heightGhiChu);
+
+            // ===== PHASE 2: Tạo Bitmap =====
+            Bitmap bmp = new Bitmap(labelWidthPx, totalHeight, PixelFormat.Format24bppRgb);
+            bmp.SetResolution(LabelConfig.Dpi, LabelConfig.Dpi);
+
+            using (Graphics g = Graphics.FromImage(bmp))
+            {
+                g.PageUnit = GraphicsUnit.Pixel;
+                g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
+
+                g.Clear(Color.White);
+                g.SmoothingMode = SmoothingMode.AntiAlias;
+                g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
+
+                using Font titleFont = new Font(fontName, 14, FontStyle.Bold);
+                using Font normalFont = new Font(fontName, 10, FontStyle.Regular);
+                using Font boldFont = new Font(fontName, 11, FontStyle.Bold);
+                Brush brush = Brushes.Black;
+
+                // ===== PHẦN A_1: QR =====
+                int qrX = margin;
+                int qrY = margin;
+
+                if (!string.IsNullOrEmpty(qrContent))
                 {
-                    graphics.Clear(Color.White);
-                    graphics.SmoothingMode = SmoothingMode.AntiAlias;
+                    using var gen = new QRCodeGenerator();
+                    using var qrData = gen.CreateQrCode(qrContent, QRCodeGenerator.ECCLevel.Q);
+                    using var qr = new QRCode(qrData);
+                    using Bitmap qrBmp = qr.GetGraphic(6);
 
-                    Font labelFont = new Font("Arial", 10);
-                    Font labelFontISO = new Font("Arial", 9);
-                    Font labelBoldFont = new Font("Arial", 11, FontStyle.Bold);
-                    Font titleFont = new Font("Arial", 12, FontStyle.Bold);
-                    Brush brush = Brushes.Black;
-
-                    float y = LabelConfig.TopMarginPx;
-                    float lineHeightVal = 80;
-
-                    StringFormat centerFormat = new StringFormat() { Alignment = StringAlignment.Center };
-                    graphics.DrawString("PHIẾU QUẢN LÝ SẢN PHẨM", titleFont, brush, widthPx / 2f, y, centerFormat);
-                    y += lineHeightVal - 5;
-
-                    StringFormat rightAlign = new StringFormat() { Alignment = StringAlignment.Far };
-                    graphics.DrawString("BC-ISO-09-08", labelFontISO, brush, widthPx, y, rightAlign);
-                    y += lineHeightVal;
-
-                    graphics.DrawString("Ngày SX: ", labelFont, brush, 30, y);
-                    graphics.DrawString(data.NgaySX, labelBoldFont, brush, 250, y);
-                    graphics.DrawString("Ca SX: ", labelFont, brush, 650, y);
-                    graphics.DrawString(data.CaSX, labelBoldFont, brush, 800, y);
-                    y += lineHeightVal;
-
-                    graphics.DrawString("Khối lượng: ", labelFont, brush, 30, y);
-                    graphics.DrawString($"{data.KhoiLuong} Kg", labelBoldFont, brush, 300, y);
-                    graphics.DrawString("Chiều dài: ", labelFont, brush, 580, y);
-                    graphics.DrawString($"{data.ChieuDai} M", labelBoldFont, brush, 800, y);
-                    y += lineHeightVal;
-
-                    graphics.DrawString("Sản phẩm: ", labelFont, brush, 30, y);
-                    graphics.DrawString(data.TenSP, labelBoldFont, brush, 280, y);
-                    y += lineHeightVal;
-
-                    graphics.DrawString("Mã SP: ", labelFont, brush, 30, y);
-                    graphics.DrawString(data.MaBin, labelBoldFont, brush, 200, y);
-                    y += lineHeightVal;
-
-                    graphics.DrawString("Đánh Giá: ", labelFont, brush, 30, y);
-                    graphics.DrawString("☐ OK    ☐ NG", labelFont, brush, 250, y);
-                    y += lineHeightVal;
-
-                    graphics.DrawString("CN Vận hành: ", labelFont, brush, 30, y);
-                    graphics.DrawString(data.TenCN, labelBoldFont, brush, 350, y);
-                    y += lineHeightVal;
-
-                    graphics.DrawString("Ghi chú: ", labelFont, brush, 30, y);
-                    y += 25;
-
-                    if (!string.IsNullOrEmpty(data.GhiChu))
-                    {
-                        StringFormat wrap = new StringFormat(StringFormatFlags.NoClip)
-                        {
-                            Trimming = StringTrimming.Word
-                        };
-
-                        // đo lại cho chắc (hoàn toàn trùng phase 1)
-                        SizeF textSize = graphics.MeasureString(
-                            data.GhiChu,
-                            labelBoldFont,
-                            new SizeF(maxWidth, float.MaxValue),
-                            wrap
-                        );
-
-                        RectangleF textBox = new RectangleF(50, y + 25, maxWidth, textSize.Height);
-                        graphics.DrawString(data.GhiChu, labelBoldFont, brush, textBox, wrap);
-
-                        y += textSize.Height + 25;
-                    }
-
-                    y += lineHeightVal + 50;
-
-                    graphics.DrawString("KCS", labelFont, brush, 180, y);
-
-                    if (data.QC != "")
-                    {
-                        graphics.DrawString("KCS: " + data.QC, labelBoldFont, brush, 100, y + 90);
-
-                        graphics.DrawString("ĐÃ KIỂM TRA", labelFont, brush, 70, y + 160);
-                    }
-
-                    // QR
-                    if (!string.IsNullOrEmpty(qrContent))
-                    {
-                        int qrSizePx = LabelConfig.MmToPx(30);
-                        int qrX = 600;
-
-                        Rectangle qrRect = new Rectangle(qrX, (int)y, qrSizePx, qrSizePx);
-
-                        using (var qrGenerator = new QRCodeGenerator())
-                        using (var qrData = qrGenerator.CreateQrCode(qrContent, QRCodeGenerator.ECCLevel.Q))
-                        using (var qrCode = new QRCode(qrData))
-                        using (Bitmap qrBmp = qrCode.GetGraphic(20))
-                        {
-                            graphics.DrawImage(qrBmp, qrRect);
-                        }
-
-                        y += qrSizePx;
-                    }
-
-                    labelFont.Dispose();
-                    labelBoldFont.Dispose();
-                    labelFontISO.Dispose();
-                    titleFont.Dispose();
+                    g.DrawImage(qrBmp, qrX, qrY, qrSize, qrSize);
                 }
 
-                return bitmap;
+                // ===== PHẦN A_2: Nội dung bên phải =====
+                float xText = margin + qrSize + marginA1A2;
+                float y = margin+20;
+
+                g.DrawString(data.TenSP ?? "", titleFont, brush, xText, y);
+                y += lineHeight + 30;
+
+                g.DrawString("LOT: ", normalFont, brush, xText, y);
+                g.DrawString(data.MaBin ?? "", boldFont, brush, xText + 170, y);
+                y += lineHeight;
+
+                g.DrawString("Khối lượng: ", normalFont, brush, xText, y);
+                g.DrawString($"{data.KhoiLuong ?? ""}", boldFont, brush, xText + 500, y);
+                y += lineHeight;
+
+                g.DrawString("Chiều dài: ", normalFont, brush, xText, y);
+                g.DrawString($"{data.ChieuDai ?? ""}", boldFont, brush, xText + 500, y);
+                y += lineHeight;
+
+                g.DrawString("Ca: ", normalFont, brush, xText, y);
+                g.DrawString($"{data.CaSX ?? ""}", boldFont, brush, xText + 500, y);
+                y += lineHeight;
+
+                g.DrawString("Ngày: ", normalFont, brush, xText, y);
+                g.DrawString($"{data.NgaySX ?? ""}", boldFont, brush, xText + 450, y);
+
+                // ===== PHẦN B: Ghi chú (AUTO WRAP - KHÔNG CẮT CHỮ) =====
+                if (!string.IsNullOrWhiteSpace(data.GhiChu))
+                {
+                    string gc = "Ghi chú: \r\n" + data.GhiChu;
+
+                    float xGhiChu = paddingGhiChu;
+                    float yGhiChu = heightA;
+
+                    RectangleF rect = new RectangleF(
+                        xGhiChu,
+                        yGhiChu,
+                        noteWidth,
+                        heightGhiChu - paddingGhiChu * 2
+                    );
+
+                    g.DrawString(
+                        gc,
+                        normalFont,
+                        brush,
+                        rect,
+                        new StringFormat
+                        {
+                            Alignment = StringAlignment.Near,
+                            LineAlignment = StringAlignment.Near
+                        }
+                    );
+                }
             }
-            catch (Exception ex)
-            {
-                throw new Exception($"Lỗi tạo ảnh: {ex.Message}");
-            }
+
+            return bmp;
         }
+
+
+
+        //public static Bitmap ConvertToImage(PrinterModel data, string qrContent)
+        //{
+        //    try
+        //    {
+        //        int widthPx = LabelConfig.MmToPx(LabelConfig.ContentWidthMm);
+        //        float maxWidth = widthPx - 100;
+
+        //        //==============================
+        //        //  PHASE 1: TÍNH CHIỀU CAO THẬT
+        //        //==============================
+        //        float chieuCaoGhiChu = CalculateNeededHeight(data, maxWidth);
+
+        //        // Chiều cao các phần cố định (tính theo thứ tự từ trên xuống)
+        //        float lineHeight = 80;
+        //        float baseHeight = LabelConfig.TopMarginPx;  // top margin
+        //        baseHeight += lineHeight;  // Tiêu đề "PHIẾU QUẢN LÝ SẢN PHẨM"
+        //        baseHeight += lineHeight;  // BC-ISO-09-08
+        //        baseHeight += lineHeight;  // Ngày SX + Ca SX
+        //        baseHeight += lineHeight;  // Khối lượng + Chiều dài
+        //        baseHeight += lineHeight;  // Sản phẩm
+        //        baseHeight += lineHeight;  // Mã SP
+        //        baseHeight += lineHeight;  // Đánh Giá
+        //        baseHeight += lineHeight;  // CN Vận hành
+        //        baseHeight += 25;          // Spacing trước "Ghi chú"
+        //        baseHeight += chieuCaoGhiChu;  // Chiều cao ghi chú (có thể = 0 nếu không có)
+        //        baseHeight += 25;          // Spacing sau "Ghi chú"
+        //        baseHeight += lineHeight;  // KCS + QR section
+        //        baseHeight += LabelConfig.MmToPx(30);  // QR size (30mm)
+        //        baseHeight += 50;          // Bottom padding
+
+        //        int totalHeightPx = (int)Math.Ceiling(baseHeight);
+
+        //        Bitmap bitmap = new Bitmap(widthPx, totalHeightPx, PixelFormat.Format24bppRgb);
+        //        bitmap.SetResolution(LabelConfig.Dpi, LabelConfig.Dpi);
+
+        //        using (Graphics graphics = Graphics.FromImage(bitmap))
+        //        {
+        //            graphics.Clear(Color.White);
+        //            graphics.SmoothingMode = SmoothingMode.AntiAlias;
+
+        //            Font labelFont = new Font("Arial", 10);
+        //            Font labelFontISO = new Font("Arial", 9);
+        //            Font labelBoldFont = new Font("Arial", 11, FontStyle.Bold);
+        //            Font titleFont = new Font("Arial", 12, FontStyle.Bold);
+        //            Brush brush = Brushes.Black;
+
+        //            float y = LabelConfig.TopMarginPx;
+        //            float lineHeightVal = 80;
+
+        //            StringFormat centerFormat = new StringFormat() { Alignment = StringAlignment.Center };
+        //            graphics.DrawString("PHIẾU QUẢN LÝ SẢN PHẨM", titleFont, brush, widthPx / 2f, y, centerFormat);
+        //            y += lineHeightVal - 5;
+
+        //            StringFormat rightAlign = new StringFormat() { Alignment = StringAlignment.Far };
+        //            graphics.DrawString("BC-ISO-09-08", labelFontISO, brush, widthPx, y, rightAlign);
+        //            y += lineHeightVal;
+
+        //            graphics.DrawString("Ngày SX: ", labelFont, brush, 30, y);
+        //            graphics.DrawString(data.NgaySX, labelBoldFont, brush, 250, y);
+        //            graphics.DrawString("Ca SX: ", labelFont, brush, 650, y);
+        //            graphics.DrawString(data.CaSX, labelBoldFont, brush, 800, y);
+        //            y += lineHeightVal;
+
+        //            graphics.DrawString("Khối lượng: ", labelFont, brush, 30, y);
+        //            graphics.DrawString($"{data.KhoiLuong} Kg", labelBoldFont, brush, 300, y);
+        //            graphics.DrawString("Chiều dài: ", labelFont, brush, 580, y);
+        //            graphics.DrawString($"{data.ChieuDai} M", labelBoldFont, brush, 800, y);
+        //            y += lineHeightVal;
+
+        //            graphics.DrawString("Sản phẩm: ", labelFont, brush, 30, y);
+        //            graphics.DrawString(data.TenSP, labelBoldFont, brush, 280, y);
+        //            y += lineHeightVal;
+
+        //            graphics.DrawString("Mã SP: ", labelFont, brush, 30, y);
+        //            graphics.DrawString(data.MaBin, labelBoldFont, brush, 200, y);
+        //            y += lineHeightVal;
+
+        //            graphics.DrawString("Đánh Giá: ", labelFont, brush, 30, y);
+        //            graphics.DrawString("☐ OK    ☐ NG", labelFont, brush, 250, y);
+        //            y += lineHeightVal;
+
+        //            graphics.DrawString("CN Vận hành: ", labelFont, brush, 30, y);
+        //            graphics.DrawString(data.TenCN, labelBoldFont, brush, 350, y);
+        //            y += lineHeightVal;
+
+        //            graphics.DrawString("Ghi chú: ", labelFont, brush, 30, y);
+        //            y += 25;
+
+        //            if (!string.IsNullOrEmpty(data.GhiChu))
+        //            {
+        //                StringFormat wrap = new StringFormat(StringFormatFlags.NoClip)
+        //                {
+        //                    Trimming = StringTrimming.Word
+        //                };
+
+        //                // đo lại cho chắc (hoàn toàn trùng phase 1)
+        //                SizeF textSize = graphics.MeasureString(
+        //                    data.GhiChu,
+        //                    labelBoldFont,
+        //                    new SizeF(maxWidth, float.MaxValue),
+        //                    wrap
+        //                );
+
+        //                RectangleF textBox = new RectangleF(50, y + 25, maxWidth, textSize.Height);
+        //                graphics.DrawString(data.GhiChu, labelBoldFont, brush, textBox, wrap);
+
+        //                y += textSize.Height + 25;
+        //            }
+
+        //            y += lineHeightVal + 50;
+
+        //            graphics.DrawString("KCS", labelFont, brush, 180, y);
+
+        //            if (data.QC != "")
+        //            {
+        //                graphics.DrawString("KCS: " + data.QC, labelBoldFont, brush, 100, y + 90);
+
+        //                graphics.DrawString("ĐÃ KIỂM TRA", labelFont, brush, 70, y + 160);
+        //            }
+
+        //            // QR
+        //            if (!string.IsNullOrEmpty(qrContent))
+        //            {
+        //                int qrSizePx = LabelConfig.MmToPx(30);
+        //                int qrX = 600;
+
+        //                Rectangle qrRect = new Rectangle(qrX, (int)y, qrSizePx, qrSizePx);
+
+        //                using (var qrGenerator = new QRCodeGenerator())
+        //                using (var qrData = qrGenerator.CreateQrCode(qrContent, QRCodeGenerator.ECCLevel.Q))
+        //                using (var qrCode = new QRCode(qrData))
+        //                using (Bitmap qrBmp = qrCode.GetGraphic(20))
+        //                {
+        //                    graphics.DrawImage(qrBmp, qrRect);
+        //                }
+
+        //                y += qrSizePx;
+        //            }
+
+        //            labelFont.Dispose();
+        //            labelBoldFont.Dispose();
+        //            labelFontISO.Dispose();
+        //            titleFont.Dispose();
+        //        }
+
+        //        return bitmap;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw new Exception($"Lỗi tạo ảnh: {ex.Message}");
+        //    }
+        //}
     }
 }

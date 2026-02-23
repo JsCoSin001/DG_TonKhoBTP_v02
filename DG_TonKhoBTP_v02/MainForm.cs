@@ -31,7 +31,7 @@ namespace DG_TonKhoBTP_v02
     public partial class MainForm : Form
     {
         private string _URL = Properties.Settings.Default.URL;
-        private string _ver = "2.2.1";
+        private string _ver = "2.2.3";
         private CongDoanUiService _ui;
         private void InitUiService()
         {
@@ -778,7 +778,8 @@ namespace DG_TonKhoBTP_v02
             productInfoControl.Dock = DockStyle.Top;
 
             // Top: SubmitForm
-            var uC_SubmitForm = new UC_SubmitForm { Dock = DockStyle.Top };
+            //var uC_SubmitForm = new UC_SubmitForm { Dock = DockStyle.Top };
+            var uC_SubmitForm = new UC_SubmitForm(cd) { Dock = DockStyle.Top };
 
             // Edit/Report
             Panel pnEdit_Report = UI_Edit_Report(cd);

@@ -134,6 +134,7 @@ namespace DG_TonKhoBTP_v02
             // ================================
             // INSTANCE ĐẦU TIÊN (hoặc instance RESTART)
             // ================================
+            //var mainForm = new QLVatTuPhu();
             var mainForm = new MainForm();
 
             //#if DEBUG

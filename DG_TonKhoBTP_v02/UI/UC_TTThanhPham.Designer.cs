@@ -282,7 +282,7 @@
             this.label13.Name = "label13";
             this.label13.Size = new System.Drawing.Size(84, 20);
             this.label13.TabIndex = 30;
-            this.label13.Text = "Số Bin";
+            this.label13.Text = "Số Lô Thu";
             this.label13.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
             // 
             // label11
@@ -293,7 +293,7 @@
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(84, 20);
             this.label11.TabIndex = 28;
-            this.label11.Text = "STT Lô";
+            this.label11.Text = "STT Bin";
             this.label11.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
             // 
             // label9
@@ -304,7 +304,7 @@
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(104, 20);
             this.label9.TabIndex = 26;
-            this.label9.Text = "STT công đoạn";
+            this.label9.Text = "STT Công Đoạn";
             this.label9.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
             // 
             // label4

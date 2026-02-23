@@ -164,6 +164,12 @@
     <Compile Include="Printer\PrintHelper.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UI\NghiepVuKhac\KeToan\VatTuPhu\UC_MuaNVL.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\NghiepVuKhac\KeToan\VatTuPhu\UC_MuaNVL.Designer.cs">
+      <DependentUpon>UC_MuaNVL.cs</DependentUpon>
+    </Compile>
     <Compile Include="UI\NghiepVuKhac\SanXuat\UC_HaLo.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -384,6 +390,9 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <EmbeddedResource Include="UI\NghiepVuKhac\KeToan\VatTuPhu\UC_MuaNVL.resx">
+      <DependentUpon>UC_MuaNVL.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="UI\NghiepVuKhac\SanXuat\UC_HaLo.resx">
       <DependentUpon>UC_HaLo.cs</DependentUpon>
     </EmbeddedResource>

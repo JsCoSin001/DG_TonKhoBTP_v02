@@ -231,7 +231,7 @@ namespace DG_TonKhoBTP_v02
             this.btnHaLo.Size = new System.Drawing.Size(169, 51);
             this.btnHaLo.TabIndex = 9;
             this.btnHaLo.TabStop = false;
-            this.btnHaLo.Text = "HẠ LÔ";
+            this.btnHaLo.Text = "HẠ LÔ / NHẬP LẠI";
             this.btnHaLo.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.btnHaLo.UseVisualStyleBackColor = false;
             this.btnHaLo.Click += new System.EventHandler(this.btnHaLo_Click);

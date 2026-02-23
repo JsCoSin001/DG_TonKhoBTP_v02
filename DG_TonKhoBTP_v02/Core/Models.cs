@@ -44,7 +44,8 @@ namespace DG_TonKhoBTP_v02.Core
     }
 
     public class Submit {
-        public bool IsChecked { get; set; }
+        public bool IsInTemTP { get; set; }
+        public bool IsInTemNVL { get; set; }
     }
 
     public class Backup

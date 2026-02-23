@@ -84,8 +84,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho
             nbrChieuDaiHT.Value = Convert.ToDecimal(result.Rows[0]["ChieuDai"]);
             nbrKhoiLuongHT.Value = Convert.ToDecimal(result.Rows[0]["KhoiLuong"]);
 
-            nbrKhoiLuongCL.Focus();
-            nbrKhoiLuongCL.Select(0, nbrKhoiLuongCL.Text.Length);
+            tbNguoiHa.Focus();
+            tbNguoiHa.Select(0, tbNguoiHa.Text.Length);
 
 
             printer.NgaySX = result.Rows[0]["NgaySX"].ToString();
@@ -107,19 +107,19 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho
                 decimal khoiLuongCL = nbrKhoiLuongCL.Value;
                 decimal chieuDaiHT = nbrChieuDaiHT.Value;
                 decimal khoiLuongHT = nbrKhoiLuongHT.Value;
+                string ghiChu = rtbGhiChu.Text?.Trim();
 
                 string maBin = mabin.Text?.Trim();
 
-                if (chieuDaiCL > chieuDaiHT || khoiLuongCL > khoiLuongHT)
+
+                if ((chieuDaiHT > 0 && chieuDaiCL > chieuDaiHT) ||
+                    (khoiLuongHT > 0 && khoiLuongCL > khoiLuongHT))
                 {
                     FrmWaiting.ShowGifAlert("Dữ liệu nhập không hợp lệ");
                     return;
                 }
 
-
-
-
-                DatabaseHelper.Update_KhoiLuongSau_ChieuDaiSau(maBin, khoiLuongCL, chieuDaiCL);
+                DatabaseHelper.Update_KhoiLuongSau_ChieuDaiSau(maBin, khoiLuongCL, chieuDaiCL, ghiChu);
 
                 FrmWaiting.ShowGifAlert("Cập nhật thành công!");
                 clearAll();
@@ -128,10 +128,11 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho
                 {
                     printer.ChieuDai = chieuDaiCL.ToString(CultureInfo.InvariantCulture);
                     printer.KhoiLuong = khoiLuongCL.ToString(CultureInfo.InvariantCulture);
+                    printer.GhiChu = ghiChu;
+                    printer.TenCN = tbNguoiHa.Text.Trim();
+
                     PrintHelper.PrintLabel(printer);
                 }
-
-
 
             }
             catch (Exception ex)

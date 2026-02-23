@@ -3197,7 +3197,7 @@ namespace DG_TonKhoBTP_v02.Database
 
 
         #region Hạ Bin
-        public static void Update_KhoiLuongSau_ChieuDaiSau(string maBin, decimal khoiLuongSau, decimal chieuDaiSau)
+        public static void Update_KhoiLuongSau_ChieuDaiSau(string maBin, decimal khoiLuongSau, decimal chieuDaiSau,string ghiChu)
         {
             using (var connection = new SQLiteConnection(_connStr))
             {
@@ -3205,12 +3205,14 @@ namespace DG_TonKhoBTP_v02.Database
                 string sql = @"
                 UPDATE TTThanhPham
                 SET KhoiLuongSau = @khoiLuongSau,
-                    ChieuDaiSau  = @chieuDaiSau
+                    ChieuDaiSau  = @chieuDaiSau,
+                    GhiChu  = @GhiChu
                 WHERE MaBin = @maBin;";
 
                 using var command = new SQLiteCommand(sql, connection);
                 command.Parameters.AddWithValue("@khoiLuongSau", khoiLuongSau);
                 command.Parameters.AddWithValue("@chieuDaiSau", chieuDaiSau);
+                command.Parameters.AddWithValue("@GhiChu", ghiChu);
                 command.Parameters.AddWithValue("@maBin", maBin);
 
                 int affected = command.ExecuteNonQuery();

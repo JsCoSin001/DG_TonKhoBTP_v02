@@ -261,11 +261,11 @@ namespace DG_TonKhoBTP_v02.Printer
                 g.DrawString(data.MaBin ?? "", boldFont, brush, xText + 170, y);
                 y += lineHeight;
 
-                g.DrawString("Khối lượng: ", normalFont, brush, xText, y);
+                g.DrawString("K.Lượng: ", normalFont, brush, xText, y);
                 g.DrawString($"{data.KhoiLuong ?? ""}", boldFont, brush, xText + 500, y);
                 y += lineHeight;
 
-                g.DrawString("Chiều dài: ", normalFont, brush, xText, y);
+                g.DrawString("C.Dài: ", normalFont, brush, xText, y);
                 g.DrawString($"{data.ChieuDai ?? ""}", boldFont, brush, xText + 500, y);
                 y += lineHeight;
 
@@ -275,6 +275,10 @@ namespace DG_TonKhoBTP_v02.Printer
 
                 g.DrawString("Ngày: ", normalFont, brush, xText, y);
                 g.DrawString($"{data.NgaySX ?? ""}", boldFont, brush, xText + 450, y);
+                y += lineHeight;
+
+                g.DrawString("Người làm: ", normalFont, brush, xText, y);
+                g.DrawString($"{data.TenCN ?? ""}", boldFont, brush, xText + 210, y);
 
                 // ===== PHẦN B: Ghi chú (AUTO WRAP - KHÔNG CẮT CHỮ) =====
                 if (!string.IsNullOrWhiteSpace(data.GhiChu))

@@ -23,8 +23,9 @@ namespace DG_TonKhoBTP_v02.UI
         private readonly Timer _timerThongBao = new Timer();
 
         private static readonly string _printer = Properties.Settings.Default.PrinterName;
-        
-        public UC_SubmitForm()
+
+        private CongDoan _Cd = null;
+        public UC_SubmitForm( CongDoan cd)
         {
             InitializeComponent();
 
@@ -32,15 +33,22 @@ namespace DG_TonKhoBTP_v02.UI
 
             cbInTem.Checked = inTem;
 
+            _Cd = cd;
+
             if (_printer != "")
             {
-                cbInTem.Text = "InTem";
+                cbInTem.Text = "In tem đầu ra";
+                cbInTemNVL.Text = "In tem đầu vào";
             }
             else
             {
                 cbInTem.Checked = true;
                 cbInTem.Enabled = false;
                 cbInTem.Text = "Không in tem";
+
+                cbInTemNVL.Checked = false;
+                cbInTemNVL.Enabled = false;
+                cbInTemNVL.Text = "Không in tem";
             }
         }
 
@@ -376,17 +384,19 @@ namespace DG_TonKhoBTP_v02.UI
                         }
 
                         // 2) In tem nếu lưu ok và có chọn in
-                        if (shouldPrint)
+                        try
                         {
-                            try
+                            var swPrintTP = Stopwatch.StartNew();
+                            if (shouldPrint)
                             {
-                                var swPrintTP = Stopwatch.StartNew();
-
                                 // In tem thành phẩm
                                 var printer = BuildPrinter();
                                 PrintHelper.PrintLabel(printer);
                                 Debug.WriteLine($"In tem thành phẩm: {swPrintTP.ElapsedMilliseconds} ms");
+                            }
 
+                            if (cbInTemNVL.Checked)
+                            {
                                 // In tem NVL
                                 if (thongTinCaLamViec.Id == 0) return; // Không in tem NVL ở công đoạn rút
 
@@ -394,9 +404,7 @@ namespace DG_TonKhoBTP_v02.UI
                                 foreach (TTNVL nvl in list_TTNVL)
                                 {
                                     // Không in tem nếu NVL <= 0
-                                    if ((nvl.DonVi == "KG" && nvl.KlConLai == 0) ||
-                                        (nvl.DonVi == "M" && nvl.CdConLai == 0))
-                                        continue;
+                                    if ((nvl.DonVi == "KG" && nvl.KlConLai == 0) || (nvl.DonVi == "M" && nvl.CdConLai == 0) || (nvl.Id < 0)) continue;
 
                                     dsBin.Add(nvl.BinNVL);
                                 }
@@ -416,12 +424,14 @@ namespace DG_TonKhoBTP_v02.UI
                                     Debug.WriteLine($"In tem NVL: {swPrintNVL.ElapsedMilliseconds} ms");
                                 }
                             }
-                            catch (Exception exPrint)
-                            {
-                                hasPrintErrorLocal = true;
-                                printErrorLocal = exPrint.Message;
-                                Debug.WriteLine($"Lỗi in tem: {exPrint.Message}");
-                            }
+
+                            
+                        }
+                        catch (Exception exPrint)
+                        {
+                            hasPrintErrorLocal = true;
+                            printErrorLocal = exPrint.Message;
+                            Debug.WriteLine($"Lỗi in tem: {exPrint.Message}");
                         }
                     }
                     catch (Exception ex)
@@ -523,13 +533,15 @@ namespace DG_TonKhoBTP_v02.UI
         {
             return new Submit
             {
-                IsChecked = cbInTem.Checked
+                IsInTemTP = cbInTem.Checked,
+                IsInTemNVL = cbInTemNVL.Checked
             };
         }
 
         public void ClearInputs()
         {
             cbInTem.Checked = true;
+            cbInTemNVL.Checked = false;
         }
 
         private void UC_SubmitForm_Load(object sender, EventArgs e)
@@ -540,6 +552,11 @@ namespace DG_TonKhoBTP_v02.UI
                 lblTrangThai.Visible = false;
                 _timerThongBao.Stop();
             };
+
+            if (_Cd.Id == 0 || _Cd.Id == 1)
+            {
+                cbInTemNVL.Checked = false;
+            }
         }
     }
 }

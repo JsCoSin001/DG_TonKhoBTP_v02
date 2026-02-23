@@ -4,6 +4,7 @@ using DG_TonKhoBTP_v02.Dictionary;
 using DG_TonKhoBTP_v02.Helper.Reuseable;
 using DG_TonKhoBTP_v02.Models;
 using DG_TonKhoBTP_v02.UI.Helper;
+using DocumentFormat.OpenXml.Drawing;
 using Microsoft.VisualBasic;
 using System;
 using System.Collections.Generic;
@@ -442,38 +443,76 @@ namespace DG_TonKhoBTP_v02.UI
 
             string keyword = cbxTimKiem.Text?.Trim().Split('_')[0];
 
+            DataTable result = new DataTable();
+
             cbxTimKiem.Text = "";   // luôn clear sau khi scan
 
-            if (string.IsNullOrEmpty(keyword)) return;
-            if (!TenMayDaNhap()) return;
-
-            string para = "ten";
-            string query = RawMaterial
-                ? CoreHelper.TaoSQL_LayDLNVL_TTThanhPham()
-                : CoreHelper.TaoSQL_LayDLTTThanhPham();
-
-            DataTable result;
-
-            try
+            if (CoreHelper.CatMaBin(keyword).Length == 5)
             {
-                result = await Task.Run(() =>
-                    DatabaseHelper.GetData(query, keyword, para)
-                );
-            }
-            catch (Exception ex)
-            {
-                FrmWaiting.ShowGifAlert("Lỗi truy vấn dữ liệu: " + ex.Message);
-                return;
-            }
 
-            if (result == null || result.Rows.Count == 0)
-            {
-                FrmWaiting.ShowGifAlert("Không tìm thấy dữ liệu cho mã QR vừa quét.");
-                return;
-            }
+                if (string.IsNullOrEmpty(keyword)) return;
+                if (!TenMayDaNhap()) return;
 
-            // ===== ADD DATA =====
-            AddRowsToGrid(result);
+                string para = "ten";
+                string query = RawMaterial
+                    ? CoreHelper.TaoSQL_LayDLNVL_TTThanhPham()
+                    : CoreHelper.TaoSQL_LayDLTTThanhPham();
+
+                try
+                {
+                    result = await Task.Run(() =>
+                        DatabaseHelper.GetData(query, keyword, para)
+                    );
+                }
+                catch (Exception ex)
+                {
+                    FrmWaiting.ShowGifAlert("Lỗi truy vấn dữ liệu: " + ex.Message);
+                    return;
+                }
+
+                if (result == null || result.Rows.Count == 0)
+                {
+                    FrmWaiting.ShowGifAlert("Không tìm thấy dữ liệu cho mã QR vừa quét.");
+                    return;
+                }
+            }
+            else
+            {
+
+                result.Columns.Add("CongDoan", typeof(int));
+                result.Columns.Add("KlBatDau", typeof(int));
+                result.Columns.Add("CDBatDau", typeof(int));
+                result.Columns.Add("id", typeof(long));
+                result.Columns.Add("MaNVL", typeof(string));
+                result.Columns.Add("DonVi", typeof(string));
+                result.Columns.Add("DanhSachMaSP_ID", typeof(long));
+                result.Columns.Add("Qc", typeof(string));
+                result.Columns.Add("BinNVL", typeof(string));
+                result.Columns.Add("Ngay", typeof(object));   // để nhận NULL/DBNull dễ hơn
+                result.Columns.Add("Ca", typeof(string));
+                result.Columns.Add("NguoiLam", typeof(string));
+                result.Columns.Add("GhiChu", typeof(string));
+
+                // Gán giá trị cho 1 dòng
+                DataRow r = result.NewRow();
+                r["CongDoan"] = -1;
+                r["KlBatDau"] = -1;
+                r["CDBatDau"] = -1;
+                r["id"] = new Random().Next(1, int.MaxValue) * -1;
+                r["MaNVL"] = keyword;
+                r["DonVi"] = "Kg";
+                r["DanhSachMaSP_ID"] = 0;
+                r["Qc"] = "NA";
+                r["BinNVL"] = keyword;
+                r["Ngay"] = DBNull.Value;   
+                r["Ca"] = "";               
+                r["NguoiLam"] = "";
+                r["GhiChu"] = "";
+
+                result.Rows.Add(r);
+            }
+                // ===== ADD DATA =====
+                AddRowsToGrid(result);
         }
 
 

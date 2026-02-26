@@ -17,19 +17,18 @@ using Size = System.Drawing.Size;
 
 namespace DG_TonKhoBTP_v02.Printer
 {
-    public class PrintHelper
+    public class PrintHelper_copy2
     {
         // ============================================================
         //  Hằng số layout (mm)
         // ============================================================
         private const double MARGIN_MM = 1.0;
         private const double QR_SIZE_MM = 35.0;
-        private const double LINE_HEIGHT_MM = 6.5;  // khoảng cách dòng vùng nội dung phải QR
-        private const double ROW_SINGLE_MM = 5.5;  // chiều cao 1 dòng đơn (ROW2 + dòng GhiChu khi rỗng)
-        private const double BOTTOM_PAD_MM = 2.0;
-        private const double NOTE_PADDING_MM = 2.0;  // padding trái/phải/trên/dưới vùng GhiChu
+        private const double LINE_HEIGHT_MM = 6.5;
+        private const double BOTTOM_PAD_MM = 3.0;
+        private const double NOTE_PADDING_MM = 3.0;
         private const double LABEL_WIDTH_MM = 100.0;
-        private const double ROW2_PAD_MM = 1.0;  // padding trên/dưới dòng Ngày + Người làm
+        private const double ROW2_PAD_MM = 0;   // padding trên/dưới dòng Ngày + Người làm
 
         // Font size (Point)
         private const float FONT_TITLE_PT = 14f;
@@ -68,9 +67,9 @@ namespace DG_TonKhoBTP_v02.Printer
         //  │             │  K.Lượng:  ...             │
         //  │             │  C.Dài:    ...             │
         //  │             │  Ca:       ...             │
-        //  ├─────────────────────────────────────────┤
-        //  │  Ngày: ...     │  Người làm: ...        │  ← ROW2 (X thẳng hàng với QR)
-        //  ├─────────────────────────────────────────┤
+        //  ├─────────────────────────────────────────┤  ← line 1
+        //  │  Ngày: ...     │  Người làm: ...        │  ← ROW2
+        //  ├─────────────────────────────────────────┤  ← line 2
         //  │  Ghi chú: (nếu có — chiều cao động)     │  ← PHẦN B
         //  └─────────────────────────────────────────┘
         // ============================================================
@@ -81,23 +80,23 @@ namespace DG_TonKhoBTP_v02.Printer
             int marginPx = Mm2Px(MARGIN_MM, dpi);
             int qrSizePx = Mm2Px(QR_SIZE_MM, dpi);
             int lineHeightPx = Mm2Px(LINE_HEIGHT_MM, dpi);
-            int rowSinglePx = Mm2Px(ROW_SINGLE_MM, dpi);
             int bottomPadPx = Mm2Px(BOTTOM_PAD_MM, dpi);
             int notePadPx = Mm2Px(NOTE_PADDING_MM, dpi);
             int row2PadPx = Mm2Px(ROW2_PAD_MM, dpi);
 
             // ── PHASE 1A: chiều cao PHẦN A ──────────────────────────
+            // A1: QR
             int heightA1 = marginPx + qrSizePx;
 
-            int rowCount = 5;
+            // A2: nội dung phải (TenSP + 4 dòng: LOT, K.Lượng, C.Dài, Ca)
+            int rowCount = 5;              // 1 title + 4 dòng thông tin
             int extraTitle = Mm2Px(2.0, dpi);
             int heightA2 = marginPx + extraTitle + (rowCount * lineHeightPx);
 
             int heightA = Math.Max(heightA1, heightA2);
 
-            // ── PHASE 1B: chiều cao ROW2 (Ngày + Người làm) ─────────
-            // dùng rowSinglePx thay lineHeightPx để dòng này nhỏ gọn hơn
-            int row2Height = row2PadPx + rowSinglePx + row2PadPx;
+            // ── PHASE 1B: chiều cao DÒNG ROW2 (Ngày + Người làm) ────
+            int row2Height = row2PadPx + lineHeightPx + row2PadPx;
 
             // ── PHASE 1C: chiều cao PHẦN B (Ghi chú) ────────────────
             int noteWidth = labelWidthPx - 2 * notePadPx;
@@ -129,8 +128,8 @@ namespace DG_TonKhoBTP_v02.Printer
             }
             else
             {
-                // Không có ghi chú — chừa đúng 1 dòng nhỏ để in chữ "Ghi chú:"
-                heightNoteSection = notePadPx + rowSinglePx + notePadPx;
+                // Không có ghi chú — vẫn chừa 1 dòng để in chữ "Ghi chú:"
+                heightNoteSection = row2PadPx + lineHeightPx + row2PadPx;
             }
 
             // ── Tổng chiều cao ───────────────────────────────────────
@@ -181,28 +180,35 @@ namespace DG_TonKhoBTP_v02.Printer
 
                 // Dòng 3: Khối lượng
                 g.DrawString("K.Lượng:", normalFont, brush, xText, y);
-                g.DrawString($"{data.KhoiLuong ?? ""} Kg", boldFont, brush, xText + Mm2Px(40, dpi), y);
+                g.DrawString($"{data.KhoiLuong ?? ""} Kg", boldFont, brush, xText + Mm2Px(35, dpi), y);
                 y += lineHeightPx;
 
                 // Dòng 4: Chiều dài
                 g.DrawString("C.Dài:", normalFont, brush, xText, y);
-                g.DrawString($"{data.ChieuDai ?? ""} M", boldFont, brush, xText + Mm2Px(40, dpi), y);
+                g.DrawString($"{data.ChieuDai ?? ""} M", boldFont, brush, xText + Mm2Px(35, dpi), y);
                 y += lineHeightPx;
 
                 // Dòng 5: Ca sản xuất
                 g.DrawString("Ca:", normalFont, brush, xText, y);
-                g.DrawString(data.CaSX ?? "", boldFont, brush, xText + Mm2Px(40, dpi), y);
+                g.DrawString(data.CaSX ?? "", boldFont, brush, xText + Mm2Px(35, dpi), y);
+
+                // ── ĐƯỜNG KẺ 1: phân cách sau vùng A ────────────────
+                //g.DrawLine(Pens.Black, marginPx, heightA, labelWidthPx - marginPx, heightA);
 
                 // ── ROW2: Ngày (trái) | Người làm (phải) ─────────────
-                // X của "Ngày" = marginPx → thẳng hàng với cạnh trái QR
                 float yRow2 = heightA + row2PadPx;
 
+                // Ngày — bên trái
                 g.DrawString("Ngày:", normalFont, brush, (float)marginPx, yRow2);
                 g.DrawString(data.NgaySX ?? "", boldFont, brush, marginPx + Mm2Px(13, dpi), yRow2);
 
+                // Người làm — bên phải (bắt đầu từ giữa tem)
                 float xNguoiLam = labelWidthPx / 2f - 30;
                 g.DrawString("Người làm:", normalFont, brush, xNguoiLam, yRow2);
                 g.DrawString(data.TenCN ?? "", boldFont, brush, xNguoiLam + Mm2Px(22, dpi), yRow2);
+
+                // ── ĐƯỜNG KẺ 2: phân cách trước Ghi chú ─────────────
+                //g.DrawLine(Pens.Black, marginPx, heightAboveNote, labelWidthPx - marginPx, heightAboveNote);
 
                 // ── PHẦN B: Ghi chú ───────────────────────────────────
                 if (hasGhiChu)
@@ -225,6 +231,7 @@ namespace DG_TonKhoBTP_v02.Printer
                 }
                 else
                 {
+                    // Không có ghi chú — vẫn in "Ghi chú:" để tem trông đồng nhất
                     g.DrawString("Ghi chú:", normalFont, brush,
                                  (float)notePadPx, heightAboveNote + notePadPx);
                 }
@@ -255,6 +262,8 @@ namespace DG_TonKhoBTP_v02.Printer
                     if (!IsPrinterReady(PRINTER_NAME))
                         throw new Exception($"Máy in '{PRINTER_NAME}' không sẵn sàng.");
 
+                    // Dùng LabelConfig.Dpi cố định thay vì image.VerticalResolution
+                    // để tránh OS/GDI+ reset DPI về screen DPI (96/120/144)
                     double trueDpi = LabelConfig.Dpi;
 
                     double labelWidthMm = image.Width / trueDpi * 25.4;

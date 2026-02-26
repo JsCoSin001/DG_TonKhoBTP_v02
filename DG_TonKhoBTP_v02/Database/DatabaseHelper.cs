@@ -1439,16 +1439,16 @@ namespace DG_TonKhoBTP_v02.Database
                         UpdateCDBocVo(conn, tx, tpId, vo);
 
                         // Cập nhật trạng thái của kế hoạch sx
-                        var parts = CoreHelper.CatMaBin(tp.MaBin);
-                        string lot = parts.Length == 5 ? parts[1] : parts[0];
-                        string ttUpdate = $"{caLam.NguoiLam}_Ca {caLam.Ca}";
+                        //var parts = CoreHelper.CatMaBin(tp.MaBin);
+                        //string lot = parts.Length == 5 ? parts[1] : parts[0];
+                        //string ttUpdate = $"{caLam.NguoiLam}_Ca {caLam.Ca}";
 
-                        int trangThai = 2;  
-                        var items = new HashSet<(string Lot, int TrangThai, string Ten)>{
-                            (Lot: lot, TrangThai: trangThai, Ten: tp.TenTP)
-                        };
+                        //int trangThai = 2;  
+                        //var items = new HashSet<(string Lot, int TrangThai, string Ten)>{
+                        //    (Lot: lot, TrangThai: trangThai, Ten: tp.TenTP)
+                        //};
 
-                        UpdateTrangThaiSX_ByLots(conn, tx, items, ttUpdate);
+                        //UpdateTrangThaiSX_ByLots(conn, tx, items, ttUpdate);
 
 
                         break;
@@ -1762,16 +1762,23 @@ namespace DG_TonKhoBTP_v02.Database
 
         private static void UpdateCDGhepLoiQB(SQLiteConnection conn, SQLiteTransaction tx, long thongTinSpId, CD_GhepLoiQB m)
         {
+            //const string sql = @"
+            //UPDATE CD_GhepLoiQB
+            //SET BuocXoan = @BuocXoan,
+            //    ChieuXoan = @ChieuXoan,
+            //    GoiCachMep = @GoiCachMep,
+            //    DKBTP = @DKBTP
+            //WHERE TTThanhPham_ID = @TTThanhPham_ID;";
+
             const string sql = @"
             UPDATE CD_GhepLoiQB
-            SET BuocXoan = @BuocXoan,
-                ChieuXoan = @ChieuXoan,
+            SET ChieuXoan = @ChieuXoan,
                 GoiCachMep = @GoiCachMep,
                 DKBTP = @DKBTP
             WHERE TTThanhPham_ID = @TTThanhPham_ID;";
 
             using var cmd = new SQLiteCommand(sql, conn, tx);
-            cmd.Parameters.AddWithValue("@BuocXoan", m.BuocXoan);
+            //cmd.Parameters.AddWithValue("@BuocXoan", m.BuocXoan);
             cmd.Parameters.AddWithValue("@ChieuXoan", m.ChieuXoan ?? "Z");
             cmd.Parameters.AddWithValue("@GoiCachMep", m.GoiCachMep);
             cmd.Parameters.AddWithValue("@DKBTP", m.DKBTP);
@@ -1954,9 +1961,7 @@ namespace DG_TonKhoBTP_v02.Database
 
                 // 3.1) Update Khối lượng sau, Chiều dài sau và thêm ID được update ở TTThanhPham 
                 UpdateKL_CD_TTThanhPham(conn, tx, nvl, tpId);
-
-                // 3.2) Dùng cho db v1
-                DatabasehelperVer01.UpdateTonKho_NVL_Lan1(nvl);
+                    
 
                 // 4) CaiDatCDBoc (chỉ áp dụng cho nhóm bóc)
                 var congDoan = chiTietCD[0];
@@ -1975,18 +1980,14 @@ namespace DG_TonKhoBTP_v02.Database
                     case CD_KeoRut keo:
                         InsertCDKeoRut(conn, tx, tpId, keo);
 
-                        // Tạo mới dữ liệu cho db v1
-                        //insertVersion1(tp,caLam, nvl);
                         break;
 
                     case CD_BenRuot ben:
                         InsertCDBenRuot(conn, tx, tpId, ben);
-                        // Tạo mới dữ liệu cho db v1
-                        //insertVersion1(tp, caLam, nvl);
                         break;
 
                     case CD_GhepLoiQB qb:
-                        InsertCDGhepLoiQB(conn, tx, tpId, qb);
+                       InsertCDGhepLoiQB(conn, tx, tpId, qb);
                         break;
 
                     case CD_BocLot bocLot:
@@ -2001,16 +2002,16 @@ namespace DG_TonKhoBTP_v02.Database
                         InsertCDBocVo(conn, tx, idCaiDatCDBoc, vo);
 
                         // Cập nhật trạng thái của kế hoạch sx
-                        var parts = CoreHelper.CatMaBin(tp.MaBin);
-                        string lot = parts.Length == 5 ? parts[1] : parts[0];
-                        string ttUpdate = $"{caLam.NguoiLam}_Ca {caLam.Ca}";
+                        //var parts = CoreHelper.CatMaBin(tp.MaBin);
+                        //string lot = parts.Length == 5 ? parts[1] : parts[0];
+                        //string ttUpdate = $"{caLam.NguoiLam}_Ca {caLam.Ca}";
 
-                        int trangThai = 2;  // EnumStore.TrangThaiThucHienTheoKH[2] = "Đã xong"
-                        var items = new HashSet<(string Lot, int TrangThai, string Ten)>{
-                            (Lot: lot, TrangThai: trangThai, Ten: tp.TenTP)
-                        };
+                        //int trangThai = 2;  // EnumStore.TrangThaiThucHienTheoKH[2] = "Đã xong"
+                        //var items = new HashSet<(string Lot, int TrangThai, string Ten)>{
+                        //    (Lot: lot, TrangThai: trangThai, Ten: tp.TenTP)
+                        //};
 
-                        UpdateTrangThaiSX_ByLots(conn, tx, items, ttUpdate);
+                        //UpdateTrangThaiSX_ByLots(conn, tx, items, ttUpdate);
 
 
                         break;
@@ -2299,15 +2300,23 @@ namespace DG_TonKhoBTP_v02.Database
 
         private static void InsertCDGhepLoiQB(SQLiteConnection conn, SQLiteTransaction tx, long thongTinSpId, CD_GhepLoiQB m)
         {
+            //const string sql = @"
+            //INSERT INTO CD_GhepLoiQB
+            //(TTThanhPham_ID, BuocXoan, ChieuXoan, GoiCachMep, DKBTP)
+            //VALUES
+            //(@TTThanhPham_ID, @BuocXoan, @ChieuXoan, @GoiCachMep, @DKBTP);";
+
+
             const string sql = @"
             INSERT INTO CD_GhepLoiQB
-            (TTThanhPham_ID, BuocXoan, ChieuXoan, GoiCachMep, DKBTP)
+            (TTThanhPham_ID, ChieuXoan, GoiCachMep, DKBTP)
             VALUES
-            (@TTThanhPham_ID, @BuocXoan, @ChieuXoan, @GoiCachMep, @DKBTP);";
+            (@TTThanhPham_ID,  @ChieuXoan, @GoiCachMep, @DKBTP);";
+
 
             using var cmd = new SQLiteCommand(sql, conn, tx);
             cmd.Parameters.AddWithValue("@TTThanhPham_ID", thongTinSpId);
-            cmd.Parameters.AddWithValue("@BuocXoan", m.BuocXoan);
+            //cmd.Parameters.AddWithValue("@BuocXoan", m.BuocXoan);
             cmd.Parameters.AddWithValue("@ChieuXoan", m.ChieuXoan);
             cmd.Parameters.AddWithValue("@GoiCachMep", m.GoiCachMep);
             cmd.Parameters.AddWithValue("@DKBTP", m.DKBTP);

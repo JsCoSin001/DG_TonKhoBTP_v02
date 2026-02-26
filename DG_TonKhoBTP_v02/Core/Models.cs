@@ -206,7 +206,7 @@ namespace DG_TonKhoBTP_v02.Core
     {
         public int Id { get; set; }
         public int TTThanhPhan_ID { get; set; }    // NOT NULL
-        public double? BuocXoan { get; set; }      // NOT NULL
+        //public double? BuocXoan { get; set; }      // NOT NULL
         public string? ChieuXoan { get; set; }     // NOT NULL DEFAULT 'Z'
         public double? GoiCachMep { get; set; }    // NOT NULL
         public double? DKBTP { get; set; }         // NOT NULL

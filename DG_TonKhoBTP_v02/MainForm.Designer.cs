@@ -37,6 +37,8 @@ namespace DG_TonKhoBTP_v02
             this.panel16 = new System.Windows.Forms.Panel();
             this.btnKeHoach = new DG_TonKhoBTP_v02.UI.Component.CustomButton();
             this.grbCongCu = new System.Windows.Forms.GroupBox();
+            this.panel20 = new System.Windows.Forms.Panel();
+            this.btnVatTuPhu = new DG_TonKhoBTP_v02.UI.Component.CustomButton();
             this.panel19 = new System.Windows.Forms.Panel();
             this.btnHaLo = new DG_TonKhoBTP_v02.UI.Component.CustomButton();
             this.panel17 = new System.Windows.Forms.Panel();
@@ -93,6 +95,7 @@ namespace DG_TonKhoBTP_v02
             this.groupBox1.SuspendLayout();
             this.panel16.SuspendLayout();
             this.grbCongCu.SuspendLayout();
+            this.panel20.SuspendLayout();
             this.panel19.SuspendLayout();
             this.panel17.SuspendLayout();
             this.panel5.SuspendLayout();
@@ -154,7 +157,7 @@ namespace DG_TonKhoBTP_v02
             this.groupBox1.Controls.Add(this.panel16);
             this.groupBox1.Dock = System.Windows.Forms.DockStyle.Top;
             this.groupBox1.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.groupBox1.Location = new System.Drawing.Point(0, 936);
+            this.groupBox1.Location = new System.Drawing.Point(0, 999);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(185, 83);
             this.groupBox1.TabIndex = 3;
@@ -194,6 +197,7 @@ namespace DG_TonKhoBTP_v02
             // grbCongCu
             // 
             this.grbCongCu.AutoSize = true;
+            this.grbCongCu.Controls.Add(this.panel20);
             this.grbCongCu.Controls.Add(this.panel19);
             this.grbCongCu.Controls.Add(this.panel17);
             this.grbCongCu.Controls.Add(this.panel5);
@@ -201,10 +205,40 @@ namespace DG_TonKhoBTP_v02
             this.grbCongCu.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.grbCongCu.Location = new System.Drawing.Point(0, 727);
             this.grbCongCu.Name = "grbCongCu";
-            this.grbCongCu.Size = new System.Drawing.Size(185, 209);
+            this.grbCongCu.Size = new System.Drawing.Size(185, 272);
             this.grbCongCu.TabIndex = 1;
             this.grbCongCu.TabStop = false;
             this.grbCongCu.Text = "CÔNG CỤ";
+            // 
+            // panel20
+            // 
+            this.panel20.Controls.Add(this.btnVatTuPhu);
+            this.panel20.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panel20.Location = new System.Drawing.Point(3, 206);
+            this.panel20.Name = "panel20";
+            this.panel20.Padding = new System.Windows.Forms.Padding(5, 6, 5, 6);
+            this.panel20.Size = new System.Drawing.Size(179, 63);
+            this.panel20.TabIndex = 10;
+            // 
+            // btnVatTuPhu
+            // 
+            this.btnVatTuPhu.BackColor = System.Drawing.Color.Snow;
+            this.btnVatTuPhu.BorderRadius = 10;
+            this.btnVatTuPhu.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnVatTuPhu.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.btnVatTuPhu.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnVatTuPhu.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnVatTuPhu.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.btnVatTuPhu.Location = new System.Drawing.Point(5, 6);
+            this.btnVatTuPhu.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
+            this.btnVatTuPhu.Name = "btnVatTuPhu";
+            this.btnVatTuPhu.Size = new System.Drawing.Size(169, 51);
+            this.btnVatTuPhu.TabIndex = 9;
+            this.btnVatTuPhu.TabStop = false;
+            this.btnVatTuPhu.Text = "VẬT TƯ PHỤ";
+            this.btnVatTuPhu.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnVatTuPhu.UseVisualStyleBackColor = false;
+            this.btnVatTuPhu.Click += new System.EventHandler(this.btnVatTuPhu_Click);
             // 
             // panel19
             // 
@@ -935,6 +969,7 @@ namespace DG_TonKhoBTP_v02
             this.groupBox1.ResumeLayout(false);
             this.panel16.ResumeLayout(false);
             this.grbCongCu.ResumeLayout(false);
+            this.panel20.ResumeLayout(false);
             this.panel19.ResumeLayout(false);
             this.panel17.ResumeLayout(false);
             this.panel5.ResumeLayout(false);
@@ -1060,6 +1095,8 @@ namespace DG_TonKhoBTP_v02
         private System.Windows.Forms.ToolStripMenuItem môPhỏngSXToolStripMenuItem;
         private System.Windows.Forms.Panel panel19;
         private CustomButton btnHaLo;
+        private System.Windows.Forms.Panel panel20;
+        private CustomButton btnVatTuPhu;
     }
 }
 

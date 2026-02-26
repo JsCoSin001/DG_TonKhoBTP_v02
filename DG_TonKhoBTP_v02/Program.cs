@@ -1,4 +1,5 @@
 ﻿using DG_TonKhoBTP_v02.UI;
+using DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu;
 using System;
 using System.Diagnostics;
 using System.Drawing;
@@ -134,7 +135,6 @@ namespace DG_TonKhoBTP_v02
             // ================================
             // INSTANCE ĐẦU TIÊN (hoặc instance RESTART)
             // ================================
-            //var mainForm = new QLVatTuPhu();
             var mainForm = new MainForm();
 
             //#if DEBUG

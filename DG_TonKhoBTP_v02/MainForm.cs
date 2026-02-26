@@ -11,6 +11,7 @@ using DG_TonKhoBTP_v02.UI.Helper;
 using DG_TonKhoBTP_v02.UI.KeHoach;
 using DG_TonKhoBTP_v02.UI.NghiepVu;
 using DG_TonKhoBTP_v02.UI.NghiepVu.KeHoach;
+using DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu;
 using DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho;
 using DG_TonKhoBTP_v02.UI.Setting;
 using DocumentFormat.OpenXml.Office.SpreadSheetML.Y2023.MsForms;
@@ -31,7 +32,7 @@ namespace DG_TonKhoBTP_v02
     public partial class MainForm : Form
     {
         private string _URL = Properties.Settings.Default.URL;
-        private string _ver = "2.2.3";
+        private string _ver = "2.3.2";
         private CongDoanUiService _ui;
         private void InitUiService()
         {
@@ -1316,6 +1317,15 @@ namespace DG_TonKhoBTP_v02
         private void btnHaLo_Click(object sender, EventArgs e)
         {
             using (var f = new UC_HaLo())
+            {
+                f.StartPosition = FormStartPosition.CenterScreen;
+                f.ShowDialog(this); // this là form cha
+            }
+        }
+
+        private void btnVatTuPhu_Click(object sender, EventArgs e)
+        {
+            using (var f = new FrmVatTuPhu())
             {
                 f.StartPosition = FormStartPosition.CenterScreen;
                 f.ShowDialog(this); // this là form cha

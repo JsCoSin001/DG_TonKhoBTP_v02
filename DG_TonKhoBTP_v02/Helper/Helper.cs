@@ -16,6 +16,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.Rebar;
 using WinCheckBox = System.Windows.Forms.CheckBox;
 using WinControl = System.Windows.Forms.Control;
 
@@ -108,10 +109,11 @@ namespace DG_TonKhoBTP_v02.Helper
 
         }
 
-        public static string TaoSQL_LayDLTTThanhPham()
+        public static string TaoSQL_LayDLTTThanhPham(bool hanNoi)
         {
+
             // KHÔNG đặt dấu ; ở cuối vì còn nối UNION ALL ở hàm sau
-            return @"
+            string sql = @"
             SELECT
                 t.CongDoan      AS CongDoan,
                 t.KhoiLuongSau  AS KlBatDau,
@@ -133,24 +135,35 @@ namespace DG_TonKhoBTP_v02.Helper
                 ON t.id = v.TTThanhPham_id
             WHERE
                 (
-                    (d.DonVi = 'KG' AND t.KhoiLuongSau <> 0)
-                    OR
-                    (d.DonVi = 'M' AND t.ChieuDaiSau  <> 0)
+                    t.Active = 1  
                 )
                 AND (
                     @ten IS NULL OR TRIM(@ten) = ''
                     OR t.MaBin = @ten COLLATE NOCASE
                 )
-                AND
-                (
-                    t.Active = 1    
-                )
             ";
+
+            if (!hanNoi)
+            {
+                sql += TaoSQL_DieuKien();
+            }
+
+
+            return sql;
+        }
+
+        public static string TaoSQL_DieuKien(string kieu = "<>")
+        {
+            return $@" AND (
+                    (d.DonVi = 'KG' AND t.KhoiLuongSau {kieu} 0)
+                    OR
+                    (d.DonVi = 'M' AND t.ChieuDaiSau  {kieu} 0)
+                )";
         }
 
         public static string TaoSQL_LayDLNVL_TTThanhPham()
         {
-            string baseQuery = TaoSQL_LayDLTTThanhPham(); // KHÔNG có ; ở cuối
+            string baseQuery = TaoSQL_LayDLTTThanhPham(false); // KHÔNG có ; ở cuối
 
             return baseQuery + @"
             UNION ALL
@@ -278,9 +291,10 @@ namespace DG_TonKhoBTP_v02.Helper
 
             string sqlChung = "";
 
-            if (2 < id && id < 6) sqlChung = ChiTietCongDoanBoc.DSTenCotChung + ", ";
+            if (id > 2 && id < 6) sqlChung = ChiTietCongDoanBoc.DSTenCotChung + ", ";
 
-            if (id > 5) id = 2;
+            if (id > 5 && id < 9) id = 2;
+            id = id == 9 ? 1 : id;
 
             return sqlChung + dsCotCongDoan[id];
         }
@@ -767,34 +781,34 @@ namespace DG_TonKhoBTP_v02.Helper
         private static string FormatField(string? fieldOrRule)
             => string.IsNullOrWhiteSpace(fieldOrRule) ? "" : $" ({fieldOrRule})";
 
-        public static string ConvertTiengVietKhongDau(string input)
-        {
-            if (string.IsNullOrEmpty(input))
-                return input;
+        //public static string ConvertTiengVietKhongDau(string input)
+        //{
+        //    if (string.IsNullOrEmpty(input))
+        //        return input;
 
-            // Chuẩn hóa chuỗi về dạng FormD (mỗi ký tự có dấu được tách ra thành ký tự + dấu)
-            string normalized = input.Normalize(NormalizationForm.FormD);
+        //    // Chuẩn hóa chuỗi về dạng FormD (mỗi ký tự có dấu được tách ra thành ký tự + dấu)
+        //    string normalized = input.Normalize(NormalizationForm.FormD);
 
-            // Loại bỏ các ký tự dấu (NonSpacingMark)
-            StringBuilder sb = new StringBuilder();
-            foreach (char c in normalized)
-            {
-                UnicodeCategory category = CharUnicodeInfo.GetUnicodeCategory(c);
-                if (category != UnicodeCategory.NonSpacingMark)
-                    sb.Append(c);
-            }
+        //    // Loại bỏ các ký tự dấu (NonSpacingMark)
+        //    StringBuilder sb = new StringBuilder();
+        //    foreach (char c in normalized)
+        //    {
+        //        UnicodeCategory category = CharUnicodeInfo.GetUnicodeCategory(c);
+        //        if (category != UnicodeCategory.NonSpacingMark)
+        //            sb.Append(c);
+        //    }
 
-            // Chuẩn hóa lại về FormC (chuẩn bình thường)
-            string result = sb.ToString().Normalize(NormalizationForm.FormC);
+        //    // Chuẩn hóa lại về FormC (chuẩn bình thường)
+        //    string result = sb.ToString().Normalize(NormalizationForm.FormC);
 
-            // Xử lý đặc biệt cho "đ" và "Đ"
-            result = result.Replace('đ', 'd').Replace('Đ', 'D');
+        //    // Xử lý đặc biệt cho "đ" và "Đ"
+        //    result = result.Replace('đ', 'd').Replace('Đ', 'D');
 
-            // Loại bỏ khoảng trắng thừa (tùy chọn)
-            result = Regex.Replace(result, @"\s+", " ").Trim();
+        //    // Loại bỏ khoảng trắng thừa (tùy chọn)
+        //    result = Regex.Replace(result, @"\s+", " ").Trim();
 
-            return result;
-        }
+        //    return result;
+        //}
 
         public static List<CongDoan> GetCheckedCongDoans(TableLayoutPanel tbCheckBox)
         {

@@ -280,7 +280,8 @@ namespace DG_TonKhoBTP_v02.UI
                 PrinterModel BuildPrinter()
                 {
 
-                    string ghiChu = CoreHelper.ConvertTiengVietKhongDau(thongTinThanhPham.GhiChu);
+                    //string ghiChu = CoreHelper.ConvertTiengVietKhongDau(thongTinThanhPham.GhiChu);
+                    string ghiChu = thongTinThanhPham.GhiChu;
 
                     if (EnumStore.MayTheoCongDoan.TryGetValue("Ben_CU_AL", out var dsMay) &&
                        dsMay.Contains(thongTinCaLamViec.May, StringComparer.OrdinalIgnoreCase) && 
@@ -289,19 +290,28 @@ namespace DG_TonKhoBTP_v02.UI
                         ghiChu = $"{obj.DKSoi}x{obj.SoSoi?.ToString() ?? ""} sợi\n" + ghiChu;
                     }
 
+                    string tenSP = thongTinThanhPham.TenTP;
+                    string mau = "";
+                    if (_Cd.Id == 3)
+                    {
+                        CD_BocMach bm = (CD_BocMach)chiTietCD[0];
+                        mau = bm.Mau;
+                    }
 
                     return new PrinterModel
                     {
                         NgaySX = DateTime.ParseExact(thongTinCaLamViec.Ngay, "yyyy-MM-dd", CultureInfo.InvariantCulture)
                                          .ToString("dd/MM/yyyy"),
                         CaSX = thongTinCaLamViec.Ca,
+                        Mau = mau,
                         KhoiLuong = thongTinThanhPham.KhoiLuongSau.ToString(),
                         ChieuDai = thongTinThanhPham.ChieuDaiSau.ToString(),
-                        TenSP = thongTinThanhPham.TenTP,
+                        TenSP = tenSP,
                         MaBin = thongTinThanhPham.MaBin,
                         MaSP = thongTinThanhPham.MaTP,
                         DanhGia = "",
-                        TenCN = CoreHelper.ConvertTiengVietKhongDau(thongTinCaLamViec.NguoiLam),
+                        TenCN = thongTinCaLamViec.NguoiLam,
+                        //TenCN = CoreHelper.ConvertTiengVietKhongDau(thongTinCaLamViec.NguoiLam),
                         GhiChu = ghiChu
                     };
                 }

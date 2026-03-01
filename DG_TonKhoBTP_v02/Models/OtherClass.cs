@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,6 +12,18 @@ namespace DG_TonKhoBTP_v02.Models
         public string Name { get; set; }          // Tên cột trong DataTable
         public Type DataType { get; set; }        // Kiểu dữ liệu (typeof(int), typeof(double), ...)
         public string Header { get; set; }        // Tên hiển thị
+    }
+
+    public class DataTableEventArgs : EventArgs
+    {
+        public DataTable Data { get; }
+        public int KieuEdit { get; }
+
+        public DataTableEventArgs(DataTable data, int kieuEdit)
+        {
+            Data = data;
+            KieuEdit = kieuEdit;
+        }
     }
 
     public class CongDoan

@@ -164,8 +164,6 @@
     <Compile Include="Models\OtherClass.cs" />
     <Compile Include="Printer\LabelConfig.cs" />
     <Compile Include="Printer\PrinterModel.cs" />
-    <Compile Include="Printer\PrintHelper - Copy %282%29.cs" />
-    <Compile Include="Printer\PrintHelper - Copy.cs" />
     <Compile Include="Printer\PrintHelper.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

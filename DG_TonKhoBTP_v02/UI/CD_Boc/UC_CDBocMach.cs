@@ -26,13 +26,11 @@ namespace DG_TonKhoBTP_v02.UI
                 NgoaiQuan = string.IsNullOrEmpty(ngoaiQuan.Text) ? null : ngoaiQuan.Text,
                 LanDanhThung = (int) lanDanhThung.Value ,
                 SoMet =(double?)soMet.Value,
-
-                //LanDanhThung = lanDanhThung.Value == 0m ? null : (int?)lanDanhThung.Value,
-                //SoMet = soMet.Value == 0m ? null : (double?)soMet.Value,
+                Mau = string.IsNullOrWhiteSpace(tbMau.Text) ? null : tbMau.Text.Trim()
             };
         }
 
-        public void LoadData(DataTable dt)
+        public void LoadData(DataTable dt, int kieuEdit)
         {
             if (dt == null || dt.Rows.Count == 0) return;
             var row = dt.Rows[0];
@@ -40,6 +38,7 @@ namespace DG_TonKhoBTP_v02.UI
             CoreHelper.SetIfPresent(row, "BocMach_NgoaiQuan", val => ngoaiQuan.Text = Convert.ToString(val));
             CoreHelper.SetIfPresent(row, "LanDanhThung", val => lanDanhThung.Value = Convert.ToDecimal(val));
             CoreHelper.SetIfPresent(row, "SoMet", val => soMet.Text = Convert.ToString(val));
+            CoreHelper.SetIfPresent(row, "Mau", val => tbMau.Text = Convert.ToString(val));
 
         }
     }

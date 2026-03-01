@@ -1,3 +1,5 @@
 - Xoá quan hệ trong table ttNVL
 - Bỏ NN cho QC
 - Hàn nối là true/false: true là hàn nối, mặc định là false
+
+- CD_bocmach: them thuộc tính màu: không null

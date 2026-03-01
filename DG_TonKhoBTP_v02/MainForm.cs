@@ -757,7 +757,7 @@ namespace DG_TonKhoBTP_v02
 
             // pn Bottom - Left
             #region Tạo UI panel ở dưới - bên trái  - Đặt size = 800
-            Panel pnLeft = UI_BottomLeftPanel(columns, rawMaterial);
+            Panel pnLeft = UI_BottomLeftPanel(columns, rawMaterial,cd);
             #endregion
 
             // pn Bottom - Right
@@ -793,10 +793,15 @@ namespace DG_TonKhoBTP_v02
             if (ucEdit != null)
             {
                 // Đăng ký theo instance vừa render
-                ucEdit.DataTableSubmitted += (s, dt) =>
+                ucEdit.DataTableSubmitted += (s, e) =>
                 {
-                    // Broadcast dt tới TẤT CẢ control implements IDataReceiver trong pnShow
-                    BroadcastToReceivers(pnShow, dt);
+                    // Lấy DataTable
+                    DataTable dt = e.Data;
+
+                    // Nếu cần dùng thêm kieuEdit
+                    int kieuEdit = e.KieuEdit;
+
+                    BroadcastToReceivers(pnShow, dt, kieuEdit);
                 };
             }
 
@@ -825,21 +830,21 @@ namespace DG_TonKhoBTP_v02
             return pnEdit_Report;
         }
 
-        private Panel UI_BottomLeftPanel(List<ColumnDefinition> columns, bool rawMaterial)
+        private Panel UI_BottomLeftPanel(List<ColumnDefinition> columns, bool rawMaterial, CongDoan cd)
         {
             Panel pnLeft = new Panel();
             pnLeft.Dock = DockStyle.Left;
             pnLeft.AutoSize = false;
             pnLeft.Width = 800;
 
-            UC_TTNVL uC_TTNVL = new UC_TTNVL(columns);
+            UC_TTNVL uC_TTNVL = new UC_TTNVL(columns,cd);
             uC_TTNVL.Dock = DockStyle.Fill;
             uC_TTNVL.SetStatusRawMaterial(rawMaterial);
             pnLeft.Controls.Add(uC_TTNVL);
             return pnLeft;
         }
 
-        private void BroadcastToReceivers(Control root, DataTable dt)
+        private void BroadcastToReceivers(Control root, DataTable dt, int kieuEdit)
         {
             if (root == null || dt == null) return;
 
@@ -847,7 +852,7 @@ namespace DG_TonKhoBTP_v02
             {
                 try
                 {
-                    receiver.LoadData(dt);
+                    receiver.LoadData(dt, kieuEdit);
                 }
                 catch (Exception ex)
                 {

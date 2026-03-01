@@ -207,7 +207,7 @@ namespace DG_TonKhoBTP_v02.Printer
                 // ── PHẦN B: Ghi chú ───────────────────────────────────
                 if (hasGhiChu)
                 {
-                    string fullNote = $"Ghi chú:\r\n{data.GhiChu}";
+                    string fullNote = $"Ghi chú:{data.Mau}\r\n{data.GhiChu}";
 
                     var sf = new StringFormat(StringFormatFlags.NoClip)
                     {
@@ -225,7 +225,7 @@ namespace DG_TonKhoBTP_v02.Printer
                 }
                 else
                 {
-                    g.DrawString("Ghi chú:", normalFont, brush,
+                    g.DrawString($"Ghi chú: {data.Mau}", normalFont, brush,
                                  (float)notePadPx, heightAboveNote + notePadPx);
                 }
             }

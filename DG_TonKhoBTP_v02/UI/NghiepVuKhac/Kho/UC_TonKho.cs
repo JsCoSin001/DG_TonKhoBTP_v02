@@ -261,7 +261,7 @@ namespace DG_TonKhoBTP_v02.UI
                     try
                     {
                         ExportExcelFile(dt, fileName);
-                        FrmWaiting.ShowGifAlert("XUẤT EXCEL THÀNH CÔNG", "THÔNG BÁO", EnumStore.Icon.Success);
+                        //FrmWaiting.ShowGifAlert("XUẤT EXCEL THÀNH CÔNG", "THÔNG BÁO", EnumStore.Icon.Success);
                     }
                     catch (UnauthorizedAccessException ex)
                     {

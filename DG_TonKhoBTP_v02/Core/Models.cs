@@ -48,38 +48,6 @@ namespace DG_TonKhoBTP_v02.Core
         public bool IsInTemNVL { get; set; }
     }
 
-    public class Backup
-    {
-        [Key]
-        [Column("id")]
-        public int Id { get; set; }
-
-        [Required]
-        [Column("DanhSachSP_ID")]
-        public int DanhSachSpId { get; set; }
-
-        [Required]
-        [Column("TTThanhPham_ID")]
-        public int TtThanhPhamId { get; set; }
-
-        [Column("ChieuDai")]
-        public double? ChieuDai { get; set; }   // REAL -> double?
-
-        [Column("KhoiLuong")]
-        public double? KhoiLuong { get; set; }  // REAL -> double?
-
-        [Required]
-        [Column("DateInsert")]
-        public string DateInsert { get; set; } = default!; // TEXT NOT NULL (có thể đổi sang DateTime nếu bạn lưu ISO)
-
-        [Required]
-        [Column("LastEdit_ID")]
-        public int LastEditId { get; set; }
-
-        // Navigation properties (nếu bạn có entity tương ứng)
-        public virtual TTThanhPham? TTThanhPham { get; set; }
-        public virtual DanhSachMaSP? DanhSachMaSP { get; set; }
-    }
 
     public class CaiDatCDBoc
     {
@@ -129,7 +97,7 @@ namespace DG_TonKhoBTP_v02.Core
     {
         public int Id { get; set; }
         public int DanhSachSP_ID { get; set; }        // FK -> DanhSachMaSP.id
-        public string TenTP { get; set; }       
+        public string TenTP { get; set; }         
         public string MaTP { get; set; }       
         public string DonVi { get; set; }       
         public string MaBin { get; set; }             // NOT NULL
@@ -174,6 +142,7 @@ namespace DG_TonKhoBTP_v02.Core
         
         public int? LanDanhThung { get; set; }     // NOT NULL
         public double? SoMet { get; set; }         // NOT NULL
+        public string? Mau { get; set; }         // NOT NULL
     }
 
     // --------------------------- Công đoạn: Kéo Rút ---------------------------

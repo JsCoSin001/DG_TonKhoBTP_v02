@@ -70,7 +70,7 @@ namespace DG_TonKhoBTP_v02.UI
             };
         }
 
-        public void LoadData(DataTable dt)
+        public void LoadData(DataTable dt, int kieuEdit)
         {
             // Nếu đang ẩn UI thì không cần đổ dữ liệu lên control
             if (!_showControls) return;

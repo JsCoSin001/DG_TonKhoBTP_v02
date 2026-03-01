@@ -27,6 +27,6 @@ namespace DG_TonKhoBTP_v02.Core
     }
     public interface IDataReceiver
     {
-        void LoadData(DataTable dt);
+        void LoadData(DataTable dt, int kieuEdit);
     }
 }

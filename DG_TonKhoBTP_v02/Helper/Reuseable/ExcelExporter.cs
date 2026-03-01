@@ -24,8 +24,11 @@ namespace DG_TonKhoBTP_v02.Helper
                 FileName = $"{defaultFileName}_{DateTime.Now:yyyyMMdd_HHmm}"
             };
 
-            if (sfd.ShowDialog() != DialogResult.OK) return;
-
+            if (sfd.ShowDialog() != DialogResult.OK)
+            {
+                FrmWaiting.ShowGifAlert("Huỷ quá trình xuất Excel", "Export", EnumStore.Icon.Warning);
+                return;
+            }
             try
             {
                 // CHẠY TRÊN UI THREAD — OK

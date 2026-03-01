@@ -17,8 +17,7 @@ namespace DG_TonKhoBTP_v02.UI
     {
         CongDoan _cd;
 
-        public event EventHandler<DataTable> DataTableSubmitted;
-
+        public event EventHandler<DataTableEventArgs> DataTableSubmitted;
         public UC_Edit(CongDoan cd)
         {
             InitializeComponent();
@@ -54,8 +53,9 @@ namespace DG_TonKhoBTP_v02.UI
                         return;
                     }
 
+                    int kieuDL = cbKieuXuLyDL.SelectedIndex;
                     // Raise event / cập nhật UI bình thường
-                    DataTableSubmitted?.Invoke(this, dt);
+                    DataTableSubmitted?.Invoke(this, new DataTableEventArgs(dt, kieuDL));
 
                 }, "ĐANG TÌM KIẾM, VUI LÒNG ĐỢI...");
             }

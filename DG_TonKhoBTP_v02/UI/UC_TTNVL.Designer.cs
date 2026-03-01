@@ -39,18 +39,15 @@
             this.label3 = new System.Windows.Forms.Label();
             this.cbxTimKiem = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
-            this.tbKLDongThua = new System.Windows.Forms.TableLayoutPanel();
-            this.label2 = new System.Windows.Forms.Label();
-            this.nmrKlDongThua = new System.Windows.Forms.NumericUpDown();
             this.tbTem1 = new System.Windows.Forms.TextBox();
+            this.isEdit = new System.Windows.Forms.NumericUpDown();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dtgTTNVL)).BeginInit();
             this.panel1.SuspendLayout();
             this.tbTimKiem.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nbrTemp2)).BeginInit();
-            this.tbKLDongThua.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.nmrKlDongThua)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.isEdit)).BeginInit();
             this.SuspendLayout();
             // 
             // groupBox1
@@ -117,8 +114,8 @@
             this.tbTimKiem.Controls.Add(this.label3, 0, 1);
             this.tbTimKiem.Controls.Add(this.cbxTimKiem, 1, 0);
             this.tbTimKiem.Controls.Add(this.label1, 0, 0);
-            this.tbTimKiem.Controls.Add(this.tbKLDongThua, 2, 0);
             this.tbTimKiem.Controls.Add(this.tbTem1, 1, 1);
+            this.tbTimKiem.Controls.Add(this.isEdit, 2, 0);
             this.tbTimKiem.Dock = System.Windows.Forms.DockStyle.Top;
             this.tbTimKiem.Location = new System.Drawing.Point(10, 25);
             this.tbTimKiem.Name = "tbTimKiem";
@@ -210,56 +207,6 @@
             this.label1.Text = "Tìm kiếm";
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
-            // tbKLDongThua
-            // 
-            this.tbKLDongThua.AutoSize = true;
-            this.tbKLDongThua.ColumnCount = 2;
-            this.tbKLDongThua.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 110F));
-            this.tbKLDongThua.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tbKLDongThua.Controls.Add(this.label2, 0, 0);
-            this.tbKLDongThua.Controls.Add(this.nmrKlDongThua, 1, 0);
-            this.tbKLDongThua.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tbKLDongThua.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.tbKLDongThua.Location = new System.Drawing.Point(525, 3);
-            this.tbKLDongThua.Name = "tbKLDongThua";
-            this.tbKLDongThua.RowCount = 1;
-            this.tbKLDongThua.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tbKLDongThua.Size = new System.Drawing.Size(228, 32);
-            this.tbKLDongThua.TabIndex = 2;
-            this.tbKLDongThua.Visible = false;
-            // 
-            // label2
-            // 
-            this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(3, 7);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(104, 18);
-            this.label2.TabIndex = 0;
-            this.label2.Text = "KL Đồng thừa";
-            this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // nmrKlDongThua
-            // 
-            this.nmrKlDongThua.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.nmrKlDongThua.DecimalPlaces = 1;
-            this.nmrKlDongThua.Enabled = false;
-            this.nmrKlDongThua.Location = new System.Drawing.Point(113, 3);
-            this.nmrKlDongThua.Maximum = new decimal(new int[] {
-            -1981284353,
-            -1966660860,
-            0,
-            0});
-            this.nmrKlDongThua.Minimum = new decimal(new int[] {
-            -1981284353,
-            -1966660860,
-            0,
-            -2147483648});
-            this.nmrKlDongThua.Name = "nmrKlDongThua";
-            this.nmrKlDongThua.Size = new System.Drawing.Size(112, 26);
-            this.nmrKlDongThua.TabIndex = 1;
-            this.nmrKlDongThua.Leave += new System.EventHandler(this.nmrKlDongThua_Leave);
-            // 
             // tbTem1
             // 
             this.tbTem1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
@@ -269,6 +216,14 @@
             this.tbTem1.Name = "tbTem1";
             this.tbTem1.Size = new System.Drawing.Size(441, 26);
             this.tbTem1.TabIndex = 4;
+            // 
+            // isEdit
+            // 
+            this.isEdit.Location = new System.Drawing.Point(525, 3);
+            this.isEdit.Name = "isEdit";
+            this.isEdit.Size = new System.Drawing.Size(120, 22);
+            this.isEdit.TabIndex = 6;
+            this.isEdit.Visible = false;
             // 
             // UC_TTNVL
             // 
@@ -288,9 +243,7 @@
             this.tableLayoutPanel2.ResumeLayout(false);
             this.tableLayoutPanel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nbrTemp2)).EndInit();
-            this.tbKLDongThua.ResumeLayout(false);
-            this.tbKLDongThua.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.nmrKlDongThua)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.isEdit)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -304,13 +257,11 @@
         private System.Windows.Forms.TableLayoutPanel tbTimKiem;
         private System.Windows.Forms.Label lblTieuDe;
         private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.TableLayoutPanel tbKLDongThua;
-        private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.NumericUpDown nmrKlDongThua;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.NumericUpDown nbrTemp2;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.TextBox tbTem1;
+        private System.Windows.Forms.NumericUpDown isEdit;
     }
 }

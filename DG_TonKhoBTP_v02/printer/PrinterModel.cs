@@ -11,6 +11,7 @@ namespace DG_TonKhoBTP_v02.Models
         public string? id { get; set; }
         public string NgaySX { get; set; }
         public string CaSX { get; set; }
+        public string? Mau {  get; set; }
         public string? KhoiLuong { get; set; }
         public string? ChieuDai { get; set; }
         public string TenSP { get; set; }
@@ -28,6 +29,7 @@ namespace DG_TonKhoBTP_v02.Models
             id = other.id;
             NgaySX = other.NgaySX;
             CaSX = other.CaSX;
+            Mau = other.Mau;
             KhoiLuong = other.KhoiLuong;
             ChieuDai = other.ChieuDai;
             TenSP = other.TenSP;

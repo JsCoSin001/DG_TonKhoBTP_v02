@@ -21,7 +21,7 @@ namespace DG_TonKhoBTP_v02.Helper
             "cgl.BuocXoan, cgl.ChieuXoan as GhepLoi_ChieuXoan, cgl.GoiCachMep, cgl.DKBTP",
 
             // 3: Bọc mạch
-            "cbm.NgoaiQuan AS BocMach_NgoaiQuan, cbm.LanDanhThung, cbm.SoMet",
+            "cbm.NgoaiQuan AS BocMach_NgoaiQuan, cbm.LanDanhThung, cbm.SoMet, cbm.Mau",
 
             // 4: Bóc lót
             "cbl.DoDayTBLot",

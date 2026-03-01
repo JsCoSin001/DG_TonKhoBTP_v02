@@ -40,46 +40,19 @@ namespace DG_TonKhoBTP_v02.UI
         bool isShow = false;
         int tongCotCanHide = 10;
 
+        CongDoan _CD;
+
         public bool RawMaterial { get; set; } = false;
         public void SetStatusRawMaterial(bool value) => RawMaterial = value;
 
-        //void HideRow(TableLayoutPanel tlp, int row)
-        //{
-        //    if (row < 0 || row >= tlp.RowCount) return;
-
-        //    // ẩn tất cả control trong row
-        //    for (int col = 0; col < tlp.ColumnCount; col++)
-        //    {
-        //        var ctl = tlp.GetControlFromPosition(col, row);
-        //        if (ctl != null) ctl.Visible = false;
-        //    }
-
-        //    tlp.RowStyles[row].SizeType = SizeType.Absolute;
-        //    tlp.RowStyles[row].Height = 0;
-        //}
-
-        void ShowRow(TableLayoutPanel tlp, int row, float height)
-        {
-            if (row < 0 || row >= tlp.RowCount) return;
-
-            // hiện tất cả control trong row
-            for (int col = 0; col < tlp.ColumnCount; col++)
-            {
-                var ctl = tlp.GetControlFromPosition(col, row);
-                if (ctl != null) ctl.Visible = true;
-            }
-
-            tlp.RowStyles[row].SizeType = SizeType.Absolute; // hoặc AutoSize/Percent tùy layout của bạn
-            tlp.RowStyles[row].Height = height;
-        }
-
-        public UC_TTNVL(List<ColumnDefinition> columns)
+        public UC_TTNVL(List<ColumnDefinition> columns, CongDoan cd)
         {
             InitializeComponent();
 
             setVisibleTableNVL(true);
 
             _columns = columns;
+            _CD = cd;
 
             // BẢO HIỂM: mỗi lần bind xong sẽ ép thứ tự theo _columns và Delete cuối
             dtgTTNVL.DataBindingComplete += (s, e) =>
@@ -214,20 +187,6 @@ namespace DG_TonKhoBTP_v02.UI
             ClearGridKeepHeader();
 
             string may = soLot?.Split('-')[0] ?? "";
-
-
-            //if (!EnumStore.dsTenMayBoQuaKiemTraKhoiLuongConLai.Contains(may))
-            //{
-            //    // hide row 1 và row 2
-            //    HideRow(tbTimKiem, 1);
-            //    HideRow(tbTimKiem, 2);
-            //}
-            //else
-            //{
-            //    // show lại row 1 và row 2
-            //    ShowRow(tbTimKiem, 1, 40);
-            //    ShowRow(tbTimKiem, 2, 40);
-            //}
             
         }
 
@@ -356,17 +315,20 @@ namespace DG_TonKhoBTP_v02.UI
         }
 
         #region Hiển thị dữ liệu từ DataTable
-        public void LoadData(DataTable dt)
+        public void LoadData(DataTable dt, int kieuDL)
         {
+            isEdit.Value = 0;
             if (dt == null) return;
 
             setVisibleTableNVL(true);
 
             if (!dtgTTNVL.IsHandleCreated)
             {
-                dtgTTNVL.HandleCreated += (_, __) => LoadData(dt);
+                dtgTTNVL.HandleCreated += (_, __) => LoadData(dt, kieuDL);
                 return;
             }
+
+            isEdit.Value = kieuDL;
 
             dtgTTNVL.BeginInvoke(new Action(() =>
             {
@@ -453,10 +415,14 @@ namespace DG_TonKhoBTP_v02.UI
                 if (string.IsNullOrEmpty(keyword)) return;
                 if (!TenMayDaNhap()) return;
 
+                bool cdHanNoi = _CD.Id == 9 && isEdit.Value == 2 ? true : false;
+
+
+
                 string para = "ten";
                 string query = RawMaterial
                     ? CoreHelper.TaoSQL_LayDLNVL_TTThanhPham()
-                    : CoreHelper.TaoSQL_LayDLTTThanhPham();
+                    : CoreHelper.TaoSQL_LayDLTTThanhPham(cdHanNoi);
 
                 try
                 {
@@ -600,43 +566,6 @@ namespace DG_TonKhoBTP_v02.UI
 
 
 
-
-                        //int targetCol =
-                        //    newRow["DonVi"]?.ToString() == "M"
-                        //        ? baseCol
-                        //        : baseCol + 1;
-
-                        //bool special =
-                        //    EnumStore.dsTenMayBoQuaKiemTraKhoiLuongConLai
-                        //        .Contains(ReadTenMay());
-
-                        //if (special)
-                        //{
-                        //    object obj = newRow["KlBatDau"];
-                        //    decimal klBatDau =
-                        //        (obj == null || obj == DBNull.Value)
-                        //            ? 0m
-                        //            : Convert.ToDecimal(obj);
-
-                        //    decimal gtConLai_New =
-                        //        (klBatDau <= -1m) ? (klBatDau - 1m) : -1m;
-
-                        //    dtgTTNVL.Rows[addedIndex]
-                        //              .Cells["KlConLai"].Value = gtConLai_New;
-                        //}
-
-                        //bool autoFilling =
-                        //    EnumStore.dsTenMayTuDongTinhKLConLai
-                        //        .Contains(ReadTenMay());
-
-                        //if (autoFilling && klDongThua != null)
-                        //    PhanBoKLConLai(dtgTTNVL, klDongThua.Value, targetCol);
-
-                        //if (!autoFilling && !special)
-                        //    dtgTTNVL.Rows[addedIndex]
-                        //              .Cells[targetCol]
-                        //              .Style.BackColor = Color.Yellow;
-
                         // ===== tô tới cột dữ liệu cuối cùng =====
                         int lastDataIndex = -1;
                         string lastDataName =
@@ -696,25 +625,6 @@ namespace DG_TonKhoBTP_v02.UI
             dtgTTNVL.Rows.Clear();
         }
 
-        private bool CheckKhoiLuongBeforeTyping()
-        {
-            var v = ReadKhoiLuong();
-            if (v != 0m) return true;
-
-            if (!_warnedThisFocus)
-            {
-                _warnedThisFocus = true;
-                FrmWaiting.ShowGifAlert("Nhập khối lượng TP trước khi nhập nguyên liệu.");
-            }
-
-            BeginInvoke(new Action(() =>
-            {
-                cbxTimKiem.Text = "";
-                FocusKhoiLuong?.Invoke();
-            }));
-
-            return false;
-        }
 
         private bool TenMayDaNhap()
         {
@@ -723,8 +633,6 @@ namespace DG_TonKhoBTP_v02.UI
             return false;
         }
 
-        private decimal ReadKhoiLuong()
-            => GetKhoiLuong?.Invoke() ?? 0m;
 
         private string ReadTenMay()
             => GetTenMay?.Invoke() ?? "";
@@ -732,37 +640,6 @@ namespace DG_TonKhoBTP_v02.UI
         private void cbxTimKiem_Enter(object sender, EventArgs e)
         {
             _warnedThisFocus = false;
-        }
-
-        //public void SetKhoiLuongDongThua()
-        //{
-        //    using var f = new GetUserInputValue_Simple();
-        //    f.StartPosition = FormStartPosition.CenterScreen;
-        //    var result = f.ShowDialog(this);
-
-        //    if (result == DialogResult.OK)
-        //    {
-        //        klDongThua = f.TongDongThuaValue;
-        //        tbKLDongThua.Visible = true;
-        //        nmrKlDongThua.Value = klDongThua.Value;
-        //    }
-        //}
-
-        private static void PhanBoKLConLai(DataGridView dtgTTNVL, decimal klDongThua, int colIndex)
-        {
-            int rowCount = dtgTTNVL.Rows.Cast<DataGridViewRow>()
-                                        .Count(r => !r.IsNewRow);
-
-            if (rowCount <= 0) return;
-
-            decimal giaTriMoiDong = klDongThua / rowCount;
-
-            foreach (DataGridViewRow row in dtgTTNVL.Rows)
-            {
-                if (row.IsNewRow) continue;
-                row.Cells[colIndex].Value = giaTriMoiDong;
-                row.Cells[colIndex].ReadOnly = true;
-            }
         }
 
         private void nmrKlDongThua_Leave(object sender, EventArgs e)

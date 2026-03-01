@@ -32,7 +32,7 @@ namespace DG_TonKhoBTP_v02.UI
             };
         }
 
-        public void LoadData(DataTable dt)
+        public void LoadData(DataTable dt, int kieuEdit)
         {
             if (dt == null || dt.Rows.Count == 0) return;
             var row = dt.Rows[0];

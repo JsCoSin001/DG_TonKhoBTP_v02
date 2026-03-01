@@ -29,12 +29,14 @@
         private void InitializeComponent()
         {
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+            this.label4 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.soMet = new System.Windows.Forms.NumericUpDown();
             this.ngoaiQuan = new System.Windows.Forms.ComboBox();
             this.lanDanhThung = new System.Windows.Forms.NumericUpDown();
+            this.tbMau = new System.Windows.Forms.TextBox();
             this.tableLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.soMet)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.lanDanhThung)).BeginInit();
@@ -52,12 +54,14 @@
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 14.28F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 14.28F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 14.32F));
+            this.tableLayoutPanel1.Controls.Add(this.label4, 3, 0);
             this.tableLayoutPanel1.Controls.Add(this.label3, 2, 0);
             this.tableLayoutPanel1.Controls.Add(this.label2, 1, 0);
             this.tableLayoutPanel1.Controls.Add(this.label1, 0, 0);
             this.tableLayoutPanel1.Controls.Add(this.soMet, 2, 1);
             this.tableLayoutPanel1.Controls.Add(this.ngoaiQuan, 0, 1);
             this.tableLayoutPanel1.Controls.Add(this.lanDanhThung, 1, 1);
+            this.tableLayoutPanel1.Controls.Add(this.tbMau, 3, 1);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
@@ -67,6 +71,17 @@
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 35F));
             this.tableLayoutPanel1.Size = new System.Drawing.Size(798, 65);
             this.tableLayoutPanel1.TabIndex = 0;
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.label4.Location = new System.Drawing.Point(342, 0);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(107, 30);
+            this.label4.TabIndex = 21;
+            this.label4.Text = "Màu";
+            this.label4.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
             // 
             // label3
             // 
@@ -145,6 +160,14 @@
             this.lanDanhThung.Size = new System.Drawing.Size(107, 24);
             this.lanDanhThung.TabIndex = 18;
             // 
+            // tbMau
+            // 
+            this.tbMau.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tbMau.Location = new System.Drawing.Point(342, 33);
+            this.tbMau.Name = "tbMau";
+            this.tbMau.Size = new System.Drawing.Size(107, 24);
+            this.tbMau.TabIndex = 20;
+            // 
             // UC_CDBocMach
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -172,5 +195,7 @@
         private System.Windows.Forms.NumericUpDown soMet;
         private System.Windows.Forms.ComboBox ngoaiQuan;
         private System.Windows.Forms.NumericUpDown lanDanhThung;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.TextBox tbMau;
     }
 }

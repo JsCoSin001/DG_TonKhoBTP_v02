@@ -82,7 +82,7 @@ namespace DG_TonKhoBTP_v02.UI
 
 
         #region Hiển thị dữ liệu từ DataTable
-        public void LoadData(DataTable dt)
+        public void LoadData(DataTable dt, int kieuDL)
         {
             if (dt == null || dt.Rows.Count == 0) return;
             var row = dt.Rows[0];

@@ -1405,8 +1405,6 @@ namespace DG_TonKhoBTP_v02.Database
                 // 3.2) TTNVL -> Xoá nvl cũ và Tạo mới
                 Del_InsertTTNVL(conn, tx, tpId, nvl);
 
-                // 3.3) Dùng cho db v1
-                DatabasehelperVer01.UpdateTonKho_NVL_Lan2(nvl,tp.MaBin);
 
                 // 4) CaiDatCDBoc - Nếu có
                 if (caiDat != null) UpdateCaiDatCDBoc(conn, tx, tpId, caiDat);
@@ -1420,7 +1418,6 @@ namespace DG_TonKhoBTP_v02.Database
 
                     case CD_KeoRut keo:
                         UpdateCDKeoRut(conn, tx, tpId, keo);
-                        //updateVersion1(tpId, tp, caLam);
                         break;
 
                     case CD_GhepLoiQB qb:
@@ -2247,14 +2244,15 @@ namespace DG_TonKhoBTP_v02.Database
         private static void InsertCDBocMach(SQLiteConnection conn, SQLiteTransaction tx, long id, CD_BocMach m)
         {
             const string sql = @"
-            INSERT INTO CD_BocMach (CaiDatCDBoc_ID, NgoaiQuan, LanDanhThung, SoMet)
-            VALUES (@CaiDatCDBoc_ID, @NgoaiQuan, @LanDanhThung, @SoMet);";
+            INSERT INTO CD_BocMach (CaiDatCDBoc_ID, NgoaiQuan, LanDanhThung, SoMet, Mau)
+            VALUES (@CaiDatCDBoc_ID, @NgoaiQuan, @LanDanhThung, @SoMet, @Mau);";
 
             using var cmd = new SQLiteCommand(sql, conn, tx);
             cmd.Parameters.AddWithValue("@CaiDatCDBoc_ID", id);
             cmd.Parameters.AddWithValue("@NgoaiQuan", m.NgoaiQuan ?? "1"); // default theo schema
             cmd.Parameters.AddWithValue("@LanDanhThung", m.LanDanhThung);
             cmd.Parameters.AddWithValue("@SoMet", m.SoMet);
+            cmd.Parameters.AddWithValue("@Mau", m.Mau);
             cmd.ExecuteNonQuery();
         }
 

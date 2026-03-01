@@ -1956,9 +1956,6 @@ namespace DG_TonKhoBTP_v02.Database
                 // 3) TTNVL -> Tạo mới nguyên vật liệu
                 InsertTTNVL(conn, tx, tpId, nvl);
 
-                // 3.2) Tạo backup
-                //InsertBackup(conn, tx, nvl, tpId);
-
                 // 3.1) Update Khối lượng sau, Chiều dài sau và thêm ID được update ở TTThanhPham 
                 UpdateKL_CD_TTThanhPham(conn, tx, nvl, tpId);
                     

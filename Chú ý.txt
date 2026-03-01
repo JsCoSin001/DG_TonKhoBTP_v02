@@ -1,0 +1,3 @@
+- Xoá quan hệ trong table ttNVL
+- Bỏ NN cho QC
+- Hàn nối là true/false: true là hàn nối, mặc định là false

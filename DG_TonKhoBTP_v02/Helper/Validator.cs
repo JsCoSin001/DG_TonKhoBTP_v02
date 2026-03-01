@@ -118,7 +118,8 @@ namespace DG_TonKhoBTP_v02.Helper
             return 0;
         }
 
-        public static List<object> KiemTraChiTietCongDoan(FormSnapshot data)
+
+        public static List<object> KiemTraChiTietCongDoan(FormSnapshot data, int idCongDoan = 0)
         {
             var result = new List<object>();
             var chiTietCD = new object();
@@ -130,13 +131,11 @@ namespace DG_TonKhoBTP_v02.Helper
             {
                 // Kiểm tra input của kéo rút
 
-                 chiTietCD = (CD_KeoRut)keoRutObj;
+                chiTietCD = (CD_KeoRut)keoRutObj;
             }
 
             if (data.Sections.TryGetValue("CD_BenRuot", out var benRuotObj))
             {
-                // xử lý logic riêng cho BenRuot...
-
                 chiTietCD = (CD_BenRuot)benRuotObj;
             }
 

@@ -33,8 +33,8 @@
             this.cbInTem = new System.Windows.Forms.CheckBox();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
-            this.lblTrangThai = new System.Windows.Forms.Label();
             this.cbInTemNVL = new System.Windows.Forms.CheckBox();
+            this.lblTrangThai = new System.Windows.Forms.Label();
             this.tableLayoutPanel1.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
@@ -111,16 +111,6 @@
             this.flowLayoutPanel1.Size = new System.Drawing.Size(204, 46);
             this.flowLayoutPanel1.TabIndex = 3;
             // 
-            // lblTrangThai
-            // 
-            this.lblTrangThai.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.lblTrangThai.AutoSize = true;
-            this.lblTrangThai.Location = new System.Drawing.Point(3, 19);
-            this.lblTrangThai.Name = "lblTrangThai";
-            this.lblTrangThai.Size = new System.Drawing.Size(35, 13);
-            this.lblTrangThai.TabIndex = 4;
-            this.lblTrangThai.Text = "label1";
-            // 
             // cbInTemNVL
             // 
             this.cbInTemNVL.AutoSize = true;
@@ -130,6 +120,19 @@
             this.cbInTemNVL.TabIndex = 3;
             this.cbInTemNVL.Text = "checkBox1";
             this.cbInTemNVL.UseVisualStyleBackColor = true;
+            // 
+            // lblTrangThai
+            // 
+            this.lblTrangThai.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.lblTrangThai.AutoSize = true;
+            this.lblTrangThai.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblTrangThai.ForeColor = System.Drawing.Color.Firebrick;
+            this.lblTrangThai.Location = new System.Drawing.Point(3, 19);
+            this.lblTrangThai.Name = "lblTrangThai";
+            this.lblTrangThai.Size = new System.Drawing.Size(35, 13);
+            this.lblTrangThai.TabIndex = 4;
+            this.lblTrangThai.Text = "label1";
+            this.lblTrangThai.Visible = false;
             // 
             // UC_SubmitForm
             // 

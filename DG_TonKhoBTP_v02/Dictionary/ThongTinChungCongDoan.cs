@@ -168,6 +168,18 @@ namespace DG_TonKhoBTP_v02.Dictionary
             TenCongDoan = "quấn băng mica",
         };
 
+        public static readonly CongDoan HanNoi = new CongDoan(
+            9,
+            "Hàn Nối / Ghép bin",
+            EnumStore.MayTheoCongDoan["Ben_CU_AL"],
+            BaseColumns(
+                new ColumnDefinition { Name = "DuongKinhSoiDong", DataType = typeof(double), Header = "ĐK sợi đồng" }
+            ),
+            new List<string> { "BTP.20102%", "BTP.20202%" },
+            Select_TP_CoKhoiLuong()
+        );
+
+
         public static readonly List<CongDoan> TatCaCongDoan = new List<CongDoan>
         {
             KeoRut,

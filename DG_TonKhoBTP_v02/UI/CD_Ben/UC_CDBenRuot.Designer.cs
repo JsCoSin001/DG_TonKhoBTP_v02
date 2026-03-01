@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+            this.tableBenRuot = new System.Windows.Forms.TableLayoutPanel();
             this.label4 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
@@ -37,49 +37,52 @@
             this.ChieuXoan = new System.Windows.Forms.ComboBox();
             this.soSoi = new System.Windows.Forms.NumericUpDown();
             this.dkSoi = new System.Windows.Forms.NumericUpDown();
-            this.tableLayoutPanel1.SuspendLayout();
+            this.lblThongBao = new System.Windows.Forms.Label();
+            this.panel1 = new System.Windows.Forms.Panel();
+            this.tableBenRuot.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.buocBen)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.soSoi)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dkSoi)).BeginInit();
+            this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
-            // tableLayoutPanel1
+            // tableBenRuot
             // 
-            this.tableLayoutPanel1.AutoSize = true;
-            this.tableLayoutPanel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.tableLayoutPanel1.ColumnCount = 7;
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 14.28F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 14.28F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 14.28F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 14.28F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 14.28F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 14.28F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 14.32F));
-            this.tableLayoutPanel1.Controls.Add(this.label4, 3, 0);
-            this.tableLayoutPanel1.Controls.Add(this.label3, 2, 0);
-            this.tableLayoutPanel1.Controls.Add(this.label2, 1, 0);
-            this.tableLayoutPanel1.Controls.Add(this.label1, 0, 0);
-            this.tableLayoutPanel1.Controls.Add(this.buocBen, 3, 1);
-            this.tableLayoutPanel1.Controls.Add(this.ChieuXoan, 2, 1);
-            this.tableLayoutPanel1.Controls.Add(this.soSoi, 1, 1);
-            this.tableLayoutPanel1.Controls.Add(this.dkSoi, 0, 1);
-            this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanel1.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
-            this.tableLayoutPanel1.Name = "tableLayoutPanel1";
-            this.tableLayoutPanel1.RowCount = 2;
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 35F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(728, 65);
-            this.tableLayoutPanel1.TabIndex = 0;
+            this.tableBenRuot.AutoSize = true;
+            this.tableBenRuot.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.tableBenRuot.ColumnCount = 7;
+            this.tableBenRuot.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 14.28F));
+            this.tableBenRuot.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 14.28F));
+            this.tableBenRuot.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 14.28F));
+            this.tableBenRuot.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 14.28F));
+            this.tableBenRuot.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 14.28F));
+            this.tableBenRuot.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 14.28F));
+            this.tableBenRuot.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 14.32F));
+            this.tableBenRuot.Controls.Add(this.label4, 3, 0);
+            this.tableBenRuot.Controls.Add(this.label3, 2, 0);
+            this.tableBenRuot.Controls.Add(this.label2, 1, 0);
+            this.tableBenRuot.Controls.Add(this.label1, 0, 0);
+            this.tableBenRuot.Controls.Add(this.buocBen, 3, 1);
+            this.tableBenRuot.Controls.Add(this.ChieuXoan, 2, 1);
+            this.tableBenRuot.Controls.Add(this.soSoi, 1, 1);
+            this.tableBenRuot.Controls.Add(this.dkSoi, 0, 1);
+            this.tableBenRuot.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableBenRuot.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.tableBenRuot.Location = new System.Drawing.Point(0, 0);
+            this.tableBenRuot.Name = "tableBenRuot";
+            this.tableBenRuot.RowCount = 2;
+            this.tableBenRuot.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
+            this.tableBenRuot.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 35F));
+            this.tableBenRuot.Size = new System.Drawing.Size(707, 70);
+            this.tableBenRuot.TabIndex = 0;
             // 
             // label4
             // 
             this.label4.AutoSize = true;
             this.label4.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label4.Location = new System.Drawing.Point(312, 0);
+            this.label4.Location = new System.Drawing.Point(303, 0);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(97, 30);
+            this.label4.Size = new System.Drawing.Size(94, 30);
             this.label4.TabIndex = 18;
             this.label4.Text = "Bước bện";
             this.label4.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
@@ -88,9 +91,9 @@
             // 
             this.label3.AutoSize = true;
             this.label3.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label3.Location = new System.Drawing.Point(209, 0);
+            this.label3.Location = new System.Drawing.Point(203, 0);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(97, 30);
+            this.label3.Size = new System.Drawing.Size(94, 30);
             this.label3.TabIndex = 2;
             this.label3.Text = "Chiều xoắn";
             this.label3.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
@@ -99,9 +102,9 @@
             // 
             this.label2.AutoSize = true;
             this.label2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label2.Location = new System.Drawing.Point(106, 0);
+            this.label2.Location = new System.Drawing.Point(103, 0);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(97, 30);
+            this.label2.Size = new System.Drawing.Size(94, 30);
             this.label2.TabIndex = 1;
             this.label2.Text = "Số sợi TP";
             this.label2.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
@@ -112,7 +115,7 @@
             this.label1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.label1.Location = new System.Drawing.Point(3, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(97, 30);
+            this.label1.Size = new System.Drawing.Size(94, 30);
             this.label1.TabIndex = 0;
             this.label1.Text = "ĐK sợi TP";
             this.label1.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
@@ -121,14 +124,14 @@
             // 
             this.buocBen.DecimalPlaces = 1;
             this.buocBen.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.buocBen.Location = new System.Drawing.Point(312, 33);
+            this.buocBen.Location = new System.Drawing.Point(303, 33);
             this.buocBen.Maximum = new decimal(new int[] {
             1569325055,
             23283064,
             0,
             0});
             this.buocBen.Name = "buocBen";
-            this.buocBen.Size = new System.Drawing.Size(97, 24);
+            this.buocBen.Size = new System.Drawing.Size(94, 24);
             this.buocBen.TabIndex = 17;
             // 
             // ChieuXoan
@@ -139,22 +142,22 @@
             this.ChieuXoan.Items.AddRange(new object[] {
             "Z",
             "S"});
-            this.ChieuXoan.Location = new System.Drawing.Point(209, 33);
+            this.ChieuXoan.Location = new System.Drawing.Point(203, 33);
             this.ChieuXoan.Name = "ChieuXoan";
-            this.ChieuXoan.Size = new System.Drawing.Size(97, 26);
+            this.ChieuXoan.Size = new System.Drawing.Size(94, 26);
             this.ChieuXoan.TabIndex = 16;
             // 
             // soSoi
             // 
             this.soSoi.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.soSoi.Location = new System.Drawing.Point(106, 33);
+            this.soSoi.Location = new System.Drawing.Point(103, 33);
             this.soSoi.Maximum = new decimal(new int[] {
             1569325055,
             23283064,
             0,
             0});
             this.soSoi.Name = "soSoi";
-            this.soSoi.Size = new System.Drawing.Size(97, 24);
+            this.soSoi.Size = new System.Drawing.Size(94, 24);
             this.soSoi.TabIndex = 19;
             // 
             // dkSoi
@@ -168,8 +171,29 @@
             0,
             0});
             this.dkSoi.Name = "dkSoi";
-            this.dkSoi.Size = new System.Drawing.Size(97, 24);
+            this.dkSoi.Size = new System.Drawing.Size(94, 24);
             this.dkSoi.TabIndex = 20;
+            // 
+            // lblThongBao
+            // 
+            this.lblThongBao.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.lblThongBao.Font = new System.Drawing.Font("Microsoft Sans Serif", 12.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblThongBao.ForeColor = System.Drawing.Color.Tomato;
+            this.lblThongBao.Location = new System.Drawing.Point(0, 70);
+            this.lblThongBao.Name = "lblThongBao";
+            this.lblThongBao.Size = new System.Drawing.Size(707, 32);
+            this.lblThongBao.TabIndex = 1;
+            this.lblThongBao.Text = "Gộp/Hàn nối Không cần điền nội dung này";
+            // 
+            // panel1
+            // 
+            this.panel1.AutoSize = true;
+            this.panel1.Controls.Add(this.tableBenRuot);
+            this.panel1.Controls.Add(this.lblThongBao);
+            this.panel1.Location = new System.Drawing.Point(0, 0);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(707, 102);
+            this.panel1.TabIndex = 21;
             // 
             // UC_CDBenRuot
             // 
@@ -177,14 +201,16 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.Controls.Add(this.tableLayoutPanel1);
+            this.Controls.Add(this.panel1);
             this.Name = "UC_CDBenRuot";
-            this.Size = new System.Drawing.Size(728, 65);
-            this.tableLayoutPanel1.ResumeLayout(false);
-            this.tableLayoutPanel1.PerformLayout();
+            this.Size = new System.Drawing.Size(710, 105);
+            this.tableBenRuot.ResumeLayout(false);
+            this.tableBenRuot.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.buocBen)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.soSoi)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dkSoi)).EndInit();
+            this.panel1.ResumeLayout(false);
+            this.panel1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -192,7 +218,7 @@
 
         #endregion
 
-        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
+        private System.Windows.Forms.TableLayoutPanel tableBenRuot;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label1;
@@ -201,5 +227,7 @@
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.NumericUpDown soSoi;
         private System.Windows.Forms.NumericUpDown dkSoi;
+        private System.Windows.Forms.Label lblThongBao;
+        private System.Windows.Forms.Panel panel1;
     }
 }

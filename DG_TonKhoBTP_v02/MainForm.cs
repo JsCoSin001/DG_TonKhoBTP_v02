@@ -32,7 +32,7 @@ namespace DG_TonKhoBTP_v02
     public partial class MainForm : Form
     {
         private string _URL = Properties.Settings.Default.URL;
-        private string _ver = "2.3.2";
+        private string _ver = "2.3.3";
         private CongDoanUiService _ui;
         private void InitUiService()
         {
@@ -1334,11 +1334,15 @@ namespace DG_TonKhoBTP_v02
 
         private void btnGopBin_Click(object sender, EventArgs e)
         {
-            using (var f = new FrmHanNoi())
-            {
-                f.StartPosition = FormStartPosition.CenterScreen;
-                f.ShowDialog(this); // this là form cha
-            }
+
+            _ui.InitCongDoanUI(
+                clickedButton: (Button)sender,
+                thongTinCD: ThongTinChungCongDoan.HanNoi,
+                createSanPham: () => new UC_TTSanPham(new UC_CDBenRuot(false)),
+                rawMaterial: false,
+                errorMessagePrefix: "bện ruột",
+                afterShowUI: root => _ui.HookNvlThanhPham(root)
+            );
         }
     }
 }

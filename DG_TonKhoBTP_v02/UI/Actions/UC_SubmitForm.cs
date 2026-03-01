@@ -54,6 +54,7 @@ namespace DG_TonKhoBTP_v02.UI
 
         private void btnLuu_Click(object sender, EventArgs e)
         {
+            
             var swTotal = Stopwatch.StartNew();
             Debug.WriteLine("=== [BTN LƯU] BẮT ĐẦU ===");
 
@@ -185,11 +186,12 @@ namespace DG_TonKhoBTP_v02.UI
                 Debug.WriteLine($"Merge UC_TTSanPham: {swStep.ElapsedMilliseconds} ms (tổng: {swTotal.ElapsedMilliseconds} ms)");
 
                 #region Validate dữ liệu
+                int sttLoi = 0;
 
                 #region Validate Ca Làm Việc
                 swStep.Restart();
                 ThongTinCaLamViec thongTinCaLamViec = (ThongTinCaLamViec)snap.Sections["UC_TTCaLamViec"];
-                int sttLoi = Validator.TTCaLamViec(thongTinCaLamViec);
+                sttLoi = Validator.TTCaLamViec(thongTinCaLamViec);
                 Debug.WriteLine($"Validator.TTCaLamViec: {swStep.ElapsedMilliseconds} ms (tổng: {swTotal.ElapsedMilliseconds} ms)");
 
                 if (sttLoi > 0)
@@ -219,8 +221,21 @@ namespace DG_TonKhoBTP_v02.UI
                 #endregion
 
                 #region Validate TP công đoạn
+
                 swStep.Restart();
                 TTThanhPham thongTinThanhPham = (TTThanhPham)snap.Sections["UC_TTThanhPham"];
+
+                // Đặt thông tin cho công đoạn hàn nối
+                if (_Cd.Id == 9)
+                {
+                    thongTinThanhPham.HanNoi = 1;
+                    foreach (TTNVL item in list_TTNVL)
+                    {
+                        item.CdConLai = 0;
+                        item.KlConLai = 0;
+                    }
+                }
+
                 sttLoi = Validator.TTThanhPham(thongTinThanhPham);
                 Debug.WriteLine($"Validator.TTThanhPham: {swStep.ElapsedMilliseconds} ms (tổng: {swTotal.ElapsedMilliseconds} ms)");
 
@@ -233,61 +248,6 @@ namespace DG_TonKhoBTP_v02.UI
                     return;
                 }
 
-                // Cập nhật hàn nối
-                int cd = thongTinThanhPham.CongDoan.Id;
-                //bool isHanNoi = true;
-
-                //foreach (TTNVL nvl in list_TTNVL)
-                //{
-                //    if (cd != nvl.CongDoan)
-                //    {
-                //        isHanNoi = false;
-                //        break;
-                //    }
-                //}
-
-                //if (isHanNoi && thongTinThanhPham.CongDoan.Id != 0)
-                //{
-                //    try
-                //    {
-                //        // ✅ UI: Tắt/ẩn waiting trước khi mở dialog
-                //        waiting.Hide();
-                //        Application.DoEvents();
-
-                //        using (var f = new GetUserInputValue_Simple())
-                //        {
-                //            f.StartPosition = FormStartPosition.CenterParent;
-                //            var result = f.ShowDialog(this);
-
-                //            if (result == DialogResult.OK)
-                //                thongTinThanhPham.HanNoi = (double)f.TongDongThuaValue;
-
-                //            if (result == DialogResult.Cancel)
-                //            {
-                //                // ✅ UI: Cancel thì phải dọn waiting + enable nút rồi thoát
-                //                Debug.WriteLine("User Cancel hàn nối -> thoát");
-                //                ExitEarly();
-                //                return;
-                //            }
-                //        }
-
-                //        // ✅ UI: Sau khi dialog đóng -> hiện waiting lại
-                //        waiting.Show();
-                //        waiting.ShowAndRefresh();
-
-                //        foreach (TTNVL nvl in list_TTNVL)
-                //        {
-                //            nvl.KlConLai = 0;
-                //            nvl.CdConLai = 0;
-                //        }
-                //    }
-                //    catch (Exception exHN)
-                //    {
-                //        Debug.WriteLine($"Lỗi hàn nối: {exHN.Message}");
-                //        // giữ logic "catch {}" như bạn, nhưng vẫn đảm bảo waiting đang hiển thị
-                //        try { waiting.Show(); waiting.ShowAndRefresh(); } catch { }
-                //    }
-                //}
                 #endregion
 
                 #region Validate chi tiết công đoạn
@@ -303,7 +263,7 @@ namespace DG_TonKhoBTP_v02.UI
                     Debug.WriteLine($"Chi tiết công đoạn chưa hợp lệ, thoát: {swTotal.ElapsedMilliseconds} ms");
                     return;
                 }
-                
+
 
                 #endregion
 

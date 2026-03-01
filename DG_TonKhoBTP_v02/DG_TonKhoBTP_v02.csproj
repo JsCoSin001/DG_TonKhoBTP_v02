@@ -188,11 +188,17 @@
       <DependentUpon>UC_HaLo.cs</DependentUpon>
     </Compile>
     <Compile Include="UI\NghiepVuKhac\SanXuat\ICustomUserControl.cs" />
-    <Compile Include="UI\NghiepVuKhac\SanXuat\UC_HanNoi.cs">
+    <Compile Include="UI\NghiepVuKhac\SanXuat\UC_HanNoi - Copy.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="UI\NghiepVuKhac\SanXuat\UC_HanNoi.Designer.cs">
-      <DependentUpon>UC_HanNoi.cs</DependentUpon>
+    <Compile Include="UI\NghiepVuKhac\SanXuat\UC_HanNoi - Copy.Designer.cs">
+      <DependentUpon>UC_HanNoi - Copy.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\NghiepVuKhac\SanXuat\FrmHanNoi.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\NghiepVuKhac\SanXuat\FrmHanNoi.Designer.cs">
+      <DependentUpon>FrmHanNoi.cs</DependentUpon>
     </Compile>
     <Compile Include="UI\NghiepVuKhac\SanXuat\UC_TachBin.cs">
       <SubType>UserControl</SubType>
@@ -410,8 +416,11 @@
     <EmbeddedResource Include="UI\NghiepVuKhac\SanXuat\UC_HaLo.resx">
       <DependentUpon>UC_HaLo.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="UI\NghiepVuKhac\SanXuat\UC_HanNoi.resx">
-      <DependentUpon>UC_HanNoi.cs</DependentUpon>
+    <EmbeddedResource Include="UI\NghiepVuKhac\SanXuat\UC_HanNoi - Copy.resx">
+      <DependentUpon>UC_HanNoi - Copy.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\NghiepVuKhac\SanXuat\FrmHanNoi.resx">
+      <DependentUpon>FrmHanNoi.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UI\NghiepVuKhac\SanXuat\UC_TachBin.resx">
       <DependentUpon>UC_TachBin.cs</DependentUpon>

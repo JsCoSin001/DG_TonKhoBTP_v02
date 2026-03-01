@@ -235,59 +235,59 @@ namespace DG_TonKhoBTP_v02.UI
 
                 // Cập nhật hàn nối
                 int cd = thongTinThanhPham.CongDoan.Id;
-                bool isHanNoi = true;
+                //bool isHanNoi = true;
 
-                foreach (TTNVL nvl in list_TTNVL)
-                {
-                    if (cd != nvl.CongDoan)
-                    {
-                        isHanNoi = false;
-                        break;
-                    }
-                }
+                //foreach (TTNVL nvl in list_TTNVL)
+                //{
+                //    if (cd != nvl.CongDoan)
+                //    {
+                //        isHanNoi = false;
+                //        break;
+                //    }
+                //}
 
-                if (isHanNoi && thongTinThanhPham.CongDoan.Id != 0)
-                {
-                    try
-                    {
-                        // ✅ UI: Tắt/ẩn waiting trước khi mở dialog
-                        waiting.Hide();
-                        Application.DoEvents();
+                //if (isHanNoi && thongTinThanhPham.CongDoan.Id != 0)
+                //{
+                //    try
+                //    {
+                //        // ✅ UI: Tắt/ẩn waiting trước khi mở dialog
+                //        waiting.Hide();
+                //        Application.DoEvents();
 
-                        using (var f = new GetUserInputValue_Simple())
-                        {
-                            f.StartPosition = FormStartPosition.CenterParent;
-                            var result = f.ShowDialog(this);
+                //        using (var f = new GetUserInputValue_Simple())
+                //        {
+                //            f.StartPosition = FormStartPosition.CenterParent;
+                //            var result = f.ShowDialog(this);
 
-                            if (result == DialogResult.OK)
-                                thongTinThanhPham.HanNoi = (double)f.TongDongThuaValue;
+                //            if (result == DialogResult.OK)
+                //                thongTinThanhPham.HanNoi = (double)f.TongDongThuaValue;
 
-                            if (result == DialogResult.Cancel)
-                            {
-                                // ✅ UI: Cancel thì phải dọn waiting + enable nút rồi thoát
-                                Debug.WriteLine("User Cancel hàn nối -> thoát");
-                                ExitEarly();
-                                return;
-                            }
-                        }
+                //            if (result == DialogResult.Cancel)
+                //            {
+                //                // ✅ UI: Cancel thì phải dọn waiting + enable nút rồi thoát
+                //                Debug.WriteLine("User Cancel hàn nối -> thoát");
+                //                ExitEarly();
+                //                return;
+                //            }
+                //        }
 
-                        // ✅ UI: Sau khi dialog đóng -> hiện waiting lại
-                        waiting.Show();
-                        waiting.ShowAndRefresh();
+                //        // ✅ UI: Sau khi dialog đóng -> hiện waiting lại
+                //        waiting.Show();
+                //        waiting.ShowAndRefresh();
 
-                        foreach (TTNVL nvl in list_TTNVL)
-                        {
-                            nvl.KlConLai = 0;
-                            nvl.CdConLai = 0;
-                        }
-                    }
-                    catch (Exception exHN)
-                    {
-                        Debug.WriteLine($"Lỗi hàn nối: {exHN.Message}");
-                        // giữ logic "catch {}" như bạn, nhưng vẫn đảm bảo waiting đang hiển thị
-                        try { waiting.Show(); waiting.ShowAndRefresh(); } catch { }
-                    }
-                }
+                //        foreach (TTNVL nvl in list_TTNVL)
+                //        {
+                //            nvl.KlConLai = 0;
+                //            nvl.CdConLai = 0;
+                //        }
+                //    }
+                //    catch (Exception exHN)
+                //    {
+                //        Debug.WriteLine($"Lỗi hàn nối: {exHN.Message}");
+                //        // giữ logic "catch {}" như bạn, nhưng vẫn đảm bảo waiting đang hiển thị
+                //        try { waiting.Show(); waiting.ShowAndRefresh(); } catch { }
+                //    }
+                //}
                 #endregion
 
                 #region Validate chi tiết công đoạn

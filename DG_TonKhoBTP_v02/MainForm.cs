@@ -1331,5 +1331,14 @@ namespace DG_TonKhoBTP_v02
                 f.ShowDialog(this); // this là form cha
             }
         }
+
+        private void btnGopBin_Click(object sender, EventArgs e)
+        {
+            using (var f = new FrmHanNoi())
+            {
+                f.StartPosition = FormStartPosition.CenterScreen;
+                f.ShowDialog(this); // this là form cha
+            }
+        }
     }
 }

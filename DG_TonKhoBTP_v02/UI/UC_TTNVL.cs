@@ -447,7 +447,7 @@ namespace DG_TonKhoBTP_v02.UI
 
             cbxTimKiem.Text = "";   // luôn clear sau khi scan
 
-            if (CoreHelper.CatMaBin(keyword).Length == 5)
+            if (CoreHelper.CatMaBin(keyword).Length == 5 || CoreHelper.CatMaBin(keyword).Length == 4)
             {
 
                 if (string.IsNullOrEmpty(keyword)) return;

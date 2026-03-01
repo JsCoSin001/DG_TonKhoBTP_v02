@@ -129,7 +129,7 @@ namespace DG_TonKhoBTP_v02.Helper
             FROM TTThanhPham AS t
             JOIN DanhSachMaSP AS d
                 ON d.id = t.DanhSachSP_ID
-            JOIN ThongTinCaLamViec AS v
+            LEFT JOIN ThongTinCaLamViec AS v
                 ON t.id = v.TTThanhPham_id
             WHERE
                 (

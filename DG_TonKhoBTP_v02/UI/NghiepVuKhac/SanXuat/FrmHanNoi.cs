@@ -3,22 +3,24 @@ using DG_TonKhoBTP_v02.DL_Ben;
 using DG_TonKhoBTP_v02.Models;
 using DocumentFormat.OpenXml;
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Windows.Forms;
+using System.Windows.Input;
 using CoreHelper = DG_TonKhoBTP_v02.Helper.Helper;
 
 
 
 namespace DG_TonKhoBTP_v02.UI.Actions
 {
-    public partial class UC_HanNoi : UserControl, ICustomUserControl
+    public partial class FrmHanNoi : Form
     {
         public event Action<DataTable> OnDataReady;
         public CongDoan CongDoan { get; private set; }
         private string _callTimer;
 
-        public UC_HanNoi()
+        public FrmHanNoi()
         {
             InitializeComponent();
             timer1.Interval = 300;
@@ -42,13 +44,18 @@ namespace DG_TonKhoBTP_v02.UI.Actions
             dgDsLot.Columns["ID"].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
             dgDsLot.Columns["lot"].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
 
+            dgDsLot.Columns["kl"].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+            dgDsLot.Columns["kl"].Width = 150; // chỉnh số theo ý bạn
+
+
             // ===== Thêm cột nút Xóa =====
             DataGridViewButtonColumn btnDelete = new DataGridViewButtonColumn();
             btnDelete.Name = "btnDelete";
             btnDelete.HeaderText = "Xóa";
             btnDelete.Text = "X";
             btnDelete.UseColumnTextForButtonValue = true;
-            btnDelete.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+            btnDelete.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+            btnDelete.Width = 60; // chỉnh kích thước mong muốn
 
             dgDsLot.Columns.Add(btnDelete);
             dgDsLot.AllowUserToAddRows = false;
@@ -73,7 +80,7 @@ namespace DG_TonKhoBTP_v02.UI.Actions
                     LoadAutoCompleteTenSP(cbTenSP.Text);
                     break;
                  case "cbLot":
-                        LoadAutoCompleteLot(cbLot.Text);
+                        //LoadAutoCompleteLot(cbLot.Text);
                         break;
                 default:
                     Console.WriteLine("Lỗi tại function Timer1_tick");
@@ -137,23 +144,18 @@ namespace DG_TonKhoBTP_v02.UI.Actions
             //ResetController_TimTenSP();
             if (cbTenSP.SelectedItem == null || !(cbTenSP.SelectedItem is DataRowView)) return;
             DataRowView row = (DataRowView)cbTenSP.SelectedItem;
-            //string tenSP = row["ten"].ToString();
             //string maSP = row["ma"].ToString();
             string id = row["ID"].ToString();
             cbTenSP.Text = "";
+            tbTen.Text = row["ten"].ToString();
             cbTenSP.SelectedIndex = -1;
             nmIDTenSP.Value = Convert.ToInt32(id);
+            nbChieuDai.Focus();
+            nbChieuDai.Select(0, nbChieuDai.Text.Length);
         }
 
-        private void LoadAutoCompleteLot(string keyword)
+        private void TimDL(string keyword)
         {
-
-            if (string.IsNullOrWhiteSpace(keyword))
-            {
-                cbLot.DroppedDown = false;
-                return;
-            }
-
             string para = "MaBin";
             string query = @"
             SELECT
@@ -167,67 +169,38 @@ namespace DG_TonKhoBTP_v02.UI.Actions
                 DanhSachMaSP ON TTThanhPham.DanhSachSP_ID = DanhSachMaSP.ID
             WHERE
                 TTThanhPham.KhoiLuongSau <> 0
-                AND TTThanhPham.MaBin LIKE '%' || @" + para + " || '%'";
-
+                AND TTThanhPham.MaBin = @MaBin";
 
             DataTable tonKho = DatabaseHelper.GetData(query, keyword, para);
 
-            cbLot.DroppedDown = false;
+            // 1) Tạo bộ nhớ để kiểm tra trùng lot (keyword)
+            var existedLots = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-            cbLot.SelectionChangeCommitted -= cbLot_SelectionChangeCommitted; // tránh trùng event
-            // check data return
-            if (tonKho.Rows.Count != 0)
+            // 2) Lấy các lot đã có sẵn trên DataGridView (để tránh add trùng)
+            foreach (DataGridViewRow r in dgDsLot.Rows)
             {
-                cbLot.DataSource = tonKho;
-                cbLot.DisplayMember = "Lot";
-
-                string currentText = keyword;
-
-                cbLot.DroppedDown = true;
-                cbLot.Text = currentText;
-                cbLot.SelectionStart = cbLot.Text.Length;
-                cbLot.SelectionLength = 0;
-
-                cbLot.SelectionChangeCommitted += cbLot_SelectionChangeCommitted;
+                if (r.IsNewRow) continue;
+                var lotVal = r.Cells["lot"].Value?.ToString();   // "lot" là Name cột của bạn
+                if (!string.IsNullOrWhiteSpace(lotVal))
+                    existedLots.Add(lotVal.Trim());
             }
 
-        }
-
-        private void cbLot_SelectionChangeCommitted(object sender, EventArgs e)
-        {
-            //ResetController_TimLOT(); 
-            decimal kl = 0;
-
-            if (cbLot.SelectedItem == null || !(cbLot.SelectedItem is DataRowView)) return;
-            //cbTenSP.Enabled = false;
-
-            DataRowView row = (DataRowView)cbLot.SelectedItem;
-            string lotValue = row["Lot"].ToString();
-
-            kl = Convert.ToDecimal(row["kl"]);
-            string selectedLot = row["Lot"].ToString();
-            string id = row["ID"].ToString();
-            string tenSP = row["ten"].ToString();
-
-            cbLot.Text = "";
-            cbLot.SelectedIndex = -1;
-
-            nmKl.Value = kl;
-            lblTenSP.Text = tenSP;
-
-            DataRowView dong = (DataRowView)row;
-
-            bool isDuplicate = dgDsLot.Rows.Cast<DataGridViewRow>()
-                .Any(r => r.Cells["ID"].Value?.ToString() == id);
-
-            if (!isDuplicate)
+            // 3) Đổ thêm dữ liệu mới, chỉ add nếu lot chưa tồn tại
+            foreach (DataRow dr in tonKho.Rows)
             {
-                object[] values = row.Row.ItemArray;
-                dgDsLot.Rows.Add(values);
-            }
-            else
-            {
-                MessageBox.Show("Lô này đã được thêm vào danh sách.");
+                string lot = dr["lot"]?.ToString()?.Trim();
+                if (string.IsNullOrWhiteSpace(lot)) continue;
+
+                if (existedLots.Add(lot)) // Add thành công => chưa trùng
+                {
+                    int idx = dgDsLot.Rows.Add();
+
+                    // Lưu ý: "ID", "lot", "kl", "ten" là Name cột trên dgDsLot
+                    dgDsLot.Rows[idx].Cells["ID"].Value = dr["ID"];
+                    dgDsLot.Rows[idx].Cells["lot"].Value = dr["lot"];
+                    dgDsLot.Rows[idx].Cells["kl"].Value = dr["kl"];
+                    dgDsLot.Rows[idx].Cells["ten"].Value = dr["ten"];
+                }
             }
         }
 
@@ -310,35 +283,9 @@ namespace DG_TonKhoBTP_v02.UI.Actions
                 return;
             }
 
+            Console.WriteLine("");
 
 
-
-
-            #region Áp dụng cho version 1
-
-            TonKho tonKhoNew = new TonKho
-            {
-                MaSP_ID = Convert.ToInt32(nmIDTenSP.Value),
-                Lot = lblLot.Text,
-                KhoiLuongConLai = nmKLSP.Value,
-                KhoiLuongDauVao = nmKLSP.Value,
-                HanNoi = 0,
-                ChieuDai = nbChieuDai.Value,
-            };
-
-            DL_CD_Ben dL_CD_Ben = new DL_CD_Ben
-            {
-                Ngay = CoreHelper.GetNgayHienTai(),
-                Ca = CoreHelper.GetShiftValue(),
-                NguoiLam = tbNguoiLam.Text,
-                SoMay = "Hàn nối",
-                GhiChu = "Hàn nối",
-                KLHanNoi = tongKL,
-            };
-
-            bool isUpdateSuccess = DatabasehelperVer01.InsertVaUpdateTonKho_GopLot(tonKhoNew, dL_CD_Ben, ids);
-
-            #endregion
         }
 
         private void ResetAllController()
@@ -355,10 +302,8 @@ namespace DG_TonKhoBTP_v02.UI.Actions
             cbTenSP.Text = "";
             nmKLSP.Value = 0;
             dgDsLot.Rows.Clear();
-            lblTenSP.Text = "";
-            nmKl.Value = 0;
             lblLot.Text = "";
-            cbLot.Text = "";
+            tbLotGop.Text = "";
         }
 
         private void btnCancel_Click(object sender, EventArgs e)
@@ -368,57 +313,73 @@ namespace DG_TonKhoBTP_v02.UI.Actions
 
         private async void btnDsGopBin_Click(object sender, EventArgs e)
         {
-            string query = @"
-            SELECT
-                parent.ID                   AS ID_HienTai,
-                parent.Lot                  AS Lot_HienTai,
-                parent.KhoiLuongDauVao      AS KL_HienTai,
-                spp.Ten                     AS TenSP_HienTai,   
-                child.ID                    AS ID_HanNoi,
-                child.Lot 					AS Lot_HanNoi, 
-                sp.Ten                      AS Ten_HanNoi,   
-                child.ChieuDai
-            FROM TonKho AS child
-            JOIN TonKho AS parent
-                ON parent.ID = child.HanNoi
-            LEFT JOIN DanhSachMaSP AS sp
-                ON sp.ID = child.MaSP_ID
-            LEFT JOIN DanhSachMaSP AS spp      
-                ON spp.ID = parent.MaSP_ID
-            LEFT JOIN (
-                SELECT TonKho_ID, MAX(Ngay) AS Ngay
-                FROM DL_CD_Boc
-                GROUP BY TonKho_ID
-            ) AS boc
-                ON boc.TonKho_ID = child.ID
-            WHERE child.HanNoi <> 0
-            ORDER BY parent.ID  DESC, child.ID;
-            ";
+            //string query = @"
+            //SELECT
+            //    parent.ID                   AS ID_HienTai,
+            //    parent.Lot                  AS Lot_HienTai,
+            //    parent.KhoiLuongDauVao      AS KL_HienTai,
+            //    spp.Ten                     AS TenSP_HienTai,   
+            //    child.ID                    AS ID_HanNoi,
+            //    child.Lot 					AS Lot_HanNoi, 
+            //    sp.Ten                      AS Ten_HanNoi,   
+            //    child.ChieuDai
+            //FROM TonKho AS child
+            //JOIN TonKho AS parent
+            //    ON parent.ID = child.HanNoi
+            //LEFT JOIN DanhSachMaSP AS sp
+            //    ON sp.ID = child.MaSP_ID
+            //LEFT JOIN DanhSachMaSP AS spp      
+            //    ON spp.ID = parent.MaSP_ID
+            //LEFT JOIN (
+            //    SELECT TonKho_ID, MAX(Ngay) AS Ngay
+            //    FROM DL_CD_Boc
+            //    GROUP BY TonKho_ID
+            //) AS boc
+            //    ON boc.TonKho_ID = child.ID
+            //WHERE child.HanNoi <> 0
+            //ORDER BY parent.ID  DESC, child.ID;
+            //";
 
-            DataTable table = DatabasehelperVer01.GetDataFromSQL(query);
+            //DataTable table = DatabasehelperVer01.GetDataFromSQL(query);
 
-            if (table.Rows.Count < 1)
-            {
-                MessageBox.Show("Không có dữ liệu", "THÔNG BÁO", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
+            //if (table.Rows.Count < 1)
+            //{
+            //    MessageBox.Show("Không có dữ liệu", "THÔNG BÁO", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            //    return;
+            //}
 
-            if (!cbXuatExcel.Checked)
-            {
-                OnDataReady?.Invoke(table);
-                return;
-            }
+            //if (!cbXuatExcel.Checked)
+            //{
+            //    OnDataReady?.Invoke(table);
+            //    return;
+            //}
 
 
-            cbXuatExcel.Checked = false;
+            //cbXuatExcel.Checked = false;
             
-            cbXuatExcel.Checked = true;
+            //cbXuatExcel.Checked = true;
 
 
-            string defaultFileName = "DanhSachGopBin";
+            //string defaultFileName = "DanhSachGopBin";
             //await ExcelHelper.ExportWithLoading(table, defaultFileName);
 
         }
-               
+
+
+        private void tbLotGop_KeyDown(object sender, System.Windows.Forms.KeyEventArgs e)
+        {
+            if (e.KeyCode != Keys.Enter) return;
+
+            string lot = tbLotGop.Text.Trim();
+
+            if (lot == "")
+            {
+                FrmWaiting.ShowGifAlert("LOT hàn nối chưa được nhập");
+                return;
+            }
+            tbLotGop.Text = "";
+
+            TimDL(lot);
+        }
     }
 }

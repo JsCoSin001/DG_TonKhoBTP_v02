@@ -1,6 +1,6 @@
 ﻿namespace DG_TonKhoBTP_v02.UI.Actions
 {
-    partial class UC_HanNoi
+    partial class UC_HanNoi_copy    
     {
         /// <summary> 
         /// Required designer variable.

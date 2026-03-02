@@ -86,7 +86,8 @@ namespace DG_TonKhoBTP_v02.Dictionary
             EnumStore.MayTheoCongDoan["KeoRut"],
             BaseColumns(),                     // chỉ dùng cột base
             new List<string> { "BTP.20101%", "BTP.20201%" },
-            Select_TP_CoKhoiLuong()
+            Select_TP_CoKhoiLuong(),
+            new Dictionary<string, decimal> { { "klConLai", 5.0m }, { "cdConLai", 5.0m } }
         );
 
         public static readonly CongDoan BenRuot = new CongDoan(
@@ -97,7 +98,8 @@ namespace DG_TonKhoBTP_v02.Dictionary
                 new ColumnDefinition { Name = "DuongKinhSoiDong", DataType = typeof(double), Header = "ĐK sợi đồng" }
             ),
             new List<string> { "BTP.20102%", "BTP.20202%" },
-            Select_TP_CoKhoiLuong()
+            Select_TP_CoKhoiLuong(),
+            new Dictionary<string, decimal> { { "klConLai", 5.0m }, { "cdConLai", 5.0m } }
         );
 
         public static readonly CongDoan BocMach = new CongDoan(
@@ -109,7 +111,8 @@ namespace DG_TonKhoBTP_v02.Dictionary
                 new ColumnDefinition { Name = "SoSoi", DataType = typeof(double), Header = "Số sợi" }
             ),
             new List<string> { "BTP.20103%", "BTP.20203%" },
-            Select_TP_CoCaiDatCDBoc()
+            Select_TP_CoCaiDatCDBoc(),
+            new Dictionary<string, decimal> { { "klConLai", 5.0m }, { "cdConLai", 5.0m } }
         );
 
         public static readonly CongDoan BocLot = new CongDoan(
@@ -118,7 +121,8 @@ namespace DG_TonKhoBTP_v02.Dictionary
             EnumStore.MayTheoCongDoan["BocLot"],
             BaseColumns(),                         // giống KeoRut: chỉ base
             new List<string> { "BTP.20105%", "BTP.20205%" },
-            Select_TP_CoCaiDatCDBoc()
+            Select_TP_CoCaiDatCDBoc(),
+            new Dictionary<string, decimal> { { "klConLai", 5.0m }, { "cdConLai", 5.0m } }
         );
 
         public static readonly CongDoan BocVo = new CongDoan(
@@ -129,7 +133,8 @@ namespace DG_TonKhoBTP_v02.Dictionary
                 new ColumnDefinition { Name = "KetCauLoi", DataType = typeof(double), Header = "Kết cấu lõi" }
             ),
             new List<string> { "TP.%" },
-            Select_TP_CoCaiDatCDBoc()
+            Select_TP_CoCaiDatCDBoc(),
+            new Dictionary<string, decimal> { { "klConLai", 5.0m }, { "cdConLai", 5.0m } }
         );
 
         public static readonly CongDoan GhepLoi_QB = new CongDoan(
@@ -143,7 +148,8 @@ namespace DG_TonKhoBTP_v02.Dictionary
                 new ColumnDefinition { Name = "DoDayBang", DataType = typeof(double), Header = "Độ dày băng" }
             ),
             new List<string> { "BTP.20107%", "BTP.20207%" },
-            Select_TP_KhongKhoiLuong()
+            Select_TP_KhongKhoiLuong(),
+            new Dictionary<string, decimal> { { "klConLai", 5.0m }, { "cdConLai", 5.0m } }
         );
 
         public static readonly CongDoan GhepLoi = new CongDoan(GhepLoi_QB)
@@ -176,7 +182,8 @@ namespace DG_TonKhoBTP_v02.Dictionary
                 new ColumnDefinition { Name = "DuongKinhSoiDong", DataType = typeof(double), Header = "ĐK sợi đồng" }
             ),
             new List<string> { "BTP.20102%", "BTP.20202%" },
-            Select_TP_CoKhoiLuong()
+            Select_TP_CoKhoiLuong(),
+            new Dictionary<string, decimal> { { "klConLai", 0.0m }, { "cdConLai", 0.0m } }
         );
 
 

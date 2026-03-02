@@ -222,6 +222,7 @@
             this.chieuDai.Name = "chieuDai";
             this.chieuDai.Size = new System.Drawing.Size(84, 26);
             this.chieuDai.TabIndex = 8;
+            this.chieuDai.ValueChanged += new System.EventHandler(this.chieuDai_ValueChanged);
             // 
             // GhiChu
             // 

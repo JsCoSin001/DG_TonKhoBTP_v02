@@ -30,7 +30,6 @@ public static class EnumStore
     };
 
 
-
     public static Dictionary<int, string> ErrorCaLamViec = new Dictionary<int, string>()
     {
         { 1, "Máy chưa được chọn" },

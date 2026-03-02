@@ -4,6 +4,7 @@ using DG_TonKhoBTP_v02.Dictionary;
 using DG_TonKhoBTP_v02.Helper.Reuseable;
 using DG_TonKhoBTP_v02.Models;
 using DG_TonKhoBTP_v02.UI.Helper;
+using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Drawing;
 using Microsoft.VisualBasic;
 using System;
@@ -29,7 +30,9 @@ namespace DG_TonKhoBTP_v02.UI
 
         public decimal? klDongThua = null;
 
-        public Func<decimal> GetKhoiLuong { get; set; }
+        //public Func<decimal> GetKhoiLuong { get; set; }
+
+        public Func<(decimal KhoiLuong, decimal ChieuDai)> GetKL_CD { get; set; }
 
         public Func<string> GetTenMay { get; set; }
 
@@ -403,6 +406,17 @@ namespace DG_TonKhoBTP_v02.UI
 
             EnsureColumnOrderAndDeleteLast();
 
+
+            var v = GetKL_CD?.Invoke() ?? (0m, 0m);
+
+
+            if (v.KhoiLuong == 0m && v.ChieuDai == 0m)
+            {
+                FrmWaiting.ShowGifAlert("Vui lòng nhập Khối lượng hoặc Chiều dài trước khi quét mã QR.");
+                return;
+            }
+
+
             string keyword = cbxTimKiem.Text?.Trim().Split('_')[0];
 
             DataTable result = new DataTable();
@@ -478,11 +492,11 @@ namespace DG_TonKhoBTP_v02.UI
                 result.Rows.Add(r);
             }
                 // ===== ADD DATA =====
-                AddRowsToGrid(result);
+                AddRowsToGrid(result,v);
         }
 
 
-        private void AddRowsToGrid(DataTable source)
+        private void AddRowsToGrid(DataTable source, (decimal KhoiLuong, decimal ChieuDai) cd_KL_TP)
         {
             DataTable table = null;
 
@@ -544,12 +558,11 @@ namespace DG_TonKhoBTP_v02.UI
                                 ? 0m
                                 : Convert.ToDecimal(obj);
 
-                        decimal gtConLai_New =
-                            (klBatDau <= -1m) ? (klBatDau - 1m) : -1m;
+                        const decimal heSo = 1.01m;
+                        decimal gtConLai_New = (klBatDau - heSo * cd_KL_TP.KhoiLuong);
 
                         dtgTTNVL.Rows[addedIndex]
                                   .Cells["KlConLai"].Value = gtConLai_New;
-
 
 
                         object obj_CD = newRow["cdBatDau"];
@@ -558,11 +571,10 @@ namespace DG_TonKhoBTP_v02.UI
                                 ? 0m
                                 : Convert.ToDecimal(obj_CD);
 
-                        decimal cdConLai_New =
-                            (cdBatDau <= -1m) ? (cdBatDau - 1m) : -1m;
+                        decimal cdConLai_New = (cdBatDau - heSo * cd_KL_TP.ChieuDai);
 
                         dtgTTNVL.Rows[addedIndex]
-                                  .Cells["CdConLai"].Value = gtConLai_New;
+                                  .Cells["CdConLai"].Value = cdConLai_New;
 
 
 

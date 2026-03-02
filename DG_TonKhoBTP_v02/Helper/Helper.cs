@@ -271,7 +271,7 @@ namespace DG_TonKhoBTP_v02.Helper
         {
             return @"
                 FROM TTThanhPham ttp
-                JOIN ThongTinCaLamViec tclv ON ttp.id = tclv.TTThanhPham_ID
+                LEFT JOIN ThongTinCaLamViec tclv ON ttp.id = tclv.TTThanhPham_ID
                 JOIN DanhSachMaSP ds        ON ds.id   = ttp.DanhSachSP_ID
                 LEFT JOIN CaiDatCDBoc  cdb  ON cdb.TTThanhPham_ID   = ttp.id
                 LEFT JOIN CD_BocVo     cbv  ON cbv.CaiDatCDBoc_ID   = cdb.id

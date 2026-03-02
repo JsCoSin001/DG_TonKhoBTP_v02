@@ -3,3 +3,44 @@
 - Hàn nối là true/false: true là hàn nối, mặc định là false
 
 - CD_bocmach: them thuộc tính màu: không null
+
+
+PRAGMA foreign_keys = OFF;
+
+-- 1️⃣ Tạo bảng mới (GIỮ TTThanhPham, BỎ DanhSachMaSP)
+CREATE TABLE TTNVL_new (
+    id INTEGER NOT NULL UNIQUE,
+    TTThanhPham_ID INTEGER NOT NULL,
+    DanhSachMaSP_ID INTEGER,
+    BinNVL TEXT NOT NULL,
+    KlBatDau REAL,
+    CdBatDau REAL,
+    KlConLai REAL,
+    CdConLai REAL,
+    DuongKinhSoiDong REAL,
+    SoSoi INTEGER,
+    KetCauLoi REAL,
+    DuongKinhSoiMach REAL,
+    BanRongBang REAL,
+    DoDayBang REAL,
+    QC TEXT,
+    PRIMARY KEY(id),
+
+    -- 🔹 Giữ lại quan hệ này
+    FOREIGN KEY(TTThanhPham_ID)
+        REFERENCES TTThanhPham(id)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE
+);
+
+-- 2️⃣ Copy dữ liệu
+INSERT INTO TTNVL_new
+SELECT * FROM TTNVL;
+
+-- 3️⃣ Xóa bảng cũ
+DROP TABLE TTNVL;
+
+-- 4️⃣ Đổi tên lại
+ALTER TABLE TTNVL_new RENAME TO TTNVL;
+
+PRAGMA foreign_keys = ON;

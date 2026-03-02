@@ -143,10 +143,13 @@ namespace DG_TonKhoBTP_v02.UI.Helper
             var ucNVL = _findNVL(root);
             var ucTP = _findTP(root);
 
+
             if (ucNVL == null || ucTP == null)
                 return;
 
-            ucNVL.GetKhoiLuong = () => ucTP.KhoiLuongValue;
+
+            //ucNVL.GetKhoiLuong = () => ucTP.KhoiLuongValue;
+            ucNVL.GetKL_CD = () => (ucTP.KhoiLuongValue, ucTP.ChieuDaiValue);
 
             ucNVL.GetTenMay = () =>
             {

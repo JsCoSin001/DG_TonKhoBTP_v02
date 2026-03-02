@@ -40,7 +40,13 @@ namespace DG_TonKhoBTP_v02.Models
 
         public List<string> ListData_Report { get; set; }
 
-        public CongDoan(int id,string tenCongDoan, List<string> danhSachMay, List<ColumnDefinition> columns, List<string> dsAccept, List<string> dsListData)
+
+        // Thuộc tính này dùng để lưu trữ giá trị MinReset cho từng công đoạn
+        // Nếu nhỏ hơn hoặc bằng giá trị này thì khối lượng và chiều dài còn lại sẽ đc đặt về 0
+        public Dictionary<string, decimal> MinReset { get; set; }
+
+        // Constructor để khởi tạo tất cả các thuộc tính
+        public CongDoan(int id,string tenCongDoan, List<string> danhSachMay, List<ColumnDefinition> columns, List<string> dsAccept, List<string> dsListData, Dictionary<string, decimal> minReset)
         {
             this.Id = id;
             TenCongDoan = tenCongDoan.ToUpper();
@@ -48,8 +54,10 @@ namespace DG_TonKhoBTP_v02.Models
             Columns = new List<ColumnDefinition>(columns);
             ListMa_Accept = dsAccept;
             ListData_Report = dsListData;
+            MinReset = minReset;
         }
 
+        // Copy constructor để tạo một instance mới từ một instance đã tồn tại
         public CongDoan(CongDoan other)
         {
             Id = other.Id;
@@ -58,6 +66,7 @@ namespace DG_TonKhoBTP_v02.Models
             Columns = new List<ColumnDefinition>(other.Columns);
             ListMa_Accept = other.ListMa_Accept;
             ListData_Report = other.ListData_Report;
+            MinReset = other.MinReset;
         }
 
     }

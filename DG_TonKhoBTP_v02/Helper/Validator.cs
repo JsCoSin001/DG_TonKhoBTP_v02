@@ -1,4 +1,5 @@
 ﻿using DG_TonKhoBTP_v02.Core;
+using DocumentFormat.OpenXml.VariantTypes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,7 +36,7 @@ namespace DG_TonKhoBTP_v02.Helper
 
                 // B1.1) Nếu là nguyên vật liệu thì bỏ qua để kiểm tra dòng khác
                 if (t.CdBatDau < 0 && t.KlBatDau < 0) continue;
-                
+
 
                 // B1.2) Nếu BTP, nếu đơn vị là kg thì phải nhập khối lượng còn lại
                 // Nếu đơn vị là m thì phải nhập chiều dài còn lại
@@ -50,6 +51,7 @@ namespace DG_TonKhoBTP_v02.Helper
                 //    tupleError = (Id: 3, Lot: lot);
                 //    break;
                 //}
+
 
                 // B1.3) Các dữ liệu yêu cầu phải được nhập
                 if (t.BanRongBang == null || t.DoDayBang == null || t.KetCauLoi == null || t.DanhSachMaSP_ID == 0 || t.BinNVL == "")

@@ -178,9 +178,7 @@ namespace DG_TonKhoBTP_v02.Dictionary
             9,
             "Hàn Nối / Ghép bin",
             EnumStore.MayTheoCongDoan["Ben_CU_AL"],
-            BaseColumns(
-                new ColumnDefinition { Name = "DuongKinhSoiDong", DataType = typeof(double), Header = "ĐK sợi đồng" }
-            ),
+            BaseColumns(),
             new List<string> { "BTP.20102%", "BTP.20202%" },
             Select_TP_CoKhoiLuong(),
             new Dictionary<string, decimal> { { "klConLai", 0.0m }, { "cdConLai", 0.0m } }

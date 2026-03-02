@@ -561,6 +561,8 @@ namespace DG_TonKhoBTP_v02.UI
                         const decimal heSo = 1.01m;
                         decimal gtConLai_New = (klBatDau - heSo * cd_KL_TP.KhoiLuong);
 
+                        gtConLai_New = _CD.Id == 9 ? 0 : gtConLai_New;
+
                         dtgTTNVL.Rows[addedIndex]
                                   .Cells["KlConLai"].Value = gtConLai_New;
 
@@ -572,6 +574,7 @@ namespace DG_TonKhoBTP_v02.UI
                                 : Convert.ToDecimal(obj_CD);
 
                         decimal cdConLai_New = (cdBatDau - heSo * cd_KL_TP.ChieuDai);
+                        cdConLai_New = _CD.Id == 9 ? 0 : cdConLai_New;
 
                         dtgTTNVL.Rows[addedIndex]
                                   .Cells["CdConLai"].Value = cdConLai_New;

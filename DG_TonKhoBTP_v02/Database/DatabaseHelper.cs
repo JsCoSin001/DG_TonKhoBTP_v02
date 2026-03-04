@@ -1055,10 +1055,11 @@ namespace DG_TonKhoBTP_v02.Database
             loaiCD = loaiCD.Replace("AND", "WHERE")
                     + @"
                         AND (
-                        (ds.DonVi = 'KG' AND ttp.KhoiLuongSau <> 0)
-                        OR
-                        (ds.DonVi = 'M' AND ttp.ChieuDaiSau <> 0)
-                      )";
+                            (ds.DonVi = 'KG' AND ttp.KhoiLuongSau <> 0)
+                            OR
+                            (ds.DonVi = 'M' AND ttp.ChieuDaiSau <> 0)
+                        )
+                    ";
 
 
             // Sắp xếp

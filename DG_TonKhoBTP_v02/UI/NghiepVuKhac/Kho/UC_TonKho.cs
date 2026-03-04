@@ -322,13 +322,30 @@ namespace DG_TonKhoBTP_v02.UI
                         OR
                         (DanhSachMaSP.DonVi = 'M' AND TTThanhPham.ChieuDaiSau <> 0)
                     )
-                    AND (DanhSachMaSP.Ten LIKE 'C %'  or DanhSachMaSP.Ten LIKE 'C-AWG %'  or DanhSachMaSP.Ten LIKE 'A %' )
-                    AND DanhSachMaSP.Ten NOT LIKE '%/T'
-                    AND TTThanhPham.MaBin NOT LIKE 'R%-%' 
-                    AND TTThanhPham.MaBin NOT LIKE 'MD%-%' 
+                    AND (DanhSachMaSP.Ten LIKE 'C %R%'  or DanhSachMaSP.Ten LIKE 'C-AWG %' or DanhSachMaSP.Ten = 'C 1.02' or DanhSachMaSP.Ten = 'C 1.20'  or DanhSachMaSP.Ten LIKE 'A %R%' )
+                    AND DanhSachMaSP.Ten NOT LIKE '%/T' AND TTThanhPham.MaBin NOT LIKE 'R%-%'  AND TTThanhPham.MaBin NOT LIKE 'MD%-%' 
                     
                 ORDER BY TTThanhPham.id DESC
             ";
+
+
+            //string query = @"
+            //    SELECT 
+            //        con.MaBin AS Con,con.Khoiluongsau AS klSau,con.chieudaisau AS cdSau,
+            //        cha.MaBin AS Cha
+            //    FROM TTThanhPham con
+            //    LEFT JOIN TTThanhPham cha 
+            //        ON con.LastEdit_id = cha.id
+            //    WHERE con.id > 5558;
+            //";
+
+            //query = @"
+            //    SELECT 
+            //        Mabin,KhoiLuongSau,ChieuDaiSau,GhiChu, CongDoan,DanhSachSP_ID,LastEdit_id
+
+            //    FROM TTThanhPham
+            //    WHERE id > 5558;
+            //";
             string col = null;
             string fileName = "BaoCaoTonKho_" + DateTime.Now.ToString("ddMMMyyyy");
 

@@ -456,6 +456,8 @@ namespace DG_TonKhoBTP_v02.UI
                             {
                                 var swClear = Stopwatch.StartNew();
                                 ControlCleaner.ClearAll(host);
+                                if (_Cd.Id == 0 || _Cd.Id == 1)
+                                    cbInTemNVL.Checked = false;
                                 Debug.WriteLine($"ClearAll host: {swClear.ElapsedMilliseconds} ms");
                             }
 

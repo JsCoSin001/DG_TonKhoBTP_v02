@@ -167,6 +167,8 @@
     <Compile Include="Printer\PrintHelper.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UI\Helper\AutoSearchWithCombobox\ComboBoxSearchHelper.cs" />
+    <Compile Include="UI\Helper\AutoSearchWithCombobox\VatTuPhu.cs" />
     <Compile Include="UI\NghiepVuKhac\KeToan\VatTuPhu\FrmVatTuPhu.cs">
       <SubType>Form</SubType>
     </Compile>

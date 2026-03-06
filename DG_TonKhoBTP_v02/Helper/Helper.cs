@@ -260,11 +260,16 @@ namespace DG_TonKhoBTP_v02.Helper
                 FROM TTThanhPham AS TT
                 INNER JOIN DanhSachMaSP AS SP
                     ON TT.DanhSachSP_ID = SP.id
-                INNER JOIN ThongTinCaLamViec AS CLV
+                LEFT JOIN ThongTinCaLamViec AS CLV
                     ON CLV.TTThanhPham_id = TT.id
                 WHERE {whereCol} LIKE '%' || @{key} || '%';
             ";
             return sql;
+        }
+
+        public static string GetString(SQLiteDataReader reader, string column)
+        {
+            return reader.IsDBNull(reader.GetOrdinal(column)) ? "" : reader[column].ToString();
         }
 
         public static string TaoSQL_TaoKetNoiCacBang()
@@ -314,21 +319,7 @@ namespace DG_TonKhoBTP_v02.Helper
 
             // Câu nối các bảng
             string sqlJoin = TaoSQL_TaoKetNoiCacBang();
-
-            // Format ngày sang dạng SQLite hiểu được
-            //string ngayBD = ngayBatDau.Date.AddHours(5).AddMinutes(59).ToString("yyyy-MM-dd HH:mm:ss");
-
-            //string ngayKT = ngayKetThuc.Date.AddDays(1).AddHours(6).ToString("yyyy-MM-dd HH:mm:ss");
-
-            // Điều kiện WHERE – chèn trực tiếp giá trị ngày
-            //string sqlDkNgay = $" WHERE date(tclv.Ngay) >= date('{ngayBD}') AND date(tclv.Ngay) <= date('{ngayKT}')";
-
-
-            // Sắp xếp
-            //string sqlOrder = " ORDER BY tclv.Ngay DESC, ttp.id DESC;";
-
-            // Ghép chuỗi hoàn chỉnh
-            //string query = sqlSelect + " ," + sqlLayChiTietCD + " ," + sqlTenNVL + sqlJoin + sqlDkNgay + loaiCD + sqlOrder;
+            
             string query = sqlSelect + " ," + sqlLayChiTietCD + " ," + sqlTenNVL + sqlJoin + loaiCD ;
 
             return (query, loaiCD);

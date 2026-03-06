@@ -1121,7 +1121,7 @@ namespace DG_TonKhoBTP_v02.Database
                     t.NguoiLam AS TenCN,
                     tp.GhiChu AS GhiChu
                 FROM TTThanhPham tp
-                JOIN ThongTinCaLamViec t ON t.TTThanhPham_id = tp.id
+                LEFT JOIN ThongTinCaLamViec t ON t.TTThanhPham_id = tp.id
                 JOIN DanhSachMaSP d ON tp.DanhSachSP_ID = d.id
                 WHERE tp.MaBin IN ({inClause});
                 ";
@@ -1141,22 +1141,24 @@ namespace DG_TonKhoBTP_v02.Database
                     using (SQLiteDataReader reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())
-                        {                        
-
+                        {
+                            string qc = CoreHelper.GetString(reader, "QC").Trim();
+                            string ghiChu = CoreHelper.GetString(reader, "GhiChu");
+                            if (qc != "") ghiChu = "QC-" + qc + " xác nhận SP OK" + "\r\n" + ghiChu;
 
                             var model = new PrinterModel
                             {
-                                NgaySX = DateTime.Parse(reader["NgaySX"].ToString()).ToString("dd/MM/yyyy"),
-                                CaSX = reader["CaSX"].ToString(),
-                                KhoiLuong = reader["KhoiLuong"].ToString(),
-                                ChieuDai = reader["ChieuDai"].ToString(),
-                                TenSP = reader["TenSP"].ToString(),
-                                MaBin = reader["MaBin"].ToString(),
-                                MaSP = reader["MaSP"].ToString(), 
+                                NgaySX = DateTime.TryParse(CoreHelper.GetString(reader, "NgaySX"), out DateTime d) ? d.ToString("dd/MM/yyyy") : "",
+                                CaSX = CoreHelper.GetString(reader, "CaSX"),
+                                KhoiLuong = CoreHelper.GetString(reader, "KhoiLuong"),
+                                ChieuDai = CoreHelper.GetString(reader, "ChieuDai"),
+                                TenSP = CoreHelper.GetString(reader, "TenSP"),
+                                MaBin = CoreHelper.GetString(reader, "MaBin"),
+                                MaSP = CoreHelper.GetString(reader, "MaSP"),
                                 DanhGia = "",
-                                QC = reader["QC"].ToString(),
-                                TenCN = reader["TenCN"].ToString(),
-                                GhiChu = reader["GhiChu"].ToString()
+                                QC = qc,
+                                TenCN = CoreHelper.GetString(reader, "TenCN"),
+                                GhiChu = ghiChu
                             };
 
                             result.Add(model);

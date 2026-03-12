@@ -122,6 +122,7 @@ namespace DG_TonKhoBTP_v02.Helper
                 d.Ma           AS MaNVL,
                 d.DonVi         AS DonVi,
                 d.id            as DanhSachMaSP_ID,
+                d.ChuyenDoi     AS ChuyenDoi,
                 t.Qc            as Qc,
                 t.MaBin         AS BinNVL,
                 v.Ngay          AS Ngay,
@@ -176,6 +177,7 @@ namespace DG_TonKhoBTP_v02.Helper
                 d.ma        AS MaNVL,
                 d.DonVi     AS DonVi,
                 d.id        AS DanhSachMaSP_ID,
+                d.ChuyenDoi     AS ChuyenDoi,
                 'NA'         As Qc,
                 d.Ten       AS BinNVL,
                 NULL        AS Ngay,
@@ -595,6 +597,27 @@ namespace DG_TonKhoBTP_v02.Helper
             return input.Split(separators, StringSplitOptions.RemoveEmptyEntries);
         }
 
+        public static bool CheckMaBin(string keyword)
+        {
+            var arr = CatMaBin(keyword);
+
+            // Nếu chỉ có 1 phần tử thì false luôn
+            if (arr.Length <= 1)
+                return false;
+
+            // Chỉ chấp nhận length = 4 hoặc 5
+            if (arr.Length != 4 && arr.Length != 5)
+                return false;
+
+            // Kiểm tra phần tử thứ 2
+            if (int.TryParse(arr[1], out int value))
+            {
+                return value > 250000 && value < 300000;
+            }
+
+            return false;
+        }
+
         public static bool SplitByLastDash(string input, out string left, out string right)
         {
             left = "";
@@ -624,6 +647,27 @@ namespace DG_TonKhoBTP_v02.Helper
                 ? null
                 : dtp.Value.ToString(DbDateFormat);
         }
+
+        public static int? TryParseInt(object value)
+        {
+            if (value == null) return null;
+
+            if (int.TryParse(value.ToString(), out int result))
+                return result;
+
+            return null;
+        }
+
+        public static decimal? TryParseDecimal(object value)
+        {
+            if (value == null) return null;
+
+            if (decimal.TryParse(value.ToString(), out decimal result))
+                return result;
+
+            return null;
+        }
+
         public static string ShowErrorDatabase(Exception ex, string? ten = null)
         {
             // Bóc lớp Aggregate/TargetInvocation/InnerException thường gặp

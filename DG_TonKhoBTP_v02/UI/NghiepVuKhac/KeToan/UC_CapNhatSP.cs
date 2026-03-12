@@ -48,6 +48,7 @@ namespace DG_TonKhoBTP_v02.UI
                     Ten = ten.Text.Trim().ToUpper(),
                     KieuSP = kieuSP.Text.Trim().ToUpper(),
                     DonVi = donVi.Text.Trim().ToUpper(),
+                    ChuyenDoi = nbrDM_CU_AL.Value,
                     DateInsert = DateTime.Now
                 };
 

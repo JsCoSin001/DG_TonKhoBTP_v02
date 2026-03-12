@@ -39,6 +39,37 @@ namespace DG_TonKhoBTP_v02.Database
         }
 
 
+        public static int GetSoLuongDonThangHienTai()
+        {
+            DateTime now = DateTime.Now;
+
+            string start = new DateTime(now.Year, now.Month, 1)
+                .ToString("yyyy-MM-dd");
+
+            string end = new DateTime(now.Year, now.Month, 1)
+                .AddMonths(1)
+                .ToString("yyyy-MM-dd");
+
+            string sql = @"
+                SELECT COUNT(*)
+                FROM DanhSachDatHang
+                WHERE DateInsert >= @start
+                AND DateInsert < @end
+            ";
+
+            using var conn = new SQLiteConnection(DatabaseHelper.GetStringConnector);
+            conn.Open();
+
+            using var cmd = new SQLiteCommand(sql, conn);
+
+            cmd.Parameters.AddWithValue("@start", start);
+            cmd.Parameters.AddWithValue("@end", end);
+
+            object result = cmd.ExecuteScalar();
+
+            return result == null ? 0 : Convert.ToInt32(result);
+        }
+
         public static bool TryPing(string dbPath, int timeoutSeconds = 3)
         {
 
@@ -1795,6 +1826,7 @@ namespace DG_TonKhoBTP_v02.Database
                     Ma = @Ma,
                     DonVi = @DonVi,
                     KieuSP = @KieuSP,
+                    ChuyenDoi = @ChuyenDoi,
                     DateInsert = @DateInsert
                 WHERE id = @Id;
             ";
@@ -1810,6 +1842,7 @@ namespace DG_TonKhoBTP_v02.Database
                         cmd.Parameters.AddWithValue("@Ma", sp.Ma);
                         cmd.Parameters.AddWithValue("@DonVi", sp.DonVi);
                         cmd.Parameters.AddWithValue("@KieuSP", sp.KieuSP);
+                        cmd.Parameters.AddWithValue("@ChuyenDoi", sp.ChuyenDoi);
                         cmd.Parameters.AddWithValue("@DateInsert", sp.DateInsert);
                         cmd.Parameters.AddWithValue("@Id", key);
 
@@ -2330,8 +2363,8 @@ namespace DG_TonKhoBTP_v02.Database
                 using var tx = conn.BeginTransaction();
 
                 string sql = @"
-                    INSERT INTO DanhSachMaSP (Ten, Ma, DonVi, KieuSP, DateInsert)
-                    VALUES (@Ten, @Ma, @DonVi, @KieuSP, @DateInsert);
+                    INSERT INTO DanhSachMaSP (Ten, Ma, DonVi, KieuSP,ChuyenDoi,DateInsert)
+                    VALUES (@Ten, @Ma, @DonVi, @KieuSP, @ChuyenDoi, @DateInsert);
                 ";
 
                 using (var cmd = new SQLiteCommand(sql, conn, tx))
@@ -2340,6 +2373,7 @@ namespace DG_TonKhoBTP_v02.Database
                     cmd.Parameters.AddWithValue("@Ma", sp.Ma);
                     cmd.Parameters.AddWithValue("@DonVi", sp.DonVi);
                     cmd.Parameters.AddWithValue("@KieuSP", sp.KieuSP);
+                    cmd.Parameters.AddWithValue("@ChuyenDoi", sp.ChuyenDoi);
                     cmd.Parameters.AddWithValue("@DateInsert", sp.DateInsert ?? DateTime.Now);
 
                     cmd.ExecuteNonQuery();

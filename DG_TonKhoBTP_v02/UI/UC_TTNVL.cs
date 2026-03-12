@@ -32,7 +32,7 @@ namespace DG_TonKhoBTP_v02.UI
 
         //public Func<decimal> GetKhoiLuong { get; set; }
 
-        public Func<(decimal KhoiLuong, decimal ChieuDai)> GetKL_CD { get; set; }
+        public Func<(decimal KhoiLuong, decimal ChieuDai, string donVi)> GetKL_CD { get; set; }
 
         public Func<string> GetTenMay { get; set; }
 
@@ -407,12 +407,25 @@ namespace DG_TonKhoBTP_v02.UI
             EnsureColumnOrderAndDeleteLast();
 
 
-            var v = GetKL_CD?.Invoke() ?? (0m, 0m);
+            var v = GetKL_CD?.Invoke() ?? (0m, 0m,"");
 
 
-            if (v.KhoiLuong == 0m && v.ChieuDai == 0m)
+            if (v.donVi == "")
             {
-                FrmWaiting.ShowGifAlert("Vui lòng nhập Khối lượng hoặc Chiều dài trước khi quét mã QR.");
+                FrmWaiting.ShowGifAlert("Thông tin thành phẩm công đoạn cần hoàn thiện trước.");
+                return;
+            }
+
+            if (v.donVi == "M" && v.ChieuDai == 0m)
+            {
+                FrmWaiting.ShowGifAlert("Vui lòng nhập Chiều dài trước khi quét mã QR.");
+                return;
+            }
+
+
+            if (v.donVi == "KG" && v.KhoiLuong == 0m)
+            {
+                FrmWaiting.ShowGifAlert("Vui lòng nhập Khối lượng trước khi quét mã QR.");
                 return;
             }
 
@@ -423,15 +436,13 @@ namespace DG_TonKhoBTP_v02.UI
 
             cbxTimKiem.Text = "";   // luôn clear sau khi scan
 
-            if (CoreHelper.CatMaBin(keyword).Length == 5 || CoreHelper.CatMaBin(keyword).Length == 4)
+            if (CoreHelper.CheckMaBin(keyword))
             {
-
                 if (string.IsNullOrEmpty(keyword)) return;
+
                 if (!TenMayDaNhap()) return;
 
                 bool cdHanNoi = _CD.Id == 9 && isEdit.Value == 2 ? true : false;
-
-
 
                 string para = "ten";
                 string query = RawMaterial
@@ -443,6 +454,24 @@ namespace DG_TonKhoBTP_v02.UI
                     result = await Task.Run(() =>
                         DatabaseHelper.GetData(query, keyword, para)
                     );
+
+                    if (result.Rows.Count > 0)
+                    {
+                        var row = result.Rows[0];
+
+                        string dvNVL = row["DonVi"].ToString();
+
+                        decimal KlBatDau = Convert.ToDecimal(row["KlBatDau"]);
+                        decimal CDBatDau = Convert.ToDecimal(row["CDBatDau"]);
+
+                        decimal tyLe = dvNVL == v.donVi ? 1m : Convert.ToDecimal(row["ChuyenDoi"]); 
+
+                        decimal kl = KlBatDau - v.KhoiLuong * tyLe > 0 ? KlBatDau - v.KhoiLuong * tyLe : 0;
+                        decimal cd = CDBatDau - v.ChieuDai * tyLe > 0 ? CDBatDau - v.ChieuDai * tyLe : 0;
+
+                        row["KlBatDau"] = kl;
+                        row["CDBatDau"] = cd;
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -496,7 +525,7 @@ namespace DG_TonKhoBTP_v02.UI
         }
 
 
-        private void AddRowsToGrid(DataTable source, (decimal KhoiLuong, decimal ChieuDai) cd_KL_TP)
+        private void AddRowsToGrid(DataTable source, (decimal KhoiLuong, decimal ChieuDai, string donVi) cd_KL_TP)
         {
             DataTable table = null;
 
@@ -551,31 +580,16 @@ namespace DG_TonKhoBTP_v02.UI
                         int start = 3;
                         int baseCol = tongCotCanHide + start;
 
+                        decimal gtConLai_New = Convert.ToDecimal(newRow["KlBatDau"]);
 
-                        object obj = newRow["KlBatDau"];
-                        decimal klBatDau =
-                            (obj == null || obj == DBNull.Value)
-                                ? 0m
-                                : Convert.ToDecimal(obj);
-
-                        const decimal heSoKL = 1m;
-                        decimal gtConLai_New = Math.Abs( (klBatDau - heSoKL * cd_KL_TP.KhoiLuong));
+                        decimal cdConLai_New = Convert.ToDecimal(newRow["cdBatDau"]);
 
                         gtConLai_New = _CD.Id == 9 ? 0 : gtConLai_New;
 
+                        cdConLai_New = _CD.Id == 9 ? 0 : cdConLai_New;
+
                         dtgTTNVL.Rows[addedIndex]
                                   .Cells["KlConLai"].Value = gtConLai_New;
-
-
-                        object obj_CD = newRow["cdBatDau"];
-                        decimal cdBatDau =
-                            (obj_CD == null || obj_CD == DBNull.Value)
-                                ? 0m
-                                : Convert.ToDecimal(obj_CD);
-
-                        const decimal heSoCD = 1.01m;
-                        decimal cdConLai_New = Math.Abs((cdBatDau - heSoCD * cd_KL_TP.ChieuDai));
-                        cdConLai_New = _CD.Id == 9 ? 0 : cdConLai_New;
 
                         dtgTTNVL.Rows[addedIndex]
                                   .Cells["CdConLai"].Value = cdConLai_New;

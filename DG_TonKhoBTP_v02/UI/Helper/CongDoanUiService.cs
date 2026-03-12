@@ -148,8 +148,7 @@ namespace DG_TonKhoBTP_v02.UI.Helper
                 return;
 
 
-            //ucNVL.GetKhoiLuong = () => ucTP.KhoiLuongValue;
-            ucNVL.GetKL_CD = () => (ucTP.KhoiLuongValue, ucTP.ChieuDaiValue);
+            ucNVL.GetKL_CD = () => (ucTP.KhoiLuongValue, ucTP.ChieuDaiValue, ucTP.DonVi);
 
             ucNVL.GetTenMay = () =>
             {

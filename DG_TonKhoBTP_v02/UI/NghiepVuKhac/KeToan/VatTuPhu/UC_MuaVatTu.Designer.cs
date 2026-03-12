@@ -34,8 +34,13 @@
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.cbxTimTenVatTu = new System.Windows.Forms.ComboBox();
             this.label4 = new System.Windows.Forms.Label();
-            this.label3 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
+            this.label5 = new System.Windows.Forms.Label();
+            this.panel4 = new System.Windows.Forms.Panel();
+            this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
+            this.rdoTaoMoi = new System.Windows.Forms.RadioButton();
+            this.radioButton2 = new System.Windows.Forms.RadioButton();
+            this.tbMaDon = new System.Windows.Forms.TextBox();
             this.panel2 = new System.Windows.Forms.Panel();
             this.dgvDSMua = new System.Windows.Forms.DataGridView();
             this.ID = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -50,18 +55,13 @@
             this.colXoa = new System.Windows.Forms.DataGridViewButtonColumn();
             this.panel3 = new System.Windows.Forms.Panel();
             this.btnDatHang = new System.Windows.Forms.Button();
-            this.label5 = new System.Windows.Forms.Label();
-            this.panel4 = new System.Windows.Forms.Panel();
-            this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
-            this.rdoTaoMoi = new System.Windows.Forms.RadioButton();
-            this.radioButton2 = new System.Windows.Forms.RadioButton();
             this.panel1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
+            this.panel4.SuspendLayout();
+            this.flowLayoutPanel1.SuspendLayout();
             this.panel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvDSMua)).BeginInit();
             this.panel3.SuspendLayout();
-            this.panel4.SuspendLayout();
-            this.flowLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // panel1
@@ -97,10 +97,10 @@
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 215F));
             this.tableLayoutPanel1.Controls.Add(this.cbxTimTenVatTu, 3, 0);
             this.tableLayoutPanel1.Controls.Add(this.label4, 2, 0);
-            this.tableLayoutPanel1.Controls.Add(this.label3, 5, 0);
             this.tableLayoutPanel1.Controls.Add(this.label2, 4, 0);
             this.tableLayoutPanel1.Controls.Add(this.label5, 0, 0);
             this.tableLayoutPanel1.Controls.Add(this.panel4, 1, 0);
+            this.tableLayoutPanel1.Controls.Add(this.tbMaDon, 5, 0);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Top;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 33);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
@@ -128,17 +128,6 @@
             this.label4.TabIndex = 0;
             this.label4.Text = "Tìm tên vật tư";
             // 
-            // label3
-            // 
-            this.label3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.label3.AutoSize = true;
-            this.label3.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label3.Location = new System.Drawing.Point(927, 20);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(210, 18);
-            this.label3.TabIndex = 0;
-            this.label3.Text = "PRM26/02-011";
-            // 
             // label2
             // 
             this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
@@ -149,6 +138,67 @@
             this.label2.TabIndex = 0;
             this.label2.Text = "Mã đơn";
             this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // label5
+            // 
+            this.label5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(3, 20);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(55, 18);
+            this.label5.TabIndex = 0;
+            this.label5.Text = "Loại";
+            // 
+            // panel4
+            // 
+            this.panel4.Controls.Add(this.flowLayoutPanel1);
+            this.panel4.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panel4.Location = new System.Drawing.Point(64, 3);
+            this.panel4.Name = "panel4";
+            this.panel4.Size = new System.Drawing.Size(184, 52);
+            this.panel4.TabIndex = 3;
+            // 
+            // flowLayoutPanel1
+            // 
+            this.flowLayoutPanel1.Controls.Add(this.rdoTaoMoi);
+            this.flowLayoutPanel1.Controls.Add(this.radioButton2);
+            this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.flowLayoutPanel1.Location = new System.Drawing.Point(0, 0);
+            this.flowLayoutPanel1.Name = "flowLayoutPanel1";
+            this.flowLayoutPanel1.Padding = new System.Windows.Forms.Padding(0, 12, 0, 0);
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(184, 52);
+            this.flowLayoutPanel1.TabIndex = 0;
+            // 
+            // rdoTaoMoi
+            // 
+            this.rdoTaoMoi.AutoSize = true;
+            this.rdoTaoMoi.Checked = true;
+            this.rdoTaoMoi.Location = new System.Drawing.Point(3, 15);
+            this.rdoTaoMoi.Name = "rdoTaoMoi";
+            this.rdoTaoMoi.Size = new System.Drawing.Size(80, 22);
+            this.rdoTaoMoi.TabIndex = 0;
+            this.rdoTaoMoi.TabStop = true;
+            this.rdoTaoMoi.Text = "Tạo mới";
+            this.rdoTaoMoi.UseVisualStyleBackColor = true;
+            // 
+            // radioButton2
+            // 
+            this.radioButton2.AutoSize = true;
+            this.radioButton2.Location = new System.Drawing.Point(89, 15);
+            this.radioButton2.Name = "radioButton2";
+            this.radioButton2.Size = new System.Drawing.Size(81, 22);
+            this.radioButton2.TabIndex = 1;
+            this.radioButton2.Text = "Sửa đơn";
+            this.radioButton2.UseVisualStyleBackColor = true;
+            // 
+            // tbMaDon
+            // 
+            this.tbMaDon.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.tbMaDon.Location = new System.Drawing.Point(927, 16);
+            this.tbMaDon.Name = "tbMaDon";
+            this.tbMaDon.Size = new System.Drawing.Size(210, 26);
+            this.tbMaDon.TabIndex = 4;
+            this.tbMaDon.Text = "PRM26/02-011";
             // 
             // panel2
             // 
@@ -268,58 +318,6 @@
             this.btnDatHang.UseVisualStyleBackColor = true;
             this.btnDatHang.Click += new System.EventHandler(this.btnDatHang_Click);
             // 
-            // label5
-            // 
-            this.label5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(3, 20);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(55, 18);
-            this.label5.TabIndex = 0;
-            this.label5.Text = "Loại";
-            // 
-            // panel4
-            // 
-            this.panel4.Controls.Add(this.flowLayoutPanel1);
-            this.panel4.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel4.Location = new System.Drawing.Point(64, 3);
-            this.panel4.Name = "panel4";
-            this.panel4.Size = new System.Drawing.Size(184, 52);
-            this.panel4.TabIndex = 3;
-            // 
-            // flowLayoutPanel1
-            // 
-            this.flowLayoutPanel1.Controls.Add(this.rdoTaoMoi);
-            this.flowLayoutPanel1.Controls.Add(this.radioButton2);
-            this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flowLayoutPanel1.Location = new System.Drawing.Point(0, 0);
-            this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Padding = new System.Windows.Forms.Padding(0, 12, 0, 0);
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(184, 52);
-            this.flowLayoutPanel1.TabIndex = 0;
-            // 
-            // rdoTaoMoi
-            // 
-            this.rdoTaoMoi.AutoSize = true;
-            this.rdoTaoMoi.Checked = true;
-            this.rdoTaoMoi.Location = new System.Drawing.Point(3, 15);
-            this.rdoTaoMoi.Name = "rdoTaoMoi";
-            this.rdoTaoMoi.Size = new System.Drawing.Size(80, 22);
-            this.rdoTaoMoi.TabIndex = 0;
-            this.rdoTaoMoi.TabStop = true;
-            this.rdoTaoMoi.Text = "Tạo mới";
-            this.rdoTaoMoi.UseVisualStyleBackColor = true;
-            // 
-            // radioButton2
-            // 
-            this.radioButton2.AutoSize = true;
-            this.radioButton2.Location = new System.Drawing.Point(89, 15);
-            this.radioButton2.Name = "radioButton2";
-            this.radioButton2.Size = new System.Drawing.Size(81, 22);
-            this.radioButton2.TabIndex = 1;
-            this.radioButton2.Text = "Sửa đơn";
-            this.radioButton2.UseVisualStyleBackColor = true;
-            // 
             // UC_MuaVatTu
             // 
             this.Controls.Add(this.panel2);
@@ -334,12 +332,12 @@
             this.panel1.ResumeLayout(false);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
-            this.panel2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.dgvDSMua)).EndInit();
-            this.panel3.ResumeLayout(false);
             this.panel4.ResumeLayout(false);
             this.flowLayoutPanel1.ResumeLayout(false);
             this.flowLayoutPanel1.PerformLayout();
+            this.panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.dgvDSMua)).EndInit();
+            this.panel3.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -349,7 +347,6 @@
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
-        private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Panel panel2;
         private System.Windows.Forms.DataGridView dgvDSMua;
         private System.Windows.Forms.Panel panel3;
@@ -372,5 +369,6 @@
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
         private System.Windows.Forms.RadioButton rdoTaoMoi;
         private System.Windows.Forms.RadioButton radioButton2;
+        private System.Windows.Forms.TextBox tbMaDon;
     }
 }

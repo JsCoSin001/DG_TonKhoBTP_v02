@@ -27,9 +27,10 @@ namespace DG_TonKhoBTP_v02.UI
 
         //public event Action<decimal> KhoiLuongChanged;
 
-        public event Action<(decimal KhoiLuong, decimal ChieuDai)> KL_CD_Changed;
+        public event Action<(decimal KhoiLuong, decimal ChieuDai, string donVi)> KL_CD_Changed;
         public decimal KhoiLuongValue => khoiLuong.Value;
         public decimal ChieuDaiValue => chieuDai.Value;
+        public string DonVi => donVi.Text;
 
         public event Action<string> SoLOTChanged;
         public string SoLOTValue => soLOT.Text;
@@ -239,7 +240,8 @@ namespace DG_TonKhoBTP_v02.UI
 
         private void khoiLuong_ValueChanged(object sender, EventArgs e)
         {
-            KL_CD_Changed?.Invoke((KhoiLuongValue, ChieuDaiValue));
+            string dv = donVi.Text;
+            KL_CD_Changed?.Invoke((KhoiLuongValue, ChieuDaiValue, dv));
         }
 
         private void may_TextChanged(object sender, EventArgs e)
@@ -249,7 +251,8 @@ namespace DG_TonKhoBTP_v02.UI
 
         private void chieuDai_ValueChanged(object sender, EventArgs e)
         {
-            KL_CD_Changed?.Invoke((KhoiLuongValue, ChieuDaiValue));
+            string dv = donVi.Text;
+            KL_CD_Changed?.Invoke((KhoiLuongValue, ChieuDaiValue, dv));
         }
     }
 }

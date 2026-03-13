@@ -52,9 +52,10 @@ namespace DG_TonKhoBTP_v02.UI
             }
         }
 
+
         private void btnLuu_Click(object sender, EventArgs e)
         {
-            
+
             var swTotal = Stopwatch.StartNew();
             Debug.WriteLine("=== [BTN LƯU] BẮT ĐẦU ===");
 
@@ -284,7 +285,7 @@ namespace DG_TonKhoBTP_v02.UI
                     string ghiChu = thongTinThanhPham.GhiChu;
 
                     if (EnumStore.MayTheoCongDoan.TryGetValue("Ben_CU_AL", out var dsMay) &&
-                       dsMay.Contains(thongTinCaLamViec.May, StringComparer.OrdinalIgnoreCase) && 
+                       dsMay.Contains(thongTinCaLamViec.May, StringComparer.OrdinalIgnoreCase) &&
                        chiTietCD[0] is CD_BenRuot obj)
                     {
                         ghiChu = $"{obj.DKSoi}x{obj.SoSoi?.ToString() ?? ""} sợi\n" + ghiChu;
@@ -395,7 +396,7 @@ namespace DG_TonKhoBTP_v02.UI
                                 }
                             }
 
-                            
+
                         }
                         catch (Exception exPrint)
                         {
@@ -479,9 +480,9 @@ namespace DG_TonKhoBTP_v02.UI
                 btnLuu.Enabled = true;
                 Debug.WriteLine($"Kết thúc trong catch, tổng thời gian: {swTotal.ElapsedMilliseconds} ms");
             }
-            
+
         }
- 
+
 
         private void btnClear_Click(object sender, EventArgs e)
         {

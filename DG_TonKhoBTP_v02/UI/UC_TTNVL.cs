@@ -308,9 +308,7 @@ namespace DG_TonKhoBTP_v02.UI
             if (sender is TextBox tb && e.KeyChar == dec && tb.Text.Contains(dec))
                 e.Handled = true;
         }
-
-        
-
+                
         private void setVisibleTableNVL(bool showTable)
         {
             dtgTTNVL.Visible = showTable;
@@ -455,23 +453,23 @@ namespace DG_TonKhoBTP_v02.UI
                         DatabaseHelper.GetData(query, keyword, para)
                     );
 
-                    if (result.Rows.Count > 0)
-                    {
-                        var row = result.Rows[0];
+                    //if (result.Rows.Count > 0)
+                    //{
+                    //    var row = result.Rows[0];
 
-                        string dvNVL = row["DonVi"].ToString();
+                    //    string dvNVL = row["DonVi"].ToString();
 
-                        decimal KlBatDau = Convert.ToDecimal(row["KlBatDau"]);
-                        decimal CDBatDau = Convert.ToDecimal(row["CDBatDau"]);
+                    //    decimal KlBatDau = Convert.ToDecimal(row["KlBatDau"]);
+                    //    decimal CDBatDau = Convert.ToDecimal(row["CDBatDau"]);
 
-                        decimal tyLe = dvNVL == v.donVi ? 1m : Convert.ToDecimal(row["ChuyenDoi"]); 
+                    //    decimal tyLe = dvNVL == v.donVi ? 1m : Convert.ToDecimal(row["ChuyenDoi"]);
 
-                        decimal kl = KlBatDau - v.KhoiLuong * tyLe > 0 ? KlBatDau - v.KhoiLuong * tyLe : 0;
-                        decimal cd = CDBatDau - v.ChieuDai * tyLe > 0 ? CDBatDau - v.ChieuDai * tyLe : 0;
+                    //    decimal kl = KlBatDau - v.KhoiLuong * tyLe > 0 ? KlBatDau - v.KhoiLuong * tyLe : 0;
+                    //    decimal cd = CDBatDau - v.ChieuDai * tyLe > 0 ? CDBatDau - v.ChieuDai * tyLe : 0;
 
-                        row["KlBatDau"] = kl;
-                        row["CDBatDau"] = cd;
-                    }
+                    //    row["KlBatDau"] = kl;
+                    //    row["CDBatDau"] = cd;
+                    //}
                 }
                 catch (Exception ex)
                 {
@@ -491,6 +489,7 @@ namespace DG_TonKhoBTP_v02.UI
                 result.Columns.Add("CongDoan", typeof(int));
                 result.Columns.Add("KlBatDau", typeof(int));
                 result.Columns.Add("CDBatDau", typeof(int));
+                result.Columns.Add("ChuyenDoi", typeof(decimal));
                 result.Columns.Add("id", typeof(long));
                 result.Columns.Add("MaNVL", typeof(string));
                 result.Columns.Add("DonVi", typeof(string));
@@ -507,9 +506,10 @@ namespace DG_TonKhoBTP_v02.UI
                 r["CongDoan"] = -1;
                 r["KlBatDau"] = -1;
                 r["CDBatDau"] = -1;
+                r["ChuyenDoi"] = 1;
                 r["id"] = new Random().Next(1, int.MaxValue) * -1;
                 r["MaNVL"] = keyword;
-                r["DonVi"] = "Kg";
+                r["DonVi"] = "KG";
                 r["DanhSachMaSP_ID"] = 0;
                 r["Qc"] = "NA";
                 r["BinNVL"] = keyword;
@@ -584,9 +584,27 @@ namespace DG_TonKhoBTP_v02.UI
 
                         decimal cdConLai_New = Convert.ToDecimal(newRow["cdBatDau"]);
 
-                        gtConLai_New = _CD.Id == 9 ? 0 : gtConLai_New;
 
-                        cdConLai_New = _CD.Id == 9 ? 0 : cdConLai_New;
+                        //var row = result.Rows[0];
+
+                        string dvNVL = newRow["DonVi"].ToString();
+
+                        decimal KlBatDau = Convert.ToDecimal(newRow["KlBatDau"]);
+                        decimal CDBatDau = Convert.ToDecimal(newRow["CDBatDau"]);
+
+                        decimal tyLe = 1m;
+                        if (dvNVL != cd_KL_TP.donVi)
+                        {
+                            tyLe = src["ChuyenDoi"] == DBNull.Value ? 1m : Convert.ToDecimal(src["ChuyenDoi"]);
+                        }
+
+                        decimal kl = KlBatDau - cd_KL_TP.KhoiLuong * tyLe > 0 ? KlBatDau - cd_KL_TP.KhoiLuong * tyLe : 0;
+                        decimal cd = CDBatDau - cd_KL_TP.ChieuDai * tyLe > 0 ? CDBatDau - cd_KL_TP.ChieuDai * tyLe : 0;
+
+
+                        gtConLai_New = _CD.Id == 9 ? 0 : kl;
+
+                        cdConLai_New = _CD.Id == 9 ? 0 : cd;
 
                         dtgTTNVL.Rows[addedIndex]
                                   .Cells["KlConLai"].Value = gtConLai_New;

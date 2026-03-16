@@ -73,6 +73,7 @@
             this.muaDịchVụToolStripMenuItem.Name = "muaDịchVụToolStripMenuItem";
             this.muaDịchVụToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.muaDịchVụToolStripMenuItem.Text = "Mua dịch vụ";
+            this.muaDịchVụToolStripMenuItem.Click += new System.EventHandler(this.muaDịchVụToolStripMenuItem_Click);
             // 
             // nhậpKhoToolStripMenuItem
             // 
@@ -90,7 +91,7 @@
             // 
             this.pnMainVatTuPhu.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnMainVatTuPhu.Location = new System.Drawing.Point(0, 26);
-            this.pnMainVatTuPhu.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.pnMainVatTuPhu.Margin = new System.Windows.Forms.Padding(4);
             this.pnMainVatTuPhu.Name = "pnMainVatTuPhu";
             this.pnMainVatTuPhu.Padding = new System.Windows.Forms.Padding(15, 14, 15, 14);
             this.pnMainVatTuPhu.Size = new System.Drawing.Size(1558, 750);
@@ -105,7 +106,7 @@
             this.Controls.Add(this.menuStrip1);
             this.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.MainMenuStrip = this.menuStrip1;
-            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "FrmVatTuPhu";
             this.Text = "FrmVatTuPhu";
             this.Load += new System.EventHandler(this.FrmVatTuPhu_Load);

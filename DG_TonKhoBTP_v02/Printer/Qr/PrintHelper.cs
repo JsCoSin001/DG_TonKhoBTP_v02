@@ -32,7 +32,7 @@ namespace DG_TonKhoBTP_v02.Printer
         private const double ROW2_PAD_MM = 1.0;  // padding trên/dưới dòng Ngày + Người làm
 
         // Font size (Point)
-        private const float FONT_TITLE_PT = 14f;
+        private const float FONT_TITLE_PT = 12f;
         private const float FONT_NORMAL_PT = 10f;
         private const float FONT_BOLD_PT = 11f;
         private const float FONT_NOTE_PT = 10f;
@@ -171,7 +171,7 @@ namespace DG_TonKhoBTP_v02.Printer
                 float y = marginPx;
 
                 // Dòng 1: Tên sản phẩm
-                g.DrawString(data.TenSP ?? "", titleFont, brush, xText, y);
+                g.DrawString(data.TenSP ?? "", titleFont, brush, xText, y + 20);
                 y += lineHeightPx + extraTitle;
 
                 // Dòng 2: LOT

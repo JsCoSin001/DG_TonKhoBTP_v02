@@ -39,7 +39,7 @@ namespace DG_TonKhoBTP_v02.Database
         }
 
 
-        public static int GetSoLuongDonThangHienTai()
+        public static int GetSoLuongDonThangHienTai(int kieuDon = 1)
         {
             DateTime now = DateTime.Now;
 
@@ -53,7 +53,8 @@ namespace DG_TonKhoBTP_v02.Database
             string sql = @"
                 SELECT COUNT(*)
                 FROM DanhSachDatHang
-                WHERE DateInsert >= @start
+                WHERE DateInsert >= @start 
+                AND LoaiDon = @kieuDon
                 AND DateInsert < @end
             ";
 
@@ -64,6 +65,7 @@ namespace DG_TonKhoBTP_v02.Database
 
             cmd.Parameters.AddWithValue("@start", start);
             cmd.Parameters.AddWithValue("@end", end);
+            cmd.Parameters.AddWithValue("@kieuDon", kieuDon);
 
             object result = cmd.ExecuteScalar();
 

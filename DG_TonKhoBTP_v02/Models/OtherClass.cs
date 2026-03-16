@@ -98,12 +98,19 @@ namespace DG_TonKhoBTP_v02.Models
 
     public class TachBinModel
     {
-        public string Lot { get; set; }
+        public int ID { get; set; }
+        public string NgaySX { get; set; }
+        public decimal DanhSachSP_ID { get; set; }
+        public string CaSX { get; set; }
         public string Bin { get; set; }
-        public string DanhSachSP_ID { get; set; }
-        public string qc { get; set; }
-        public decimal KhoiLuongSau { get; set; }
-        public decimal ChieuDaiSau { get; set; }
+        public decimal KhoiLuong { get; set; }
+        public decimal ChieuDai { get; set; }
+        public string TenSP { get; set; }
+        public string QC { get; set; }
+        public string Lot { get; set; }
+        public string MaSP { get; set; }
+        public string NguoiThucHien { get; set; }
+        public string GhiChu { get; set; }
     }
     
 

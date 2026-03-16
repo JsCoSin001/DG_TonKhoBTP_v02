@@ -121,9 +121,6 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho
 
                 DatabaseHelper.Update_KhoiLuongSau_ChieuDaiSau(maBin, khoiLuongCL, chieuDaiCL, ghiChu);
 
-                FrmWaiting.ShowGifAlert("Cập nhật thành công!");
-                clearAll();
-
                 if (khoiLuongCL != 0 || chieuDaiCL != 0)
                 {
                     printer.ChieuDai = chieuDaiCL.ToString(CultureInfo.InvariantCulture);
@@ -133,6 +130,9 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho
 
                     PrintHelper.PrintLabel(printer);
                 }
+
+                FrmWaiting.ShowGifAlert("Cập nhật thành công!");
+                clearAll();
 
             }
             catch (Exception ex)

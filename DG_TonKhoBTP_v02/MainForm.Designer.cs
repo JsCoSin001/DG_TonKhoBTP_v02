@@ -37,6 +37,8 @@ namespace DG_TonKhoBTP_v02
             this.panel16 = new System.Windows.Forms.Panel();
             this.btnKeHoach = new DG_TonKhoBTP_v02.UI.Component.CustomButton();
             this.grbCongCu = new System.Windows.Forms.GroupBox();
+            this.panel22 = new System.Windows.Forms.Panel();
+            this.btnKiemKe = new DG_TonKhoBTP_v02.UI.Component.CustomButton();
             this.panel20 = new System.Windows.Forms.Panel();
             this.btnVatTuPhu = new DG_TonKhoBTP_v02.UI.Component.CustomButton();
             this.panel19 = new System.Windows.Forms.Panel();
@@ -97,6 +99,7 @@ namespace DG_TonKhoBTP_v02
             this.groupBox1.SuspendLayout();
             this.panel16.SuspendLayout();
             this.grbCongCu.SuspendLayout();
+            this.panel22.SuspendLayout();
             this.panel20.SuspendLayout();
             this.panel19.SuspendLayout();
             this.panel21.SuspendLayout();
@@ -160,7 +163,7 @@ namespace DG_TonKhoBTP_v02
             this.groupBox1.Controls.Add(this.panel16);
             this.groupBox1.Dock = System.Windows.Forms.DockStyle.Top;
             this.groupBox1.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.groupBox1.Location = new System.Drawing.Point(0, 1062);
+            this.groupBox1.Location = new System.Drawing.Point(0, 1125);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(185, 83);
             this.groupBox1.TabIndex = 3;
@@ -201,6 +204,7 @@ namespace DG_TonKhoBTP_v02
             // grbCongCu
             // 
             this.grbCongCu.AutoSize = true;
+            this.grbCongCu.Controls.Add(this.panel22);
             this.grbCongCu.Controls.Add(this.panel20);
             this.grbCongCu.Controls.Add(this.panel19);
             this.grbCongCu.Controls.Add(this.panel21);
@@ -210,10 +214,39 @@ namespace DG_TonKhoBTP_v02
             this.grbCongCu.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.grbCongCu.Location = new System.Drawing.Point(0, 727);
             this.grbCongCu.Name = "grbCongCu";
-            this.grbCongCu.Size = new System.Drawing.Size(185, 335);
+            this.grbCongCu.Size = new System.Drawing.Size(185, 398);
             this.grbCongCu.TabIndex = 1;
             this.grbCongCu.TabStop = false;
             this.grbCongCu.Text = "CÔNG CỤ";
+            // 
+            // panel22
+            // 
+            this.panel22.Controls.Add(this.btnKiemKe);
+            this.panel22.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panel22.Location = new System.Drawing.Point(3, 332);
+            this.panel22.Name = "panel22";
+            this.panel22.Padding = new System.Windows.Forms.Padding(5, 6, 5, 6);
+            this.panel22.Size = new System.Drawing.Size(179, 63);
+            this.panel22.TabIndex = 10;
+            // 
+            // btnKiemKe
+            // 
+            this.btnKiemKe.BackColor = System.Drawing.Color.Snow;
+            this.btnKiemKe.BorderRadius = 10;
+            this.btnKiemKe.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnKiemKe.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.btnKiemKe.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnKiemKe.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnKiemKe.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.btnKiemKe.Location = new System.Drawing.Point(5, 6);
+            this.btnKiemKe.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
+            this.btnKiemKe.Name = "btnKiemKe";
+            this.btnKiemKe.Size = new System.Drawing.Size(169, 51);
+            this.btnKiemKe.TabIndex = 9;
+            this.btnKiemKe.TabStop = false;
+            this.btnKiemKe.Text = "Kiểm Kê";
+            this.btnKiemKe.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnKiemKe.UseVisualStyleBackColor = false;
             // 
             // panel20
             // 
@@ -224,7 +257,6 @@ namespace DG_TonKhoBTP_v02
             this.panel20.Padding = new System.Windows.Forms.Padding(5, 6, 5, 6);
             this.panel20.Size = new System.Drawing.Size(179, 63);
             this.panel20.TabIndex = 10;
-            this.panel20.Visible = false;
             // 
             // btnVatTuPhu
             // 
@@ -345,7 +377,6 @@ namespace DG_TonKhoBTP_v02
             this.panel5.Padding = new System.Windows.Forms.Padding(5, 6, 5, 6);
             this.panel5.Size = new System.Drawing.Size(179, 63);
             this.panel5.TabIndex = 7;
-            this.panel5.Visible = false;
             // 
             // btnCapNhatMaHang
             // 
@@ -421,7 +452,6 @@ namespace DG_TonKhoBTP_v02
             this.panel3.Padding = new System.Windows.Forms.Padding(5, 6, 5, 6);
             this.panel3.Size = new System.Drawing.Size(179, 63);
             this.panel3.TabIndex = 5;
-            this.panel3.Visible = false;
             // 
             // BtnKiemTraBc
             // 
@@ -1008,6 +1038,7 @@ namespace DG_TonKhoBTP_v02
             this.groupBox1.ResumeLayout(false);
             this.panel16.ResumeLayout(false);
             this.grbCongCu.ResumeLayout(false);
+            this.panel22.ResumeLayout(false);
             this.panel20.ResumeLayout(false);
             this.panel19.ResumeLayout(false);
             this.panel21.ResumeLayout(false);
@@ -1139,6 +1170,8 @@ namespace DG_TonKhoBTP_v02
         private CustomButton btnVatTuPhu;
         private System.Windows.Forms.Panel panel21;
         private CustomButton btnGopBin;
+        private System.Windows.Forms.Panel panel22;
+        private CustomButton btnKiemKe;
     }
 }
 

@@ -18,24 +18,27 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
             this.WindowState = FormWindowState.Maximized;
         }
 
+        private void FrmVatTuPhu_Load(object sender, EventArgs e)
+        {
+            showMuaVatTu();
+        }
+
         private void muaVậtTưToolStripMenuItem_Click(object sender, EventArgs e)
         {
             showMuaVatTu();
         }
 
-        private void showMuaVatTu()
+        private void showMuaVatTu(int kieuForm = 1)
         {
-            UC_MuaVatTu uc_MuaVatTu = new UC_MuaVatTu();
+            UC_MuaVatTu uc_MuaVatTu = new UC_MuaVatTu(kieuForm);
             uc_MuaVatTu.Dock = DockStyle.Fill;
             pnMainVatTuPhu.Controls.Clear();
             pnMainVatTuPhu.Controls.Add(uc_MuaVatTu);
-
-
         }
 
-        private void FrmVatTuPhu_Load(object sender, EventArgs e)
+        private void muaDịchVụToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            showMuaVatTu();
+            showMuaVatTu(2);
         }
     }
 }

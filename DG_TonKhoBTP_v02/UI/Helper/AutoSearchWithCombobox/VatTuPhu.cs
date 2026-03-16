@@ -39,10 +39,14 @@ namespace DG_TonKhoBTP_v02.UI.Helper.AutoSearchWithCombobox
         public int? Id { get; set; }
         public int? DanhSachMaSP_ID { get; set; }
         public int? DanhSachDatHang_ID { get; set; }
+        public string? MaVatTu { get; set; }
+        public string? TenVatTu { get; set; }
+        public string? DonVi { get; set; }
         public decimal? SoLuongMua { get; set; }
         public decimal? DonGia { get; set; }
         public string MucDichMua { get; set; }
         public string NgayGiao { get; set; }
+        public string SoLuongTon { get; set; }
         public string DateInsert { get; set; }
     }
 

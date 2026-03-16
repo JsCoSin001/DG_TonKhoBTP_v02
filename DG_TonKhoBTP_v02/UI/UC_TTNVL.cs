@@ -428,7 +428,7 @@ namespace DG_TonKhoBTP_v02.UI
             }
 
 
-            string keyword = cbxTimKiem.Text?.Trim().Split('_')[0];
+            string keyword = cbxTimKiem.Text?.Trim();
 
             DataTable result = new DataTable();
 
@@ -452,24 +452,6 @@ namespace DG_TonKhoBTP_v02.UI
                     result = await Task.Run(() =>
                         DatabaseHelper.GetData(query, keyword, para)
                     );
-
-                    //if (result.Rows.Count > 0)
-                    //{
-                    //    var row = result.Rows[0];
-
-                    //    string dvNVL = row["DonVi"].ToString();
-
-                    //    decimal KlBatDau = Convert.ToDecimal(row["KlBatDau"]);
-                    //    decimal CDBatDau = Convert.ToDecimal(row["CDBatDau"]);
-
-                    //    decimal tyLe = dvNVL == v.donVi ? 1m : Convert.ToDecimal(row["ChuyenDoi"]);
-
-                    //    decimal kl = KlBatDau - v.KhoiLuong * tyLe > 0 ? KlBatDau - v.KhoiLuong * tyLe : 0;
-                    //    decimal cd = CDBatDau - v.ChieuDai * tyLe > 0 ? CDBatDau - v.ChieuDai * tyLe : 0;
-
-                    //    row["KlBatDau"] = kl;
-                    //    row["CDBatDau"] = cd;
-                    //}
                 }
                 catch (Exception ex)
                 {

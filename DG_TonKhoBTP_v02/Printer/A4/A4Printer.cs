@@ -67,7 +67,7 @@ namespace DG_TonKhoBTP_v02.Printer.A4
             _columns = null;
         }
 
-        public void Render(Graphics g, Rectangle marginBounds, PrintPageEventArgs e, TPrintData data)
+        public virtual void Render(Graphics g, Rectangle marginBounds, PrintPageEventArgs e, TPrintData data)
         {
             g.TextRenderingHint = TextRenderingHint.AntiAlias;
 

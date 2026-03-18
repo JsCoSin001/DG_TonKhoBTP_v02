@@ -30,15 +30,31 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
 
         private void showMuaVatTu(int kieuForm = 1)
         {
-            UC_MuaVatTu uc_MuaVatTu = new UC_MuaVatTu(kieuForm);
-            uc_MuaVatTu.Dock = DockStyle.Fill;
+            UC_MuaVatTu uc = new UC_MuaVatTu(kieuForm);
+            uc.Dock = DockStyle.Fill;
             pnMainVatTuPhu.Controls.Clear();
-            pnMainVatTuPhu.Controls.Add(uc_MuaVatTu);
+            pnMainVatTuPhu.Controls.Add(uc);
         }
 
         private void muaDịchVụToolStripMenuItem_Click(object sender, EventArgs e)
         {
             showMuaVatTu(2);
+        }
+
+        private void nhậpKhoToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            UC_NhapXuatVatTu uc = new UC_NhapXuatVatTu(true);
+            uc.Dock = DockStyle.Fill;
+            pnMainVatTuPhu.Controls.Clear();
+            pnMainVatTuPhu.Controls.Add(uc);
+        }
+
+        private void xuấtKhoToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            UC_NhapXuatVatTu uc = new UC_NhapXuatVatTu(false);
+            uc.Dock = DockStyle.Fill;
+            pnMainVatTuPhu.Controls.Clear();
+            pnMainVatTuPhu.Controls.Add(uc);
         }
     }
 }

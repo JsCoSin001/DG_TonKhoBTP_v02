@@ -39,6 +39,422 @@ namespace DG_TonKhoBTP_v02.Database
         }
 
 
+        #region Vật tư phụ - Tìm kiếm đơn & load chi tiết
+
+        
+        /// <summary>
+        /// Tìm kiếm MaDon theo keyword (dùng cho ComboBoxSearchHelper)
+        /// </summary>
+        public static async Task<List<string>> TimKiemMaDon(string keyword, int loaiDon = 1)
+        {
+            const string sql = @"
+            SELECT MaDon
+            FROM DanhSachDatHang
+            WHERE MaDon LIKE @kw
+            ORDER BY DateInsert DESC
+            LIMIT 30";
+
+            var result = new List<string>();
+
+            await Task.Run(() =>
+            {
+                using var conn = new SQLiteConnection(_connStr);
+                conn.Open();
+                using var cmd = new SQLiteCommand(sql, conn);
+                cmd.Parameters.AddWithValue("@kw", $"%{keyword}%");
+
+                using var rd = cmd.ExecuteReader();
+                while (rd.Read())
+                    result.Add(rd["MaDon"].ToString());
+            });
+
+            return result;
+        }
+
+        /// <summary>
+        /// Load chi tiết các vật tư của 1 đơn đặt hàng theo MaDon
+        /// </summary>
+        public static async Task<DataTable> LayChiTietDonDatHang(string maDon)
+        {
+            const string sql = @"
+            SELECT
+                t.id          AS id,
+                sp.Ten        AS ten,
+                sp.Ma         AS ma,
+                sp.DonVi      AS donVi,
+                (t.SoLuongMua - IFNULL(ls.TongSoLuong, 0)) AS yeuCau
+            FROM ThongTinDatHang t
+            INNER JOIN DanhSachDatHang d ON d.id = t.DanhSachDatHang_ID
+            LEFT JOIN DanhSachMaSP sp ON sp.id = t.DanhSachMaSP_ID
+            LEFT JOIN (
+                SELECT 
+                    ThongTinDatHang_ID,
+                    SUM(SoLuong) AS TongSoLuong
+                FROM LichSuXuatNhap
+                WHERE SoLuong > 0
+                GROUP BY ThongTinDatHang_ID
+            ) ls ON ls.ThongTinDatHang_ID = t.id
+            WHERE d.MaDon = @maDon
+              AND t.CanEdit = 1
+              AND t.SoLuongMua > IFNULL(ls.TongSoLuong, 0)
+            ORDER BY t.id";
+
+            var dt = new DataTable();
+
+            await Task.Run(() =>
+            {
+                using var conn = new SQLiteConnection(_connStr);
+                conn.Open();
+                using var cmd = new SQLiteCommand(sql, conn);
+                cmd.Parameters.AddWithValue("@maDon", maDon);
+
+                using var adapter = new SQLiteDataAdapter(cmd);
+                adapter.Fill(dt);
+            });
+
+            return dt;
+        }
+
+
+
+        public static async Task<List<string>> TimKiemTheoTenVatTu(string keyword)
+        {
+            const string sql = @"
+                SELECT DISTINCT TenVatTu
+                FROM ThongTinDatHang
+                WHERE TenVatTu LIKE @kw
+                  AND TenVatTu IS NOT NULL AND CANEdit = 1
+                ORDER BY TenVatTu
+                LIMIT 30";
+
+            var result = new List<string>();
+
+            await Task.Run(() =>
+            {
+                using var conn = new SQLiteConnection(_connStr);
+                conn.Open();
+                using var cmd = new SQLiteCommand(sql, conn);
+                cmd.Parameters.AddWithValue("@kw", $"%{keyword}%");
+
+                using var rd = cmd.ExecuteReader();
+                while (rd.Read())
+                    result.Add(rd["TenVatTu"].ToString());
+            });
+
+            return result;
+        }
+
+        public static async Task<DataTable> LayChiTietDonTheoTenVatTu(string tenVatTu)
+        {
+            const string sql = @"
+            SELECT
+                t.id          AS id,
+                sp.Ten        AS ten,
+                sp.Ma         AS ma,
+                sp.DonVi      AS donVi,
+                (t.SoLuongMua - IFNULL(ls.TongSoLuong, 0)) AS yeuCau
+            FROM ThongTinDatHang t
+            INNER JOIN DanhSachDatHang d ON d.id = t.DanhSachDatHang_ID
+            LEFT JOIN DanhSachMaSP sp ON sp.id = t.DanhSachMaSP_ID
+            LEFT JOIN (
+                SELECT 
+                    ThongTinDatHang_ID,
+                    SUM(SoLuong) AS TongSoLuong
+                FROM LichSuXuatNhap
+                WHERE SoLuong > 0
+                GROUP BY ThongTinDatHang_ID
+            ) ls ON ls.ThongTinDatHang_ID = t.id
+            WHERE t.TenVatTu = @tenVatTu
+                AND t.CanEdit = 1
+                AND t.SoLuongMua > IFNULL(ls.TongSoLuong, 0)
+            ORDER BY t.id";
+
+            var dt = new DataTable();
+
+            await Task.Run(() =>
+            {
+                using var conn = new SQLiteConnection(_connStr);
+                conn.Open();
+                using var cmd = new SQLiteCommand(sql, conn);
+                cmd.Parameters.AddWithValue("@tenVatTu", tenVatTu);
+
+                using var adapter = new SQLiteDataAdapter(cmd);
+                adapter.Fill(dt);
+            });
+
+            return dt;
+        }
+
+        public static int GetSoLuongXuatNhapThangHienTai(bool isNhapKho = false)
+        {
+            DateTime now = DateTime.Now;
+
+            string start = new DateTime(now.Year, now.Month, 1)
+                .ToString("yyyy-MM-dd");
+
+            string end = new DateTime(now.Year, now.Month, 1)
+                .AddMonths(1)
+                .ToString("yyyy-MM-dd");
+
+            string sql = @"
+                SELECT COUNT(*)
+                FROM LichSuXuatNhap
+                WHERE Ngay >= @start 
+                AND Ngay < @end
+            ";
+
+            sql += isNhapKho ? " AND TenPhieu LIKE 'KNK%'" : " AND TenPhieu  LIKE 'KXK%'";
+
+            using var conn = new SQLiteConnection(DatabaseHelper.GetStringConnector);
+            conn.Open();
+
+            using var cmd = new SQLiteCommand(sql, conn);
+
+            cmd.Parameters.AddWithValue("@start", start);
+            cmd.Parameters.AddWithValue("@end", end);
+
+            object result = cmd.ExecuteScalar();
+
+            return result == null ? 0 : Convert.ToInt32(result);
+        }
+
+
+        // File: DatabaseHelper.cs
+        // Class: DatabaseHelper
+        // Sửa hàm LuuLichSuXuatNhap — thay toàn bộ nội dung hàm
+
+        public static async Task<string> LuuLichSuXuatNhap(
+            DataGridView dgv,
+            string nguoiGiaoNhan,
+            string lyDoChung,
+            string ngay,
+            bool isNhapKho = true)
+        {
+            if (dgv == null || dgv.Rows.Count == 0)
+                return null;
+
+            if (string.IsNullOrWhiteSpace(nguoiGiaoNhan))
+                throw new ArgumentException("Người giao/nhận không được để trống.", nameof(nguoiGiaoNhan));
+
+            if (string.IsNullOrWhiteSpace(ngay) || !DateTime.TryParse(ngay, out DateTime parsedNgay))
+                throw new ArgumentException("Ngày không hợp lệ.", nameof(ngay));
+
+            if (!dgv.Columns.Contains("id"))
+                throw new Exception("DataGridView thiếu cột 'id'.");
+
+            if (!dgv.Columns.Contains("thucNhan"))
+                throw new Exception("DataGridView thiếu cột 'thucNhan'.");
+
+            const string sqlGetThongTinDatHang = @"
+        SELECT SoLuongMua
+        FROM ThongTinDatHang
+        WHERE id = @ThongTinDatHang_ID;";
+
+            const string sqlGetTongDaNhap = @"
+        SELECT COALESCE(SUM(SoLuong), 0)
+        FROM LichSuXuatNhap
+        WHERE ThongTinDatHang_ID = @ThongTinDatHang_ID
+          AND SoLuong > 0;";
+
+            // Tồn kho = tổng tất cả (nhập dương + xuất âm)
+            const string sqlGetTonKho = @"
+        SELECT COALESCE(SUM(SoLuong), 0)
+        FROM LichSuXuatNhap
+        WHERE ThongTinDatHang_ID = @ThongTinDatHang_ID;";
+
+            const string sqlInsert = @"
+        INSERT INTO LichSuXuatNhap
+            (ThongTinDatHang_ID, Ngay, NguoiGiao_Nhan, LyDo, SoLuong, TenPhieu)
+        VALUES
+            (@ThongTinDatHang_ID, @Ngay, @NguoiGiao_Nhan, @LyDo, @SoLuong, @TenPhieu);";
+
+            string tenPhieu = null;
+            bool hasInsert = false;
+
+            await Task.Run(() =>
+            {
+                using var conn = new SQLiteConnection(_connStr);
+                conn.Open();
+
+                using var transaction = conn.BeginTransaction();
+                try
+                {
+                    int soThuTu = GetSoLuongXuatNhapThangHienTai(isNhapKho) + 1;
+                    string prefix = isNhapKho ? "KNK" : "KXK";
+                    tenPhieu = $"{prefix}{parsedNgay:yy/MM}-{soThuTu:D4}";
+
+                    using var cmdGetSoLuongMua = new SQLiteCommand(sqlGetThongTinDatHang, conn, transaction);
+                    cmdGetSoLuongMua.Parameters.Add("@ThongTinDatHang_ID", DbType.Int64);
+
+                    using var cmdGetTongDaNhap = new SQLiteCommand(sqlGetTongDaNhap, conn, transaction);
+                    cmdGetTongDaNhap.Parameters.Add("@ThongTinDatHang_ID", DbType.Int64);
+
+                    using var cmdGetTonKho = new SQLiteCommand(sqlGetTonKho, conn, transaction);
+                    cmdGetTonKho.Parameters.Add("@ThongTinDatHang_ID", DbType.Int64);
+
+                    using var cmdInsert = new SQLiteCommand(sqlInsert, conn, transaction);
+                    cmdInsert.Parameters.Add("@ThongTinDatHang_ID", DbType.Int64);
+                    cmdInsert.Parameters.Add("@Ngay", DbType.String);
+                    cmdInsert.Parameters.Add("@NguoiGiao_Nhan", DbType.String);
+                    cmdInsert.Parameters.Add("@LyDo", DbType.String);
+                    cmdInsert.Parameters.Add("@SoLuong", DbType.Decimal);
+                    cmdInsert.Parameters.Add("@TenPhieu", DbType.String);
+
+                    for (int i = 0; i < dgv.Rows.Count; i++)
+                    {
+                        var gridRow = dgv.Rows[i];
+                        if (gridRow.IsNewRow) continue;
+
+                        object idObj = gridRow.Cells["id"]?.Value;
+                        if (idObj == null || idObj == DBNull.Value
+                            || !long.TryParse(idObj.ToString(), out long thongTinDatHangId))
+                            throw new Exception($"Dòng {i + 1}: id không hợp lệ.");
+
+                        string thucNhanText = gridRow.Cells["thucNhan"]?.Value?.ToString()?.Trim();
+                        if (string.IsNullOrWhiteSpace(thucNhanText)) continue;
+
+                        if (!decimal.TryParse(thucNhanText, out decimal soLuongNhap))
+                            throw new Exception($"Dòng {i + 1}: số lượng không hợp lệ.");
+
+                        if (soLuongNhap <= 0) continue;
+
+                        string ghiChu = dgv.Columns.Contains("ghiChu")
+                            ? gridRow.Cells["ghiChu"]?.Value?.ToString()?.Trim()
+                            : null;
+
+                        string lyDoLuu = !string.IsNullOrWhiteSpace(ghiChu)
+                            ? ghiChu
+                            : string.IsNullOrWhiteSpace(lyDoChung) ? null : lyDoChung.Trim();
+
+                        if (isNhapKho)
+                        {
+                            // Validate nhập: không vượt SoLuongMua
+                            cmdGetSoLuongMua.Parameters["@ThongTinDatHang_ID"].Value = thongTinDatHangId;
+                            object soLuongMuaObj = cmdGetSoLuongMua.ExecuteScalar();
+                            if (soLuongMuaObj == null || soLuongMuaObj == DBNull.Value)
+                                throw new Exception($"Dòng {i + 1}: không tìm thấy ThongTinDatHang_ID = {thongTinDatHangId}.");
+
+                            decimal soLuongMua = Convert.ToDecimal(soLuongMuaObj);
+                            cmdGetTongDaNhap.Parameters["@ThongTinDatHang_ID"].Value = thongTinDatHangId;
+                            decimal tongDaNhap = Convert.ToDecimal(cmdGetTongDaNhap.ExecuteScalar());
+
+                            if (tongDaNhap + soLuongNhap > soLuongMua)
+                                throw new Exception(
+                                    $"Dòng {i + 1}: nhập vượt số lượng mua. " +
+                                    $"Mua = {soLuongMua}, đã nhập = {tongDaNhap}, nhập thêm = {soLuongNhap}.");
+
+                            cmdInsert.Parameters["@SoLuong"].Value = soLuongNhap; // dương
+                        }
+                        else
+                        {
+                            // Validate xuất: không vượt tồn kho
+                            cmdGetTonKho.Parameters["@ThongTinDatHang_ID"].Value = thongTinDatHangId;
+                            decimal tonKho = Convert.ToDecimal(cmdGetTonKho.ExecuteScalar());
+
+                            if (soLuongNhap > tonKho)
+                                throw new Exception(
+                                    $"Dòng {i + 1}: xuất vượt tồn kho. " +
+                                    $"Tồn kho = {tonKho}, đang xuất = {soLuongNhap}.");
+
+                            cmdInsert.Parameters["@SoLuong"].Value = -soLuongNhap; // âm
+                        }
+
+                        cmdInsert.Parameters["@ThongTinDatHang_ID"].Value = thongTinDatHangId;
+                        cmdInsert.Parameters["@Ngay"].Value = parsedNgay.ToString("yyyy-MM-dd");
+                        cmdInsert.Parameters["@NguoiGiao_Nhan"].Value = nguoiGiaoNhan.Trim();
+                        cmdInsert.Parameters["@LyDo"].Value = string.IsNullOrWhiteSpace(lyDoLuu)
+                            ? (object)DBNull.Value : lyDoLuu;
+                        cmdInsert.Parameters["@TenPhieu"].Value = tenPhieu;
+
+                        cmdInsert.ExecuteNonQuery();
+                        hasInsert = true;
+                    }
+
+                    transaction.Commit();
+                }
+                catch
+                {
+                    transaction.Rollback();
+                    throw;
+                }
+            });
+
+            return hasInsert ? tenPhieu : null;
+        }
+
+        // Xuất kho
+        /// <summary>
+        /// Tìm kiếm MaDon theo keyword, chỉ trả về đơn có ít nhất 1 vật tư còn tồn kho
+        /// (dùng cho xuất kho - _isNhapKho = false)
+        /// </summary>
+        public static async Task<List<string>> TimKiemMaDonConHang(string keyword)
+        {
+            const string sql = @"
+            SELECT DISTINCT d.MaDon
+            FROM DanhSachDatHang d
+            INNER JOIN ThongTinDatHang t ON t.DanhSachDatHang_ID = d.id
+            INNER JOIN LichSuXuatNhap l ON l.ThongTinDatHang_ID = t.id
+            WHERE d.MaDon LIKE @kw
+            GROUP BY t.id
+            HAVING SUM(l.SoLuong) > 0
+            ORDER BY d.DateInsert DESC
+            LIMIT 30";
+
+            var result = new List<string>();
+
+            await Task.Run(() =>
+            {
+                using var conn = new SQLiteConnection(_connStr);
+                conn.Open();
+                using var cmd = new SQLiteCommand(sql, conn);
+                cmd.Parameters.AddWithValue("@kw", $"%{keyword}%");
+
+                using var rd = cmd.ExecuteReader();
+                while (rd.Read())
+                    result.Add(rd["MaDon"].ToString());
+            });
+
+            return result;
+        }
+
+        /// <summary>
+        /// Tìm kiếm tên vật tư theo keyword, chỉ trả về vật tư còn tồn kho
+        /// (dùng cho xuất kho - _isNhapKho = false)
+        /// </summary>
+        public static async Task<List<string>> TimKiemTheoTenVatTuConHang(string keyword)
+        {
+            const string sql = @"
+            SELECT DISTINCT t.TenVatTu
+            FROM ThongTinDatHang t
+            INNER JOIN LichSuXuatNhap l ON l.ThongTinDatHang_ID = t.id
+            WHERE t.TenVatTu LIKE @kw
+              AND t.TenVatTu IS NOT NULL
+              AND t.CanEdit = 1
+            GROUP BY t.TenVatTu
+            HAVING SUM(l.SoLuong) > 0
+            ORDER BY t.TenVatTu
+            LIMIT 30";
+
+            var result = new List<string>();
+
+            await Task.Run(() =>
+            {
+                using var conn = new SQLiteConnection(_connStr);
+                conn.Open();
+                using var cmd = new SQLiteCommand(sql, conn);
+                cmd.Parameters.AddWithValue("@kw", $"%{keyword}%");
+
+                using var rd = cmd.ExecuteReader();
+                while (rd.Read())
+                    result.Add(rd["TenVatTu"].ToString());
+            });
+
+            return result;
+        }
+
+        #endregion
+
+
         public static int GetSoLuongDonThangHienTai(int kieuDon = 1)
         {
             DateTime now = DateTime.Now;
@@ -152,6 +568,96 @@ namespace DG_TonKhoBTP_v02.Database
                     return lotCode;
                 }
             }
+        }
+
+        /// <summary>
+        /// Load chi tiết đơn theo MaDon cho xuất kho
+        /// Cột yeuCau = tồn kho hiện tại (SUM toàn bộ LichSuXuatNhap)
+        /// Chỉ lấy vật tư còn tồn kho > 0
+        /// </summary>
+        public static async Task<DataTable> LayChiTietDonDatHangXuatKho(string maDon)
+        {
+            const string sql = @"
+        SELECT
+            t.id                    AS id,
+            sp.Ten                  AS ten,
+            sp.Ma                   AS ma,
+            sp.DonVi                AS donVi,
+            IFNULL(ls.TonKho, 0)   AS yeuCau
+        FROM ThongTinDatHang t
+        INNER JOIN DanhSachDatHang d ON d.id = t.DanhSachDatHang_ID
+        LEFT JOIN DanhSachMaSP sp ON sp.id = t.DanhSachMaSP_ID
+        LEFT JOIN (
+            SELECT
+                ThongTinDatHang_ID,
+                SUM(SoLuong) AS TonKho
+            FROM LichSuXuatNhap
+            GROUP BY ThongTinDatHang_ID
+        ) ls ON ls.ThongTinDatHang_ID = t.id
+        WHERE d.MaDon = @maDon
+          AND t.CanEdit = 1
+          AND IFNULL(ls.TonKho, 0) > 0
+        ORDER BY t.id";
+
+            var dt = new DataTable();
+
+            await Task.Run(() =>
+            {
+                using var conn = new SQLiteConnection(_connStr);
+                conn.Open();
+                using var cmd = new SQLiteCommand(sql, conn);
+                cmd.Parameters.AddWithValue("@maDon", maDon);
+
+                using var adapter = new SQLiteDataAdapter(cmd);
+                adapter.Fill(dt);
+            });
+
+            return dt;
+        }
+
+        /// <summary>
+        /// Load chi tiết theo tên vật tư cho xuất kho
+        /// Cột yeuCau = tồn kho hiện tại (SUM toàn bộ LichSuXuatNhap)
+        /// Chỉ lấy vật tư còn tồn kho > 0
+        /// </summary>
+        public static async Task<DataTable> LayChiTietDonTheoTenVatTuXuatKho(string tenVatTu)
+        {
+            const string sql = @"
+        SELECT
+            t.id                    AS id,
+            sp.Ten                  AS ten,
+            sp.Ma                   AS ma,
+            sp.DonVi                AS donVi,
+            IFNULL(ls.TonKho, 0)   AS yeuCau
+        FROM ThongTinDatHang t
+        INNER JOIN DanhSachDatHang d ON d.id = t.DanhSachDatHang_ID
+        LEFT JOIN DanhSachMaSP sp ON sp.id = t.DanhSachMaSP_ID
+        LEFT JOIN (
+            SELECT
+                ThongTinDatHang_ID,
+                SUM(SoLuong) AS TonKho
+            FROM LichSuXuatNhap
+            GROUP BY ThongTinDatHang_ID
+        ) ls ON ls.ThongTinDatHang_ID = t.id
+        WHERE t.TenVatTu = @tenVatTu
+          AND t.CanEdit = 1
+          AND IFNULL(ls.TonKho, 0) > 0
+        ORDER BY t.id";
+
+            var dt = new DataTable();
+
+            await Task.Run(() =>
+            {
+                using var conn = new SQLiteConnection(_connStr);
+                conn.Open();
+                using var cmd = new SQLiteCommand(sql, conn);
+                cmd.Parameters.AddWithValue("@tenVatTu", tenVatTu);
+
+                using var adapter = new SQLiteDataAdapter(cmd);
+                adapter.Fill(dt);
+            });
+
+            return dt;
         }
 
         #region Kế hoạch sản xuất

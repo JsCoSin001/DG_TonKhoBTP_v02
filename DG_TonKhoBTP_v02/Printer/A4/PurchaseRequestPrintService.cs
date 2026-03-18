@@ -55,4 +55,50 @@ namespace DG_TonKhoBTP_v02.Printer
 
         
     }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // Phiếu Nhập Kho
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    public class WarehouseReceiptPrintService
+    {
+        private readonly WarehouseReceiptPrintData _data;
+
+        public WarehouseReceiptPrintService(WarehouseReceiptPrintData data) => _data = data;
+
+        public void ShowPreview(IWin32Window owner = null)
+        {
+            var mgr = new PrintManager<WarehouseReceiptPrintData>(_data, new WarehouseReceiptRenderer());
+            mgr.ShowPreview(owner);
+        }
+
+        public void Print()
+        {
+            var mgr = new PrintManager<WarehouseReceiptPrintData>(_data, new WarehouseReceiptRenderer());
+            mgr.Print();
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // Phiếu Xuất Kho
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    public class WarehouseIssuesPrintService
+    {
+        private readonly WarehouseIssuesPrintData _data;
+
+        public WarehouseIssuesPrintService(WarehouseIssuesPrintData data) => _data = data;
+
+        public void ShowPreview(IWin32Window owner = null)
+        {
+            var mgr = new PrintManager<WarehouseIssuesPrintData>(_data, new WarehouseIssuesRenderer());
+            mgr.ShowPreview(owner);
+        }
+
+        public void Print()
+        {
+            var mgr = new PrintManager<WarehouseIssuesPrintData>(_data, new WarehouseIssuesRenderer());
+            mgr.Print();
+        }
+    }
 }

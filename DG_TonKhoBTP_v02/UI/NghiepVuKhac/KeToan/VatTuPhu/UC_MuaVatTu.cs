@@ -26,8 +26,14 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
 
         private int _KieuDon = 1; // 1: Đơn mua vật tư, 2: Đơn dịch vụ
 
+        // *** THÊM MỚI: cờ theo dõi layout DGV hiện tại ***
+        // false  = layout đầy đủ (KieuDon==1 với ma, donVi, donGia, slTon…)
+        // true   = layout rút gọn (ten, soLuong, mucDich, ngayGiao, xoa)
+        private bool _isNullMaSPLayout = false;
+
         private string MaDonMuaDichVu => "PRS";
         private string MaDonMuaVatTu => "PRM";
+
         public UC_MuaVatTu(int kieuDon)
         {
             InitializeComponent();
@@ -37,11 +43,19 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
 
         private void setupUI()
         {
-            lblTitle.Text = _KieuDon == 1 ? "ĐẶT HÀNG MUA VẬT TƯ": "ĐẶT HÀNG MUA DỊCH VỤ";
-
+            lblTitle.Text = _KieuDon == 1 ? "ĐẶT HÀNG MUA VẬT TƯ" : "ĐẶT HÀNG MUA DỊCH VỤ";
             SetupDGVColumns();
         }
 
+        // ─────────────────────────────────────────────────────────────────────────────
+        // SETUP CỘT DGV
+        // ─────────────────────────────────────────────────────────────────────────────
+
+        /// <summary>
+        /// Layout mặc định theo _KieuDon.
+        /// KieuDon == 1: full columns (id, ma, ten, donVi, soLuong, donGia, mucDich, ngayGiao, slTon, xoa)
+        /// KieuDon == 2: layout rút gọn (ten, soLuong, mucDich, ngayGiao, xoa)
+        /// </summary>
         private void SetupDGVColumns()
         {
             dgvDSMua.Columns.Clear();
@@ -62,25 +76,42 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
                 dgvDSMua.Columns.Add(new DataGridViewTextBoxColumn { Name = "ngayGiao", HeaderText = "Ngày giao", Width = 100 });
                 dgvDSMua.Columns.Add(new DataGridViewTextBoxColumn { Name = "slTon", HeaderText = "Số lượng tồn", Width = 100 });
                 dgvDSMua.AllowUserToAddRows = false;
+
+                _isNullMaSPLayout = false;
+                AddXoaColumn();
             }
             else // _KieuDon == 2
             {
-                dgvDSMua.Columns.Add(new DataGridViewTextBoxColumn { Name = "ten", HeaderText = "Tên Vật Tư", Width = 500 });
-                dgvDSMua.Columns.Add(new DataGridViewTextBoxColumn { Name = "soLuong", HeaderText = "Số lượng", Width = 150 });
-
-                var colMucDich = new DataGridViewTextBoxColumn { Name = "mucDich", HeaderText = "Mục đích" };
-                colMucDich.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-                dgvDSMua.Columns.Add(colMucDich);
-
-                dgvDSMua.Columns.Add(new DataGridViewTextBoxColumn { Name = "ngayGiao", HeaderText = "Ngày giao", Width = 150 });
-                dgvDSMua.AllowUserToAddRows = true;
-                //cbxTimTenVatTu.Enabled = false;
-                //cbxTimTenVatTu.Text = "";
-                //cbxTimTenVatTu.Items.Clear();
-
+                SetupDGVColumnsNullMaSP(allowAddRows: true);
             }
+        }
 
-            // Cột Xoá - chung cho cả 2 kiểu đơn
+        /// <summary>
+        /// Layout rút gọn dùng khi DanhSachMaSP_ID = null (hoặc KieuDon == 2).
+        /// ten | soLuong | mucDich | ngayGiao | xoa
+        /// </summary>
+        /// <param name="allowAddRows">true khi KieuDon==2 tạo mới, false khi edit đơn</param>
+        private void SetupDGVColumnsNullMaSP(bool allowAddRows = false)
+        {
+            dgvDSMua.Columns.Clear();
+
+            dgvDSMua.Columns.Add(new DataGridViewTextBoxColumn { Name = "ten", HeaderText = "Tên", Width = 400 });
+            dgvDSMua.Columns.Add(new DataGridViewTextBoxColumn { Name = "soLuong", HeaderText = "Số lượng", Width = 150 });
+
+            var colMucDich = new DataGridViewTextBoxColumn { Name = "mucDich", HeaderText = "Mục đích" };
+            colMucDich.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            dgvDSMua.Columns.Add(colMucDich);
+
+            dgvDSMua.Columns.Add(new DataGridViewTextBoxColumn { Name = "ngayGiao", HeaderText = "Ngày giao", Width = 150 });
+            dgvDSMua.AllowUserToAddRows = allowAddRows;
+
+            AddXoaColumn();
+
+            _isNullMaSPLayout = true;
+        }
+
+        private void AddXoaColumn()
+        {
             dgvDSMua.Columns.Add(new DataGridViewButtonColumn
             {
                 Name = "colXoa",
@@ -91,47 +122,58 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
             });
         }
 
+        // ─────────────────────────────────────────────────────────────────────────────
+        // LOAD
+        // ─────────────────────────────────────────────────────────────────────────────
+
         private async void UC_MuaVatTu_Load(object sender, EventArgs e)
         {
             var repo = new VatTuRepository();
 
             _vatTuSearchHelper = new ComboBoxSearchHelper<MuaVatTuSearchItem>(
                 comboBox: cbxTimTenVatTu,
-                searchFunc: keyword => repo.TimKiemTheoCheDoAsync(keyword, rdoTaoMoi.Checked),
+                searchFunc: keyword => repo.TimKiemTheoCheDoAsync(keyword, rdoTaoMoi.Checked, _KieuDon),
                 displaySelector: item => item.DisplayText,
                 onItemSelected: item =>
                 {
+                    // ── Chế độ TẠO MỚI: item là vật tư từ DanhSachMaSP ──
                     if (!item.IsDonHang)
                     {
+                        // Chỉ áp dụng cho KieuDon == 1 (layout đầy đủ)
                         dgvDSMua.Rows.Add(item.Id, item.Ma, item.Ten, item.DonVi);
-
                         cbxTimTenVatTu.Text = "";
                         cbxTimTenVatTu.Items.Clear();
                         return;
                     }
 
+                    // ── Chế độ SỬA ĐƠN: item là mã đơn hàng ──
                     tbMaDon.Text = item.MaDon;
                     dgvDSMua.Rows.Clear();
 
                     var chiTietList = repo.GetChiTietDonHang(item.MaDon);
-
-                    foreach (var ct in chiTietList)
+                    if (chiTietList == null || chiTietList.Count == 0)
                     {
-                        if (!ct.DanhSachMaSP_ID.HasValue) continue;
+                        cbxTimTenVatTu.Text = "";
+                        cbxTimTenVatTu.Items.Clear();
+                        return;
+                    }
 
-                        var vt = repo.GetVatTuById(ct.DanhSachMaSP_ID.Value);
-                        if (vt == null) continue;
+                    // Xác định layout dựa trên dữ liệu thực tế của đơn hàng
+                    bool coNullMaSP = chiTietList.Any(ct => !ct.DanhSachMaSP_ID.HasValue);
 
-                        dgvDSMua.Rows.Add(
-                            vt.Id,
-                            vt.Ma,
-                            vt.Ten,
-                            vt.DonVi,
-                            ct.SoLuongMua,
-                            ct.DonGia,
-                            ct.MucDichMua,
-                            ct.NgayGiao
-                        );
+                    if (coNullMaSP)
+                    {
+                        // Layout rút gọn: không cho thêm dòng tự do khi đang edit
+                        SetupDGVColumnsNullMaSP(allowAddRows: false);
+                        LoadDGVNullMaSP(chiTietList);
+                    }
+                    else
+                    {
+                        // Đảm bảo layout đầy đủ (KieuDon == 1)
+                        if (_isNullMaSPLayout)
+                            SetupDGVColumns();
+
+                        LoadDGVFullColumns(chiTietList, repo);
                     }
 
                     cbxTimTenVatTu.Text = "";
@@ -145,6 +187,58 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
             await CapNhatUITheoCheDoAsync();
         }
 
+        // ─────────────────────────────────────────────────────────────────────────────
+        // LOAD DỮ LIỆU VÀO DGV
+        // ─────────────────────────────────────────────────────────────────────────────
+
+        /// <summary>
+        /// Điền dữ liệu vào DGV với layout đầy đủ (KieuDon == 1, DanhSachMaSP_ID có giá trị).
+        /// Cột: id | ma | ten | donVi | soLuong | donGia | mucDich | ngayGiao | slTon | xoa
+        /// </summary>
+        private void LoadDGVFullColumns(List<ThongTinDatHang> chiTietList, VatTuRepository repo)
+        {
+            foreach (var ct in chiTietList)
+            {
+                if (!ct.DanhSachMaSP_ID.HasValue) continue; // bỏ qua dòng không có mã SP
+
+                var vt = repo.GetVatTuById(ct.DanhSachMaSP_ID.Value);
+                if (vt == null) continue;
+
+                dgvDSMua.Rows.Add(
+                    vt.Id,
+                    vt.Ma,
+                    vt.Ten,
+                    vt.DonVi,
+                    ct.SoLuongMua,
+                    ct.DonGia,
+                    ct.MucDichMua,
+                    ct.NgayGiao
+                // slTon để trống khi load edit (không lưu trong DB)
+                );
+            }
+        }
+
+        /// <summary>
+        /// Điền dữ liệu vào DGV với layout rút gọn (DanhSachMaSP_ID = null).
+        /// Cột: ten | soLuong | mucDich | ngayGiao | xoa
+        /// </summary>
+        private void LoadDGVNullMaSP(List<ThongTinDatHang> chiTietList)
+        {
+            foreach (var ct in chiTietList)
+            {
+                dgvDSMua.Rows.Add(
+                    ct.TenVatTu,
+                    ct.SoLuongMua,
+                    ct.MucDichMua,
+                    ct.NgayGiao
+                );
+            }
+        }
+
+        // ─────────────────────────────────────────────────────────────────────────────
+        // CẬP NHẬT UI THEO CHẾ ĐỘ
+        // ─────────────────────────────────────────────────────────────────────────────
+
         private async Task CapNhatUITheoCheDoAsync()
         {
             bool taoMoiDon = rdoTaoMoi.Checked;
@@ -152,20 +246,24 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
             cbxTimTenVatTu.Text = "";
             cbxTimTenVatTu.Items.Clear();
 
-            // Nếu KieuDon == 2: Tạo mới thì disable cbx, Sửa đơn thì enable cbx
-            // Nếu KieuDon == 1: cbx luôn enable (không đổi)
             if (_KieuDon == 2)
             {
                 cbxTimTenVatTu.Enabled = !taoMoiDon; // Tạo mới → disable, Sửa đơn → enable
             }
 
             tbMaDon.Enabled = taoMoiDon;
-
-            lblTieuDeTimKiem.Text = taoMoiDon ? "Tìm Tên Vật Tư": "Tìm theo Mã Đơn";
+            lblTieuDeTimKiem.Text = taoMoiDon ? "Tìm Tên Vật Tư" : "Tìm theo Mã Đơn";
 
             if (taoMoiDon)
             {
                 dgvDSMua.Rows.Clear();
+
+                // *** Reset layout về mặc định khi chuyển sang chế độ tạo mới ***
+                // Tránh trường hợp trước đó đang edit đơn có NullMaSP layout
+                if (_isNullMaSPLayout && _KieuDon == 1)
+                    SetupDGVColumns();
+                else if (_KieuDon == 2 && !_isNullMaSPLayout)
+                    SetupDGVColumnsNullMaSP(allowAddRows: true);
 
                 int soLuongDon = await Task.Run(() => DatabaseHelper.GetSoLuongDonThangHienTai(_KieuDon));
                 string soDon = $"{GenerateMaDon(_KieuDon)}-{(soLuongDon + 1):0000}";
@@ -173,11 +271,14 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
             }
             else
             {
+                dgvDSMua.Rows.Clear();
                 tbMaDon.Text = "";
             }
-
-            
         }
+
+        // ─────────────────────────────────────────────────────────────────────────────
+        // SỰ KIỆN DGV
+        // ─────────────────────────────────────────────────────────────────────────────
 
         private void dgvDSMua_CellClick(object sender, DataGridViewCellEventArgs e)
         {
@@ -191,22 +292,9 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
             }
         }
 
-        
-        private string GenerateMaDon(int kieuDon = 1)
-        {
-            string don = kieuDon == 1 ? MaDonMuaVatTu : MaDonMuaDichVu;
-
-            string y = DateTime.Now.Year.ToString();
-            // get 2 last digits of year
-                y = y.Substring(y.Length - 2);
-            // get month and day with leading zero
-            string m = DateTime.Now.Month.ToString("D2");
-            
-            don += y + "/" + m;
-
-            return don;
-        }
-
+        // ─────────────────────────────────────────────────────────────────────────────
+        // ĐẶT HÀNG
+        // ─────────────────────────────────────────────────────────────────────────────
 
         private void btnDatHang_Click(object sender, EventArgs e)
         {
@@ -229,18 +317,13 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
 
             try
             {
-                bool daIn = false;
-
                 if (taoMoiDon)
                 {
                     vt.InsertDonDatHang(
                         new DanhSachDatHang { MaDon = maDon, LoaiDon = _KieuDon },
                         list
                     );
-
-                    // Mặc định in
                     InPhieuMuaVatTu(maDon, list);
-                    daIn = true;
                 }
                 else
                 {
@@ -249,7 +332,6 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
                         list
                     );
 
-                    // Hỏi có in không
                     var hoiIn = MessageBox.Show(
                         "Bạn có muốn in lại phiếu mua vật tư không?",
                         "Xác nhận in",
@@ -258,13 +340,9 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
                     );
 
                     if (hoiIn == DialogResult.Yes)
-                    {
                         InPhieuMuaVatTu(maDon, list);
-                        daIn = true;
-                    }
                 }
 
-                // Thông báo sau khi xử lý in
                 FrmWaiting.ShowGifAlert(
                     $"{(taoMoiDon ? "Tạo" : "Cập nhật")} đơn hàng thành công: {maDon}",
                     "ĐẶT HÀNG",
@@ -284,10 +362,62 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
         }
 
         // ─────────────────────────────────────────────────────────────────────────────
+        // ĐỌC DỮ LIỆU TỪ DGV
+        // ─────────────────────────────────────────────────────────────────────────────
+
+        /// <summary>
+        /// Đọc dữ liệu từ DGV dựa trên layout hiện tại (_isNullMaSPLayout).
+        /// Layout đầy đủ  → đọc: id, ma, ten, donVi, soLuong, donGia, mucDich, ngayGiao, slTon
+        /// Layout rút gọn → đọc: ten, soLuong, mucDich, ngayGiao (DanhSachMaSP_ID = null)
+        /// </summary>
+        private List<ThongTinDatHang> LayDuLieuTuDGV()
+        {
+            var list = new List<ThongTinDatHang>();
+
+            foreach (DataGridViewRow row in dgvDSMua.Rows)
+            {
+                if (row.IsNewRow) continue;
+
+                if (!_isNullMaSPLayout) // layout đầy đủ (KieuDon == 1 với mã SP)
+                {
+                    list.Add(new ThongTinDatHang
+                    {
+                        DanhSachMaSP_ID = CoreHelper.TryParseInt(row.Cells["id"].Value),
+                        MaVatTu = CoreHelper.TrimToNull(row.Cells["ma"].Value?.ToString()),
+                        TenVatTu = CoreHelper.TrimToNull(row.Cells["ten"].Value?.ToString()),
+                        DonVi = CoreHelper.TrimToNull(row.Cells["donVi"].Value?.ToString()),
+                        SoLuongMua = CoreHelper.TryParseDecimal(row.Cells["soLuong"].Value),
+                        DonGia = CoreHelper.TryParseDecimal(row.Cells["donGia"].Value),
+                        MucDichMua = CoreHelper.TrimToNull(row.Cells["mucDich"].Value?.ToString()),
+                        NgayGiao = CoreHelper.TrimToNull(row.Cells["ngayGiao"].Value?.ToString()),
+                        SoLuongTon = CoreHelper.TrimToNull(row.Cells["slTon"].Value?.ToString()),
+                        DateInsert = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+                    });
+                }
+                else // layout rút gọn (DanhSachMaSP_ID = null)
+                {
+                    list.Add(new ThongTinDatHang
+                    {
+                        DanhSachMaSP_ID = null,
+                        TenVatTu = CoreHelper.TrimToNull(row.Cells["ten"].Value?.ToString()),
+                        SoLuongMua = CoreHelper.TryParseDecimal(row.Cells["soLuong"].Value),
+                        MucDichMua = CoreHelper.TrimToNull(row.Cells["mucDich"].Value?.ToString()),
+                        NgayGiao = CoreHelper.TrimToNull(row.Cells["ngayGiao"].Value?.ToString()),
+                        DateInsert = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+                    });
+                }
+            }
+
+            return list;
+        }
+
+        // ─────────────────────────────────────────────────────────────────────────────
+        // IN PHIẾU
+        // ─────────────────────────────────────────────────────────────────────────────
 
         private void InPhieuMuaVatTu(string maDon, List<ThongTinDatHang> list)
         {
-            if (_KieuDon == 1)
+            if (_KieuDon == 1 && !_isNullMaSPLayout)
             {
                 var items = list.Select((item, index) => new MaterialItem
                 {
@@ -295,12 +425,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
                     MaterialCode = item.MaVatTu ?? "",
                     MaterialName = item.TenVatTu ?? "",
                     Unit = item.DonVi ?? "",
-                    Quantity = item.SoLuongMua.HasValue
-                                       ? item.SoLuongMua.Value.ToString("N2")
-                                       : "",
-                    UnitPrice = item.DonGia.HasValue
-                                       ? item.DonGia.Value.ToString("N2")
-                                       : "",
+                    Quantity = item.SoLuongMua.HasValue ? item.SoLuongMua.Value.ToString("N2") : "",
+                    UnitPrice = item.DonGia.HasValue ? item.DonGia.Value.ToString("N2") : "",
                     Purpose = item.MucDichMua ?? "",
                     RequiredDate = item.NgayGiao ?? "//",
                     CurrentStock = item.SoLuongTon ?? "",
@@ -321,7 +447,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
 
                 new MaterialRequestPrintService(data).ShowPreview(this);
             }
-            else // _KieuDon == 2
+            else // KieuDon == 2 hoặc NullMaSP layout
             {
                 var items = list.Select((item, index) => new ServiceItem
                 {
@@ -340,7 +466,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
                     },
                     Document = new DocumentInfo
                     {
-                        Title = "GIẤY ĐỀ NGHỊ MUA DỊCH VỤ",
+                        Title = _KieuDon == 1 ? "GIẤY ĐỀ NGHỊ MUA VẬT TƯ" : "GIẤY ĐỀ NGHỊ MUA DỊCH VỤ",
                         OrderDate = DateTime.Now.ToString("dd/MM/yyyy"),
                         OrderCode = maDon
                     },
@@ -352,45 +478,18 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
             }
         }
 
+        // ─────────────────────────────────────────────────────────────────────────────
+        // TIỆN ÍCH
+        // ─────────────────────────────────────────────────────────────────────────────
 
-        private List<ThongTinDatHang> LayDuLieuTuDGV()
+        private string GenerateMaDon(int kieuDon = 1)
         {
-            var list = new List<ThongTinDatHang>();
-
-            foreach (DataGridViewRow row in dgvDSMua.Rows)
-            {
-                if (row.IsNewRow) continue;
-
-                if (_KieuDon == 1)
-                {
-                    list.Add(new ThongTinDatHang
-                    {
-                        DanhSachMaSP_ID = CoreHelper.TryParseInt(row.Cells["id"].Value),
-                        MaVatTu = CoreHelper.TrimToNull(row.Cells["ma"].Value?.ToString()),
-                        TenVatTu = CoreHelper.TrimToNull(row.Cells["ten"].Value?.ToString()),
-                        DonVi = CoreHelper.TrimToNull(row.Cells["donVi"].Value?.ToString()),
-                        SoLuongMua = CoreHelper.TryParseDecimal(row.Cells["soLuong"].Value),
-                        DonGia = CoreHelper.TryParseDecimal(row.Cells["donGia"].Value),
-                        MucDichMua = CoreHelper.TrimToNull(row.Cells["mucDich"].Value?.ToString()),
-                        NgayGiao = CoreHelper.TrimToNull(row.Cells["ngayGiao"].Value?.ToString()),
-                        SoLuongTon = CoreHelper.TrimToNull(row.Cells["slTon"].Value?.ToString()),
-                        DateInsert = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
-                    });
-                }
-                else // _KieuDon == 2
-                {
-                    list.Add(new ThongTinDatHang
-                    {
-                        TenVatTu = CoreHelper.TrimToNull(row.Cells["ten"].Value?.ToString()),
-                        SoLuongMua = CoreHelper.TryParseDecimal(row.Cells["soLuong"].Value),
-                        MucDichMua = CoreHelper.TrimToNull(row.Cells["mucDich"].Value?.ToString()),
-                        NgayGiao = CoreHelper.TrimToNull(row.Cells["ngayGiao"].Value?.ToString()),
-                        DateInsert = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
-                    });
-                }
-            }
-
-            return list;
+            string don = kieuDon == 1 ? MaDonMuaVatTu : MaDonMuaDichVu;
+            string y = DateTime.Now.Year.ToString();
+            y = y.Substring(y.Length - 2);
+            string m = DateTime.Now.Month.ToString("D2");
+            don += y + "/" + m;
+            return don;
         }
     }
 }

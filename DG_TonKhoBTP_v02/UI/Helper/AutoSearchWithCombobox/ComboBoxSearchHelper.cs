@@ -14,22 +14,17 @@ namespace DG_TonKhoBTP_v02.UI.Helper
         //  Cấu hình
         // ------------------------------------------------------------------ //
         private readonly ComboBox _comboBox;
-        private readonly Func<string, Task<List<T>>> _searchFunc;   // hàm truy vấn async
-        private readonly Func<T, string> _displaySelector;          // field hiển thị trong list
-        private readonly Action<T> _onItemSelected;                 // callback khi chọn item
+        private readonly Func<string, Task<List<T>>> _searchFunc;
+        private readonly Func<T, string> _displaySelector;
+        private readonly Action<T> _onItemSelected;
 
         private System.Windows.Forms.Timer _debounceTimer;
         private CancellationTokenSource _cts;
-        private bool _suppressEvents = false;                        // tránh vòng lặp sự kiện
+        private bool _suppressEvents = false;
 
         // ------------------------------------------------------------------ //
         //  Khởi tạo
         // ------------------------------------------------------------------ //
-        /// <param name="comboBox">ComboBox cần gắn chức năng tìm kiếm</param>
-        /// <param name="searchFunc">Hàm async nhận keyword → trả List<T></param>
-        /// <param name="displaySelector">Chọn field hiển thị trong dropdown (vd: x => x.Ten)</param>
-        /// <param name="onItemSelected">Callback khi người dùng chọn 1 item</param>
-        /// <param name="debounceMs">Thời gian debounce (mặc định 200ms)</param>
         public ComboBoxSearchHelper(
             ComboBox comboBox,
             Func<string, Task<List<T>>> searchFunc,
@@ -42,15 +37,12 @@ namespace DG_TonKhoBTP_v02.UI.Helper
             _displaySelector = displaySelector ?? throw new ArgumentNullException(nameof(displaySelector));
             _onItemSelected = onItemSelected;
 
-            // Cấu hình ComboBox
             _comboBox.AutoCompleteMode = AutoCompleteMode.None;
             _comboBox.DropDownStyle = ComboBoxStyle.DropDown;
 
-            // Debounce timer
             _debounceTimer = new System.Windows.Forms.Timer { Interval = debounceMs };
             _debounceTimer.Tick += OnDebounceElapsed;
 
-            // Gắn sự kiện
             _comboBox.TextChanged += OnTextChanged;
             _comboBox.SelectedIndexChanged += OnSelectedIndexChanged;
             _comboBox.KeyDown += OnKeyDown;
@@ -62,8 +54,6 @@ namespace DG_TonKhoBTP_v02.UI.Helper
         private void OnTextChanged(object sender, EventArgs e)
         {
             if (_suppressEvents) return;
-
-            // Reset debounce mỗi lần gõ
             _debounceTimer.Stop();
             _debounceTimer.Start();
         }
@@ -80,7 +70,6 @@ namespace DG_TonKhoBTP_v02.UI.Helper
 
         private async Task ExecuteSearchAsync(string keyword)
         {
-            // Hủy tìm kiếm cũ nếu đang chạy
             _cts?.Cancel();
             _cts = new CancellationTokenSource();
             var token = _cts.Token;
@@ -90,7 +79,6 @@ namespace DG_TonKhoBTP_v02.UI.Helper
                 var results = await _searchFunc(keyword);
                 if (token.IsCancellationRequested) return;
 
-                // Cập nhật UI trên UI thread
                 _comboBox.BeginInvoke((MethodInvoker)(() =>
                 {
                     if (token.IsCancellationRequested) return;
@@ -123,7 +111,7 @@ namespace DG_TonKhoBTP_v02.UI.Helper
                     }
                 }));
             }
-            catch (OperationCanceledException) { /* bỏ qua */ }
+            catch (OperationCanceledException) { }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"[ComboBoxSearchHelper] Lỗi tìm kiếm: {ex.Message}");
@@ -134,20 +122,35 @@ namespace DG_TonKhoBTP_v02.UI.Helper
         {
             if (_suppressEvents) return;
             if (_comboBox.SelectedItem is ComboBoxItem<T> selected)
-            {
                 _onItemSelected?.Invoke(selected.Value);
-            }
         }
 
         private void OnKeyDown(object sender, KeyEventArgs e)
         {
-            // Nhấn Escape → đóng dropdown và xóa text
             if (e.KeyCode == Keys.Escape)
             {
                 _suppressEvents = true;
                 _comboBox.DroppedDown = false;
                 _comboBox.Text = "";
                 _comboBox.Items.Clear();
+                _suppressEvents = false;
+            }
+        }
+
+        // ------------------------------------------------------------------ //
+        //  Public Methods
+        // ------------------------------------------------------------------ //
+        public void Clear()
+        {
+            _suppressEvents = true;
+            try
+            {
+                _debounceTimer.Stop();
+                _comboBox.Items.Clear();
+                _comboBox.Text = "";
+            }
+            finally
+            {
                 _suppressEvents = false;
             }
         }

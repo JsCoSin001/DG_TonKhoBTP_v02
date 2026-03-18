@@ -19,7 +19,7 @@ namespace DG_TonKhoBTP_v02.Printer.A4
                 _printDocument = new PrintDocument();
                 _printDocument.DefaultPageSettings.Landscape = false;
                 _printDocument.DefaultPageSettings.PaperSize = new PaperSize("A4", 827, 1169);
-                _printDocument.DefaultPageSettings.Margins = new Margins(40, 40, 40, 40);
+                _printDocument.DefaultPageSettings.Margins = new Margins(20, 20, 20, 20);
 
                 _printDocument.PrintPage += (s, e) => _renderer.Render(e.Graphics, e.MarginBounds, e, _data);
                 _printDocument.BeginPrint += (s, e) => _renderer.Reset();

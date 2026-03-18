@@ -32,8 +32,10 @@ namespace DG_TonKhoBTP_v02
     public partial class MainForm : Form
     {
         private string _URL = Properties.Settings.Default.URL;
-        private string _ver = "2.3.7";
+        private string _ver = "2.4.0";
         private CongDoanUiService _ui;
+
+        private bool show = true;
         private void InitUiService()
         {
             _ui = new CongDoanUiService(
@@ -965,6 +967,14 @@ namespace DG_TonKhoBTP_v02
             pnShow.Controls.Add(homePage);
             homePage.Dock = DockStyle.Fill;
             homePage.lblVersion.Text = "Phiên bản: v" + _ver;
+
+
+            pnKeHoach.Visible = show;
+             pnKiemKe.Visible = show;
+            pnKiemTraBC.Visible = show;
+            pnVatTuPhu.Visible = show;
+             pnUpdateMaHang.Visible = show;
+
         }
 
         private void homeToolStripMenuItem_Click(object sender, EventArgs e)

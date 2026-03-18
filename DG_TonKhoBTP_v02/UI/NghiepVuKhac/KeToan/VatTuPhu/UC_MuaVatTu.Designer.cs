@@ -312,7 +312,7 @@
             this.btnDatHang.BackColor = System.Drawing.Color.Firebrick;
             this.btnDatHang.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnDatHang.ForeColor = System.Drawing.SystemColors.Control;
-            this.btnDatHang.Location = new System.Drawing.Point(529, 6);
+            this.btnDatHang.Location = new System.Drawing.Point(508, 6);
             this.btnDatHang.Name = "btnDatHang";
             this.btnDatHang.Size = new System.Drawing.Size(151, 55);
             this.btnDatHang.TabIndex = 0;

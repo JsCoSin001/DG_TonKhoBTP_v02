@@ -575,13 +575,19 @@ namespace DG_TonKhoBTP_v02.UI
                         decimal CDBatDau = Convert.ToDecimal(newRow["CDBatDau"]);
 
                         decimal tyLe = 1m;
+                        decimal kl = 0;
+
                         if (dvNVL != cd_KL_TP.donVi)
                         {
                             tyLe = src["ChuyenDoi"] == DBNull.Value ? 1m : Convert.ToDecimal(src["ChuyenDoi"]);
+                            kl = KlBatDau - tyLe * cd_KL_TP.ChieuDai < 0 ? 0 : KlBatDau - tyLe * cd_KL_TP.ChieuDai;
                         }
-
-                        decimal kl = KlBatDau - cd_KL_TP.KhoiLuong * tyLe > 0 ? KlBatDau - cd_KL_TP.KhoiLuong * tyLe : 0;
-                        decimal cd = CDBatDau - cd_KL_TP.ChieuDai * tyLe > 0 ? CDBatDau - cd_KL_TP.ChieuDai * tyLe : 0;
+                        else
+                        {
+                            kl = KlBatDau - cd_KL_TP.KhoiLuong < 0 ? 0 : KlBatDau - cd_KL_TP.KhoiLuong;
+                        } 
+                       
+                        decimal cd = CDBatDau - cd_KL_TP.ChieuDai < 0 ? 0 : CDBatDau - cd_KL_TP.ChieuDai;
 
 
                         gtConLai_New = _CD.Id == 9 ? 0 : kl;

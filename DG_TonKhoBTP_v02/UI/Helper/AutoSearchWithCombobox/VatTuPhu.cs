@@ -94,12 +94,12 @@ namespace DG_TonKhoBTP_v02.UI.Helper.AutoSearchWithCombobox
     {
         private const int Limit = 30;
 
-        public async Task<List<MuaVatTuSearchItem>> TimKiemTheoCheDoAsync(string keyword, bool taoMoiDon)
+        public async Task<List<MuaVatTuSearchItem>> TimKiemTheoCheDoAsync(string keyword, bool taoMoiDon, int kieuDon)
         {
             if (taoMoiDon)
                 return await TimKiemChoMuaVatTuAsync(keyword);
 
-            return await TimKiemDonHangAsync(keyword);
+            return await TimKiemDonHangAsync(keyword, kieuDon);
         }
 
 
@@ -125,24 +125,22 @@ namespace DG_TonKhoBTP_v02.UI.Helper.AutoSearchWithCombobox
         public List<ThongTinDatHang> GetChiTietDonHang(string maDon)
         {
             var result = new List<ThongTinDatHang>();
-
             string sql = @"
-                SELECT 
-                    ttdh.Id,
-                    ttdh.DanhSachMaSP_ID,
-                    ttdh.DanhSachDatHang_ID,
-                    ttdh.SoLuongMua,
-                    ttdh.DonGia,
-                    ttdh.MucDichMua,
-                    ttdh.NgayGiao,
-                    ttdh.Date_Insert
-                FROM ThongTinDatHang ttdh
-                INNER JOIN DanhSachDatHang dsdh ON dsdh.Id = ttdh.DanhSachDatHang_ID
-                WHERE dsdh.MaDon = @MaDon;
-            ";
-
+        SELECT 
+            ttdh.Id,
+            ttdh.DanhSachMaSP_ID,
+            ttdh.DanhSachDatHang_ID,
+            ttdh.TenVatTu,              -- ← THÊM
+            ttdh.SoLuongMua,
+            ttdh.DonGia,
+            ttdh.MucDichMua,
+            ttdh.NgayGiao,
+            ttdh.Date_Insert
+        FROM ThongTinDatHang ttdh
+        INNER JOIN DanhSachDatHang dsdh ON dsdh.Id = ttdh.DanhSachDatHang_ID
+        WHERE dsdh.MaDon = @MaDon;
+    ";
             DataTable dt = DatabaseHelper.GetData(sql, maDon, "MaDon");
-
             foreach (DataRow row in dt.Rows)
             {
                 result.Add(new ThongTinDatHang
@@ -150,6 +148,7 @@ namespace DG_TonKhoBTP_v02.UI.Helper.AutoSearchWithCombobox
                     Id = row["Id"] == DBNull.Value ? (int?)null : Convert.ToInt32(row["Id"]),
                     DanhSachMaSP_ID = row["DanhSachMaSP_ID"] == DBNull.Value ? (int?)null : Convert.ToInt32(row["DanhSachMaSP_ID"]),
                     DanhSachDatHang_ID = row["DanhSachDatHang_ID"] == DBNull.Value ? (int?)null : Convert.ToInt32(row["DanhSachDatHang_ID"]),
+                    TenVatTu = row["TenVatTu"] == DBNull.Value ? null : row["TenVatTu"].ToString(), // ← THÊM
                     SoLuongMua = row["SoLuongMua"] == DBNull.Value ? (decimal?)null : Convert.ToDecimal(row["SoLuongMua"]),
                     DonGia = row["DonGia"] == DBNull.Value ? (decimal?)null : Convert.ToDecimal(row["DonGia"]),
                     MucDichMua = row["MucDichMua"] == DBNull.Value ? null : row["MucDichMua"].ToString(),
@@ -157,13 +156,12 @@ namespace DG_TonKhoBTP_v02.UI.Helper.AutoSearchWithCombobox
                     DateInsert = row["Date_Insert"] == DBNull.Value ? null : row["Date_Insert"].ToString()
                 });
             }
-
             return result;
         }
 
 
 
-        
+
 
         public async Task<List<MuaVatTuSearchItem>> TimKiemChoMuaVatTuAsync(string keyword)
         {
@@ -200,7 +198,7 @@ namespace DG_TonKhoBTP_v02.UI.Helper.AutoSearchWithCombobox
             return result;
         }
 
-        public async Task<List<MuaVatTuSearchItem>> TimKiemDonHangAsync(string keyword)
+        public async Task<List<MuaVatTuSearchItem>> TimKiemDonHangAsync(string keyword, int kieuDon)
         {
             var result = new List<MuaVatTuSearchItem>();
             if (string.IsNullOrWhiteSpace(keyword)) return result;
@@ -212,6 +210,7 @@ namespace DG_TonKhoBTP_v02.UI.Helper.AutoSearchWithCombobox
                 string sql = "SELECT Id, MaDon " +
                              "FROM DanhSachDatHang " +
                              "WHERE MaDon LIKE '%' || @keyword || '%' " +
+                             "AND LoaiDon =  " + kieuDon + " " +
                              "LIMIT " + Limit;
 
                 DataTable dt = DatabaseHelper.GetData(sql, pattern, "keyword");
@@ -356,6 +355,7 @@ namespace DG_TonKhoBTP_v02.UI.Helper.AutoSearchWithCombobox
             (
                 DanhSachMaSP_ID,
                 DanhSachDatHang_ID,
+                TenVatTu,
                 SoLuongMua,
                 DonGia,
                 MucDichMua,
@@ -366,6 +366,7 @@ namespace DG_TonKhoBTP_v02.UI.Helper.AutoSearchWithCombobox
             (
                 @DanhSachMaSP_ID,
                 @DanhSachDatHang_ID,
+                @TenVatTu,
                 @SoLuongMua,
                 @DonGia,
                 @MucDichMua,
@@ -376,6 +377,7 @@ namespace DG_TonKhoBTP_v02.UI.Helper.AutoSearchWithCombobox
 
             AddParam(cmd, "@DanhSachMaSP_ID", DbType.Int32, item.DanhSachMaSP_ID);
             AddParam(cmd, "@DanhSachDatHang_ID", DbType.Int32, item.DanhSachDatHang_ID);
+            AddParam(cmd, "@TenVatTu", DbType.String, item.TenVatTu);
             AddParam(cmd, "@SoLuongMua", DbType.Decimal, item.SoLuongMua);
             AddParam(cmd, "@DonGia", DbType.Decimal, item.DonGia);
             AddParam(cmd, "@MucDichMua", DbType.String, CoreHelper.TrimToNull(item.MucDichMua));

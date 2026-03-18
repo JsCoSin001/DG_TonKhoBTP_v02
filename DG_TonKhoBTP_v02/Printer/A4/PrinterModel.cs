@@ -77,5 +77,61 @@ namespace DG_TonKhoBTP_v02.Printer.A4
             public string RequiredDate { get; set; }
             public string CurrentStock { get; set; }
         }
+
+
+        // ─── Phiếu Nhập Kho ─────────────────────────────────────────────────
+
+        public class WarehouseReceiptPrintData
+        {
+            public CompanyInfo Company { get; set; } = new CompanyInfo();
+            public string NgayIn { get; set; }  // "Ngày 03 tháng 02 năm 2026"
+            public string SoPO { get; set; }
+            public string SoPhieu { get; set; }  // KNK26/02-0008
+            public string NguoiGiao { get; set; }
+            public string NhaCungCap { get; set; }
+            public string LyDoNhap { get; set; }
+            public string KhoHang { get; set; }
+            public List<WarehouseReceiptItem> Items { get; set; } = new List<WarehouseReceiptItem>();
+            public SignatureInfo Signature { get; set; } = new SignatureInfo();
+        }
+
+        public class WarehouseReceiptItem
+        {
+            public int No { get; set; }
+            public string Ten { get; set; }
+            public string Ma { get; set; }
+            public string DonVi { get; set; }
+            public string YeuCau { get; set; }
+            public string ThucNhan { get; set; }
+            public string GhiChu { get; set; }
+        }
+
+        // ─── Phiếu Xuất Kho ─────────────────────────────────────────────────
+
+        public class WarehouseIssuesPrintData
+        {
+            public CompanyInfo Company { get; set; } = new CompanyInfo();
+            public string NgayIn { get; set; }
+            public string So { get; set; }       // Số phiếu (Nợ:)
+            public string Co { get; set; }       // Có: (mặc định "N156" hoặc để trống)
+            public string SoPhieu { get; set; }  // KXK26/02-0001
+            public string NguoiNhan { get; set; }
+            public string LyDoXuat { get; set; }
+            public string XuatTaiKho { get; set; }
+            public List<WarehouseIssuesItem> Items { get; set; } = new List<WarehouseIssuesItem>();
+            public SignatureInfo Signature { get; set; } = new SignatureInfo();
+        }
+
+        public class WarehouseIssuesItem
+        {
+            public int No { get; set; }
+            public string Ten { get; set; }
+            public string Ma { get; set; }
+            public string DonVi { get; set; }
+            public string SoLuong { get; set; }
+            public string DonGia { get; set; }   // mặc định ""
+            public string ThanhTien { get; set; } // mặc định ""
+            public string GhiChu { get; set; }
+        }
     }
 }

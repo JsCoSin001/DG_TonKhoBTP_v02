@@ -11,6 +11,7 @@ using DG_TonKhoBTP_v02.UI.Helper;
 using DG_TonKhoBTP_v02.UI.KeHoach;
 using DG_TonKhoBTP_v02.UI.NghiepVu;
 using DG_TonKhoBTP_v02.UI.NghiepVu.KeHoach;
+using DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan;
 using DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu;
 using DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho;
 using DG_TonKhoBTP_v02.UI.Setting;
@@ -32,7 +33,7 @@ namespace DG_TonKhoBTP_v02
     public partial class MainForm : Form
     {
         private string _URL = Properties.Settings.Default.URL;
-        private string _ver = "2.4.0";
+        private string _ver = "2.5.0";
         private CongDoanUiService _ui;
 
         private bool show = true;
@@ -1358,6 +1359,39 @@ namespace DG_TonKhoBTP_v02
                 errorMessagePrefix: "bện ruột",
                 afterShowUI: root => _ui.HookNvlThanhPham(root)
             );
+        }
+
+        private void btnKiemKe_Click(object sender, EventArgs e)
+        {           
+
+            using (var waiting = new FrmWaiting("ĐANG KHỞI TẠO GIAO DIỆN..."))
+            {
+                try
+                {
+                    waiting.ShowAndRefresh();
+
+                    pnShow.SuspendLayout();
+                    pnShow.Visible = false;
+
+                    pnShow.Controls.Clear();
+                    var uc = new UC_KiemKe
+                    {
+                        Dock = DockStyle.Fill
+                    };
+                    pnShow.Controls.Add(uc);
+                }
+                catch (Exception ex)
+                {
+                    FrmWaiting.ShowGifAlert($"Lỗi khởi tạo giao diện: {ex.Message}");
+                }
+                finally
+                {
+                    pnShow.Visible = true;
+                    pnShow.ResumeLayout(true);
+                    waiting?.CloseAndDispose();
+                    BtnKiemTraBc.Enabled = true;
+                }
+            }
         }
     }
 }

@@ -113,7 +113,7 @@
             // 
             this.cbxTimTenVatTu.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbxTimTenVatTu.FormattingEnabled = true;
-            this.cbxTimTenVatTu.Location = new System.Drawing.Point(407, 16);
+            this.cbxTimTenVatTu.Location = new System.Drawing.Point(407, 18);
             this.cbxTimTenVatTu.Name = "cbxTimTenVatTu";
             this.cbxTimTenVatTu.Size = new System.Drawing.Size(383, 26);
             this.cbxTimTenVatTu.TabIndex = 2;

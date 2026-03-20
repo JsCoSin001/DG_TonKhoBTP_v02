@@ -244,9 +244,10 @@ namespace DG_TonKhoBTP_v02
             this.btnKiemKe.Size = new System.Drawing.Size(169, 51);
             this.btnKiemKe.TabIndex = 9;
             this.btnKiemKe.TabStop = false;
-            this.btnKiemKe.Text = "Kiểm Kê";
+            this.btnKiemKe.Text = "KIỂM KÊ";
             this.btnKiemKe.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.btnKiemKe.UseVisualStyleBackColor = false;
+            this.btnKiemKe.Click += new System.EventHandler(this.btnKiemKe_Click);
             // 
             // pnVatTuPhu
             // 

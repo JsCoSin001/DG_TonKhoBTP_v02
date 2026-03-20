@@ -175,9 +175,6 @@ namespace DG_TonKhoBTP_v02.UI.Helper.AutoSearchWithCombobox
                 string sql = "SELECT Id, Ten, Ma, DonVi " +
                          "FROM DanhSachMaSP " +
                          "WHERE Ten LIKE '%' || @keyword || '%' " +
-                         "AND Ma NOT LIKE 'BTP.%' " +
-                         "AND Ma NOT LIKE 'NVL.%' " +
-                         "AND Ma NOT LIKE 'TP.%' " +
                          "LIMIT " + Limit;
 
                 DataTable dt = DatabaseHelper.GetData(sql, pattern, "keyword");

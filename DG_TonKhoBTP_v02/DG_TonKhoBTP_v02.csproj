@@ -159,7 +159,9 @@
     <Compile Include="MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Models\DanhSachBin.cs" />
     <Compile Include="Models\KeHoach.cs" />
+    <Compile Include="Models\KiemKe.cs" />
     <Compile Include="Models\LoginClass.cs" />
     <Compile Include="Models\OtherClass.cs" />
     <Compile Include="Printer\A4\A4Config.cs" />

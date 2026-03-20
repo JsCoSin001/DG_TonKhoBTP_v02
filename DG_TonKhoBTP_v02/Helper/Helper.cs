@@ -25,6 +25,8 @@ namespace DG_TonKhoBTP_v02.Helper
     public static class Helper
     {
         public static string _connStr;
+        private static readonly Random _random = new Random();
+
 
         public static bool KiemTraEmpty(string values)
         {
@@ -43,6 +45,34 @@ namespace DG_TonKhoBTP_v02.Helper
         public static bool KLDauVaoLonHonKLCuoi(decimal klDau, decimal klCuoi)
         {
             return klDau > klCuoi;
+        }
+
+
+        public static string GenerateLOT(string bin, Dictionary<string, decimal> dsBin)
+        {
+            int firstDigit = _random.Next(1, 10);
+
+            StringBuilder middlePart = new StringBuilder("1");
+            for (int i = 0; i < 5; i++)
+            {
+                middlePart.Append(_random.Next(0, 10));
+            }
+
+            int partAfterSlash = _random.Next(1, 10);
+            int part4 = _random.Next(10, 21);
+
+            int part5;
+
+            if (!string.IsNullOrWhiteSpace(bin) && int.TryParse(bin, out int binValue))
+            {
+                part5 = binValue;
+            }
+            else
+            {
+                part5 = 0;
+            }
+
+            return $"X{firstDigit}-{middlePart}/{partAfterSlash}-{part4:D2}-{part5:D2}";
         }
 
         public static List<CongDoan> GetDanhSachCongDoan()

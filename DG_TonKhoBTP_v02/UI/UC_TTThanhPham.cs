@@ -6,9 +6,7 @@ using DG_TonKhoBTP_v02.Models;
 using System;
 using CoreHelper = DG_TonKhoBTP_v02.Helper.Helper;
 using System.Data;
-using System.Drawing;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -22,10 +20,7 @@ namespace DG_TonKhoBTP_v02.UI
         public string tenCongDoan { get; set; }
         public CongDoan congDoan;
 
-
         public void SetTenCongDoan(string value) => tenCongDoan = value;
-
-        //public event Action<decimal> KhoiLuongChanged;
 
         public event Action<(decimal KhoiLuong, decimal ChieuDai, string donVi)> KL_CD_Changed;
         public decimal KhoiLuongValue => khoiLuong.Value;
@@ -38,60 +33,69 @@ namespace DG_TonKhoBTP_v02.UI
         public UC_TTThanhPham(CongDoan cd)
         {
             InitializeComponent();
+
             SetTenCongDoan(cd.TenCongDoan);
             congDoan = cd;
+
+            timNVL.KeyDown += timNVL_KeyDown;
         }
 
         public void FocusKhoiLuong()
         {
             khoiLuong.Focus();
-            khoiLuong.Select(0, khoiLuong.Text.Length); // chọn hết để gõ lại nhanh
+            khoiLuong.Select(0, khoiLuong.Text.Length);
         }
-
 
         public void ChonMay(string value)
         {
             may.Text = value;
+            CapNhatSoLot();
+        }
+
+        private void CapNhatSoLot()
+        {
             soLOT.Text = CoreHelper.LOTGenerated(may, maHanhTrinh, sttCongDoan, sttLo, soBin);
         }
 
         private void maHanhTrinh_ValueChanged(object sender, EventArgs e)
         {
-            soLOT.Text = CoreHelper.LOTGenerated(may, maHanhTrinh, sttCongDoan, sttLo, soBin);
+            CapNhatSoLot();
         }
 
         private void sttCongDoan_SelectedIndexChanged(object sender, EventArgs e)
         {
-            soLOT.Text = CoreHelper.LOTGenerated(may, maHanhTrinh, sttCongDoan, sttLo, soBin);
+            CapNhatSoLot();
         }
 
         private void sttLo_ValueChanged(object sender, EventArgs e)
         {
-            soLOT.Text = CoreHelper.LOTGenerated(may, maHanhTrinh, sttCongDoan, sttLo, soBin);
+            CapNhatSoLot();
         }
 
         private void soBin_ValueChanged(object sender, EventArgs e)
         {
-            soLOT.Text = CoreHelper.LOTGenerated(may, maHanhTrinh, sttCongDoan, sttLo, soBin);
+            CapNhatSoLot();
         }
 
         #region Lấy và load dữ liệu vào form
+
         public string SectionName => nameof(UC_TTThanhPham);
 
         public object GetData()
         {
+            int.TryParse(id.Text, out int danhSachSpId);
+
             return new TTThanhPham
             {
-                 
-                DanhSachSP_ID = int.Parse(id.Text),
+                DanhSachSP_ID = danhSachSpId,
                 TenTP = ten.Text,
                 MaTP = ma.Text,
                 DonVi = donVi.Text,
                 CongDoan = congDoan,
                 MaBin = soLOT?.Text ?? string.Empty,
-                KhoiLuongTruoc = (double)khoiLuong.Value, // Tạo mới đặt KL trước = kl sau
+                KhoiLuongTruoc = (double)khoiLuong.Value,
                 KhoiLuongSau = (double)khoiLuong.Value,
-                ChieuDaiTruoc = (double)chieuDai.Value, // Tạo mới đặt CD trước = CD sau
+                ChieuDaiTruoc = (double)chieuDai.Value,
                 ChieuDaiSau = (double)chieuDai.Value,
                 Phe = (double)phe.Value,
                 GhiChu = GhiChu?.Text ?? string.Empty,
@@ -101,8 +105,15 @@ namespace DG_TonKhoBTP_v02.UI
 
         public void ClearInputs()
         {
+            _searchCts?.Cancel();
+
+            timNVL.DataSource = null;
+            timNVL.Items.Clear();
             timNVL.Text = string.Empty;
+            timNVL.DroppedDown = false;
+
             ResetController_TimTenSP();
+
             may.SelectedIndex = -1;
             maHanhTrinh.Value = maHanhTrinh.Minimum;
             sttCongDoan.SelectedIndex = -1;
@@ -114,30 +125,37 @@ namespace DG_TonKhoBTP_v02.UI
             phe.Value = phe.Minimum;
             GhiChu.Text = string.Empty;
         }
+
         #endregion
 
         private async void timNVL_TextUpdate(object sender, EventArgs e)
         {
             ResetController_TimTenSP();
-            string tenTP = timNVL.Text;
-            if (string.IsNullOrEmpty(tenTP)) return;
 
-            // --- thêm debounce + cancel ---
+            string tenTP = timNVL.Text?.Trim() ?? string.Empty;
+            if (string.IsNullOrWhiteSpace(tenTP))
+            {
+                timNVL.DroppedDown = false;
+                timNVL.DataSource = null;
+                return;
+            }
+
             _searchCts?.Cancel();
+            _searchCts?.Dispose();
             _searchCts = new CancellationTokenSource();
             var token = _searchCts.Token;
 
             try
             {
-                // debounce: đợi user dừng gõ 250ms mới chạy
                 await Task.Delay(250, token);
-
-                // gọi async thay vì sync
                 await ShowDanhSachLuaChon(tenTP, token);
             }
             catch (OperationCanceledException)
             {
-                // bị huỷ vì user gõ tiếp, bỏ qua
+            }
+            catch
+            {
+                timNVL.DroppedDown = false;
             }
         }
 
@@ -148,57 +166,96 @@ namespace DG_TonKhoBTP_v02.UI
                 timNVL.DroppedDown = false;
                 return;
             }
-            string para = "ten";
 
-            var likeConditions = string.Join(" OR ", congDoan.ListMa_Accept.Select((m, i) => $"Ma LIKE '{m}'"));
+            string para = "ten";
+            string likeConditions = string.Join(" OR ", congDoan.ListMa_Accept.Select(m => $"Ma LIKE '{m}'"));
 
             string query = $@"
                 SELECT id, ten, ma, donvi
                 FROM DanhSachMaSP
                 WHERE ten LIKE '%' || @{para} || '%'
-                    AND Ma NOT LIKE 'NVL.%'
-                    AND ({likeConditions});
+                  AND Ma NOT LIKE 'NVL.%'
+                  AND ({likeConditions});
             ";
 
             DataTable sp = await Task.Run(() =>
             {
-                return DatabaseHelper.GetData( query, keyword, para);
+                return DatabaseHelper.GetData(query, keyword, para);
             }, ct);
 
             ct.ThrowIfCancellationRequested();
 
-            timNVL.DroppedDown = false;
-
-            timNVL.SelectionChangeCommitted -= timNVL_SelectionChangeCommitted; // tránh trùng event
-            if (sp.Rows.Count == 0) return;
-
-            timNVL.DataSource = sp;
-            timNVL.DisplayMember = "ten";
-
             string currentText = keyword;
 
-            timNVL.DroppedDown = true;
+            timNVL.SelectionChangeCommitted -= timNVL_SelectionChangeCommitted;
+
+            timNVL.DroppedDown = false;
+            timNVL.DataSource = null;
+
+            if (sp == null || sp.Rows.Count == 0)
+            {
+                timNVL.Text = currentText;
+                timNVL.SelectionStart = timNVL.Text.Length;
+                timNVL.SelectionLength = 0;
+                return;
+            }
+
+            timNVL.DisplayMember = "ten";
+            timNVL.ValueMember = "id";
+            timNVL.DataSource = sp;
+
             timNVL.Text = currentText;
             timNVL.SelectionStart = timNVL.Text.Length;
             timNVL.SelectionLength = 0;
 
+            timNVL.DroppedDown = true;
+            Cursor.Current = Cursors.Default;
+            Cursor.Show();
+
             timNVL.SelectionChangeCommitted += timNVL_SelectionChangeCommitted;
         }
 
-        private void timNVL_SelectionChangeCommitted(object sender, EventArgs e)
+        private void FillSelectedThanhPham(DataRowView row)
         {
-            if (timNVL.SelectedItem == null || !(timNVL.SelectedItem is DataRowView)) return;
-            DataRowView row = (DataRowView)timNVL.SelectedItem;
+            if (row == null) return;
 
-            ten.Text = row["ten"].ToString();
-            ma.Text = row["ma"].ToString();
-            id.Text = row["id"].ToString();
-            donVi.Text = row["donvi"].ToString();
+            ten.Text = row["ten"]?.ToString() ?? string.Empty;
+            ma.Text = row["ma"]?.ToString() ?? string.Empty;
+            id.Text = row["id"]?.ToString() ?? string.Empty;
+            donVi.Text = row["donvi"]?.ToString() ?? string.Empty;
 
+            timNVL.DroppedDown = false;
             timNVL.SelectedIndex = -1;
             timNVL.Text = string.Empty;
         }
 
+        private void timNVL_SelectionChangeCommitted(object sender, EventArgs e)
+        {
+            if (!(timNVL.SelectedItem is DataRowView row)) return;
+            FillSelectedThanhPham(row);
+        }
+
+        private void timNVL_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Down)
+            {
+                if (!timNVL.DroppedDown && timNVL.DataSource != null)
+                {
+                    timNVL.DroppedDown = true;
+                }
+                return;
+            }
+
+            if (e.KeyCode == Keys.Enter)
+            {
+                if (timNVL.SelectedItem is DataRowView row)
+                {
+                    FillSelectedThanhPham(row);
+                    e.Handled = true;
+                    e.SuppressKeyPress = true;
+                }
+            }
+        }
 
         private void ResetController_TimTenSP()
         {
@@ -211,9 +268,9 @@ namespace DG_TonKhoBTP_v02.UI
         public void LoadData(DataTable dt, int kieuDL)
         {
             if (dt == null || dt.Rows.Count == 0) return;
-            var row = dt.Rows[0];
 
-            string bin = row["MaBin"].ToString();
+            var row = dt.Rows[0];
+            string bin = row["MaBin"]?.ToString() ?? string.Empty;
 
             CoreHelper.SetIfPresent(row, "DanhSachMaSP_ID", val => id.Text = Convert.ToString(val));
             CoreHelper.SetIfPresent(row, "Ma", val => ma.Text = Convert.ToString(val));
@@ -235,13 +292,11 @@ namespace DG_TonKhoBTP_v02.UI
             }
 
             soLOT.Text = bin;
-
         }
 
         private void khoiLuong_ValueChanged(object sender, EventArgs e)
         {
-            string dv = donVi.Text;
-            KL_CD_Changed?.Invoke((KhoiLuongValue, ChieuDaiValue, dv));
+            KL_CD_Changed?.Invoke((KhoiLuongValue, ChieuDaiValue, donVi.Text));
         }
 
         private void may_TextChanged(object sender, EventArgs e)
@@ -251,8 +306,7 @@ namespace DG_TonKhoBTP_v02.UI
 
         private void chieuDai_ValueChanged(object sender, EventArgs e)
         {
-            string dv = donVi.Text;
-            KL_CD_Changed?.Invoke((KhoiLuongValue, ChieuDaiValue, dv));
+            KL_CD_Changed?.Invoke((KhoiLuongValue, ChieuDaiValue, donVi.Text));
         }
     }
 }

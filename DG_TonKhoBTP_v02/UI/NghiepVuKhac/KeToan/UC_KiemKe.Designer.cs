@@ -38,6 +38,7 @@
             this.btnCapNhatDuLieu = new System.Windows.Forms.Button();
             this.label15 = new System.Windows.Forms.Label();
             this.cbxNguoiKK_CauHinh = new System.Windows.Forms.ComboBox();
+            this.btnXuatExcel = new System.Windows.Forms.Button();
             this.cbCheckAll = new System.Windows.Forms.CheckBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
@@ -80,7 +81,6 @@
             this.panel3 = new System.Windows.Forms.Panel();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.dsKiemKe = new System.Windows.Forms.DataGridView();
-            this.btnXuatExcel = new System.Windows.Forms.Button();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -216,11 +216,22 @@
             // 
             this.cbxNguoiKK_CauHinh.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbxNguoiKK_CauHinh.FormattingEnabled = true;
-            this.cbxNguoiKK_CauHinh.Location = new System.Drawing.Point(351, 14);
+            this.cbxNguoiKK_CauHinh.Location = new System.Drawing.Point(351, 16);
             this.cbxNguoiKK_CauHinh.Name = "cbxNguoiKK_CauHinh";
             this.cbxNguoiKK_CauHinh.Size = new System.Drawing.Size(144, 26);
             this.cbxNguoiKK_CauHinh.TabIndex = 3;
             this.cbxNguoiKK_CauHinh.SelectedIndexChanged += new System.EventHandler(this.cbxNguoiKK_CauHinh_SelectedIndexChanged);
+            // 
+            // btnXuatExcel
+            // 
+            this.btnXuatExcel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnXuatExcel.Location = new System.Drawing.Point(3, 65);
+            this.btnXuatExcel.Name = "btnXuatExcel";
+            this.btnXuatExcel.Size = new System.Drawing.Size(116, 49);
+            this.btnXuatExcel.TabIndex = 0;
+            this.btnXuatExcel.Text = "Xuất Excel";
+            this.btnXuatExcel.UseVisualStyleBackColor = true;
+            this.btnXuatExcel.Click += new System.EventHandler(this.btnXuatExcel_Click);
             // 
             // cbCheckAll
             // 
@@ -300,7 +311,7 @@
             // 
             this.tbTenSanPham_KK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.tbTenSanPham_KK.FormattingEnabled = true;
-            this.tbTenSanPham_KK.Location = new System.Drawing.Point(306, 114);
+            this.tbTenSanPham_KK.Location = new System.Drawing.Point(306, 112);
             this.tbTenSanPham_KK.Name = "tbTenSanPham_KK";
             this.tbTenSanPham_KK.Size = new System.Drawing.Size(175, 26);
             this.tbTenSanPham_KK.TabIndex = 5;
@@ -583,7 +594,7 @@
             "Người 8",
             "Người 9",
             "Người 10"});
-            this.cbxNguoiKK.Location = new System.Drawing.Point(126, 362);
+            this.cbxNguoiKK.Location = new System.Drawing.Point(126, 364);
             this.cbxNguoiKK.Name = "cbxNguoiKK";
             this.cbxNguoiKK.Size = new System.Drawing.Size(355, 26);
             this.cbxNguoiKK.TabIndex = 7;
@@ -744,17 +755,6 @@
             this.dsKiemKe.RowTemplate.Height = 35;
             this.dsKiemKe.Size = new System.Drawing.Size(882, 830);
             this.dsKiemKe.TabIndex = 0;
-            // 
-            // btnXuatExcel
-            // 
-            this.btnXuatExcel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnXuatExcel.Location = new System.Drawing.Point(3, 65);
-            this.btnXuatExcel.Name = "btnXuatExcel";
-            this.btnXuatExcel.Size = new System.Drawing.Size(116, 49);
-            this.btnXuatExcel.TabIndex = 0;
-            this.btnXuatExcel.Text = "Xuất Excel";
-            this.btnXuatExcel.UseVisualStyleBackColor = true;
-            this.btnXuatExcel.Click += new System.EventHandler(this.btnXuatExcel_Click);
             // 
             // UC_KiemKe
             // 

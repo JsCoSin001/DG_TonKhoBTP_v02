@@ -969,13 +969,18 @@ namespace DG_TonKhoBTP_v02
             homePage.Dock = DockStyle.Fill;
             homePage.lblVersion.Text = "Phiên bản: v" + _ver;
 
+            SetupDefault();
 
+        }
+
+        private void SetupDefault(bool show =false)
+        {
             pnKeHoach.Visible = show;
-             pnKiemKe.Visible = show;
+            pnKiemKe.Visible = show;
             pnKiemTraBC.Visible = show;
             pnVatTuPhu.Visible = show;
-             pnUpdateMaHang.Visible = show;
-
+            pnUpdateMaHang.Visible = show;
+            grbKeHoach.Visible = show;
         }
 
         private void homeToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1195,6 +1200,8 @@ namespace DG_TonKhoBTP_v02
 
             settingApp.Visible = UserContext.IsAuthenticated && UserContext.PermissionsDict.ContainsKey(EnumStore.Group["Chung"]);
             
+
+            SetupDefault(UserContext.IsAuthenticated);
         }
 
         private void đăngKýToolStripMenuItem_Click(object sender, EventArgs e)

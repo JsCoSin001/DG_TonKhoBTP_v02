@@ -45,7 +45,7 @@ public static class EnumStore
             { "BocLot", May("E1", "E4", "E7", "E10","E13", "E14", "E15") },
             { "BocVo", May("E1", "E4", "E6", "E7", "E8", "E9", "E10", "E13", "E14", "E15") },
             { "GhepLoi", May("P1", "P2", "P3", "P4", "P5", "P6", "B6", "B10", "B13", "B14", "B15", "B16") },
-            { "QB_AL_Cu", May("T1", "T2","B10", "B13", "B14", "B15", "B16", "B17") },
+            { "QB_AL_Cu", May("T1", "T2", "T5","B10", "B13", "B14", "B15", "B16", "B17") },
             { "QB_Mica", May("T3", "T4", "T5", "T6") },
         };
 

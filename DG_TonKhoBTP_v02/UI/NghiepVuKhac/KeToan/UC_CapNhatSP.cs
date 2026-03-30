@@ -232,7 +232,7 @@ namespace DG_TonKhoBTP_v02.UI
             try
             {
                 // debounce: đợi user dừng gõ 250ms mới chạy
-                await Task.Delay(250, token);
+                await Task.Delay(500, token);
 
                 // gọi async thay vì sync
                 await ShowDanhSachLuaChon(tenTP, token);

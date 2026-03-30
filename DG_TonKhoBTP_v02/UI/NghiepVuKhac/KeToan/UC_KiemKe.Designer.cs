@@ -70,6 +70,7 @@
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.btnLuu = new System.Windows.Forms.Button();
             this.cbInTem = new System.Windows.Forms.CheckBox();
+            this.btnInTem = new System.Windows.Forms.Button();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.tbQr = new System.Windows.Forms.TextBox();
             this.tbTimKiem = new System.Windows.Forms.TextBox();
@@ -216,7 +217,7 @@
             // 
             this.cbxNguoiKK_CauHinh.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbxNguoiKK_CauHinh.FormattingEnabled = true;
-            this.cbxNguoiKK_CauHinh.Location = new System.Drawing.Point(351, 16);
+            this.cbxNguoiKK_CauHinh.Location = new System.Drawing.Point(351, 14);
             this.cbxNguoiKK_CauHinh.Name = "cbxNguoiKK_CauHinh";
             this.cbxNguoiKK_CauHinh.Size = new System.Drawing.Size(144, 26);
             this.cbxNguoiKK_CauHinh.TabIndex = 3;
@@ -311,7 +312,7 @@
             // 
             this.tbTenSanPham_KK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.tbTenSanPham_KK.FormattingEnabled = true;
-            this.tbTenSanPham_KK.Location = new System.Drawing.Point(306, 112);
+            this.tbTenSanPham_KK.Location = new System.Drawing.Point(306, 114);
             this.tbTenSanPham_KK.Name = "tbTenSanPham_KK";
             this.tbTenSanPham_KK.Size = new System.Drawing.Size(175, 26);
             this.tbTenSanPham_KK.TabIndex = 5;
@@ -594,7 +595,7 @@
             "Người 8",
             "Người 9",
             "Người 10"});
-            this.cbxNguoiKK.Location = new System.Drawing.Point(126, 364);
+            this.cbxNguoiKK.Location = new System.Drawing.Point(126, 362);
             this.cbxNguoiKK.Name = "cbxNguoiKK";
             this.cbxNguoiKK.Size = new System.Drawing.Size(355, 26);
             this.cbxNguoiKK.TabIndex = 7;
@@ -603,6 +604,7 @@
             // 
             this.flowLayoutPanel1.Controls.Add(this.btnLuu);
             this.flowLayoutPanel1.Controls.Add(this.cbInTem);
+            this.flowLayoutPanel1.Controls.Add(this.btnInTem);
             this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.flowLayoutPanel1.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
             this.flowLayoutPanel1.Location = new System.Drawing.Point(10, 629);
@@ -624,8 +626,6 @@
             // cbInTem
             // 
             this.cbInTem.AutoSize = true;
-            this.cbInTem.Checked = true;
-            this.cbInTem.CheckState = System.Windows.Forms.CheckState.Checked;
             this.cbInTem.Location = new System.Drawing.Point(274, 30);
             this.cbInTem.Margin = new System.Windows.Forms.Padding(3, 20, 3, 3);
             this.cbInTem.Name = "cbInTem";
@@ -633,6 +633,17 @@
             this.cbInTem.TabIndex = 1;
             this.cbInTem.Text = "In tem";
             this.cbInTem.UseVisualStyleBackColor = true;
+            this.cbInTem.Visible = false;
+            // 
+            // btnInTem
+            // 
+            this.btnInTem.Location = new System.Drawing.Point(159, 13);
+            this.btnInTem.Name = "btnInTem";
+            this.btnInTem.Size = new System.Drawing.Size(109, 49);
+            this.btnInTem.TabIndex = 2;
+            this.btnInTem.Text = "In Tem";
+            this.btnInTem.UseVisualStyleBackColor = true;
+            this.btnInTem.Click += new System.EventHandler(this.btnInTem_Click);
             // 
             // tableLayoutPanel1
             // 
@@ -660,7 +671,6 @@
             // tbQr
             // 
             this.tbQr.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.tbQr.Enabled = false;
             this.tbQr.Location = new System.Drawing.Point(97, 55);
             this.tbQr.Name = "tbQr";
             this.tbQr.Size = new System.Drawing.Size(236, 26);
@@ -850,5 +860,6 @@
         private System.Windows.Forms.Label label16;
         private System.Windows.Forms.ComboBox cbxNguoiKK;
         private System.Windows.Forms.Button btnXuatExcel;
+        private System.Windows.Forms.Button btnInTem;
     }
 }

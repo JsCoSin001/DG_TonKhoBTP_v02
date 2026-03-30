@@ -164,6 +164,7 @@
     <Compile Include="Models\KiemKe.cs" />
     <Compile Include="Models\LoginClass.cs" />
     <Compile Include="Models\OtherClass.cs" />
+    <Compile Include="Models\ThongTinDatHangUpdateModel.cs" />
     <Compile Include="Printer\A4\A4Config.cs" />
     <Compile Include="Printer\A4\A4Printer.cs" />
     <Compile Include="Printer\A4\IPrintRenderer.cs" />
@@ -187,22 +188,28 @@
     <Compile Include="UI\NghiepVuKhac\KeToan\UC_KiemKe.Designer.cs">
       <DependentUpon>UC_KiemKe.cs</DependentUpon>
     </Compile>
-    <Compile Include="UI\NghiepVuKhac\KeToan\VatTuPhu\FrmVatTuPhu.cs">
+    <Compile Include="UI\NghiepVuKhac\KeToan\VatTuKhac\FrmVatTuKhac.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="UI\NghiepVuKhac\KeToan\VatTuPhu\FrmVatTuPhu.Designer.cs">
-      <DependentUpon>FrmVatTuPhu.cs</DependentUpon>
+    <Compile Include="UI\NghiepVuKhac\KeToan\VatTuKhac\FrmVatTuKhac.Designer.cs">
+      <DependentUpon>FrmVatTuKhac.cs</DependentUpon>
     </Compile>
-    <Compile Include="UI\NghiepVuKhac\KeToan\VatTuPhu\UC_MuaVatTu.cs">
+    <Compile Include="UI\NghiepVuKhac\KeToan\VatTuKhac\UC_BaoCao.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="UI\NghiepVuKhac\KeToan\VatTuPhu\UC_MuaVatTu.Designer.cs">
+    <Compile Include="UI\NghiepVuKhac\KeToan\VatTuKhac\UC_BaoCao.Designer.cs">
+      <DependentUpon>UC_BaoCao.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\NghiepVuKhac\KeToan\VatTuKhac\UC_MuaVatTu.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\NghiepVuKhac\KeToan\VatTuKhac\UC_MuaVatTu.Designer.cs">
       <DependentUpon>UC_MuaVatTu.cs</DependentUpon>
     </Compile>
-    <Compile Include="UI\NghiepVuKhac\KeToan\VatTuPhu\UC_NhapXuatVatTu.cs">
+    <Compile Include="UI\NghiepVuKhac\KeToan\VatTuKhac\UC_NhapXuatVatTu.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="UI\NghiepVuKhac\KeToan\VatTuPhu\UC_NhapXuatVatTu.Designer.cs">
+    <Compile Include="UI\NghiepVuKhac\KeToan\VatTuKhac\UC_NhapXuatVatTu.Designer.cs">
       <DependentUpon>UC_NhapXuatVatTu.cs</DependentUpon>
     </Compile>
     <Compile Include="UI\NghiepVuKhac\SanXuat\UC_HaLo.cs">
@@ -422,13 +429,16 @@
     <EmbeddedResource Include="UI\NghiepVuKhac\KeToan\UC_KiemKe.resx">
       <DependentUpon>UC_KiemKe.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="UI\NghiepVuKhac\KeToan\VatTuPhu\FrmVatTuPhu.resx">
-      <DependentUpon>FrmVatTuPhu.cs</DependentUpon>
+    <EmbeddedResource Include="UI\NghiepVuKhac\KeToan\VatTuKhac\FrmVatTuKhac.resx">
+      <DependentUpon>FrmVatTuKhac.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="UI\NghiepVuKhac\KeToan\VatTuPhu\UC_MuaVatTu.resx">
+    <EmbeddedResource Include="UI\NghiepVuKhac\KeToan\VatTuKhac\UC_BaoCao.resx">
+      <DependentUpon>UC_BaoCao.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\NghiepVuKhac\KeToan\VatTuKhac\UC_MuaVatTu.resx">
       <DependentUpon>UC_MuaVatTu.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="UI\NghiepVuKhac\KeToan\VatTuPhu\UC_NhapXuatVatTu.resx">
+    <EmbeddedResource Include="UI\NghiepVuKhac\KeToan\VatTuKhac\UC_NhapXuatVatTu.resx">
       <DependentUpon>UC_NhapXuatVatTu.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UI\NghiepVuKhac\SanXuat\UC_HaLo.resx">

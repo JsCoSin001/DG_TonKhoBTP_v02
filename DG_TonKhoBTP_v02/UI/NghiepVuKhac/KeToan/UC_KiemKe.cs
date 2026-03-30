@@ -126,7 +126,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
             var token = _ctsSP.Token;
 
             // Debounce 300ms
-            try { await Task.Delay(300, token); }
+            try { await Task.Delay(500, token); }
             catch (TaskCanceledException) { return; }
 
             if (token.IsCancellationRequested) return;
@@ -238,6 +238,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
 
 
             string keyword = tbTimKiem.Text.Trim();
+
 
             if (string.IsNullOrWhiteSpace(keyword)) return;
 
@@ -395,19 +396,19 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
                 InsertRowToGridTop(kiemKeModel);
 
                 // PrintDocument dùng GDI+ → phải chạy trên UI thread
-                if (printerModel != null && shouldPrint)
-                {
-                    try
-                    {
-                        PrintHelper.PrintLabel(printerModel);
-                    }
-                    catch (Exception printEx)
-                    {
-                        FrmWaiting.ShowGifAlert(
-                            $"Lưu thành công nhưng in thất bại:\n{printEx.Message}",
-                            "CẢNH BÁO IN");
-                    }
-                }
+                //if (printerModel != null && shouldPrint)
+                //{
+                //    try
+                //    {
+                //        PrintHelper.PrintLabel(printerModel);
+                //    }
+                //    catch (Exception printEx)
+                //    {
+                //        FrmWaiting.ShowGifAlert(
+                //            $"Lưu thành công nhưng in thất bại:\n{printEx.Message}",
+                //            "CẢNH BÁO IN");
+                //    }
+                //}
 
                 FrmWaiting.ShowGifAlert("Lưu kiểm kê thành công.", "THÀNH CÔNG", EnumStore.Icon.Success);
 
@@ -882,7 +883,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
         private async void cbxNguoiKK_CauHinh_SelectedIndexChanged(object sender, EventArgs e)
         {
 
-            string nguoiKK = cbxNguoiKK_CauHinh.SelectedItem?.ToString();
+            string nguoiKK = cbxNguoiKK_CauHinh.SelectedItem?.ToString().Replace("Người", "Nguoi"); ;
 
             await LoadDataKiemKeAsync(nguoiKK);
         }
@@ -901,6 +902,22 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
 
             string thang = dtThangKiemKe.Value.ToString("yyyy-MM");
             ExcelExporter.Export(dtExport, $"KiemKe_{thang}");
+        }
+
+        private void btnInTem_Click(object sender, EventArgs e)
+        {
+            PrinterModel printerModel = BuildPrinterModelForPrint();
+
+            try
+            {
+                PrintHelper.PrintLabel(printerModel);
+            }
+            catch (Exception printEx)
+            {
+                FrmWaiting.ShowGifAlert(
+                    $"In thất bại:\n{printEx.Message}",
+                    "CẢNH BÁO IN");
+            }
         }
     }
 }

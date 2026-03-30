@@ -48,7 +48,6 @@
             this.ten = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.donVi = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.soLuong = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.donGia = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.mucDich = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.ngayGiao = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.slTon = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -219,7 +218,6 @@
             this.ten,
             this.donVi,
             this.soLuong,
-            this.donGia,
             this.mucDich,
             this.ngayGiao,
             this.slTon,
@@ -265,12 +263,6 @@
             this.soLuong.Frozen = true;
             this.soLuong.HeaderText = "Số lượng";
             this.soLuong.Name = "soLuong";
-            // 
-            // donGia
-            // 
-            this.donGia.Frozen = true;
-            this.donGia.HeaderText = "Đơn giá";
-            this.donGia.Name = "donGia";
             // 
             // mucDich
             // 
@@ -354,16 +346,6 @@
         private System.Windows.Forms.Panel panel3;
         private System.Windows.Forms.Button btnDatHang;
         private System.Windows.Forms.Label lblTieuDeTimKiem;
-        private System.Windows.Forms.DataGridViewTextBoxColumn ID;
-        private System.Windows.Forms.DataGridViewTextBoxColumn ma;
-        private System.Windows.Forms.DataGridViewTextBoxColumn ten;
-        private System.Windows.Forms.DataGridViewTextBoxColumn donVi;
-        private System.Windows.Forms.DataGridViewTextBoxColumn soLuong;
-        private System.Windows.Forms.DataGridViewTextBoxColumn donGia;
-        private System.Windows.Forms.DataGridViewTextBoxColumn mucDich;
-        private System.Windows.Forms.DataGridViewTextBoxColumn ngayGiao;
-        private System.Windows.Forms.DataGridViewTextBoxColumn slTon;
-        private System.Windows.Forms.DataGridViewButtonColumn colXoa;
         private System.Windows.Forms.ComboBox cbxTimTenVatTu;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label5;
@@ -372,5 +354,14 @@
         private System.Windows.Forms.RadioButton rdoTaoMoi;
         private System.Windows.Forms.RadioButton radioButton2;
         private System.Windows.Forms.TextBox tbMaDon;
+        private System.Windows.Forms.DataGridViewTextBoxColumn ID;
+        private System.Windows.Forms.DataGridViewTextBoxColumn ma;
+        private System.Windows.Forms.DataGridViewTextBoxColumn ten;
+        private System.Windows.Forms.DataGridViewTextBoxColumn donVi;
+        private System.Windows.Forms.DataGridViewTextBoxColumn soLuong;
+        private System.Windows.Forms.DataGridViewTextBoxColumn mucDich;
+        private System.Windows.Forms.DataGridViewTextBoxColumn ngayGiao;
+        private System.Windows.Forms.DataGridViewTextBoxColumn slTon;
+        private System.Windows.Forms.DataGridViewButtonColumn colXoa;
     }
 }

@@ -115,13 +115,13 @@
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 6;
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 35F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 35F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 35F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(858, 195);
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(858, 182);
             this.tableLayoutPanel1.TabIndex = 1;
             // 
             // binhSay
@@ -134,7 +134,7 @@
             0,
             0,
             65536});
-            this.binhSay.Location = new System.Drawing.Point(687, 168);
+            this.binhSay.Location = new System.Drawing.Point(687, 144);
             this.binhSay.Maximum = new decimal(new int[] {
             -469762049,
             -590869294,
@@ -154,7 +154,7 @@
             0,
             0,
             65536});
-            this.khuon.Location = new System.Drawing.Point(516, 168);
+            this.khuon.Location = new System.Drawing.Point(516, 144);
             this.khuon.Maximum = new decimal(new int[] {
             -469762049,
             -590869294,
@@ -174,7 +174,7 @@
             0,
             0,
             65536});
-            this.dau2.Location = new System.Drawing.Point(345, 168);
+            this.dau2.Location = new System.Drawing.Point(345, 144);
             this.dau2.Maximum = new decimal(new int[] {
             -469762049,
             -590869294,
@@ -194,7 +194,7 @@
             0,
             0,
             65536});
-            this.dau1.Location = new System.Drawing.Point(174, 168);
+            this.dau1.Location = new System.Drawing.Point(174, 144);
             this.dau1.Maximum = new decimal(new int[] {
             -469762049,
             -590869294,
@@ -214,7 +214,7 @@
             0,
             0,
             65536});
-            this.co.Location = new System.Drawing.Point(3, 168);
+            this.co.Location = new System.Drawing.Point(3, 144);
             this.co.Maximum = new decimal(new int[] {
             -469762049,
             -590869294,
@@ -234,7 +234,7 @@
             0,
             0,
             65536});
-            this.v6.Location = new System.Drawing.Point(687, 103);
+            this.v6.Location = new System.Drawing.Point(687, 87);
             this.v6.Maximum = new decimal(new int[] {
             -469762049,
             -590869294,
@@ -254,7 +254,7 @@
             0,
             0,
             65536});
-            this.v5.Location = new System.Drawing.Point(516, 103);
+            this.v5.Location = new System.Drawing.Point(516, 87);
             this.v5.Maximum = new decimal(new int[] {
             -469762049,
             -590869294,
@@ -274,7 +274,7 @@
             0,
             0,
             65536});
-            this.v4.Location = new System.Drawing.Point(345, 103);
+            this.v4.Location = new System.Drawing.Point(345, 87);
             this.v4.Maximum = new decimal(new int[] {
             -469762049,
             -590869294,
@@ -294,7 +294,7 @@
             0,
             0,
             65536});
-            this.v3.Location = new System.Drawing.Point(174, 103);
+            this.v3.Location = new System.Drawing.Point(174, 87);
             this.v3.Maximum = new decimal(new int[] {
             -469762049,
             -590869294,
@@ -314,7 +314,7 @@
             0,
             0,
             65536});
-            this.v2.Location = new System.Drawing.Point(3, 103);
+            this.v2.Location = new System.Drawing.Point(3, 87);
             this.v2.Maximum = new decimal(new int[] {
             -469762049,
             -590869294,
@@ -333,7 +333,7 @@
             this.boDemMet.Items.AddRange(new object[] {
             "Bình thường",
             "Lỗi"});
-            this.boDemMet.Location = new System.Drawing.Point(345, 38);
+            this.boDemMet.Location = new System.Drawing.Point(345, 28);
             this.boDemMet.Name = "boDemMet";
             this.boDemMet.Size = new System.Drawing.Size(165, 28);
             this.boDemMet.TabIndex = 3;
@@ -347,7 +347,7 @@
             this.puliDanDay.Items.AddRange(new object[] {
             "Bình thường",
             "Lỗi"});
-            this.puliDanDay.Location = new System.Drawing.Point(174, 38);
+            this.puliDanDay.Location = new System.Drawing.Point(174, 28);
             this.puliDanDay.Name = "puliDanDay";
             this.puliDanDay.Size = new System.Drawing.Size(165, 28);
             this.puliDanDay.TabIndex = 2;
@@ -361,7 +361,7 @@
             this.mangNuoc.Items.AddRange(new object[] {
             "Bình thường",
             "Lỗi"});
-            this.mangNuoc.Location = new System.Drawing.Point(3, 38);
+            this.mangNuoc.Location = new System.Drawing.Point(3, 28);
             this.mangNuoc.Name = "mangNuoc";
             this.mangNuoc.Size = new System.Drawing.Size(165, 28);
             this.mangNuoc.TabIndex = 1;
@@ -375,7 +375,7 @@
             this.mayIn.Items.AddRange(new object[] {
             "Bình thường",
             "Lỗi"});
-            this.mayIn.Location = new System.Drawing.Point(516, 38);
+            this.mayIn.Location = new System.Drawing.Point(516, 28);
             this.mayIn.Name = "mayIn";
             this.mayIn.Size = new System.Drawing.Size(165, 28);
             this.mayIn.TabIndex = 4;
@@ -385,9 +385,9 @@
             this.label11.AutoSize = true;
             this.label11.Dock = System.Windows.Forms.DockStyle.Fill;
             this.label11.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label11.Location = new System.Drawing.Point(3, 130);
+            this.label11.Location = new System.Drawing.Point(3, 116);
             this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(165, 35);
+            this.label11.Size = new System.Drawing.Size(165, 25);
             this.label11.TabIndex = 24;
             this.label11.Text = "Cổ";
             this.label11.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
@@ -397,9 +397,9 @@
             this.label12.AutoSize = true;
             this.label12.Dock = System.Windows.Forms.DockStyle.Fill;
             this.label12.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label12.Location = new System.Drawing.Point(174, 130);
+            this.label12.Location = new System.Drawing.Point(174, 116);
             this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(165, 35);
+            this.label12.Size = new System.Drawing.Size(165, 25);
             this.label12.TabIndex = 23;
             this.label12.Text = "Đầu 1";
             this.label12.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
@@ -409,9 +409,9 @@
             this.label13.AutoSize = true;
             this.label13.Dock = System.Windows.Forms.DockStyle.Fill;
             this.label13.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label13.Location = new System.Drawing.Point(345, 130);
+            this.label13.Location = new System.Drawing.Point(345, 116);
             this.label13.Name = "label13";
-            this.label13.Size = new System.Drawing.Size(165, 35);
+            this.label13.Size = new System.Drawing.Size(165, 25);
             this.label13.TabIndex = 22;
             this.label13.Text = "Đầu 2";
             this.label13.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
@@ -421,9 +421,9 @@
             this.label14.AutoSize = true;
             this.label14.Dock = System.Windows.Forms.DockStyle.Fill;
             this.label14.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label14.Location = new System.Drawing.Point(516, 130);
+            this.label14.Location = new System.Drawing.Point(516, 116);
             this.label14.Name = "label14";
-            this.label14.Size = new System.Drawing.Size(165, 35);
+            this.label14.Size = new System.Drawing.Size(165, 25);
             this.label14.TabIndex = 21;
             this.label14.Text = "Khuôn";
             this.label14.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
@@ -433,9 +433,9 @@
             this.label15.AutoSize = true;
             this.label15.Dock = System.Windows.Forms.DockStyle.Fill;
             this.label15.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label15.Location = new System.Drawing.Point(687, 130);
+            this.label15.Location = new System.Drawing.Point(687, 116);
             this.label15.Name = "label15";
-            this.label15.Size = new System.Drawing.Size(168, 35);
+            this.label15.Size = new System.Drawing.Size(168, 25);
             this.label15.TabIndex = 20;
             this.label15.Text = "Bình sấy";
             this.label15.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
@@ -445,9 +445,9 @@
             this.label6.AutoSize = true;
             this.label6.Dock = System.Windows.Forms.DockStyle.Fill;
             this.label6.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label6.Location = new System.Drawing.Point(3, 65);
+            this.label6.Location = new System.Drawing.Point(3, 59);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(165, 35);
+            this.label6.Size = new System.Drawing.Size(165, 25);
             this.label6.TabIndex = 14;
             this.label6.Text = "V2";
             this.label6.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
@@ -457,9 +457,9 @@
             this.label7.AutoSize = true;
             this.label7.Dock = System.Windows.Forms.DockStyle.Fill;
             this.label7.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label7.Location = new System.Drawing.Point(174, 65);
+            this.label7.Location = new System.Drawing.Point(174, 59);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(165, 35);
+            this.label7.Size = new System.Drawing.Size(165, 25);
             this.label7.TabIndex = 13;
             this.label7.Text = "V3";
             this.label7.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
@@ -469,9 +469,9 @@
             this.label8.AutoSize = true;
             this.label8.Dock = System.Windows.Forms.DockStyle.Fill;
             this.label8.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label8.Location = new System.Drawing.Point(345, 65);
+            this.label8.Location = new System.Drawing.Point(345, 59);
             this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(165, 35);
+            this.label8.Size = new System.Drawing.Size(165, 25);
             this.label8.TabIndex = 12;
             this.label8.Text = "V4";
             this.label8.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
@@ -481,9 +481,9 @@
             this.label9.AutoSize = true;
             this.label9.Dock = System.Windows.Forms.DockStyle.Fill;
             this.label9.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label9.Location = new System.Drawing.Point(516, 65);
+            this.label9.Location = new System.Drawing.Point(516, 59);
             this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(165, 35);
+            this.label9.Size = new System.Drawing.Size(165, 25);
             this.label9.TabIndex = 11;
             this.label9.Text = "V5";
             this.label9.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
@@ -493,9 +493,9 @@
             this.label10.AutoSize = true;
             this.label10.Dock = System.Windows.Forms.DockStyle.Fill;
             this.label10.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label10.Location = new System.Drawing.Point(687, 65);
+            this.label10.Location = new System.Drawing.Point(687, 59);
             this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(168, 35);
+            this.label10.Size = new System.Drawing.Size(168, 25);
             this.label10.TabIndex = 10;
             this.label10.Text = "V6";
             this.label10.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
@@ -507,7 +507,7 @@
             this.label5.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label5.Location = new System.Drawing.Point(687, 0);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(168, 35);
+            this.label5.Size = new System.Drawing.Size(168, 25);
             this.label5.TabIndex = 4;
             this.label5.Text = "V1";
             this.label5.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
@@ -519,7 +519,7 @@
             this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label4.Location = new System.Drawing.Point(516, 0);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(165, 35);
+            this.label4.Size = new System.Drawing.Size(165, 25);
             this.label4.TabIndex = 3;
             this.label4.Text = "Máy in";
             this.label4.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
@@ -531,7 +531,7 @@
             this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label3.Location = new System.Drawing.Point(345, 0);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(165, 35);
+            this.label3.Size = new System.Drawing.Size(165, 25);
             this.label3.TabIndex = 2;
             this.label3.Text = "Bộ đếm mét";
             this.label3.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
@@ -543,7 +543,7 @@
             this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label2.Location = new System.Drawing.Point(174, 0);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(165, 35);
+            this.label2.Size = new System.Drawing.Size(165, 25);
             this.label2.TabIndex = 1;
             this.label2.Text = "Puli dẫn dây";
             this.label2.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
@@ -555,7 +555,7 @@
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label1.Location = new System.Drawing.Point(3, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(165, 35);
+            this.label1.Size = new System.Drawing.Size(165, 25);
             this.label1.TabIndex = 0;
             this.label1.Text = "Máng nước";
             this.label1.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
@@ -570,7 +570,7 @@
             0,
             0,
             65536});
-            this.v1.Location = new System.Drawing.Point(687, 38);
+            this.v1.Location = new System.Drawing.Point(687, 28);
             this.v1.Maximum = new decimal(new int[] {
             -469762049,
             -590869294,

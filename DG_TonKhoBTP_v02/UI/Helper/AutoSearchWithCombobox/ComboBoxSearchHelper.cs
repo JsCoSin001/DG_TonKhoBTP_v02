@@ -22,6 +22,9 @@ namespace DG_TonKhoBTP_v02.UI.Helper
         private CancellationTokenSource _cts;
         private bool _suppressEvents = false;
 
+        // Flag riêng: đánh dấu người dùng đang chủ động chọn item (click/Enter)
+        private bool _isUserSelecting = false;
+
         // ------------------------------------------------------------------ //
         //  Khởi tạo
         // ------------------------------------------------------------------ //
@@ -46,6 +49,7 @@ namespace DG_TonKhoBTP_v02.UI.Helper
             _comboBox.TextChanged += OnTextChanged;
             _comboBox.SelectedIndexChanged += OnSelectedIndexChanged;
             _comboBox.KeyDown += OnKeyDown;
+            _comboBox.SelectionChangeCommitted += OnSelectionChangeCommitted;
         }
 
         // ------------------------------------------------------------------ //
@@ -94,8 +98,11 @@ namespace DG_TonKhoBTP_v02.UI.Helper
                             foreach (var item in results)
                                 _comboBox.Items.Add(new ComboBoxItem<T>(item, _displaySelector(item)));
 
+                            // Giữ nguyên text người dùng đã gõ, KHÔNG chọn item nào
+                            _comboBox.SelectedIndex = -1;
                             _comboBox.Text = currentText;
                             _comboBox.SelectionStart = currentText.Length;
+                            _comboBox.SelectionLength = 0;
 
                             if (!_comboBox.DroppedDown)
                                 _comboBox.DroppedDown = true;
@@ -118,11 +125,30 @@ namespace DG_TonKhoBTP_v02.UI.Helper
             }
         }
 
-        private void OnSelectedIndexChanged(object sender, EventArgs e)
+        // SelectionChangeCommitted chỉ fire khi người dùng chủ động chọn item
+        // (click vào item trong dropdown hoặc nhấn Enter) — không fire khi code set SelectedIndex
+        private void OnSelectionChangeCommitted(object sender, EventArgs e)
         {
             if (_suppressEvents) return;
             if (_comboBox.SelectedItem is ComboBoxItem<T> selected)
-                _onItemSelected?.Invoke(selected.Value);
+            {
+                _isUserSelecting = true;
+                try
+                {
+                    _onItemSelected?.Invoke(selected.Value);
+                }
+                finally
+                {
+                    _isUserSelecting = false;
+                }
+            }
+        }
+
+        // SelectedIndexChanged vẫn giữ nhưng bỏ qua — mọi logic chọn item
+        // đã chuyển sang OnSelectionChangeCommitted để tránh tự động chọn
+        private void OnSelectedIndexChanged(object sender, EventArgs e)
+        {
+            // Không làm gì — tránh tự động trigger khi DroppedDown mở
         }
 
         private void OnKeyDown(object sender, KeyEventArgs e)
@@ -167,6 +193,7 @@ namespace DG_TonKhoBTP_v02.UI.Helper
 
             _comboBox.TextChanged -= OnTextChanged;
             _comboBox.SelectedIndexChanged -= OnSelectedIndexChanged;
+            _comboBox.SelectionChangeCommitted -= OnSelectionChangeCommitted;
             _comboBox.KeyDown -= OnKeyDown;
         }
     }

@@ -255,7 +255,7 @@ namespace DG_TonKhoBTP_v02.Helper
               ttp.id AS STT,
               ttp_bin.id AS id, 
               tclv.Ngay, tclv.Ca, tclv.May,nvl.QC,
-              ttp.MaBin as MaBin, ds.Ten AS Ten, ds.Ma AS Ma,ds.DonVi, ds.id AS DanhSachMaSP_ID,
+              ttp.MaBin as MaBin, ds.Ten AS Ten, ds.Ma AS Ma,ds.DonVi,ds.ChuyenDoi, ds.id AS DanhSachMaSP_ID,
               tclv.NguoiLam, tclv.ToTruong, tclv.QuanDoc,
               ttp.KhoiLuongTruoc AS KhoiLuongTruoc, ttp.KhoiLuongSau as KhoiLuongSau,
               ttp.ChieuDaiTruoc as ChieuDaiTruoc, ttp.ChieuDaiSau as ChieuDaiSau,

@@ -67,7 +67,9 @@
             this.timNVL = new System.Windows.Forms.ComboBox();
             this.label3 = new System.Windows.Forms.Label();
             this.id = new System.Windows.Forms.TextBox();
+            this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.donVi = new System.Windows.Forms.TextBox();
+            this.nbrChuyenDoi = new System.Windows.Forms.NumericUpDown();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.groupBox1.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -81,6 +83,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.soBin)).BeginInit();
             this.panel3.SuspendLayout();
             this.tableLayoutPanel4.SuspendLayout();
+            this.flowLayoutPanel1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nbrChuyenDoi)).BeginInit();
             this.SuspendLayout();
             // 
             // groupBox1
@@ -491,7 +495,7 @@
             this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 200F));
             this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 70F));
+            this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 67F));
             this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.tableLayoutPanel4.Controls.Add(this.ten, 7, 0);
@@ -502,7 +506,7 @@
             this.tableLayoutPanel4.Controls.Add(this.timNVL, 1, 0);
             this.tableLayoutPanel4.Controls.Add(this.label3, 0, 0);
             this.tableLayoutPanel4.Controls.Add(this.id, 3, 0);
-            this.tableLayoutPanel4.Controls.Add(this.donVi, 8, 0);
+            this.tableLayoutPanel4.Controls.Add(this.flowLayoutPanel1, 8, 0);
             this.tableLayoutPanel4.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel4.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel4.Name = "tableLayoutPanel4";
@@ -518,7 +522,7 @@
             this.ten.Font = new System.Drawing.Font("Microsoft Sans Serif", 12.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.ten.Location = new System.Drawing.Point(863, 3);
             this.ten.Name = "ten";
-            this.ten.Size = new System.Drawing.Size(538, 27);
+            this.ten.Size = new System.Drawing.Size(541, 27);
             this.ten.TabIndex = 41;
             // 
             // ma
@@ -599,13 +603,31 @@
             this.id.Size = new System.Drawing.Size(94, 27);
             this.id.TabIndex = 39;
             // 
+            // flowLayoutPanel1
+            // 
+            this.flowLayoutPanel1.Controls.Add(this.donVi);
+            this.flowLayoutPanel1.Controls.Add(this.nbrChuyenDoi);
+            this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.flowLayoutPanel1.Location = new System.Drawing.Point(1410, 3);
+            this.flowLayoutPanel1.Name = "flowLayoutPanel1";
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(61, 24);
+            this.flowLayoutPanel1.TabIndex = 42;
+            this.flowLayoutPanel1.Visible = false;
+            // 
             // donVi
             // 
-            this.donVi.Location = new System.Drawing.Point(1407, 3);
+            this.donVi.Location = new System.Drawing.Point(3, 3);
             this.donVi.Name = "donVi";
-            this.donVi.Size = new System.Drawing.Size(64, 22);
+            this.donVi.Size = new System.Drawing.Size(28, 22);
             this.donVi.TabIndex = 42;
-            this.donVi.Visible = false;
+            // 
+            // nbrChuyenDoi
+            // 
+            this.nbrChuyenDoi.DecimalPlaces = 5;
+            this.nbrChuyenDoi.Location = new System.Drawing.Point(3, 31);
+            this.nbrChuyenDoi.Name = "nbrChuyenDoi";
+            this.nbrChuyenDoi.Size = new System.Drawing.Size(43, 22);
+            this.nbrChuyenDoi.TabIndex = 43;
             // 
             // UC_TTThanhPham
             // 
@@ -630,6 +652,9 @@
             this.panel3.ResumeLayout(false);
             this.tableLayoutPanel4.ResumeLayout(false);
             this.tableLayoutPanel4.PerformLayout();
+            this.flowLayoutPanel1.ResumeLayout(false);
+            this.flowLayoutPanel1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nbrChuyenDoi)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -676,5 +701,7 @@
         private System.Windows.Forms.Label label20;
         private System.Windows.Forms.TextBox donVi;
         private System.Windows.Forms.Label label15;
+        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
+        private System.Windows.Forms.NumericUpDown nbrChuyenDoi;
     }
 }

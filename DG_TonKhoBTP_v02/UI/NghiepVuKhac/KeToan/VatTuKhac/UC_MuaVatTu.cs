@@ -34,6 +34,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
         private string MaDonMuaDichVu => "PRS";
         private string MaDonMuaVatTu => "PRM";
 
+
         public UC_MuaVatTu(int kieuDon)
         {
             InitializeComponent();
@@ -67,14 +68,13 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
                 dgvDSMua.Columns.Add(new DataGridViewTextBoxColumn { Name = "ten", HeaderText = "Tên Vật Tư", Width = 250 });
                 dgvDSMua.Columns.Add(new DataGridViewTextBoxColumn { Name = "donVi", HeaderText = "Đơn Vị", Width = 100 });
                 dgvDSMua.Columns.Add(new DataGridViewTextBoxColumn { Name = "soLuong", HeaderText = "Số lượng", Width = 150 });
-                dgvDSMua.Columns.Add(new DataGridViewTextBoxColumn { Name = "donGia", HeaderText = "Đơn giá", Width = 100 });
 
                 var colMucDich = new DataGridViewTextBoxColumn { Name = "mucDich", HeaderText = "Mục đích" };
                 colMucDich.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
                 dgvDSMua.Columns.Add(colMucDich);
 
                 dgvDSMua.Columns.Add(new DataGridViewTextBoxColumn { Name = "ngayGiao", HeaderText = "Ngày giao", Width = 100 });
-                dgvDSMua.Columns.Add(new DataGridViewTextBoxColumn { Name = "slTon", HeaderText = "Số lượng tồn", Width = 100 });
+                dgvDSMua.Columns.Add(new DataGridViewTextBoxColumn { Name = "slTon", HeaderText = "Số lượng tồn", Width = 120 });
                 dgvDSMua.AllowUserToAddRows = false;
 
                 _isNullMaSPLayout = false;
@@ -151,6 +151,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
                     dgvDSMua.Rows.Clear();
 
                     var chiTietList = repo.GetChiTietDonHang(item.MaDon);
+
                     if (chiTietList == null || chiTietList.Count == 0)
                     {
                         cbxTimTenVatTu.Text = "";
@@ -210,7 +211,6 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
                     vt.Ten,
                     vt.DonVi,
                     ct.SoLuongMua,
-                    ct.DonGia,
                     ct.MucDichMua,
                     ct.NgayGiao
                 // slTon để trống khi load edit (không lưu trong DB)
@@ -387,7 +387,6 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
                         TenVatTu = CoreHelper.TrimToNull(row.Cells["ten"].Value?.ToString()),
                         DonVi = CoreHelper.TrimToNull(row.Cells["donVi"].Value?.ToString()),
                         SoLuongMua = CoreHelper.TryParseDecimal(row.Cells["soLuong"].Value),
-                        DonGia = CoreHelper.TryParseDecimal(row.Cells["donGia"].Value),
                         MucDichMua = CoreHelper.TrimToNull(row.Cells["mucDich"].Value?.ToString()),
                         NgayGiao = CoreHelper.TrimToNull(row.Cells["ngayGiao"].Value?.ToString()),
                         SoLuongTon = CoreHelper.TrimToNull(row.Cells["slTon"].Value?.ToString()),
@@ -426,7 +425,6 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
                     MaterialName = item.TenVatTu ?? "",
                     Unit = item.DonVi ?? "",
                     Quantity = item.SoLuongMua.HasValue ? item.SoLuongMua.Value.ToString("N2") : "",
-                    UnitPrice = item.DonGia.HasValue ? item.DonGia.Value.ToString("N2") : "",
                     Purpose = item.MucDichMua ?? "",
                     RequiredDate = item.NgayGiao ?? "//",
                     CurrentStock = item.SoLuongTon ?? "",

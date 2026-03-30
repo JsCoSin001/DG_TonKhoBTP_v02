@@ -43,10 +43,10 @@ namespace DG_TonKhoBTP_v02.UI.Helper.AutoSearchWithCombobox
         public string? TenVatTu { get; set; }
         public string? DonVi { get; set; }
         public decimal? SoLuongMua { get; set; }
-        public decimal? DonGia { get; set; }
         public string MucDichMua { get; set; }
         public string NgayGiao { get; set; }
         public string SoLuongTon { get; set; }
+        public decimal TonKho { get; set; }
         public string DateInsert { get; set; }
     }
 
@@ -126,20 +126,27 @@ namespace DG_TonKhoBTP_v02.UI.Helper.AutoSearchWithCombobox
         {
             var result = new List<ThongTinDatHang>();
             string sql = @"
-        SELECT 
-            ttdh.Id,
-            ttdh.DanhSachMaSP_ID,
-            ttdh.DanhSachDatHang_ID,
-            ttdh.TenVatTu,              -- ← THÊM
-            ttdh.SoLuongMua,
-            ttdh.DonGia,
-            ttdh.MucDichMua,
-            ttdh.NgayGiao,
-            ttdh.Date_Insert
-        FROM ThongTinDatHang ttdh
-        INNER JOIN DanhSachDatHang dsdh ON dsdh.Id = ttdh.DanhSachDatHang_ID
-        WHERE dsdh.MaDon = @MaDon;
-    ";
+                SELECT 
+                    ttdh.Id,
+                    ttdh.DanhSachMaSP_ID,
+                    ttdh.DanhSachDatHang_ID,
+                    ttdh.TenVatTu,             
+                    ttdh.SoLuongMua,
+                    ttdh.DonGia,
+                    ttdh.MucDichMua,
+                    ttdh.NgayGiao,
+                    ttdh.Date_Insert,
+                    COALESCE((
+                        SELECT SUM(lsxn.SoLuong)
+                        FROM LichSuXuatNhap lsxn
+                        INNER JOIN ThongTinDatHang ttdh2 ON ttdh2.Id = lsxn.ThongTinDatHang_ID
+                        WHERE ttdh2.DanhSachMaSP_ID = ttdh.DanhSachMaSP_ID
+                    ), 0) AS TonKho
+                FROM ThongTinDatHang ttdh
+                INNER JOIN DanhSachDatHang dsdh ON dsdh.Id = ttdh.DanhSachDatHang_ID
+                WHERE dsdh.MaDon = @MaDon
+                  AND dsdh.LoaiDon = 1;
+            ";
             DataTable dt = DatabaseHelper.GetData(sql, maDon, "MaDon");
             foreach (DataRow row in dt.Rows)
             {
@@ -148,17 +155,16 @@ namespace DG_TonKhoBTP_v02.UI.Helper.AutoSearchWithCombobox
                     Id = row["Id"] == DBNull.Value ? (int?)null : Convert.ToInt32(row["Id"]),
                     DanhSachMaSP_ID = row["DanhSachMaSP_ID"] == DBNull.Value ? (int?)null : Convert.ToInt32(row["DanhSachMaSP_ID"]),
                     DanhSachDatHang_ID = row["DanhSachDatHang_ID"] == DBNull.Value ? (int?)null : Convert.ToInt32(row["DanhSachDatHang_ID"]),
-                    TenVatTu = row["TenVatTu"] == DBNull.Value ? null : row["TenVatTu"].ToString(), // ← THÊM
+                    TenVatTu = row["TenVatTu"] == DBNull.Value ? null : row["TenVatTu"].ToString(),
                     SoLuongMua = row["SoLuongMua"] == DBNull.Value ? (decimal?)null : Convert.ToDecimal(row["SoLuongMua"]),
-                    DonGia = row["DonGia"] == DBNull.Value ? (decimal?)null : Convert.ToDecimal(row["DonGia"]),
                     MucDichMua = row["MucDichMua"] == DBNull.Value ? null : row["MucDichMua"].ToString(),
                     NgayGiao = row["NgayGiao"] == DBNull.Value ? null : row["NgayGiao"].ToString(),
-                    DateInsert = row["Date_Insert"] == DBNull.Value ? null : row["Date_Insert"].ToString()
+                    DateInsert = row["Date_Insert"] == DBNull.Value ? null : row["Date_Insert"].ToString(),
+                    TonKho = Convert.ToDecimal(row["TonKho"])
                 });
             }
             return result;
         }
-
 
 
 
@@ -354,7 +360,6 @@ namespace DG_TonKhoBTP_v02.UI.Helper.AutoSearchWithCombobox
                 DanhSachDatHang_ID,
                 TenVatTu,
                 SoLuongMua,
-                DonGia,
                 MucDichMua,
                 NgayGiao,
                 Date_Insert
@@ -365,7 +370,6 @@ namespace DG_TonKhoBTP_v02.UI.Helper.AutoSearchWithCombobox
                 @DanhSachDatHang_ID,
                 @TenVatTu,
                 @SoLuongMua,
-                @DonGia,
                 @MucDichMua,
                 @NgayGiao,
                 @Date_Insert
@@ -376,7 +380,6 @@ namespace DG_TonKhoBTP_v02.UI.Helper.AutoSearchWithCombobox
             AddParam(cmd, "@DanhSachDatHang_ID", DbType.Int32, item.DanhSachDatHang_ID);
             AddParam(cmd, "@TenVatTu", DbType.String, item.TenVatTu);
             AddParam(cmd, "@SoLuongMua", DbType.Decimal, item.SoLuongMua);
-            AddParam(cmd, "@DonGia", DbType.Decimal, item.DonGia);
             AddParam(cmd, "@MucDichMua", DbType.String, CoreHelper.TrimToNull(item.MucDichMua));
             AddParam(cmd, "@NgayGiao", DbType.String, NormalizeDate(item.NgayGiao));
             AddParam(cmd, "@Date_Insert", DbType.String,

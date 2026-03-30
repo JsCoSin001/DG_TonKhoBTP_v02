@@ -30,9 +30,11 @@ namespace DG_TonKhoBTP_v02.UI
 
         public decimal? klDongThua = null;
 
+        public Func<string> GetSoLOT { get; set; }
+
         //public Func<decimal> GetKhoiLuong { get; set; }
 
-        public Func<(decimal KhoiLuong, decimal ChieuDai, string donVi)> GetKL_CD { get; set; }
+        public Func<(decimal KhoiLuong, decimal ChieuDai, string donVi, decimal chuyenDoi)> GetKL_CD { get; set; }
 
         public Func<string> GetTenMay { get; set; }
 
@@ -318,7 +320,11 @@ namespace DG_TonKhoBTP_v02.UI
         #region Hiển thị dữ liệu từ DataTable
         public void LoadData(DataTable dt, int kieuDL)
         {
+            ClearInputs();
+
+
             isEdit.Value = 0;
+
             if (dt == null) return;
 
             setVisibleTableNVL(true);
@@ -333,6 +339,12 @@ namespace DG_TonKhoBTP_v02.UI
 
             dtgTTNVL.BeginInvoke(new Action(() =>
             {
+                string may = CoreHelper.CatMaBin(GetSoLOT())[0];
+
+                string[] arr = { "B10", "B13", "B14", "B15", "B16", "MD16A4", "R10", "R12" };
+
+                if (kieuDL == 1 && !arr.Contains(may)) return;
+
                 var dtNew = new DataTable("ThongTin");
                 foreach (var col in _columns)
                     dtNew.Columns.Add(col.Name, col.DataType);
@@ -405,7 +417,7 @@ namespace DG_TonKhoBTP_v02.UI
             EnsureColumnOrderAndDeleteLast();
 
 
-            var v = GetKL_CD?.Invoke() ?? (0m, 0m,"");
+            var v = GetKL_CD?.Invoke() ?? (0m, 0m,"",1);
 
 
             if (v.donVi == "")
@@ -506,8 +518,7 @@ namespace DG_TonKhoBTP_v02.UI
                 AddRowsToGrid(result,v);
         }
 
-
-        private void AddRowsToGrid(DataTable source, (decimal KhoiLuong, decimal ChieuDai, string donVi) cd_KL_TP)
+        private void AddRowsToGrid(DataTable source, (decimal KhoiLuong, decimal ChieuDai, string donVi, decimal chuyenDoi) cd_KL_TP)
         {
             DataTable table = null;
 
@@ -579,7 +590,8 @@ namespace DG_TonKhoBTP_v02.UI
 
                         if (dvNVL != cd_KL_TP.donVi)
                         {
-                            tyLe = src["ChuyenDoi"] == DBNull.Value ? 1m : Convert.ToDecimal(src["ChuyenDoi"]);
+                            tyLe = cd_KL_TP.chuyenDoi;
+
                             kl = KlBatDau - tyLe * cd_KL_TP.ChieuDai < 0 ? 0 : KlBatDau - tyLe * cd_KL_TP.ChieuDai;
                         }
                         else
@@ -659,14 +671,12 @@ namespace DG_TonKhoBTP_v02.UI
             dtgTTNVL.Rows.Clear();
         }
 
-
         private bool TenMayDaNhap()
         {
             if (ReadTenMay() != "") return true;
             FrmWaiting.ShowGifAlert("LOT SX cần được hoàn thiện trước khi nhập nguyên liệu.");
             return false;
         }
-
 
         private string ReadTenMay()
             => GetTenMay?.Invoke() ?? "";

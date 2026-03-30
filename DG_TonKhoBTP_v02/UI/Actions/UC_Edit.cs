@@ -18,44 +18,73 @@ namespace DG_TonKhoBTP_v02.UI
         CongDoan _cd;
 
         public event EventHandler<DataTableEventArgs> DataTableSubmitted;
+
+        // Event để Form cha xử lý clear các UserControl khác
+        public event Action RequestClearOtherSections;
+
         public UC_Edit(CongDoan cd)
         {
             InitializeComponent();
             _cd = cd;
         }
 
+        private void RaiseClearOtherSections()
+        {
+            RequestClearOtherSections?.Invoke();
+        }
+
+        public (int kieuEdit, long stt) GetKieuEdit(decimal saoChep, decimal sua)
+        {
+            int kieuEdit = 0;
+            long stt = 0;
+
+            if (saoChep != 0 && sua == 0)
+            {
+                kieuEdit = 1;
+                stt = (long)saoChep;
+            }
+
+            if (saoChep == 0 && sua != 0)
+            {
+                kieuEdit = 2;
+                stt = (long)sua;
+            }
+
+            return (kieuEdit, stt);
+        }
+
         private async void btnTim_Click(object sender, EventArgs e)
         {
-            long stt = (long)sttLoi.Value;
+            var type = GetKieuEdit(nbrSaoChep.Value, nbrSua.Value);
 
-            // Kiểm tra input trước, chưa cần waiting form
-            if (stt <= 0)
-            {
-                FrmWaiting.ShowGifAlert("STT KHÔNG HỢP LỆ!");
-                return;
-            }
+            int kieuEdit = type.kieuEdit;
+            long stt = type.stt;
 
             btnTim.Enabled = false;
 
+            if (stt == 0)
+            {
+                FrmWaiting.ShowGifAlert("VUI LÒNG NHẬP SỐ STT HỢP LỆ!");
+                btnTim.Enabled = true;
+                return;
+            }
+
             try
             {
+                //string soLOT = GetSoLOT?.Invoke();
+
                 await WaitingHelper.RunWithWaiting(async () =>
                 {
-                    int kieuEdit = cbKieuXuLyDL.SelectedIndex;
-                    // Chạy query trên thread nền
                     DataTable dt = await Task.Run(() =>
-                        Database.DatabaseHelper.GetDataByID(stt.ToString(), _cd , kieuEdit));
+                        Database.DatabaseHelper.GetDataByID(stt.ToString(), _cd, kieuEdit));
 
-                    // Sau await, ta đã quay lại UI thread (WinForms SynchronizationContext)
                     if (dt == null || dt.Rows.Count == 0)
                     {
                         FrmWaiting.ShowGifAlert("STT KHÔNG TỒN TẠI!");
                         return;
                     }
 
-                    int kieuDL = cbKieuXuLyDL.SelectedIndex;
-                    // Raise event / cập nhật UI bình thường
-                    DataTableSubmitted?.Invoke(this, new DataTableEventArgs(dt, kieuDL));
+                    DataTableSubmitted?.Invoke(this, new DataTableEventArgs(dt, kieuEdit));
 
                 }, "ĐANG TÌM KIẾM, VUI LÒNG ĐỢI...");
             }
@@ -65,47 +94,56 @@ namespace DG_TonKhoBTP_v02.UI
             }
         }
 
-
         public string SectionName => nameof(UC_Edit);
 
         public object GetData()
         {
-            int value = 0;
+            var type = GetKieuEdit(nbrSaoChep.Value, nbrSua.Value);
 
-            int kieuEdit = cbKieuXuLyDL.SelectedIndex;
-
-            if (!string.IsNullOrWhiteSpace(sttLoi.Text))
-            {
-                value = (int)sttLoi.Value;
-            }
+            int kieuEdit = type.kieuEdit;
+            long stt = type.stt;
 
             return new EditModel
             {
-                Id = value,
+                Id = (int)stt,
                 KieuXuLy = kieuEdit,
             };
         }
 
         public void ClearInputs()
         {
-            sttLoi.Value = 0;
-            cbKieuXuLyDL.SelectedIndex = 0;
+            nbrSua.Value = 0;
+            nbrSaoChep.Value = 0;
         }
-
 
         private void cbKieuXuLyDL_SelectedIndexChanged(object sender, EventArgs e)
         {
-            ComboBox cb = (ComboBox)sender;
 
-            int kieuEdit = cb.SelectedIndex;
-
-            sttLoi.Enabled = cb.SelectedIndex > 0 ? true : false;
-            sttLoi.Value = 0;
         }
 
         private void UC_Edit_Load(object sender, EventArgs e)
         {
-            cbKieuXuLyDL.SelectedIndex = 0;
+            ClearInputs();
+        }
+
+        private void nbrSaoChep_KeyDown(object sender, KeyEventArgs e)
+        {
+            nbrSua.Value = 0;
+        }
+
+        private void nbrSua_KeyDown(object sender, KeyEventArgs e)
+        {
+            nbrSaoChep.Value = 0;
+        }
+
+        private void nbrSua_Click(object sender, EventArgs e)
+        {
+            RequestClearOtherSections?.Invoke();
+        }
+
+        private void nbrSaoChep_Click(object sender, EventArgs e)
+        {
+            RequestClearOtherSections?.Invoke();
         }
     }
 }

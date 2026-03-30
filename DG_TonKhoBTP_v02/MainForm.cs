@@ -33,10 +33,9 @@ namespace DG_TonKhoBTP_v02
     public partial class MainForm : Form
     {
         private string _URL = Properties.Settings.Default.URL;
-        private string _ver = "2.5.0";
         private CongDoanUiService _ui;
-
-        private bool show = true;
+        private string _ver = "2.5.9";
+        private bool show = false;
         private void InitUiService()
         {
             _ui = new CongDoanUiService(
@@ -135,6 +134,9 @@ namespace DG_TonKhoBTP_v02
                 errorMessagePrefix: "bện ruột",
                 afterShowUI: root => _ui.HookNvlThanhPham(root)
             );
+            //HienThiCauTruc();
+
+
         }
 
         private void btnGhepLoi_Click(object sender, EventArgs e)
@@ -830,7 +832,30 @@ namespace DG_TonKhoBTP_v02
             pnEdit_Report.Controls.Add(uC_Report);
             pnEdit_Report.Controls.Add(uC_Edit);
 
+            uC_Edit.RequestClearOtherSections += () =>
+            {
+                ClearSectionsRecursive(pnShow, uC_Edit);
+            };
+
             return pnEdit_Report;
+        }
+
+        private void ClearSectionsRecursive(Control parent, Control exclude)
+        {
+            foreach (Control ctl in parent.Controls)
+            {
+                // Nếu là UC có ClearInputs thì gọi
+                if (ctl is IFormSection section && ctl != exclude)
+                {
+                    section.ClearInputs();
+                }
+
+                // Đệ quy xuống các control con
+                if (ctl.HasChildren)
+                {
+                    ClearSectionsRecursive(ctl, exclude);
+                }
+            }
         }
 
         private Panel UI_BottomLeftPanel(List<ColumnDefinition> columns, bool rawMaterial, CongDoan cd)
@@ -969,7 +994,7 @@ namespace DG_TonKhoBTP_v02
             homePage.Dock = DockStyle.Fill;
             homePage.lblVersion.Text = "Phiên bản: v" + _ver;
 
-            SetupDefault();
+            SetupDefault(show);
 
         }
 
@@ -1192,9 +1217,9 @@ namespace DG_TonKhoBTP_v02
         private void PhanQuyen()
         {
             // Hiển thị Chức năng thêm và sửa mã hàng
-            grbCongCu.Visible = UserContext.RolesDict != null &&
-                                (UserContext.RolesDict.ContainsKey("Admin") ||
-                                 UserContext.RolesDict.ContainsKey(EnumStore.Group["ShowCongCu"]));
+            //grbCongCu.Visible = UserContext.RolesDict != null &&
+            //                    (UserContext.RolesDict.ContainsKey("Admin") ||
+            //                     UserContext.RolesDict.ContainsKey(EnumStore.Group["ShowCongCu"]));
 
             userRegistration.Visible = UserContext.IsAuthenticated && UserContext.PermissionsDict.ContainsKey(EnumStore.Group["Admin"]);
 
@@ -1348,7 +1373,7 @@ namespace DG_TonKhoBTP_v02
 
         private void btnVatTuPhu_Click(object sender, EventArgs e)
         {
-            using (var f = new FrmVatTuPhu())
+            using (var f = new FrmVatTuKhac())
             {
                 f.StartPosition = FormStartPosition.CenterScreen;
                 f.ShowDialog(this); // this là form cha

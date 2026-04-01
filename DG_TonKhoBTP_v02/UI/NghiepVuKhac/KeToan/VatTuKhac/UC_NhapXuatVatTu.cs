@@ -64,7 +64,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
             // Chạy phần khởi tạo có thể chậm trong waiting
             _ = WaitingHelper.RunWithWaiting(async () =>
             {
-                KhoiTaoCbxTimDon();
+                //KhoiTaoCbxTimDon();
                 KhoiTaoCbxTimTen();
                 KhoiTaoGiaoDienKhac();
                 dgvChiTietDon.CellClick += DgvChiTietDon_CellClick;
@@ -139,21 +139,21 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
             }
         }
 
-        private void KhoiTaoCbxTimDon()
-        {
-            Func<string, Task<List<string>>> searchFunc;
-            if (_isNhapKho)
-                searchFunc = keyword => DatabaseHelper.TimKiemMaDon(keyword);
-            else
-                searchFunc = keyword => DatabaseHelper.TimKiemMaDonConHang(keyword);
+        //private void KhoiTaoCbxTimDon()
+        //{
+        //    Func<string, Task<List<string>>> searchFunc;
+        //    if (_isNhapKho)
+        //        searchFunc = keyword => DatabaseHelper.TimKiemMaDon(keyword);
+        //    else
+        //        searchFunc = keyword => DatabaseHelper.TimKiemMaDonConHang(keyword);
 
-            _cbxTimDonHelper = new ComboBoxSearchHelper<string>(
-                comboBox: cbxTimDon,
-                searchFunc: searchFunc,
-                displaySelector: maDon => maDon,
-                onItemSelected: maDon => _ = LoadChiTietDonAsync(maDon)
-            );
-        }
+        //    _cbxTimDonHelper = new ComboBoxSearchHelper<string>(
+        //        comboBox: cbxTimDon,
+        //        searchFunc: searchFunc,
+        //        displaySelector: maDon => maDon,
+        //        onItemSelected: maDon => _ = LoadChiTietDonAsync(maDon)
+        //    );
+        //}
 
         private void MergeVaoDgv(DataTable dtMoi)
         {
@@ -225,10 +225,19 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
             string lyDoChung = rdoLoai.Checked? "Theo đề nghị" : "Khác";
             string ngay = DateTime.Now.ToString("yyyy-MM-dd");
             string kho = cbxKhoHang.Text;
+            string nguoiLam = tbxnguoiLam.Text.Trim();
 
-            if (string.IsNullOrWhiteSpace(nguoiGiaoNhan))
+            //if (string.IsNullOrWhiteSpace(nguoiGiaoNhan))
+            //{
+            //    MessageBox.Show("Vui lòng nhập người giao/nhận.", "Thông báo",
+            //                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            //    txtNguoiGiaoNhan.Focus();
+            //    return;
+            //}
+
+            if (string.IsNullOrWhiteSpace(nguoiLam))
             {
-                MessageBox.Show("Vui lòng nhập người giao/nhận.", "Thông báo",
+                MessageBox.Show("Vui lòng nhập người làm.", "Thông báo",
                                 MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 txtNguoiGiaoNhan.Focus();
                 return;
@@ -246,7 +255,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
                     nguoiGiaoNhan,
                     lyDoChung,
                     ngay,
-                    kho,
+                    kho,nguoiLam,
                     _isNhapKho);
 
                 // Nếu kieu = 2 thì chạy thêm lần nữa với _isNhapKho = false
@@ -257,7 +266,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
                         nguoiGiaoNhan,
                         lyDoChung,
                         ngay,
-                        kho,
+                        kho,nguoiLam,
                         false);
                 }
 
@@ -417,6 +426,41 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
                     // tránh crash nếu nhập sai
                 }
             }
+        }
+
+        private void rdoLoai_CheckedChanged(object sender, EventArgs e)
+        {
+            bool flg = rdoLoai.Checked;
+            //ResetDataGridView(dgvChiTietDon);
+
+            dgvChiTietDon.AllowUserToAddRows = !flg;
+            dgvChiTietDon.ReadOnly = flg;
+
+            foreach (DataGridViewColumn col in dgvChiTietDon.Columns)
+            {
+                col.ReadOnly = flg;
+            }
+
+            Console.WriteLine(flg);
+        }
+
+
+        private void ResetDataGridView(DataGridView dgvChiTietDon)
+        {
+            // Trường hợp đang bind dữ liệu
+            if (dgvChiTietDon.DataSource != null)
+            {
+                dgvChiTietDon.DataSource = null;
+            }
+
+            // Xóa các dòng nhập tay
+            dgvChiTietDon.Rows.Clear();
+
+            // Nếu có cột sinh tự động trước đó mà muốn xóa luôn
+            dgvChiTietDon.Columns.Clear();
+
+            // Refresh lại giao diện
+            dgvChiTietDon.Refresh();
         }
     }
 }

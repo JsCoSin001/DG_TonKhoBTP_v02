@@ -300,17 +300,26 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
         {
             List<ThongTinDatHang> list = LayDuLieuTuDGV();
             string maDon = CoreHelper.TrimToNull(tbMaDon.Text);
+            string nguoiLam = nguoiDat.Text.Trim();
 
             if (string.IsNullOrEmpty(maDon))
             {
                 FrmWaiting.ShowGifAlert("Vui lòng nhập mã đơn hàng trước khi đặt hàng!");
                 return;
             }
+
+            if (string.IsNullOrEmpty(nguoiLam))
+            {
+                FrmWaiting.ShowGifAlert("Người làm đang bỏ trống");
+                return;
+            }
+
             if (list.Count == 0)
             {
                 FrmWaiting.ShowGifAlert("Danh sách vật tư đang trống");
                 return;
             }
+
 
             VatTuRepository vt = new VatTuRepository();
             bool taoMoiDon = rdoTaoMoi.Checked;
@@ -320,7 +329,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
                 if (taoMoiDon)
                 {
                     vt.InsertDonDatHang(
-                        new DanhSachDatHang { MaDon = maDon, LoaiDon = _KieuDon },
+                        new DanhSachDatHang { MaDon = maDon, LoaiDon = _KieuDon, NguoiDat =  nguoiLam},
                         list
                     );
                     InPhieuMuaVatTu(maDon, list);

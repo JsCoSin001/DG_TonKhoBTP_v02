@@ -29,6 +29,7 @@ namespace DG_TonKhoBTP_v02.UI.Helper.AutoSearchWithCombobox
     {
         public int? Id { get; set; }
         public string MaDon { get; set; }
+        public string NguoiDat { get; set; }
         public int? LoaiDon { get; set; } // 1: Đơn mua vật tư, 2: Đơn dịch vụ
         public string DateInsert { get; set; } = DateTime.Now.ToString("yyyy-MM-dd");
     }
@@ -338,13 +339,14 @@ namespace DG_TonKhoBTP_v02.UI.Helper.AutoSearchWithCombobox
         private long InsertDanhSachDatHang(SQLiteConnection conn, SQLiteTransaction tx, DanhSachDatHang don)
         {
             using var cmd = new SQLiteCommand(@"
-                INSERT INTO DanhSachDatHang (MaDon, LoaiDon, DateInsert)
-                VALUES (@MaDon, @LoaiDon, @DateInsert);
+                INSERT INTO DanhSachDatHang (MaDon, LoaiDon, NguoiDat, DateInsert)
+                VALUES (@MaDon, @LoaiDon, @NguoiDat, @DateInsert);
                 SELECT last_insert_rowid();
             ", conn, tx);
 
             AddParam(cmd, "@MaDon", DbType.String, CoreHelper.TrimToNull(don.MaDon));
             AddParam(cmd, "@LoaiDon", DbType.Int32, don.LoaiDon);
+            AddParam(cmd, "@NguoiDat", DbType.String, don.NguoiDat);
             AddParam(cmd, "@DateInsert", DbType.String, don.DateInsert);
 
             object result = cmd.ExecuteScalar();

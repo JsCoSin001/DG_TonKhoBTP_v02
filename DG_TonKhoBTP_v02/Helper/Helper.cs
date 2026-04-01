@@ -72,7 +72,7 @@ namespace DG_TonKhoBTP_v02.Helper
                 part5 = 0;
             }
 
-            return $"X{firstDigit}-{middlePart}/{partAfterSlash}-{part4:D2}-{part5:D2}";
+            return $"Y{firstDigit}-{middlePart}/{partAfterSlash}-{part4:D2}-{part5:D2}";
         }
 
         public static List<CongDoan> GetDanhSachCongDoan()

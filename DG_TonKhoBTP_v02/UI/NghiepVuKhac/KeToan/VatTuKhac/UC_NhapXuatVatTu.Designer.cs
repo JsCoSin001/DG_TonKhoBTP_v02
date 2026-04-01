@@ -44,7 +44,6 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
             this.radioButton2 = new System.Windows.Forms.RadioButton();
             this.lblLoai = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
-            this.cbxTimDon = new System.Windows.Forms.ComboBox();
             this.label6 = new System.Windows.Forms.Label();
             this.cbxTimTen = new System.Windows.Forms.ComboBox();
             this.cbxKhoHang = new System.Windows.Forms.ComboBox();
@@ -63,6 +62,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
             this.thanhTien = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.ghiChu = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.xoa = new System.Windows.Forms.DataGridViewButtonColumn();
+            this.tbxnguoiLam = new System.Windows.Forms.ComboBox();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -118,11 +118,11 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
             this.tableLayoutPanel1.Controls.Add(this.flowLayoutPanel1, 1, 0);
             this.tableLayoutPanel1.Controls.Add(this.lblLoai, 0, 0);
             this.tableLayoutPanel1.Controls.Add(this.label5, 2, 1);
-            this.tableLayoutPanel1.Controls.Add(this.cbxTimDon, 3, 1);
             this.tableLayoutPanel1.Controls.Add(this.label6, 2, 0);
             this.tableLayoutPanel1.Controls.Add(this.cbxTimTen, 3, 0);
             this.tableLayoutPanel1.Controls.Add(this.cbxKhoHang, 3, 2);
             this.tableLayoutPanel1.Controls.Add(this.label3, 2, 2);
+            this.tableLayoutPanel1.Controls.Add(this.tbxnguoiLam, 3, 1);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
@@ -1302,6 +1302,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
             this.rdoLoai.TabStop = true;
             this.rdoLoai.Text = "Theo đơn đề nghị";
             this.rdoLoai.UseVisualStyleBackColor = true;
+            this.rdoLoai.CheckedChanged += new System.EventHandler(this.rdoLoai_CheckedChanged);
             // 
             // radioButton2
             // 
@@ -1333,17 +1334,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(147, 19);
             this.label5.TabIndex = 0;
-            this.label5.Text = "Tìm theo đơn";
+            this.label5.Text = "Người làm";
             this.label5.TextAlign = System.Drawing.ContentAlignment.TopRight;
-            // 
-            // cbxTimDon
-            // 
-            this.cbxTimDon.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.cbxTimDon.FormattingEnabled = true;
-            this.cbxTimDon.Location = new System.Drawing.Point(752, 42);
-            this.cbxTimDon.Name = "cbxTimDon";
-            this.cbxTimDon.Size = new System.Drawing.Size(605, 27);
-            this.cbxTimDon.TabIndex = 2;
             // 
             // label6
             // 
@@ -1543,6 +1535,32 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
             this.xoa.UseColumnTextForButtonValue = true;
             this.xoa.Width = 70;
             // 
+            // tbxnguoiLam
+            // 
+            this.tbxnguoiLam.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.tbxnguoiLam.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.tbxnguoiLam.FormattingEnabled = true;
+            this.tbxnguoiLam.Items.AddRange(new object[] {
+            "Người 1",
+            "Người 2",
+            "Người 3",
+            "Người 4",
+            "Người 5",
+            "Người 6",
+            "Người 7",
+            "Người 8",
+            "Người 9",
+            "Người 10",
+            "Người 11",
+            "Người 12",
+            "Người 13",
+            "Người 14",
+            "Người 15"});
+            this.tbxnguoiLam.Location = new System.Drawing.Point(752, 42);
+            this.tbxnguoiLam.Name = "tbxnguoiLam";
+            this.tbxnguoiLam.Size = new System.Drawing.Size(605, 27);
+            this.tbxnguoiLam.TabIndex = 7;
+            // 
             // UC_NhapXuatVatTu
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 19F);
@@ -1584,7 +1602,6 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
         private System.Windows.Forms.Panel panel3;
         private System.Windows.Forms.Panel panel4;
         private System.Windows.Forms.Label label5;
-        private System.Windows.Forms.ComboBox cbxTimDon;
         private System.Windows.Forms.ComboBox cbxTimTen;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.DataGridView dgvChiTietDon;
@@ -1602,5 +1619,6 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
         private System.Windows.Forms.DataGridViewTextBoxColumn thanhTien;
         private System.Windows.Forms.DataGridViewTextBoxColumn ghiChu;
         private System.Windows.Forms.DataGridViewButtonColumn xoa;
+        private System.Windows.Forms.ComboBox tbxnguoiLam;
     }
 }

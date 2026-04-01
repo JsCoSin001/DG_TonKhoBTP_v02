@@ -39,6 +39,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
         {
             cbxThoiGian.SelectedIndex = 0;
             cbxLoaiYC.SelectedIndex = 0;
+            cbxNguoiThucHien.SelectedIndex = 0;
 
             var newList = new List<string>(khoList);
             newList.Insert(0, "Không cần");
@@ -47,18 +48,6 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
             cbxKieu.SelectedIndex = 0;
         }
 
-        // ═══════════════════════════════════════════════════════════════════════
-        //  SỰ KIỆN BUTTON TOOLBAR
-        // ═══════════════════════════════════════════════════════════════════════
-
-        /// <summary>
-        /// Báo cáo Xuất - Nhập - Tồn (LoaiDon = 1)
-        /// 
-        /// Luồng:
-        ///   UI thread  → hiện FrmWaiting
-        ///   BG thread  → gọi DB (LoadLichSuXuatNhap_LoaiDon1)
-        ///   UI thread  → tắt waiting, bind DataTable lên lưới
-        /// </summary>
         private async void btnIn_Out_Click(object sender, EventArgs e)
         {
             cbxAll.Enabled = false;
@@ -68,28 +57,75 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
             SetToolbarEnabled(false);
             DataTable dt = null;
 
-            // ── WaitingHelper.RunWithWaiting dùng Task.Run nội bộ ──
-            // Hàm lambda truyền vào chạy trên background thread.
-            // Mọi thao tác UI (bind lưới) đặt SAU await.
-            await WaitingHelper.RunWithWaiting(async () =>
+            try
             {
-                // BG thread: chỉ truy vấn DB, KHÔNG động vào UI
-                dt = await Task.Run(() => DatabaseHelper.LoadLichSuXuatNhap_LoaiDon1(layDong1));
-            }, "ĐANG TẢI LỊCH SỬ XUẤT NHẬP...");
+                // Tải dữ liệu ở background thread
+                await WaitingHelper.RunWithWaiting(async () =>
+                {
+                    dt = await Task.Run(() => DatabaseHelper.LoadLichSuXuatNhap_LoaiDon1(layDong1));
+                }, "ĐANG TẢI LỊCH SỬ XUẤT NHẬP...");
 
-            // UI thread: bind kết quả
-            HienThiLenLuoi(dt, applyFormatTimDL: false);
-            SetToolbarEnabled(true);
+                if (cbxExportExcel.Checked)
+                {
+                    if (dt == null || dt.Rows.Count == 0)
+                    {
+                        FrmWaiting.ShowGifAlert("Không có dữ liệu để xuất.", "Export", EnumStore.Icon.Warning);
+                        return;
+                    }
+
+                    string filePath = null;
+
+                    // SaveFileDialog phải ở UI thread
+                    using (var sfd = new SaveFileDialog
+                    {
+                        Title = "Xuất báo cáo Excel",
+                        Filter = "Excel Workbook (*.xlsx)|*.xlsx",
+                        FileName = $"BaoCao_XuatNhapTon_{DateTime.Now:yyyyMMdd_HHmm}.xlsx"
+                    })
+                    {
+                        if (sfd.ShowDialog() != DialogResult.OK)
+                        {
+                            FrmWaiting.ShowGifAlert("Huỷ quá trình xuất Excel", "Export", EnumStore.Icon.Warning);
+                            return;
+                        }
+
+                        filePath = sfd.FileName;
+                    }
+
+                    // Chỉ giữ lại các cột cần xuất
+                    DataTable dtExport = dt.DefaultView.ToTable(false,
+                        "MaHang",
+                        "TenVatTu",
+                        "DonVi",
+                        "Nhap",
+                        "Xuat",
+                        "Ton"
+                    );
+
+                    // Ghi file ở background thread
+                    await WaitingHelper.RunWithWaiting(
+                        () => ExcelExporter.ExportToPath(dtExport, filePath),
+                        "ĐANG XUẤT FILE EXCEL...");
+
+                    FrmWaiting.ShowGifAlert("Đã xuất Excel thành công!", "Export", EnumStore.Icon.Success);
+                    return;
+                }
+
+                // Hiển thị lên lưới ở UI thread
+                HienThiLenLuoi(dt, applyFormatTimDL: false);
+            }
+            catch (Exception ex)
+            {
+                FrmWaiting.ShowGifAlert(
+                    CoreHelper.ShowErrorDatabase(ex, "BÁO CÁO XUẤT - NHẬP - TỒN"),
+                    "LỖI TẢI DỮ LIỆU");
+            }
+            finally
+            {
+                SetToolbarEnabled(true);
+            }
         }
 
-        /// <summary>
-        /// Tìm kiếm theo bộ lọc
-        /// 
-        /// Luồng:
-        ///   UI thread  → đọc giá trị filter từ controls, hiện FrmWaiting
-        ///   BG thread  → gọi DB tương ứng theo kieu
-        ///   UI thread  → tắt waiting, bind / export Excel
-        /// </summary>
         private async void btnTimDL_Click(object sender, EventArgs e)
         {
             cbxAll.Enabled = true;
@@ -103,6 +139,9 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
                                     ? "" : dtKetThuc.Value.ToString("yyyy-MM-dd");
             string kho = cbxdsKho.SelectedIndex == 0
                                     ? "" : cbxdsKho.SelectedItem.ToString();
+
+            string nguoiThucHien = cbxNguoiThucHien.SelectedIndex == 0
+                                    ? "" : cbxNguoiThucHien.SelectedItem.ToString();
             int tinhTrang = cbxLoaiYC.SelectedIndex;
             int kieu = cbxKieu.SelectedIndex;
             bool exportExcel = cbxExportExcel.Checked;
@@ -120,16 +159,16 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
                         switch (kieu)
                         {
                             case 1:
-                                return DatabaseHelper.GetBaoCaoDatHang(ngayBatDau, ngayKetThuc);
+                                return DatabaseHelper.GetBaoCaoDatHang(ngayBatDau, ngayKetThuc, nguoiThucHien);
 
                             case 2:
                                 return DatabaseHelper.GetBaoCaoLichSuXuatNhap(
-                                    ngayBatDau, ngayKetThuc, kho, tinhTrang,
+                                    ngayBatDau, ngayKetThuc, kho, tinhTrang, nguoiThucHien,
                                     soLuongDuong: true);
 
                             case 3:
                                 return DatabaseHelper.GetBaoCaoLichSuXuatNhap(
-                                    ngayBatDau, ngayKetThuc, kho, tinhTrang,
+                                    ngayBatDau, ngayKetThuc, kho, tinhTrang, nguoiThucHien,
                                     soLuongDuong: false);
 
                             case 0:

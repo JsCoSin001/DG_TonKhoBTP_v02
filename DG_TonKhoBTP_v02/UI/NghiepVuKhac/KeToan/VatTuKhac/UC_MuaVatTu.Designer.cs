@@ -41,6 +41,8 @@
             this.rdoTaoMoi = new System.Windows.Forms.RadioButton();
             this.radioButton2 = new System.Windows.Forms.RadioButton();
             this.tbMaDon = new System.Windows.Forms.TextBox();
+            this.label1 = new System.Windows.Forms.Label();
+            this.nguoiDat = new System.Windows.Forms.ComboBox();
             this.panel2 = new System.Windows.Forms.Panel();
             this.dgvDSMua = new System.Windows.Forms.DataGridView();
             this.ID = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -54,8 +56,6 @@
             this.colXoa = new System.Windows.Forms.DataGridViewButtonColumn();
             this.panel3 = new System.Windows.Forms.Panel();
             this.btnDatHang = new System.Windows.Forms.Button();
-            this.label1 = new System.Windows.Forms.Label();
-            this.nguoiDat = new System.Windows.Forms.ComboBox();
             this.panel1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             this.panel4.SuspendLayout();
@@ -118,7 +118,7 @@
             // 
             this.cbxTimTenVatTu.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbxTimTenVatTu.FormattingEnabled = true;
-            this.cbxTimTenVatTu.Location = new System.Drawing.Point(656, 18);
+            this.cbxTimTenVatTu.Location = new System.Drawing.Point(656, 20);
             this.cbxTimTenVatTu.Name = "cbxTimTenVatTu";
             this.cbxTimTenVatTu.Size = new System.Drawing.Size(163, 26);
             this.cbxTimTenVatTu.TabIndex = 2;
@@ -205,6 +205,43 @@
             this.tbMaDon.Size = new System.Drawing.Size(209, 26);
             this.tbMaDon.TabIndex = 4;
             this.tbMaDon.Text = "PRM26/02-011";
+            // 
+            // label1
+            // 
+            this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(254, 22);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(88, 18);
+            this.label1.TabIndex = 0;
+            this.label1.Text = "Người làm";
+            this.label1.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            // 
+            // nguoiDat
+            // 
+            this.nguoiDat.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.nguoiDat.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.nguoiDat.FormattingEnabled = true;
+            this.nguoiDat.Items.AddRange(new object[] {
+            "Người 1",
+            "Người 2",
+            "Người 3",
+            "Người 4",
+            "Người 5",
+            "Người 6",
+            "Người 7",
+            "Người 8",
+            "Người 9",
+            "Người 10",
+            "Người 11",
+            "Người 12",
+            "Người 13",
+            "Người 14",
+            "Người 15"});
+            this.nguoiDat.Location = new System.Drawing.Point(348, 18);
+            this.nguoiDat.Name = "nguoiDat";
+            this.nguoiDat.Size = new System.Drawing.Size(163, 26);
+            this.nguoiDat.TabIndex = 5;
             // 
             // panel2
             // 
@@ -318,43 +355,6 @@
             this.btnDatHang.Text = "Đặt hàng";
             this.btnDatHang.UseVisualStyleBackColor = false;
             this.btnDatHang.Click += new System.EventHandler(this.btnDatHang_Click);
-            // 
-            // label1
-            // 
-            this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(254, 22);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(88, 18);
-            this.label1.TabIndex = 0;
-            this.label1.Text = "Người làm";
-            this.label1.TextAlign = System.Drawing.ContentAlignment.TopRight;
-            // 
-            // nguoiDat
-            // 
-            this.nguoiDat.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.nguoiDat.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.nguoiDat.FormattingEnabled = true;
-            this.nguoiDat.Items.AddRange(new object[] {
-            "Người 1",
-            "Người 2",
-            "Người 3",
-            "Người 4",
-            "Người 5",
-            "Người 6",
-            "Người 7",
-            "Người 8",
-            "Người 9",
-            "Người 10",
-            "Người 11",
-            "Người 12",
-            "Người 13",
-            "Người 14",
-            "Người 15"});
-            this.nguoiDat.Location = new System.Drawing.Point(348, 20);
-            this.nguoiDat.Name = "nguoiDat";
-            this.nguoiDat.Size = new System.Drawing.Size(163, 26);
-            this.nguoiDat.TabIndex = 5;
             // 
             // UC_MuaVatTu
             // 

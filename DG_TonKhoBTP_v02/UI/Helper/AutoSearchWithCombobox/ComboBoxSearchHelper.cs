@@ -98,18 +98,37 @@ namespace DG_TonKhoBTP_v02.UI.Helper
                             foreach (var item in results)
                                 _comboBox.Items.Add(new ComboBoxItem<T>(item, _displaySelector(item)));
 
-                            // Giữ nguyên text người dùng đã gõ, KHÔNG chọn item nào
+                            // KHÔNG chọn item nào trước khi mở dropdown
+                            _comboBox.SelectedIndex = -1;
+
+                            if (!_comboBox.DroppedDown)
+                                _comboBox.DroppedDown = true;
+
+                            // Sau khi DroppedDown = true, Windows Forms có thể tự điền text
+                            // của item đầu tiên vào ComboBox. Dùng BeginInvoke thứ hai để
+                            // khôi phục lại đúng text người dùng đã gõ và đặt con trỏ cuối chuỗi.
+                            _comboBox.BeginInvoke((MethodInvoker)(() =>
+                            {
+                                _suppressEvents = true;
+                                try
+                                {
+                                    _comboBox.SelectedIndex = -1;
+                                    _comboBox.Text = currentText;
+                                    _comboBox.SelectionStart = currentText.Length;
+                                    _comboBox.SelectionLength = 0;
+                                }
+                                finally
+                                {
+                                    _suppressEvents = false;
+                                }
+                            }));
+                        }
+                        else
+                        {
                             _comboBox.SelectedIndex = -1;
                             _comboBox.Text = currentText;
                             _comboBox.SelectionStart = currentText.Length;
                             _comboBox.SelectionLength = 0;
-
-                            if (!_comboBox.DroppedDown)
-                                _comboBox.DroppedDown = true;
-                        }
-                        else
-                        {
-                            _comboBox.Text = currentText;
                         }
                     }
                     finally

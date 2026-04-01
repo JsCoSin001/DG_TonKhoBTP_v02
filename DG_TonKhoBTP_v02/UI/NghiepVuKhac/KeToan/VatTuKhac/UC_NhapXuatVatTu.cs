@@ -16,8 +16,10 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
 {
     public partial class UC_NhapXuatVatTu : UserControl
     {
+        // ── FIELD ──────────────────────────────────────────────────────────
         private ComboBoxSearchHelper<string> _cbxTimDonHelper;
         private ComboBoxSearchHelper<string> _cbxTimTenHelper;
+        private ComboBoxSearchHelper<string> _cbxNhaCungCapHelper;  // ← THÊM MỚI
 
         bool _isNhapKho = true;
         int _kieu = 1;
@@ -25,7 +27,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
 
         // kieu = 1: Vật tư
         // kieu = 2: Dịch vụ
-        public UC_NhapXuatVatTu(bool isNhapKho, int kieu, List<string> khoList )
+        public UC_NhapXuatVatTu(bool isNhapKho, int kieu, List<string> khoList)
         {
             InitializeComponent();
             _isNhapKho = isNhapKho;
@@ -33,7 +35,6 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
             _khoList = khoList;
 
             string label = "Nhập vật tư";
-
 
             if (isNhapKho)
             {
@@ -46,12 +47,10 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
             }
             else
             {
-
                 label = "Xuất vật tư".ToUpper();
             }
 
             lblTitle.Text = label.ToUpper();
-
         }
 
         // ────────────────────────────────────────────────────────────
@@ -61,12 +60,13 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
         {
             base.OnLoad(e);
 
-            // Chạy phần khởi tạo có thể chậm trong waiting
             _ = WaitingHelper.RunWithWaiting(async () =>
             {
-                //KhoiTaoCbxTimDon();
+                KhoiTaoCbxTimDon();
                 KhoiTaoCbxTimTen();
                 KhoiTaoGiaoDienKhac();
+                KhoiTaoCbxNhaCungCap();         // ← THÊM MỚI — gọi sau KhoiTaoGiaoDienKhac
+                                                //   vì lúc này cbxNhaCungCap đã load xong Items từ Designer
                 dgvChiTietDon.CellClick += DgvChiTietDon_CellClick;
 
                 if (!_isNhapKho)
@@ -75,21 +75,56 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
                     dgvChiTietDon.Columns["thucNhan"].HeaderText = "Số Lượng Xuất";
                 }
 
-                await Task.CompletedTask; // placeholder để đúng kiểu Func<Task>
+                await Task.CompletedTask;
             }, "ĐANG KHỞI TẠO GIAO DIỆN...");
         }
 
         private void KhoiTaoGiaoDienKhac()
         {
             cbxKhoHang.DataSource = _khoList;
-            
         }
+
+        // ── THÊM MỚI: Khởi tạo tìm kiếm trong cbxNhaCungCap ─────────────
+        // Đặt sau KhoiTaoGiaoDienKhac, nhóm cùng các hàm KhoiTao khác
+        private void KhoiTaoCbxNhaCungCap()
+        {
+            // Lấy toàn bộ items đã đặt sẵn trong Designer (phải gọi sau OnLoad)
+            var localItems = cbxNhaCungCap.Items
+                                          .Cast<object>()
+                                          .Select(o => o.ToString())
+                                          .ToList();
+
+            _cbxNhaCungCapHelper = new ComboBoxSearchHelper<string>(
+                comboBox: cbxNhaCungCap,
+                searchFunc: keyword =>
+                {
+                    var ketQua = localItems
+                        .Where(s => s.IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0)
+                        .ToList();
+                    return Task.FromResult(ketQua);
+                },
+                displaySelector: s => s,
+                onItemSelected: OnNhaCungCapSelected
+            );
+        }
+
+        // ── THÊM MỚI: Xử lý khi người dùng chọn nhà cung cấp ────────────
+        // Đặt ngay sau KhoiTaoCbxNhaCungCap
+        private void OnNhaCungCapSelected(string nhaCungCap)
+        {
+            // Giá trị người dùng chọn đã tự động điền vào cbxNhaCungCap.Text
+            // Nếu cần xử lý thêm (lọc dữ liệu, ghi log...) thì thêm vào đây
+        }
+
+        // ────────────────────────────────────────────────────────────
+        // (Các hàm còn lại giữ nguyên hoàn toàn)
+        // ────────────────────────────────────────────────────────────
 
         private void KhoiTaoCbxTimTen()
         {
             Func<string, Task<List<string>>> searchFunc;
             if (_isNhapKho)
-                searchFunc = keyword => DatabaseHelper.TimKiemTheoTenVatTu(keyword,_kieu);
+                searchFunc = keyword => DatabaseHelper.TimKiemTheoTenVatTu(keyword, _kieu);
             else
                 searchFunc = keyword => DatabaseHelper.TimKiemTheoTenVatTuConHang(keyword);
 
@@ -101,9 +136,6 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
             );
         }
 
-        // ────────────────────────────────────────────────────────────
-        // 2. THAO TÁC DB — tải chi tiết đơn theo tên vật tư
-        // ────────────────────────────────────────────────────────────
         private async Task LoadChiTietDonTheoTenAsync(string tenVatTu)
         {
             if (string.IsNullOrWhiteSpace(tenVatTu)) return;
@@ -139,26 +171,26 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
             }
         }
 
-        //private void KhoiTaoCbxTimDon()
-        //{
-        //    Func<string, Task<List<string>>> searchFunc;
-        //    if (_isNhapKho)
-        //        searchFunc = keyword => DatabaseHelper.TimKiemMaDon(keyword);
-        //    else
-        //        searchFunc = keyword => DatabaseHelper.TimKiemMaDonConHang(keyword);
+        private void KhoiTaoCbxTimDon()
+        {
+            Func<string, Task<List<string>>> searchFunc;
+            if (_isNhapKho)
+                searchFunc = keyword => DatabaseHelper.TimKiemMaDon(keyword);
+            else
+                searchFunc = keyword => DatabaseHelper.TimKiemMaDonConHang(keyword);
 
-        //    _cbxTimDonHelper = new ComboBoxSearchHelper<string>(
-        //        comboBox: cbxTimDon,
-        //        searchFunc: searchFunc,
-        //        displaySelector: maDon => maDon,
-        //        onItemSelected: maDon => _ = LoadChiTietDonAsync(maDon)
-        //    );
-        //}
+            _cbxTimDonHelper = new ComboBoxSearchHelper<string>(
+                comboBox: cbxTimDon,
+                searchFunc: searchFunc,
+                displaySelector: maDon => maDon,
+                onItemSelected: maDon => _ = LoadChiTietDonAsync(maDon)
+            );
+        }
 
         private void MergeVaoDgv(DataTable dtMoi)
         {
             if (dtMoi == null || dtMoi.Rows.Count == 0) return;
-            bool showMa_DonVi = _kieu == 1; // dịch vụ thì ẩn, vật tư thì show
+            bool showMa_DonVi = _kieu == 1;
 
             if (dgvChiTietDon.DataSource is DataTable dtHienTai)
             {
@@ -181,19 +213,15 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
             {
                 dgvChiTietDon.AutoGenerateColumns = false;
                 dgvChiTietDon.DataSource = dtMoi;
-            }           
+            }
+
             dgvChiTietDon.Columns["ma"].Visible = showMa_DonVi;
             dgvChiTietDon.Columns["donVi"].Visible = showMa_DonVi;
             dgvChiTietDon.Columns["thucNhan"].ReadOnly = !showMa_DonVi;
             dgvChiTietDon.Columns["donGia"].Visible = !showMa_DonVi;
             dgvChiTietDon.Columns["thanhTien"].Visible = !showMa_DonVi;
-
-
         }
 
-        // ────────────────────────────────────────────────────────────
-        // 3. THAO TÁC DB — tải chi tiết đơn theo mã đơn
-        // ────────────────────────────────────────────────────────────
         private async Task LoadChiTietDonAsync(string maDon)
         {
             if (string.IsNullOrWhiteSpace(maDon)) return;
@@ -209,9 +237,6 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
             }, "ĐANG TẢI CHI TIẾT ĐƠN...");
         }
 
-        // ────────────────────────────────────────────────────────────
-        // 4. THAO TÁC DB — lưu lịch sử xuất/nhập
-        // ────────────────────────────────────────────────────────────
         private async void btnLuu_Click(object sender, EventArgs e)
         {
             if (dgvChiTietDon.Rows.Count == 0)
@@ -222,18 +247,10 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
             }
 
             string nguoiGiaoNhan = txtNguoiGiaoNhan.Text.Trim();
-            string lyDoChung = rdoLoai.Checked? "Theo đề nghị" : "Khác";
+            string lyDoChung = rdoLoai.Checked ? "Theo đề nghị" : "Khác";
             string ngay = DateTime.Now.ToString("yyyy-MM-dd");
             string kho = cbxKhoHang.Text;
             string nguoiLam = tbxnguoiLam.Text.Trim();
-
-            //if (string.IsNullOrWhiteSpace(nguoiGiaoNhan))
-            //{
-            //    MessageBox.Show("Vui lòng nhập người giao/nhận.", "Thông báo",
-            //                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            //    txtNguoiGiaoNhan.Focus();
-            //    return;
-            //}
 
             if (string.IsNullOrWhiteSpace(nguoiLam))
             {
@@ -249,16 +266,14 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
 
             await WaitingHelper.RunWithWaiting(async () =>
             {
-                // Lần chạy đầu tiên
                 tenPhieu = await DatabaseHelper.LuuLichSuXuatNhap(
                     dgvChiTietDon,
                     nguoiGiaoNhan,
                     lyDoChung,
                     ngay,
-                    kho,nguoiLam,
+                    kho, nguoiLam,
                     _isNhapKho);
 
-                // Nếu kieu = 2 thì chạy thêm lần nữa với _isNhapKho = false
                 if (_kieu == 2)
                 {
                     await DatabaseHelper.LuuLichSuXuatNhap(
@@ -266,7 +281,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
                         nguoiGiaoNhan,
                         lyDoChung,
                         ngay,
-                        kho,nguoiLam,
+                        kho, nguoiLam,
                         false);
                 }
 
@@ -383,7 +398,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
                 SoPO = "",
                 SoPhieu = tenPhieu,
                 NguoiGiao = txtNguoiGiaoNhan.Text.Trim(),
-                NhaCungCap = txtNguoiGiaoNhan.Text.Trim(),
+                NhaCungCap = cbxNhaCungCap.Text.Trim(),    // ← ĐÃ SỬA: lấy từ cbxNhaCungCap thay vì txtNguoiGiaoNhan
                 LyDoNhap = rdoLoai.Checked ? "Theo đề nghị" : "Khác",
                 KhoHang = cbxKhoHang.Text,
                 Items = items,
@@ -404,7 +419,6 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
 
             DataGridViewRow row = dgvChiTietDon.Rows[e.RowIndex];
 
-            // Kiểm tra nếu cột thay đổi là dongia hoặc thucnhan
             if (dgvChiTietDon.Columns[e.ColumnIndex].Name == "donGia" ||
                 dgvChiTietDon.Columns[e.ColumnIndex].Name == "thucNhan")
             {
@@ -431,7 +445,6 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
         private void rdoLoai_CheckedChanged(object sender, EventArgs e)
         {
             bool flg = rdoLoai.Checked;
-            //ResetDataGridView(dgvChiTietDon);
 
             dgvChiTietDon.AllowUserToAddRows = !flg;
             dgvChiTietDon.ReadOnly = flg;
@@ -444,22 +457,13 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
             Console.WriteLine(flg);
         }
 
-
         private void ResetDataGridView(DataGridView dgvChiTietDon)
         {
-            // Trường hợp đang bind dữ liệu
             if (dgvChiTietDon.DataSource != null)
-            {
                 dgvChiTietDon.DataSource = null;
-            }
 
-            // Xóa các dòng nhập tay
             dgvChiTietDon.Rows.Clear();
-
-            // Nếu có cột sinh tự động trước đó mà muốn xóa luôn
             dgvChiTietDon.Columns.Clear();
-
-            // Refresh lại giao diện
             dgvChiTietDon.Refresh();
         }
     }

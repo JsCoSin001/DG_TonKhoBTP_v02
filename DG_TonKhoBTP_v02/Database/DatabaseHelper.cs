@@ -1237,6 +1237,7 @@ lsxn.CanEdit        AS Edit
             const string sql = @"
             SELECT
                 t.id          AS id,
+                d.MaDon        AS MaDon,
                 sp.Ten        AS ten,
                 sp.Ma         AS ma,
                 sp.DonVi      AS donVi,
@@ -1253,7 +1254,6 @@ lsxn.CanEdit        AS Edit
                 GROUP BY ThongTinDatHang_ID
             ) ls ON ls.ThongTinDatHang_ID = t.id
             WHERE d.MaDon = @maDon
-              AND t.CanEdit = 1
               AND t.SoLuongMua > IFNULL(ls.TongSoLuong, 0)
             ORDER BY t.id";
 
@@ -1710,6 +1710,7 @@ lsxn.CanEdit        AS Edit
             const string sql = @"
         SELECT
             t.id                    AS id,
+            d.MaDon                    AS MaDon,
             sp.Ten                  AS ten,
             sp.Ma                   AS ma,
             sp.DonVi                AS donVi,

@@ -38,11 +38,37 @@ namespace DG_TonKhoBTP_v02.Helper
             return false;
         }
 
-        // có phải tên máy thuộc danh sách máy đặc biệt hay không: true là thuộc
-        
+    public static string BoDauTiengViet(string text)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+            return text;
 
-        // kiểm tra khối lượng đầu vào có lớn hơn khối lượng cuối không: true là khối lượng đầu vào lớn hơn
-        public static bool KLDauVaoLonHonKLCuoi(decimal klDau, decimal klCuoi)
+        text = text.ToLower();
+
+        string normalized = text.Normalize(NormalizationForm.FormD);
+        StringBuilder sb = new StringBuilder();
+
+        foreach (char c in normalized)
+        {
+            if (Char.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
+            {
+                sb.Append(c);
+            }
+        }
+
+        string result = sb.ToString().Normalize(NormalizationForm.FormC);
+
+        // xử lý riêng chữ đ
+        result = result.Replace('đ', 'd');
+
+        return result;
+    }
+
+    // có phải tên máy thuộc danh sách máy đặc biệt hay không: true là thuộc
+
+
+    // kiểm tra khối lượng đầu vào có lớn hơn khối lượng cuối không: true là khối lượng đầu vào lớn hơn
+    public static bool KLDauVaoLonHonKLCuoi(decimal klDau, decimal klCuoi)
         {
             return klDau > klCuoi;
         }

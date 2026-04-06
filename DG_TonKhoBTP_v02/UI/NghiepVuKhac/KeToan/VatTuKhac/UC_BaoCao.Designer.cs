@@ -53,6 +53,7 @@
             this.cbxKieu = new System.Windows.Forms.ComboBox();
             this.panel1 = new System.Windows.Forms.Panel();
             this.lblTieuDe = new System.Windows.Forms.Label();
+            this.cbxMoCuaSo = new System.Windows.Forms.CheckBox();
             this.panel3.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -124,6 +125,7 @@
             // cbxdsKho
             // 
             this.cbxdsKho.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.cbxdsKho.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbxdsKho.FormattingEnabled = true;
             this.cbxdsKho.Location = new System.Drawing.Point(764, 9);
             this.cbxdsKho.Name = "cbxdsKho";
@@ -233,6 +235,7 @@
             this.tableLayoutPanel1.Controls.Add(this.btnIn_Out, 3, 0);
             this.tableLayoutPanel1.Controls.Add(this.cbxAll, 5, 0);
             this.tableLayoutPanel1.Controls.Add(this.btnChinhTrangThai, 6, 0);
+            this.tableLayoutPanel1.Controls.Add(this.cbxMoCuaSo, 0, 0);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(10, 73);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
@@ -392,6 +395,17 @@
             this.lblTieuDe.Text = "BÁO CÁO";
             this.lblTieuDe.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
             // 
+            // cbxMoCuaSo
+            // 
+            this.cbxMoCuaSo.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.cbxMoCuaSo.AutoSize = true;
+            this.cbxMoCuaSo.Location = new System.Drawing.Point(3, 28);
+            this.cbxMoCuaSo.Name = "cbxMoCuaSo";
+            this.cbxMoCuaSo.Size = new System.Drawing.Size(165, 22);
+            this.cbxMoCuaSo.TabIndex = 1;
+            this.cbxMoCuaSo.Text = "Mở cửa sổ mới";
+            this.cbxMoCuaSo.UseVisualStyleBackColor = true;
+            // 
             // UC_BaoCao
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 18F);
@@ -441,5 +455,6 @@
         private System.Windows.Forms.CheckBox cbxAll;
         private System.Windows.Forms.Button btnChinhTrangThai;
         private System.Windows.Forms.ComboBox cbxKieu;
+        private System.Windows.Forms.CheckBox cbxMoCuaSo;
     }
 }

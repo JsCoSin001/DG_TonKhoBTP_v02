@@ -23,10 +23,10 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
     public partial class UC_MuaVatTu : UserControl
     {
         private ComboBoxSearchHelper<MuaVatTuSearchItem> _vatTuSearchHelper;
+        private ComboBoxSearchHelper<DataRow> _cbxTimTheoDonHelper; // ← THÊM MỚI
 
         private int _KieuDon = 1; // 1: Đơn mua vật tư, 2: Đơn dịch vụ
 
-        // *** THÊM MỚI: cờ theo dõi layout DGV hiện tại ***
         // false  = layout đầy đủ (KieuDon==1 với ma, donVi, donGia, slTon…)
         // true   = layout rút gọn (ten, soLuong, mucDich, ngayGiao, xoa)
         private bool _isNullMaSPLayout = false;
@@ -130,6 +130,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
         {
             var repo = new VatTuRepository();
 
+            // ── Helper tìm tên vật tư (cbxTimTenVatTu) — giữ nguyên ──────────────
             _vatTuSearchHelper = new ComboBoxSearchHelper<MuaVatTuSearchItem>(
                 comboBox: cbxTimTenVatTu,
                 searchFunc: keyword => repo.TimKiemTheoCheDoAsync(keyword, rdoTaoMoi.Checked, _KieuDon),
@@ -139,8 +140,16 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
                     // ── Chế độ TẠO MỚI: item là vật tư từ DanhSachMaSP ──
                     if (!item.IsDonHang)
                     {
-                        // Chỉ áp dụng cho KieuDon == 1 (layout đầy đủ)
-                        dgvDSMua.Rows.Add(item.Id, item.Ma, item.Ten, item.DonVi);
+                        dgvDSMua.Rows.Add(
+                           item.Id,
+                           item.Ma,
+                           item.Ten,
+                           item.DonVi,
+                           null,                      // soLuong
+                           null,                      // mucDich
+                           null,                      // ngayGiao
+                           item.SlTon.ToString("N2")  // slTon
+                        );
                         cbxTimTenVatTu.Text = "";
                         cbxTimTenVatTu.Items.Clear();
                         return;
@@ -182,10 +191,100 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
                 }
             );
 
+            // ── THÊM MỚI: Helper tìm vật tư từ DanhSachMaSP (cbxTimTheoDon) ───────
+            KhoiTaoCbxTimTheoDon();
+
             rdoTaoMoi.CheckedChanged += async (s, ev) => await CapNhatUITheoCheDoAsync();
             radioButton2.CheckedChanged += async (s, ev) => await CapNhatUITheoCheDoAsync();
 
             await CapNhatUITheoCheDoAsync();
+        }
+
+        // ─────────────────────────────────────────────────────────────────────────────
+        // THÊM MỚI: TÌM KIẾM VẬT TƯ QUA cbxTimTheoDon
+        // ─────────────────────────────────────────────────────────────────────────────
+
+        private void KhoiTaoCbxTimTheoDon()
+        {
+            _cbxTimTheoDonHelper = new ComboBoxSearchHelper<DataRow>(
+                comboBox: cbxTimThemTheoTen,
+                searchFunc: async keyword =>
+                {
+                    return await Task.Run(() =>
+                    {
+                        string likeKeyword = CoreHelper.BoDauTiengViet(keyword);
+                        var dt = DatabaseHelper.GetData(
+                            @"SELECT 
+                        dsp.id, 
+                        dsp.Ten, 
+                        dsp.Ma, 
+                        dsp.DonVi,
+                        COALESCE(SUM(lsx.SoLuong), 0) AS slTon
+                      FROM DanhSachMaSP dsp
+                      LEFT JOIN ThongTinDatHang ttdh ON ttdh.DanhSachMaSP_ID = dsp.id
+                      LEFT JOIN LichSuXuatNhap lsx ON lsx.ThongTinDatHang_ID = ttdh.id
+                      WHERE dsp.Ten_KhongDau LIKE @Ten COLLATE NOCASE
+                      GROUP BY dsp.id, dsp.Ten, dsp.Ma, dsp.DonVi
+                      ORDER BY dsp.Ten
+                      LIMIT 30",
+                            "%" + likeKeyword + "%",
+                            "Ten"
+                        );
+
+                        System.Diagnostics.Debug.WriteLine($"slTon row 0 = {(dt.Rows.Count > 0 ? dt.Rows[0]["slTon"]?.ToString() : "no rows")}");
+
+
+                        return dt.Rows.Cast<DataRow>().ToList();
+                    });
+                },
+                displaySelector: row => row["Ten"]?.ToString() ?? "",
+                onItemSelected: ThemVatTuTuDanhSachMaSP
+            );
+        }
+
+        private void ThemVatTuTuDanhSachMaSP(DataRow row)
+        {
+            if (row == null) return;
+            if (_isNullMaSPLayout) return;
+
+            string maMoi = row["Ma"]?.ToString() ?? "";
+
+            // Kiểm tra trùng
+            foreach (DataGridViewRow dgvRow in dgvDSMua.Rows)
+            {
+                if (dgvRow.IsNewRow) continue;
+                if (string.Equals(
+                        dgvRow.Cells["ma"].Value?.ToString(),
+                        maMoi,
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    dgvDSMua.CurrentCell = dgvRow.Cells["soLuong"];
+                    _cbxTimTheoDonHelper?.Clear();
+                    return;
+                }
+            }
+
+            decimal slTon = 0;
+            if (row["slTon"] != DBNull.Value)
+                decimal.TryParse(row["slTon"]?.ToString(), out slTon);
+
+            int rowIndex = dgvDSMua.Rows.Add(
+                row["id"],
+                row["Ma"],
+                row["Ten"],
+                row["DonVi"],
+                null,         // soLuong
+                null,         // mucDich
+                null,         // ngayGiao
+                slTon.ToString("N2")  // slTon — hiển thị "0.00" thay vì trống
+            );
+
+
+
+            if (rowIndex >= 0 && rowIndex < dgvDSMua.Rows.Count)
+                dgvDSMua.CurrentCell = dgvDSMua.Rows[rowIndex].Cells["soLuong"];
+
+            _cbxTimTheoDonHelper?.Clear();
         }
 
         // ─────────────────────────────────────────────────────────────────────────────
@@ -212,7 +311,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
                     vt.DonVi,
                     ct.SoLuongMua,
                     ct.MucDichMua,
-                    ct.NgayGiao
+                    ct.NgayGiao,
+                    ct.TonKho
                 // slTon để trống khi load edit (không lưu trong DB)
                 );
             }
@@ -246,20 +346,29 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
             cbxTimTenVatTu.Text = "";
             cbxTimTenVatTu.Items.Clear();
 
+            // ── THÊM MỚI: reset cbxTimTheoDon khi đổi chế độ ────────────────────
+            _cbxTimTheoDonHelper?.Clear();
+
             if (_KieuDon == 2)
             {
                 cbxTimTenVatTu.Enabled = !taoMoiDon; // Tạo mới → disable, Sửa đơn → enable
             }
 
+            // rdoTaoMoi.Checked = true  → cbxTimTheoDon disable (hành vi cũ)
+            // rdoTaoMoi.Checked = false → cbxTimTheoDon enable (tìm vật tư từ DanhSachMaSP)
+            cbxTimThemTheoTen.Enabled = !taoMoiDon;
+
             tbMaDon.Enabled = taoMoiDon;
-            lblTieuDeTimKiem.Text = taoMoiDon ? "Tìm Tên Vật Tư" : "Tìm theo Mã Đơn";
+
+            lblTieuDeTimKiem.Text = taoMoiDon
+                ? "Tìm Tên vật tư:"
+                : "Tìm Mã đơn:";
 
             if (taoMoiDon)
             {
                 dgvDSMua.Rows.Clear();
 
-                // *** Reset layout về mặc định khi chuyển sang chế độ tạo mới ***
-                // Tránh trường hợp trước đó đang edit đơn có NullMaSP layout
+                // Reset layout về mặc định khi chuyển sang chế độ tạo mới
                 if (_isNullMaSPLayout && _KieuDon == 1)
                     SetupDGVColumns();
                 else if (_KieuDon == 2 && !_isNullMaSPLayout)
@@ -329,7 +438,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
                 if (taoMoiDon)
                 {
                     vt.InsertDonDatHang(
-                        new DanhSachDatHang { MaDon = maDon, LoaiDon = _KieuDon, NguoiDat =  nguoiLam},
+                        new DanhSachDatHang { MaDon = maDon, LoaiDon = _KieuDon, NguoiDat = nguoiLam, DateInsert = dtNgay.Value.ToString("dd/MM/yyyy") },
                         list
                     );
                     InPhieuMuaVatTu(maDon, list);
@@ -337,7 +446,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
                 else
                 {
                     vt.UpdateDonDatHang(
-                        new DanhSachDatHang { MaDon = maDon, LoaiDon = _KieuDon },
+                        new DanhSachDatHang { MaDon = maDon, LoaiDon = _KieuDon, DateInsert = dtNgay.Value.ToString("dd/MM/yyyy") },
                         list
                     );
 
@@ -394,6 +503,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
                         DanhSachMaSP_ID = CoreHelper.TryParseInt(row.Cells["id"].Value),
                         MaVatTu = CoreHelper.TrimToNull(row.Cells["ma"].Value?.ToString()),
                         TenVatTu = CoreHelper.TrimToNull(row.Cells["ten"].Value?.ToString()),
+                        TenVatTu_KhongDau = CoreHelper.BoDauTiengViet(CoreHelper.TrimToNull(row.Cells["ten"].Value?.ToString())),
                         DonVi = CoreHelper.TrimToNull(row.Cells["donVi"].Value?.ToString()),
                         SoLuongMua = CoreHelper.TryParseDecimal(row.Cells["soLuong"].Value),
                         MucDichMua = CoreHelper.TrimToNull(row.Cells["mucDich"].Value?.ToString()),
@@ -408,6 +518,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
                     {
                         DanhSachMaSP_ID = null,
                         TenVatTu = CoreHelper.TrimToNull(row.Cells["ten"].Value?.ToString()),
+                        TenVatTu_KhongDau = CoreHelper.BoDauTiengViet(CoreHelper.TrimToNull(row.Cells["ten"].Value?.ToString())),
                         SoLuongMua = CoreHelper.TryParseDecimal(row.Cells["soLuong"].Value),
                         MucDichMua = CoreHelper.TrimToNull(row.Cells["mucDich"].Value?.ToString()),
                         NgayGiao = CoreHelper.TrimToNull(row.Cells["ngayGiao"].Value?.ToString()),

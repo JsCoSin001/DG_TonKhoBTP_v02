@@ -16,6 +16,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using CoreHelper = DG_TonKhoBTP_v02.Helper.Helper;
 
 namespace DG_TonKhoBTP_v02.UI
 {
@@ -36,7 +37,7 @@ namespace DG_TonKhoBTP_v02.UI
             btnLuu.Enabled = false;
             try
             {
-                if (kieuSP.SelectedItem == null)
+                if (kieuSP.Text == "")
                 {
                     FrmWaiting.ShowGifAlert($"KIỂU SẢN PHẨM KHÔNG HỢP LỆ.");
                     return;
@@ -45,10 +46,11 @@ namespace DG_TonKhoBTP_v02.UI
                 var sp = new DanhSachMaSP
                 {
                     Ma = ma.Text.Trim().ToUpper(),
-                    Ten = ten.Text.Trim().ToUpper(),
+                    Ten = ten.Text.Trim(),
+                    Ten_KhongDau = CoreHelper.BoDauTiengViet(ten.Text.Trim()),
                     KieuSP = kieuSP.Text.Trim().ToUpper(),
                     DonVi = donVi.Text.Trim().ToUpper(),
-                    ChuyenDoi = nbrDM_CU_AL.Value,
+                    ChuyenDoi = nbrDM_CU_AL.Value == 0 ? 1 : nbrDM_CU_AL.Value,
                     DateInsert = DateTime.Now
                 };
 
@@ -125,8 +127,8 @@ namespace DG_TonKhoBTP_v02.UI
 
             if (!string.IsNullOrEmpty(maSP))
             {
-                Console.WriteLine(maSP);
                 kieuSP.Text = maSP.Split('.')[0];
+                Console.WriteLine(maSP.Split('.')[0]);
             }
         }
 
@@ -198,10 +200,10 @@ namespace DG_TonKhoBTP_v02.UI
                         grvDanhSach.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
                         grvDanhSach.Font = new System.Drawing.Font("Segoe UI", 12, FontStyle.Regular);
                         grvDanhSach.ColumnHeadersDefaultCellStyle.Font = new System.Drawing.Font("Segoe UI", 12, FontStyle.Bold);
-
-                        if (grvDanhSach.Columns.Count > 0) grvDanhSach.Columns[0].Width = 100;
-                        if (grvDanhSach.Columns.Count > 1) grvDanhSach.Columns[1].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
-                        if (grvDanhSach.Columns.Count > 2) grvDanhSach.Columns[2].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+                        grvDanhSach.Columns[0].Width = 100;
+                        //if (grvDanhSach.Columns.Count > 0) grvDanhSach.Columns[0].Width = 100;
+                        //if (grvDanhSach.Columns.Count > 1) grvDanhSach.Columns[1].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+                        //if (grvDanhSach.Columns.Count > 2) grvDanhSach.Columns[2].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
                     }
                 });
 

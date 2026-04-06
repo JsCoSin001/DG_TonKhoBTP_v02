@@ -5,12 +5,14 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Data.SQLite;
 using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using static DG_TonKhoBTP_v02.Printer.A4.PrinterModel;
+using CoreHelper = DG_TonKhoBTP_v02.Helper.Helper;
 
 namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
 {
@@ -23,11 +25,11 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
 
         bool _isNhapKho = true;
         int _kieu = 1;
-        List<string> _khoList;
+        DataTable _khoList;
 
         // kieu = 1: Vật tư
         // kieu = 2: Dịch vụ
-        public UC_NhapXuatVatTu(bool isNhapKho, int kieu, List<string> khoList)
+        public UC_NhapXuatVatTu(bool isNhapKho, int kieu, DataTable khoList)
         {
             InitializeComponent();
             _isNhapKho = isNhapKho;
@@ -65,8 +67,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
                 KhoiTaoCbxTimDon();
                 KhoiTaoCbxTimTen();
                 KhoiTaoGiaoDienKhac();
-                KhoiTaoCbxNhaCungCap();         // ← THÊM MỚI — gọi sau KhoiTaoGiaoDienKhac
-                                                //   vì lúc này cbxNhaCungCap đã load xong Items từ Designer
+                TimKiemTenNCC();         
+                                                
                 dgvChiTietDon.CellClick += DgvChiTietDon_CellClick;
 
                 if (!_isNhapKho)
@@ -82,27 +84,20 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
         private void KhoiTaoGiaoDienKhac()
         {
             cbxKhoHang.DataSource = _khoList;
+            cbxKhoHang.DisplayMember = "TenKho";   // text hiển thị
+            cbxKhoHang.ValueMember = "id";     // giá trị lấy ra khi chọn
+
+            cbxKhoHang.SelectedIndex = -1;
+            cbxKhoHang.Text = "";
         }
 
         // ── THÊM MỚI: Khởi tạo tìm kiếm trong cbxNhaCungCap ─────────────
         // Đặt sau KhoiTaoGiaoDienKhac, nhóm cùng các hàm KhoiTao khác
-        private void KhoiTaoCbxNhaCungCap()
+        private void TimKiemTenNCC()
         {
-            // Lấy toàn bộ items đã đặt sẵn trong Designer (phải gọi sau OnLoad)
-            var localItems = cbxNhaCungCap.Items
-                                          .Cast<object>()
-                                          .Select(o => o.ToString())
-                                          .ToList();
-
             _cbxNhaCungCapHelper = new ComboBoxSearchHelper<string>(
                 comboBox: cbxNhaCungCap,
-                searchFunc: keyword =>
-                {
-                    var ketQua = localItems
-                        .Where(s => s.IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0)
-                        .ToList();
-                    return Task.FromResult(ketQua);
-                },
+                searchFunc: keyword => DatabaseHelper.TimKiemNhaCungCap(keyword),
                 displaySelector: s => s,
                 onItemSelected: OnNhaCungCapSelected
             );
@@ -246,10 +241,18 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
                 return;
             }
 
+            if (cbxKhoHang.Text == "")
+            {
+                MessageBox.Show("Kho hàng không được rỗng", "Thông báo",
+                                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+
             string nguoiGiaoNhan = txtNguoiGiaoNhan.Text.Trim();
             string lyDoChung = rdoLoai.Checked ? "Theo đề nghị" : "Khác";
-            string ngay = DateTime.Now.ToString("yyyy-MM-dd");
-            string kho = cbxKhoHang.Text;
+            string ngay = dtNgayNhapXuat.Value.ToString("dd/MM/yyyy");
+            int kho = cbxKhoHang.SelectedIndex;
             string nguoiLam = tbxnguoiLam.Text.Trim();
 
             if (string.IsNullOrWhiteSpace(nguoiLam))
@@ -448,6 +451,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
 
             dgvChiTietDon.AllowUserToAddRows = !flg;
             dgvChiTietDon.ReadOnly = flg;
+
 
             foreach (DataGridViewColumn col in dgvChiTietDon.Columns)
             {

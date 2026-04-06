@@ -196,6 +196,7 @@ namespace DG_TonKhoBTP_v02.Core
     {
         public int Id { get; set; }
         public string Ten { get; set; }
+        public string Ten_KhongDau { get; set; }
         public string Ma { get; set; }
         public string DonVi { get; set; }
         public string KieuSP { get; set; }

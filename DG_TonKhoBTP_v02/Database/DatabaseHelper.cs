@@ -105,6 +105,34 @@ namespace DG_TonKhoBTP_v02.Database
             return dt;
         }
 
+        public static async Task<List<string>> TimKiemNhaCungCap(string keyword)
+        {
+            const string sql = @"
+            SELECT TenNCC
+            FROM DanhSachNCC
+            WHERE TenNCC_KhongDau LIKE @kw
+               OR TenNCC LIKE @kw
+               OR Ma LIKE @kw
+            ORDER BY TenNCC
+            LIMIT 30";
+
+            var result = new List<string>();
+
+            await Task.Run(() =>
+            {
+                using var conn = new SQLiteConnection(_connStr);
+                conn.Open();
+                using var cmd = new SQLiteCommand(sql, conn);
+                cmd.Parameters.AddWithValue("@kw", $"%{keyword}%");
+
+                using var rd = cmd.ExecuteReader();
+                while (rd.Read())
+                    result.Add(rd["TenNCC"].ToString());
+            });
+
+            return result;
+        }
+
         public static long InsertTTThanhPham_FromKiemKe(KiemKe model)
         {
             if (model == null)
@@ -901,7 +929,7 @@ namespace DG_TonKhoBTP_v02.Database
             }
         }
 
-        public static DataTable GetBaoCao(string ngayBatDau, string ngayKetThuc, string kho, int tinhTrang)
+        public static DataTable GetBaoCao(string ngayBatDau, string ngayKetThuc, int kho, int tinhTrang)
         {
             DataTable dt = new DataTable();
 
@@ -928,19 +956,23 @@ namespace DG_TonKhoBTP_v02.Database
                         lsxn.id             AS LichSu_ID,
                         lsxn.SoLuong,
                         lsxn.NguoiGiao_Nhan,
-                        lsxn.Kho,
+                        kho.TenKho,
                         lsxn.LyDo,
                         lsxn.Ngay           AS NgayXuatNhap,
                         lsxn.TenPhieu,
                         lsxn.GhiChu,
-lsxn.CanEdit        AS Edit
-
+                        lsxn.CanEdit        AS Edit
                         
                     FROM DanhSachDatHang dsdh
                     INNER JOIN ThongTinDatHang ttdh 
                         ON ttdh.DanhSachDatHang_ID = dsdh.id
+
                     LEFT JOIN LichSuXuatNhap lsxn 
                         ON lsxn.ThongTinDatHang_ID = ttdh.id
+
+                    INNER JOIN DanhSachKho Kho 
+                        ON Kho.id = lsxn.DanhSachKho_ID
+
                     WHERE 1=1
                 ");
 
@@ -956,7 +988,7 @@ lsxn.CanEdit        AS Edit
                 }
 
                 // --- Lọc theo Kho (nằm trong LichSuXuatNhap) ---
-                if (!string.IsNullOrEmpty(kho))
+                if (kho != 0)
                 {
                     sql.AppendLine("AND lsxn.Kho = @Kho");
                     parameters.Add(new SQLiteParameter("@Kho", kho));
@@ -1039,7 +1071,7 @@ lsxn.CanEdit        AS Edit
                 var sql = new StringBuilder(@"
             SELECT
                 dsdh.id             AS DanhSachDatHang_ID,
-                dsdh.nguoiDat
+                dsdh.nguoiDat,
                 dsdh.MaDon,
                 dsdh.LoaiDon,
                 dsdh.DateInsert     AS NgayTaoDon,
@@ -1103,7 +1135,7 @@ lsxn.CanEdit        AS Edit
         /// Bỏ qua điều kiện nếu tham số rỗng; bỏ qua tinhTrang nếu = 0.
         /// </summary>
         public static DataTable GetBaoCaoLichSuXuatNhap(
-            string ngayBatDau, string ngayKetThuc, string kho, int tinhTrang,string nguoiThucHien,
+            string ngayBatDau, string ngayKetThuc, int kho, int tinhTrang,string nguoiThucHien,
             bool soLuongDuong)
         {
             var dt = new DataTable();
@@ -1124,7 +1156,7 @@ lsxn.CanEdit        AS Edit
                         lsxn.NguoiLam,
                         lsxn.SoLuong,
                         lsxn.NguoiGiao_Nhan,
-                        lsxn.Kho,
+                        kho.TenKho,
                         lsxn.LyDo,
                         lsxn.Ngay           AS NgayXuatNhap,
                         lsxn.TenPhieu,
@@ -1136,6 +1168,8 @@ lsxn.CanEdit        AS Edit
                         ON ttdh.id = lsxn.ThongTinDatHang_ID
                     INNER JOIN DanhSachDatHang dsdh
                         ON dsdh.id = ttdh.DanhSachDatHang_ID
+                    INNER JOIN DanhSachKho kho
+                        ON kho.id = lsxn.DanhSachKho_ID
                     WHERE
                 ");
 
@@ -1162,9 +1196,9 @@ lsxn.CanEdit        AS Edit
                 }
 
                 // Lọc theo kho
-                if (!string.IsNullOrWhiteSpace(kho))
+                if (kho != 0)
                 {
-                    sql.AppendLine("AND lsxn.Kho = @Kho");
+                    sql.AppendLine("AND kho.id = @Kho");
                     parameters.Add(new SQLiteParameter("@Kho", kho));
                 }
 
@@ -1238,7 +1272,7 @@ lsxn.CanEdit        AS Edit
             SELECT
                 t.id          AS id,
                 d.MaDon        AS MaDon,
-                sp.Ten        AS ten,
+                t.TenVatTu        AS ten,
                 sp.Ma         AS ma,
                 sp.DonVi      AS donVi,
                 (t.SoLuongMua - IFNULL(ls.TongSoLuong, 0)) AS yeuCau
@@ -1275,6 +1309,7 @@ lsxn.CanEdit        AS Edit
 
         public static async Task<List<string>> TimKiemTheoTenVatTu(string keyword, int kieu)
         {
+            string keyWord_KhongDau = CoreHelper.BoDauTiengViet(keyword.Trim());
             const string sql = @"
                 SELECT t.TenVatTu
                 FROM ThongTinDatHang t
@@ -1285,7 +1320,7 @@ lsxn.CanEdit        AS Edit
                     WHERE SoLuong > 0
                     GROUP BY ThongTinDatHang_ID
                 ) l ON t.id = l.ThongTinDatHang_ID
-                WHERE t.TenVatTu LIKE @kw
+                WHERE t.TenVatTu_KhongDau LIKE @kw
                   AND d.LoaiDon = @kieu
                 GROUP BY t.TenVatTu
                 HAVING SUM(IFNULL(l.TongNhap, 0)) < SUM(t.SoLuongMua)
@@ -1297,7 +1332,7 @@ lsxn.CanEdit        AS Edit
             await conn.OpenAsync();
 
             using var cmd = new SQLiteCommand(sql, conn);
-            cmd.Parameters.AddWithValue("@kw", $"%{keyword}%");
+            cmd.Parameters.AddWithValue("@kw", $"%{keyWord_KhongDau}%");
             cmd.Parameters.AddWithValue("@kieu", kieu);
 
             using var rd = await cmd.ExecuteReaderAsync();
@@ -1311,6 +1346,8 @@ lsxn.CanEdit        AS Edit
 
         public static async Task<DataTable> LayChiTietDonTheoTenVatTu(string tenVatTu, int kieu = 1)
         {
+            string keyWord_KhongDau = CoreHelper.BoDauTiengViet(tenVatTu.Trim());
+
             const string sql = @"
             SELECT
                 t.id          AS id,
@@ -1334,7 +1371,7 @@ lsxn.CanEdit        AS Edit
                 WHERE SoLuong > 0
                 GROUP BY ThongTinDatHang_ID
             ) ls ON ls.ThongTinDatHang_ID = t.id
-            WHERE t.TenVatTu = @tenVatTu
+            WHERE t.TenVatTu_KhongDau = @tenVatTu  COLLATE NOCASE
                 AND t.SoLuongMua > IFNULL(ls.TongSoLuong, 0)
             ORDER BY t.id";
 
@@ -1345,7 +1382,7 @@ lsxn.CanEdit        AS Edit
                 using var conn = new SQLiteConnection(_connStr);
                 conn.Open();
                 using var cmd = new SQLiteCommand(sql, conn);
-                cmd.Parameters.AddWithValue("@tenVatTu", tenVatTu);
+                cmd.Parameters.AddWithValue("@tenVatTu", keyWord_KhongDau);
                 cmd.Parameters.AddWithValue("@kieu", kieu); // 👈 thêm dòng này
 
                 using var adapter = new SQLiteDataAdapter(cmd);
@@ -1394,7 +1431,7 @@ lsxn.CanEdit        AS Edit
         string nguoiGiaoNhan,
         string lyDoChung,
         string ngay,
-        string kho,
+        int kho,
         string nguoiLam,
         bool isNhapKho = true)
         {
@@ -1413,7 +1450,7 @@ lsxn.CanEdit        AS Edit
                     NguoiGiao_Nhan,
                     LyDo,
                     SoLuong,
-                    Kho,
+                    DanhSachKho_ID,
                     nguoiLam,
                     GhiChu,
                     DonGia,
@@ -1449,7 +1486,7 @@ lsxn.CanEdit        AS Edit
                 cmd.Parameters.Add("@NguoiGiao_Nhan", DbType.String);
                 cmd.Parameters.Add("@LyDo", DbType.String);
                 cmd.Parameters.Add("@SoLuong", DbType.Decimal);
-                cmd.Parameters.Add("@Kho", DbType.String);
+                cmd.Parameters.Add("@Kho", DbType.Int64);
                 cmd.Parameters.Add("@nguoiLam", DbType.String);
                 cmd.Parameters.Add("@GhiChu", DbType.String);
                 cmd.Parameters.Add("@DonGia", DbType.String);
@@ -1726,7 +1763,6 @@ lsxn.CanEdit        AS Edit
             GROUP BY ThongTinDatHang_ID
         ) ls ON ls.ThongTinDatHang_ID = t.id
         WHERE d.MaDon = @maDon
-          AND t.CanEdit = 1
           AND IFNULL(ls.TonKho, 0) > 0
         ORDER BY t.id";
 
@@ -3566,6 +3602,7 @@ lsxn.CanEdit        AS Edit
                 UPDATE DanhSachMaSP
                 SET 
                     Ten = @Ten,
+                    Ten_KhongDau = @Ten_KhongDau,
                     Ma = @Ma,
                     DonVi = @DonVi,
                     KieuSP = @KieuSP,
@@ -3582,6 +3619,7 @@ lsxn.CanEdit        AS Edit
                     using (var cmd = new SQLiteCommand(query, conn))
                     {
                         cmd.Parameters.AddWithValue("@Ten", sp.Ten);
+                        cmd.Parameters.AddWithValue("@Ten_KhongDau", sp.Ten_KhongDau);
                         cmd.Parameters.AddWithValue("@Ma", sp.Ma);
                         cmd.Parameters.AddWithValue("@DonVi", sp.DonVi);
                         cmd.Parameters.AddWithValue("@KieuSP", sp.KieuSP);
@@ -4106,13 +4144,14 @@ lsxn.CanEdit        AS Edit
                 using var tx = conn.BeginTransaction();
 
                 string sql = @"
-                    INSERT INTO DanhSachMaSP (Ten, Ma, DonVi, KieuSP,ChuyenDoi,DateInsert)
-                    VALUES (@Ten, @Ma, @DonVi, @KieuSP, @ChuyenDoi, @DateInsert);
+                    INSERT INTO DanhSachMaSP (Ten, Ten_KhongDau, Ma, DonVi, KieuSP,ChuyenDoi,DateInsert)
+                    VALUES (@Ten,@Ten_KhongDau, @Ma, @DonVi, @KieuSP, @ChuyenDoi, @DateInsert);
                 ";
 
                 using (var cmd = new SQLiteCommand(sql, conn, tx))
                 {
                     cmd.Parameters.AddWithValue("@Ten", sp.Ten);
+                    cmd.Parameters.AddWithValue("@Ten_KhongDau", sp.Ten_KhongDau);
                     cmd.Parameters.AddWithValue("@Ma", sp.Ma);
                     cmd.Parameters.AddWithValue("@DonVi", sp.DonVi);
                     cmd.Parameters.AddWithValue("@KieuSP", sp.KieuSP);

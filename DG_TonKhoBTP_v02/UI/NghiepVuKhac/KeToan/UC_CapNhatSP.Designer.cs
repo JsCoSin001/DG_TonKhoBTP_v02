@@ -38,8 +38,6 @@
             this.donVi = new System.Windows.Forms.ComboBox();
             this.ten = new System.Windows.Forms.TextBox();
             this.id = new System.Windows.Forms.TextBox();
-            this.label4 = new System.Windows.Forms.Label();
-            this.label3 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.ma = new System.Windows.Forms.TextBox();
@@ -58,6 +56,9 @@
             this.cbXuatExcel = new System.Windows.Forms.CheckBox();
             this.panel1 = new System.Windows.Forms.Panel();
             this.grvDanhSach = new System.Windows.Forms.DataGridView();
+            this.tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
+            this.label7 = new System.Windows.Forms.Label();
+            this.label9 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -69,17 +70,19 @@
             this.tableLayoutPanel3.SuspendLayout();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.grvDanhSach)).BeginInit();
+            this.tableLayoutPanel4.SuspendLayout();
             this.SuspendLayout();
             // 
             // groupBox1
             // 
             this.groupBox1.Controls.Add(this.flowLayoutPanel1);
+            this.groupBox1.Controls.Add(this.tableLayoutPanel4);
             this.groupBox1.Controls.Add(this.tableLayoutPanel1);
             this.groupBox1.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.groupBox1.Location = new System.Drawing.Point(3, 3);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Padding = new System.Windows.Forms.Padding(3, 5, 3, 3);
-            this.groupBox1.Size = new System.Drawing.Size(809, 153);
+            this.groupBox1.Size = new System.Drawing.Size(534, 260);
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Bảng Nhập Liệu";
@@ -90,9 +93,9 @@
             this.flowLayoutPanel1.Controls.Add(this.btnXoa);
             this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanel1.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
-            this.flowLayoutPanel1.Location = new System.Drawing.Point(3, 98);
+            this.flowLayoutPanel1.Location = new System.Drawing.Point(3, 169);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(803, 52);
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(528, 88);
             this.flowLayoutPanel1.TabIndex = 1;
             // 
             // btnLuu
@@ -100,7 +103,7 @@
             this.btnLuu.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
             this.btnLuu.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnLuu.ForeColor = System.Drawing.SystemColors.Control;
-            this.btnLuu.Location = new System.Drawing.Point(686, 3);
+            this.btnLuu.Location = new System.Drawing.Point(411, 3);
             this.btnLuu.Name = "btnLuu";
             this.btnLuu.Size = new System.Drawing.Size(114, 46);
             this.btnLuu.TabIndex = 5;
@@ -111,7 +114,7 @@
             // btnXoa
             // 
             this.btnXoa.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnXoa.Location = new System.Drawing.Point(566, 3);
+            this.btnXoa.Location = new System.Drawing.Point(291, 3);
             this.btnXoa.Name = "btnXoa";
             this.btnXoa.Size = new System.Drawing.Size(114, 46);
             this.btnXoa.TabIndex = 6;
@@ -121,78 +124,72 @@
             // 
             // tableLayoutPanel1
             // 
-            this.tableLayoutPanel1.ColumnCount = 6;
+            this.tableLayoutPanel1.ColumnCount = 3;
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 70F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 120F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 250F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 70F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 130F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tableLayoutPanel1.Controls.Add(this.nbrDM_CU_AL, 5, 1);
-            this.tableLayoutPanel1.Controls.Add(this.label8, 5, 0);
-            this.tableLayoutPanel1.Controls.Add(this.donVi, 3, 1);
             this.tableLayoutPanel1.Controls.Add(this.ten, 2, 1);
             this.tableLayoutPanel1.Controls.Add(this.id, 0, 1);
-            this.tableLayoutPanel1.Controls.Add(this.label4, 4, 0);
-            this.tableLayoutPanel1.Controls.Add(this.label3, 3, 0);
             this.tableLayoutPanel1.Controls.Add(this.label2, 2, 0);
             this.tableLayoutPanel1.Controls.Add(this.label1, 1, 0);
             this.tableLayoutPanel1.Controls.Add(this.ma, 1, 1);
-            this.tableLayoutPanel1.Controls.Add(this.kieuSP, 4, 1);
             this.tableLayoutPanel1.Controls.Add(this.label5, 0, 0);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Top;
             this.tableLayoutPanel1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.tableLayoutPanel1.Location = new System.Drawing.Point(3, 20);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
-            this.tableLayoutPanel1.RowCount = 2;
+            this.tableLayoutPanel1.RowCount = 3;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(803, 78);
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 74F));
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(528, 72);
             this.tableLayoutPanel1.TabIndex = 0;
             // 
             // nbrDM_CU_AL
             // 
-            this.nbrDM_CU_AL.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.nbrDM_CU_AL.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.nbrDM_CU_AL.DecimalPlaces = 5;
             this.nbrDM_CU_AL.Font = new System.Drawing.Font("Tahoma", 12.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.nbrDM_CU_AL.Location = new System.Drawing.Point(676, 40);
+            this.nbrDM_CU_AL.Location = new System.Drawing.Point(355, 29);
             this.nbrDM_CU_AL.Name = "nbrDM_CU_AL";
-            this.nbrDM_CU_AL.Size = new System.Drawing.Size(124, 28);
+            this.nbrDM_CU_AL.Size = new System.Drawing.Size(170, 28);
             this.nbrDM_CU_AL.TabIndex = 9;
             // 
             // label8
             // 
-            this.label8.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.label8.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.label8.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label8.Location = new System.Drawing.Point(676, 0);
+            this.label8.Location = new System.Drawing.Point(355, 0);
             this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(124, 30);
+            this.label8.Size = new System.Drawing.Size(170, 26);
             this.label8.TabIndex = 8;
-            this.label8.Text = "ĐM Cu/Al";
+            this.label8.Text = "Dịnh mức (Kg -> M)";
             this.label8.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
             // 
             // donVi
             // 
-            this.donVi.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.donVi.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.donVi.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Append;
             this.donVi.Font = new System.Drawing.Font("Tahoma", 12.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.donVi.FormattingEnabled = true;
             this.donVi.Items.AddRange(new object[] {
             "KG",
             "M"});
-            this.donVi.Location = new System.Drawing.Point(443, 39);
+            this.donVi.Location = new System.Drawing.Point(3, 29);
             this.donVi.Name = "donVi";
-            this.donVi.Size = new System.Drawing.Size(64, 29);
+            this.donVi.Size = new System.Drawing.Size(170, 29);
             this.donVi.TabIndex = 3;
             // 
             // ten
             // 
             this.ten.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.ten.Font = new System.Drawing.Font("Tahoma", 12.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.ten.Location = new System.Drawing.Point(193, 40);
+            this.ten.Location = new System.Drawing.Point(193, 33);
             this.ten.Name = "ten";
-            this.ten.Size = new System.Drawing.Size(244, 28);
+            this.ten.Size = new System.Drawing.Size(332, 28);
             this.ten.TabIndex = 2;
             // 
             // id
@@ -200,32 +197,10 @@
             this.id.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.id.Enabled = false;
             this.id.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.id.Location = new System.Drawing.Point(3, 40);
+            this.id.Location = new System.Drawing.Point(3, 33);
             this.id.Name = "id";
             this.id.Size = new System.Drawing.Size(64, 27);
             this.id.TabIndex = 1;
-            // 
-            // label4
-            // 
-            this.label4.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label4.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label4.Location = new System.Drawing.Point(513, 0);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(157, 30);
-            this.label4.TabIndex = 3;
-            this.label4.Text = "Kiểu SP";
-            this.label4.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
-            // 
-            // label3
-            // 
-            this.label3.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label3.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label3.Location = new System.Drawing.Point(443, 0);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(64, 30);
-            this.label3.TabIndex = 2;
-            this.label3.Text = "Đơn vị";
-            this.label3.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
             // 
             // label2
             // 
@@ -233,7 +208,7 @@
             this.label2.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label2.Location = new System.Drawing.Point(193, 0);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(244, 30);
+            this.label2.Size = new System.Drawing.Size(332, 30);
             this.label2.TabIndex = 1;
             this.label2.Text = "Tên";
             this.label2.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
@@ -253,7 +228,7 @@
             // 
             this.ma.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.ma.Font = new System.Drawing.Font("Tahoma", 12.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.ma.Location = new System.Drawing.Point(73, 40);
+            this.ma.Location = new System.Drawing.Point(73, 33);
             this.ma.Name = "ma";
             this.ma.Size = new System.Drawing.Size(114, 28);
             this.ma.TabIndex = 1;
@@ -261,18 +236,14 @@
             // 
             // kieuSP
             // 
-            this.kieuSP.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.kieuSP.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.kieuSP.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.kieuSP.Enabled = false;
             this.kieuSP.Font = new System.Drawing.Font("Microsoft Sans Serif", 12.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.kieuSP.FormattingEnabled = true;
-            this.kieuSP.Items.AddRange(new object[] {
-            "NVL",
-            "BTP",
-            "TP"});
-            this.kieuSP.Location = new System.Drawing.Point(513, 40);
+            this.kieuSP.Location = new System.Drawing.Point(179, 29);
             this.kieuSP.Name = "kieuSP";
-            this.kieuSP.Size = new System.Drawing.Size(157, 28);
+            this.kieuSP.Size = new System.Drawing.Size(170, 28);
             this.kieuSP.TabIndex = 4;
             // 
             // label5
@@ -291,10 +262,10 @@
             this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox2.Controls.Add(this.tableLayoutPanel2);
             this.groupBox2.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.groupBox2.Location = new System.Drawing.Point(3, 162);
+            this.groupBox2.Location = new System.Drawing.Point(3, 269);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Padding = new System.Windows.Forms.Padding(3, 5, 3, 3);
-            this.groupBox2.Size = new System.Drawing.Size(809, 81);
+            this.groupBox2.Size = new System.Drawing.Size(534, 81);
             this.groupBox2.TabIndex = 1;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Chỉnh Sửa";
@@ -312,7 +283,7 @@
             this.tableLayoutPanel2.Name = "tableLayoutPanel2";
             this.tableLayoutPanel2.RowCount = 1;
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel2.Size = new System.Drawing.Size(803, 58);
+            this.tableLayoutPanel2.Size = new System.Drawing.Size(528, 58);
             this.tableLayoutPanel2.TabIndex = 0;
             // 
             // cbxLoaiTimKiem
@@ -323,7 +294,7 @@
             this.cbxLoaiTimKiem.Items.AddRange(new object[] {
             "Mã SP",
             "Tên SP"});
-            this.cbxLoaiTimKiem.Location = new System.Drawing.Point(3, 18);
+            this.cbxLoaiTimKiem.Location = new System.Drawing.Point(3, 15);
             this.cbxLoaiTimKiem.Name = "cbxLoaiTimKiem";
             this.cbxLoaiTimKiem.Size = new System.Drawing.Size(94, 28);
             this.cbxLoaiTimKiem.TabIndex = 7;
@@ -332,9 +303,9 @@
             // 
             this.cbxMaSP.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbxMaSP.FormattingEnabled = true;
-            this.cbxMaSP.Location = new System.Drawing.Point(103, 18);
+            this.cbxMaSP.Location = new System.Drawing.Point(103, 15);
             this.cbxMaSP.Name = "cbxMaSP";
-            this.cbxMaSP.Size = new System.Drawing.Size(697, 28);
+            this.cbxMaSP.Size = new System.Drawing.Size(422, 28);
             this.cbxMaSP.TabIndex = 8;
             this.cbxMaSP.TextUpdate += new System.EventHandler(this.cbxMaSP_TextUpdate);
             // 
@@ -348,7 +319,7 @@
             this.flowLayoutPanel2.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
             this.flowLayoutPanel2.Location = new System.Drawing.Point(5, 5);
             this.flowLayoutPanel2.Name = "flowLayoutPanel2";
-            this.flowLayoutPanel2.Size = new System.Drawing.Size(815, 652);
+            this.flowLayoutPanel2.Size = new System.Drawing.Size(540, 652);
             this.flowLayoutPanel2.TabIndex = 2;
             // 
             // groupBox3
@@ -356,10 +327,10 @@
             this.groupBox3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox3.Controls.Add(this.tableLayoutPanel3);
             this.groupBox3.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.groupBox3.Location = new System.Drawing.Point(3, 249);
+            this.groupBox3.Location = new System.Drawing.Point(3, 356);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Padding = new System.Windows.Forms.Padding(3, 5, 3, 3);
-            this.groupBox3.Size = new System.Drawing.Size(809, 74);
+            this.groupBox3.Size = new System.Drawing.Size(534, 74);
             this.groupBox3.TabIndex = 2;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Xem Danh Sách";
@@ -381,7 +352,7 @@
             this.tableLayoutPanel3.Name = "tableLayoutPanel3";
             this.tableLayoutPanel3.RowCount = 1;
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel3.Size = new System.Drawing.Size(803, 51);
+            this.tableLayoutPanel3.Size = new System.Drawing.Size(528, 51);
             this.tableLayoutPanel3.TabIndex = 0;
             // 
             // cbxLoaiSP
@@ -397,7 +368,7 @@
             "Toàn bộ"});
             this.cbxLoaiSP.Location = new System.Drawing.Point(103, 11);
             this.cbxLoaiSP.Name = "cbxLoaiSP";
-            this.cbxLoaiSP.Size = new System.Drawing.Size(497, 28);
+            this.cbxLoaiSP.Size = new System.Drawing.Size(222, 28);
             this.cbxLoaiSP.TabIndex = 10;
             // 
             // label6
@@ -416,7 +387,7 @@
             this.btnShowList.BackColor = System.Drawing.Color.Teal;
             this.btnShowList.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnShowList.ForeColor = System.Drawing.SystemColors.Control;
-            this.btnShowList.Location = new System.Drawing.Point(706, 7);
+            this.btnShowList.Location = new System.Drawing.Point(431, 7);
             this.btnShowList.Name = "btnShowList";
             this.btnShowList.Size = new System.Drawing.Size(94, 37);
             this.btnShowList.TabIndex = 11;
@@ -429,7 +400,7 @@
             this.cbXuatExcel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbXuatExcel.AutoSize = true;
             this.cbXuatExcel.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cbXuatExcel.Location = new System.Drawing.Point(606, 15);
+            this.cbXuatExcel.Location = new System.Drawing.Point(331, 15);
             this.cbXuatExcel.Name = "cbXuatExcel";
             this.cbXuatExcel.Size = new System.Drawing.Size(94, 20);
             this.cbXuatExcel.TabIndex = 12;
@@ -440,10 +411,10 @@
             // 
             this.panel1.Controls.Add(this.grvDanhSach);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel1.Location = new System.Drawing.Point(820, 5);
+            this.panel1.Location = new System.Drawing.Point(545, 5);
             this.panel1.Name = "panel1";
             this.panel1.Padding = new System.Windows.Forms.Padding(5, 10, 5, 5);
-            this.panel1.Size = new System.Drawing.Size(318, 652);
+            this.panel1.Size = new System.Drawing.Size(593, 652);
             this.panel1.TabIndex = 3;
             // 
             // grvDanhSach
@@ -457,8 +428,51 @@
             this.grvDanhSach.Dock = System.Windows.Forms.DockStyle.Fill;
             this.grvDanhSach.Location = new System.Drawing.Point(5, 10);
             this.grvDanhSach.Name = "grvDanhSach";
-            this.grvDanhSach.Size = new System.Drawing.Size(308, 637);
+            this.grvDanhSach.Size = new System.Drawing.Size(583, 637);
             this.grvDanhSach.TabIndex = 0;
+            // 
+            // tableLayoutPanel4
+            // 
+            this.tableLayoutPanel4.ColumnCount = 3;
+            this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
+            this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
+            this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
+            this.tableLayoutPanel4.Controls.Add(this.label8, 2, 0);
+            this.tableLayoutPanel4.Controls.Add(this.nbrDM_CU_AL, 2, 1);
+            this.tableLayoutPanel4.Controls.Add(this.donVi, 0, 1);
+            this.tableLayoutPanel4.Controls.Add(this.kieuSP, 1, 1);
+            this.tableLayoutPanel4.Controls.Add(this.label7, 1, 0);
+            this.tableLayoutPanel4.Controls.Add(this.label9, 0, 0);
+            this.tableLayoutPanel4.Dock = System.Windows.Forms.DockStyle.Top;
+            this.tableLayoutPanel4.Location = new System.Drawing.Point(3, 92);
+            this.tableLayoutPanel4.Name = "tableLayoutPanel4";
+            this.tableLayoutPanel4.RowCount = 2;
+            this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 33.76624F));
+            this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 66.23376F));
+            this.tableLayoutPanel4.Size = new System.Drawing.Size(528, 77);
+            this.tableLayoutPanel4.TabIndex = 2;
+            // 
+            // label7
+            // 
+            this.label7.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.label7.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label7.Location = new System.Drawing.Point(179, 0);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(170, 26);
+            this.label7.TabIndex = 8;
+            this.label7.Text = "Kiểu Sản Phẩm";
+            this.label7.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
+            // 
+            // label9
+            // 
+            this.label9.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.label9.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label9.Location = new System.Drawing.Point(3, 0);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(170, 26);
+            this.label9.TabIndex = 8;
+            this.label9.Text = "Đơn vị";
+            this.label9.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
             // 
             // UC_CapNhatSP
             // 
@@ -483,6 +497,7 @@
             this.tableLayoutPanel3.PerformLayout();
             this.panel1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.grvDanhSach)).EndInit();
+            this.tableLayoutPanel4.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -495,8 +510,6 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.ComboBox donVi;
         private System.Windows.Forms.TextBox ten;
-        private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.TextBox ma;
         private System.Windows.Forms.ComboBox kieuSP;
@@ -520,5 +533,8 @@
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.NumericUpDown nbrDM_CU_AL;
         private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel4;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.Label label9;
     }
 }

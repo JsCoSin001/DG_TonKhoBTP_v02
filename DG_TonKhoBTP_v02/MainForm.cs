@@ -34,7 +34,7 @@ namespace DG_TonKhoBTP_v02
     {
         private string _URL = Properties.Settings.Default.URL;
         private CongDoanUiService _ui;
-        private string _ver = "2.5.12";
+        private string _ver = "2.5.15";
         private bool show = false;
         private void InitUiService()
         {
@@ -1006,6 +1006,9 @@ namespace DG_TonKhoBTP_v02
             pnVatTuPhu.Visible = show;
             pnUpdateMaHang.Visible = show;
             grbKeHoach.Visible = show;
+
+            this.MinimizeBox = show;
+            this.MaximizeBox = show;
         }
 
         private void homeToolStripMenuItem_Click(object sender, EventArgs e)

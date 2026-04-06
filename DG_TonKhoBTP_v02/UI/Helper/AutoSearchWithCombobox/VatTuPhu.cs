@@ -42,6 +42,7 @@ namespace DG_TonKhoBTP_v02.UI.Helper.AutoSearchWithCombobox
         public int? DanhSachDatHang_ID { get; set; }
         public string? MaVatTu { get; set; }
         public string? TenVatTu { get; set; }
+        public string? TenVatTu_KhongDau { get; set; }
         public string? DonVi { get; set; }
         public decimal? SoLuongMua { get; set; }
         public string MucDichMua { get; set; }
@@ -78,6 +79,8 @@ namespace DG_TonKhoBTP_v02.UI.Helper.AutoSearchWithCombobox
         // Dùng cho đơn hàng
         public string MaDon { get; set; }
 
+        public decimal SlTon { get; set; } // ← THÊM
+
         public string DisplayText
         {
             get
@@ -102,6 +105,7 @@ namespace DG_TonKhoBTP_v02.UI.Helper.AutoSearchWithCombobox
 
             return await TimKiemDonHangAsync(keyword, kieuDon);
         }
+
 
 
 
@@ -142,7 +146,7 @@ namespace DG_TonKhoBTP_v02.UI.Helper.AutoSearchWithCombobox
                         FROM LichSuXuatNhap lsxn
                         INNER JOIN ThongTinDatHang ttdh2 ON ttdh2.Id = lsxn.ThongTinDatHang_ID
                         WHERE ttdh2.DanhSachMaSP_ID = ttdh.DanhSachMaSP_ID
-                    ), 0) AS TonKho
+                    ), 0) AS slTon
                 FROM ThongTinDatHang ttdh
                 INNER JOIN DanhSachDatHang dsdh ON dsdh.Id = ttdh.DanhSachDatHang_ID
                 WHERE dsdh.MaDon = @MaDon
@@ -161,7 +165,7 @@ namespace DG_TonKhoBTP_v02.UI.Helper.AutoSearchWithCombobox
                     MucDichMua = row["MucDichMua"] == DBNull.Value ? null : row["MucDichMua"].ToString(),
                     NgayGiao = row["NgayGiao"] == DBNull.Value ? null : row["NgayGiao"].ToString(),
                     DateInsert = row["Date_Insert"] == DBNull.Value ? null : row["Date_Insert"].ToString(),
-                    TonKho = Convert.ToDecimal(row["TonKho"])
+                    TonKho = Convert.ToDecimal(row["slTon"])
                 });
             }
             return result;
@@ -175,14 +179,25 @@ namespace DG_TonKhoBTP_v02.UI.Helper.AutoSearchWithCombobox
             var result = new List<MuaVatTuSearchItem>();
             if (string.IsNullOrWhiteSpace(keyword)) return result;
 
-            string pattern = keyword.Trim();
+            string pattern = CoreHelper.BoDauTiengViet(keyword.Trim());
 
             await Task.Run(() =>
             {
-                string sql = "SELECT Id, Ten, Ma, DonVi " +
-                         "FROM DanhSachMaSP " +
-                         "WHERE Ten LIKE '%' || @keyword || '%' " +
-                         "LIMIT " + Limit;
+                string sql = @"
+                SELECT 
+                    dsp.Id, 
+                    dsp.Ten, 
+                    dsp.Ma, 
+                    dsp.DonVi,
+                    COALESCE((
+                        SELECT SUM(lsxn.SoLuong)
+                        FROM LichSuXuatNhap lsxn
+                        INNER JOIN ThongTinDatHang ttdh ON ttdh.Id = lsxn.ThongTinDatHang_ID
+                        WHERE ttdh.DanhSachMaSP_ID = dsp.Id
+                    ), 0) AS slTon
+                FROM DanhSachMaSP dsp
+                WHERE dsp.Ten_KhongDau LIKE '%' || @keyword || '%' COLLATE NOCASE
+                LIMIT " + Limit;
 
                 DataTable dt = DatabaseHelper.GetData(sql, pattern, "keyword");
 
@@ -194,7 +209,10 @@ namespace DG_TonKhoBTP_v02.UI.Helper.AutoSearchWithCombobox
                         Id = Convert.ToInt32(row["Id"]),
                         Ma = row["Ma"]?.ToString(),
                         Ten = row["Ten"]?.ToString(),
-                        DonVi = row["DonVi"]?.ToString()
+                        DonVi = row["DonVi"]?.ToString(),
+                        SlTon = row["slTon"] != DBNull.Value
+                                ? Convert.ToDecimal(row["slTon"])
+                                : 0
                     });
                 }
             });
@@ -361,6 +379,7 @@ namespace DG_TonKhoBTP_v02.UI.Helper.AutoSearchWithCombobox
                 DanhSachMaSP_ID,
                 DanhSachDatHang_ID,
                 TenVatTu,
+                TenVatTu_KhongDau,
                 SoLuongMua,
                 MucDichMua,
                 NgayGiao,
@@ -371,6 +390,7 @@ namespace DG_TonKhoBTP_v02.UI.Helper.AutoSearchWithCombobox
                 @DanhSachMaSP_ID,
                 @DanhSachDatHang_ID,
                 @TenVatTu,
+                @TenVatTu_KhongDau,
                 @SoLuongMua,
                 @MucDichMua,
                 @NgayGiao,
@@ -381,6 +401,7 @@ namespace DG_TonKhoBTP_v02.UI.Helper.AutoSearchWithCombobox
             AddParam(cmd, "@DanhSachMaSP_ID", DbType.Int32, item.DanhSachMaSP_ID);
             AddParam(cmd, "@DanhSachDatHang_ID", DbType.Int32, item.DanhSachDatHang_ID);
             AddParam(cmd, "@TenVatTu", DbType.String, item.TenVatTu);
+            AddParam(cmd, "@TenVatTu_KhongDau", DbType.String, item.TenVatTu_KhongDau);
             AddParam(cmd, "@SoLuongMua", DbType.Decimal, item.SoLuongMua);
             AddParam(cmd, "@MucDichMua", DbType.String, CoreHelper.TrimToNull(item.MucDichMua));
             AddParam(cmd, "@NgayGiao", DbType.String, NormalizeDate(item.NgayGiao));

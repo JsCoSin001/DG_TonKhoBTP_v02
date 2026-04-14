@@ -2,6 +2,10 @@
 using DG_TonKhoBTP_v02.Models;
 using DG_TonKhoBTP_v02.Printer;
 using DG_TonKhoBTP_v02.UI.Helper;
+// [THÊM] namespace của ComboBoxSearchHelper mới (non-generic, dùng DataTable + event)
+// [ĐÃ XOÁ] ComboBoxSearchHelper<T> generic cũ nằm trong DG_TonKhoBTP_v02.UI.Helper.AutoSearchWithCombobox
+// namespace khớp với vị trí file: UI\Helper\AutoSearchWithCombobox\ComboBoxSearchHelper.cs
+using DG_TonKhoBTP_v02.UI.Helper.AutoSearchWithCombobox;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -21,9 +25,12 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
     public partial class UC_NhapXuatVatTu : UserControl
     {
         // ── FIELD ──────────────────────────────────────────────────────────
-        private ComboBoxSearchHelper<string> _cbxTimDonHelper;
-        private ComboBoxSearchHelper<string> _cbxTimTenHelper;
-        private ComboBoxSearchHelper<string> _cbxNhaCungCapHelper;  // ← THÊM MỚI
+        // [ĐÃ SỬA] ComboBoxSearchHelper<string> → ComboBoxSearchHelper (non-generic, dùng DataTable + event)
+        private ComboBoxSearchHelper _cbxTimDonHelper;
+        // [ĐÃ SỬA] ComboBoxSearchHelper<string> → ComboBoxSearchHelper (non-generic, dùng DataTable + event)
+        private ComboBoxSearchHelper _cbxTimTenHelper;
+        // [ĐÃ SỬA] ComboBoxSearchHelper<string> → ComboBoxSearchHelper (non-generic, dùng DataTable + event)
+        private ComboBoxSearchHelper _cbxNhaCungCapHelper;
         private bool IsEdit => cbxKieu.SelectedIndex == 1;
         private bool IsKhac => !rdoLoai.Checked;
         private string NguoiLam => tbxnguoiLam.Text;
@@ -202,12 +209,24 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
         // Đặt sau KhoiTaoGiaoDienKhac, nhóm cùng các hàm KhoiTao khác
         private void TimKiemTenNCC()
         {
-            _cbxNhaCungCapHelper = new ComboBoxSearchHelper<string>(
+            // [ĐÃ SỬA] Bỏ constructor generic cũ (searchFunc trả List<string>, displaySelector, onItemSelected).
+            // Dùng ComboBoxSearchHelper mới: queryFunc trả DataTable, callback qua event ItemSelected.
+            _cbxNhaCungCapHelper = new ComboBoxSearchHelper(
                 comboBox: cbxNhaCungCap,
-                searchFunc: keyword => DatabaseHelper.TimKiemNhaCungCap(keyword),
-                displaySelector: s => s,
-                onItemSelected: OnNhaCungCapSelected
+                queryFunc: async (keyword, ct) =>
+                {
+                    // [ĐÃ SỬA] Bọc List<string> trả về từ hàm cũ vào DataTable 1 cột "Value"
+                    // để khớp API mới. Logic gọi DB (DatabaseHelper.TimKiemNhaCungCap) giữ nguyên.
+                    var list = await DatabaseHelper.TimKiemNhaCungCap(keyword);
+                    ct.ThrowIfCancellationRequested();
+                    return ListStringToDataTable(list, "Value");
+                }
             );
+            // [ĐÃ SỬA] DisplayColumn khớp tên cột "Value" trong DataTable wrapper.
+            _cbxNhaCungCapHelper.DisplayColumn = "Value";
+            // [ĐÃ SỬA] Đăng ký callback qua event thay vì truyền onItemSelected vào constructor.
+            // [GIỮ NGUYÊN] Logic trong OnNhaCungCapSelected không thay đổi.
+            _cbxNhaCungCapHelper.ItemSelected += row => OnNhaCungCapSelected(row["Value"]?.ToString());
         }
 
         // ── THÊM MỚI: Xử lý khi người dùng chọn nhà cung cấp ────────────
@@ -224,41 +243,58 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
 
         private void KhoiTaoCbxTimTen()
         {
-
-            Func<string, Task<List<string>>> searchFunc;
-            if (_isNhapKho)
-                searchFunc = keyword => DatabaseHelper.TimKiemTheoTenVatTu(keyword, _kieu, IsEdit, IsKhac);
-            else
-                searchFunc = keyword => DatabaseHelper.TimKiemTheoTenVatTuConHang(keyword);
-
-            _cbxTimTenHelper = new ComboBoxSearchHelper<string>(
+            // [ĐÃ SỬA] Bỏ Func<string, Task<List<string>>> + constructor generic.
+            // Dùng ComboBoxSearchHelper mới: queryFunc trả DataTable, callback qua event ItemSelected.
+            // [GIỮ NGUYÊN] Logic chọn hàm theo _isNhapKho / IsEdit / IsKhac giữ nguyên.
+            _cbxTimTenHelper = new ComboBoxSearchHelper(
                 comboBox: cbxTimTen,
-                searchFunc: searchFunc,
-                displaySelector: ten => ten,
-                onItemSelected: ten => _ = LoadChiTietDonTheoTenAsync(ten)
+                queryFunc: async (keyword, ct) =>
+                {
+                    List<string> list;
+                    if (_isNhapKho)
+                        list = await DatabaseHelper.TimKiemTheoTenVatTu(keyword, _kieu, IsEdit, IsKhac);
+                    else
+                        list = await DatabaseHelper.TimKiemTheoTenVatTuConHang(keyword);
+
+                    ct.ThrowIfCancellationRequested();
+                    return ListStringToDataTable(list, "Value");
+                }
             );
+            // [ĐÃ SỬA] DisplayColumn khớp tên cột "Value" trong DataTable wrapper.
+            _cbxTimTenHelper.DisplayColumn = "Value";
+            // [ĐÃ SỬA] Đăng ký callback qua event. [GIỮ NGUYÊN] logic gọi LoadChiTietDonTheoTenAsync.
+            _cbxTimTenHelper.ItemSelected += row => _ = LoadChiTietDonTheoTenAsync(row["Value"]?.ToString());
         }
 
         private void KhoiTaoCbxTimDon()
         {
-            Func<string, Task<List<string>>> searchFunc;
-            if (_isNhapKho)
-                searchFunc = keyword => DatabaseHelper.TimKiemMaDon(keyword, IsEdit);
-            else
-                searchFunc = keyword => DatabaseHelper.TimKiemMaDonConHang(keyword, IsEdit);
-
-            _cbxTimDonHelper = new ComboBoxSearchHelper<string>(
+            // [ĐÃ SỬA] Bỏ Func<string, Task<List<string>>> + constructor generic.
+            // Dùng ComboBoxSearchHelper mới: queryFunc trả DataTable, callback qua event ItemSelected.
+            // [GIỮ NGUYÊN] Logic chọn hàm theo _isNhapKho / IsEdit giữ nguyên.
+            _cbxTimDonHelper = new ComboBoxSearchHelper(
                 comboBox: cbxTimDon,
-                searchFunc: searchFunc,
-                displaySelector: maDon => maDon,
-                onItemSelected: maDon => _ = LoadChiTietDonAsync(maDon, IsEdit)
+                queryFunc: async (keyword, ct) =>
+                {
+                    List<string> list;
+                    if (_isNhapKho)
+                        list = await DatabaseHelper.TimKiemMaDon(keyword, IsEdit);
+                    else
+                        list = await DatabaseHelper.TimKiemMaDonConHang(keyword, IsEdit);
+
+                    ct.ThrowIfCancellationRequested();
+                    return ListStringToDataTable(list, "Value");
+                }
             );
+            // [ĐÃ SỬA] DisplayColumn khớp tên cột "Value" trong DataTable wrapper.
+            _cbxTimDonHelper.DisplayColumn = "Value";
+            // [ĐÃ SỬA] Đăng ký callback qua event. [GIỮ NGUYÊN] logic gọi LoadChiTietDonAsync.
+            _cbxTimDonHelper.ItemSelected += row => _ = LoadChiTietDonAsync(row["Value"]?.ToString(), IsEdit);
         }
 
         private async Task LoadChiTietDonTheoTenAsync(string tenVatTu)
         {
             if (string.IsNullOrWhiteSpace(tenVatTu)) return;
-            
+
             await WaitingHelper.RunWithWaiting(async () =>
             {
                 DataTable dt;
@@ -281,7 +317,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
                 }
 
                 MergeVaoDgv(dt, IsKhac);
-                //_cbxTimTenHelper.Clear();
+                // [ĐÃ SỬA] Clear() → Reset() theo API mới của ComboBoxSearchHelper
+                //_cbxTimTenHelper.Reset();
             }, "ĐANG TẢI DỮ LIỆU VẬT TƯ...");
         }
 
@@ -329,14 +366,14 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
                     if (confirm != DialogResult.Yes) return;
                 }
 
-                    // ✅ Xóa trên DataTable
+                // ✅ Xóa trên DataTable
                 dt.Rows[e.RowIndex].Delete();
                 dt.AcceptChanges();
             }
         }
 
 
-        private void MergeVaoDgv(DataTable dtMoi, bool isKhac, bool isEdit=false)
+        private void MergeVaoDgv(DataTable dtMoi, bool isKhac, bool isEdit = false)
         {
             if (dtMoi == null || dtMoi.Rows.Count == 0) return;
             bool showMa_DonVi = _kieu == 1;
@@ -388,7 +425,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
                     : await DatabaseHelper.LayChiTietDonDatHangXuatKho(maDon, IsEdit);
 
                 MergeVaoDgv(dt, IsKhac);
-                //_cbxTimDonHelper.Clear();
+                // [ĐÃ SỬA] Clear() → Reset() theo API mới của ComboBoxSearchHelper
+                //_cbxTimDonHelper.Reset();
             }, "ĐANG TẢI CHI TIẾT ĐƠN...");
         }
 
@@ -430,7 +468,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
             await WaitingHelper.RunWithWaiting(async () =>
             {
 
-                
+
                 if (!IsEdit)
                 {
 
@@ -499,7 +537,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
             else
                 In_PhieuXuatKho(tenPhieu);
 
-            FrmWaiting.ShowGifAlert("Lưu thành công",myIcon:EnumStore.Icon.Success);
+            FrmWaiting.ShowGifAlert("Lưu thành công", myIcon: EnumStore.Icon.Success);
 
             Reset();
 
@@ -517,9 +555,10 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
             cbxKhoHang.SelectedIndex = -1;
             cbxKhoHang.Text = "";
 
-            //_cbxTimDonHelper?.Clear();
-            //_cbxTimTenHelper?.Clear();
-            //_cbxNhaCungCapHelper?.Clear();
+            // [ĐÃ SỬA] Clear() → Reset() theo API mới của ComboBoxSearchHelper
+            //_cbxTimDonHelper?.Reset();
+            //_cbxTimTenHelper?.Reset();
+            //_cbxNhaCungCapHelper?.Reset();
         }
 
         private void In_PhieuXuatKho(string tenPhieu)
@@ -615,7 +654,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
                     continue;
 
                 string tenVatTuKhongDau = CoreHelper.BoDauTiengViet(tenVatTu);
-               
+
                 string mucDichMua = null;
                 if (dgvChiTietDon.Columns.Contains("mucDichMua"))
                     mucDichMua = row.Cells["mucDichMua"]?.Value?.ToString()?.Trim();
@@ -769,5 +808,26 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
 
             ResetDataGridView(dgvChiTietDon);
         }
+
+        // ── THÊM MỚI: Wrapper chuyển List<string> → DataTable 1 cột ─────────────────
+        // Dùng chung cho _cbxTimDonHelper, _cbxTimTenHelper, _cbxNhaCungCapHelper.
+        // ComboBoxSearchHelper mới yêu cầu queryFunc trả DataTable;
+        // các hàm DB cũ (TimKiemMaDon, TimKiemTheoTenVatTu, TimKiemNhaCungCap)
+        // vẫn trả List<string> nên cần bọc lại thay vì sửa chúng.
+        // columnName phải khớp với DisplayColumn đã đặt trên helper tương ứng.
+        private static DataTable ListStringToDataTable(List<string> list, string columnName)
+        {
+            var dt = new DataTable();
+            dt.Columns.Add(columnName, typeof(string));
+
+            if (list != null)
+            {
+                foreach (var item in list)
+                    dt.Rows.Add(item);
+            }
+
+            return dt;
+        }
+        // ── HẾT THÊM MỚI ─────────────────────────────────────────────────────────────
     }
 }

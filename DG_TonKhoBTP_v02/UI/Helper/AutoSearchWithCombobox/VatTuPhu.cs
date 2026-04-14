@@ -106,6 +106,125 @@ namespace DG_TonKhoBTP_v02.UI.Helper.AutoSearchWithCombobox
             return await TimKiemDonHangAsync(keyword, kieuDon);
         }
 
+        // ── THÊM MỚI ────────────────────────────────────────────────────────────────
+        // Overload trả DataTable thay vì List<MuaVatTuSearchItem>, dùng cho
+        // ComboBoxSearchHelper mới (non-generic, queryFunc: Func<string, CancellationToken, Task<DataTable>>).
+        //
+        // Schema DataTable trả về — khớp với cách đọc trong UC_MuaVatTu:
+        //   Chế độ TẠO MỚI (taoMoiDon = true):
+        //     Id, Ma, Ten, DonVi, SlTon, IsDonHang=false, MaDon=null, DisplayText=Ten
+        //   Chế độ SỬA ĐƠN (taoMoiDon = false):
+        //     Id, MaDon, IsDonHang=true, Ma=null, Ten=null, DonVi=null, SlTon=0, DisplayText=MaDon
+        // ────────────────────────────────────────────────────────────────────────────
+        public DataTable TimKiemTheoCheDoDataTable(string keyword, bool taoMoiDon, int kieuDon)
+        {
+            // Tạo schema cố định để cả 2 nhánh đều trả cùng cấu trúc DataTable,
+            // giúp ComboBoxSearchHelper không cần biết đang ở chế độ nào.
+            var dt = TaoDanhSachMuaVatTuDataTable();
+
+            if (string.IsNullOrWhiteSpace(keyword)) return dt;
+
+            if (taoMoiDon)
+                TimKiemChoMuaVatTuIntoDataTable(keyword, dt);
+            else
+                TimKiemDonHangIntoDataTable(keyword, kieuDon, dt);
+
+            return dt;
+        }
+
+        // Tạo DataTable với schema dùng chung cho cả 2 nhánh tìm kiếm.
+        private static DataTable TaoDanhSachMuaVatTuDataTable()
+        {
+            var dt = new DataTable();
+            dt.Columns.Add("Id", typeof(int));
+            dt.Columns.Add("Ma", typeof(string));
+            dt.Columns.Add("Ten", typeof(string));
+            dt.Columns.Add("DonVi", typeof(string));
+            dt.Columns.Add("SlTon", typeof(decimal));
+            dt.Columns.Add("MaDon", typeof(string));
+            dt.Columns.Add("IsDonHang", typeof(bool));
+            dt.Columns.Add("DisplayText", typeof(string));  // cột helper dùng để hiển thị trong dropdown
+            return dt;
+        }
+
+        // Nhánh TẠO MỚI — mirror logic TimKiemChoMuaVatTuAsync nhưng đổ vào DataTable.
+        // SQL giữ nguyên hoàn toàn, chỉ thay foreach → DataRow.
+        private void TimKiemChoMuaVatTuIntoDataTable(string keyword, DataTable dt)
+        {
+            string pattern = CoreHelper.BoDauTiengViet(keyword.Trim());
+
+            string sql = @"
+                SELECT 
+                    dsp.Id, 
+                    dsp.Ten, 
+                    dsp.Ma, 
+                    dsp.DonVi,
+                    COALESCE((
+                        SELECT SUM(lsxn.SoLuong)
+                        FROM LichSuXuatNhap lsxn
+                        INNER JOIN ThongTinDatHang ttdh ON ttdh.Id = lsxn.ThongTinDatHang_ID
+                        WHERE ttdh.DanhSachMaSP_ID = dsp.Id
+                    ), 0) AS slTon
+                FROM DanhSachMaSP dsp
+                WHERE dsp.Ten_KhongDau LIKE '%' || @keyword || '%' COLLATE NOCASE
+                LIMIT " + Limit;
+
+            DataTable source = DatabaseHelper.GetData(sql, pattern, "keyword");
+
+            foreach (DataRow row in source.Rows)
+            {
+                decimal slTon = row["slTon"] != DBNull.Value
+                    ? Convert.ToDecimal(row["slTon"])
+                    : 0m;
+
+                string ten = row["Ten"]?.ToString();
+
+                dt.Rows.Add(
+                    Convert.ToInt32(row["Id"]),  // Id
+                    row["Ma"]?.ToString(),        // Ma
+                    ten,                          // Ten
+                    row["DonVi"]?.ToString(),     // DonVi
+                    slTon,                        // SlTon
+                    DBNull.Value,                 // MaDon  — không dùng ở nhánh này
+                    false,                        // IsDonHang
+                    ten                           // DisplayText = Ten  (khớp MuaVatTuSearchItem.DisplayText)
+                );
+            }
+        }
+
+        // Nhánh SỬA ĐƠN — mirror logic TimKiemDonHangAsync nhưng đổ vào DataTable.
+        // SQL giữ nguyên hoàn toàn, chỉ thay foreach → DataRow.
+        private void TimKiemDonHangIntoDataTable(string keyword, int kieuDon, DataTable dt)
+        {
+            string pattern = keyword.Trim();
+
+            string sql = "SELECT Id, MaDon " +
+                         "FROM DanhSachDatHang " +
+                         "WHERE MaDon LIKE '%' || @keyword || '%' " +
+                         "AND LoaiDon = " + kieuDon + " " +
+                         "LIMIT " + Limit;
+
+            Console.WriteLine(sql);
+            DataTable source = DatabaseHelper.GetData(sql, pattern, "keyword");
+
+            foreach (DataRow row in source.Rows)
+            {
+                string maDon = row["MaDon"]?.ToString();
+
+                dt.Rows.Add(
+                    Convert.ToInt32(row["Id"]),  // Id
+                    DBNull.Value,                 // Ma     — không dùng ở nhánh này
+                    DBNull.Value,                 // Ten    — không dùng ở nhánh này
+                    DBNull.Value,                 // DonVi  — không dùng ở nhánh này
+                    0m,                           // SlTon  — không dùng ở nhánh này
+                    maDon,                        // MaDon
+                    true,                         // IsDonHang
+                    maDon                         // DisplayText = MaDon  (khớp MuaVatTuSearchItem.DisplayText)
+                );
+            }
+        }
+        // ── HẾT THÊM MỚI ────────────────────────────────────────────────────────────
+
 
 
 
@@ -150,7 +269,7 @@ namespace DG_TonKhoBTP_v02.UI.Helper.AutoSearchWithCombobox
                 FROM ThongTinDatHang ttdh
                 INNER JOIN DanhSachDatHang dsdh ON dsdh.Id = ttdh.DanhSachDatHang_ID
                 WHERE dsdh.MaDon = @MaDon
-                  AND dsdh.LoaiDon = "+ loaiDon;
+                  AND dsdh.LoaiDon = " + loaiDon;
             DataTable dt = DatabaseHelper.GetData(sql, maDon, "MaDon");
             foreach (DataRow row in dt.Rows)
             {
@@ -197,7 +316,7 @@ namespace DG_TonKhoBTP_v02.UI.Helper.AutoSearchWithCombobox
                 FROM DanhSachMaSP dsp
                 WHERE dsp.Ten_KhongDau LIKE '%' || @keyword || '%' COLLATE NOCASE
                 LIMIT " + Limit;
-;
+                ;
 
                 DataTable dt = DatabaseHelper.GetData(sql, pattern, "keyword");
 
@@ -262,7 +381,7 @@ namespace DG_TonKhoBTP_v02.UI.Helper.AutoSearchWithCombobox
 
             await Task.Run(() =>
             {
-                string SqlTimKiem = "SELECT Id, Ten, Ma, DonVi FROM DanhSachMaSP WHERE Ten LIKE '%' || @keyword || '%' LIMIT "+ Limit;
+                string SqlTimKiem = "SELECT Id, Ten, Ma, DonVi FROM DanhSachMaSP WHERE Ten LIKE '%' || @keyword || '%' LIMIT " + Limit;
                 DataTable dt = DatabaseHelper.GetData(SqlTimKiem, pattern, "keyword");
 
                 foreach (DataRow row in dt.Rows)

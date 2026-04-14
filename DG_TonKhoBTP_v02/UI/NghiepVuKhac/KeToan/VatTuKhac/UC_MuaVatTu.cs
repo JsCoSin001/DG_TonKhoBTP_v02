@@ -4,6 +4,9 @@ using DG_TonKhoBTP_v02.Helper.Reuseable;
 using DG_TonKhoBTP_v02.Models;
 using DG_TonKhoBTP_v02.Printer;
 using DG_TonKhoBTP_v02.UI.Helper;
+// [ĐÃ XOÁ] using DG_TonKhoBTP_v02.UI.Helper.AutoSearchWithCombobox; → namespace của ComboBoxSearchHelper<T> generic cũ
+// [THÊM] using namespace của ComboBoxSearchHelper mới (non-generic, dùng DataTable + event)
+// namespace khớp với vị trí file: UI\Helper\AutoSearchWithCombobox\ComboBoxSearchHelper.cs
 using DG_TonKhoBTP_v02.UI.Helper.AutoSearchWithCombobox;
 using System;
 using System.Collections.Generic;
@@ -22,8 +25,10 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
 {
     public partial class UC_MuaVatTu : UserControl
     {
-        private ComboBoxSearchHelper<MuaVatTuSearchItem> _vatTuSearchHelper;
-        private ComboBoxSearchHelper<DataRow> _cbxTimTheoDonHelper; // ← THÊM MỚI
+        // [ĐÃ SỬA] ComboBoxSearchHelper<MuaVatTuSearchItem> → ComboBoxSearchHelper (non-generic, dùng DataTable + event)
+        private ComboBoxSearchHelper _vatTuSearchHelper;
+        // [ĐÃ SỬA] ComboBoxSearchHelper<DataRow> → ComboBoxSearchHelper (non-generic)
+        private ComboBoxSearchHelper _cbxTimTheoDonHelper;
 
         private int _KieuDon = 1; // 1: Đơn mua vật tư, 2: Đơn dịch vụ
 
@@ -45,7 +50,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
         private void setupUI()
         {
             lblTitle.Text = _KieuDon == 1 ? EnumStore.TieuDeFormVatTu.DON_DE_NGHI_VAT_TU : EnumStore.TieuDeFormVatTu.DON_DE_NGHI_DICH_VU;
-           
+
             SetupDGVColumns();
         }
 
@@ -104,7 +109,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
             dgvDSMua.Columns.Add(colMucDich);
 
             dgvDSMua.Columns.Add(new DataGridViewTextBoxColumn { Name = "ngayGiao", HeaderText = "Ngày giao", Width = 150 });
-            
+
             //dgvDSMua.AllowUserToAddRows = allowAddRows;
 
             AddXoaColumn();
@@ -132,64 +137,74 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
         {
             var repo = new VatTuRepository();
 
-            // ── Helper tìm tên vật tư (cbxTimTenVatTu)  ──────────────
-            _vatTuSearchHelper = new ComboBoxSearchHelper<MuaVatTuSearchItem>(
+            // [ĐÃ SỬA] Bỏ constructor generic cũ (searchFunc, displaySelector, onItemSelected).
+            // Dùng ComboBoxSearchHelper mới: truyền queryFunc trả DataTable, đăng ký ItemSelected qua event.
+            _vatTuSearchHelper = new ComboBoxSearchHelper(
                 comboBox: cbxTimTenVatTu,
-                searchFunc: keyword => repo.TimKiemTheoCheDoAsync(keyword, rdoTaoMoi.Checked, _KieuDon),
-                displaySelector: item => item.DisplayText,
-                onItemSelected: item =>
+                queryFunc: async (keyword, ct) =>
                 {
-                    // ── Chế độ TẠO MỚI: item là vật tư từ DanhSachMaSP ──
-                    if (!item.IsDonHang)
-                    {
-                        dgvDSMua.Rows.Add(
-                           item.Id,
-                           item.Ma,
-                           item.Ten,
-                           item.DonVi,
-                           null,                      // soLuong
-                           null,                      // mucDich
-                           null,                      // ngayGiao
-                           item.SlTon.ToString("N2")  // slTon
-                        );
-                        //_vatTuSearchHelper?.Clear();
-                        return;
-                    }
-
-                    // ── Chế độ SỬA ĐƠN: item là mã đơn hàng ──
-                    tbMaDon.Text = item.MaDon;
-                    dgvDSMua.Rows.Clear();
-
-                    var chiTietList = repo.GetChiTietDonHang(item.MaDon, _KieuDon);
-
-
-                    if (chiTietList == null || chiTietList.Count == 0)
-                    {
-                        //_vatTuSearchHelper?.Clear();
-                        return;
-                    }
-
-                    // Xác định layout dựa trên dữ liệu thực tế của đơn hàng
-                    bool coNullMaSP = chiTietList.Any(ct => !ct.DanhSachMaSP_ID.HasValue);
-
-                    if (coNullMaSP)
-                    {
-                        // Layout rút gọn: không cho thêm dòng tự do khi đang edit
-                        SetupDGVColumnsNullMaSP(allowAddRows: false);
-                        LoadDGVNullMaSP(chiTietList);
-                    }
-                    else
-                    {
-                        // Đảm bảo layout đầy đủ (KieuDon == 1)
-                        if (_isNullMaSPLayout)
-                            SetupDGVColumns();
-
-                        LoadDGVFullColumns(chiTietList, repo);
-                    }
-
-                    //_vatTuSearchHelper?.Clear();
+                    // [ĐÃ SỬA] Logic query được chuyển từ searchFunc (trả List<MuaVatTuSearchItem>)
+                    // sang queryFunc (trả DataTable) để khớp API mới.
+                    return await Task.Run(
+                        () => repo.TimKiemTheoCheDoDataTable(keyword, rdoTaoMoi.Checked, _KieuDon),
+                        ct
+                    );
                 }
             );
+            // [ĐÃ SỬA] Đăng ký callback chọn item qua event thay vì truyền thẳng vào constructor.
+            // DisplayColumn khớp với tên cột "DisplayText" mà repo trả về.
+            _vatTuSearchHelper.DisplayColumn = "DisplayText";
+            _vatTuSearchHelper.ItemSelected += row =>
+            {
+                // [GIỮ NGUYÊN] Toàn bộ logic nghiệp vụ bên trong không thay đổi.
+                // Chỉ thay đổi cách lấy dữ liệu: từ item.Property → row["Column"].
+
+                // Phân biệt chế độ TẠO MỚI / SỬA ĐƠN qua cột "IsDonHang" trong DataTable
+                bool isDonHang = row["IsDonHang"] as bool? == true;
+
+                if (!isDonHang)
+                {
+                    // ── Chế độ TẠO MỚI: item là vật tư từ DanhSachMaSP ──
+                    dgvDSMua.Rows.Add(
+                       row["Id"],
+                       row["Ma"],
+                       row["Ten"],
+                       row["DonVi"],
+                       null,                                                           // soLuong
+                       null,                                                           // mucDich
+                       null,                                                           // ngayGiao
+                       Convert.ToDecimal(row["SlTon"] ?? 0).ToString("N2")            // slTon
+                    );
+                    return;
+                }
+
+                // ── Chế độ SỬA ĐƠN: item là mã đơn hàng ──
+                tbMaDon.Text = row["MaDon"]?.ToString();
+                dgvDSMua.Rows.Clear();
+
+                var chiTietList = repo.GetChiTietDonHang(row["MaDon"]?.ToString(), _KieuDon);
+
+                if (chiTietList == null || chiTietList.Count == 0)
+                    return;
+
+                // Xác định layout dựa trên dữ liệu thực tế của đơn hàng
+                bool coNullMaSP = chiTietList.Any(ct => !ct.DanhSachMaSP_ID.HasValue);
+
+                if (coNullMaSP)
+                {
+                    // Layout rút gọn: không cho thêm dòng tự do khi đang edit
+                    SetupDGVColumnsNullMaSP(allowAddRows: false);
+                    LoadDGVNullMaSP(chiTietList);
+                }
+                else
+                {
+                    // Đảm bảo layout đầy đủ (KieuDon == 1)
+                    if (_isNullMaSPLayout)
+                        SetupDGVColumns();
+
+                    LoadDGVFullColumns(chiTietList, repo);
+                }
+            };
 
             // ── THÊM MỚI: Helper tìm vật tư từ DanhSachMaSP (cbxTimTheoDon) ───────
             KhoiTaoCbxTimTheoDon();
@@ -204,12 +219,20 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
         // THÊM MỚI: TÌM KIẾM VẬT TƯ QUA cbxTimTheoDon
         // ─────────────────────────────────────────────────────────────────────────────
 
+        // ─────────────────────────────────────────────────────────────────────────────
+        // THÊM MỚI: TÌM KIẾM VẬT TƯ QUA cbxTimTheoDon
+        // ─────────────────────────────────────────────────────────────────────────────
+
         private void KhoiTaoCbxTimTheoDon()
         {
-            _cbxTimTheoDonHelper = new ComboBoxSearchHelper<DataRow>(
+            // [ĐÃ SỬA] Bỏ constructor generic cũ (searchFunc trả List<DataRow>, displaySelector, onItemSelected).
+            // Dùng ComboBoxSearchHelper mới: queryFunc trả DataTable, callback qua event ItemSelected.
+            _cbxTimTheoDonHelper = new ComboBoxSearchHelper(
                 comboBox: cbxTimThemTheoTen,
-                searchFunc: async keyword =>
+                queryFunc: async (keyword, ct) =>
                 {
+                    // [ĐÃ SỬA] searchFunc (trả List<DataRow>) → queryFunc (trả DataTable).
+                    // Logic SQL giữ nguyên hoàn toàn.
                     return await Task.Run(() =>
                     {
                         string likeKeyword = CoreHelper.BoDauTiengViet(keyword);
@@ -232,20 +255,28 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
                         );
 
                         Console.WriteLine();
-
                         System.Diagnostics.Debug.WriteLine($"slTon row 0 = {(dt.Rows.Count > 0 ? dt.Rows[0]["slTon"]?.ToString() : "no rows")}");
 
-
-                        return dt.Rows.Cast<DataRow>().ToList();
-                    });
-                },
-                displaySelector: row => row["Ten"]?.ToString() ?? "",
-                onItemSelected: ThemVatTuTuDanhSachMaSP
+                        return dt; // [ĐÃ SỬA] Trả thẳng DataTable thay vì dt.Rows.Cast<DataRow>().ToList()
+                    }, ct);
+                }
             );
+
+            // [ĐÃ SỬA] DisplayColumn khớp cột "Ten" trong DataTable (helper mặc định là "ten").
+            _cbxTimTheoDonHelper.DisplayColumn = "Ten";
+
+            // [ĐÃ SỬA] Đăng ký callback qua event thay vì truyền onItemSelected vào constructor.
+            // [GIỮ NGUYÊN] Toàn bộ logic trong ThemVatTuTuDanhSachMaSP không thay đổi,
+            // chỉ thay chữ ký: DataRow → DataRowView (wrapper của helper mới).
+            // [ĐÃ SỬA] Bỏ .Row — event đã trả DataRowView, truyền thẳng vào method
+            _cbxTimTheoDonHelper.ItemSelected += ThemVatTuTuDanhSachMaSP;
         }
 
-        private void ThemVatTuTuDanhSachMaSP(DataRow row)
+        // [ĐÃ SỬA] Chữ ký thay đổi: DataRow → DataRowView (kiểu helper mới trả về).
+        // [GIỮ NGUYÊN] Toàn bộ logic bên trong không thay đổi.
+        private void ThemVatTuTuDanhSachMaSP(DataRowView drv)
         {
+            DataRow row = drv?.Row;  // [ĐÃ SỬA] Lấy DataRow từ DataRowView
             if (row == null) return;
             if (_isNullMaSPLayout) return;
 
@@ -261,7 +292,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
                         StringComparison.OrdinalIgnoreCase))
                 {
                     dgvDSMua.CurrentCell = dgvRow.Cells["soLuong"];
-                    //_cbxTimTheoDonHelper?.Clear();
+                    // [ĐÃ SỬA] Clear() → Reset() theo API mới của ComboBoxSearchHelper
+                    //_cbxTimTheoDonHelper?.Reset();
                     return;
                 }
             }
@@ -286,7 +318,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
             if (rowIndex >= 0 && rowIndex < dgvDSMua.Rows.Count)
                 dgvDSMua.CurrentCell = dgvDSMua.Rows[rowIndex].Cells["soLuong"];
 
-            //_cbxTimTheoDonHelper?.Clear();
+            // [ĐÃ SỬA] Clear() → Reset() theo API mới của ComboBoxSearchHelper
+            //_cbxTimTheoDonHelper?.Reset();
         }
 
         // ─────────────────────────────────────────────────────────────────────────────
@@ -345,10 +378,12 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
         {
             bool taoMoiDon = rdoTaoMoi.Checked;
 
-            //_vatTuSearchHelper?.Clear();
+            // [ĐÃ SỬA] Clear() → Reset() theo API mới của ComboBoxSearchHelper
+            //_vatTuSearchHelper?.Reset();
 
             // ── THÊM MỚI: reset cbxTimTheoDon khi đổi chế độ ────────────────────
-            //_cbxTimTheoDonHelper?.Clear();
+            // [ĐÃ SỬA] Clear() → Reset() theo API mới của ComboBoxSearchHelper
+            //_cbxTimTheoDonHelper?.Reset();
 
             if (_KieuDon == 2)
             {

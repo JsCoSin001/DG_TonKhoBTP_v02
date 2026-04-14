@@ -55,14 +55,6 @@
             this.tableLayoutPanel5 = new System.Windows.Forms.TableLayoutPanel();
             this.label3 = new System.Windows.Forms.Label();
             this.tbxID = new System.Windows.Forms.TextBox();
-            this.groupBox3 = new System.Windows.Forms.GroupBox();
-            this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
-            this.cbxLoaiSP = new System.Windows.Forms.ComboBox();
-            this.label6 = new System.Windows.Forms.Label();
-            this.btnShowList = new System.Windows.Forms.Button();
-            this.cbXuatExcel = new System.Windows.Forms.CheckBox();
-            this.panel1 = new System.Windows.Forms.Panel();
-            this.grvDanhSach = new System.Windows.Forms.DataGridView();
             this.label4 = new System.Windows.Forms.Label();
             this.label10 = new System.Windows.Forms.Label();
             this.tbxMaNcc = new System.Windows.Forms.TextBox();
@@ -73,8 +65,16 @@
             this.tbxIDKho = new System.Windows.Forms.TextBox();
             this.tbxMaKho = new System.Windows.Forms.TextBox();
             this.tbxKho = new System.Windows.Forms.TextBox();
-            this.tbxLuuNcc = new System.Windows.Forms.Button();
             this.btnLuuKho = new System.Windows.Forms.Button();
+            this.tbxLuuNcc = new System.Windows.Forms.Button();
+            this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
+            this.cbxLoaiSP = new System.Windows.Forms.ComboBox();
+            this.label6 = new System.Windows.Forms.Label();
+            this.btnShowList = new System.Windows.Forms.Button();
+            this.cbXuatExcel = new System.Windows.Forms.CheckBox();
+            this.panel1 = new System.Windows.Forms.Panel();
+            this.grvDanhSach = new System.Windows.Forms.DataGridView();
             this.groupBox1.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
             this.tableLayoutPanel4.SuspendLayout();
@@ -355,7 +355,7 @@
             this.cbxLoaiTimKiem.Items.AddRange(new object[] {
             "Mã SP",
             "Tên SP"});
-            this.cbxLoaiTimKiem.Location = new System.Drawing.Point(3, 18);
+            this.cbxLoaiTimKiem.Location = new System.Drawing.Point(3, 15);
             this.cbxLoaiTimKiem.Name = "cbxLoaiTimKiem";
             this.cbxLoaiTimKiem.Size = new System.Drawing.Size(94, 28);
             this.cbxLoaiTimKiem.TabIndex = 7;
@@ -364,7 +364,7 @@
             // 
             this.cbxMaSP.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbxMaSP.FormattingEnabled = true;
-            this.cbxMaSP.Location = new System.Drawing.Point(103, 18);
+            this.cbxMaSP.Location = new System.Drawing.Point(103, 15);
             this.cbxMaSP.Name = "cbxMaSP";
             this.cbxMaSP.Size = new System.Drawing.Size(422, 28);
             this.cbxMaSP.TabIndex = 8;
@@ -452,6 +452,127 @@
             this.tbxID.Name = "tbxID";
             this.tbxID.Size = new System.Drawing.Size(64, 27);
             this.tbxID.TabIndex = 0;
+            // 
+            // label4
+            // 
+            this.label4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.label4.AutoSize = true;
+            this.label4.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label4.Location = new System.Drawing.Point(73, 0);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(124, 18);
+            this.label4.TabIndex = 1;
+            this.label4.Text = "Mã NCC";
+            this.label4.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // label10
+            // 
+            this.label10.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.label10.AutoSize = true;
+            this.label10.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label10.Location = new System.Drawing.Point(203, 0);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(322, 18);
+            this.label10.TabIndex = 1;
+            this.label10.Text = "Tên Ncc";
+            this.label10.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // tbxMaNcc
+            // 
+            this.tbxMaNcc.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.tbxMaNcc.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.tbxMaNcc.Location = new System.Drawing.Point(73, 21);
+            this.tbxMaNcc.Name = "tbxMaNcc";
+            this.tbxMaNcc.Size = new System.Drawing.Size(124, 27);
+            this.tbxMaNcc.TabIndex = 0;
+            // 
+            // tbxTenNcc
+            // 
+            this.tbxTenNcc.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.tbxTenNcc.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.tbxTenNcc.Location = new System.Drawing.Point(203, 21);
+            this.tbxTenNcc.Name = "tbxTenNcc";
+            this.tbxTenNcc.Size = new System.Drawing.Size(322, 27);
+            this.tbxTenNcc.TabIndex = 0;
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label11.Location = new System.Drawing.Point(3, 114);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(24, 18);
+            this.label11.TabIndex = 2;
+            this.label11.Text = "ID";
+            // 
+            // label12
+            // 
+            this.label12.AutoSize = true;
+            this.label12.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label12.Location = new System.Drawing.Point(73, 114);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(58, 18);
+            this.label12.TabIndex = 3;
+            this.label12.Text = "Mã Kho";
+            // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label13.Location = new System.Drawing.Point(203, 114);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(62, 18);
+            this.label13.TabIndex = 4;
+            this.label13.Text = "Tên kho";
+            // 
+            // tbxIDKho
+            // 
+            this.tbxIDKho.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.tbxIDKho.Enabled = false;
+            this.tbxIDKho.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.tbxIDKho.Location = new System.Drawing.Point(3, 135);
+            this.tbxIDKho.Name = "tbxIDKho";
+            this.tbxIDKho.Size = new System.Drawing.Size(64, 27);
+            this.tbxIDKho.TabIndex = 5;
+            // 
+            // tbxMaKho
+            // 
+            this.tbxMaKho.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.tbxMaKho.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.tbxMaKho.Location = new System.Drawing.Point(73, 135);
+            this.tbxMaKho.Name = "tbxMaKho";
+            this.tbxMaKho.Size = new System.Drawing.Size(124, 27);
+            this.tbxMaKho.TabIndex = 6;
+            // 
+            // tbxKho
+            // 
+            this.tbxKho.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.tbxKho.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.tbxKho.Location = new System.Drawing.Point(203, 135);
+            this.tbxKho.Name = "tbxKho";
+            this.tbxKho.Size = new System.Drawing.Size(322, 27);
+            this.tbxKho.TabIndex = 7;
+            // 
+            // btnLuuKho
+            // 
+            this.btnLuuKho.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnLuuKho.Location = new System.Drawing.Point(425, 168);
+            this.btnLuuKho.Name = "btnLuuKho";
+            this.btnLuuKho.Size = new System.Drawing.Size(100, 42);
+            this.btnLuuKho.TabIndex = 8;
+            this.btnLuuKho.Text = "Lưu";
+            this.btnLuuKho.UseVisualStyleBackColor = true;
+            // 
+            // tbxLuuNcc
+            // 
+            this.tbxLuuNcc.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.tbxLuuNcc.Location = new System.Drawing.Point(425, 54);
+            this.tbxLuuNcc.Name = "tbxLuuNcc";
+            this.tbxLuuNcc.Size = new System.Drawing.Size(100, 45);
+            this.tbxLuuNcc.TabIndex = 8;
+            this.tbxLuuNcc.Text = "Lưu";
+            this.tbxLuuNcc.UseVisualStyleBackColor = true;
+            this.tbxLuuNcc.Click += new System.EventHandler(this.tbxLuuNcc_Click);
             // 
             // groupBox3
             // 
@@ -561,126 +682,6 @@
             this.grvDanhSach.Name = "grvDanhSach";
             this.grvDanhSach.Size = new System.Drawing.Size(577, 637);
             this.grvDanhSach.TabIndex = 0;
-            // 
-            // label4
-            // 
-            this.label4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.label4.AutoSize = true;
-            this.label4.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label4.Location = new System.Drawing.Point(73, 0);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(124, 18);
-            this.label4.TabIndex = 1;
-            this.label4.Text = "Mã NCC";
-            this.label4.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // label10
-            // 
-            this.label10.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.label10.AutoSize = true;
-            this.label10.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label10.Location = new System.Drawing.Point(203, 0);
-            this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(322, 18);
-            this.label10.TabIndex = 1;
-            this.label10.Text = "Tên Ncc";
-            this.label10.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // tbxMaNcc
-            // 
-            this.tbxMaNcc.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.tbxMaNcc.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.tbxMaNcc.Location = new System.Drawing.Point(73, 21);
-            this.tbxMaNcc.Name = "tbxMaNcc";
-            this.tbxMaNcc.Size = new System.Drawing.Size(124, 27);
-            this.tbxMaNcc.TabIndex = 0;
-            // 
-            // tbxTenNcc
-            // 
-            this.tbxTenNcc.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.tbxTenNcc.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.tbxTenNcc.Location = new System.Drawing.Point(203, 21);
-            this.tbxTenNcc.Name = "tbxTenNcc";
-            this.tbxTenNcc.Size = new System.Drawing.Size(322, 27);
-            this.tbxTenNcc.TabIndex = 0;
-            // 
-            // label11
-            // 
-            this.label11.AutoSize = true;
-            this.label11.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label11.Location = new System.Drawing.Point(3, 114);
-            this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(24, 18);
-            this.label11.TabIndex = 2;
-            this.label11.Text = "ID";
-            // 
-            // label12
-            // 
-            this.label12.AutoSize = true;
-            this.label12.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label12.Location = new System.Drawing.Point(73, 114);
-            this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(58, 18);
-            this.label12.TabIndex = 3;
-            this.label12.Text = "Mã Kho";
-            // 
-            // label13
-            // 
-            this.label13.AutoSize = true;
-            this.label13.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label13.Location = new System.Drawing.Point(203, 114);
-            this.label13.Name = "label13";
-            this.label13.Size = new System.Drawing.Size(62, 18);
-            this.label13.TabIndex = 4;
-            this.label13.Text = "Tên kho";
-            // 
-            // tbxIDKho
-            // 
-            this.tbxIDKho.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.tbxIDKho.Enabled = false;
-            this.tbxIDKho.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.tbxIDKho.Location = new System.Drawing.Point(3, 135);
-            this.tbxIDKho.Name = "tbxIDKho";
-            this.tbxIDKho.Size = new System.Drawing.Size(64, 27);
-            this.tbxIDKho.TabIndex = 5;
-            // 
-            // tbxMaKho
-            // 
-            this.tbxMaKho.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.tbxMaKho.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.tbxMaKho.Location = new System.Drawing.Point(73, 135);
-            this.tbxMaKho.Name = "tbxMaKho";
-            this.tbxMaKho.Size = new System.Drawing.Size(124, 27);
-            this.tbxMaKho.TabIndex = 6;
-            // 
-            // tbxKho
-            // 
-            this.tbxKho.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.tbxKho.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.tbxKho.Location = new System.Drawing.Point(203, 135);
-            this.tbxKho.Name = "tbxKho";
-            this.tbxKho.Size = new System.Drawing.Size(322, 27);
-            this.tbxKho.TabIndex = 7;
-            // 
-            // tbxLuuNcc
-            // 
-            this.tbxLuuNcc.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.tbxLuuNcc.Location = new System.Drawing.Point(425, 54);
-            this.tbxLuuNcc.Name = "tbxLuuNcc";
-            this.tbxLuuNcc.Size = new System.Drawing.Size(100, 45);
-            this.tbxLuuNcc.TabIndex = 8;
-            this.tbxLuuNcc.Text = "Lưu";
-            this.tbxLuuNcc.UseVisualStyleBackColor = true;
-            // 
-            // btnLuuKho
-            // 
-            this.btnLuuKho.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnLuuKho.Location = new System.Drawing.Point(425, 168);
-            this.btnLuuKho.Name = "btnLuuKho";
-            this.btnLuuKho.Size = new System.Drawing.Size(100, 42);
-            this.btnLuuKho.TabIndex = 8;
-            this.btnLuuKho.Text = "Lưu";
-            this.btnLuuKho.UseVisualStyleBackColor = true;
             // 
             // UC_CapNhatSP
             // 

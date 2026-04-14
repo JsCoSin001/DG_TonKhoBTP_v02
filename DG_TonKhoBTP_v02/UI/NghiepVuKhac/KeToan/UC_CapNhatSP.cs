@@ -305,5 +305,11 @@ namespace DG_TonKhoBTP_v02.UI
             btnLuu.Text = "Cập nhật";
         }
 
+        private void tbxLuuNcc_Click(object sender, EventArgs e)
+        {
+            string id = tbxID.Text.Trim();
+            string ma = tbxMaNcc.Text.Trim();
+            string tenNcc  = tbxTenNcc.Text.Trim();
+        }
     }
 }

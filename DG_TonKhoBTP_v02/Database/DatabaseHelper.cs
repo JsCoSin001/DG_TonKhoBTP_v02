@@ -1701,7 +1701,8 @@ namespace DG_TonKhoBTP_v02.Database
                         WHEN @isNhapKho = 1 THEN ls.SoLuong
                         ELSE ABS(ls.SoLuong)
                     END AS thucNhan,
-                    ls.ngay as ngay
+                    ls.ngay as ngay,
+                    ls.nhaCC as NhaCungCap
 
                 FROM ThongTinDatHang t
                 INNER JOIN DanhSachDatHang d
@@ -1790,6 +1791,7 @@ namespace DG_TonKhoBTP_v02.Database
                     LyDo = @LyDo,
                     SoLuong = @SoLuong,
                     nguoiLam = @nguoiLam,
+                    nhaCC = @nhaCC,
                     GhiChu = @GhiChu,
                     DonGia = @DonGia
                 WHERE id = @id ;";
@@ -1809,6 +1811,7 @@ namespace DG_TonKhoBTP_v02.Database
                 cmd.Parameters.Add("@LyDo", DbType.String);
                 cmd.Parameters.Add("@SoLuong", DbType.Decimal);
                 cmd.Parameters.Add("@nguoiLam", DbType.String);
+                cmd.Parameters.Add("@nhaCC", DbType.String);
                 cmd.Parameters.Add("@GhiChu", DbType.String);
                 cmd.Parameters.Add("@DonGia", DbType.String);
                 cmd.Parameters.Add("@id", DbType.Int64);
@@ -1847,6 +1850,11 @@ namespace DG_TonKhoBTP_v02.Database
                         cmd.Parameters["@Ngay"].Value = dgv.Columns.Contains("ngay")
                             ? row.Cells["ngay"]?.Value?.ToString()?.Trim()
                             : null;
+
+                        cmd.Parameters["@nhaCC"].Value = dgv.Columns.Contains("NhaCungCap")
+                            ? row.Cells["NhaCungCap"]?.Value?.ToString()?.Trim()
+                            : null;
+
                         cmd.Parameters["@NguoiGiao_Nhan"].Value = nguoiGiaoNhan?.Trim() ?? "";
                         cmd.Parameters["@LyDo"].Value = lyDoChung;
                         cmd.Parameters["@GhiChu"].Value = string.IsNullOrWhiteSpace(ghiChu)
@@ -1880,6 +1888,7 @@ namespace DG_TonKhoBTP_v02.Database
         string nguoiGiaoNhan,
         string lyDoChung,
         string ngay,
+        string nhacc,
         int kho,
         string nguoiLam,
         bool isNhapKho = true)
@@ -1896,6 +1905,7 @@ namespace DG_TonKhoBTP_v02.Database
                 (
                     ThongTinDatHang_ID,
                     Ngay,
+                    nhacc,
                     NguoiGiao_Nhan,
                     LyDo,
                     SoLuong,
@@ -1909,6 +1919,7 @@ namespace DG_TonKhoBTP_v02.Database
                 (
                     @ThongTinDatHang_ID,
                     @Ngay,
+                    @nhacc,
                     @NguoiGiao_Nhan,
                     @LyDo,
                     @SoLuong,
@@ -1932,6 +1943,7 @@ namespace DG_TonKhoBTP_v02.Database
 
                 cmd.Parameters.Add("@ThongTinDatHang_ID", DbType.Int64);
                 cmd.Parameters.Add("@Ngay", DbType.String);
+                cmd.Parameters.Add("@nhacc", DbType.String);
                 cmd.Parameters.Add("@NguoiGiao_Nhan", DbType.String);
                 cmd.Parameters.Add("@LyDo", DbType.String);
                 cmd.Parameters.Add("@SoLuong", DbType.Decimal);
@@ -1978,6 +1990,7 @@ namespace DG_TonKhoBTP_v02.Database
 
                         cmd.Parameters["@ThongTinDatHang_ID"].Value = thongTinDatHangId;
                         cmd.Parameters["@Ngay"].Value = parsedNgay.ToString("yyyy-MM-dd");
+                        cmd.Parameters["@nhacc"].Value = nhacc;
                         cmd.Parameters["@NguoiGiao_Nhan"].Value = nguoiGiaoNhan?.Trim() ?? "";
                         cmd.Parameters["@LyDo"].Value = lyDoChung;
                         cmd.Parameters["@GhiChu"].Value = string.IsNullOrWhiteSpace(ghiChu)
@@ -2024,8 +2037,6 @@ namespace DG_TonKhoBTP_v02.Database
                 return null;
 
             DateTime ngay = info.Ngay == default ? DateTime.Now : info.Ngay;
-
-            
 
             //int soThuTu = GetSoLuongXuatNhapThangHienTai(info.IsNhapKho) + 1;
             string prefix = info.IsNhapKho ? "KNK" : "KXK";
@@ -2086,6 +2097,7 @@ namespace DG_TonKhoBTP_v02.Database
                     SoLuong,
                     DanhSachKho_ID,
                     NguoiLam,
+                    NhaCC,
                     GhiChu,
                     DonGia,
                     TenPhieu
@@ -2099,6 +2111,7 @@ namespace DG_TonKhoBTP_v02.Database
                     @SoLuong,
                     @DanhSachKho_ID,
                     @NguoiLam,
+                    @NhaCC,
                     @GhiChu,
                     @DonGia,
                     @TenPhieu
@@ -2237,6 +2250,7 @@ namespace DG_TonKhoBTP_v02.Database
 
             cmd.Parameters.AddWithValue("@DanhSachKho_ID", info.KhoId);
             cmd.Parameters.AddWithValue("@NguoiLam", info.NguoiLam?.Trim() ?? "");
+            cmd.Parameters.AddWithValue("@NhaCC", info.Nhacc?.Trim() ?? "");
 
             cmd.Parameters.AddWithValue(
                 "@GhiChu",

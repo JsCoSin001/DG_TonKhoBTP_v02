@@ -209,32 +209,35 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
         // Đặt sau KhoiTaoGiaoDienKhac, nhóm cùng các hàm KhoiTao khác
         private void TimKiemTenNCC()
         {
-            // [ĐÃ SỬA] Bỏ constructor generic cũ (searchFunc trả List<string>, displaySelector, onItemSelected).
-            // Dùng ComboBoxSearchHelper mới: queryFunc trả DataTable, callback qua event ItemSelected.
             _cbxNhaCungCapHelper = new ComboBoxSearchHelper(
                 comboBox: cbxNhaCungCap,
                 queryFunc: async (keyword, ct) =>
                 {
-                    // [ĐÃ SỬA] Bọc List<string> trả về từ hàm cũ vào DataTable 1 cột "Value"
-                    // để khớp API mới. Logic gọi DB (DatabaseHelper.TimKiemNhaCungCap) giữ nguyên.
                     var list = await DatabaseHelper.TimKiemNhaCungCap(keyword);
                     ct.ThrowIfCancellationRequested();
                     return ListStringToDataTable(list, "Value");
                 }
             );
-            // [ĐÃ SỬA] DisplayColumn khớp tên cột "Value" trong DataTable wrapper.
+
             _cbxNhaCungCapHelper.DisplayColumn = "Value";
-            // [ĐÃ SỬA] Đăng ký callback qua event thay vì truyền onItemSelected vào constructor.
-            // [GIỮ NGUYÊN] Logic trong OnNhaCungCapSelected không thay đổi.
-            _cbxNhaCungCapHelper.ItemSelected += row => OnNhaCungCapSelected(row["Value"]?.ToString());
+
+            // Cấu hình theo yêu cầu:
+            // - được gõ trực tiếp
+            // - được để trống
+            //_cbxNhaCungCapHelper.AllowFreeText = true;
+            //_cbxNhaCungCapHelper.AllowEmpty = true;
+
+            _cbxNhaCungCapHelper.ItemSelected += row =>
+                OnNhaCungCapSelected(row["Value"]?.ToString());
         }
 
         // ── THÊM MỚI: Xử lý khi người dùng chọn nhà cung cấp ────────────
         // Đặt ngay sau KhoiTaoCbxNhaCungCap
         private void OnNhaCungCapSelected(string nhaCungCap)
         {
-            // Giá trị người dùng chọn đã tự động điền vào cbxNhaCungCap.Text
-            // Nếu cần xử lý thêm (lọc dữ liệu, ghi log...) thì thêm vào đây
+            cbxNhaCungCap.Text = nhaCungCap ?? string.Empty;
+            cbxNhaCungCap.SelectionStart = cbxNhaCungCap.Text.Length;
+            cbxNhaCungCap.SelectionLength = 0;
         }
 
         // ────────────────────────────────────────────────────────────
@@ -410,6 +413,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
             dgvChiTietDon.Columns["donGia"].Visible = _isNhapKho;
             dgvChiTietDon.Columns["thanhTien"].Visible = _isNhapKho;
             dgvChiTietDon.Columns["yeuCau"].Visible = !isEdit;
+            //dgvChiTietDon.Columns["NhaCungCap"].Visible = isEdit;
 
             dgvChiTietDon.Columns["ngay"].DefaultCellStyle.Format = "dd-MM-yyyy";
         }
@@ -452,6 +456,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
             string ngay = dtNgayNhapXuat.Value.ToString("yyyy-MM-dd");
             int kho = cbxKhoHang.SelectedIndex + 1;
             string nguoiLam = tbxnguoiLam.Text.Trim();
+            string ncc = cbxNhaCungCap.Text.Trim();
 
             if (string.IsNullOrWhiteSpace(nguoiLam))
             {
@@ -467,11 +472,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
 
             await WaitingHelper.RunWithWaiting(async () =>
             {
-
-
                 if (!IsEdit)
                 {
-
                     if (IsKhac)
                     {
                         var info = new DonKhacInfo
@@ -481,6 +483,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
                             LyDoChung = lyDoChung,
                             Ngay = dtNgayNhapXuat.Value,
                             KhoId = kho,
+                            Nhacc = ncc,
                             NguoiLam = nguoiLam,
                             IsNhapKho = _isNhapKho
                         };
@@ -496,6 +499,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
                                               nguoiGiaoNhan,
                                               lyDoChung,
                                               ngay,
+                                              ncc,
                                               kho, nguoiLam,
                                               _isNhapKho);
 
@@ -506,6 +510,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
                                 nguoiGiaoNhan,
                                 lyDoChung,
                                 ngay,
+                                ncc,
                                 kho, nguoiLam,
                                 false);
                         }
@@ -805,6 +810,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
 
 
             dgvChiTietDon.Columns["ngay"].Visible = IsEdit;
+            dgvChiTietDon.Columns["NhaCungCap"].Visible = IsEdit;
 
             ResetDataGridView(dgvChiTietDon);
         }

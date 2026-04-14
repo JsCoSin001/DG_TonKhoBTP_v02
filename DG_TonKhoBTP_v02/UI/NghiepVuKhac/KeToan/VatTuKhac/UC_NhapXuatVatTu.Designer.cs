@@ -33,6 +33,9 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
         /// </summary>
         private void InitializeComponent()
         {
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
             this.panel1 = new System.Windows.Forms.Panel();
             this.lblTitle = new System.Windows.Forms.Label();
             this.panel2 = new System.Windows.Forms.Panel();
@@ -66,10 +69,11 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
             this.ma = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.donVi = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.yeuCau = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.thucNhan = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.ngay = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.thucNhan = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.donGia = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.thanhTien = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.NhaCungCap = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.ghiChu = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.xoa = new System.Windows.Forms.DataGridViewButtonColumn();
             this.panel1.SuspendLayout();
@@ -412,6 +416,14 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
             // dgvChiTietDon
             // 
             this.dgvChiTietDon.AllowUserToAddRows = false;
+            dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle4.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle4.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle4.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle4.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle4.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle4.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dgvChiTietDon.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle4;
             this.dgvChiTietDon.ColumnHeadersHeight = 35;
             this.dgvChiTietDon.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
             this.dgvChiTietDon.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
@@ -421,15 +433,32 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
             this.ma,
             this.donVi,
             this.yeuCau,
-            this.thucNhan,
             this.ngay,
+            this.thucNhan,
             this.donGia,
             this.thanhTien,
+            this.NhaCungCap,
             this.ghiChu,
             this.xoa});
+            dataGridViewCellStyle5.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle5.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle5.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle5.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle5.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle5.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle5.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.dgvChiTietDon.DefaultCellStyle = dataGridViewCellStyle5;
             this.dgvChiTietDon.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dgvChiTietDon.Location = new System.Drawing.Point(0, 0);
             this.dgvChiTietDon.Name = "dgvChiTietDon";
+            dataGridViewCellStyle6.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle6.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle6.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle6.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle6.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle6.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle6.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dgvChiTietDon.RowHeadersDefaultCellStyle = dataGridViewCellStyle6;
             this.dgvChiTietDon.RowHeadersVisible = false;
             this.dgvChiTietDon.RowHeadersWidth = 50;
             this.dgvChiTietDon.RowTemplate.Height = 35;
@@ -474,6 +503,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
             this.donVi.HeaderText = "Đơn vị";
             this.donVi.Name = "donVi";
             this.donVi.ReadOnly = true;
+            this.donVi.Width = 70;
             // 
             // yeuCau
             // 
@@ -481,7 +511,12 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
             this.yeuCau.HeaderText = "Yêu Cầu";
             this.yeuCau.Name = "yeuCau";
             this.yeuCau.ReadOnly = true;
-            this.yeuCau.Width = 150;
+            // 
+            // ngay
+            // 
+            this.ngay.DataPropertyName = "ngay";
+            this.ngay.HeaderText = "Ngày";
+            this.ngay.Name = "ngay";
             // 
             // thucNhan
             // 
@@ -490,19 +525,12 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
             this.thucNhan.Name = "thucNhan";
             this.thucNhan.Width = 150;
             // 
-            // ngay
-            // 
-            this.ngay.DataPropertyName = "ngay";
-            this.ngay.HeaderText = "Ngày";
-            this.ngay.Name = "ngay";
-            // 
             // donGia
             // 
             this.donGia.DataPropertyName = "donGia";
             this.donGia.HeaderText = "Đơn Giá";
             this.donGia.Name = "donGia";
             this.donGia.Visible = false;
-            this.donGia.Width = 150;
             // 
             // thanhTien
             // 
@@ -510,7 +538,14 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
             this.thanhTien.HeaderText = "Thành tiền";
             this.thanhTien.Name = "thanhTien";
             this.thanhTien.Visible = false;
-            this.thanhTien.Width = 200;
+            // 
+            // NhaCungCap
+            // 
+            this.NhaCungCap.DataPropertyName = "NhaCungCap";
+            this.NhaCungCap.HeaderText = "Nhà cung cấp";
+            this.NhaCungCap.Name = "NhaCungCap";
+            this.NhaCungCap.Visible = false;
+            this.NhaCungCap.Width = 250;
             // 
             // ghiChu
             // 
@@ -592,10 +627,11 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
         private System.Windows.Forms.DataGridViewTextBoxColumn ma;
         private System.Windows.Forms.DataGridViewTextBoxColumn donVi;
         private System.Windows.Forms.DataGridViewTextBoxColumn yeuCau;
-        private System.Windows.Forms.DataGridViewTextBoxColumn thucNhan;
         private System.Windows.Forms.DataGridViewTextBoxColumn ngay;
+        private System.Windows.Forms.DataGridViewTextBoxColumn thucNhan;
         private System.Windows.Forms.DataGridViewTextBoxColumn donGia;
         private System.Windows.Forms.DataGridViewTextBoxColumn thanhTien;
+        private System.Windows.Forms.DataGridViewTextBoxColumn NhaCungCap;
         private System.Windows.Forms.DataGridViewTextBoxColumn ghiChu;
         private System.Windows.Forms.DataGridViewButtonColumn xoa;
     }

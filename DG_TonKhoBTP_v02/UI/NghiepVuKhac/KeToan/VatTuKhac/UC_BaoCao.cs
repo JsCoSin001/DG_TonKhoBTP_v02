@@ -215,7 +215,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
                     await Task.Delay(30);
 
                     if (cbxMoCuaSo.Checked)
-                        MoCuaSoMoi(dt, applyFormatTimDL: true, tieuDe: "BÁO CÁO");
+                        MoCuaSoMoi(dt, applyFormatTimDL: true, tieuDe: "BÁO CÁO", kieu: kieu);
                     else
                         HienThiLenLuoi(dt, applyFormatTimDL: true, kieu);
 
@@ -310,7 +310,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
         /// Tạo Form mới chứa DataGridView, hiển thị dữ liệu trong cửa sổ riêng biệt.
         /// pnBaoCao không bị thay đổi.
         /// </summary>
-        private void MoCuaSoMoi(DataTable dt, bool applyFormatTimDL, string tieuDe)
+        private void MoCuaSoMoi(DataTable dt, bool applyFormatTimDL, string tieuDe, int kieu = 0)
         {
             if (dt == null || dt.Rows.Count == 0)
             {
@@ -328,7 +328,6 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
                 Font = this.Font
             };
 
-            // Panel tiêu đề
             var pnTitle = new Panel { Dock = DockStyle.Top, Height = 38 };
             var lblTitle = new Label
             {
@@ -339,23 +338,20 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
             };
             pnTitle.Controls.Add(lblTitle);
 
-            // DataGridView riêng cho cửa sổ mới
             var dgr = new DataGridView { Dock = DockStyle.Fill };
             dgr.CellContentClick += GrvBaoCao_CellContentClick;
 
-            // Panel chứa grid
             var pnGrid = new Panel { Dock = DockStyle.Fill };
             pnGrid.Controls.Add(dgr);
 
             frm.Controls.Add(pnGrid);
             frm.Controls.Add(pnTitle);
 
-            // Bind dữ liệu
             dgr.AutoGenerateColumns = true;
             dgr.DataSource = dt;
 
             if (applyFormatTimDL)
-                ApplyFormatTimDL(dgr);
+                ApplyFormatTimDL(dgr, kieu);
             else
                 ApplyFormatInOut(dgr);
 

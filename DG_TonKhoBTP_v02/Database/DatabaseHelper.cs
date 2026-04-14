@@ -1199,8 +1199,8 @@ namespace DG_TonKhoBTP_v02.Database
                         tt.TenVatTu AS tt_TenVatTu,
                         tt.SoLuongMua AS tt_SoLuongMua,
                         tt.MucDichMua AS tt_MucDichMua,
-                        tt.NgayGiao AS tt_NgayGiao,
-                        tt.Date_Insert AS tt_Date_Insert,
+                        strftime('%d/%m/%Y', tt.NgayGiao) AS tt_NgayGiao,
+                        strftime('%d/%m/%Y', tt.Date_Insert) AS tt_Date_Insert,
                         tt.DonGia AS tt_DonGia
                     FROM ThongTinDatHang tt
                     INNER JOIN DanhSachDatHang dh 
@@ -1370,10 +1370,10 @@ namespace DG_TonKhoBTP_v02.Database
             SELECT
                 lsxn.id AS lsxn_id,
                 dsdh.MaDon AS MaDon,
-                dsdh.DateInsert AS dsdh_DateInsert,
+                strftime('%d/%m/%Y', dsdh.DateInsert) AS dsdh_DateInsert,
                 dsdh.NguoiDat AS NguoiDat,
                 dsk.TenKho AS TenKho,
-                lsxn.Ngay AS lsxn_Ngay,
+                strftime('%d/%m/%Y', lsxn.Ngay) AS lsxn_Ngay,
                 lsxn.NguoiGiao_Nhan AS NguoiGiaoNhan,
                 lsxn.LyDo AS LyDo,
                 lsxn.SoLuong AS SoLuong,
@@ -1384,8 +1384,8 @@ namespace DG_TonKhoBTP_v02.Database
                 ttdh.TenVatTu AS TenVatTu,
                 ttdh.SoLuongMua AS SoLuongMua,
                 ttdh.MucDichMua AS MucDichMua,
-                ttdh.NgayGiao AS NgayGiao,
-                ttdh.Date_Insert AS Date_Insert,
+                strftime('%d/%m/%Y', ttdh.NgayGiao) AS NgayGiao,
+                strftime('%d/%m/%Y', ttdh.Date_Insert) AS Date_Insert,
                 lsxn.canEdit AS canEdit,
                 ttdh.DonGia AS DonGia
             FROM LichSuXuatNhap lsxn
@@ -3064,6 +3064,106 @@ namespace DG_TonKhoBTP_v02.Database
                     Id = dto.Id,
                    Message = CoreHelper.ShowErrorDatabase(ex)
                 };
+            }
+        }
+
+        public static void UpsertDanhSachNCC(string id, string ma, string tenNcc, string diaChi = null)
+        {
+            bool isInsert = string.IsNullOrWhiteSpace(id);
+
+            using var conn = new SQLiteConnection(_connStr);
+            conn.Open();
+
+            using var tx = conn.BeginTransaction();
+            try
+            {
+                string sql = isInsert
+                    ? @"
+                        INSERT INTO DanhSachNCC
+                        (Ma, TenNCC, TenNCC_KhongDau, DiaChi)
+                        VALUES
+                        (@Ma, @TenNCC, @TenNCC_KhongDau, @DiaChi);"
+                                : @"
+                        UPDATE DanhSachNCC
+                        SET
+                            Ma = @Ma,
+                            TenNCC = @TenNCC,
+                            TenNCC_KhongDau = @TenNCC_KhongDau,
+                            DiaChi = @DiaChi
+                        WHERE id = @id;";
+
+                using var cmd = new SQLiteCommand(sql, conn, tx);
+
+                cmd.Parameters.AddWithValue("@Ma", ma?.Trim());
+                cmd.Parameters.AddWithValue("@TenNCC", tenNcc?.Trim());
+
+                // giả sử bạn có hàm bỏ dấu
+                cmd.Parameters.AddWithValue("@TenNCC_KhongDau",
+                    string.IsNullOrWhiteSpace(tenNcc)
+                        ? (object)DBNull.Value
+                        : CoreHelper.BoDauTiengViet(tenNcc));
+
+                cmd.Parameters.AddWithValue("@DiaChi",
+                    string.IsNullOrWhiteSpace(diaChi) ? (object)DBNull.Value : diaChi.Trim());
+
+                if (!isInsert)
+                    cmd.Parameters.AddWithValue("@id", Convert.ToInt32(id));
+
+                cmd.ExecuteNonQuery();
+
+                tx.Commit();
+            }
+            catch
+            {
+                tx.Rollback();
+                throw;
+            }
+        }
+
+        public static void UpsertDanhSachKho(string id, string kiHieu, string tenKho, string ghiChu = null)
+        {
+            bool isInsert = string.IsNullOrWhiteSpace(id);
+
+            using var conn = new SQLiteConnection(_connStr);
+            conn.Open();
+
+            using var tx = conn.BeginTransaction();
+            try
+            {
+                string sql = isInsert
+                    ? @"
+                    INSERT INTO DanhSachKho
+                    (KiHieu, TenKho, GhiChu)
+                    VALUES
+                    (@KiHieu, @TenKho,@TenKho_KhongDau, @GhiChu);"
+                            : @"
+                    UPDATE DanhSachKho
+                    SET
+                        KiHieu = @KiHieu,
+                        TenKho = @TenKho,
+                        TenKho_KhongDau = @TenKho_KhongDau,
+                        GhiChu = @GhiChu
+                    WHERE id = @id;";
+
+                using var cmd = new SQLiteCommand(sql, conn, tx);
+
+                cmd.Parameters.AddWithValue("@KiHieu", kiHieu?.Trim());
+                cmd.Parameters.AddWithValue("@TenKho", tenKho?.Trim());
+                cmd.Parameters.AddWithValue("@TenKho_KhongDau", CoreHelper.BoDauTiengViet(tenKho?.Trim()));
+                cmd.Parameters.AddWithValue("@GhiChu",
+                    string.IsNullOrWhiteSpace(ghiChu) ? (object)DBNull.Value : ghiChu.Trim());
+
+                if (!isInsert)
+                    cmd.Parameters.AddWithValue("@id", Convert.ToInt32(id));
+
+                cmd.ExecuteNonQuery();
+
+                tx.Commit();
+            }
+            catch
+            {
+                tx.Rollback();
+                throw;
             }
         }
 

@@ -63,8 +63,8 @@
             this.label12 = new System.Windows.Forms.Label();
             this.label13 = new System.Windows.Forms.Label();
             this.tbxIDKho = new System.Windows.Forms.TextBox();
-            this.tbxMaKho = new System.Windows.Forms.TextBox();
-            this.tbxKho = new System.Windows.Forms.TextBox();
+            this.tbxKiHieuKho = new System.Windows.Forms.TextBox();
+            this.tbxTenKho = new System.Windows.Forms.TextBox();
             this.btnLuuKho = new System.Windows.Forms.Button();
             this.tbxLuuNcc = new System.Windows.Forms.Button();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
@@ -334,7 +334,7 @@
             // tableLayoutPanel2
             // 
             this.tableLayoutPanel2.ColumnCount = 2;
-            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 100F));
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 159F));
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel2.Controls.Add(this.cbxLoaiTimKiem, 0, 0);
             this.tableLayoutPanel2.Controls.Add(this.cbxMaSP, 1, 0);
@@ -354,19 +354,21 @@
             this.cbxLoaiTimKiem.FormattingEnabled = true;
             this.cbxLoaiTimKiem.Items.AddRange(new object[] {
             "Mã SP",
-            "Tên SP"});
-            this.cbxLoaiTimKiem.Location = new System.Drawing.Point(3, 15);
+            "Tên SP",
+            "Nhà cung cấp",
+            "Kho"});
+            this.cbxLoaiTimKiem.Location = new System.Drawing.Point(3, 18);
             this.cbxLoaiTimKiem.Name = "cbxLoaiTimKiem";
-            this.cbxLoaiTimKiem.Size = new System.Drawing.Size(94, 28);
+            this.cbxLoaiTimKiem.Size = new System.Drawing.Size(153, 28);
             this.cbxLoaiTimKiem.TabIndex = 7;
             // 
             // cbxMaSP
             // 
             this.cbxMaSP.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbxMaSP.FormattingEnabled = true;
-            this.cbxMaSP.Location = new System.Drawing.Point(103, 15);
+            this.cbxMaSP.Location = new System.Drawing.Point(162, 18);
             this.cbxMaSP.Name = "cbxMaSP";
-            this.cbxMaSP.Size = new System.Drawing.Size(422, 28);
+            this.cbxMaSP.Size = new System.Drawing.Size(363, 28);
             this.cbxMaSP.TabIndex = 8;
             this.cbxMaSP.TextUpdate += new System.EventHandler(this.cbxMaSP_TextUpdate);
             // 
@@ -413,8 +415,8 @@
             this.tableLayoutPanel5.Controls.Add(this.label12, 1, 3);
             this.tableLayoutPanel5.Controls.Add(this.label13, 2, 3);
             this.tableLayoutPanel5.Controls.Add(this.tbxIDKho, 0, 4);
-            this.tableLayoutPanel5.Controls.Add(this.tbxMaKho, 1, 4);
-            this.tableLayoutPanel5.Controls.Add(this.tbxKho, 2, 4);
+            this.tableLayoutPanel5.Controls.Add(this.tbxKiHieuKho, 1, 4);
+            this.tableLayoutPanel5.Controls.Add(this.tbxTenKho, 2, 4);
             this.tableLayoutPanel5.Controls.Add(this.btnLuuKho, 2, 5);
             this.tableLayoutPanel5.Controls.Add(this.tbxLuuNcc, 2, 2);
             this.tableLayoutPanel5.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -535,37 +537,40 @@
             this.tbxIDKho.Size = new System.Drawing.Size(64, 27);
             this.tbxIDKho.TabIndex = 5;
             // 
-            // tbxMaKho
+            // tbxKiHieuKho
             // 
-            this.tbxMaKho.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.tbxMaKho.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.tbxMaKho.Location = new System.Drawing.Point(73, 135);
-            this.tbxMaKho.Name = "tbxMaKho";
-            this.tbxMaKho.Size = new System.Drawing.Size(124, 27);
-            this.tbxMaKho.TabIndex = 6;
+            this.tbxKiHieuKho.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.tbxKiHieuKho.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.tbxKiHieuKho.Location = new System.Drawing.Point(73, 135);
+            this.tbxKiHieuKho.Name = "tbxKiHieuKho";
+            this.tbxKiHieuKho.Size = new System.Drawing.Size(124, 27);
+            this.tbxKiHieuKho.TabIndex = 6;
             // 
-            // tbxKho
+            // tbxTenKho
             // 
-            this.tbxKho.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.tbxKho.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.tbxKho.Location = new System.Drawing.Point(203, 135);
-            this.tbxKho.Name = "tbxKho";
-            this.tbxKho.Size = new System.Drawing.Size(322, 27);
-            this.tbxKho.TabIndex = 7;
+            this.tbxTenKho.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.tbxTenKho.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.tbxTenKho.Location = new System.Drawing.Point(203, 135);
+            this.tbxTenKho.Name = "tbxTenKho";
+            this.tbxTenKho.Size = new System.Drawing.Size(322, 27);
+            this.tbxTenKho.TabIndex = 7;
             // 
             // btnLuuKho
             // 
             this.btnLuuKho.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnLuuKho.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnLuuKho.Location = new System.Drawing.Point(425, 168);
             this.btnLuuKho.Name = "btnLuuKho";
             this.btnLuuKho.Size = new System.Drawing.Size(100, 42);
             this.btnLuuKho.TabIndex = 8;
             this.btnLuuKho.Text = "Lưu";
             this.btnLuuKho.UseVisualStyleBackColor = true;
+            this.btnLuuKho.Click += new System.EventHandler(this.btnLuuKho_Click);
             // 
             // tbxLuuNcc
             // 
             this.tbxLuuNcc.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.tbxLuuNcc.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.tbxLuuNcc.Location = new System.Drawing.Point(425, 54);
             this.tbxLuuNcc.Name = "tbxLuuNcc";
             this.tbxLuuNcc.Size = new System.Drawing.Size(100, 45);
@@ -760,8 +765,8 @@
         private System.Windows.Forms.Label label12;
         private System.Windows.Forms.Label label13;
         private System.Windows.Forms.TextBox tbxIDKho;
-        private System.Windows.Forms.TextBox tbxMaKho;
-        private System.Windows.Forms.TextBox tbxKho;
+        private System.Windows.Forms.TextBox tbxKiHieuKho;
+        private System.Windows.Forms.TextBox tbxTenKho;
         private System.Windows.Forms.Button btnLuuKho;
         private System.Windows.Forms.Button tbxLuuNcc;
     }

@@ -254,11 +254,37 @@ namespace DG_TonKhoBTP_v02.UI
             }
 
 
-            string table = cbxLoaiTimKiem.SelectedIndex == 0 ? "Ma" : "Ten";
+            string cot = "";
+            string table = "DanhSachMaSP";
 
-            string query = "SELECT * FROM DanhSachMaSP " +
-               "WHERE " + table + " LIKE '%' || @Key || '%' " +
-               "ORDER BY DateInsert DESC ";
+            int loaiTimKiem = cbxLoaiTimKiem.SelectedIndex;
+            string tenHT = "Ma";
+
+            switch (loaiTimKiem)
+            {
+                case 0: // Mã
+                    cot = "Ma";
+                    break;
+                case 1: // Tên
+                    cot = "Ten_KhongDau";
+                    tenHT = "Ten";
+                    break;
+                case 2: // Kiểu SP
+                    cot = "TenNCC_KhongDau";
+                    tenHT = "TenNCC";
+                    table = "DanhSachNCC";
+                    break;
+                default:
+                    cot = "TenKho_KhongDau";
+                    tenHT = "TenKho";
+                    table = "DanhSachKho";
+                    break;
+            }
+
+            keyword = CoreHelper.BoDauTiengViet(keyword);
+
+            string query = "SELECT * FROM " + table +
+                " WHERE " + cot + " LIKE '%' || @Key || '%' COLLATE NOCASE";
 
             string para = "Key";
 
@@ -276,7 +302,7 @@ namespace DG_TonKhoBTP_v02.UI
             if (sp.Rows.Count == 0) return;
 
             cbxMaSP.DataSource = sp;
-            cbxMaSP.DisplayMember = table;
+            cbxMaSP.DisplayMember = tenHT;
 
             string currentText = keyword;
 
@@ -293,23 +319,146 @@ namespace DG_TonKhoBTP_v02.UI
             if (cbxMaSP.SelectedItem == null || !(cbxMaSP.SelectedItem is DataRowView)) return;
             DataRowView row = (DataRowView)cbxMaSP.SelectedItem;
 
+            int kieu = cbxLoaiTimKiem.SelectedIndex;
+
+            switch (kieu)
+            {
+                case 0: // Mã
+                case 1: // Tên
+                    setValue_DSMaSP(row);
+                    break;
+                case 2: // Kiểu SP
+                    tbxMaNcc.Text = row["ma"].ToString();
+                    tbxTenNcc.Text = row["TenNcc"].ToString();
+                    tbxID.Text = row["id"].ToString();
+                    tbxLuuNcc.Text = "Cập nhật";
+                    break;
+                default: // Kho
+                    tbxKiHieuKho.Text = row["kiHieu"].ToString();
+                    tbxTenKho.Text = row["tenKho"].ToString();
+                    tbxIDKho.Text = row["id"].ToString();
+                    btnLuuKho.Text = "Cập nhật";
+                    break;
+            }
+
+
+            cbxMaSP.SelectedIndex = -1;
+            cbxMaSP.Text = string.Empty;
+
+        }
+
+        private void setValue_DSMaSP(DataRowView row)
+        {
             ten.Text = row["ten"].ToString();
             ma.Text = row["ma"].ToString();
             donVi.Text = row["donVi"].ToString();
             kieuSP.Text = row["kieuSP"].ToString();
             id.Text = row["id"].ToString();
 
-            cbxMaSP.SelectedIndex = -1;
-            cbxMaSP.Text = string.Empty;
-
             btnLuu.Text = "Cập nhật";
         }
 
-        private void tbxLuuNcc_Click(object sender, EventArgs e)
+        private async void tbxLuuNcc_Click(object sender, EventArgs e)
         {
             string id = tbxID.Text.Trim();
             string ma = tbxMaNcc.Text.Trim();
-            string tenNcc  = tbxTenNcc.Text.Trim();
+            string tenNcc = tbxTenNcc.Text.Trim();
+
+            if (string.IsNullOrWhiteSpace(ma))
+            {
+                FrmWaiting.ShowGifAlert("MÃ NHÀ CUNG CẤP KHÔNG ĐƯỢC ĐỂ TRỐNG.");
+                tbxMaNcc.Focus();
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(tenNcc))
+            {
+                FrmWaiting.ShowGifAlert("TÊN NHÀ CUNG CẤP KHÔNG ĐƯỢC ĐỂ TRỐNG.");
+                tbxTenNcc.Focus();
+                return;
+            }
+
+            bool isSuccess = false;
+            string actionName = string.IsNullOrWhiteSpace(id) ? "THÊM MỚI" : "CẬP NHẬT";
+
+            await WaitingHelper.RunWithWaiting(() =>
+            {
+                try
+                {
+                    DatabaseHelper.UpsertDanhSachNCC(id, ma, tenNcc);
+                    isSuccess = true;
+                }
+                catch (Exception ex)
+                {
+                    isSuccess = false;
+                    FrmWaiting.ShowGifAlert(
+                        CoreHelper.ShowErrorDatabase(ex, "NHÀ CUNG CẤP"),
+                        "LỖI CƠ SỞ DỮ LIỆU");
+                }
+            }, $"{actionName} NHÀ CUNG CẤP, VUI LÒNG ĐỢI...");
+
+            if (!isSuccess) return;
+
+            FrmWaiting.ShowGifAlert($"{actionName} NHÀ CUNG CẤP THÀNH CÔNG.", "THÔNG BÁO");
+
+            tbxID.Clear();
+            tbxMaNcc.Clear();
+            tbxTenNcc.Clear();
+            tbxMaNcc.Focus();
+
+            // nếu có hàm reload grid thì gọi tại đây
+            // LoadDanhSachNCC();
+        }
+
+        private async void btnLuuKho_Click(object sender, EventArgs e)
+        {
+            string id = tbxIDKho.Text.Trim();
+            string kiHieu = tbxKiHieuKho.Text.Trim();
+            string tenKho = tbxTenKho.Text.Trim();
+            string ghiChu = "";
+
+            if (string.IsNullOrWhiteSpace(kiHieu))
+            {
+                FrmWaiting.ShowGifAlert("KÍ HIỆU KHO KHÔNG ĐƯỢC ĐỂ TRỐNG.");
+                tbxKiHieuKho.Focus();
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(tenKho))
+            {
+                FrmWaiting.ShowGifAlert("TÊN KHO KHÔNG ĐƯỢC ĐỂ TRỐNG.");
+                tbxTenKho.Focus();
+                return;
+            }
+
+            bool isSuccess = false;
+            string actionName = string.IsNullOrWhiteSpace(id) ? "THÊM MỚI" : "CẬP NHẬT";
+
+            await WaitingHelper.RunWithWaiting(() =>
+            {
+                try
+                {
+                    DatabaseHelper.UpsertDanhSachKho(id, kiHieu, tenKho, ghiChu);
+                    isSuccess = true;
+                }
+                catch (Exception ex)
+                {
+                    isSuccess = false;
+                    FrmWaiting.ShowGifAlert(
+                        CoreHelper.ShowErrorDatabase(ex, "KHO"),
+                        "LỖI CƠ SỞ DỮ LIỆU");
+                }
+            }, $"{actionName} KHO, VUI LÒNG ĐỢI...");
+
+            if (!isSuccess) return;
+
+            FrmWaiting.ShowGifAlert($"{actionName} KHO THÀNH CÔNG.", "THÔNG BÁO");
+
+            tbxIDKho.Clear();
+            tbxKiHieuKho.Clear();
+            tbxTenKho.Clear();
+            //tbxGhiChuKho.Clear();
+            tbxKiHieuKho.Focus();
         }
     }
 }

@@ -379,25 +379,20 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
         private void MergeVaoDgv(DataTable dtMoi, bool isKhac, bool isEdit = false)
         {
             if (dtMoi == null || dtMoi.Rows.Count == 0) return;
+
             bool showMa_DonVi = _kieu == 1;
 
             fl.Enabled = false;
 
             if (dgvChiTietDon.DataSource is DataTable dtHienTai)
             {
-                var idsHienCo = new HashSet<long>(
-                       dtHienTai.Rows
-                                .Cast<DataRow>()
-                                .Select(r => Convert.ToInt64(r["id"]))
-                   );
-
+                // Thêm toàn bộ dòng mới (KHÔNG lọc trùng)
                 foreach (DataRow row in dtMoi.Rows)
                 {
-                    long id = Convert.ToInt64(row["id"]);
-                    if (!idsHienCo.Contains(id))
-                        dtHienTai.ImportRow(row);
+                    dtHienTai.ImportRow(row);
                 }
 
+                // Nếu không cần tracking thay đổi thì bật dòng này
                 dtHienTai.AcceptChanges();
             }
             else
@@ -406,16 +401,39 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
                 dgvChiTietDon.DataSource = dtMoi;
             }
 
-            dgvChiTietDon.Columns["ma"].Visible = showMa_DonVi;
-            dgvChiTietDon.Columns["donVi"].Visible = showMa_DonVi;
+            // Helper tránh lỗi nếu column không tồn tại
+            void SetVisible(string colName, bool visible)
+            {
+                if (dgvChiTietDon.Columns.Contains(colName))
+                    dgvChiTietDon.Columns[colName].Visible = visible;
+            }
 
-            dgvChiTietDon.Columns["MaDon"].ReadOnly = true;
-            dgvChiTietDon.Columns["donGia"].Visible = _isNhapKho;
-            dgvChiTietDon.Columns["thanhTien"].Visible = _isNhapKho;
-            dgvChiTietDon.Columns["yeuCau"].Visible = !isEdit;
-            //dgvChiTietDon.Columns["NhaCungCap"].Visible = isEdit;
+            void SetReadOnly(string colName, bool readOnly)
+            {
+                if (dgvChiTietDon.Columns.Contains(colName))
+                    dgvChiTietDon.Columns[colName].ReadOnly = readOnly;
+            }
 
-            dgvChiTietDon.Columns["ngay"].DefaultCellStyle.Format = "dd-MM-yyyy";
+            void SetFormat(string colName, string format)
+            {
+                if (dgvChiTietDon.Columns.Contains(colName))
+                    dgvChiTietDon.Columns[colName].DefaultCellStyle.Format = format;
+            }
+
+            // Cấu hình hiển thị
+            SetVisible("ma", showMa_DonVi);
+            SetVisible("donVi", showMa_DonVi);
+
+            SetReadOnly("MaDon", true);
+
+            SetVisible("donGia", _isNhapKho);
+            SetVisible("thanhTien", _isNhapKho);
+
+            SetVisible("yeuCau", !isEdit);
+
+            SetFormat("ngay", "dd-MM-yyyy");
+
+            fl.Enabled = true;
         }
 
         private async Task LoadChiTietDonAsync(string maDon, bool isEdit)

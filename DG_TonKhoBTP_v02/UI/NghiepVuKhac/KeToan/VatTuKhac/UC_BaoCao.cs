@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using CoreHelper = DG_TonKhoBTP_v02.Helper.Helper;
@@ -16,6 +17,16 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
     {
         // ─── Fields ────────────────────────────────────────────────────────────
         private readonly DataGridView grvBaoCao = new DataGridView();
+        private int? GetSelectedKhoId()
+        {
+            if (cbxdsKho.SelectedIndex <= 0)
+                return null;
+
+            if (cbxdsKho.SelectedValue == null || cbxdsKho.SelectedValue == DBNull.Value)
+                return null;
+
+            return Convert.ToInt32(cbxdsKho.SelectedValue);
+        }
 
         private const string COL_CHECK = "colChon";
         private const string COL_UPDATE = "colUpdate";
@@ -54,7 +65,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
 
             cbxdsKho.DataSource = newList;
             cbxdsKho.DisplayMember = "TenKho";
-            cbxdsKho.ValueMember = "KiHieu";
+            cbxdsKho.ValueMember = "ID";
             cbxdsKho.SelectedIndex = 0;
             cbxKieu.SelectedIndex = 0;
         }
@@ -63,16 +74,22 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
         {
             cbxAll.Enabled = false;
             lblTieuDe.Text = "BÁO CÁO XUẤT - NHẬP - TỒN";
-            bool layDong1 = cbxLoaiYC.SelectedIndex == 3;
 
             SetToolbarEnabled(false);
             DataTable dt = null;
 
+
             try
             {
+                int? khoId = GetSelectedKhoId();
+
+                DateTime? ngayBatDau = cbxThoiGian.SelectedIndex == 0  ? null : (DateTime?)dtBatDau.Value;
+                DateTime? ngayKetThuc = cbxThoiGian.SelectedIndex == 0 ? null : (DateTime?)dtKetThuc.Value;
+
                 await WaitingHelper.RunWithWaiting(async () =>
                 {
-                    dt = await Task.Run(() => DatabaseHelper.LoadLichSuXuatNhap_LoaiDon1(layDong1));
+
+                    dt = await Task.Run(() => DatabaseHelper.TinhTonKho(ngayBatDau, ngayKetThuc, khoId));
                 }, "ĐANG TẢI LỊCH SỬ XUẤT NHẬP...");
 
                 if (cbxExportExcel.Checked)
@@ -131,8 +148,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
             cbxAll.Checked = false;
             lblTieuDe.Text = "BÁO CÁO";
 
-            string ngayBatDau = cbxThoiGian.SelectedIndex == 0 ? "" : dtBatDau.Value.ToString("yyyy-MM-dd");
-            string ngayKetThuc = cbxThoiGian.SelectedIndex == 0 ? "" : dtKetThuc.Value.ToString("yyyy-MM-dd");
+           
             int kho = cbxdsKho.SelectedIndex;
             string nguoiThucHien = cbxNguoiThucHien.SelectedIndex == 0 ? "" : cbxNguoiThucHien.SelectedItem.ToString();
             int tinhTrang = cbxLoaiYC.SelectedIndex;
@@ -141,6 +157,9 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
 
             SetToolbarEnabled(false);
             DataTable dt = null;
+
+            DateTime? ngayBatDau = cbxThoiGian.SelectedIndex == 0 ?  null : (DateTime?)dtBatDau.Value;
+            DateTime? ngayKetThuc = cbxThoiGian.SelectedIndex == 0 ? null : (DateTime?)dtKetThuc.Value;
 
             try
             {
@@ -151,10 +170,10 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
                     {
                         switch (kieu)
                         {
-                            case 1: return DatabaseHelper.GetBaoCaoDatHang(ngayBatDau, ngayKetThuc, nguoiThucHien);
-                            case 2: return DatabaseHelper.GetBaoCaoLichSuXuatNhap(ngayBatDau, ngayKetThuc, kho, tinhTrang, nguoiThucHien, soLuongDuong: true);
-                            case 3: return DatabaseHelper.GetBaoCaoLichSuXuatNhap(ngayBatDau, ngayKetThuc, kho, tinhTrang, nguoiThucHien, soLuongDuong: false);
-                            default: return DatabaseHelper.GetBaoCao(ngayBatDau, ngayKetThuc, kho, tinhTrang);
+                            case 1: return DatabaseHelper.GetBaoCaoDatHang_v2(nguoiThucHien, ngayBatDau, ngayKetThuc);
+                            case 2: return DatabaseHelper.GetBaoCaoLichSuXuatNhap_v2(kho, nguoiThucHien, true, ngayBatDau, ngayKetThuc);
+                            case 3: return DatabaseHelper.GetBaoCaoLichSuXuatNhap_v2(kho, nguoiThucHien, false, ngayBatDau, ngayKetThuc);
+                            default: return DatabaseHelper.GetBaoCaoDatHang_v2(nguoiThucHien, ngayBatDau, ngayKetThuc);
                         }
                     });
                 }, "ĐANG TẢI DỮ LIỆU BÁO CÁO...");
@@ -198,7 +217,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
                     if (cbxMoCuaSo.Checked)
                         MoCuaSoMoi(dt, applyFormatTimDL: true, tieuDe: "BÁO CÁO");
                     else
-                        HienThiLenLuoi(dt, applyFormatTimDL: true);
+                        HienThiLenLuoi(dt, applyFormatTimDL: true, kieu);
 
                 }, "ĐANG HIỂN THỊ DỮ LIỆU...");
             }
@@ -258,7 +277,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
         /// applyFormatTimDL = true   →  ApplyFormatTimDL  (dùng cho btnTimDL)
         /// ⚠ Phải gọi trên UI thread.
         /// </summary>
-        private void HienThiLenLuoi(DataTable dt, bool applyFormatTimDL)
+        private void HienThiLenLuoi(DataTable dt, bool applyFormatTimDL, int kieu = 0)
         {
             pnBaoCao.Controls.Clear();
             grvBaoCao.Dock = DockStyle.Fill;
@@ -277,7 +296,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
             grvBaoCao.DataSource = dt;
 
             if (applyFormatTimDL)
-                ApplyFormatTimDL(grvBaoCao);
+                ApplyFormatTimDL(grvBaoCao, kieu);
             else
                 ApplyFormatInOut(grvBaoCao);
         }
@@ -371,24 +390,23 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
 
                 switch (col.Name)
                 {
-                    case "DanhSachDatHang_ID":
-                    case "ThongTinDatHang_ID":
-                    case "LoaiDon":
-                    case "CanEdit":
-                        col.Visible = false; break;
+                    case "Tên Kho":
+                        col.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+                        break;
 
-                    case "MaDon": col.Width = 170; break;
-                    case "YeuCau": col.Width = 170; break;
-                    case "MaHang": col.Width = 150; break;
-                    case "DonVi": col.Width = 170; break;
+                    case "Tên Vật Tư":
+                        col.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+                        break;
 
-                    case "TenVatTu":
-                        col.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill; break;
+                    case "Mã Vật Tư":
+                        col.Width = 120;
+                        break;
 
-                    case "Nhap":
-                    case "Xuat":
-                    case "Ton":
-                        col.Width = 110;
+                    case "Tồn Đầu Kỳ":
+                    case "Tổng Nhập":
+                    case "Tổng Xuất":
+                    case "Tồn Cuối Kỳ":
+                        col.Width = 120;
                         col.DefaultCellStyle.Format = "N2";
                         col.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
                         break;
@@ -409,20 +427,24 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
             public static extern IntPtr SendMessage(IntPtr hWnd, int msg, bool wParam, int lParam);
         }
 
-        private void ApplyFormatTimDL(DataGridView dgr)
+        private void ApplyFormatTimDL(DataGridView dgr, int kieu = 0)
         {
-            // Tắt repaint trước khi làm bất cứ thứ gì
+            const string COL_CAN_EDIT = "canEdit";
+
             NativeMethods.SendMessage(dgr.Handle, NativeMethods.WM_SETREDRAW, false, 0);
             dgr.SuspendLayout();
+
             try
             {
                 dgr.AllowUserToAddRows = false;
                 dgr.RowHeadersVisible = false;
+                dgr.AutoGenerateColumns = true;
                 dgr.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
                 dgr.ColumnHeadersHeight = 30;
                 dgr.RowTemplate.Height = 30;
 
-                if (!dgr.Columns.Contains(COL_CHECK))
+                // Thêm cột checkbox nếu chưa có
+                if (!dgr.Columns.Contains(COL_CHECK) && kieu > 1)
                 {
                     dgr.Columns.Insert(0, new DataGridViewCheckBoxColumn
                     {
@@ -433,89 +455,61 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
                         ReadOnly = false,
                         FalseValue = false,
                         TrueValue = true,
-                        IndeterminateValue = false
+                        IndeterminateValue = false,
+                        AutoSizeMode = DataGridViewAutoSizeColumnMode.None
                     });
                 }
 
-                // ✅ Tắt AutoSize trong khi xử lý columns, bật lại sau
+                // Format cột
                 foreach (DataGridViewColumn col in dgr.Columns)
                 {
                     if (col.Name == COL_CHECK)
                     {
                         col.ReadOnly = false;
+                        col.Visible = true;
                         continue;
                     }
+
                     if (col.Name == COL_UPDATE || col.Name == COL_DELETE)
                         continue;
 
                     if (col.Name.EndsWith("_ID", StringComparison.OrdinalIgnoreCase) ||
                         col.Name == "LoaiDon" ||
-                        col.Name == "Edit")
+                        col.Name.Equals(COL_CAN_EDIT, StringComparison.OrdinalIgnoreCase))
                     {
                         col.Visible = false;
                     }
                     else
                     {
-                        // ✅ Tạm set None, cuối hàm mới set AllCells 1 lần
                         col.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
                     }
                 }
 
-                bool hasEdit = dgr.Columns.Contains("Edit");
+                bool hasCanEdit = dgr.Columns.Contains(COL_CAN_EDIT);
 
-                // ✅ Ưu tiên thao tác trên DataTable thay vì DataGridViewRow
-                var dt = dgr.DataSource as DataTable;
-                if (dt != null)
+                // Chỉ loop grid 1 lần để set height + checkbox
+                foreach (DataGridViewRow row in dgr.Rows)
                 {
-                    foreach (DataRow row in dt.Rows)
-                    {
-                        // Set height qua RowTemplate đã đủ, không cần loop row.Height
-                        if (!hasEdit) continue;
+                    if (row.IsNewRow) continue;
 
-                        var editVal = row.Table.Columns.Contains("Edit") ? row["Edit"] : null;
-                        int edit = 0;
-                        if (editVal != null && editVal != DBNull.Value)
-                            int.TryParse(editVal.ToString(), out edit);
+                    row.Height = 30;
 
-                        // Gán vào DataTable để binding tự đồng bộ lên grid
-                        // (COL_CHECK column đã là DataGridViewCheckBoxColumn, không bind DataTable)
-                    }
+                    if (!hasCanEdit) continue;
 
-                    // ✅ Set COL_CHECK trực tiếp qua Rows của dgr nhưng không trigger layout
-                    for (int i = 0; i < dgr.Rows.Count; i++)
-                    {
-                        dgr.Rows[i].Height = 30; // vẫn giữ set height như cũ
+                    int canEdit = 0;
+                    var val = row.Cells[COL_CAN_EDIT].Value;
 
-                        if (!hasEdit) continue;
+                    if (val != null && val != DBNull.Value)
+                        int.TryParse(val.ToString(), out canEdit);
 
-                        var editVal = dgr.Rows[i].Cells["Edit"].Value;
-                        int edit = 0;
-                        if (editVal != null && editVal != DBNull.Value)
-                            int.TryParse(editVal.ToString(), out edit);
-
-                        dgr.Rows[i].Cells[COL_CHECK].Value = (edit == 0);
-                    }
-                }
-                else
-                {
-                    // Fallback nếu DataSource không phải DataTable
-                    foreach (DataGridViewRow row in dgr.Rows)
-                    {
-                        row.Height = 30;
-                        if (!hasEdit) continue;
-
-                        var editVal = row.Cells["Edit"].Value;
-                        int edit = 0;
-                        if (editVal != null && editVal != DBNull.Value)
-                            int.TryParse(editVal.ToString(), out edit);
-
-                        row.Cells[COL_CHECK].Value = (edit == 0);
-                    }
+                    // canEdit = 0 => checked
+                    // canEdit = 1 => unchecked
+                    row.Cells[COL_CHECK].Value = (canEdit == 0);
                 }
 
                 AddActionColumns(dgr);
 
-                // ✅ Set AutoSize SAU CÙNG — chỉ tính toán 1 lần duy nhất
+                // AutoSize sau cùng để chỉ tính 1 lần
                 foreach (DataGridViewColumn col in dgr.Columns)
                 {
                     if (col.Name == COL_CHECK) continue;
@@ -528,7 +522,6 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
             finally
             {
                 dgr.ResumeLayout();
-                // Bật lại repaint và vẽ lại 1 lần duy nhất
                 NativeMethods.SendMessage(dgr.Handle, NativeMethods.WM_SETREDRAW, true, 0);
                 dgr.Refresh();
             }
@@ -540,28 +533,28 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
 
         private void GrvBaoCao_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
-            if (e.RowIndex < 0) return;
+            //if (e.RowIndex < 0) return;
 
-            var dgr = sender as DataGridView;
-            if (dgr == null) return;
+            //var dgr = sender as DataGridView;
+            //if (dgr == null) return;
 
-            string colName = dgr.Columns[e.ColumnIndex].Name;
+            //string colName = dgr.Columns[e.ColumnIndex].Name;
 
-            bool isLocked = dgr.Rows[e.RowIndex].Cells[COL_CHECK].Value != null &&
-                            Convert.ToBoolean(dgr.Rows[e.RowIndex].Cells[COL_CHECK].Value);
+            //bool isLocked = dgr.Rows[e.RowIndex].Cells[COL_CHECK].Value != null &&
+            //                Convert.ToBoolean(dgr.Rows[e.RowIndex].Cells[COL_CHECK].Value);
 
-            if (isLocked && (colName == COL_UPDATE || colName == COL_DELETE))
-            {
-                FrmWaiting.ShowGifAlert(
-                    "Dòng này đang bị khóa, không thể sửa/xóa!",
-                    "THÔNG BÁO", EnumStore.Icon.Warning);
-                return;
-            }
+            //if (isLocked && (colName == COL_UPDATE || colName == COL_DELETE))
+            //{
+            //    FrmWaiting.ShowGifAlert(
+            //        "Dòng này đang bị khóa, không thể sửa/xóa!",
+            //        "THÔNG BÁO", EnumStore.Icon.Warning);
+            //    return;
+            //}
 
-            if (colName == COL_UPDATE)
-                _ = UpdateByCurrentKieuAsync(dgr, e.RowIndex);
-            else if (colName == COL_DELETE)
-                _ = DeleteByCurrentKieuAsync(dgr, e.RowIndex);
+            //if (colName == COL_UPDATE)
+            //    _ = UpdateByCurrentKieuAsync(dgr, e.RowIndex);
+            //else if (colName == COL_DELETE)
+            //    _ = DeleteByCurrentKieuAsync(dgr, e.RowIndex);
         }
 
         // ═══════════════════════════════════════════════════════════════════════
@@ -744,26 +737,26 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
         {
             if (!dgr.Columns.Contains(COL_UPDATE))
             {
-                dgr.Columns.Add(new DataGridViewButtonColumn
-                {
-                    Name = COL_UPDATE,
-                    HeaderText = "",
-                    Text = "Sửa",
-                    UseColumnTextForButtonValue = true,
-                    Width = 75
-                });
+                //dgr.Columns.Add(new DataGridViewButtonColumn
+                //{
+                //    Name = COL_UPDATE,
+                //    HeaderText = "",
+                //    Text = "Sửa",
+                //    UseColumnTextForButtonValue = true,
+                //    Width = 75
+                //});
             }
 
             if (!dgr.Columns.Contains(COL_DELETE))
             {
-                dgr.Columns.Add(new DataGridViewButtonColumn
-                {
-                    Name = COL_DELETE,
-                    HeaderText = "",
-                    Text = "Xóa",
-                    UseColumnTextForButtonValue = true,
-                    Width = 75
-                });
+                //dgr.Columns.Add(new DataGridViewButtonColumn
+                //{
+                //    Name = COL_DELETE,
+                //    HeaderText = "",
+                //    Text = "Xóa",
+                //    UseColumnTextForButtonValue = true,
+                //    Width = 75
+                //});
             }
         }
 

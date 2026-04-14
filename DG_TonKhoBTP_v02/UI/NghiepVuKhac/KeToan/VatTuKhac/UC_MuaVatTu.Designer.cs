@@ -13,10 +13,11 @@
         /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
-            if (disposing && (components != null))
+            if (disposing)
             {
-                components.Dispose();
-                _vatTuSearchHelper?.Dispose(); // ← thêm dòng này
+                _vatTuSearchHelper?.Dispose();
+                _cbxTimTheoDonHelper?.Dispose();
+                components?.Dispose();
             }
             base.Dispose(disposing);
         }
@@ -49,8 +50,6 @@
             this.label4 = new System.Windows.Forms.Label();
             this.panel2 = new System.Windows.Forms.Panel();
             this.dgvDSMua = new System.Windows.Forms.DataGridView();
-            this.panel3 = new System.Windows.Forms.Panel();
-            this.btnDatHang = new System.Windows.Forms.Button();
             this.ID = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.ma = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.ten = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -60,6 +59,8 @@
             this.ngayGiao = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.slTon = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colXoa = new System.Windows.Forms.DataGridViewButtonColumn();
+            this.panel3 = new System.Windows.Forms.Panel();
+            this.btnDatHang = new System.Windows.Forms.Button();
             this.panel1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             this.panel4.SuspendLayout();
@@ -329,30 +330,6 @@
             this.dgvDSMua.TabIndex = 0;
             this.dgvDSMua.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvDSMua_CellClick);
             // 
-            // panel3
-            // 
-            this.panel3.BackColor = System.Drawing.SystemColors.Control;
-            this.panel3.Controls.Add(this.btnDatHang);
-            this.panel3.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel3.Location = new System.Drawing.Point(0, 543);
-            this.panel3.Name = "panel3";
-            this.panel3.Size = new System.Drawing.Size(1565, 82);
-            this.panel3.TabIndex = 3;
-            // 
-            // btnDatHang
-            // 
-            this.btnDatHang.Anchor = System.Windows.Forms.AnchorStyles.Top;
-            this.btnDatHang.BackColor = System.Drawing.Color.Firebrick;
-            this.btnDatHang.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnDatHang.ForeColor = System.Drawing.SystemColors.Control;
-            this.btnDatHang.Location = new System.Drawing.Point(720, 6);
-            this.btnDatHang.Name = "btnDatHang";
-            this.btnDatHang.Size = new System.Drawing.Size(151, 55);
-            this.btnDatHang.TabIndex = 0;
-            this.btnDatHang.Text = "Đặt hàng";
-            this.btnDatHang.UseVisualStyleBackColor = false;
-            this.btnDatHang.Click += new System.EventHandler(this.btnDatHang_Click);
-            // 
             // ID
             // 
             this.ID.Frozen = true;
@@ -409,6 +386,30 @@
             this.colXoa.Text = "Xoá";
             this.colXoa.UseColumnTextForButtonValue = true;
             this.colXoa.Width = 50;
+            // 
+            // panel3
+            // 
+            this.panel3.BackColor = System.Drawing.SystemColors.Control;
+            this.panel3.Controls.Add(this.btnDatHang);
+            this.panel3.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.panel3.Location = new System.Drawing.Point(0, 543);
+            this.panel3.Name = "panel3";
+            this.panel3.Size = new System.Drawing.Size(1565, 82);
+            this.panel3.TabIndex = 3;
+            // 
+            // btnDatHang
+            // 
+            this.btnDatHang.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.btnDatHang.BackColor = System.Drawing.Color.Firebrick;
+            this.btnDatHang.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnDatHang.ForeColor = System.Drawing.SystemColors.Control;
+            this.btnDatHang.Location = new System.Drawing.Point(720, 6);
+            this.btnDatHang.Name = "btnDatHang";
+            this.btnDatHang.Size = new System.Drawing.Size(151, 55);
+            this.btnDatHang.TabIndex = 0;
+            this.btnDatHang.Text = "Đặt hàng";
+            this.btnDatHang.UseVisualStyleBackColor = false;
+            this.btnDatHang.Click += new System.EventHandler(this.btnDatHang_Click);
             // 
             // UC_MuaVatTu
             // 

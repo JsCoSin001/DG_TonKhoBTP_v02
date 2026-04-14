@@ -38,7 +38,15 @@ namespace DG_TonKhoBTP_v02.Helper
             return false;
         }
 
-    public static string BoDauTiengViet(string text)
+
+        public static string TaoMaDon_Khac()
+        {
+            var now = DateTime.Now;
+            return $"Khac_{now.Day:D2}_{now.Month:D2}_{now.Year}_{now.Hour:D2}_{now.Minute:D2}";
+        
+        }
+
+        public static string BoDauTiengViet(string text)
     {
         if (string.IsNullOrWhiteSpace(text))
             return text;

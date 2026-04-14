@@ -5,11 +5,15 @@ using DG_TonKhoBTP_v02.DL_Ben;
 using DG_TonKhoBTP_v02.Helper;
 using DG_TonKhoBTP_v02.Models;
 using DG_TonKhoBTP_v02.UI;
+using DG_TonKhoBTP_v02.UI.Helper.AutoSearchWithCombobox;
+using DocumentFormat.OpenXml.Math;
+using DocumentFormat.OpenXml.Spreadsheet;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Data.SQLite;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -20,6 +24,7 @@ using System.Windows.Forms;
 using System.Windows.Input;
 using static DG_TonKhoBTP_v02.Models.KeHoach;
 using CoreHelper = DG_TonKhoBTP_v02.Helper.Helper;
+using UserInfo = DG_TonKhoBTP_v02.Models.UserInfo;
 
 namespace DG_TonKhoBTP_v02.Database
 {
@@ -335,6 +340,21 @@ namespace DG_TonKhoBTP_v02.Database
             }
         }
 
+
+        public static bool Delete_ByID(string table ,int id)
+        {
+            string sql = $@"DELETE FROM {table} WHERE id = @id;";
+
+            using (var conn = new SQLiteConnection(GetStringConnector))
+            using (var cmd = new SQLiteCommand(sql, conn))
+            {
+                conn.Open();
+                cmd.Parameters.AddWithValue("@id", id);
+
+                return cmd.ExecuteNonQuery() > 0;
+            }
+        }
+
         public static async Task<DataRow> LayThongTinTheoMaBin(string maBin)
         {
             const string sql = @"
@@ -601,88 +621,112 @@ namespace DG_TonKhoBTP_v02.Database
 
         #region Vật tư phụ - Tìm kiếm đơn & load chi tiết
 
-        public static void UpdateThongTinDatHang(
-        int id,
-        string tenVatTu,
-        decimal soLuongMua,
-        decimal donGia,
-        string mucDichMua,
-        string ngayGiao,
-        string ghiChu)
+        public static DataTable TinhTonKho(DateTime? ngayBatDau, DateTime? ngayKetThuc, int? idKho = null)
         {
-            const string sql = @"
-                UPDATE ThongTinDatHang
-                SET
-                    TenVatTu   = @TenVatTu,
-                    SoLuongMua = @SoLuongMua,
-                    DonGia     = @DonGia,
-                    MucDichMua = @MucDichMua,
-                    NgayGiao   = @NgayGiao
-                WHERE id = @Id;
+            bool coLocNgay = ngayBatDau.HasValue && ngayKetThuc.HasValue;
+
+            string khoFilter = (idKho.HasValue && idKho.Value > 0)
+                ? "AND lx.DanhSachKho_ID = @IdKho" : "";
+
+            // Khi không lọc ngày: TonDauKy = 0, toàn bộ phát sinh nằm trong PhatSinhKy
+            string tonDauKyNgayFilter = coLocNgay ? "WHERE lx.Ngay < @NgayBatDau" : "WHERE 1=0";
+            string phatSinhNgayFilter = coLocNgay ? "AND lx.Ngay >= @NgayBatDau AND lx.Ngay <= @NgayKetThuc" : "";
+
+            string sql = $@"
+                WITH
+                TonDauKy AS (
+                    SELECT
+                        lx.DanhSachKho_ID,
+                        ttdh.DanhSachMaSP_ID,
+                        SUM(lx.SoLuong) AS TonDau
+                    FROM LichSuXuatNhap lx
+                    INNER JOIN ThongTinDatHang ttdh ON ttdh.id = lx.ThongTinDatHang_ID
+                    {tonDauKyNgayFilter}
+                      AND lx.DanhSachKho_ID IS NOT NULL
+                      AND lx.ThongTinDatHang_ID IS NOT NULL
+                      {khoFilter}
+                    GROUP BY lx.DanhSachKho_ID, ttdh.DanhSachMaSP_ID
+                ),
+                PhatSinhKy AS (
+                    SELECT
+                        lx.DanhSachKho_ID,
+                        ttdh.DanhSachMaSP_ID,
+                        SUM(CASE WHEN lx.SoLuong > 0 THEN  lx.SoLuong ELSE 0 END) AS TongNhap,
+                        SUM(CASE WHEN lx.SoLuong < 0 THEN -lx.SoLuong ELSE 0 END) AS TongXuat
+                    FROM LichSuXuatNhap lx
+                    INNER JOIN ThongTinDatHang ttdh ON ttdh.id = lx.ThongTinDatHang_ID
+                    WHERE lx.DanhSachKho_ID IS NOT NULL
+                      AND lx.ThongTinDatHang_ID IS NOT NULL
+                      {phatSinhNgayFilter}
+                      {khoFilter}
+                    GROUP BY lx.DanhSachKho_ID, ttdh.DanhSachMaSP_ID
+                ),
+                AllKeys AS (
+                    SELECT DanhSachKho_ID, DanhSachMaSP_ID FROM TonDauKy
+                    UNION
+                    SELECT DanhSachKho_ID, DanhSachMaSP_ID FROM PhatSinhKy
+                )
+                SELECT
+                    sp.Ten                                                AS TenVatTu,
+                    sp.Ma                                                AS MaVatTu,
+                    kho.TenKho                                            AS TenKho,
+                    COALESCE(tdk.TonDau,   0)                             AS TonDauKy,
+                    COALESCE(psk.TongNhap, 0)                             AS TongNhap,
+                    COALESCE(psk.TongXuat, 0)                             AS TongXuat,
+                    COALESCE(tdk.TonDau, 0) + COALESCE(psk.TongNhap, 0)
+                                            - COALESCE(psk.TongXuat, 0)   AS TonCuoiKy
+                FROM AllKeys ak
+                INNER JOIN DanhSachMaSP sp  ON sp.id  = ak.DanhSachMaSP_ID
+                INNER JOIN DanhSachKho  kho ON kho.id = ak.DanhSachKho_ID
+                LEFT  JOIN TonDauKy    tdk  ON tdk.DanhSachMaSP_ID = ak.DanhSachMaSP_ID
+                                           AND tdk.DanhSachKho_ID  = ak.DanhSachKho_ID
+                LEFT  JOIN PhatSinhKy  psk  ON psk.DanhSachMaSP_ID = ak.DanhSachMaSP_ID
+                                           AND psk.DanhSachKho_ID  = ak.DanhSachKho_ID
+                ORDER BY kho.TenKho, sp.Ten;
             ";
-            // Ghi chú: bảng ThongTinDatHang không có cột GhiChu trong SQL schema
-            // nếu sau này thêm cột GhiChu vào bảng, hãy bổ sung ", GhiChu = @GhiChu" vào SET
 
-            using var conn = new SQLiteConnection(_connStr);
-            conn.Open();
-            using var tx = conn.BeginTransaction();
-            try
+            var dt = new DataTable();
+            dt.Columns.Add("Tên Vật Tư", typeof(string));
+            dt.Columns.Add("Mã Vật Tư", typeof(string));
+            dt.Columns.Add("Tên Kho", typeof(string));
+            dt.Columns.Add("Tồn Đầu Kỳ", typeof(decimal));
+            dt.Columns.Add("Tổng Nhập", typeof(decimal));
+            dt.Columns.Add("Tổng Xuất", typeof(decimal));
+            dt.Columns.Add("Tồn Cuối Kỳ", typeof(decimal));
+
+            using var connection = new SQLiteConnection(_connStr);
+            connection.Open();
+            using var command = connection.CreateCommand();
+            command.CommandText = sql;
+
+            if (coLocNgay)
             {
-                using var cmd = new SQLiteCommand(sql, conn, tx);
-                cmd.Parameters.AddWithValue("@TenVatTu", tenVatTu ?? "");
-                cmd.Parameters.AddWithValue("@SoLuongMua", soLuongMua);
-                cmd.Parameters.AddWithValue("@DonGia", donGia);
-                cmd.Parameters.AddWithValue("@MucDichMua", (object?)mucDichMua ?? DBNull.Value);
-                cmd.Parameters.AddWithValue("@NgayGiao", (object?)ngayGiao ?? DBNull.Value);
-                cmd.Parameters.AddWithValue("@Id", id);
-
-                int affected = cmd.ExecuteNonQuery();
-                if (affected == 0)
-                    throw new Exception($"Không tìm thấy ThongTinDatHang ID = {id}.");
-
-                tx.Commit();
+                command.Parameters.AddWithValue("@NgayBatDau", ngayBatDau!.Value.ToString("yyyy-MM-dd"));
+                command.Parameters.AddWithValue("@NgayKetThuc", ngayKetThuc!.Value.ToString("yyyy-MM-dd 23:59:59"));
             }
-            catch
+            if (idKho.HasValue && idKho.Value > 0)
+                command.Parameters.AddWithValue("@IdKho", idKho.Value);
+
+            using var reader = command.ExecuteReader();
+            while (reader.Read())
             {
-                tx.Rollback();
-                throw;
+                dt.Rows.Add(
+                    reader.IsDBNull(0) ? string.Empty : reader.GetString(0),
+                    reader.IsDBNull(0) ? string.Empty : reader.GetString(1),
+                    reader.IsDBNull(1) ? string.Empty : reader.GetString(2),
+                    reader.IsDBNull(2) ? 0m : reader.GetDecimal(3),
+                    reader.IsDBNull(3) ? 0m : reader.GetDecimal(4),
+                    reader.IsDBNull(4) ? 0m : reader.GetDecimal(5),
+                    reader.IsDBNull(5) ? 0m : reader.GetDecimal(6)
+                );
             }
+
+            return dt;
         }
 
-        public static void DeleteThongTinDatHang(int id)
-        {
-            // Bảng LichSuXuatNhap có FOREIGN KEY -> ThongTinDatHang ON DELETE CASCADE,
-            // nên SQLite sẽ tự xóa các dòng lịch sử liên quan khi PRAGMA foreign_keys = ON.
-            const string sqlPragma = "PRAGMA foreign_keys = ON;";
-            const string sqlDelete = "DELETE FROM ThongTinDatHang WHERE id = @Id;";
 
-            using var conn = new SQLiteConnection(_connStr);
-            conn.Open();
 
-            // Bật foreign key enforcement cho phiên này
-            using (var pragmaCmd = new SQLiteCommand(sqlPragma, conn))
-                pragmaCmd.ExecuteNonQuery();
-
-            using var tx = conn.BeginTransaction();
-            try
-            {
-                using var cmd = new SQLiteCommand(sqlDelete, conn, tx);
-                cmd.Parameters.AddWithValue("@Id", id);
-
-                int affected = cmd.ExecuteNonQuery();
-                if (affected == 0)
-                    throw new Exception($"Không tìm thấy ThongTinDatHang ID = {id} để xóa.");
-
-                tx.Commit();
-            }
-            catch
-            {
-                tx.Rollback();
-                throw;
-            }
-        }
-
-        public static DataTable LoadLichSuXuatNhap_LoaiDon1(bool i, string maDon = null)
+        public static DataTable LoadLichSuXuatNhap_LoaiDon1(bool i,string maDon = null,long? khoId = null)
         {
             using var conn = new SQLiteConnection(_connStr);
             conn.Open();
@@ -692,7 +736,8 @@ namespace DG_TonKhoBTP_v02.Database
                     d.id AS DanhSachDatHang_ID,
                     d.LoaiDon AS LoaiDon,
 
-                    t.id AS ThongTinDatHang_ID,
+                    k.TenKho AS TenKho,
+
                     sp.Ma AS MaHang,
                     t.TenVatTu AS TenVatTu,
                     sp.DonVi AS DonVi,
@@ -708,12 +753,17 @@ namespace DG_TonKhoBTP_v02.Database
                     ON sp.id = t.DanhSachMaSP_ID
                 LEFT JOIN LichSuXuatNhap l
                     ON l.ThongTinDatHang_ID = t.id
+                LEFT JOIN DanhSachKho k
+                    ON k.id = l.DanhSachKho_ID
 
                 WHERE d.LoaiDon = 1
             ";
 
             if (!string.IsNullOrWhiteSpace(maDon))
                 sql += " AND d.MaDon = @MaDon ";
+
+            if (khoId.HasValue)
+                sql += " AND k.id = @KhoId ";
 
             sql += @"
                 GROUP BY
@@ -724,8 +774,11 @@ namespace DG_TonKhoBTP_v02.Database
                     sp.Ma,
                     t.TenVatTu,
                     sp.DonVi,
+                    k.id,
+                    k.KiHieu,
+                    k.TenKho,
                     t.SoLuongMua
-                HAVING COALESCE(SUM(l.SoLuong), 0) != 0 
+                HAVING COALESCE(SUM(l.SoLuong), 0) != 0
                 ORDER BY d.DateInsert DESC, d.MaDon, t.id;
             ";
 
@@ -733,6 +786,9 @@ namespace DG_TonKhoBTP_v02.Database
 
             if (!string.IsNullOrWhiteSpace(maDon))
                 cmd.Parameters.AddWithValue("@MaDon", maDon.Trim());
+
+            if (khoId.HasValue)
+                cmd.Parameters.AddWithValue("@KhoId", khoId.Value);
 
             using var da = new SQLiteDataAdapter(cmd);
             var dt = new DataTable();
@@ -907,9 +963,9 @@ namespace DG_TonKhoBTP_v02.Database
 
                 foreach (DataGridViewRow row in dgr.Rows)
                 {
-                    if (!dgr.Columns.Contains("LichSu_ID")) break;
+                    if (!dgr.Columns.Contains("colChon")) break;
 
-                    var idVal = row.Cells["LichSu_ID"].Value;
+                    var idVal = row.Cells["lsxn_id"].Value;
                     if (idVal == null || idVal == DBNull.Value) continue;  
 
                     bool isChecked = row.Cells[clCheck].Value != null
@@ -1069,35 +1125,35 @@ namespace DG_TonKhoBTP_v02.Database
             try
             {
                 var sql = new StringBuilder(@"
-            SELECT
-                dsdh.id             AS DanhSachDatHang_ID,
-                dsdh.nguoiDat,
-                dsdh.MaDon,
-                dsdh.LoaiDon,
-                dsdh.DateInsert     AS NgayTaoDon,
-                dsdh.NguoiDat,
-                ttdh.id             AS ThongTinDatHang_ID,
-                ttdh.TenVatTu,
-                ttdh.SoLuongMua,
-                ttdh.DonGia,
-                ttdh.MucDichMua,
-                ttdh.NgayGiao,
-                ttdh.Date_Insert    AS NgayNhapChiTiet,
-                CASE
-                    WHEN EXISTS (
-                        SELECT 1
-                        FROM LichSuXuatNhap lsxn
-                        INNER JOIN ThongTinDatHang t
-                            ON t.id = lsxn.ThongTinDatHang_ID
-                        WHERE t.DanhSachDatHang_ID = dsdh.id
-                    ) THEN 0
-                    ELSE 1
-                END                 AS Edit
-            FROM DanhSachDatHang dsdh
-            INNER JOIN ThongTinDatHang ttdh
-                ON ttdh.DanhSachDatHang_ID = dsdh.id
-            WHERE 1=1
-        ");
+                    SELECT
+                        dsdh.id             AS DanhSachDatHang_ID,
+                        dsdh.nguoiDat,
+                        dsdh.MaDon,
+                        dsdh.LoaiDon,
+                        dsdh.DateInsert     AS NgayTaoDon,
+                        dsdh.NguoiDat,
+                        ttdh.id             AS ThongTinDatHang_ID,
+                        ttdh.TenVatTu,
+                        ttdh.SoLuongMua,
+                        ttdh.DonGia,
+                        ttdh.MucDichMua,
+                        ttdh.NgayGiao,
+                        ttdh.Date_Insert    AS NgayNhapChiTiet,
+                        CASE
+                            WHEN EXISTS (
+                                SELECT 1
+                                FROM LichSuXuatNhap lsxn
+                                INNER JOIN ThongTinDatHang t
+                                    ON t.id = lsxn.ThongTinDatHang_ID
+                                WHERE t.DanhSachDatHang_ID = dsdh.id
+                            ) THEN 0
+                            ELSE 1
+                        END                 AS Edit
+                    FROM DanhSachDatHang dsdh
+                    INNER JOIN ThongTinDatHang ttdh
+                        ON ttdh.DanhSachDatHang_ID = dsdh.id
+                    WHERE 1=1
+                ");
 
                 var parameters = new List<SQLiteParameter>();
 
@@ -1129,6 +1185,72 @@ namespace DG_TonKhoBTP_v02.Database
             }
             return dt;
         }
+
+        public static DataTable GetBaoCaoDatHang_v2(string nguoiThucHien, DateTime? ngayBatDau = null, DateTime? ngayKetThuc = null)
+        {
+            var dt = new DataTable();
+            try
+            {
+                var sql = new StringBuilder(@"
+                    SELECT 
+                        dh.id AS dh_id,
+                        dh.MaDon AS dh_MaDon,
+                        dh.NguoiDat AS dh_NguoiDat,
+                        tt.TenVatTu AS tt_TenVatTu,
+                        tt.SoLuongMua AS tt_SoLuongMua,
+                        tt.MucDichMua AS tt_MucDichMua,
+                        tt.NgayGiao AS tt_NgayGiao,
+                        tt.Date_Insert AS tt_Date_Insert,
+                        tt.DonGia AS tt_DonGia
+                    FROM ThongTinDatHang tt
+                    INNER JOIN DanhSachDatHang dh 
+                        ON tt.DanhSachDatHang_ID = dh.id
+                    LEFT JOIN DanhSachMaSP sp 
+                        ON tt.DanhSachMaSP_ID = sp.id
+                    WHERE 1 = 1
+                ");
+                var parameters = new List<SQLiteParameter>();
+
+                if (!string.IsNullOrWhiteSpace(nguoiThucHien))
+                {
+                    sql.AppendLine(" AND dh.NguoiDat = @NguoiDat ");
+                    parameters.Add(new SQLiteParameter("@NguoiDat", nguoiThucHien.Trim()));
+                }
+                if (ngayBatDau.HasValue)
+                {
+                    sql.AppendLine(" AND DATE(dh.DateInsert) >= DATE(@NgayBatDau) ");
+                    parameters.Add(new SQLiteParameter("@NgayBatDau", ngayBatDau.Value.ToString("yyyy-MM-dd")));
+                }
+                if (ngayKetThuc.HasValue)
+                {
+                    sql.AppendLine(" AND DATE(dh.DateInsert) <= DATE(@NgayKetThuc) ");
+                    parameters.Add(new SQLiteParameter("@NgayKetThuc", ngayKetThuc.Value.ToString("yyyy-MM-dd")));
+                }
+
+                sql.AppendLine(" ORDER BY dh.DateInsert DESC, dh.id DESC, tt.id DESC ");
+                using (var conn = new SQLiteConnection(_connStr))
+                {
+                    conn.Open();
+                    using (var cmd = new SQLiteCommand(sql.ToString(), conn))
+                    {
+                        cmd.Parameters.AddRange(parameters.ToArray());
+                        using (var adapter = new SQLiteDataAdapter(cmd))
+                        {
+                            adapter.Fill(dt);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"GetBaoCaoDatHang lỗi: {ex.Message}", ex);
+            }
+            return dt;
+        }
+
+
+
+
         /// <summary>
         /// cbxKieu = 2  →  soLuongDuong = true  (SoLuong > 0, tức là Nhập kho)
         /// cbxKieu = 3  →  soLuongDuong = false (SoLuong &lt; 0, tức là Xuất kho)
@@ -1239,10 +1361,105 @@ namespace DG_TonKhoBTP_v02.Database
             return dt;
         }
 
-
-        public static async Task<List<string>> TimKiemMaDon(string keyword, int loaiDon = 1)
+        public static DataTable GetBaoCaoLichSuXuatNhap_v2(int kho, string nguoiThucHien, bool isNhap, DateTime? ngayBatDau = null, DateTime? ngayKetThuc = null)
         {
-            const string sql = @"
+            var dt = new DataTable();
+            try
+            {
+                var sql = new StringBuilder(@"
+            SELECT
+                lsxn.id AS lsxn_id,
+                dsdh.MaDon AS MaDon,
+                dsdh.DateInsert AS dsdh_DateInsert,
+                dsdh.NguoiDat AS NguoiDat,
+                dsk.TenKho AS TenKho,
+                lsxn.Ngay AS lsxn_Ngay,
+                lsxn.NguoiGiao_Nhan AS NguoiGiaoNhan,
+                lsxn.LyDo AS LyDo,
+                lsxn.SoLuong AS SoLuong,
+                lsxn.TenPhieu AS TenPhieu,
+                lsxn.GhiChu AS GhiChu,
+                lsxn.DonGia AS DonGia,
+                lsxn.NguoiLam AS NguoiLam,
+                ttdh.TenVatTu AS TenVatTu,
+                ttdh.SoLuongMua AS SoLuongMua,
+                ttdh.MucDichMua AS MucDichMua,
+                ttdh.NgayGiao AS NgayGiao,
+                ttdh.Date_Insert AS Date_Insert,
+                lsxn.canEdit AS canEdit,
+                ttdh.DonGia AS DonGia
+            FROM LichSuXuatNhap lsxn
+            INNER JOIN ThongTinDatHang ttdh
+                ON lsxn.ThongTinDatHang_ID = ttdh.id
+            INNER JOIN DanhSachDatHang dsdh
+                ON ttdh.DanhSachDatHang_ID = dsdh.id
+            LEFT JOIN DanhSachMaSP dssp
+                ON ttdh.DanhSachMaSP_ID = dssp.id
+            LEFT JOIN DanhSachKho dsk
+                ON lsxn.DanhSachKho_ID = dsk.id
+            WHERE 1 = 1
+        ");
+                var parameters = new List<SQLiteParameter>();
+
+                if (kho > 0)
+                {
+                    sql.AppendLine(" AND lsxn.DanhSachKho_ID = @DanhSachKho_ID ");
+                    parameters.Add(new SQLiteParameter("@DanhSachKho_ID", kho));
+                }
+                if (!string.IsNullOrWhiteSpace(nguoiThucHien))
+                {
+                    sql.AppendLine(" AND lsxn.NguoiLam = @NguoiLam ");
+                    parameters.Add(new SQLiteParameter("@NguoiLam", nguoiThucHien.Trim()));
+                }
+                if (ngayBatDau.HasValue)
+                {
+                    sql.AppendLine(" AND DATE(lsxn.Ngay) >= DATE(@NgayBatDau) ");
+                    parameters.Add(new SQLiteParameter("@NgayBatDau", ngayBatDau.Value.ToString("yyyy-MM-dd")));
+                }
+                if (ngayKetThuc.HasValue)
+                {
+                    sql.AppendLine(" AND DATE(lsxn.Ngay) <= DATE(@NgayKetThuc) ");
+                    parameters.Add(new SQLiteParameter("@NgayKetThuc", ngayKetThuc.Value.ToString("yyyy-MM-dd")));
+                }
+                if (isNhap)
+                    sql.AppendLine(" AND lsxn.SoLuong > 0 ");
+                else
+                    sql.AppendLine(" AND lsxn.SoLuong < 0 ");
+
+                sql.AppendLine(" ORDER BY lsxn.Ngay DESC, lsxn.id DESC; ");
+                using (var conn = new SQLiteConnection(_connStr))
+                {
+                    conn.Open();
+                    using (var cmd = new SQLiteCommand(sql.ToString(), conn))
+                    {
+                        cmd.Parameters.AddRange(parameters.ToArray());
+                        using (var adapter = new SQLiteDataAdapter(cmd))
+                        {
+                            adapter.Fill(dt);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"GetBaoCaoLichSuXuatNhap lỗi: {ex.Message}", ex);
+            }
+            return dt;
+        }
+
+        public static async Task<List<string>> TimKiemMaDon(string keyword, bool isEdit)
+        {
+            string sql = isEdit
+            ? @"
+            SELECT DISTINCT l.TenPhieu as MaDon
+            FROM LichSuXuatNhap as l                    
+            WHERE (
+                l.canedit = 1 
+                and l.TenPhieu LIKE @kw   COLLATE NOCASE 
+            )
+            LIMIT 30"
+                : 
+            @"
             SELECT MaDon
             FROM DanhSachDatHang
             WHERE MaDon LIKE @kw
@@ -1251,24 +1468,23 @@ namespace DG_TonKhoBTP_v02.Database
 
             var result = new List<string>();
 
-            await Task.Run(() =>
-            {
-                using var conn = new SQLiteConnection(_connStr);
-                conn.Open();
-                using var cmd = new SQLiteCommand(sql, conn);
-                cmd.Parameters.AddWithValue("@kw", $"%{keyword}%");
+            using var conn = new SQLiteConnection(_connStr);
+            await conn.OpenAsync();
 
-                using var rd = cmd.ExecuteReader();
-                while (rd.Read())
-                    result.Add(rd["MaDon"].ToString());
-            });
+            using var cmd = new SQLiteCommand(sql, conn);
+            cmd.Parameters.AddWithValue("@kw", $"%{keyword}%");
+
+            using var rd = await cmd.ExecuteReaderAsync();
+            while (await rd.ReadAsync())
+                result.Add(rd["MaDon"]?.ToString());
 
             return result;
         }
 
-        public static async Task<DataTable> LayChiTietDonDatHang(string maDon)
+
+        public static async Task<DataTable> LayChiTietDonDatHang(string maDon, bool isEdit, bool isNhap = true)
         {
-            const string sql = @"
+            string sql = @"
             SELECT
                 t.id          AS id,
                 d.MaDon        AS MaDon,
@@ -1291,6 +1507,35 @@ namespace DG_TonKhoBTP_v02.Database
               AND t.SoLuongMua > IFNULL(ls.TongSoLuong, 0)
             ORDER BY t.id";
 
+
+            if (isEdit)
+            {
+                sql = @"
+                    SELECT
+                        l.id           AS id,
+                        l.TenPhieu     AS MaDon,
+                        t.TenVatTu     AS ten,
+                        sp.Ma          AS ma,
+                        sp.DonVi       AS donVi, 
+	                    ABS(l.soluong) as thucNhan,
+                        l.donGia as dongia  ,
+                        l.SoLuong * l.donGia AS thanhTien,
+                        l.ngay as ngay
+                
+                    FROM LichSuXuatNhap l
+
+                    LEFT JOIN ThongTinDatHang t 
+                        ON t.id = l.ThongTinDatHang_ID
+
+                    INNER JOIN DanhSachDatHang d 
+                        ON d.id = t.DanhSachDatHang_ID
+
+                    LEFT JOIN DanhSachMaSP sp 
+                        ON sp.id = t.DanhSachMaSP_ID
+            
+                    WHERE l.TenPhieu = @maDon AND l.CanEdit = 1 AND ((l.SoLuong > 0 AND @isNhap = 1) OR (l.SoLuong < 0 AND @isNhap = 0))
+                ";
+            }
             var dt = new DataTable();
 
             await Task.Run(() =>
@@ -1299,6 +1544,7 @@ namespace DG_TonKhoBTP_v02.Database
                 conn.Open();
                 using var cmd = new SQLiteCommand(sql, conn);
                 cmd.Parameters.AddWithValue("@maDon", maDon);
+                cmd.Parameters.AddWithValue("@isNhap", isNhap);
 
                 using var adapter = new SQLiteDataAdapter(cmd);
                 adapter.Fill(dt);
@@ -1307,24 +1553,51 @@ namespace DG_TonKhoBTP_v02.Database
             return dt;
         }
 
-        public static async Task<List<string>> TimKiemTheoTenVatTu(string keyword, int kieu)
+        public static async Task<List<string>> TimKiemTheoTenVatTu(string keyword, int kieu, bool isEdit, bool isKhac)
         {
             string keyWord_KhongDau = CoreHelper.BoDauTiengViet(keyword.Trim());
-            const string sql = @"
-                SELECT t.TenVatTu
-                FROM ThongTinDatHang t
-                JOIN DanhSachDatHang d ON t.DanhSachDatHang_ID = d.id
-                LEFT JOIN (
-                    SELECT ThongTinDatHang_ID, SUM(SoLuong) AS TongNhap
-                    FROM LichSuXuatNhap
-                    WHERE SoLuong > 0
-                    GROUP BY ThongTinDatHang_ID
-                ) l ON t.id = l.ThongTinDatHang_ID
-                WHERE t.TenVatTu_KhongDau LIKE @kw
-                  AND d.LoaiDon = @kieu
-                GROUP BY t.TenVatTu
-                HAVING SUM(IFNULL(l.TongNhap, 0)) < SUM(t.SoLuongMua)
-                LIMIT 30;";
+
+            string sql = $@"
+            SELECT t.TenVatTu
+            FROM ThongTinDatHang t
+            JOIN DanhSachDatHang d ON t.DanhSachDatHang_ID = d.id
+            LEFT JOIN (
+                SELECT ThongTinDatHang_ID, SUM(SoLuong) AS TongNhap
+                FROM LichSuXuatNhap
+                WHERE SoLuong > 0
+                GROUP BY ThongTinDatHang_ID
+            ) l ON t.id = l.ThongTinDatHang_ID
+            WHERE t.TenVatTu_KhongDau LIKE @kw
+              AND d.LoaiDon = @kieu
+            GROUP BY t.TenVatTu
+            HAVING SUM(IFNULL(l.TongNhap, 0)) < SUM(t.SoLuongMua)
+            LIMIT 30;";
+
+            if (isKhac)
+            {
+                sql = $@"
+                SELECT t.Ten as TenVatTu
+                FROM DanhSachMaSP t                
+                WHERE t.Ten_KhongDau LIKE '%' || @kw || '%' COLLATE NOCASE
+                ";
+            }
+
+            if (isEdit)
+            {
+                sql = $@"
+                SELECT DISTINCT sp.Ten as TenVatTu
+                FROM ThongTinDatHang ttdh
+                JOIN LichSuXuatNhap lsxn 
+                    ON lsxn.ThongTinDatHang_ID = ttdh.id
+                    AND lsxn.CanEdit = 1
+                LEFT JOIN DanhSachMaSP sp 
+                    ON sp.id = ttdh.DanhSachMaSP_ID
+                WHERE lsxn.CanEdit = 1
+                  AND ttdh.TenVatTu_KhongDau LIKE '%' || @kw || '%' COLLATE NOCASE";
+            }
+
+
+            Console.WriteLine(sql);
 
             var result = new List<string>();
 
@@ -1344,11 +1617,11 @@ namespace DG_TonKhoBTP_v02.Database
             return result;
         }
 
-        public static async Task<DataTable> LayChiTietDonTheoTenVatTu(string tenVatTu, int kieu = 1)
+        public static async Task<DataTable> LayChiTietDonTheoTenVatTu(string tenVatTu, int kieu, bool isKhac)
         {
             string keyWord_KhongDau = CoreHelper.BoDauTiengViet(tenVatTu.Trim());
 
-            const string sql = @"
+            string sql = @"
             SELECT
                 t.id          AS id,
                 t.TenVatTu    AS ten,
@@ -1375,6 +1648,23 @@ namespace DG_TonKhoBTP_v02.Database
                 AND t.SoLuongMua > IFNULL(ls.TongSoLuong, 0)
             ORDER BY t.id";
 
+            if (isKhac)
+            {
+                sql = @"
+                SELECT
+                    id      AS id,
+                    Ten     AS ten,
+                    ''      AS maDon,
+                    Ma      AS ma,
+                    DonVi   AS donVi,
+                    ''      AS yeuCau,
+                    ''      AS thucNhan
+                FROM DanhSachMaSP
+                WHERE Ten_KhongDau LIKE @tenVatTu COLLATE NOCASE
+                ORDER BY Ten";
+            }
+
+
             var dt = new DataTable();
 
             await Task.Run(() =>
@@ -1383,7 +1673,7 @@ namespace DG_TonKhoBTP_v02.Database
                 conn.Open();
                 using var cmd = new SQLiteCommand(sql, conn);
                 cmd.Parameters.AddWithValue("@tenVatTu", keyWord_KhongDau);
-                cmd.Parameters.AddWithValue("@kieu", kieu); // 👈 thêm dòng này
+                cmd.Parameters.AddWithValue("@kieu", kieu); 
 
                 using var adapter = new SQLiteDataAdapter(cmd);
                 adapter.Fill(dt);
@@ -1391,6 +1681,64 @@ namespace DG_TonKhoBTP_v02.Database
 
             return dt;
         }
+
+
+        public static async Task<DataTable> GetDataTuTenVatTuXuatNhap_Edit(
+        string tenVatTu, string nguoiLam, bool isNhapKho = true)
+        {
+            string keyWord_KhongDau = CoreHelper.BoDauTiengViet(tenVatTu.Trim());
+
+            string sql = @"
+                SELECT
+                    ls.id           AS id,
+                    t.TenVatTu     AS ten,
+                    t.TenVatTu_KhongDau,
+                    d.MaDon        AS maDon,
+                    sp.Ma          AS ma,
+                    sp.DonVi       AS donVi,
+                    t.SoLuongMua   AS yeuCau,
+                    CASE
+                        WHEN @isNhapKho = 1 THEN ls.SoLuong
+                        ELSE ABS(ls.SoLuong)
+                    END AS thucNhan,
+                    ls.ngay as ngay
+
+                FROM ThongTinDatHang t
+                INNER JOIN DanhSachDatHang d
+                    ON d.id = t.DanhSachDatHang_ID
+                LEFT JOIN DanhSachMaSP sp
+                    ON sp.id = t.DanhSachMaSP_ID
+                INNER JOIN LichSuXuatNhap ls
+                    ON ls.ThongTinDatHang_ID = t.id
+                WHERE t.TenVatTu_KhongDau = @tenVatTu COLLATE NOCASE
+                  AND ls.NguoiLam = @nguoiLam
+                  AND ls.CanEdit = 1
+                  AND (
+                        (@isNhapKho = 1 AND ls.SoLuong > 0)
+                        OR
+                        (@isNhapKho = 0 AND ls.SoLuong < 0)
+                      )
+                ORDER BY t.id, ls.id;";
+
+            DataTable dt = new DataTable();
+
+            await Task.Run(() =>
+            {
+                using var conn = new SQLiteConnection(_connStr);
+                conn.Open();
+
+                using var cmd = new SQLiteCommand(sql, conn);
+                cmd.Parameters.AddWithValue("@tenVatTu", keyWord_KhongDau);
+                cmd.Parameters.AddWithValue("@nguoiLam", nguoiLam?.Trim() ?? "");
+                cmd.Parameters.AddWithValue("@isNhapKho", isNhapKho ? 1 : 0);
+
+                using var adapter = new SQLiteDataAdapter(cmd);
+                adapter.Fill(dt);
+            });
+
+            return dt;
+        }
+
 
         public static int GetSoLuongXuatNhapThangHienTai(bool isNhapKho = false)
         {
@@ -1424,7 +1772,108 @@ namespace DG_TonKhoBTP_v02.Database
 
             return result == null ? 0 : Convert.ToInt32(result);
         }
+        public static async Task<string> CapNhatLichSuXuatNhap(
+            DataGridView dgv,
+            string nguoiGiaoNhan,
+            string lyDoChung,
+            string nguoiLam,
+            bool isNhapKho)
+        {
+            if (dgv == null || dgv.Rows.Count == 0)
+                return null;
 
+            const string sqlUpdate = @"
+                UPDATE LichSuXuatNhap
+                SET
+                    Ngay = @Ngay,
+                    NguoiGiao_Nhan = @NguoiGiao_Nhan,
+                    LyDo = @LyDo,
+                    SoLuong = @SoLuong,
+                    nguoiLam = @nguoiLam,
+                    GhiChu = @GhiChu,
+                    DonGia = @DonGia
+                WHERE id = @id ;";
+
+            bool hasUpdate = false;
+
+            await Task.Run(() =>
+            {
+                using var conn = new SQLiteConnection(_connStr);
+                conn.Open();
+
+                using var tx = conn.BeginTransaction();
+                using var cmd = new SQLiteCommand(sqlUpdate, conn, tx);
+
+                cmd.Parameters.Add("@Ngay", DbType.String);
+                cmd.Parameters.Add("@NguoiGiao_Nhan", DbType.String);
+                cmd.Parameters.Add("@LyDo", DbType.String);
+                cmd.Parameters.Add("@SoLuong", DbType.Decimal);
+                cmd.Parameters.Add("@nguoiLam", DbType.String);
+                cmd.Parameters.Add("@GhiChu", DbType.String);
+                cmd.Parameters.Add("@DonGia", DbType.String);
+                cmd.Parameters.Add("@id", DbType.Int64);
+
+                try
+                {
+                    foreach (DataGridViewRow row in dgv.Rows)
+                    {
+                        if (row.IsNewRow) continue;
+
+                        object idLichSuObj = row.Cells["id"]?.Value;
+
+                        if (idLichSuObj == null || idLichSuObj == DBNull.Value) continue;
+
+                        if (!long.TryParse(idLichSuObj.ToString(), out long idLichSuXuatNhap))
+                            continue;
+
+                        object slObj = row.Cells["thucNhan"]?.Value;
+                        if (slObj == null || slObj == DBNull.Value) continue;
+
+                        if (!decimal.TryParse(slObj.ToString(), out decimal soLuong))
+                            continue;                        
+
+                        string ghiChuRieng = dgv.Columns.Contains("ghiChu")
+                            ? row.Cells["ghiChu"]?.Value?.ToString()?.Trim()
+                            : null;
+
+                        string donGia = dgv.Columns.Contains("DonGia")
+                            ? row.Cells["DonGia"]?.Value?.ToString()?.Trim()
+                            : null;
+
+                        string ghiChu = !string.IsNullOrWhiteSpace(ghiChuRieng)
+                            ? ghiChuRieng
+                            : ghiChuRieng?.Trim();
+
+                        cmd.Parameters["@Ngay"].Value = dgv.Columns.Contains("ngay")
+                            ? row.Cells["ngay"]?.Value?.ToString()?.Trim()
+                            : null;
+                        cmd.Parameters["@NguoiGiao_Nhan"].Value = nguoiGiaoNhan?.Trim() ?? "";
+                        cmd.Parameters["@LyDo"].Value = lyDoChung;
+                        cmd.Parameters["@GhiChu"].Value = string.IsNullOrWhiteSpace(ghiChu)
+                            ? (object)DBNull.Value
+                            : ghiChu;
+                        cmd.Parameters["@SoLuong"].Value = isNhapKho ? soLuong : -Math.Abs(soLuong);
+                        cmd.Parameters["@DonGia"].Value = string.IsNullOrWhiteSpace(donGia)
+                            ? (object)DBNull.Value
+                            : donGia;
+                        cmd.Parameters["@nguoiLam"].Value = nguoiLam;
+                        cmd.Parameters["@id"].Value = idLichSuXuatNhap;
+
+                        cmd.ExecuteNonQuery();
+                        hasUpdate = true;
+                    }
+
+                    tx.Commit();
+                }
+                catch
+                {
+                    tx.Rollback();
+                    throw;
+                }
+            });
+
+            return hasUpdate ? "Update thành công" : null;
+        }
 
         public static async Task<string> LuuLichSuXuatNhap(
         DataGridView dgv,
@@ -1508,10 +1957,9 @@ namespace DG_TonKhoBTP_v02.Database
                         if (!long.TryParse(idObj.ToString(), out long thongTinDatHangId))
                             continue;
 
-                        object slObj = row.Cells["thucNhan"]?.Value;
-                        if (slObj == null || slObj == DBNull.Value) continue;
+                        var raw = row.Cells["thucNhan"]?.Value?.ToString()?.Trim()?.Replace(',', '.');
 
-                        if (!decimal.TryParse(slObj.ToString(), out decimal soLuong))
+                        if (!decimal.TryParse(raw, NumberStyles.Any, CultureInfo.InvariantCulture, out decimal soLuong))
                             continue;
 
                         if (soLuong == 0) continue;
@@ -1559,9 +2007,255 @@ namespace DG_TonKhoBTP_v02.Database
             return hasInsert ? tenPhieu : null;
         }
 
-        public static async Task<List<string>> TimKiemMaDonConHang(string keyword)
+
+        public static async Task<string> LuuDonKhacAsync( DonKhacInfo info, List<DonKhacItem> items)
         {
-            const string sql = @"
+            if (info == null || items == null || items.Count == 0)
+                return null;
+
+            // Chỉ lấy các item hợp lệ
+            var validItems = items
+                .Where(x => x != null
+                            && !string.IsNullOrWhiteSpace(x.TenVatTu)
+                            && x.SoLuong != 0)
+                .ToList();
+
+            if (validItems.Count == 0)
+                return null;
+
+            DateTime ngay = info.Ngay == default ? DateTime.Now : info.Ngay;
+
+            
+
+            //int soThuTu = GetSoLuongXuatNhapThangHienTai(info.IsNhapKho) + 1;
+            string prefix = info.IsNhapKho ? "KNK" : "KXK";
+            string tenPhieu = $"{prefix}{ngay:yy/MM/dd}-{DateTime.Now:HHmm}";
+            string maDon = tenPhieu;
+
+            const string sqlInsertDanhSachDatHang = @"
+                INSERT INTO DanhSachDatHang
+                (
+                    MaDon,
+                    LoaiDon,
+                    DateInsert,
+                    NguoiDat
+                )
+                VALUES
+                (
+                    @MaDon,
+                    @LoaiDon,
+                    @DateInsert,
+                    @NguoiDat
+                );
+                SELECT last_insert_rowid();";
+
+            const string sqlInsertThongTinDatHang = @"
+                INSERT INTO ThongTinDatHang
+                (
+                    DanhSachMaSP_ID,
+                    DanhSachDatHang_ID,
+                    TenVatTu,
+                    TenVatTu_KhongDau,
+                    SoLuongMua,
+                    MucDichMua,
+                    NgayGiao,
+                    Date_Insert,
+                    DonGia
+                )
+                VALUES
+                (
+                    @DanhSachMaSP_ID,
+                    @DanhSachDatHang_ID,
+                    @TenVatTu,
+                    @TenVatTu_KhongDau,
+                    @SoLuongMua,
+                    @MucDichMua,
+                    @NgayGiao,
+                    @Date_Insert,
+                    @DonGia
+                );
+                SELECT last_insert_rowid();";
+
+            const string sqlInsertLichSuXuatNhap = @"
+                INSERT INTO LichSuXuatNhap
+                (
+                    ThongTinDatHang_ID,
+                    Ngay,
+                    NguoiGiao_Nhan,
+                    LyDo,
+                    SoLuong,
+                    DanhSachKho_ID,
+                    NguoiLam,
+                    GhiChu,
+                    DonGia,
+                    TenPhieu
+                )
+                VALUES
+                (
+                    @ThongTinDatHang_ID,
+                    @Ngay,
+                    @NguoiGiao_Nhan,
+                    @LyDo,
+                    @SoLuong,
+                    @DanhSachKho_ID,
+                    @NguoiLam,
+                    @GhiChu,
+                    @DonGia,
+                    @TenPhieu
+                );";
+
+            return await Task.Run(() =>
+            {
+                using var conn = new SQLiteConnection(_connStr);
+                conn.Open();
+
+                using var tx = conn.BeginTransaction();
+
+                try
+                {
+                    long danhSachDatHangId;
+
+
+                    if (!info.IsNhapKho)
+                    {
+                        foreach (var item in validItems)
+                        {
+                            long thongTinDatHangId = item.DanhSachMaSpId ?? 0;
+
+                            InsertLichSuXuatNhap(
+                                conn,
+                                tx,
+                                sqlInsertLichSuXuatNhap,
+                                info,
+                                item,
+                                thongTinDatHangId,
+                                ngay,
+                                tenPhieu
+                            );
+                        }
+
+                    }
+                    else
+                    {
+                        // 1) Insert DanhSachDatHang
+                        using (var cmdDon = new SQLiteCommand(sqlInsertDanhSachDatHang, conn, tx))
+                        {
+                            cmdDon.Parameters.AddWithValue("@MaDon", maDon);
+                            cmdDon.Parameters.AddWithValue("@LoaiDon", 1); // 1 = vật tư
+                            cmdDon.Parameters.AddWithValue("@DateInsert", ngay.ToString("yyyy-MM-dd"));
+                            cmdDon.Parameters.AddWithValue("@NguoiDat", info.NguoiDat?.Trim() ?? "");
+
+                            danhSachDatHangId = Convert.ToInt64(cmdDon.ExecuteScalar());
+                        }
+
+
+                        // 2) Insert từng item vào ThongTinDatHang + LichSuXuatNhap
+                        foreach (var item in validItems)
+                        {
+                            long thongTinDatHangId;
+
+                            // Lưu vào thông tin đặt hàng
+                            using (var cmdTTDH = new SQLiteCommand(sqlInsertThongTinDatHang, conn, tx))
+                            {
+                                cmdTTDH.Parameters.AddWithValue(
+                                    "@DanhSachMaSP_ID",
+                                    item.DanhSachMaSpId.HasValue
+                                        ? (object)item.DanhSachMaSpId.Value
+                                        : DBNull.Value);
+
+                                cmdTTDH.Parameters.AddWithValue("@DanhSachDatHang_ID", danhSachDatHangId);
+                                cmdTTDH.Parameters.AddWithValue("@TenVatTu", item.TenVatTu.Trim());
+                                cmdTTDH.Parameters.AddWithValue(
+                                    "@TenVatTu_KhongDau", item.TenVatTuKhongDau.Trim());
+
+                                cmdTTDH.Parameters.AddWithValue("@SoLuongMua", item.SoLuong);
+                                cmdTTDH.Parameters.AddWithValue(
+                                    "@MucDichMua",
+                                    string.IsNullOrWhiteSpace(item.MucDichMua)
+                                        ? DBNull.Value
+                                        : (object)item.MucDichMua.Trim());
+
+                                cmdTTDH.Parameters.AddWithValue("@NgayGiao", ngay.ToString("yyyy-MM-dd"));
+                                cmdTTDH.Parameters.AddWithValue("@Date_Insert", ngay.ToString("yyyy-MM-dd"));
+                                cmdTTDH.Parameters.AddWithValue(
+                                    "@DonGia",
+                                    item.DonGia.HasValue ? (object)item.DonGia.Value : DBNull.Value);
+
+                                thongTinDatHangId = Convert.ToInt64(cmdTTDH.ExecuteScalar());
+                            }
+
+                            // Lưu vào lịch sử xuất nhập
+                            InsertLichSuXuatNhap(
+                                conn,
+                                tx,
+                                sqlInsertLichSuXuatNhap,
+                                info,
+                                item,
+                                thongTinDatHangId,
+                                ngay,
+                                tenPhieu
+                            );
+                        }
+                    }
+                    tx.Commit();
+                    return maDon;
+                }
+                catch
+                {
+                    tx.Rollback();
+                    throw;
+                }
+            });
+        }
+
+
+        private static void InsertLichSuXuatNhap(
+            SQLiteConnection conn,
+            SQLiteTransaction tx,
+            string sql,
+            DonKhacInfo info,
+            DonKhacItem item,
+            long thongTinDatHangId,
+            DateTime ngay,
+            string tenPhieu)
+        {
+            using var cmd = new SQLiteCommand(sql, conn, tx);
+
+            cmd.Parameters.AddWithValue("@ThongTinDatHang_ID", thongTinDatHangId);
+            cmd.Parameters.AddWithValue("@Ngay", ngay.ToString("yyyy-MM-dd"));
+            cmd.Parameters.AddWithValue("@NguoiGiao_Nhan", info.NguoiGiaoNhan?.Trim() ?? "");
+
+            cmd.Parameters.AddWithValue(
+                "@LyDo",
+                string.IsNullOrWhiteSpace(info.LyDoChung)
+                    ? DBNull.Value
+                    : (object)info.LyDoChung.Trim());
+
+            cmd.Parameters.AddWithValue(
+                "@SoLuong",
+                info.IsNhapKho ? item.SoLuong : -Math.Abs(item.SoLuong));
+
+            cmd.Parameters.AddWithValue("@DanhSachKho_ID", info.KhoId);
+            cmd.Parameters.AddWithValue("@NguoiLam", info.NguoiLam?.Trim() ?? "");
+
+            cmd.Parameters.AddWithValue(
+                "@GhiChu",
+                string.IsNullOrWhiteSpace(item.GhiChu)
+                    ? DBNull.Value
+                    : (object)item.GhiChu.Trim());
+
+            cmd.Parameters.AddWithValue(
+                "@DonGia",
+                item.DonGia.HasValue ? (object)item.DonGia.Value : DBNull.Value);
+
+            cmd.Parameters.AddWithValue("@TenPhieu", tenPhieu);
+
+            cmd.ExecuteNonQuery();
+        }
+
+        public static async Task<List<string>> TimKiemMaDonConHang(string keyword, bool isEdit)
+        {
+            string sql = @"
             SELECT DISTINCT d.MaDon
             FROM DanhSachDatHang d
             INNER JOIN ThongTinDatHang t ON t.DanhSachDatHang_ID = d.id
@@ -1571,6 +2265,18 @@ namespace DG_TonKhoBTP_v02.Database
             HAVING SUM(l.SoLuong) > 0
             ORDER BY d.DateInsert DESC
             LIMIT 30";
+
+            if (isEdit)
+            {
+                sql = @"
+                    SELECT DISTINCT l.TenPhieu as MaDon
+                    FROM LichSuXuatNhap as l                    
+                    WHERE (
+                        l.canedit = 1 
+                        and l.TenPhieu LIKE @kw   COLLATE NOCASE 
+                    )
+                    LIMIT 30";
+            }
 
             var result = new List<string>();
 
@@ -1591,11 +2297,13 @@ namespace DG_TonKhoBTP_v02.Database
 
         public static async Task<List<string>> TimKiemTheoTenVatTuConHang(string keyword)
         {
+
+            string keyWord_KhongDau = CoreHelper.BoDauTiengViet(keyword.Trim());
             const string sql = @"
             SELECT DISTINCT t.TenVatTu
             FROM ThongTinDatHang t
             INNER JOIN LichSuXuatNhap l ON l.ThongTinDatHang_ID = t.id
-            WHERE t.TenVatTu LIKE @kw
+            WHERE t.TenVatTu_KhongDau LIKE @kw COLLATE NOCASE
               AND t.TenVatTu IS NOT NULL
             GROUP BY t.TenVatTu
             HAVING SUM(l.SoLuong) > 0
@@ -1609,7 +2317,7 @@ namespace DG_TonKhoBTP_v02.Database
                 using var conn = new SQLiteConnection(_connStr);
                 conn.Open();
                 using var cmd = new SQLiteCommand(sql, conn);
-                cmd.Parameters.AddWithValue("@kw", $"%{keyword}%");
+                cmd.Parameters.AddWithValue("@kw", $"%{keyWord_KhongDau}%");
 
                 using var rd = cmd.ExecuteReader();
                 while (rd.Read())
@@ -1622,7 +2330,7 @@ namespace DG_TonKhoBTP_v02.Database
         #endregion
 
 
-        public static int GetSoLuongDonThangHienTai(int kieuDon = 1)
+        public static int GetSoLuongDonThangHienTai()
         {
             DateTime now = DateTime.Now;
 
@@ -1637,7 +2345,6 @@ namespace DG_TonKhoBTP_v02.Database
                 SELECT COUNT(*)
                 FROM DanhSachDatHang
                 WHERE DateInsert >= @start 
-                AND LoaiDon = @kieuDon
                 AND DateInsert < @end
             ";
 
@@ -1648,7 +2355,6 @@ namespace DG_TonKhoBTP_v02.Database
 
             cmd.Parameters.AddWithValue("@start", start);
             cmd.Parameters.AddWithValue("@end", end);
-            cmd.Parameters.AddWithValue("@kieuDon", kieuDon);
 
             object result = cmd.ExecuteScalar();
 
@@ -1742,29 +2448,59 @@ namespace DG_TonKhoBTP_v02.Database
         /// Cột yeuCau = tồn kho hiện tại (SUM toàn bộ LichSuXuatNhap)
         /// Chỉ lấy vật tư còn tồn kho > 0
         /// </summary>
-        public static async Task<DataTable> LayChiTietDonDatHangXuatKho(string maDon)
+        public static async Task<DataTable> LayChiTietDonDatHangXuatKho(string maDon, bool isEdit)
         {
-            const string sql = @"
-        SELECT
-            t.id                    AS id,
-            d.MaDon                    AS MaDon,
-            sp.Ten                  AS ten,
-            sp.Ma                   AS ma,
-            sp.DonVi                AS donVi,
-            IFNULL(ls.TonKho, 0)   AS yeuCau
-        FROM ThongTinDatHang t
-        INNER JOIN DanhSachDatHang d ON d.id = t.DanhSachDatHang_ID
-        LEFT JOIN DanhSachMaSP sp ON sp.id = t.DanhSachMaSP_ID
-        LEFT JOIN (
+            string sql = @"
             SELECT
-                ThongTinDatHang_ID,
-                SUM(SoLuong) AS TonKho
-            FROM LichSuXuatNhap
-            GROUP BY ThongTinDatHang_ID
-        ) ls ON ls.ThongTinDatHang_ID = t.id
-        WHERE d.MaDon = @maDon
-          AND IFNULL(ls.TonKho, 0) > 0
-        ORDER BY t.id";
+                t.id                    AS id,
+                d.MaDon                    AS MaDon,
+                sp.Ten                  AS ten,
+                sp.Ma                   AS ma,
+                sp.DonVi                AS donVi,
+                IFNULL(ls.TonKho, 0)   AS yeuCau
+            FROM ThongTinDatHang t
+            INNER JOIN DanhSachDatHang d ON d.id = t.DanhSachDatHang_ID
+            LEFT JOIN DanhSachMaSP sp ON sp.id = t.DanhSachMaSP_ID
+            LEFT JOIN (
+                SELECT
+                    ThongTinDatHang_ID,
+                    SUM(SoLuong) AS TonKho
+                FROM LichSuXuatNhap
+                GROUP BY ThongTinDatHang_ID
+            ) ls ON ls.ThongTinDatHang_ID = t.id
+            WHERE d.MaDon = @maDon
+              AND IFNULL(ls.TonKho, 0) > 0
+            ORDER BY t.id";
+
+
+            if (isEdit)
+            {
+                sql = @"
+                    SELECT
+                        l.id           AS id,
+                        l.TenPhieu     AS MaDon,
+                        t.TenVatTu     AS ten,
+                        sp.Ma          AS ma,
+                        sp.DonVi       AS donVi, 
+	                    ABS(l.soluong) as thucNhan,
+                        l.donGia as dongia  ,
+                        l.SoLuong * l.donGia AS thanhTien,
+                        l.ngay as ngay
+                
+                    FROM LichSuXuatNhap l
+
+                    LEFT JOIN ThongTinDatHang t 
+                        ON t.id = l.ThongTinDatHang_ID
+
+                    INNER JOIN DanhSachDatHang d 
+                        ON d.id = t.DanhSachDatHang_ID
+
+                    LEFT JOIN DanhSachMaSP sp 
+                        ON sp.id = t.DanhSachMaSP_ID
+            
+                    WHERE l.TenPhieu = @maDon AND l.CanEdit = 1 AND ((l.SoLuong > 0 AND @isNhap = 1) OR (l.SoLuong < 0 AND @isNhap = 0))
+                ";
+            }
 
             var dt = new DataTable();
 
@@ -1774,6 +2510,7 @@ namespace DG_TonKhoBTP_v02.Database
                 conn.Open();
                 using var cmd = new SQLiteCommand(sql, conn);
                 cmd.Parameters.AddWithValue("@maDon", maDon);
+                cmd.Parameters.AddWithValue("@isNhap", 0);
 
                 using var adapter = new SQLiteDataAdapter(cmd);
                 adapter.Fill(dt);
@@ -1794,6 +2531,7 @@ namespace DG_TonKhoBTP_v02.Database
                 t.id                    AS id,
                 sp.Ten                  AS ten,
                 sp.Ma                   AS ma,
+                d.MaDon                 AS maDon,
                 sp.DonVi                AS donVi,
                 IFNULL(ls.TonKho, 0)   AS yeuCau
             FROM ThongTinDatHang t
@@ -1806,7 +2544,7 @@ namespace DG_TonKhoBTP_v02.Database
                 FROM LichSuXuatNhap
                 GROUP BY ThongTinDatHang_ID
             ) ls ON ls.ThongTinDatHang_ID = t.id
-            WHERE t.TenVatTu = @tenVatTu
+            WHERE sp.Ten = @tenVatTu
               AND IFNULL(ls.TonKho, 0) > 0
             ORDER BY t.id";
 
@@ -2721,7 +3459,6 @@ namespace DG_TonKhoBTP_v02.Database
             // Lấy chi tiết công đoạn
             var(sqlLayChiTietCD, loaiCD) = CoreHelper.TaoSQL_LayChiTiet_NhieuCD(selectedCongDoans) ;
 
-
             // Câu nối các bảng
             string sqlJoin = CoreHelper.TaoSQL_TaoKetNoiCacBang();
 
@@ -2732,7 +3469,6 @@ namespace DG_TonKhoBTP_v02.Database
 
             // Điều kiện WHERE – chèn trực tiếp giá trị ngày
             string sqlDkNgay = $" WHERE date(tclv.Ngay) >= date('{ngayBD}') AND date(tclv.Ngay) <= date('{ngayKT}')";
-
 
             // Sắp xếp
             string sqlOrder = " ORDER BY tclv.Ngay DESC, ttp.id DESC;";

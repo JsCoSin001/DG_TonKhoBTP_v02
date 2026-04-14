@@ -54,6 +54,7 @@ namespace DG_TonKhoBTP_v02.Models
         public List<RoleInfo> Roles { get; set; }
     }
 
+
     public static class UserContext
     {
         public static bool IsAuthenticated { get; private set; }

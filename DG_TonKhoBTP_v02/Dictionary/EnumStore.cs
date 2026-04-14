@@ -49,6 +49,16 @@ public static class EnumStore
             { "QB_Mica", May("T3", "T4", "T5", "T6") },
         };
 
+
+    public static class TieuDeFormVatTu
+    {
+        public const string DON_DE_NGHI_VAT_TU = "ĐƠN ĐỀ NGHỊ MUA VẬT TƯ";
+        public const string DON_DE_NGHI_DICH_VU = "ĐƠN ĐỀ NGHỊ MUA DỊCH VỤ";
+        public const string DON_XAC_NHAN_DICH_VU = "ĐƠN XÁC NHẬN DỊCH VỤ";
+        public const string NHAP_VAT_TU = "ĐƠN NHẬP VẬT TƯ";
+        public const string XUAT_VAT_TU = "ĐƠN XUẤT VẬT TƯ";
+    }
+
     public static Dictionary<int, string> ErrorTP = new Dictionary<int, string>()
     {
         { 1, "Lỗi bất thường, liên hệ Mr.Linh để xử lý!" },

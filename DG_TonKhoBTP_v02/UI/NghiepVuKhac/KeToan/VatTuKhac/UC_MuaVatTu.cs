@@ -44,7 +44,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
 
         private void setupUI()
         {
-            lblTitle.Text = _KieuDon == 1 ? "ĐẶT HÀNG MUA VẬT TƯ" : "ĐẶT HÀNG MUA DỊCH VỤ";
+            lblTitle.Text = _KieuDon == 1 ? EnumStore.TieuDeFormVatTu.DON_DE_NGHI_VAT_TU : EnumStore.TieuDeFormVatTu.DON_DE_NGHI_DICH_VU;
+           
             SetupDGVColumns();
         }
 
@@ -103,7 +104,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
             dgvDSMua.Columns.Add(colMucDich);
 
             dgvDSMua.Columns.Add(new DataGridViewTextBoxColumn { Name = "ngayGiao", HeaderText = "Ngày giao", Width = 150 });
-            dgvDSMua.AllowUserToAddRows = allowAddRows;
+            
+            //dgvDSMua.AllowUserToAddRows = allowAddRows;
 
             AddXoaColumn();
 
@@ -130,7 +132,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
         {
             var repo = new VatTuRepository();
 
-            // ── Helper tìm tên vật tư (cbxTimTenVatTu) — giữ nguyên ──────────────
+            // ── Helper tìm tên vật tư (cbxTimTenVatTu)  ──────────────
             _vatTuSearchHelper = new ComboBoxSearchHelper<MuaVatTuSearchItem>(
                 comboBox: cbxTimTenVatTu,
                 searchFunc: keyword => repo.TimKiemTheoCheDoAsync(keyword, rdoTaoMoi.Checked, _KieuDon),
@@ -150,8 +152,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
                            null,                      // ngayGiao
                            item.SlTon.ToString("N2")  // slTon
                         );
-                        cbxTimTenVatTu.Text = "";
-                        cbxTimTenVatTu.Items.Clear();
+                        //_vatTuSearchHelper?.Clear();
                         return;
                     }
 
@@ -159,12 +160,12 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
                     tbMaDon.Text = item.MaDon;
                     dgvDSMua.Rows.Clear();
 
-                    var chiTietList = repo.GetChiTietDonHang(item.MaDon);
+                    var chiTietList = repo.GetChiTietDonHang(item.MaDon, _KieuDon);
+
 
                     if (chiTietList == null || chiTietList.Count == 0)
                     {
-                        cbxTimTenVatTu.Text = "";
-                        cbxTimTenVatTu.Items.Clear();
+                        //_vatTuSearchHelper?.Clear();
                         return;
                     }
 
@@ -186,8 +187,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
                         LoadDGVFullColumns(chiTietList, repo);
                     }
 
-                    cbxTimTenVatTu.Text = "";
-                    cbxTimTenVatTu.Items.Clear();
+                    //_vatTuSearchHelper?.Clear();
                 }
             );
 
@@ -223,13 +223,15 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
                       FROM DanhSachMaSP dsp
                       LEFT JOIN ThongTinDatHang ttdh ON ttdh.DanhSachMaSP_ID = dsp.id
                       LEFT JOIN LichSuXuatNhap lsx ON lsx.ThongTinDatHang_ID = ttdh.id
-                      WHERE dsp.Ten_KhongDau LIKE @Ten COLLATE NOCASE
+                      WHERE dsp.Ten_KhongDau COLLATE NOCASE LIKE @Ten
                       GROUP BY dsp.id, dsp.Ten, dsp.Ma, dsp.DonVi
                       ORDER BY dsp.Ten
                       LIMIT 30",
                             "%" + likeKeyword + "%",
                             "Ten"
                         );
+
+                        Console.WriteLine();
 
                         System.Diagnostics.Debug.WriteLine($"slTon row 0 = {(dt.Rows.Count > 0 ? dt.Rows[0]["slTon"]?.ToString() : "no rows")}");
 
@@ -259,7 +261,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
                         StringComparison.OrdinalIgnoreCase))
                 {
                     dgvDSMua.CurrentCell = dgvRow.Cells["soLuong"];
-                    _cbxTimTheoDonHelper?.Clear();
+                    //_cbxTimTheoDonHelper?.Clear();
                     return;
                 }
             }
@@ -284,7 +286,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
             if (rowIndex >= 0 && rowIndex < dgvDSMua.Rows.Count)
                 dgvDSMua.CurrentCell = dgvDSMua.Rows[rowIndex].Cells["soLuong"];
 
-            _cbxTimTheoDonHelper?.Clear();
+            //_cbxTimTheoDonHelper?.Clear();
         }
 
         // ─────────────────────────────────────────────────────────────────────────────
@@ -343,20 +345,20 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
         {
             bool taoMoiDon = rdoTaoMoi.Checked;
 
-            cbxTimTenVatTu.Text = "";
-            cbxTimTenVatTu.Items.Clear();
+            //_vatTuSearchHelper?.Clear();
 
             // ── THÊM MỚI: reset cbxTimTheoDon khi đổi chế độ ────────────────────
-            _cbxTimTheoDonHelper?.Clear();
+            //_cbxTimTheoDonHelper?.Clear();
 
             if (_KieuDon == 2)
             {
                 cbxTimTenVatTu.Enabled = !taoMoiDon; // Tạo mới → disable, Sửa đơn → enable
+                cbxTimThemTheoTen.Enabled = false;
             }
-
-            // rdoTaoMoi.Checked = true  → cbxTimTheoDon disable (hành vi cũ)
-            // rdoTaoMoi.Checked = false → cbxTimTheoDon enable (tìm vật tư từ DanhSachMaSP)
-            cbxTimThemTheoTen.Enabled = !taoMoiDon;
+            else
+            {
+                cbxTimThemTheoTen.Enabled = !taoMoiDon;
+            }
 
             tbMaDon.Enabled = taoMoiDon;
 
@@ -366,23 +368,28 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
 
             if (taoMoiDon)
             {
-                dgvDSMua.Rows.Clear();
-
-                // Reset layout về mặc định khi chuyển sang chế độ tạo mới
-                if (_isNullMaSPLayout && _KieuDon == 1)
-                    SetupDGVColumns();
-                else if (_KieuDon == 2 && !_isNullMaSPLayout)
-                    SetupDGVColumnsNullMaSP(allowAddRows: true);
-
-                int soLuongDon = await Task.Run(() => DatabaseHelper.GetSoLuongDonThangHienTai(_KieuDon));
-                string soDon = $"{GenerateMaDon(_KieuDon)}-{(soLuongDon + 1):0000}";
-                tbMaDon.Text = soDon;
+                await ResetTaoMoiDonAsync();
             }
             else
             {
                 dgvDSMua.Rows.Clear();
                 tbMaDon.Text = "";
             }
+        }
+
+        private async Task ResetTaoMoiDonAsync()
+        {
+            dgvDSMua.Rows.Clear();
+
+            // Reset layout về mặc định khi chuyển sang chế độ tạo mới
+            if (_isNullMaSPLayout && _KieuDon == 1)
+                SetupDGVColumns();
+            else if (_KieuDon == 2 && !_isNullMaSPLayout)
+                SetupDGVColumnsNullMaSP(allowAddRows: true);
+
+            int soLuongDon = await Task.Run(() => DatabaseHelper.GetSoLuongDonThangHienTai());
+            string soDon = $"{GenerateMaDon(_KieuDon)}-{(soLuongDon + 1):0000}";
+            tbMaDon.Text = soDon;
         }
 
         // ─────────────────────────────────────────────────────────────────────────────
@@ -438,7 +445,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
                 if (taoMoiDon)
                 {
                     vt.InsertDonDatHang(
-                        new DanhSachDatHang { MaDon = maDon, LoaiDon = _KieuDon, NguoiDat = nguoiLam, DateInsert = dtNgay.Value.ToString("dd/MM/yyyy") },
+                        new DanhSachDatHang { MaDon = maDon, LoaiDon = _KieuDon, NguoiDat = nguoiLam, DateInsert = dtNgay.Value.ToString("yyyy-MM-dd") },
                         list
                     );
                     InPhieuMuaVatTu(maDon, list);
@@ -446,7 +453,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
                 else
                 {
                     vt.UpdateDonDatHang(
-                        new DanhSachDatHang { MaDon = maDon, LoaiDon = _KieuDon, DateInsert = dtNgay.Value.ToString("dd/MM/yyyy") },
+                        new DanhSachDatHang { MaDon = maDon, LoaiDon = _KieuDon, DateInsert = dtNgay.Value.ToString("yyyy-MM-dd") },
                         list
                     );
 
@@ -468,6 +475,11 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
                 );
 
                 dgvDSMua.Rows.Clear();
+
+                int soLuongDon = DatabaseHelper.GetSoLuongDonThangHienTai();
+                string soDon = $"{GenerateMaDon(_KieuDon)}-{(soLuongDon + 1):0000}";
+                tbMaDon.Text = soDon;
+
                 cbxTimTenVatTu.Focus();
             }
             catch (Exception ex)

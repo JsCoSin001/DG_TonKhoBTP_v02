@@ -127,7 +127,7 @@ namespace DG_TonKhoBTP_v02.UI.Helper.AutoSearchWithCombobox
             };
         }
 
-        public List<ThongTinDatHang> GetChiTietDonHang(string maDon)
+        public List<ThongTinDatHang> GetChiTietDonHang(string maDon, int loaiDon)
         {
             var result = new List<ThongTinDatHang>();
             string sql = @"
@@ -150,8 +150,7 @@ namespace DG_TonKhoBTP_v02.UI.Helper.AutoSearchWithCombobox
                 FROM ThongTinDatHang ttdh
                 INNER JOIN DanhSachDatHang dsdh ON dsdh.Id = ttdh.DanhSachDatHang_ID
                 WHERE dsdh.MaDon = @MaDon
-                  AND dsdh.LoaiDon = 1;
-            ";
+                  AND dsdh.LoaiDon = "+ loaiDon;
             DataTable dt = DatabaseHelper.GetData(sql, maDon, "MaDon");
             foreach (DataRow row in dt.Rows)
             {
@@ -198,6 +197,7 @@ namespace DG_TonKhoBTP_v02.UI.Helper.AutoSearchWithCombobox
                 FROM DanhSachMaSP dsp
                 WHERE dsp.Ten_KhongDau LIKE '%' || @keyword || '%' COLLATE NOCASE
                 LIMIT " + Limit;
+;
 
                 DataTable dt = DatabaseHelper.GetData(sql, pattern, "keyword");
 
@@ -235,6 +235,8 @@ namespace DG_TonKhoBTP_v02.UI.Helper.AutoSearchWithCombobox
                              "AND LoaiDon =  " + kieuDon + " " +
                              "LIMIT " + Limit;
 
+
+                Console.WriteLine(sql);
                 DataTable dt = DatabaseHelper.GetData(sql, pattern, "keyword");
 
                 foreach (DataRow row in dt.Rows)

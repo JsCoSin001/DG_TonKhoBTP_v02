@@ -1,4 +1,5 @@
 ﻿using DG_TonKhoBTP_v02.Database;
+using DG_TonKhoBTP_v02.Models;
 using DG_TonKhoBTP_v02.Printer;
 using DG_TonKhoBTP_v02.UI.Helper;
 using System;
@@ -8,6 +9,7 @@ using System.Data;
 using System.Data.SQLite;
 using System.Drawing;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -22,6 +24,9 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
         private ComboBoxSearchHelper<string> _cbxTimDonHelper;
         private ComboBoxSearchHelper<string> _cbxTimTenHelper;
         private ComboBoxSearchHelper<string> _cbxNhaCungCapHelper;  // ← THÊM MỚI
+        private bool IsEdit => cbxKieu.SelectedIndex == 1;
+        private bool IsKhac => !rdoLoai.Checked;
+        private string NguoiLam => tbxnguoiLam.Text;
 
         bool _isNhapKho = true;
         int _kieu = 1;
@@ -37,19 +42,19 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
             _khoList = khoList;
 
             string label = "Nhập vật tư";
+            cbxKieu.SelectedIndex = 0;
 
             if (isNhapKho)
             {
-                if (kieu == 2)
-                {
-                    label = "Xác nhận dịch vụ".ToUpper();
-                    dgvChiTietDon.Columns["donGia"].Visible = true;
-                    dgvChiTietDon.Columns["thanhTien"].Visible = true;
-                }
+                label = kieu == 2 ? EnumStore.TieuDeFormVatTu.DON_XAC_NHAN_DICH_VU
+                        : EnumStore.TieuDeFormVatTu.NHAP_VAT_TU;
+
+                dgvChiTietDon.Columns["donGia"].Visible = true;
+                dgvChiTietDon.Columns["thanhTien"].Visible = true;
             }
             else
             {
-                label = "Xuất vật tư".ToUpper();
+                label = EnumStore.TieuDeFormVatTu.XUAT_VAT_TU;
             }
 
             lblTitle.Text = label.ToUpper();
@@ -65,10 +70,14 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
             _ = WaitingHelper.RunWithWaiting(async () =>
             {
                 KhoiTaoCbxTimDon();
+
                 KhoiTaoCbxTimTen();
+
                 KhoiTaoGiaoDienKhac();
-                TimKiemTenNCC();         
-                                                
+
+                TimKiemTenNCC();
+
+                dgvChiTietDon.CellClick -= DgvChiTietDon_CellClick;
                 dgvChiTietDon.CellClick += DgvChiTietDon_CellClick;
 
                 if (!_isNhapKho)
@@ -77,8 +86,104 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
                     dgvChiTietDon.Columns["thucNhan"].HeaderText = "Số Lượng Xuất";
                 }
 
+
+                dgvChiTietDon.CellFormatting -= DgvChiTietDon_CellFormatting;
+                dgvChiTietDon.CellFormatting += DgvChiTietDon_CellFormatting;
+
+                dgvChiTietDon.CellValidating -= DgvChiTietDon_CellValidating;
+                dgvChiTietDon.CellValidating += DgvChiTietDon_CellValidating;
+
+                dgvChiTietDon.CellParsing -= DgvChiTietDon_CellParsing;
+                dgvChiTietDon.CellParsing += DgvChiTietDon_CellParsing;
+
+
                 await Task.CompletedTask;
             }, "ĐANG KHỞI TẠO GIAO DIỆN...");
+        }
+
+        private void DgvChiTietDon_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+        {
+            if (e.RowIndex < 0) return;
+            if (dgvChiTietDon.Columns[e.ColumnIndex].Name != "ngay") return;
+            if (e.Value == null || e.Value == DBNull.Value) return;
+
+            string s = e.Value.ToString().Trim();
+            if (string.IsNullOrWhiteSpace(s)) return;
+
+            DateTime dt;
+            string[] formats =
+            {
+                "yyyy-MM-dd",
+                "yyyy-MM-dd HH:mm:ss",
+                "dd-MM-yyyy"
+            };
+
+            if (DateTime.TryParseExact(
+                s,
+                formats,
+                System.Globalization.CultureInfo.InvariantCulture,
+                System.Globalization.DateTimeStyles.None,
+                out dt))
+            {
+                e.Value = dt.ToString("dd-MM-yyyy");
+                e.FormattingApplied = true;
+            }
+        }
+
+        private void DgvChiTietDon_CellValidating(object sender, DataGridViewCellValidatingEventArgs e)
+        {
+            if (e.RowIndex < 0) return;
+            if (dgvChiTietDon.Columns[e.ColumnIndex].Name != "ngay") return;
+
+            string input = e.FormattedValue?.ToString().Trim();
+
+            if (string.IsNullOrWhiteSpace(input))
+            {
+                dgvChiTietDon.Rows[e.RowIndex].ErrorText = "Ngày không được để trống.";
+                e.Cancel = true;
+                return;
+            }
+
+            DateTime dt;
+            bool ok = DateTime.TryParseExact(
+                input,
+                "dd-MM-yyyy",
+                System.Globalization.CultureInfo.InvariantCulture,
+                System.Globalization.DateTimeStyles.None,
+                out dt);
+
+            if (!ok)
+            {
+                dgvChiTietDon.Rows[e.RowIndex].ErrorText = "Ngày phải có định dạng dd-MM-yyyy.";
+                FrmWaiting.ShowGifAlert("Ngày phải có định dạng dd-MM-yyyy.", myIcon: EnumStore.Icon.Warning);
+                e.Cancel = true;
+                return;
+            }
+
+            dgvChiTietDon.Rows[e.RowIndex].ErrorText = "";
+        }
+
+        private void DgvChiTietDon_CellParsing(object sender, DataGridViewCellParsingEventArgs e)
+        {
+            if (e.RowIndex < 0) return;
+            if (dgvChiTietDon.Columns[e.ColumnIndex].Name != "ngay") return;
+            if (e.Value == null) return;
+
+            string input = e.Value.ToString().Trim();
+            if (string.IsNullOrWhiteSpace(input)) return;
+
+            DateTime dt;
+            if (DateTime.TryParseExact(
+                input,
+                "dd-MM-yyyy",
+                System.Globalization.CultureInfo.InvariantCulture,
+                System.Globalization.DateTimeStyles.None,
+                out dt))
+            {
+                // Lưu vào DataTable / SQLite dưới dạng string yyyy-MM-dd
+                e.Value = dt.ToString("yyyy-MM-dd");
+                e.ParsingApplied = true;
+            }
         }
 
         private void KhoiTaoGiaoDienKhac()
@@ -89,6 +194,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
 
             cbxKhoHang.SelectedIndex = -1;
             cbxKhoHang.Text = "";
+
+
         }
 
         // ── THÊM MỚI: Khởi tạo tìm kiếm trong cbxNhaCungCap ─────────────
@@ -117,9 +224,10 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
 
         private void KhoiTaoCbxTimTen()
         {
+
             Func<string, Task<List<string>>> searchFunc;
             if (_isNhapKho)
-                searchFunc = keyword => DatabaseHelper.TimKiemTheoTenVatTu(keyword, _kieu);
+                searchFunc = keyword => DatabaseHelper.TimKiemTheoTenVatTu(keyword, _kieu, IsEdit, IsKhac);
             else
                 searchFunc = keyword => DatabaseHelper.TimKiemTheoTenVatTuConHang(keyword);
 
@@ -131,18 +239,49 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
             );
         }
 
+        private void KhoiTaoCbxTimDon()
+        {
+            Func<string, Task<List<string>>> searchFunc;
+            if (_isNhapKho)
+                searchFunc = keyword => DatabaseHelper.TimKiemMaDon(keyword, IsEdit);
+            else
+                searchFunc = keyword => DatabaseHelper.TimKiemMaDonConHang(keyword, IsEdit);
+
+            _cbxTimDonHelper = new ComboBoxSearchHelper<string>(
+                comboBox: cbxTimDon,
+                searchFunc: searchFunc,
+                displaySelector: maDon => maDon,
+                onItemSelected: maDon => _ = LoadChiTietDonAsync(maDon, IsEdit)
+            );
+        }
+
         private async Task LoadChiTietDonTheoTenAsync(string tenVatTu)
         {
             if (string.IsNullOrWhiteSpace(tenVatTu)) return;
-
+            
             await WaitingHelper.RunWithWaiting(async () =>
             {
-                var dt = _isNhapKho
-                    ? await DatabaseHelper.LayChiTietDonTheoTenVatTu(tenVatTu, _kieu)
-                    : await DatabaseHelper.LayChiTietDonTheoTenVatTuXuatKho(tenVatTu);
+                DataTable dt;
 
-                MergeVaoDgv(dt);
-                _cbxTimTenHelper.Clear();
+                if (IsEdit)
+                {
+                    if (string.IsNullOrWhiteSpace(NguoiLam))
+                    {
+                        FrmWaiting.ShowGifAlert("Cần nhập người làm trước");
+                        return;
+                    }
+
+                    dt = await DatabaseHelper.GetDataTuTenVatTuXuatNhap_Edit(tenVatTu, NguoiLam, _isNhapKho);
+                }
+                else
+                {
+                    dt = _isNhapKho
+                        ? await DatabaseHelper.LayChiTietDonTheoTenVatTu(tenVatTu, _kieu, IsKhac)
+                        : await DatabaseHelper.LayChiTietDonTheoTenVatTuXuatKho(tenVatTu);
+                }
+
+                MergeVaoDgv(dt, IsKhac);
+                //_cbxTimTenHelper.Clear();
             }, "ĐANG TẢI DỮ LIỆU VẬT TƯ...");
         }
 
@@ -151,49 +290,66 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
             if (e.ColumnIndex != dgvChiTietDon.Columns["xoa"].Index || e.RowIndex < 0)
                 return;
 
-            var confirm = MessageBox.Show(
-                "Bạn có chắc muốn xóa dòng này?",
-                "Xác nhận",
-                MessageBoxButtons.YesNo,
-                MessageBoxIcon.Question);
-
-            if (confirm != DialogResult.Yes) return;
 
             if (dgvChiTietDon.DataSource is DataTable dt)
             {
+                // ✅ Lấy ID trước khi xóa
+                int id = Convert.ToInt32(dt.Rows[e.RowIndex]["id"]);
+
+                Console.WriteLine(IsEdit);
+                // ✅ Xóa DB trước (nếu đang edit)
+                if (IsEdit)
+                {
+
+                    var confirm = MessageBox.Show(
+                        "Hành động này sẽ xóa dữ liệu trong hệ thống!",
+                        "Xác nhận",
+                        MessageBoxButtons.YesNo,
+                        MessageBoxIcon.Question);
+
+                    if (confirm != DialogResult.Yes) return;
+
+                    try
+                    {
+                        DatabaseHelper.Delete_ByID("LichSuXuatNhap", id);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Lỗi xóa DB: " + ex.Message);
+                        return;
+                    }
+                }
+                else
+                {
+                    var confirm = MessageBox.Show(
+                        "Bạn có chắc chắn xóa dòng này",
+                        "Xác nhận",
+                        MessageBoxButtons.YesNo,
+                        MessageBoxIcon.Question);
+                    if (confirm != DialogResult.Yes) return;
+                }
+
+                    // ✅ Xóa trên DataTable
                 dt.Rows[e.RowIndex].Delete();
                 dt.AcceptChanges();
             }
         }
 
-        private void KhoiTaoCbxTimDon()
-        {
-            Func<string, Task<List<string>>> searchFunc;
-            if (_isNhapKho)
-                searchFunc = keyword => DatabaseHelper.TimKiemMaDon(keyword);
-            else
-                searchFunc = keyword => DatabaseHelper.TimKiemMaDonConHang(keyword);
 
-            _cbxTimDonHelper = new ComboBoxSearchHelper<string>(
-                comboBox: cbxTimDon,
-                searchFunc: searchFunc,
-                displaySelector: maDon => maDon,
-                onItemSelected: maDon => _ = LoadChiTietDonAsync(maDon)
-            );
-        }
-
-        private void MergeVaoDgv(DataTable dtMoi)
+        private void MergeVaoDgv(DataTable dtMoi, bool isKhac, bool isEdit=false)
         {
             if (dtMoi == null || dtMoi.Rows.Count == 0) return;
             bool showMa_DonVi = _kieu == 1;
 
+            fl.Enabled = false;
+
             if (dgvChiTietDon.DataSource is DataTable dtHienTai)
             {
                 var idsHienCo = new HashSet<long>(
-                    dtHienTai.Rows
-                             .Cast<DataRow>()
-                             .Select(r => Convert.ToInt64(r["id"]))
-                );
+                       dtHienTai.Rows
+                                .Cast<DataRow>()
+                                .Select(r => Convert.ToInt64(r["id"]))
+                   );
 
                 foreach (DataRow row in dtMoi.Rows)
                 {
@@ -212,23 +368,27 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
 
             dgvChiTietDon.Columns["ma"].Visible = showMa_DonVi;
             dgvChiTietDon.Columns["donVi"].Visible = showMa_DonVi;
-            dgvChiTietDon.Columns["thucNhan"].ReadOnly = !showMa_DonVi;
-            dgvChiTietDon.Columns["donGia"].Visible = !showMa_DonVi;
-            dgvChiTietDon.Columns["thanhTien"].Visible = !showMa_DonVi;
+
+            dgvChiTietDon.Columns["MaDon"].ReadOnly = true;
+            dgvChiTietDon.Columns["donGia"].Visible = _isNhapKho;
+            dgvChiTietDon.Columns["thanhTien"].Visible = _isNhapKho;
+            dgvChiTietDon.Columns["yeuCau"].Visible = !isEdit;
+
+            dgvChiTietDon.Columns["ngay"].DefaultCellStyle.Format = "dd-MM-yyyy";
         }
 
-        private async Task LoadChiTietDonAsync(string maDon)
+        private async Task LoadChiTietDonAsync(string maDon, bool isEdit)
         {
             if (string.IsNullOrWhiteSpace(maDon)) return;
 
             await WaitingHelper.RunWithWaiting(async () =>
             {
                 var dt = _isNhapKho
-                    ? await DatabaseHelper.LayChiTietDonDatHang(maDon)
-                    : await DatabaseHelper.LayChiTietDonDatHangXuatKho(maDon);
+                    ? await DatabaseHelper.LayChiTietDonDatHang(maDon, IsEdit)
+                    : await DatabaseHelper.LayChiTietDonDatHangXuatKho(maDon, IsEdit);
 
-                MergeVaoDgv(dt);
-                _cbxTimDonHelper.Clear();
+                MergeVaoDgv(dt, IsKhac);
+                //_cbxTimDonHelper.Clear();
             }, "ĐANG TẢI CHI TIẾT ĐƠN...");
         }
 
@@ -241,7 +401,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
                 return;
             }
 
-            if (cbxKhoHang.Text == "")
+            if (cbxKhoHang.Text == "" && !IsEdit && _kieu != 2)
             {
                 MessageBox.Show("Kho hàng không được rỗng", "Thông báo",
                                 MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -251,8 +411,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
 
             string nguoiGiaoNhan = txtNguoiGiaoNhan.Text.Trim();
             string lyDoChung = rdoLoai.Checked ? "Theo đề nghị" : "Khác";
-            string ngay = dtNgayNhapXuat.Value.ToString("dd/MM/yyyy");
-            int kho = cbxKhoHang.SelectedIndex;
+            string ngay = dtNgayNhapXuat.Value.ToString("yyyy-MM-dd");
+            int kho = cbxKhoHang.SelectedIndex + 1;
             string nguoiLam = tbxnguoiLam.Text.Trim();
 
             if (string.IsNullOrWhiteSpace(nguoiLam))
@@ -269,23 +429,57 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
 
             await WaitingHelper.RunWithWaiting(async () =>
             {
-                tenPhieu = await DatabaseHelper.LuuLichSuXuatNhap(
-                    dgvChiTietDon,
-                    nguoiGiaoNhan,
-                    lyDoChung,
-                    ngay,
-                    kho, nguoiLam,
-                    _isNhapKho);
 
-                if (_kieu == 2)
+                
+                if (!IsEdit)
                 {
-                    await DatabaseHelper.LuuLichSuXuatNhap(
+
+                    if (IsKhac)
+                    {
+                        var info = new DonKhacInfo
+                        {
+                            NguoiDat = nguoiLam,
+                            NguoiGiaoNhan = nguoiGiaoNhan,
+                            LyDoChung = lyDoChung,
+                            Ngay = dtNgayNhapXuat.Value,
+                            KhoId = kho,
+                            NguoiLam = nguoiLam,
+                            IsNhapKho = _isNhapKho
+                        };
+
+                        var items = LayDanhSachDonKhacItems(dgvChiTietDon);
+
+                        tenPhieu = await DatabaseHelper.LuuDonKhacAsync(info, items);
+                    }
+                    else
+                    {
+                        tenPhieu = await DatabaseHelper.LuuLichSuXuatNhap(
+                                              dgvChiTietDon,
+                                              nguoiGiaoNhan,
+                                              lyDoChung,
+                                              ngay,
+                                              kho, nguoiLam,
+                                              _isNhapKho);
+
+                        if (_kieu == 2)
+                        {
+                            await DatabaseHelper.LuuLichSuXuatNhap(
+                                dgvChiTietDon,
+                                nguoiGiaoNhan,
+                                lyDoChung,
+                                ngay,
+                                kho, nguoiLam,
+                                false);
+                        }
+                    }
+
+                }
+                else
+                {
+                    await DatabaseHelper.CapNhatLichSuXuatNhap(
                         dgvChiTietDon,
                         nguoiGiaoNhan,
-                        lyDoChung,
-                        ngay,
-                        kho, nguoiLam,
-                        false);
+                        lyDoChung, nguoiLam, _isNhapKho);
                 }
 
             }, _isNhapKho
@@ -294,10 +488,9 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
 
             btnLuu.Enabled = true;
 
-            if (string.IsNullOrWhiteSpace(tenPhieu))
+            if (string.IsNullOrWhiteSpace(tenPhieu) && !IsEdit)
             {
-                MessageBox.Show("Không có dòng nào hợp lệ để lưu.",
-                                "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                FrmWaiting.ShowGifAlert("Lưu thất bại. Vui lòng thử lại.");
                 return;
             }
 
@@ -306,10 +499,27 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
             else
                 In_PhieuXuatKho(tenPhieu);
 
-            MessageBox.Show($"Lưu thành công. Mã phiếu: {tenPhieu}",
-                            "Kết quả", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            FrmWaiting.ShowGifAlert("Lưu thành công",myIcon:EnumStore.Icon.Success);
 
-            ((DataTable)dgvChiTietDon.DataSource).Clear();
+            Reset();
+
+        }
+
+        private void Reset()
+        {
+            if (dgvChiTietDon.DataSource is DataTable dt)
+                dt.Clear();
+
+            txtNguoiGiaoNhan.Text = "";
+            tbxnguoiLam.SelectedIndex = -1;
+            tbxnguoiLam.Text = "";
+
+            cbxKhoHang.SelectedIndex = -1;
+            cbxKhoHang.Text = "";
+
+            //_cbxTimDonHelper?.Clear();
+            //_cbxTimTenHelper?.Clear();
+            //_cbxNhaCungCapHelper?.Clear();
         }
 
         private void In_PhieuXuatKho(string tenPhieu)
@@ -345,13 +555,13 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
 
             var data = new WarehouseIssuesPrintData
             {
-                NgayIn = DateTime.Now.ToString("'Ngày' dd 'tháng' MM 'năm' yyyy"),
+                NgayIn = dtNgayNhapXuat.Value.ToString("'Ngày' dd 'tháng' MM 'năm' yyyy"),
                 So = "",
                 Co = "",
                 SoPhieu = tenPhieu,
                 NguoiNhan = txtNguoiGiaoNhan.Text.Trim(),
                 LyDoXuat = rdoLoai.Checked ? "Theo đề nghị" : "Khác",
-                XuatTaiKho = "Kho nguyên vật liệu",
+                XuatTaiKho = cbxKhoHang.Text,
                 Items = items,
                 Signature = new SignatureInfo
                 {
@@ -363,6 +573,85 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
             };
 
             new WarehouseIssuesPrintService(data).ShowPreview(this);
+        }
+
+
+        public static List<DonKhacItem> LayDanhSachDonKhacItems(DataGridView dgvChiTietDon)
+        {
+            var result = new List<DonKhacItem>();
+
+            if (dgvChiTietDon == null || dgvChiTietDon.Rows.Count == 0)
+                return result;
+
+            foreach (DataGridViewRow row in dgvChiTietDon.Rows)
+            {
+                if (row.IsNewRow) continue;
+
+                object slObj = row.Cells["thucNhan"]?.Value;
+                if (slObj == null || slObj == DBNull.Value) continue;
+                if (!decimal.TryParse(slObj.ToString(), out decimal soLuong)) continue;
+                if (soLuong == 0) continue;
+
+                long? danhSachMaSpId = null;
+                if (dgvChiTietDon.Columns.Contains("id"))
+                {
+                    object idObj = row.Cells["id"]?.Value;
+                    if (idObj != null && idObj != DBNull.Value &&
+                        long.TryParse(idObj.ToString(), out long tempId))
+                    {
+                        danhSachMaSpId = tempId;
+                    }
+                }
+
+                string tenVatTu = null;
+                if (dgvChiTietDon.Columns.Contains("tenVatTu"))
+                    tenVatTu = row.Cells["tenVatTu"]?.Value?.ToString()?.Trim();
+                else if (dgvChiTietDon.Columns.Contains("TenVatTu"))
+                    tenVatTu = row.Cells["TenVatTu"]?.Value?.ToString()?.Trim();
+                else if (dgvChiTietDon.Columns.Contains("ten"))
+                    tenVatTu = row.Cells["ten"]?.Value?.ToString()?.Trim();
+
+                if (string.IsNullOrWhiteSpace(tenVatTu))
+                    continue;
+
+                string tenVatTuKhongDau = CoreHelper.BoDauTiengViet(tenVatTu);
+               
+                string mucDichMua = null;
+                if (dgvChiTietDon.Columns.Contains("mucDichMua"))
+                    mucDichMua = row.Cells["mucDichMua"]?.Value?.ToString()?.Trim();
+                else if (dgvChiTietDon.Columns.Contains("MucDichMua"))
+                    mucDichMua = row.Cells["MucDichMua"]?.Value?.ToString()?.Trim();
+
+                string ghiChu = null;
+                if (dgvChiTietDon.Columns.Contains("ghiChu"))
+                    ghiChu = row.Cells["ghiChu"]?.Value?.ToString()?.Trim();
+                else if (dgvChiTietDon.Columns.Contains("GhiChu"))
+                    ghiChu = row.Cells["GhiChu"]?.Value?.ToString()?.Trim();
+
+                decimal? donGia = null;
+                if (dgvChiTietDon.Columns.Contains("DonGia"))
+                {
+                    object dgObj = row.Cells["DonGia"]?.Value;
+                    if (dgObj != null && dgObj != DBNull.Value &&
+                        decimal.TryParse(dgObj.ToString(), out decimal tempDonGia))
+                    {
+                        donGia = tempDonGia;
+                    }
+                }
+
+                result.Add(new DonKhacItem
+                {
+                    DanhSachMaSpId = danhSachMaSpId,
+                    TenVatTu = tenVatTu,
+                    TenVatTuKhongDau = tenVatTuKhongDau,
+                    SoLuong = soLuong,
+                    MucDichMua = mucDichMua,
+                    GhiChu = ghiChu,
+                    DonGia = donGia
+                });
+            }
+
+            return result;
         }
 
         private void In_PhieuNhapKho(string tenPhieu)
@@ -397,7 +686,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
 
             var data = new WarehouseReceiptPrintData
             {
-                NgayIn = DateTime.Now.ToString("'Ngày' dd 'tháng' MM 'năm' yyyy"),
+                NgayIn = dtNgayNhapXuat.Value.ToString("'Ngày' dd 'tháng' MM 'năm' yyyy"),
                 SoPO = "",
                 SoPhieu = tenPhieu,
                 NguoiGiao = txtNguoiGiaoNhan.Text.Trim(),
@@ -415,6 +704,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
 
             new WarehouseReceiptPrintService(data).ShowPreview(this);
         }
+
 
         private void dgvChiTietDon_CellValueChanged(object sender, DataGridViewCellEventArgs e)
         {
@@ -449,14 +739,14 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
         {
             bool flg = rdoLoai.Checked;
 
-            dgvChiTietDon.AllowUserToAddRows = !flg;
-            dgvChiTietDon.ReadOnly = flg;
+            //dgvChiTietDon.AllowUserToAddRows = !flg;
+            //dgvChiTietDon.ReadOnly = flg;
 
 
-            foreach (DataGridViewColumn col in dgvChiTietDon.Columns)
-            {
-                col.ReadOnly = flg;
-            }
+            //foreach (DataGridViewColumn col in dgvChiTietDon.Columns)
+            //{
+            //    col.ReadOnly = flg;
+            //}
 
             Console.WriteLine(flg);
         }
@@ -467,8 +757,17 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
                 dgvChiTietDon.DataSource = null;
 
             dgvChiTietDon.Rows.Clear();
-            dgvChiTietDon.Columns.Clear();
             dgvChiTietDon.Refresh();
+        }
+
+        private void cbxKieu_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            fl.Enabled = cbxKieu.SelectedIndex == 0;
+
+
+            dgvChiTietDon.Columns["ngay"].Visible = IsEdit;
+
+            ResetDataGridView(dgvChiTietDon);
         }
     }
 }

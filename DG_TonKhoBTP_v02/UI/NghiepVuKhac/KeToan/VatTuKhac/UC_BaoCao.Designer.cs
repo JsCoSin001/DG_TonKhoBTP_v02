@@ -47,13 +47,13 @@
             this.btnIn_Out = new System.Windows.Forms.Button();
             this.cbxAll = new System.Windows.Forms.CheckBox();
             this.btnChinhTrangThai = new System.Windows.Forms.Button();
+            this.cbxMoCuaSo = new System.Windows.Forms.CheckBox();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
             this.cbxThoiGian = new System.Windows.Forms.ComboBox();
             this.label4 = new System.Windows.Forms.Label();
             this.cbxKieu = new System.Windows.Forms.ComboBox();
             this.panel1 = new System.Windows.Forms.Panel();
             this.lblTieuDe = new System.Windows.Forms.Label();
-            this.cbxMoCuaSo = new System.Windows.Forms.CheckBox();
             this.panel3.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -127,7 +127,7 @@
             this.cbxdsKho.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbxdsKho.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbxdsKho.FormattingEnabled = true;
-            this.cbxdsKho.Location = new System.Drawing.Point(764, 9);
+            this.cbxdsKho.Location = new System.Drawing.Point(764, 11);
             this.cbxdsKho.Name = "cbxdsKho";
             this.cbxdsKho.Size = new System.Drawing.Size(61, 26);
             this.cbxdsKho.TabIndex = 6;
@@ -176,7 +176,7 @@
             "Người 13",
             "Người 14",
             "Người 15"});
-            this.cbxNguoiThucHien.Location = new System.Drawing.Point(1095, 9);
+            this.cbxNguoiThucHien.Location = new System.Drawing.Point(1095, 11);
             this.cbxNguoiThucHien.Name = "cbxNguoiThucHien";
             this.cbxNguoiThucHien.Size = new System.Drawing.Size(64, 26);
             this.cbxNguoiThucHien.TabIndex = 6;
@@ -185,13 +185,14 @@
             // 
             this.cbxLoaiYC.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbxLoaiYC.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cbxLoaiYC.Enabled = false;
             this.cbxLoaiYC.FormattingEnabled = true;
             this.cbxLoaiYC.Items.AddRange(new object[] {
             "Không Lọc",
             "Chưa về",
             "Chưa hoàn thành",
             "Đã hoàn thành"});
-            this.cbxLoaiYC.Location = new System.Drawing.Point(912, 9);
+            this.cbxLoaiYC.Location = new System.Drawing.Point(912, 11);
             this.cbxLoaiYC.Name = "cbxLoaiYC";
             this.cbxLoaiYC.Size = new System.Drawing.Size(61, 26);
             this.cbxLoaiYC.TabIndex = 6;
@@ -290,6 +291,7 @@
             // 
             // btnChinhTrangThai
             // 
+            this.btnChinhTrangThai.Enabled = false;
             this.btnChinhTrangThai.Location = new System.Drawing.Point(844, 13);
             this.btnChinhTrangThai.Name = "btnChinhTrangThai";
             this.btnChinhTrangThai.Size = new System.Drawing.Size(144, 45);
@@ -297,6 +299,17 @@
             this.btnChinhTrangThai.Text = "Chỉnh trạng thái";
             this.btnChinhTrangThai.UseVisualStyleBackColor = true;
             this.btnChinhTrangThai.Click += new System.EventHandler(this.btnChinhTrangThai_Click);
+            // 
+            // cbxMoCuaSo
+            // 
+            this.cbxMoCuaSo.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.cbxMoCuaSo.AutoSize = true;
+            this.cbxMoCuaSo.Location = new System.Drawing.Point(3, 28);
+            this.cbxMoCuaSo.Name = "cbxMoCuaSo";
+            this.cbxMoCuaSo.Size = new System.Drawing.Size(165, 22);
+            this.cbxMoCuaSo.TabIndex = 1;
+            this.cbxMoCuaSo.Text = "Mở cửa sổ mới";
+            this.cbxMoCuaSo.UseVisualStyleBackColor = true;
             // 
             // tableLayoutPanel2
             // 
@@ -343,7 +356,7 @@
             this.cbxThoiGian.Items.AddRange(new object[] {
             "Không",
             "Theo khoảng thời gian"});
-            this.cbxThoiGian.Location = new System.Drawing.Point(223, 9);
+            this.cbxThoiGian.Location = new System.Drawing.Point(223, 11);
             this.cbxThoiGian.Name = "cbxThoiGian";
             this.cbxThoiGian.Size = new System.Drawing.Size(61, 26);
             this.cbxThoiGian.TabIndex = 6;
@@ -369,7 +382,7 @@
             "Đề Nghị",
             "Nhập Hàng",
             "Xuất Hàng"});
-            this.cbxKieu.Location = new System.Drawing.Point(3, 9);
+            this.cbxKieu.Location = new System.Drawing.Point(3, 11);
             this.cbxKieu.Name = "cbxKieu";
             this.cbxKieu.Size = new System.Drawing.Size(178, 26);
             this.cbxKieu.TabIndex = 7;
@@ -394,17 +407,6 @@
             this.lblTieuDe.TabIndex = 0;
             this.lblTieuDe.Text = "BÁO CÁO";
             this.lblTieuDe.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
-            // 
-            // cbxMoCuaSo
-            // 
-            this.cbxMoCuaSo.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.cbxMoCuaSo.AutoSize = true;
-            this.cbxMoCuaSo.Location = new System.Drawing.Point(3, 28);
-            this.cbxMoCuaSo.Name = "cbxMoCuaSo";
-            this.cbxMoCuaSo.Size = new System.Drawing.Size(165, 22);
-            this.cbxMoCuaSo.TabIndex = 1;
-            this.cbxMoCuaSo.Text = "Mở cửa sổ mới";
-            this.cbxMoCuaSo.UseVisualStyleBackColor = true;
             // 
             // UC_BaoCao
             // 

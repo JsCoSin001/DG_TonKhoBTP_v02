@@ -26,6 +26,30 @@ namespace DG_TonKhoBTP_v02.Models
         }
     }
 
+
+    public class DonKhacInfo
+    {
+        public string MaDon { get; set; }
+        public string NguoiDat { get; set; }
+        public string NguoiGiaoNhan { get; set; }
+        public string LyDoChung { get; set; }
+        public DateTime Ngay { get; set; }
+        public int KhoId { get; set; }
+        public string NguoiLam { get; set; }
+        public bool IsNhapKho { get; set; } = true;
+    }
+
+    public class DonKhacItem
+    {
+        public long? DanhSachMaSpId { get; set; }
+        public string TenVatTu { get; set; }
+        public string TenVatTuKhongDau { get; set; }
+        public decimal SoLuong { get; set; }
+        public string MucDichMua { get; set; }
+        public string GhiChu { get; set; }
+        public decimal? DonGia { get; set; }
+    }
+
     public class CongDoan
     {
         public int Id { get; set; }
@@ -112,7 +136,8 @@ namespace DG_TonKhoBTP_v02.Models
         public string NguoiThucHien { get; set; }
         public string GhiChu { get; set; }
     }
-    
+
+
 
 
 

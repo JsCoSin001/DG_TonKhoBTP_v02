@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace DG_TonKhoBTP_v02.Printer.A4
 {
@@ -90,6 +91,7 @@ namespace DG_TonKhoBTP_v02.Printer.A4
             public string NguoiGiao { get; set; }
             public string NhaCungCap { get; set; }
             public string LyDoNhap { get; set; }
+            public DateTime Ngay { get; set; }
             public string KhoHang { get; set; }
             public List<WarehouseReceiptItem> Items { get; set; } = new List<WarehouseReceiptItem>();
             public SignatureInfo Signature { get; set; } = new SignatureInfo();

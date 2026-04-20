@@ -23,5 +23,8 @@
     <Setting Name="LINESPACING" Type="System.String" Scope="User">
       <Value Profile="(Default)">50</Value>
     </Setting>
+    <Setting Name="TenMay" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
   </Settings>
 </SettingsFile>

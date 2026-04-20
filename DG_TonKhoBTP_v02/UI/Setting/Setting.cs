@@ -185,6 +185,26 @@ namespace DG_TonKhoBTP_v02.UI.Setting
                 cbxPrinterName.Enabled = cbxMayIn.Checked;
             }
 
+            if (selectedTab.Name == "mayTab")
+            {
+                string tenMay = Properties.Settings.Default.TenMay;
+
+                tbTenMay.Text = tenMay;
+            }
+
+        }
+
+        private void btnLuuTTMay_Click(object sender, EventArgs e)
+        {
+            string tenMay = tbTenMay.Text.Trim();
+            if (!string.IsNullOrEmpty(tenMay))
+            {
+                Properties.Settings.Default.TenMay = tenMay;
+
+                Properties.Settings.Default.Save();
+            }
+
+            Program.RestartApplication();
         }
     }
 }

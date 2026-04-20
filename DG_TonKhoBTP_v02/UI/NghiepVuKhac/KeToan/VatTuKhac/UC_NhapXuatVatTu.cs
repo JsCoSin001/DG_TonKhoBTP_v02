@@ -140,56 +140,109 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
         private void DgvChiTietDon_CellValidating(object sender, DataGridViewCellValidatingEventArgs e)
         {
             if (e.RowIndex < 0) return;
-            if (dgvChiTietDon.Columns[e.ColumnIndex].Name != "ngay") return;
 
-            string input = e.FormattedValue?.ToString().Trim();
+            string colName = dgvChiTietDon.Columns[e.ColumnIndex].Name;
 
-            if (string.IsNullOrWhiteSpace(input))
+            // ── Validate cột ngay ──────────────────────────────────────────
+            if (colName == "ngay")
             {
-                dgvChiTietDon.Rows[e.RowIndex].ErrorText = "Ngày không được để trống.";
-                e.Cancel = true;
+                string input = e.FormattedValue?.ToString().Trim();
+                if (string.IsNullOrWhiteSpace(input))
+                {
+                    dgvChiTietDon.Rows[e.RowIndex].ErrorText = "Ngày không được để trống.";
+                    e.Cancel = true;
+                    return;
+                }
+
+                bool ok = DateTime.TryParseExact(
+                    input, "dd-MM-yyyy",
+                    System.Globalization.CultureInfo.InvariantCulture,
+                    System.Globalization.DateTimeStyles.None,
+                    out _);
+
+                if (!ok)
+                {
+                    dgvChiTietDon.Rows[e.RowIndex].ErrorText = "Ngày phải có định dạng dd-MM-yyyy.";
+                    FrmWaiting.ShowGifAlert("Ngày phải có định dạng dd-MM-yyyy.", myIcon: EnumStore.Icon.Warning);
+                    e.Cancel = true;
+                    return;
+                }
+
+                dgvChiTietDon.Rows[e.RowIndex].ErrorText = "";
                 return;
             }
 
-            DateTime dt;
-            bool ok = DateTime.TryParseExact(
-                input,
-                "dd-MM-yyyy",
-                System.Globalization.CultureInfo.InvariantCulture,
-                System.Globalization.DateTimeStyles.None,
-                out dt);
-
-            if (!ok)
+            // ── Validate cột thucNhan — chấp nhận số thập phân dùng dấu phẩy hoặc chấm ──
+            if (colName == "thucNhan")
             {
-                dgvChiTietDon.Rows[e.RowIndex].ErrorText = "Ngày phải có định dạng dd-MM-yyyy.";
-                FrmWaiting.ShowGifAlert("Ngày phải có định dạng dd-MM-yyyy.", myIcon: EnumStore.Icon.Warning);
-                e.Cancel = true;
-                return;
-            }
+                string input = e.FormattedValue?.ToString().Trim();
+                if (string.IsNullOrWhiteSpace(input)) return; // cho phép bỏ trống
 
-            dgvChiTietDon.Rows[e.RowIndex].ErrorText = "";
+                // Chuẩn hóa: thay dấu phẩy bằng dấu chấm để parse
+                string normalized = input.Replace(',', '.');
+
+                bool ok = decimal.TryParse(
+                    normalized,
+                    System.Globalization.NumberStyles.Number,
+                    System.Globalization.CultureInfo.InvariantCulture,
+                    out _);
+
+                if (!ok)
+                {
+                    dgvChiTietDon.Rows[e.RowIndex].ErrorText = "Số lượng phải là số hợp lệ (ví dụ: 1,5 hoặc 1.5).";
+                    FrmWaiting.ShowGifAlert("Số lượng không hợp lệ.", myIcon: EnumStore.Icon.Warning);
+                    e.Cancel = true;
+                    return;
+                }
+
+                dgvChiTietDon.Rows[e.RowIndex].ErrorText = "";
+            }
         }
 
         private void DgvChiTietDon_CellParsing(object sender, DataGridViewCellParsingEventArgs e)
         {
             if (e.RowIndex < 0) return;
-            if (dgvChiTietDon.Columns[e.ColumnIndex].Name != "ngay") return;
-            if (e.Value == null) return;
 
-            string input = e.Value.ToString().Trim();
-            if (string.IsNullOrWhiteSpace(input)) return;
+            string colName = dgvChiTietDon.Columns[e.ColumnIndex].Name;
 
-            DateTime dt;
-            if (DateTime.TryParseExact(
-                input,
-                "dd-MM-yyyy",
-                System.Globalization.CultureInfo.InvariantCulture,
-                System.Globalization.DateTimeStyles.None,
-                out dt))
+            // ── Parse cột ngay ─────────────────────────────────────────────
+            if (colName == "ngay")
             {
-                // Lưu vào DataTable / SQLite dưới dạng string yyyy-MM-dd
-                e.Value = dt.ToString("yyyy-MM-dd");
-                e.ParsingApplied = true;
+                if (e.Value == null) return;
+                string input = e.Value.ToString().Trim();
+                if (string.IsNullOrWhiteSpace(input)) return;
+
+                if (DateTime.TryParseExact(
+                    input, "dd-MM-yyyy",
+                    System.Globalization.CultureInfo.InvariantCulture,
+                    System.Globalization.DateTimeStyles.None,
+                    out DateTime dt))
+                {
+                    e.Value = dt.ToString("yyyy-MM-dd"); // lưu SQLite dạng yyyy-MM-dd
+                    e.ParsingApplied = true;
+                }
+                return;
+            }
+
+            // ── Parse cột thucNhan — chuyển "1,5" hoặc "1.5" → decimal ────
+            if (colName == "thucNhan")
+            {
+                if (e.Value == null) return;
+                string input = e.Value.ToString().Trim();
+                if (string.IsNullOrWhiteSpace(input)) return;
+
+                // Chuẩn hóa dấu phân cách thập phân
+                string normalized = input.Replace(',', '.');
+
+                if (decimal.TryParse(
+                    normalized,
+                    System.Globalization.NumberStyles.Number,
+                    System.Globalization.CultureInfo.InvariantCulture,
+                    out decimal result))
+                {
+                    e.Value = result;          // ghi decimal vào cell — SQLite nhận REAL
+                    e.ParsingApplied = true;
+                }
             }
         }
 
@@ -209,17 +262,19 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
         // Đặt sau KhoiTaoGiaoDienKhac, nhóm cùng các hàm KhoiTao khác
         private void TimKiemTenNCC()
         {
+            nbrIDNCC.Value = 0;
+
             _cbxNhaCungCapHelper = new ComboBoxSearchHelper(
                 comboBox: cbxNhaCungCap,
                 queryFunc: async (keyword, ct) =>
                 {
                     var list = await DatabaseHelper.TimKiemNhaCungCap(keyword);
                     ct.ThrowIfCancellationRequested();
-                    return ListStringToDataTable(list, "Value");
+                    return ToDataTable(list);
                 }
             );
 
-            _cbxNhaCungCapHelper.DisplayColumn = "Value";
+            _cbxNhaCungCapHelper.DisplayColumn = "Ten";
 
             // Cấu hình theo yêu cầu:
             // - được gõ trực tiếp
@@ -228,16 +283,38 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
             //_cbxNhaCungCapHelper.AllowEmpty = true;
 
             _cbxNhaCungCapHelper.ItemSelected += row =>
-                OnNhaCungCapSelected(row["Value"]?.ToString());
+                OnNhaCungCapSelected(
+                    row["Ten"]?.ToString(),
+                    row["Id"] != DBNull.Value ? Convert.ToInt32(row["Id"]) : (int?)null
+                );
         }
 
         // ── THÊM MỚI: Xử lý khi người dùng chọn nhà cung cấp ────────────
         // Đặt ngay sau KhoiTaoCbxNhaCungCap
-        private void OnNhaCungCapSelected(string nhaCungCap)
+        private void OnNhaCungCapSelected(string ten, int? id)
         {
-            cbxNhaCungCap.Text = nhaCungCap ?? string.Empty;
+            cbxNhaCungCap.Text = ten ?? string.Empty;
             cbxNhaCungCap.SelectionStart = cbxNhaCungCap.Text.Length;
             cbxNhaCungCap.SelectionLength = 0;
+
+            if (id.HasValue)
+                nbrIDNCC.Value = id.Value;
+            else
+                nbrIDNCC.Value = 0;
+        }
+
+        private DataTable ToDataTable(List<NhaCungCapItem> list)
+        {
+            var dt = new DataTable();
+            dt.Columns.Add("Id", typeof(int));
+            dt.Columns.Add("Ten", typeof(string));
+
+            foreach (var item in list)
+            {
+                dt.Rows.Add(item.Id, item.Ten);
+            }
+
+            return dt;
         }
 
         // ────────────────────────────────────────────────────────────
@@ -288,9 +365,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
                     return ListStringToDataTable(list, "Value");
                 }
             );
-            // [ĐÃ SỬA] DisplayColumn khớp tên cột "Value" trong DataTable wrapper.
             _cbxTimDonHelper.DisplayColumn = "Value";
-            // [ĐÃ SỬA] Đăng ký callback qua event. [GIỮ NGUYÊN] logic gọi LoadChiTietDonAsync.
             _cbxTimDonHelper.ItemSelected += row => _ = LoadChiTietDonAsync(row["Value"]?.ToString(), IsEdit);
         }
 
@@ -380,6 +455,43 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
         {
             if (dtMoi == null || dtMoi.Rows.Count == 0) return;
 
+
+            // ── ĐỔI KIỂU CỘT thucNhan TỪ Int64 → decimal ────────────────────────
+            // SQLite trả INTEGER → Int64, DataGridView ép kiểu nghiêm ngặt theo DataTable
+            // Phải clone sang cột decimal trước khi bind để tránh OverflowException
+            if (dtMoi.Columns.Contains("thucNhan") &&
+                dtMoi.Columns["thucNhan"].DataType != typeof(decimal))
+            {
+                // Thêm cột tạm kiểu decimal
+                dtMoi.Columns.Add("thucNhan_dec", typeof(decimal));
+
+                foreach (DataRow row in dtMoi.Rows)
+                {
+                    object val = row["thucNhan"];
+                    if (val != null && val != DBNull.Value)
+                    {
+                        string raw = val.ToString().Replace(',', '.');
+                        if (decimal.TryParse(raw,
+                            System.Globalization.NumberStyles.Number,
+                            System.Globalization.CultureInfo.InvariantCulture,
+                            out decimal d))
+                            row["thucNhan_dec"] = d;
+                        else
+                            row["thucNhan_dec"] = DBNull.Value;
+                    }
+                    else
+                    {
+                        row["thucNhan_dec"] = DBNull.Value;
+                    }
+                }
+
+                // Xóa cột Int64 cũ, đổi tên cột decimal về đúng tên
+                int colIndex = dtMoi.Columns["thucNhan"].Ordinal;
+                dtMoi.Columns.Remove("thucNhan");
+                dtMoi.Columns["thucNhan_dec"].ColumnName = "thucNhan";
+                dtMoi.Columns["thucNhan"].SetOrdinal(colIndex); // giữ đúng thứ tự cột
+            }
+
             bool showMa_DonVi = _kieu == 1;
 
             fl.Enabled = false;
@@ -442,13 +554,15 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
 
             await WaitingHelper.RunWithWaiting(async () =>
             {
+
                 var dt = _isNhapKho
                     ? await DatabaseHelper.LayChiTietDonDatHang(maDon, IsEdit)
                     : await DatabaseHelper.LayChiTietDonDatHangXuatKho(maDon, IsEdit);
 
+                Console.WriteLine(dt.Rows.Count);
+
                 MergeVaoDgv(dt, IsKhac);
-                // [ĐÃ SỬA] Clear() → Reset() theo API mới của ComboBoxSearchHelper
-                //_cbxTimDonHelper.Reset();
+
             }, "ĐANG TẢI CHI TIẾT ĐƠN...");
         }
 
@@ -468,13 +582,14 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
                 return;
             }
 
-
             string nguoiGiaoNhan = txtNguoiGiaoNhan.Text.Trim();
             string lyDoChung = rdoLoai.Checked ? "Theo đề nghị" : "Khác";
             string ngay = dtNgayNhapXuat.Value.ToString("yyyy-MM-dd");
             int kho = cbxKhoHang.SelectedIndex + 1;
             string nguoiLam = tbxnguoiLam.Text.Trim();
-            string ncc = cbxNhaCungCap.Text.Trim();
+            decimal ncc = nbrIDNCC.Value;
+
+            Console.WriteLine(ncc);
 
             if (string.IsNullOrWhiteSpace(nguoiLam))
             {
@@ -577,6 +692,11 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
 
             cbxKhoHang.SelectedIndex = -1;
             cbxKhoHang.Text = "";
+
+            nbrIDNCC.Value = 0;
+
+            cbxNhaCungCap.SelectedIndex = -1;
+            cbxNhaCungCap.Text = "";
 
             // [ĐÃ SỬA] Clear() → Reset() theo API mới của ComboBoxSearchHelper
             //_cbxTimDonHelper?.Reset();
@@ -786,7 +906,13 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
                         decimal.TryParse(row.Cells["donGia"].Value.ToString(), out dongia);
 
                     if (row.Cells["thucNhan"].Value != null)
-                        decimal.TryParse(row.Cells["thucNhan"].Value.ToString(), out thucnhan);
+                    {
+                        string raw = row.Cells["thucNhan"].Value.ToString().Replace(',', '.');
+                        decimal.TryParse(raw,
+                            System.Globalization.NumberStyles.Number,
+                            System.Globalization.CultureInfo.InvariantCulture,
+                            out thucnhan);
+                    }
 
                     row.Cells["thanhTien"].Value = dongia * thucnhan;
                 }
@@ -852,6 +978,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
 
             return dt;
         }
+
         // ── HẾT THÊM MỚI ─────────────────────────────────────────────────────────────
     }
 }

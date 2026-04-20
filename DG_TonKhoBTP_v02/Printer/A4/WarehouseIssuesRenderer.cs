@@ -171,14 +171,14 @@ namespace DG_TonKhoBTP_v02.Printer.A4
             // STT | Tên hàng | Mã số | ĐVT | Số lượng | Đơn giá | Thành tiền
             int[] colW = new[]
             {
-        34,   // STT
-        270,  // Tên hàng
-        100,  // Mã số
-        50,   // ĐVT
-        90,   // Số lượng
-        width - (34 + 270 + 100 + 50 + 90 + 90), // Đơn giá (fill)
-        90    // Thành tiền
-    };
+                34,   // STT
+                270,  // Tên hàng
+                100,  // Mã số
+                50,   // ĐVT
+                90,   // Số lượng
+                width - (34 + 270 + 100 + 50 + 90 + 90), // Đơn giá (fill)
+                90    // Thành tiền
+            };
 
             int h = 56, rowMinH = 28, totalH = 28;
 
@@ -261,7 +261,7 @@ namespace DG_TonKhoBTP_v02.Printer.A4
                 // Dòng ngày ký — lệch phải căn trên cột Giám đốc
                 g.DrawString(ngayKy, new Font("Times New Roman", 12f, FontStyle.Italic),
                     Brushes.Black,
-                    new RectangleF(x + colW * 3, y - 4, colW, 18), sfC);
+                    new RectangleF(x + colW * 2 + 20, y - 4, colW * 2 - 20, 18), sfC);
 
                 string[] titles = new[]
                 {

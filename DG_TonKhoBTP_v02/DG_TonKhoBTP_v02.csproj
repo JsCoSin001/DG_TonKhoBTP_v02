@@ -465,6 +465,7 @@
     </EmbeddedResource>
     <EmbeddedResource Include="UI\Helper\FrmWaiting.resx">
       <DependentUpon>FrmWaiting.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="UI\CD_Boc\UC_CaiDatMay.resx">
       <DependentUpon>UC_CaiDatMay.cs</DependentUpon>

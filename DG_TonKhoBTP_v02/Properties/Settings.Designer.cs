@@ -106,5 +106,17 @@ namespace DG_TonKhoBTP_v02.Properties {
                 this["LINESPACING"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string TenMay {
+            get {
+                return ((string)(this["TenMay"]));
+            }
+            set {
+                this["TenMay"] = value;
+            }
+        }
     }
 }

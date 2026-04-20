@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Data.SQLite;
+using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -110,18 +111,18 @@ namespace DG_TonKhoBTP_v02.Database
             return dt;
         }
 
-        public static async Task<List<string>> TimKiemNhaCungCap(string keyword)
+        public static async Task<List<NhaCungCapItem>> TimKiemNhaCungCap(string keyword)
         {
             const string sql = @"
-            SELECT TenNCC
+            SELECT TenNCC, id
             FROM DanhSachNCC
-            WHERE TenNCC_KhongDau LIKE @kw
-               OR TenNCC LIKE @kw
-               OR Ma LIKE @kw
+            WHERE TenNCC_KhongDau LIKE @kw COLLATE NOCASE
+                OR TenNCC LIKE @kw COLLATE NOCASE
+                OR Ma LIKE @kw COLLATE NOCASE
             ORDER BY TenNCC
             LIMIT 30";
 
-            var result = new List<string>();
+            var result = new List<NhaCungCapItem>();
 
             await Task.Run(() =>
             {
@@ -132,7 +133,13 @@ namespace DG_TonKhoBTP_v02.Database
 
                 using var rd = cmd.ExecuteReader();
                 while (rd.Read())
-                    result.Add(rd["TenNCC"].ToString());
+                {
+                    result.Add(new NhaCungCapItem
+                    {
+                        Id = Convert.ToInt32(rd["id"]),
+                        Ten = rd["TenNCC"].ToString()
+                    });
+                }
             });
 
             return result;
@@ -612,6 +619,278 @@ namespace DG_TonKhoBTP_v02.Database
                         tx.Rollback();
                         throw;
                     }
+                }
+            }
+        }
+
+        #endregion
+
+
+        #region Truy xuất dữ liệu
+        public static Task<DataTable> SearchLotSXAsync(string keyword, CancellationToken ct)
+        {
+            return Task.Run(() =>
+            {
+                ct.ThrowIfCancellationRequested();
+
+                string sql = @"
+                SELECT DISTINCT
+                       BinNVL
+                FROM TTNVL
+                WHERE IFNULL(BinNVL, '') <> ''
+                  AND BinNVL LIKE '%' || @key || '%' COLLATE NOCASE
+                ORDER BY BinNVL
+                LIMIT 50;";
+
+                return DatabaseHelper.GetData(sql, keyword, "key");
+            }, ct);
+        }
+
+
+        public static async Task LoadLichSuSXAsync(string binNVL, DataGridView dtView)
+        {
+            if (string.IsNullOrWhiteSpace(binNVL)) return;
+
+            FrmWaiting waiting = null;
+            DataTable dt = null;
+
+            try
+            {
+                waiting = new FrmWaiting("Đang tải lịch sử sản xuất...");
+                waiting.TopMost = true;
+                waiting.StartPosition = FormStartPosition.CenterScreen;
+                waiting.Show();
+                waiting.Refresh();
+
+                dt = await Task.Run(() =>
+                {
+                    string sql = @"
+                SELECT
+                    nvl.TTThanhPham_ID           AS ID,
+                    nvl.BinNVL                   AS lotNVL,
+                    CAST(nvl.KlBatDau AS REAL)   AS klBanDau,
+                    CAST(nvl.KlConLai AS REAL)   AS klSau,
+                    CAST(nvl.CdBatDau AS REAL)   AS cdBanDau,
+                    CAST(nvl.CdConLai AS REAL)   AS cdSau,
+                    tp.MaBin                     AS lotTP,
+                    sp.Ten                       AS tenTP,
+                    tp.DateInsert             AS ngay
+                FROM TTNVL nvl
+                INNER JOIN TTThanhPham tp
+                    ON tp.id = nvl.TTThanhPham_ID
+                LEFT JOIN DanhSachMaSP sp
+                    ON sp.id = tp.DanhSachSP_ID
+                WHERE nvl.BinNVL = @key
+                ORDER BY nvl.TTThanhPham_ID DESC;";
+
+                    return DatabaseHelper.GetData(sql, binNVL, "key");
+                });
+
+                BindGridLichSuSX(dt, dtView);
+            }
+
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    "Không tải được lịch sử sản xuất.\n" + ex.Message,
+                    "Thông báo",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning);
+            }
+            finally
+            {
+                waiting?.SafeClose();
+            }
+        }
+
+
+        private static void BindGridLichSuSX(DataTable dt, DataGridView grv)
+        {
+            grv.AutoGenerateColumns = false;
+            grv.DataSource = dt;
+
+            string[] cols = { "klBanDau", "klSau", "cdBanDau", "cdSau" };
+
+            foreach (string col in cols)
+            {
+                if (grv.Columns.Contains(col))
+                {
+                    grv.Columns[col].DefaultCellStyle.Format = "N2";
+                    grv.Columns[col].DefaultCellStyle.FormatProvider = new CultureInfo("en-US");
+                    grv.Columns[col].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+                }
+            }
+
+        }
+
+
+        public static Task<DataTable> SearchLichSuSuaDoiTheoLotAsync(string keyword, CancellationToken ct)
+        {
+            return Task.Run(() =>
+            {
+                ct.ThrowIfCancellationRequested();
+
+                const string sql = @"
+                    SELECT DISTINCT
+                           CASE
+                               WHEN IFNULL(LOT_Moi, '') <> '' THEN LOT_Moi
+                               ELSE LOT_Cu
+                           END AS SoLot,
+                           CASE
+                               WHEN IFNULL(LOT_Moi, '') <> '' AND IFNULL(LOT_Cu, '') <> '' AND LOT_Moi <> LOT_Cu
+                                    THEN LOT_Cu || ' -> ' || LOT_Moi
+                               WHEN IFNULL(LOT_Moi, '') <> ''
+                                    THEN LOT_Moi
+                               ELSE LOT_Cu
+                           END AS SoLotHienThi
+                    FROM LichSuSuaDoiThongTin
+                    WHERE
+                        (
+                            IFNULL(LOT_Cu, '') LIKE '%' || @key || '%' COLLATE NOCASE
+                            OR IFNULL(LOT_Moi, '') LIKE '%' || @key || '%' COLLATE NOCASE
+                        )
+                    ORDER BY SoLot DESC
+                    LIMIT 50;";
+
+                return GetData(sql, keyword?.Trim(), "key");
+            }, ct);
+        }
+
+        public static async Task LoadLichSuSuaDoiTheoLotAsync(string lot, DataGridView dtView)
+        {
+            if (string.IsNullOrWhiteSpace(lot)) return;
+
+            FrmWaiting waiting = null;
+            DataTable dt = null;
+
+            try
+            {
+                waiting = new FrmWaiting("Đang tải lịch sử sửa đổi...");
+                waiting.TopMost = true;
+                waiting.StartPosition = FormStartPosition.CenterScreen;
+                waiting.Show();
+                waiting.Refresh();
+
+                dt = await Task.Run(() =>
+                {
+                    const string sql = @"
+                    SELECT
+                        TTThanhPham_ID AS ID_lichSuSuDoi,
+                        Ten_Cu         AS TenCu,
+                        Ten_Moi        AS TenMoi,
+                        LOT_Cu         AS LotCu,
+                        LOT_Moi        AS LotMoi,
+                        KL_Cu          AS KlCu,
+                        KL_Moi         AS KlMoi,
+                        CD_Cu          AS cdCu,
+                        CD_Moi         AS cdMoi,
+                        DateInsert     AS TGsua,
+                        TenMay         AS May,
+                        GhiChu_Cu      AS ghiChu_Cu,
+                        GhiChu_Moi     AS ghiChu_Moi
+                    FROM LichSuSuaDoiThongTin
+                    WHERE IFNULL(LOT_Cu, '') = @key
+                       OR IFNULL(LOT_Moi, '') = @key
+                    ORDER BY datetime(DateInsert) DESC, id DESC;";
+
+                    return GetData(sql, lot.Trim(), "key");
+                });
+
+                BindGridLichSuSuaDoi(dt, dtView);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    "Không tải được lịch sử sửa đổi.\n" + ex.Message,
+                    "Thông báo",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning);
+            }
+            finally
+            {
+                waiting?.SafeClose();
+            }
+        }
+
+        public static async Task LoadLichSuSuaDoiTheoSoNgayAsync(int soNgay, DataGridView dtView)
+        {
+            if (soNgay <= 0) return;
+
+            FrmWaiting waiting = null;
+            DataTable dt = null;
+
+            try
+            {
+                waiting = new FrmWaiting("Đang tải lịch sử sửa đổi...");
+                waiting.TopMost = true;
+                waiting.StartPosition = FormStartPosition.CenterScreen;
+                waiting.Show();
+                waiting.Refresh();
+
+                dt = await Task.Run(() =>
+                {
+                    const string sql = @"
+                    SELECT
+                        TTThanhPham_ID AS ID_lichSuSuDoi,
+                        Ten_Cu         AS TenCu,
+                        Ten_Moi        AS TenMoi,
+                        LOT_Cu         AS LotCu,
+                        LOT_Moi        AS LotMoi,
+                        KL_Cu          AS KlCu,
+                        KL_Moi         AS KlMoi,
+                        CD_Cu          AS cdCu,
+                        CD_Moi         AS cdMoi,
+                        DateInsert     AS TGsua,
+                        TenMay         AS May,
+                        GhiChu_Cu      AS ghiChu_Cu,
+                        GhiChu_Moi     AS ghiChu_Moi
+                    FROM LichSuSuaDoiThongTin
+                    WHERE date(DateInsert) >= date('now', '-' || (@soNgay - 1) || ' day')
+                    ORDER BY datetime(DateInsert) DESC, id DESC;";
+
+                    using (var conn = new SQLiteConnection(GetStringConnector))
+                    using (var cmd = new SQLiteCommand(sql, conn))
+                    using (var da = new SQLiteDataAdapter(cmd))
+                    {
+                        cmd.Parameters.AddWithValue("@soNgay", soNgay);
+
+                        var result = new DataTable();
+                        conn.Open();
+                        da.Fill(result);
+                        return result;
+                    }
+                });
+
+                BindGridLichSuSuaDoi(dt, dtView);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    "Không tải được lịch sử sửa đổi.\n" + ex.Message,
+                    "Thông báo",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning);
+            }
+            finally
+            {
+                waiting?.SafeClose();
+            }
+        }
+
+        private static void BindGridLichSuSuaDoi(DataTable dt, DataGridView grv)
+        {
+            grv.AutoGenerateColumns = false;
+            grv.DataSource = dt;
+
+            string[] colsSo = { "KlCu", "KlMoi", "cdCu", "cdMoi" };
+
+            foreach (string col in colsSo)
+            {
+                if (grv.Columns.Contains(col))
+                {
+                    grv.Columns[col].DefaultCellStyle.Format = "N2";
+                    grv.Columns[col].DefaultCellStyle.FormatProvider = new CultureInfo("en-US");
+                    grv.Columns[col].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
                 }
             }
         }
@@ -1199,8 +1478,8 @@ namespace DG_TonKhoBTP_v02.Database
                         tt.TenVatTu AS tt_TenVatTu,
                         tt.SoLuongMua AS tt_SoLuongMua,
                         tt.MucDichMua AS tt_MucDichMua,
-                        strftime('%d/%m/%Y', tt.NgayGiao) AS tt_NgayGiao,
-                        strftime('%d/%m/%Y', tt.Date_Insert) AS tt_Date_Insert,
+                        strftime('%d/%m/%Y', tt.NgayGiao) AS NgayGiao,
+                        strftime('%d/%m/%Y', tt.Date_Insert) AS Date_Insert,
                         tt.DonGia AS tt_DonGia
                     FROM ThongTinDatHang tt
                     INNER JOIN DanhSachDatHang dh 
@@ -1369,19 +1648,25 @@ namespace DG_TonKhoBTP_v02.Database
                 var sql = new StringBuilder(@"
             SELECT
                 lsxn.id AS lsxn_id,
-                dsdh.MaDon AS MaDon,
-                strftime('%d/%m/%Y', dsdh.DateInsert) AS dsdh_DateInsert,
-                dsdh.NguoiDat AS NguoiDat,
-                dsk.TenKho AS TenKho,
-                strftime('%d/%m/%Y', lsxn.Ngay) AS lsxn_Ngay,
-                lsxn.NguoiGiao_Nhan AS NguoiGiaoNhan,
-                lsxn.LyDo AS LyDo,
-                lsxn.SoLuong AS SoLuong,
+                strftime('%d/%m/%Y', lsxn.Ngay) AS NgayXuatNhap,
                 lsxn.TenPhieu AS TenPhieu,
-                lsxn.GhiChu AS GhiChu,
+                lsxn.LyDo AS LyDo,
+                dssp.Ma AS Ma,
+                CASE 
+                    WHEN ttdh.DanhSachMaSP_ID IS NULL 
+                        THEN ttdh.TenVatTu
+                    ELSE dssp.Ten
+                END AS TenVatTu,
+                lsxn.SoLuong AS SoLuong,
                 lsxn.DonGia AS DonGia,
+                dsk.TenKho AS TenKho,
+                lsxn.Nhacc AS NCC,
+                lsxn.GhiChu AS GhiChu,
+                dsdh.MaDon AS MaDon,
+                dsdh.NguoiDat AS NguoiDat,
+                lsxn.NguoiGiao_Nhan AS NguoiGiaoNhan,
+                strftime('%d/%m/%Y', dsdh.DateInsert) AS NgayDatPR,
                 lsxn.NguoiLam AS NguoiLam,
-                ttdh.TenVatTu AS TenVatTu,
                 ttdh.SoLuongMua AS SoLuongMua,
                 ttdh.MucDichMua AS MucDichMua,
                 strftime('%d/%m/%Y', ttdh.NgayGiao) AS NgayGiao,
@@ -1508,6 +1793,7 @@ namespace DG_TonKhoBTP_v02.Database
             ORDER BY t.id";
 
 
+
             if (isEdit)
             {
                 sql = @"
@@ -1517,11 +1803,15 @@ namespace DG_TonKhoBTP_v02.Database
                         t.TenVatTu     AS ten,
                         sp.Ma          AS ma,
                         sp.DonVi       AS donVi, 
-	                    ABS(l.soluong) as thucNhan,
-                        l.donGia as dongia  ,
+                        ABS(l.soluong) as thucNhan,
+                        l.donGia       as dongia,
                         l.SoLuong * l.donGia AS thanhTien,
-                        l.ngay as ngay
-                
+                        l.ngay         as ngay,
+                        l.Ghichu       as GhiChu,
+
+                        ncc.id         AS idNcc,
+                        ncc.TenNCC     AS NhaCungCap
+
                     FROM LichSuXuatNhap l
 
                     LEFT JOIN ThongTinDatHang t 
@@ -1532,10 +1822,27 @@ namespace DG_TonKhoBTP_v02.Database
 
                     LEFT JOIN DanhSachMaSP sp 
                         ON sp.id = t.DanhSachMaSP_ID
+
+                    LEFT JOIN DanhSachNCC ncc
+                        ON ncc.id = l.DanhSachNCC_ID
             
-                    WHERE l.TenPhieu = @maDon AND l.CanEdit = 1 AND ((l.SoLuong > 0 AND @isNhap = 1) OR (l.SoLuong < 0 AND @isNhap = 0))
+                    WHERE l.TenPhieu = @maDon 
+                        AND l.CanEdit = 1 
+                        AND (
+                            (l.SoLuong > 0 AND @isNhap = 1) 
+                            OR 
+                            (l.SoLuong < 0 AND @isNhap = 0)
+                        )
                 ";
             }
+
+
+            Console.WriteLine("LayChiTietDonDatHang");
+            Console.WriteLine(maDon);
+            Console.WriteLine(isNhap);
+            Console.WriteLine(sql);
+            Console.WriteLine("========================");
+
             var dt = new DataTable();
 
             await Task.Run(() =>
@@ -1558,20 +1865,20 @@ namespace DG_TonKhoBTP_v02.Database
             string keyWord_KhongDau = CoreHelper.BoDauTiengViet(keyword.Trim());
 
             string sql = $@"
-            SELECT t.TenVatTu
-            FROM ThongTinDatHang t
-            JOIN DanhSachDatHang d ON t.DanhSachDatHang_ID = d.id
-            LEFT JOIN (
-                SELECT ThongTinDatHang_ID, SUM(SoLuong) AS TongNhap
-                FROM LichSuXuatNhap
-                WHERE SoLuong > 0
-                GROUP BY ThongTinDatHang_ID
-            ) l ON t.id = l.ThongTinDatHang_ID
-            WHERE t.TenVatTu_KhongDau LIKE @kw
-              AND d.LoaiDon = @kieu
-            GROUP BY t.TenVatTu
-            HAVING SUM(IFNULL(l.TongNhap, 0)) < SUM(t.SoLuongMua)
-            LIMIT 30;";
+                SELECT t.TenVatTu
+                FROM ThongTinDatHang t
+                JOIN DanhSachDatHang d ON t.DanhSachDatHang_ID = d.id
+                LEFT JOIN (
+                    SELECT ThongTinDatHang_ID, SUM(SoLuong) AS TongNhap
+                    FROM LichSuXuatNhap
+                    WHERE SoLuong > 0
+                    GROUP BY ThongTinDatHang_ID
+                ) l ON t.id = l.ThongTinDatHang_ID
+                WHERE t.TenVatTu_KhongDau LIKE @kw  COLLATE NOCASE
+                  AND d.LoaiDon = @kieu
+                GROUP BY t.TenVatTu
+                HAVING SUM(IFNULL(l.TongNhap, 0)) < SUM(t.SoLuongMua)
+                LIMIT 30;";
 
             if (isKhac)
             {
@@ -1595,9 +1902,6 @@ namespace DG_TonKhoBTP_v02.Database
                 WHERE lsxn.CanEdit = 1
                   AND ttdh.TenVatTu_KhongDau LIKE '%' || @kw || '%' COLLATE NOCASE";
             }
-
-
-            Console.WriteLine(sql);
 
             var result = new List<string>();
 
@@ -1683,34 +1987,54 @@ namespace DG_TonKhoBTP_v02.Database
         }
 
 
-        public static async Task<DataTable> GetDataTuTenVatTuXuatNhap_Edit(
-        string tenVatTu, string nguoiLam, bool isNhapKho = true)
+        public static async Task<DataTable> GetDataTuTenVatTuXuatNhap_Edit( string tenVatTu, string nguoiLam, bool isNhapKho = true)
         {
             string keyWord_KhongDau = CoreHelper.BoDauTiengViet(tenVatTu.Trim());
 
             string sql = @"
                 SELECT
                     ls.id           AS id,
-                    t.TenVatTu     AS ten,
+                    t.TenVatTu      AS ten,
                     t.TenVatTu_KhongDau,
-                    d.MaDon        AS maDon,
-                    sp.Ma          AS ma,
-                    sp.DonVi       AS donVi,
-                    t.SoLuongMua   AS yeuCau,
+                    d.MaDon         AS maDon,
+                    sp.Ma           AS ma,
+                    sp.DonVi        AS donVi,
+                    t.SoLuongMua    AS yeuCau,
+
                     CASE
                         WHEN @isNhapKho = 1 THEN ls.SoLuong
                         ELSE ABS(ls.SoLuong)
                     END AS thucNhan,
-                    ls.ngay as ngay,
-                    ls.nhaCC as NhaCungCap
+
+                    ls.DonGia       AS donGia,
+
+                    ls.DonGia *
+                    CASE
+                        WHEN @isNhapKho = 1 THEN ls.SoLuong
+                        ELSE ABS(ls.SoLuong)
+                    END AS thanhTien,
+
+                    ls.ngay         AS ngay,
+
+                    ncc.id          AS nhaCungCapId,
+                    ncc.tenNCC      AS NhaCungCap,
+
+                    ls.GhiChu       AS GhiChu
 
                 FROM ThongTinDatHang t
+
                 INNER JOIN DanhSachDatHang d
                     ON d.id = t.DanhSachDatHang_ID
+
                 LEFT JOIN DanhSachMaSP sp
                     ON sp.id = t.DanhSachMaSP_ID
+
                 INNER JOIN LichSuXuatNhap ls
                     ON ls.ThongTinDatHang_ID = t.id
+
+                LEFT JOIN DanhSachNCC ncc
+                    ON ncc.id = ls.DanhSachNCC_ID 
+
                 WHERE t.TenVatTu_KhongDau = @tenVatTu COLLATE NOCASE
                   AND ls.NguoiLam = @nguoiLam
                   AND ls.CanEdit = 1
@@ -1719,6 +2043,7 @@ namespace DG_TonKhoBTP_v02.Database
                         OR
                         (@isNhapKho = 0 AND ls.SoLuong < 0)
                       )
+
                 ORDER BY t.id, ls.id;";
 
             DataTable dt = new DataTable();
@@ -1888,7 +2213,7 @@ namespace DG_TonKhoBTP_v02.Database
         string nguoiGiaoNhan,
         string lyDoChung,
         string ngay,
-        string nhacc,
+        decimal nhacc,
         int kho,
         string nguoiLam,
         bool isNhapKho = true)
@@ -1905,7 +2230,7 @@ namespace DG_TonKhoBTP_v02.Database
                 (
                     ThongTinDatHang_ID,
                     Ngay,
-                    nhacc,
+                    DanhSachNCC_ID,
                     NguoiGiao_Nhan,
                     LyDo,
                     SoLuong,
@@ -1943,7 +2268,7 @@ namespace DG_TonKhoBTP_v02.Database
 
                 cmd.Parameters.Add("@ThongTinDatHang_ID", DbType.Int64);
                 cmd.Parameters.Add("@Ngay", DbType.String);
-                cmd.Parameters.Add("@nhacc", DbType.String);
+                cmd.Parameters.Add("@nhacc", DbType.Decimal);
                 cmd.Parameters.Add("@NguoiGiao_Nhan", DbType.String);
                 cmd.Parameters.Add("@LyDo", DbType.String);
                 cmd.Parameters.Add("@SoLuong", DbType.Decimal);
@@ -1990,7 +2315,7 @@ namespace DG_TonKhoBTP_v02.Database
 
                         cmd.Parameters["@ThongTinDatHang_ID"].Value = thongTinDatHangId;
                         cmd.Parameters["@Ngay"].Value = parsedNgay.ToString("yyyy-MM-dd");
-                        cmd.Parameters["@nhacc"].Value = nhacc;
+                        cmd.Parameters["@nhacc"].Value = nhacc == 0 ? (object)DBNull.Value : nhacc;
                         cmd.Parameters["@NguoiGiao_Nhan"].Value = nguoiGiaoNhan?.Trim() ?? "";
                         cmd.Parameters["@LyDo"].Value = lyDoChung;
                         cmd.Parameters["@GhiChu"].Value = string.IsNullOrWhiteSpace(ghiChu)
@@ -2038,9 +2363,9 @@ namespace DG_TonKhoBTP_v02.Database
 
             DateTime ngay = info.Ngay == default ? DateTime.Now : info.Ngay;
 
-            //int soThuTu = GetSoLuongXuatNhapThangHienTai(info.IsNhapKho) + 1;
+            int soThuTu = GetSoLuongXuatNhapThangHienTai(info.IsNhapKho) + 1;
             string prefix = info.IsNhapKho ? "KNK" : "KXK";
-            string tenPhieu = $"{prefix}{ngay:yy/MM/dd}-{DateTime.Now:HHmm}";
+            string tenPhieu = $"{prefix}{ngay:yy/MM}-{soThuTu}";
             string maDon = tenPhieu;
 
             const string sqlInsertDanhSachDatHang = @"
@@ -2097,7 +2422,7 @@ namespace DG_TonKhoBTP_v02.Database
                     SoLuong,
                     DanhSachKho_ID,
                     NguoiLam,
-                    NhaCC,
+                    DanhSachNCC_ID,
                     GhiChu,
                     DonGia,
                     TenPhieu
@@ -2248,9 +2573,9 @@ namespace DG_TonKhoBTP_v02.Database
                 "@SoLuong",
                 info.IsNhapKho ? item.SoLuong : -Math.Abs(item.SoLuong));
 
-            cmd.Parameters.AddWithValue("@DanhSachKho_ID", info.KhoId);
+            cmd.Parameters.AddWithValue("@DanhSachKho_ID", info.KhoId < 1 ? (object)DBNull.Value : info.KhoId);
             cmd.Parameters.AddWithValue("@NguoiLam", info.NguoiLam?.Trim() ?? "");
-            cmd.Parameters.AddWithValue("@NhaCC", info.Nhacc?.Trim() ?? "");
+            cmd.Parameters.AddWithValue("@NhaCC", info.Nhacc == 0 ? (object)DBNull.Value : info.Nhacc);
 
             cmd.Parameters.AddWithValue(
                 "@GhiChu",
@@ -2343,7 +2668,6 @@ namespace DG_TonKhoBTP_v02.Database
 
         #endregion
 
-
         public static int GetSoLuongDonThangHienTai()
         {
             DateTime now = DateTime.Now;
@@ -2358,8 +2682,8 @@ namespace DG_TonKhoBTP_v02.Database
             string sql = @"
                 SELECT COUNT(*)
                 FROM DanhSachDatHang
-                WHERE DateInsert >= @start 
-                AND DateInsert < @end
+                WHERE NgayThem >= @start 
+                AND NgayThem < @end
             ";
 
             using var conn = new SQLiteConnection(DatabaseHelper.GetStringConnector);
@@ -2416,9 +2740,7 @@ namespace DG_TonKhoBTP_v02.Database
                 return false;
             }
         }
-
-        
-
+                
         public static string GenerateLotCode()
         {
             // Lấy 2 số cuối của năm hiện tại
@@ -2499,7 +2821,12 @@ namespace DG_TonKhoBTP_v02.Database
 	                    ABS(l.soluong) as thucNhan,
                         l.donGia as dongia  ,
                         l.SoLuong * l.donGia AS thanhTien,
-                        l.ngay as ngay
+                        l.ngay as ngay,
+                        l.GhiChu as GhiChu,
+
+                        ncc.id         AS idNcc,
+                        ncc.TenNCC     AS NhaCungCap
+
                 
                     FROM LichSuXuatNhap l
 
@@ -2511,6 +2838,10 @@ namespace DG_TonKhoBTP_v02.Database
 
                     LEFT JOIN DanhSachMaSP sp 
                         ON sp.id = t.DanhSachMaSP_ID
+
+
+                    LEFT JOIN DanhSachNCC ncc
+                        ON ncc.id = l.DanhSachNCC_ID
             
                     WHERE l.TenPhieu = @maDon AND l.CanEdit = 1 AND ((l.SoLuong > 0 AND @isNhap = 1) OR (l.SoLuong < 0 AND @isNhap = 0))
                 ";
@@ -2558,7 +2889,7 @@ namespace DG_TonKhoBTP_v02.Database
                 FROM LichSuXuatNhap
                 GROUP BY ThongTinDatHang_ID
             ) ls ON ls.ThongTinDatHang_ID = t.id
-            WHERE sp.Ten = @tenVatTu
+            WHERE sp.Ten_KhongDau = @tenVatTu  COLLATE NOCASE
               AND IFNULL(ls.TonKho, 0) > 0
             ORDER BY t.id";
 
@@ -2568,6 +2899,8 @@ namespace DG_TonKhoBTP_v02.Database
             {
                 using var conn = new SQLiteConnection(_connStr);
                 conn.Open();
+                tenVatTu = CoreHelper.BoDauTiengViet(tenVatTu.Trim());
+
                 using var cmd = new SQLiteCommand(sql, conn);
                 cmd.Parameters.AddWithValue("@tenVatTu", tenVatTu);
 
@@ -3832,32 +4165,6 @@ namespace DG_TonKhoBTP_v02.Database
             return affectedTotal;
         }
 
-
-        /// <summary>
-        /// Helper nội bộ: add params vào SQLiteCommand.
-        /// Hỗ trợ truyền key có/không có '@'.
-        /// </summary>
-        private static void AddParams(SQLiteCommand cmd, Dictionary<string, object?>? parameters)
-        {
-            cmd.Parameters.Clear();
-
-            if (parameters == null || parameters.Count == 0) return;
-
-            foreach (var kv in parameters)
-            {
-                var name = (kv.Key ?? "").Trim();
-                if (name.Length == 0) continue;
-                if (!name.StartsWith("@")) name = "@" + name;
-
-                var p = cmd.CreateParameter();
-                p.ParameterName = name;
-
-                // auto map null -> DBNull
-                p.Value = kv.Value ?? DBNull.Value;
-
-                cmd.Parameters.Add(p);
-            }
-        }
         public static bool UpdateNguoiKiemTra(List<int> listStt, string nguoiKT)
         {
             if (listStt == null || listStt.Count == 0)
@@ -4029,13 +4336,7 @@ namespace DG_TonKhoBTP_v02.Database
 
         }
 
-
-        private static void BackupThongTinTruocKhiSua(
-            SQLiteConnection conn,
-            SQLiteTransaction tx,
-            long tpId,
-            TTThanhPham tp,
-            string nguoiSua)
+        private static void BackupThongTinTruocKhiSua( SQLiteConnection conn,  SQLiteTransaction tx,  long tpId, TTThanhPham tp, string nguoiSua)
         {
             // 1) Lấy dữ liệu cũ từ TTThanhPham + JOIN DanhSachMaSP để lấy Ten
             const string sqlGetCu = @"
@@ -4043,6 +4344,7 @@ namespace DG_TonKhoBTP_v02.Database
                 ttp.MaBin, 
                 ttp.KhoiLuongSau, 
                 ttp.ChieuDaiSau,
+                ttp.GhiChu,
                 ds.Ten
             FROM TTThanhPham ttp
             LEFT JOIN DanhSachMaSP ds ON ds.id = ttp.DanhSachSP_ID
@@ -4052,6 +4354,8 @@ namespace DG_TonKhoBTP_v02.Database
             decimal klCu = 0;
             decimal cdCu = 0;
             string tenCu = null;
+            string ghiChuCu = "";
+            
 
             using (var cmd = new SQLiteCommand(sqlGetCu, conn, tx))
             {
@@ -4063,15 +4367,16 @@ namespace DG_TonKhoBTP_v02.Database
                     klCu = reader["KhoiLuongSau"] != DBNull.Value ? Convert.ToDecimal(reader["KhoiLuongSau"]) : 0;
                     cdCu = reader["ChieuDaiSau"] != DBNull.Value ? Convert.ToDecimal(reader["ChieuDaiSau"]) : 0;
                     tenCu = reader["Ten"] != DBNull.Value ? reader["Ten"].ToString() : null;
+                    ghiChuCu = reader["GhiChu"] != DBNull.Value ? reader["GhiChu"].ToString() : "";
                 }
             }
 
             // 2) Insert vào LichSuSuaDoiThongTin
             const string sqlInsertLichSu = @"
             INSERT INTO LichSuSuaDoiThongTin
-                (TTThanhPham_ID, NguoiSua, Ten_Cu, Ten_Moi, LOT_Cu, LOT_Moi, KL_Cu, KL_Moi, CD_Cu, CD_Moi, DateInsert)
+                (TTThanhPham_ID, NguoiSua, Ten_Cu, Ten_Moi, LOT_Cu, LOT_Moi, KL_Cu, KL_Moi, CD_Cu, CD_Moi, DateInsert, TenMay, GhiChu_Cu, GhiChu_Moi)
             VALUES
-                (@TTThanhPham_ID, @NguoiSua, @Ten_Cu,@Ten_Moi, @LOT_Cu, @LOT_Moi, @KL_Cu, @KL_Moi, @CD_Cu, @CD_Moi, @DateInsert);
+                (@TTThanhPham_ID, @NguoiSua, @Ten_Cu,@Ten_Moi, @LOT_Cu, @LOT_Moi, @KL_Cu, @KL_Moi, @CD_Cu, @CD_Moi, @DateInsert, @TenMay, @GhiChu_Cu, @GhiChu_Moi);
             SELECT last_insert_rowid();";
 
             long lichSuId;
@@ -4088,6 +4393,10 @@ namespace DG_TonKhoBTP_v02.Database
                 cmd.Parameters.AddWithValue("@CD_Cu", cdCu);
                 cmd.Parameters.AddWithValue("@CD_Moi", tp.ChieuDaiSau);
                 cmd.Parameters.AddWithValue("@DateInsert", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                cmd.Parameters.AddWithValue("@TenMay", Properties.Settings.Default.TenMay);
+
+                cmd.Parameters.AddWithValue("@GhiChu_Cu", ghiChuCu);
+                cmd.Parameters.AddWithValue("@GhiChu_Moi", tp.GhiChu);
 
                 lichSuId = Convert.ToInt64(cmd.ExecuteScalar());
             }
@@ -5836,6 +6145,9 @@ namespace DG_TonKhoBTP_v02.Database
                 return result;
             }
         }
+
+
+
 
         private static decimal GetProducedBTP(string maSP, SQLiteConnection connection)
         {

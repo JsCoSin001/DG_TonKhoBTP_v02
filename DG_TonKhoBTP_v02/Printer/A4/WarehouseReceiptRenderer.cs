@@ -160,12 +160,12 @@ namespace DG_TonKhoBTP_v02.Printer.A4
             int[] colW = new[]
             {
                 34,  // STT
-                300, // Tên hàng
-                150, // Mã số
+                250, // Tên hàng
+                100, // Mã số
                 46,  // ĐVT
-                94,  // Yêu cầu
-                94,  // Thực nhận
-                width - (34 + 300 + 150 + 46 + 94 + 94) // Ghi chú
+                70,  // Yêu cầu
+                90,  // Thực nhận
+                width - (34 + 250 + 100 + 46 + 70 + 90 ) // Ghi chú
             };
 
             int h1 = 34;

@@ -312,7 +312,6 @@ namespace DG_TonKhoBTP_v02.UI
                         MaSP = thongTinThanhPham.MaTP,
                         DanhGia = "",
                         TenCN = thongTinCaLamViec.NguoiLam,
-                        //TenCN = CoreHelper.ConvertTiengVietKhongDau(thongTinCaLamViec.NguoiLam),
                         GhiChu = ghiChu
                     };
                 }

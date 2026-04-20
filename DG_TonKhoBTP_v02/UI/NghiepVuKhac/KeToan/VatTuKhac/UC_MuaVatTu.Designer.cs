@@ -102,9 +102,9 @@
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 75F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 172F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 195F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 72F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 215F));
             this.tableLayoutPanel1.Controls.Add(this.cbxTimTenVatTu, 7, 0);
@@ -133,7 +133,7 @@
             this.cbxTimTenVatTu.FormattingEnabled = true;
             this.cbxTimTenVatTu.Location = new System.Drawing.Point(874, 18);
             this.cbxTimTenVatTu.Name = "cbxTimTenVatTu";
-            this.cbxTimTenVatTu.Size = new System.Drawing.Size(102, 26);
+            this.cbxTimTenVatTu.Size = new System.Drawing.Size(145, 26);
             this.cbxTimTenVatTu.TabIndex = 2;
             // 
             // lblTieuDeTimKiem
@@ -151,7 +151,7 @@
             // 
             this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(1281, 22);
+            this.label2.Location = new System.Drawing.Point(1280, 22);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(66, 18);
             this.label2.TabIndex = 0;
@@ -214,9 +214,9 @@
             // tbMaDon
             // 
             this.tbMaDon.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.tbMaDon.Location = new System.Drawing.Point(1353, 18);
+            this.tbMaDon.Location = new System.Drawing.Point(1352, 18);
             this.tbMaDon.Name = "tbMaDon";
-            this.tbMaDon.Size = new System.Drawing.Size(209, 26);
+            this.tbMaDon.Size = new System.Drawing.Size(210, 26);
             this.tbMaDon.TabIndex = 4;
             this.tbMaDon.Text = "PRM26/02-011";
             // 
@@ -262,16 +262,16 @@
             this.cbxTimThemTheoTen.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbxTimThemTheoTen.Enabled = false;
             this.cbxTimThemTheoTen.FormattingEnabled = true;
-            this.cbxTimThemTheoTen.Location = new System.Drawing.Point(1086, 18);
+            this.cbxTimThemTheoTen.Location = new System.Drawing.Point(1129, 18);
             this.cbxTimThemTheoTen.Name = "cbxTimThemTheoTen";
-            this.cbxTimThemTheoTen.Size = new System.Drawing.Size(189, 26);
+            this.cbxTimThemTheoTen.Size = new System.Drawing.Size(145, 26);
             this.cbxTimThemTheoTen.TabIndex = 6;
             // 
             // label3
             // 
             this.label3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(982, 22);
+            this.label3.Location = new System.Drawing.Point(1025, 22);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(98, 18);
             this.label3.TabIndex = 7;

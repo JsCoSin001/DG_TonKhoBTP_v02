@@ -1,13 +1,14 @@
 ﻿using ClosedXML.Excel;
 using DG_TonKhoBTP_v02.Database;
 using DG_TonKhoBTP_v02.Dictionary;
+using DG_TonKhoBTP_v02.UI.Helper.AutoSearchWithCombobox;
 using System;
-using CoreHelper = DG_TonKhoBTP_v02.Helper.Helper;
 using System.Data;
 using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using CoreHelper = DG_TonKhoBTP_v02.Helper.Helper;
 
 namespace DG_TonKhoBTP_v02.UI.Actions
 {
@@ -19,10 +20,73 @@ namespace DG_TonKhoBTP_v02.UI.Actions
         private bool _isLoadingThanhPham = false;      // Flag cho ThanhPham
         private bool _isLoadingNVL = false;            // Flag cho NVL
         string selectedCol;
+
+        private ComboBoxSearchHelper _lotSXSearchHelper;
+
+        private ComboBoxSearchHelper _timTheoLotSearchHelper;
         public UC_TruyVetDuLieu()
         {
             InitializeComponent();
             cbxLoaiTimKiem.SelectedIndex = 0;
+
+            InitLotSXSearch();
+            InitTimTheoLotSearch();
+        }
+
+        private void InitTimTheoLotSearch()
+        {
+            cbxTimTheoLot.DropDownStyle = ComboBoxStyle.DropDown;
+
+            _timTheoLotSearchHelper?.Dispose();
+            _timTheoLotSearchHelper = new ComboBoxSearchHelper(cbxTimTheoLot, DatabaseHelper.SearchLichSuSuaDoiTheoLotAsync)
+            {
+                DebounceMs = 400,
+                DisplayColumn = "SoLotHienThi"
+            };
+
+            _timTheoLotSearchHelper.ItemSelected += async row =>
+            {
+                string lot = row["SoLot"]?.ToString()?.Trim();
+                if (string.IsNullOrWhiteSpace(lot)) return;
+
+                await DatabaseHelper.LoadLichSuSuaDoiTheoLotAsync(lot, dtgLichSuSuaDoiDL);
+            };
+
+            _timTheoLotSearchHelper.Cleared += () =>
+            {
+                if (dtgLichSuSuaDoiDL.DataSource != null)
+                    dtgLichSuSuaDoiDL.DataSource = null;
+
+                dtgLichSuSuaDoiDL.Rows.Clear();
+            };
+        }
+
+        private void InitLotSXSearch()
+        {
+            cbxLotSX.DropDownStyle = ComboBoxStyle.DropDown;
+
+            _lotSXSearchHelper?.Dispose();
+            _lotSXSearchHelper = new ComboBoxSearchHelper(cbxLotSX, DatabaseHelper.SearchLotSXAsync)
+            {
+                DebounceMs = 400,
+                DisplayColumn = "BinNVL"
+            };
+
+            _lotSXSearchHelper.ItemSelected += async row =>
+            {
+                string binNVL = row["BinNVL"]?.ToString()?.Trim();
+                if (string.IsNullOrWhiteSpace(binNVL)) return;
+
+                await DatabaseHelper.LoadLichSuSXAsync(binNVL, grvLichSuSX);
+            };
+
+            _lotSXSearchHelper.Cleared += () =>
+            {
+                if (grvLichSuSX.DataSource != null)
+                    grvLichSuSX.DataSource = null;
+
+                grvLichSuSX.Rows.Clear();
+            };
         }
 
         private async void cbxTimKiem_TextUpdate(object sender, EventArgs e)
@@ -271,16 +335,6 @@ namespace DG_TonKhoBTP_v02.UI.Actions
             }
         }
 
-        private void grvChiTietThanhPham_CellValueChanged(object sender, DataGridViewCellEventArgs e)
-        {
-            Console.WriteLine("sdfsdf");
-        }
-
-        private void grvChiTietNVL_DoubleClick(object sender, EventArgs e)
-        {
-
-        }
-
         private async void grvChiTietNVL_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex < 0) return;
@@ -320,6 +374,21 @@ namespace DG_TonKhoBTP_v02.UI.Actions
                 grvChiTietNVL.Enabled = true; // Enable lại
                 _isLoadingNVL = false;
             }
+        }
+
+        private async void btnLayDL_Click(object sender, EventArgs e)
+        {
+            int soNgay = Convert.ToInt32(nmrSL.Value);
+
+            if (soNgay <= 0)
+            {
+                MessageBox.Show("Số ngày phải lớn hơn 0.", "Thông báo",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            await DatabaseHelper.LoadLichSuSuaDoiTheoSoNgayAsync(soNgay, dtgLichSuSuaDoiDL);
+
         }
     }
 }

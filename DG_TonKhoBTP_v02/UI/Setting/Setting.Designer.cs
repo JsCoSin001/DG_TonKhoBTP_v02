@@ -52,14 +52,21 @@
             this.btnFindPathDB = new System.Windows.Forms.Button();
             this.tbPathDB = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
-            this.tabControl1 = new System.Windows.Forms.TabControl();
+            this.ttMay = new System.Windows.Forms.TabControl();
+            this.mayTab = new System.Windows.Forms.TabPage();
+            this.tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
+            this.label2 = new System.Windows.Forms.Label();
+            this.tbTenMay = new System.Windows.Forms.TextBox();
+            this.btnLuuTTMay = new System.Windows.Forms.Button();
             this.pinterTab.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
             this.softwareTap.SuspendLayout();
             this.tableLayoutPanel3.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
-            this.tabControl1.SuspendLayout();
+            this.ttMay.SuspendLayout();
+            this.mayTab.SuspendLayout();
+            this.tableLayoutPanel4.SuspendLayout();
             this.SuspendLayout();
             // 
             // pinterTab
@@ -364,25 +371,86 @@
             this.label1.TabIndex = 0;
             this.label1.Text = "Đường dẫn Database";
             // 
-            // tabControl1
+            // ttMay
             // 
-            this.tabControl1.Controls.Add(this.softwareTap);
-            this.tabControl1.Controls.Add(this.pinterTab);
-            this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tabControl1.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.tabControl1.Location = new System.Drawing.Point(10, 10);
-            this.tabControl1.Name = "tabControl1";
-            this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(672, 309);
-            this.tabControl1.TabIndex = 0;
-            this.tabControl1.Selected += new System.Windows.Forms.TabControlEventHandler(this.tabControl1_Selected);
+            this.ttMay.Controls.Add(this.softwareTap);
+            this.ttMay.Controls.Add(this.pinterTab);
+            this.ttMay.Controls.Add(this.mayTab);
+            this.ttMay.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.ttMay.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.ttMay.Location = new System.Drawing.Point(10, 10);
+            this.ttMay.Name = "ttMay";
+            this.ttMay.SelectedIndex = 0;
+            this.ttMay.Size = new System.Drawing.Size(672, 309);
+            this.ttMay.TabIndex = 0;
+            this.ttMay.Selected += new System.Windows.Forms.TabControlEventHandler(this.tabControl1_Selected);
+            // 
+            // mayTab
+            // 
+            this.mayTab.Controls.Add(this.tableLayoutPanel4);
+            this.mayTab.Location = new System.Drawing.Point(4, 25);
+            this.mayTab.Name = "mayTab";
+            this.mayTab.Padding = new System.Windows.Forms.Padding(3);
+            this.mayTab.Size = new System.Drawing.Size(664, 280);
+            this.mayTab.TabIndex = 2;
+            this.mayTab.Text = "TT máy";
+            this.mayTab.UseVisualStyleBackColor = true;
+            // 
+            // tableLayoutPanel4
+            // 
+            this.tableLayoutPanel4.ColumnCount = 3;
+            this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 100F));
+            this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 114F));
+            this.tableLayoutPanel4.Controls.Add(this.label2, 0, 0);
+            this.tableLayoutPanel4.Controls.Add(this.tbTenMay, 1, 0);
+            this.tableLayoutPanel4.Controls.Add(this.btnLuuTTMay, 2, 0);
+            this.tableLayoutPanel4.Dock = System.Windows.Forms.DockStyle.Top;
+            this.tableLayoutPanel4.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.tableLayoutPanel4.Location = new System.Drawing.Point(3, 3);
+            this.tableLayoutPanel4.Name = "tableLayoutPanel4";
+            this.tableLayoutPanel4.RowCount = 1;
+            this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel4.Size = new System.Drawing.Size(658, 65);
+            this.tableLayoutPanel4.TabIndex = 0;
+            // 
+            // label2
+            // 
+            this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(3, 24);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(94, 16);
+            this.label2.TabIndex = 0;
+            this.label2.Text = "Tên máy";
+            // 
+            // tbTenMay
+            // 
+            this.tbTenMay.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.tbTenMay.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.tbTenMay.Location = new System.Drawing.Point(103, 19);
+            this.tbTenMay.Name = "tbTenMay";
+            this.tbTenMay.Size = new System.Drawing.Size(438, 26);
+            this.tbTenMay.TabIndex = 1;
+            // 
+            // btnLuuTTMay
+            // 
+            this.btnLuuTTMay.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnLuuTTMay.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnLuuTTMay.Location = new System.Drawing.Point(547, 8);
+            this.btnLuuTTMay.Name = "btnLuuTTMay";
+            this.btnLuuTTMay.Size = new System.Drawing.Size(108, 48);
+            this.btnLuuTTMay.TabIndex = 2;
+            this.btnLuuTTMay.Text = "Lưu";
+            this.btnLuuTTMay.UseVisualStyleBackColor = true;
+            this.btnLuuTTMay.Click += new System.EventHandler(this.btnLuuTTMay_Click);
             // 
             // Setting
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(692, 329);
-            this.Controls.Add(this.tabControl1);
+            this.Controls.Add(this.ttMay);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
@@ -400,7 +468,10 @@
             this.flowLayoutPanel1.PerformLayout();
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
-            this.tabControl1.ResumeLayout(false);
+            this.ttMay.ResumeLayout(false);
+            this.mayTab.ResumeLayout(false);
+            this.tableLayoutPanel4.ResumeLayout(false);
+            this.tableLayoutPanel4.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -430,6 +501,11 @@
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
         private System.Windows.Forms.RadioButton rdoHoatDong;
         private System.Windows.Forms.RadioButton rdoTamDung;
-        private System.Windows.Forms.TabControl tabControl1;
+        private System.Windows.Forms.TabControl ttMay;
+        private System.Windows.Forms.TabPage mayTab;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel4;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.TextBox tbTenMay;
+        private System.Windows.Forms.Button btnLuuTTMay;
     }
 }

@@ -27,13 +27,20 @@ namespace DG_TonKhoBTP_v02.Models
     }
 
 
+    public class NhaCungCapItem
+    {
+        public int Id { get; set; }
+        public string Ten { get; set; }
+    }
+
+
     public class DonKhacInfo
     {
         public string MaDon { get; set; }
         public string NguoiDat { get; set; }
         public string NguoiGiaoNhan { get; set; }
         public string LyDoChung { get; set; }
-        public string Nhacc { get; set; }
+        public decimal Nhacc { get; set; }
         public DateTime Ngay { get; set; }
         public int KhoId { get; set; }
         

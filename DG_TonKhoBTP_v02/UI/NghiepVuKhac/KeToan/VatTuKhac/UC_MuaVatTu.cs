@@ -603,7 +603,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
                     Document = new DocumentInfo
                     {
                         Title = "GIẤY ĐỀ NGHỊ MUA VẬT TƯ",
-                        OrderDate = DateTime.Now.ToString("dd/MM/yyyy"),
+                        OrderDate = dtNgay.Value.ToString("dd/MM/yyyy"),
                         OrderCode = maDon
                     },
                     Items = items,
@@ -632,7 +632,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
                     Document = new DocumentInfo
                     {
                         Title = _KieuDon == 1 ? "GIẤY ĐỀ NGHỊ MUA VẬT TƯ" : "GIẤY ĐỀ NGHỊ MUA DỊCH VỤ",
-                        OrderDate = DateTime.Now.ToString("dd/MM/yyyy"),
+                        OrderDate = dtNgay.Value.ToString("dd/MM/yyyy"),
                         OrderCode = maDon
                     },
                     Items = items,

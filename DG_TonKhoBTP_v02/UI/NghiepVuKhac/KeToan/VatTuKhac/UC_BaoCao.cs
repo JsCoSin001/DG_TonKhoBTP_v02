@@ -435,9 +435,13 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
                 dgr.AllowUserToAddRows = false;
                 dgr.RowHeadersVisible = false;
                 dgr.AutoGenerateColumns = true;
+
                 dgr.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
                 dgr.ColumnHeadersHeight = 30;
                 dgr.RowTemplate.Height = 30;
+
+                // Cho phép người dùng resize cột
+                dgr.AllowUserToResizeColumns = true;
 
                 // Thêm cột checkbox nếu chưa có
                 if (!dgr.Columns.Contains(COL_CHECK) && kieu > 1)
@@ -452,7 +456,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
                         FalseValue = false,
                         TrueValue = true,
                         IndeterminateValue = false,
-                        AutoSizeMode = DataGridViewAutoSizeColumnMode.None
+                        AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
+                        Resizable = DataGridViewTriState.True
                     });
                 }
 
@@ -463,6 +468,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
                     {
                         col.ReadOnly = false;
                         col.Visible = true;
+                        col.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+                        col.Resizable = DataGridViewTriState.True;
                         continue;
                     }
 
@@ -477,20 +484,27 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
                     }
                     else
                     {
+                        col.Visible = true;
                         col.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+                        col.Resizable = DataGridViewTriState.True;
+
+                        // Chỉ set width mặc định nếu width đang quá nhỏ
+                        if (col.Width < 80)
+                            col.Width = 120;
                     }
                 }
 
                 bool hasCanEdit = dgr.Columns.Contains(COL_CAN_EDIT);
+                bool hasCheck = dgr.Columns.Contains(COL_CHECK);
 
-                // Chỉ loop grid 1 lần để set height + checkbox
+                // Set row height + giá trị checkbox
                 foreach (DataGridViewRow row in dgr.Rows)
                 {
                     if (row.IsNewRow) continue;
 
                     row.Height = 30;
 
-                    if (!hasCanEdit) continue;
+                    if (!hasCanEdit || !hasCheck) continue;
 
                     int canEdit = 0;
                     var val = row.Cells[COL_CAN_EDIT].Value;
@@ -505,14 +519,17 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
 
                 AddActionColumns(dgr);
 
-                // AutoSize sau cùng để chỉ tính 1 lần
-                foreach (DataGridViewColumn col in dgr.Columns)
+                // Đảm bảo các cột action không bị autosize ngoài ý muốn
+                if (dgr.Columns.Contains(COL_UPDATE))
                 {
-                    if (col.Name == COL_CHECK) continue;
-                    if (col.Name == COL_UPDATE || col.Name == COL_DELETE) continue;
-                    if (!col.Visible) continue;
+                    dgr.Columns[COL_UPDATE].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+                    dgr.Columns[COL_UPDATE].Resizable = DataGridViewTriState.True;
+                }
 
-                    col.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+                if (dgr.Columns.Contains(COL_DELETE))
+                {
+                    dgr.Columns[COL_DELETE].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+                    dgr.Columns[COL_DELETE].Resizable = DataGridViewTriState.True;
                 }
             }
             finally

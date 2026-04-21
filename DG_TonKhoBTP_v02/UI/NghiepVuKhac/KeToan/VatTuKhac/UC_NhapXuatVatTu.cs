@@ -369,36 +369,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
             _cbxTimDonHelper.ItemSelected += row => _ = LoadChiTietDonAsync(row["Value"]?.ToString(), IsEdit);
         }
 
-        private async Task LoadChiTietDonTheoTenAsync(string tenVatTu)
-        {
-            if (string.IsNullOrWhiteSpace(tenVatTu)) return;
-
-            await WaitingHelper.RunWithWaiting(async () =>
-            {
-                DataTable dt;
-
-                if (IsEdit)
-                {
-                    if (string.IsNullOrWhiteSpace(NguoiLam))
-                    {
-                        FrmWaiting.ShowGifAlert("Cần nhập người làm trước");
-                        return;
-                    }
-
-                    dt = await DatabaseHelper.GetDataTuTenVatTuXuatNhap_Edit(tenVatTu, NguoiLam, _isNhapKho);
-                }
-                else
-                {
-                    dt = _isNhapKho
-                        ? await DatabaseHelper.LayChiTietDonTheoTenVatTu(tenVatTu, _kieu, IsKhac)
-                        : await DatabaseHelper.LayChiTietDonTheoTenVatTuXuatKho(tenVatTu);
-                }
-
-                MergeVaoDgv(dt, IsKhac);
-                // [ĐÃ SỬA] Clear() → Reset() theo API mới của ComboBoxSearchHelper
-                //_cbxTimTenHelper.Reset();
-            }, "ĐANG TẢI DỮ LIỆU VẬT TƯ...");
-        }
+        
 
         private void DgvChiTietDon_CellClick(object sender, DataGridViewCellEventArgs e)
         {
@@ -548,6 +519,41 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
             fl.Enabled = true;
         }
 
+        // Lấy dữ liệu theo tên
+        private async Task LoadChiTietDonTheoTenAsync(string tenVatTu)
+        {
+            if (string.IsNullOrWhiteSpace(tenVatTu)) return;
+
+            await WaitingHelper.RunWithWaiting(async () =>
+            {
+                DataTable dt;
+
+                if (IsEdit)
+                {
+                    if (string.IsNullOrWhiteSpace(NguoiLam))
+                    {
+                        FrmWaiting.ShowGifAlert("Cần nhập người làm trước");
+                        return;
+                    }
+
+                    dt = await DatabaseHelper.GetDataTuTenVatTuXuatNhap_Edit(tenVatTu, NguoiLam, _isNhapKho);
+                }
+                else
+                {
+                    dt = _isNhapKho
+                        ? await DatabaseHelper.LayChiTietDonTheoTenVatTu(tenVatTu, _kieu, IsKhac)
+                        : await DatabaseHelper.LayChiTietDonTheoTenVatTuXuatKho(tenVatTu);
+                }
+
+                Console.WriteLine(dt.Rows.Count);
+
+                MergeVaoDgv(dt, IsKhac);
+                // [ĐÃ SỬA] Clear() → Reset() theo API mới của ComboBoxSearchHelper
+                //_cbxTimTenHelper.Reset();
+            }, "ĐANG TẢI DỮ LIỆU VẬT TƯ...");
+        }
+
+        // Lấy dữ liệu theo mã đơn
         private async Task LoadChiTietDonAsync(string maDon, bool isEdit)
         {
             if (string.IsNullOrWhiteSpace(maDon)) return;

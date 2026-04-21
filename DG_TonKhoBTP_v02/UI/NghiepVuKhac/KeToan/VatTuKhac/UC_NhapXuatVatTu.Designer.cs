@@ -33,7 +33,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             this.panel1 = new System.Windows.Forms.Panel();
             this.lblTitle = new System.Windows.Forms.Label();
             this.panel2 = new System.Windows.Forms.Panel();
@@ -163,7 +163,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
             // 
             this.txtNguoiGiaoNhan.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.txtNguoiGiaoNhan.FormattingEnabled = true;
-            this.txtNguoiGiaoNhan.Location = new System.Drawing.Point(153, 20);
+            this.txtNguoiGiaoNhan.Location = new System.Drawing.Point(153, 17);
             this.txtNguoiGiaoNhan.Name = "txtNguoiGiaoNhan";
             this.txtNguoiGiaoNhan.Size = new System.Drawing.Size(190, 27);
             this.txtNguoiGiaoNhan.TabIndex = 3;
@@ -201,7 +201,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
             "Người 13",
             "Người 14",
             "Người 15"});
-            this.tbxnguoiLam.Location = new System.Drawing.Point(453, 20);
+            this.tbxnguoiLam.Location = new System.Drawing.Point(453, 17);
             this.tbxnguoiLam.Name = "tbxnguoiLam";
             this.tbxnguoiLam.Size = new System.Drawing.Size(206, 27);
             this.tbxnguoiLam.TabIndex = 7;
@@ -225,7 +225,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
             this.cbxKhoHang.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.ListItems;
             this.cbxKhoHang.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbxKhoHang.FormattingEnabled = true;
-            this.cbxKhoHang.Location = new System.Drawing.Point(753, 20);
+            this.cbxKhoHang.Location = new System.Drawing.Point(753, 17);
             this.cbxKhoHang.Name = "cbxKhoHang";
             this.cbxKhoHang.Size = new System.Drawing.Size(213, 27);
             this.cbxKhoHang.TabIndex = 5;
@@ -245,7 +245,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
             // 
             this.cbxNhaCungCap.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbxNhaCungCap.FormattingEnabled = true;
-            this.cbxNhaCungCap.Location = new System.Drawing.Point(1098, 20);
+            this.cbxNhaCungCap.Location = new System.Drawing.Point(1098, 17);
             this.cbxNhaCungCap.Name = "cbxNhaCungCap";
             this.cbxNhaCungCap.Size = new System.Drawing.Size(213, 27);
             this.cbxNhaCungCap.TabIndex = 4;
@@ -329,7 +329,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
             // 
             this.cbxTimDon.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbxTimDon.FormattingEnabled = true;
-            this.cbxTimDon.Location = new System.Drawing.Point(892, 17);
+            this.cbxTimDon.Location = new System.Drawing.Point(892, 14);
             this.cbxTimDon.Name = "cbxTimDon";
             this.cbxTimDon.Size = new System.Drawing.Size(164, 27);
             this.cbxTimDon.TabIndex = 7;
@@ -349,7 +349,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
             // 
             this.cbxTimTen.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbxTimTen.FormattingEnabled = true;
-            this.cbxTimTen.Location = new System.Drawing.Point(552, 14);
+            this.cbxTimTen.Location = new System.Drawing.Point(552, 17);
             this.cbxTimTen.Name = "cbxTimTen";
             this.cbxTimTen.Size = new System.Drawing.Size(164, 27);
             this.cbxTimTen.TabIndex = 1;
@@ -394,7 +394,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
             this.cbxKieu.Items.AddRange(new object[] {
             "Tạo mới",
             "Chỉnh sửa"});
-            this.cbxKieu.Location = new System.Drawing.Point(3, 14);
+            this.cbxKieu.Location = new System.Drawing.Point(3, 17);
             this.cbxKieu.Name = "cbxKieu";
             this.cbxKieu.Size = new System.Drawing.Size(114, 27);
             this.cbxKieu.TabIndex = 9;
@@ -432,14 +432,14 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
             // dgvChiTietDon
             // 
             this.dgvChiTietDon.AllowUserToAddRows = false;
-            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            dataGridViewCellStyle3.BackColor = System.Drawing.SystemColors.Control;
-            dataGridViewCellStyle3.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle3.ForeColor = System.Drawing.SystemColors.WindowText;
-            dataGridViewCellStyle3.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dgvChiTietDon.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle3;
+            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle1.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dgvChiTietDon.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
             this.dgvChiTietDon.ColumnHeadersHeight = 35;
             this.dgvChiTietDon.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
             this.dgvChiTietDon.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {

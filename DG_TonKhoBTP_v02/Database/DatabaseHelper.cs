@@ -1865,20 +1865,34 @@ namespace DG_TonKhoBTP_v02.Database
             string keyWord_KhongDau = CoreHelper.BoDauTiengViet(keyword.Trim());
 
             string sql = $@"
-                SELECT t.TenVatTu
+                SELECT 
+                    CASE 
+                        WHEN t.DanhSachMaSP_ID IS NULL THEN t.TenVatTu
+                        ELSE sp.Ten
+                    END AS TenVatTu
                 FROM ThongTinDatHang t
                 JOIN DanhSachDatHang d ON t.DanhSachDatHang_ID = d.id
+                LEFT JOIN DanhSachMaSP sp ON sp.id = t.DanhSachMaSP_ID
                 LEFT JOIN (
                     SELECT ThongTinDatHang_ID, SUM(SoLuong) AS TongNhap
                     FROM LichSuXuatNhap
                     WHERE SoLuong > 0
                     GROUP BY ThongTinDatHang_ID
                 ) l ON t.id = l.ThongTinDatHang_ID
-                WHERE t.TenVatTu_KhongDau LIKE @kw  COLLATE NOCASE
-                  AND d.LoaiDon = @kieu
-                GROUP BY t.TenVatTu
+                WHERE 
+                    (
+                        (t.DanhSachMaSP_ID IS NULL AND t.TenVatTu_KhongDau LIKE @kw COLLATE NOCASE)
+                        OR
+                        (t.DanhSachMaSP_ID IS NOT NULL AND sp.Ten_KhongDau LIKE @kw COLLATE NOCASE)
+                    )
+                    AND d.LoaiDon = @kieu
+                GROUP BY 
+                    CASE 
+                        WHEN t.DanhSachMaSP_ID IS NULL THEN t.TenVatTu
+                        ELSE sp.Ten
+                    END
                 HAVING SUM(IFNULL(l.TongNhap, 0)) < SUM(t.SoLuongMua)
-                LIMIT 30;";
+                LIMIT 50;";
 
             if (isKhac)
             {
@@ -1892,15 +1906,23 @@ namespace DG_TonKhoBTP_v02.Database
             if (isEdit)
             {
                 sql = $@"
-                SELECT DISTINCT sp.Ten as TenVatTu
+                SELECT DISTINCT
+                    CASE
+                        WHEN ttdh.DanhSachMaSP_ID IS NULL THEN ttdh.TenVatTu
+                        ELSE sp.Ten
+                    END AS TenVatTu
                 FROM ThongTinDatHang ttdh
                 JOIN LichSuXuatNhap lsxn 
                     ON lsxn.ThongTinDatHang_ID = ttdh.id
                     AND lsxn.CanEdit = 1
                 LEFT JOIN DanhSachMaSP sp 
                     ON sp.id = ttdh.DanhSachMaSP_ID
-                WHERE lsxn.CanEdit = 1
-                  AND ttdh.TenVatTu_KhongDau LIKE '%' || @kw || '%' COLLATE NOCASE";
+                WHERE
+                    (
+                        (ttdh.DanhSachMaSP_ID IS NULL AND ttdh.TenVatTu_KhongDau LIKE '%' || @kw || '%' COLLATE NOCASE)
+                        OR
+                        (ttdh.DanhSachMaSP_ID IS NOT NULL AND sp.Ten_KhongDau LIKE '%' || @kw || '%' COLLATE NOCASE)
+                    );";
             }
 
             var result = new List<string>();
@@ -1948,9 +1970,14 @@ namespace DG_TonKhoBTP_v02.Database
                 WHERE SoLuong > 0
                 GROUP BY ThongTinDatHang_ID
             ) ls ON ls.ThongTinDatHang_ID = t.id
-            WHERE t.TenVatTu_KhongDau = @tenVatTu  COLLATE NOCASE
+            WHERE
+                (
+                    (t.DanhSachMaSP_ID IS NULL AND t.TenVatTu_KhongDau = @tenVatTu COLLATE NOCASE)
+                    OR
+                    (t.DanhSachMaSP_ID IS NOT NULL AND sp.Ten_KhongDau = @tenVatTu COLLATE NOCASE)
+                )
                 AND t.SoLuongMua > IFNULL(ls.TongSoLuong, 0)
-            ORDER BY t.id";
+            ORDER BY t.id;";
 
             if (isKhac)
             {
@@ -1967,6 +1994,9 @@ namespace DG_TonKhoBTP_v02.Database
                 WHERE Ten_KhongDau LIKE @tenVatTu COLLATE NOCASE
                 ORDER BY Ten";
             }
+
+
+            Console.WriteLine(sql);
 
 
             var dt = new DataTable();
@@ -2638,16 +2668,38 @@ namespace DG_TonKhoBTP_v02.Database
         {
 
             string keyWord_KhongDau = CoreHelper.BoDauTiengViet(keyword.Trim());
+
             const string sql = @"
-            SELECT DISTINCT t.TenVatTu
+            SELECT 
+                CASE 
+                    WHEN t.DanhSachMaSP_ID IS NULL THEN t.TenVatTu
+                    ELSE d.Ten
+                END AS TenVatTu
             FROM ThongTinDatHang t
-            INNER JOIN LichSuXuatNhap l ON l.ThongTinDatHang_ID = t.id
-            WHERE t.TenVatTu_KhongDau LIKE @kw COLLATE NOCASE
-              AND t.TenVatTu IS NOT NULL
-            GROUP BY t.TenVatTu
+            LEFT JOIN DanhSachMaSP d 
+                ON d.id = t.DanhSachMaSP_ID
+            INNER JOIN LichSuXuatNhap l 
+                ON l.ThongTinDatHang_ID = t.id
+            WHERE
+                (
+                    t.DanhSachMaSP_ID IS NULL
+                    AND t.TenVatTu_KhongDau LIKE @kw COLLATE NOCASE
+                    AND t.TenVatTu IS NOT NULL
+                )
+                OR
+                (
+                    t.DanhSachMaSP_ID IS NOT NULL
+                    AND d.Ten_KhongDau LIKE @kw COLLATE NOCASE
+                    AND d.Ten IS NOT NULL
+                )
+            GROUP BY 
+                CASE 
+                    WHEN t.DanhSachMaSP_ID IS NULL THEN t.TenVatTu
+                    ELSE d.Ten
+                END
             HAVING SUM(l.SoLuong) > 0
-            ORDER BY t.TenVatTu
-            LIMIT 30";
+            ORDER BY TenVatTu
+            LIMIT 50;";
 
             var result = new List<string>();
 
@@ -2788,25 +2840,42 @@ namespace DG_TonKhoBTP_v02.Database
         {
             string sql = @"
             SELECT
-                t.id                    AS id,
-                d.MaDon                    AS MaDon,
-                sp.Ten                  AS ten,
-                sp.Ma                   AS ma,
-                sp.DonVi                AS donVi,
-                IFNULL(ls.TonKho, 0)   AS yeuCau
+                t.id AS id,
+                CASE
+                    WHEN t.DanhSachMaSP_ID IS NULL THEN t.TenVatTu
+                    ELSE sp.Ten
+                END AS ten,
+                CASE
+                    WHEN t.DanhSachMaSP_ID IS NULL THEN NULL
+                    ELSE sp.Ma
+                END AS ma,
+                d.MaDon AS maDon,
+                CASE
+                    WHEN t.DanhSachMaSP_ID IS NULL THEN NULL
+                    ELSE sp.DonVi
+                END AS donVi,
+                IFNULL(ls.TonKho, 0) AS yeuCau
             FROM ThongTinDatHang t
-            INNER JOIN DanhSachDatHang d ON d.id = t.DanhSachDatHang_ID
-            LEFT JOIN DanhSachMaSP sp ON sp.id = t.DanhSachMaSP_ID
+            INNER JOIN DanhSachDatHang d 
+                ON d.id = t.DanhSachDatHang_ID
+            LEFT JOIN DanhSachMaSP sp 
+                ON sp.id = t.DanhSachMaSP_ID
             LEFT JOIN (
                 SELECT
                     ThongTinDatHang_ID,
                     SUM(SoLuong) AS TonKho
                 FROM LichSuXuatNhap
                 GROUP BY ThongTinDatHang_ID
-            ) ls ON ls.ThongTinDatHang_ID = t.id
-            WHERE d.MaDon = @maDon
-              AND IFNULL(ls.TonKho, 0) > 0
-            ORDER BY t.id";
+            ) ls 
+                ON ls.ThongTinDatHang_ID = t.id
+            WHERE
+                (
+                    (t.DanhSachMaSP_ID IS NULL AND t.TenVatTu_KhongDau = @tenVatTu COLLATE NOCASE)
+                    OR
+                    (t.DanhSachMaSP_ID IS NOT NULL AND sp.Ten_KhongDau = @tenVatTu COLLATE NOCASE)
+                )
+                AND IFNULL(ls.TonKho, 0) > 0
+            ORDER BY t.id;";
 
 
             if (isEdit)
@@ -2826,7 +2895,6 @@ namespace DG_TonKhoBTP_v02.Database
 
                         ncc.id         AS idNcc,
                         ncc.TenNCC     AS NhaCungCap
-
                 
                     FROM LichSuXuatNhap l
 
@@ -2838,7 +2906,6 @@ namespace DG_TonKhoBTP_v02.Database
 
                     LEFT JOIN DanhSachMaSP sp 
                         ON sp.id = t.DanhSachMaSP_ID
-
 
                     LEFT JOIN DanhSachNCC ncc
                         ON ncc.id = l.DanhSachNCC_ID
@@ -2893,6 +2960,7 @@ namespace DG_TonKhoBTP_v02.Database
               AND IFNULL(ls.TonKho, 0) > 0
             ORDER BY t.id";
 
+
             var dt = new DataTable();
 
             await Task.Run(() =>
@@ -2900,6 +2968,10 @@ namespace DG_TonKhoBTP_v02.Database
                 using var conn = new SQLiteConnection(_connStr);
                 conn.Open();
                 tenVatTu = CoreHelper.BoDauTiengViet(tenVatTu.Trim());
+
+
+                Console.WriteLine(sql);
+                Console.WriteLine(tenVatTu);
 
                 using var cmd = new SQLiteCommand(sql, conn);
                 cmd.Parameters.AddWithValue("@tenVatTu", tenVatTu);

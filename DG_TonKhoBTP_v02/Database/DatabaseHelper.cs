@@ -785,7 +785,7 @@ namespace DG_TonKhoBTP_v02.Database
                         CD_Cu          AS cdCu,
                         CD_Moi         AS cdMoi,
                         DateInsert     AS TGsua,
-                        TenMay         AS May,
+                        TenMay         AS tenMay,
                         GhiChu_Cu      AS ghiChu_Cu,
                         GhiChu_Moi     AS ghiChu_Moi
                     FROM LichSuSuaDoiThongTin
@@ -841,7 +841,7 @@ namespace DG_TonKhoBTP_v02.Database
                         CD_Cu          AS cdCu,
                         CD_Moi         AS cdMoi,
                         DateInsert     AS TGsua,
-                        TenMay         AS May,
+                        TenMay         AS tenMay,
                         GhiChu_Cu      AS ghiChu_Cu,
                         GhiChu_Moi     AS ghiChu_Moi
                     FROM LichSuSuaDoiThongTin
@@ -860,6 +860,9 @@ namespace DG_TonKhoBTP_v02.Database
                         return result;
                     }
                 });
+
+
+                Console.WriteLine(dt);
 
                 BindGridLichSuSuaDoi(dt, dtView);
             }
@@ -1646,44 +1649,46 @@ namespace DG_TonKhoBTP_v02.Database
             try
             {
                 var sql = new StringBuilder(@"
-            SELECT
-                lsxn.id AS lsxn_id,
-                strftime('%d/%m/%Y', lsxn.Ngay) AS NgayXuatNhap,
-                lsxn.TenPhieu AS TenPhieu,
-                lsxn.LyDo AS LyDo,
-                dssp.Ma AS Ma,
-                CASE 
-                    WHEN ttdh.DanhSachMaSP_ID IS NULL 
-                        THEN ttdh.TenVatTu
-                    ELSE dssp.Ten
-                END AS TenVatTu,
-                lsxn.SoLuong AS SoLuong,
-                lsxn.DonGia AS DonGia,
-                dsk.TenKho AS TenKho,
-                lsxn.Nhacc AS NCC,
-                lsxn.GhiChu AS GhiChu,
-                dsdh.MaDon AS MaDon,
-                dsdh.NguoiDat AS NguoiDat,
-                lsxn.NguoiGiao_Nhan AS NguoiGiaoNhan,
-                strftime('%d/%m/%Y', dsdh.DateInsert) AS NgayDatPR,
-                lsxn.NguoiLam AS NguoiLam,
-                ttdh.SoLuongMua AS SoLuongMua,
-                ttdh.MucDichMua AS MucDichMua,
-                strftime('%d/%m/%Y', ttdh.NgayGiao) AS NgayGiao,
-                strftime('%d/%m/%Y', ttdh.Date_Insert) AS Date_Insert,
-                lsxn.canEdit AS canEdit,
-                ttdh.DonGia AS DonGia
-            FROM LichSuXuatNhap lsxn
-            INNER JOIN ThongTinDatHang ttdh
-                ON lsxn.ThongTinDatHang_ID = ttdh.id
-            INNER JOIN DanhSachDatHang dsdh
-                ON ttdh.DanhSachDatHang_ID = dsdh.id
-            LEFT JOIN DanhSachMaSP dssp
-                ON ttdh.DanhSachMaSP_ID = dssp.id
-            LEFT JOIN DanhSachKho dsk
-                ON lsxn.DanhSachKho_ID = dsk.id
-            WHERE 1 = 1
-        ");
+                    SELECT
+                        lsxn.id AS lsxn_id,
+                        strftime('%d/%m/%Y', lsxn.Ngay) AS NgayXuatNhap,
+                        lsxn.TenPhieu AS TenPhieu,
+                        lsxn.LyDo AS LyDo,
+                        dssp.Ma AS Ma,
+                        CASE 
+                            WHEN ttdh.DanhSachMaSP_ID IS NULL 
+                                THEN ttdh.TenVatTu
+                            ELSE dssp.Ten
+                        END AS TenVatTu,
+                        lsxn.SoLuong AS SoLuong,
+                        lsxn.DonGia AS DonGia,
+                        dsk.TenKho AS TenKho,
+                        ncc.TenNcc AS NCC,
+                        lsxn.GhiChu AS GhiChu,
+                        dsdh.MaDon AS MaDon,
+                        dsdh.NguoiDat AS NguoiDat,
+                        lsxn.NguoiGiao_Nhan AS NguoiGiaoNhan,
+                        strftime('%d/%m/%Y', dsdh.DateInsert) AS NgayDatPR,
+                        lsxn.NguoiLam AS NguoiLam,
+                        ttdh.SoLuongMua AS SoLuongMua,
+                        ttdh.MucDichMua AS MucDichMua,
+                        strftime('%d/%m/%Y', ttdh.NgayGiao) AS NgayGiao,
+                        strftime('%d/%m/%Y', ttdh.Date_Insert) AS Date_Insert,
+                        lsxn.canEdit AS canEdit,
+                        ttdh.DonGia AS DonGia
+                    FROM LichSuXuatNhap lsxn
+                    INNER JOIN ThongTinDatHang ttdh
+                        ON lsxn.ThongTinDatHang_ID = ttdh.id
+                    INNER JOIN DanhSachDatHang dsdh
+                        ON ttdh.DanhSachDatHang_ID = dsdh.id
+                    LEFT JOIN DanhSachMaSP dssp
+                        ON ttdh.DanhSachMaSP_ID = dssp.id
+                    LEFT JOIN DanhSachKho dsk
+                        ON lsxn.DanhSachKho_ID = dsk.id
+                    LEFT JOIN DanhSachNcc ncc
+                        ON lsxn.DanhSachNcc_ID = ncc.id
+                    WHERE 1 = 1
+                ");
                 var parameters = new List<SQLiteParameter>();
 
                 if (kho > 0)
@@ -1714,6 +1719,7 @@ namespace DG_TonKhoBTP_v02.Database
                 sql.AppendLine(" ORDER BY lsxn.Ngay DESC, lsxn.id DESC; ");
                 using (var conn = new SQLiteConnection(_connStr))
                 {
+                    Console.WriteLine( sql.ToString() );
                     conn.Open();
                     using (var cmd = new SQLiteCommand(sql.ToString(), conn))
                     {
@@ -2108,11 +2114,13 @@ namespace DG_TonKhoBTP_v02.Database
                 .ToString("yyyy-MM-dd");
 
             string sql = @"
-                SELECT COUNT(*)
+                SELECT 
+                    IFNULL(MAX(CAST(SUBSTR(TenPhieu, INSTR(TenPhieu, '-') + 1) AS INTEGER)), 0)
                 FROM LichSuXuatNhap
                 WHERE Ngay >= @start 
                 AND Ngay < @end
             ";
+
 
             sql += isNhapKho ? " AND TenPhieu LIKE 'KNK%'" : " AND TenPhieu  LIKE 'KXK%'";
 
@@ -2128,12 +2136,7 @@ namespace DG_TonKhoBTP_v02.Database
 
             return result == null ? 0 : Convert.ToInt32(result);
         }
-        public static async Task<string> CapNhatLichSuXuatNhap(
-            DataGridView dgv,
-            string nguoiGiaoNhan,
-            string lyDoChung,
-            string nguoiLam,
-            bool isNhapKho)
+        public static async Task<string> CapNhatLichSuXuatNhap( DataGridView dgv, string nguoiGiaoNhan, string lyDoChung,  string nguoiLam, bool isNhapKho)
         {
             if (dgv == null || dgv.Rows.Count == 0)
                 return null;
@@ -2238,15 +2241,7 @@ namespace DG_TonKhoBTP_v02.Database
             return hasUpdate ? "Update thành công" : null;
         }
 
-        public static async Task<string> LuuLichSuXuatNhap(
-        DataGridView dgv,
-        string nguoiGiaoNhan,
-        string lyDoChung,
-        string ngay,
-        decimal nhacc,
-        int kho,
-        string nguoiLam,
-        bool isNhapKho = true)
+        public static async Task<string> LuuLichSuXuatNhap( DataGridView dgv,  string nguoiGiaoNhan, string lyDoChung, string ngay, decimal nhacc, int kho,  string nguoiLam, bool isNhapKho = true)
         {
             if (dgv == null || dgv.Rows.Count == 0)
                 return null;
@@ -2375,7 +2370,6 @@ namespace DG_TonKhoBTP_v02.Database
             return hasInsert ? tenPhieu : null;
         }
 
-
         public static async Task<string> LuuDonKhacAsync( DonKhacInfo info, List<DonKhacItem> items)
         {
             if (info == null || items == null || items.Count == 0)
@@ -2395,7 +2389,7 @@ namespace DG_TonKhoBTP_v02.Database
 
             int soThuTu = GetSoLuongXuatNhapThangHienTai(info.IsNhapKho) + 1;
             string prefix = info.IsNhapKho ? "KNK" : "KXK";
-            string tenPhieu = $"{prefix}{ngay:yy/MM}-{soThuTu}";
+            string tenPhieu = $"{prefix}{ngay:yy/MM}-{soThuTu:D4}";
             string maDon = tenPhieu;
 
             const string sqlInsertDanhSachDatHang = @"
@@ -2576,16 +2570,7 @@ namespace DG_TonKhoBTP_v02.Database
             });
         }
 
-
-        private static void InsertLichSuXuatNhap(
-            SQLiteConnection conn,
-            SQLiteTransaction tx,
-            string sql,
-            DonKhacInfo info,
-            DonKhacItem item,
-            long thongTinDatHangId,
-            DateTime ngay,
-            string tenPhieu)
+        private static void InsertLichSuXuatNhap( SQLiteConnection conn,  SQLiteTransaction tx,  string sql, DonKhacInfo info,  DonKhacItem item,  long thongTinDatHangId, DateTime ngay, string tenPhieu)
         {
             using var cmd = new SQLiteCommand(sql, conn, tx);
 
@@ -4466,7 +4451,6 @@ namespace DG_TonKhoBTP_v02.Database
                 cmd.Parameters.AddWithValue("@CD_Moi", tp.ChieuDaiSau);
                 cmd.Parameters.AddWithValue("@DateInsert", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
                 cmd.Parameters.AddWithValue("@TenMay", Properties.Settings.Default.TenMay);
-
                 cmd.Parameters.AddWithValue("@GhiChu_Cu", ghiChuCu);
                 cmd.Parameters.AddWithValue("@GhiChu_Moi", tp.GhiChu);
 

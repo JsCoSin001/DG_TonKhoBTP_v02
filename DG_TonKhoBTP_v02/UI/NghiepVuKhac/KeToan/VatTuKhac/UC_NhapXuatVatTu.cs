@@ -84,6 +84,16 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
 
                 TimKiemTenNCC();
 
+                // ── KHỞI TẠO DataSource rỗng ngay từ đầu ───────────────────────
+                // Đảm bảo dgvChiTietDon luôn có DataSource là DataTable,
+                // tránh mất dữ liệu nhập tay khi MergeVaoDgv được gọi lần đầu.
+                if (dgvChiTietDon.DataSource == null)
+                {
+                    dgvChiTietDon.AutoGenerateColumns = false;
+                    dgvChiTietDon.DataSource = TaoDtRong();
+                }
+                // ── HẾT KHỞI TẠO ─────────────────────────────────────────────────
+
                 dgvChiTietDon.CellClick -= DgvChiTietDon_CellClick;
                 dgvChiTietDon.CellClick += DgvChiTietDon_CellClick;
 
@@ -369,7 +379,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
             _cbxTimDonHelper.ItemSelected += row => _ = LoadChiTietDonAsync(row["Value"]?.ToString(), IsEdit);
         }
 
-        
+
 
         private void DgvChiTietDon_CellClick(object sender, DataGridViewCellEventArgs e)
         {
@@ -467,19 +477,19 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
 
             fl.Enabled = false;
 
+            // ── DataSource luôn là DataTable (được khởi tạo trong OnLoad) ────────
+            // Chỉ cần ImportRow vào DataTable hiện tại; không bao giờ reset DataSource,
+            // đảm bảo dữ liệu người dùng nhập tay không bị mất.
             if (dgvChiTietDon.DataSource is DataTable dtHienTai)
             {
-                // Thêm toàn bộ dòng mới (KHÔNG lọc trùng)
                 foreach (DataRow row in dtMoi.Rows)
-                {
                     dtHienTai.ImportRow(row);
-                }
 
-                // Nếu không cần tracking thay đổi thì bật dòng này
                 dtHienTai.AcceptChanges();
             }
             else
             {
+                // Fallback phòng thủ: nếu vì lý do nào đó DataSource chưa được init
                 dgvChiTietDon.AutoGenerateColumns = false;
                 dgvChiTietDon.DataSource = dtMoi;
             }
@@ -986,5 +996,30 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
         }
 
         // ── HẾT THÊM MỚI ─────────────────────────────────────────────────────────────
+
+        // ── TẠO DataTable RỖNG đúng schema của dgvChiTietDon ─────────────────────────
+        // Phải khớp với DataPropertyName của từng cột trong Designer:
+        // id, MaDon, ten, ma, donVi, yeuCau, ngay, thucNhan, donGia, thanhTien, NhaCungCap, ghiChu
+        // Được gọi trong OnLoad để bind DataSource ngay từ đầu,
+        // đảm bảo dữ liệu nhập tay luôn được lưu vào DataTable và không bị mất
+        // khi MergeVaoDgv ImportRow thêm dữ liệu từ DB.
+        private static DataTable TaoDtRong()
+        {
+            var dt = new DataTable();
+            dt.Columns.Add("id", typeof(long));
+            dt.Columns.Add("MaDon", typeof(string));
+            dt.Columns.Add("ten", typeof(string));
+            dt.Columns.Add("ma", typeof(string));
+            dt.Columns.Add("donVi", typeof(string));
+            dt.Columns.Add("yeuCau", typeof(string));
+            dt.Columns.Add("ngay", typeof(string));
+            dt.Columns.Add("thucNhan", typeof(decimal));
+            dt.Columns.Add("donGia", typeof(decimal));
+            dt.Columns.Add("thanhTien", typeof(decimal));
+            dt.Columns.Add("NhaCungCap", typeof(string));
+            dt.Columns.Add("ghiChu", typeof(string));
+            return dt;
+        }
+        // ── HẾT TaoDtRong ─────────────────────────────────────────────────────────────
     }
 }

@@ -65,17 +65,6 @@
             this.tabPage3 = new System.Windows.Forms.TabPage();
             this.panel7 = new System.Windows.Forms.Panel();
             this.dtgLichSuSuaDoiDL = new System.Windows.Forms.DataGridView();
-            this.panel6 = new System.Windows.Forms.Panel();
-            this.tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
-            this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.tableLayoutPanel5 = new System.Windows.Forms.TableLayoutPanel();
-            this.label3 = new System.Windows.Forms.Label();
-            this.nmrSL = new System.Windows.Forms.NumericUpDown();
-            this.btnLayDL = new System.Windows.Forms.Button();
-            this.groupBox5 = new System.Windows.Forms.GroupBox();
-            this.tableLayoutPanel6 = new System.Windows.Forms.TableLayoutPanel();
-            this.label4 = new System.Windows.Forms.Label();
-            this.cbxTimTheoLot = new System.Windows.Forms.ComboBox();
             this.ID_lichSuSuDoi = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.tenCu = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.tenMoi = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -89,6 +78,17 @@
             this.ghiChu_Moi = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.TGsua = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.tenMay = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.panel6 = new System.Windows.Forms.Panel();
+            this.tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
+            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.tableLayoutPanel5 = new System.Windows.Forms.TableLayoutPanel();
+            this.label3 = new System.Windows.Forms.Label();
+            this.nmrSL = new System.Windows.Forms.NumericUpDown();
+            this.btnLayDL = new System.Windows.Forms.Button();
+            this.groupBox5 = new System.Windows.Forms.GroupBox();
+            this.tableLayoutPanel6 = new System.Windows.Forms.TableLayoutPanel();
+            this.label4 = new System.Windows.Forms.Label();
+            this.cbxTimTheoLot = new System.Windows.Forms.ComboBox();
             this.panel1.SuspendLayout();
             this.pnLeft.SuspendLayout();
             this.panel4.SuspendLayout();
@@ -520,6 +520,96 @@
             this.dtgLichSuSuaDoiDL.Size = new System.Drawing.Size(1141, 532);
             this.dtgLichSuSuaDoiDL.TabIndex = 0;
             // 
+            // ID_lichSuSuDoi
+            // 
+            this.ID_lichSuSuDoi.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.ColumnHeader;
+            this.ID_lichSuSuDoi.DataPropertyName = "ID_lichSuSuDoi";
+            this.ID_lichSuSuDoi.HeaderText = "ID";
+            this.ID_lichSuSuDoi.Name = "ID_lichSuSuDoi";
+            this.ID_lichSuSuDoi.Width = 45;
+            // 
+            // tenCu
+            // 
+            this.tenCu.DataPropertyName = "tenCu";
+            this.tenCu.HeaderText = "Tên cũ";
+            this.tenCu.Name = "tenCu";
+            this.tenCu.Width = 200;
+            // 
+            // tenMoi
+            // 
+            this.tenMoi.DataPropertyName = "tenMoi";
+            this.tenMoi.HeaderText = "Tên mới";
+            this.tenMoi.Name = "tenMoi";
+            this.tenMoi.Width = 200;
+            // 
+            // lotCu
+            // 
+            this.lotCu.DataPropertyName = "lotCu";
+            this.lotCu.HeaderText = "LOT cũ";
+            this.lotCu.Name = "lotCu";
+            this.lotCu.Width = 150;
+            // 
+            // lotMoi
+            // 
+            this.lotMoi.DataPropertyName = "lotMoi";
+            this.lotMoi.HeaderText = "LOT mới";
+            this.lotMoi.Name = "lotMoi";
+            this.lotMoi.Width = 150;
+            // 
+            // klCu
+            // 
+            this.klCu.DataPropertyName = "klCu";
+            this.klCu.HeaderText = "Khối lượng cũ";
+            this.klCu.Name = "klCu";
+            this.klCu.Width = 150;
+            // 
+            // klMoi
+            // 
+            this.klMoi.DataPropertyName = "klMoi";
+            this.klMoi.HeaderText = "Khối lượng mới";
+            this.klMoi.Name = "klMoi";
+            this.klMoi.Width = 150;
+            // 
+            // cdCu
+            // 
+            this.cdCu.DataPropertyName = "cdCu";
+            this.cdCu.HeaderText = "Chiều dài Cũ";
+            this.cdCu.Name = "cdCu";
+            this.cdCu.Width = 150;
+            // 
+            // cdMoi
+            // 
+            this.cdMoi.DataPropertyName = "cdMoi";
+            this.cdMoi.HeaderText = "Chiều dài mới";
+            this.cdMoi.Name = "cdMoi";
+            this.cdMoi.Width = 150;
+            // 
+            // ghiChu_Cu
+            // 
+            this.ghiChu_Cu.DataPropertyName = "ghiChu_Cu";
+            this.ghiChu_Cu.HeaderText = "Ghi chú cũ";
+            this.ghiChu_Cu.Name = "ghiChu_Cu";
+            // 
+            // ghiChu_Moi
+            // 
+            this.ghiChu_Moi.DataPropertyName = "ghiChu_Moi";
+            this.ghiChu_Moi.HeaderText = "Ghi chú mới";
+            this.ghiChu_Moi.Name = "ghiChu_Moi";
+            // 
+            // TGsua
+            // 
+            this.TGsua.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCellsExceptHeader;
+            this.TGsua.DataPropertyName = "TGsua";
+            this.TGsua.HeaderText = "Thời gian sửa";
+            this.TGsua.Name = "TGsua";
+            this.TGsua.Width = 5;
+            // 
+            // tenMay
+            // 
+            this.tenMay.DataPropertyName = "tenMay";
+            this.tenMay.HeaderText = "Sửa tại";
+            this.tenMay.Name = "tenMay";
+            // 
             // panel6
             // 
             this.panel6.Controls.Add(this.tableLayoutPanel4);
@@ -648,100 +738,10 @@
             // 
             this.cbxTimTheoLot.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbxTimTheoLot.FormattingEnabled = true;
-            this.cbxTimTheoLot.Location = new System.Drawing.Point(61, 12);
+            this.cbxTimTheoLot.Location = new System.Drawing.Point(61, 15);
             this.cbxTimTheoLot.Name = "cbxTimTheoLot";
             this.cbxTimTheoLot.Size = new System.Drawing.Size(647, 26);
             this.cbxTimTheoLot.TabIndex = 1;
-            // 
-            // ID_lichSuSuDoi
-            // 
-            this.ID_lichSuSuDoi.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.ColumnHeader;
-            this.ID_lichSuSuDoi.DataPropertyName = "ID_lichSuSuDoi";
-            this.ID_lichSuSuDoi.HeaderText = "ID";
-            this.ID_lichSuSuDoi.Name = "ID_lichSuSuDoi";
-            this.ID_lichSuSuDoi.Width = 45;
-            // 
-            // tenCu
-            // 
-            this.tenCu.DataPropertyName = "tenCu";
-            this.tenCu.HeaderText = "Tên cũ";
-            this.tenCu.Name = "tenCu";
-            this.tenCu.Width = 200;
-            // 
-            // tenMoi
-            // 
-            this.tenMoi.DataPropertyName = "tenMoi";
-            this.tenMoi.HeaderText = "Tên mới";
-            this.tenMoi.Name = "tenMoi";
-            this.tenMoi.Width = 200;
-            // 
-            // lotCu
-            // 
-            this.lotCu.DataPropertyName = "lotCu";
-            this.lotCu.HeaderText = "LOT cũ";
-            this.lotCu.Name = "lotCu";
-            this.lotCu.Width = 150;
-            // 
-            // lotMoi
-            // 
-            this.lotMoi.DataPropertyName = "lotMoi";
-            this.lotMoi.HeaderText = "LOT mới";
-            this.lotMoi.Name = "lotMoi";
-            this.lotMoi.Width = 150;
-            // 
-            // klCu
-            // 
-            this.klCu.DataPropertyName = "klCu";
-            this.klCu.HeaderText = "Khối lượng cũ";
-            this.klCu.Name = "klCu";
-            this.klCu.Width = 150;
-            // 
-            // klMoi
-            // 
-            this.klMoi.DataPropertyName = "klMoi";
-            this.klMoi.HeaderText = "Khối lượng mới";
-            this.klMoi.Name = "klMoi";
-            this.klMoi.Width = 150;
-            // 
-            // cdCu
-            // 
-            this.cdCu.DataPropertyName = "cdCu";
-            this.cdCu.HeaderText = "Chiều dài Cũ";
-            this.cdCu.Name = "cdCu";
-            this.cdCu.Width = 150;
-            // 
-            // cdMoi
-            // 
-            this.cdMoi.DataPropertyName = "cdMoi";
-            this.cdMoi.HeaderText = "Chiều dài mới";
-            this.cdMoi.Name = "cdMoi";
-            this.cdMoi.Width = 150;
-            // 
-            // ghiChu_Cu
-            // 
-            this.ghiChu_Cu.DataPropertyName = "ghiChu_Cu";
-            this.ghiChu_Cu.HeaderText = "Ghi chú cũ";
-            this.ghiChu_Cu.Name = "ghiChu_Cu";
-            // 
-            // ghiChu_Moi
-            // 
-            this.ghiChu_Moi.DataPropertyName = "ghiChu_Moi";
-            this.ghiChu_Moi.HeaderText = "Ghi chú mới";
-            this.ghiChu_Moi.Name = "ghiChu_Moi";
-            // 
-            // TGsua
-            // 
-            this.TGsua.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCellsExceptHeader;
-            this.TGsua.DataPropertyName = "TGsua";
-            this.TGsua.HeaderText = "Thời gian sửa";
-            this.TGsua.Name = "TGsua";
-            this.TGsua.Width = 5;
-            // 
-            // tenMay
-            // 
-            this.tenMay.DataPropertyName = "tenMay";
-            this.tenMay.HeaderText = "Sửa tại";
-            this.tenMay.Name = "tenMay";
             // 
             // UC_TruyVetDuLieu
             // 

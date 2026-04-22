@@ -34,8 +34,8 @@ namespace DG_TonKhoBTP_v02
     {
         private string _URL = Properties.Settings.Default.URL;
         private CongDoanUiService _ui;
-        private string _ver = "2.5.23";
-        private bool show = true;
+        private string _ver = "2.5.24";
+        private bool show = false;
         private void InitUiService()
         {
             _ui = new CongDoanUiService(
@@ -1214,6 +1214,7 @@ namespace DG_TonKhoBTP_v02
             lblUserName.Text = UserContext.Name == null? "Đăng nhập" : UserContext.Name;
             lblChucDanh.Text = (UserContext.RolesDict == null || UserContext.RolesDict.Count == 0) ? "Chưa đăng nhập" : UserContext.RolesDict.Values.First();
             avatar.Image = Image.FromFile(@"Assets\" + iconAvatar + ".ico");
+            //this.TopMost = UserContext.IsAuthenticated;
             PhanQuyen();
         }
 

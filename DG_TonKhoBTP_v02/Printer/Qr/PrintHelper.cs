@@ -228,6 +228,41 @@ namespace DG_TonKhoBTP_v02.Printer
                     g.DrawString($"Ghi chú: {data.Mau}", normalFont, brush,
                                  (float)notePadPx, heightAboveNote + notePadPx);
                 }
+
+
+                // ── VÒNG TRÒN QC ─────────────────────────────────────────────
+                if (!string.IsNullOrWhiteSpace(data.QC))
+                {
+                    // Tâm gốc = giữa vùng QR, dịch X +40mm (4cm), Y +10mm (1cm)
+                    float circleCX = marginPx + qrSizePx / 2f + Mm2Px(43, dpi);  // 40 - 5 = 35mm
+                    float circleCY = marginPx + qrSizePx / 2f + Mm2Px(6.0, dpi);  // 10 - 4 = 6mm
+
+                    // Bán kính = 70% so với bán kính gốc 19mm → ~13.3mm
+                    float circleR = Mm2Px(8.5, dpi);
+
+                    using var circleFont = new Font(FONT_NAME, 8f, FontStyle.Bold, GraphicsUnit.Point);
+
+                    // Vẽ viền tròn
+                    g.ResetTransform();
+                    g.DrawEllipse(Pens.Black,
+                        circleCX - circleR,
+                        circleCY - circleR,
+                        circleR * 2,
+                        circleR * 2);
+
+                    // Vẽ chữ cong theo vòng tròn
+                    DrawCircularText(g,
+                        text: data.QC,
+                        font: circleFont,
+                        brush: Brushes.Black,
+                        centerX: circleCX,
+                        centerY: circleCY,
+                        radius: circleR,
+                        startAngleDeg: 245f);
+
+                    // Reset transform sau khi vẽ xong
+                    g.ResetTransform();
+                }
             }
 
             // SET LẠI DPI sau khi vẽ — tránh GDI+ reset về screen DPI
@@ -330,5 +365,112 @@ namespace DG_TonKhoBTP_v02.Printer
         // ============================================================
         private static int Mm2Px(double mm, int dpi) =>
             (int)Math.Round(mm / 25.4 * dpi);
+
+
+        private static void DrawCircularText(
+            Graphics g,
+            string text,
+            Font font,
+            Brush brush,
+            float centerX,
+            float centerY,
+            float radius,
+            float startAngleDeg = 245f)
+        {
+            if (string.IsNullOrEmpty(text)) return;
+
+            GraphicsState stateSave = g.Save();
+            g.ResetTransform();
+
+            // ══════════════════════════════════════════════════
+            //  PHẦN 1: "SẢN PHẨM ĐÃ KIỂM TRA" cong theo cung
+            //  Chữ S bắt đầu tại góc startAngleDeg (mặc định 245°)
+            // ══════════════════════════════════════════════════
+            string arcText = "SẢN PHẨM ĐÃ KIỂM TRA";
+
+            float[] charWidths = new float[arcText.Length];
+            float[] charHeights = new float[arcText.Length];
+            float totalWidth = 0f;
+
+            for (int i = 0; i < arcText.Length; i++)
+            {
+                if (arcText[i] == ' ')
+                {
+                    SizeF spSz = g.MeasureString(
+                        "n", font, PointF.Empty, StringFormat.GenericTypographic);
+                    charWidths[i] = spSz.Width;
+                    charHeights[i] = spSz.Height;
+                }
+                else
+                {
+                    SizeF sz = g.MeasureString(
+                        arcText[i].ToString(), font,
+                        PointF.Empty, StringFormat.GenericTypographic);
+                    charWidths[i] = sz.Width;
+                    charHeights[i] = sz.Height;
+                }
+                totalWidth += charWidths[i];
+            }
+
+            float avgHeight = font.GetHeight(g);
+            float baselineR = radius - avgHeight * 0.6f;
+            if (baselineR <= 0) baselineR = radius * 0.5f;
+
+            float arcSpan = (float)Math.PI;
+            float charTotalAngle = totalWidth / baselineR;
+            float totalGapAngle = arcSpan - charTotalAngle;
+            int gaps = arcText.Length - 1;
+            float spacingAngle = gaps > 0 ? totalGapAngle / gaps : 0f;
+            if (spacingAngle < 0) spacingAngle = 0f;
+
+            float currentAngle = (float)(startAngleDeg * Math.PI / 180.0);
+
+            for (int i = 0; i < arcText.Length; i++)
+            {
+                float charAngle = charWidths[i] / baselineR;
+                float drawAngle = currentAngle - charAngle / 2f;
+
+                float cx = centerX + baselineR * (float)Math.Cos(drawAngle);
+                float cy = centerY - baselineR * (float)Math.Sin(drawAngle);
+
+                g.ResetTransform();
+                g.TranslateTransform(cx, cy);
+
+                float rotateDeg = -(float)(drawAngle * 180.0 / Math.PI) + 90f;
+                g.RotateTransform(rotateDeg);
+
+                if (arcText[i] != ' ')
+                {
+                    g.DrawString(
+                        arcText[i].ToString(), font, brush,
+                        -charWidths[i] / 2f,
+                        -charHeights[i] / 2f,
+                        StringFormat.GenericTypographic);
+                }
+
+                currentAngle -= charAngle + spacingAngle;
+            }
+
+            // ══════════════════════════════════════════════════
+            //  PHẦN 2: text ("1") in to ở TÂM vòng tròn
+            // ══════════════════════════════════════════════════
+            g.ResetTransform();
+
+            using var centerFont = new Font(FONT_NAME, 14f, FontStyle.Bold, GraphicsUnit.Point);
+
+            SizeF textSize = g.MeasureString(
+                text, centerFont, PointF.Empty, StringFormat.GenericTypographic);
+
+            g.DrawString(
+                text, centerFont, brush,
+                centerX - textSize.Width / 2f,
+                centerY - textSize.Height / 2f,
+                StringFormat.GenericTypographic);
+
+            g.Restore(stateSave);
+        }
     }
+
+
+
 }

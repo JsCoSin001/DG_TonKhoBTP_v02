@@ -4089,7 +4089,6 @@ namespace DG_TonKhoBTP_v02.Database
                         {
                             string qc = CoreHelper.GetString(reader, "QC").Trim();
                             string ghiChu = CoreHelper.GetString(reader, "GhiChu");
-                            if (qc != "") ghiChu = "QC-" + qc + " xác nhận SP OK" + "\r\n" + ghiChu;
 
                             var model = new PrinterModel
                             {

@@ -586,15 +586,13 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
         {
             if (dgvChiTietDon.Rows.Count == 0)
             {
-                MessageBox.Show("Không có dữ liệu để lưu.", "Thông báo",
-                                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                FrmWaiting.ShowGifAlert("Không có dữ liệu để lưu.");
                 return;
             }
 
             if (cbxKhoHang.Text == "" && !IsEdit && _kieu != 2)
             {
-                MessageBox.Show("Kho hàng không được rỗng", "Thông báo",
-                                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                FrmWaiting.ShowGifAlert("Kho hàng không được rỗng");
                 return;
             }
 
@@ -605,13 +603,16 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
             string nguoiLam = tbxnguoiLam.Text.Trim();
             decimal ncc = nbrIDNCC.Value;
 
-            Console.WriteLine(ncc);
-
             if (string.IsNullOrWhiteSpace(nguoiLam))
             {
-                MessageBox.Show("Vui lòng nhập người làm.", "Thông báo",
-                                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                FrmWaiting.ShowGifAlert("Người làm không được trống");
                 txtNguoiGiaoNhan.Focus();
+                return;
+            }
+
+            if (rdoLoai.Checked == true && !IsEdit && nbrIDNCC.Value == 0)
+            {
+                FrmWaiting.ShowGifAlert("Nhà cung cấp không được trống");
                 return;
             }
 

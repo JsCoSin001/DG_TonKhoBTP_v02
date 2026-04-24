@@ -3,6 +3,7 @@ using DG_TonKhoBTP_v02.Core;
 using DG_TonKhoBTP_v02.Dictionary;
 using DG_TonKhoBTP_v02.DL_Ben;
 using DG_TonKhoBTP_v02.Helper;
+using DG_TonKhoBTP_v02.Helper.Reuseable;
 using DG_TonKhoBTP_v02.Models;
 using DG_TonKhoBTP_v02.UI;
 using DG_TonKhoBTP_v02.UI.Helper.AutoSearchWithCombobox;
@@ -3457,7 +3458,7 @@ namespace DG_TonKhoBTP_v02.Database
             }
         }
 
-        public static void UpsertDanhSachNCC(string id, string ma, string tenNcc, string diaChi = null)
+        public static int UpsertDanhSachNCC(string id, string ma, string tenNcc, string diaChi = null)
         {
             bool isInsert = string.IsNullOrWhiteSpace(id);
 
@@ -3465,15 +3466,18 @@ namespace DG_TonKhoBTP_v02.Database
             conn.Open();
 
             using var tx = conn.BeginTransaction();
+
             try
             {
-                string sql = isInsert
-                    ? @"
-                        INSERT INTO DanhSachNCC
-                        (Ma, TenNCC, TenNCC_KhongDau, DiaChi)
-                        VALUES
-                        (@Ma, @TenNCC, @TenNCC_KhongDau, @DiaChi);"
-                                : @"
+                string sql = @"
+                    INSERT INTO DanhSachNCC
+                    (Ma, TenNCC, TenNCC_KhongDau, DiaChi)
+                    VALUES
+                    (@Ma, @TenNCC, @TenNCC_KhongDau, @DiaChi);";
+
+                if (!isInsert)
+                {
+                    sql = @"
                         UPDATE DanhSachNCC
                         SET
                             Ma = @Ma,
@@ -3481,17 +3485,20 @@ namespace DG_TonKhoBTP_v02.Database
                             TenNCC_KhongDau = @TenNCC_KhongDau,
                             DiaChi = @DiaChi
                         WHERE id = @id;";
+                }
 
                 using var cmd = new SQLiteCommand(sql, conn, tx);
 
-                cmd.Parameters.AddWithValue("@Ma", ma?.Trim());
-                cmd.Parameters.AddWithValue("@TenNCC", tenNcc?.Trim());
+                cmd.Parameters.AddWithValue("@Ma",
+                    string.IsNullOrWhiteSpace(ma) ? (object)DBNull.Value : ma.Trim());
 
-                // giả sử bạn có hàm bỏ dấu
+                cmd.Parameters.AddWithValue("@TenNCC",
+                    string.IsNullOrWhiteSpace(tenNcc) ? (object)DBNull.Value : tenNcc.Trim());
+
                 cmd.Parameters.AddWithValue("@TenNCC_KhongDau",
                     string.IsNullOrWhiteSpace(tenNcc)
                         ? (object)DBNull.Value
-                        : CoreHelper.BoDauTiengViet(tenNcc));
+                        : CoreHelper.BoDauTiengViet(tenNcc.Trim()));
 
                 cmd.Parameters.AddWithValue("@DiaChi",
                     string.IsNullOrWhiteSpace(diaChi) ? (object)DBNull.Value : diaChi.Trim());
@@ -3501,7 +3508,20 @@ namespace DG_TonKhoBTP_v02.Database
 
                 cmd.ExecuteNonQuery();
 
+                int finalId;
+
+                if (isInsert)
+                {
+                    using var getIdCmd = new SQLiteCommand("SELECT last_insert_rowid();", conn, tx);
+                    finalId = Convert.ToInt32(getIdCmd.ExecuteScalar());
+                }
+                else
+                {
+                    finalId = Convert.ToInt32(id);
+                }
+
                 tx.Commit();
+                return finalId;
             }
             catch
             {
@@ -3510,7 +3530,7 @@ namespace DG_TonKhoBTP_v02.Database
             }
         }
 
-        public static void UpsertDanhSachKho(string id, string kiHieu, string tenKho, string ghiChu = null)
+        public static int UpsertDanhSachKho(string id, string kiHieu, string tenKho, string ghiChu = null)
         {
             bool isInsert = string.IsNullOrWhiteSpace(id);
 
@@ -3518,28 +3538,37 @@ namespace DG_TonKhoBTP_v02.Database
             conn.Open();
 
             using var tx = conn.BeginTransaction();
+
             try
             {
-                string sql = isInsert
-                    ? @"
-                    INSERT INTO DanhSachKho
-                    (KiHieu, TenKho, GhiChu)
-                    VALUES
-                    (@KiHieu, @TenKho,@TenKho_KhongDau, @GhiChu);"
-                            : @"
-                    UPDATE DanhSachKho
-                    SET
-                        KiHieu = @KiHieu,
-                        TenKho = @TenKho,
-                        TenKho_KhongDau = @TenKho_KhongDau,
-                        GhiChu = @GhiChu
-                    WHERE id = @id;";
+                string sql = @"
+            INSERT INTO DanhSachKho
+            (KiHieu, TenKho, TenKho_KhongDau, GhiChu)
+            VALUES
+            (@KiHieu, @TenKho, @TenKho_KhongDau, @GhiChu);";
+
+                if (!isInsert)
+                {
+                    sql = @"
+                UPDATE DanhSachKho
+                SET
+                    KiHieu = @KiHieu,
+                    TenKho = @TenKho,
+                    TenKho_KhongDau = @TenKho_KhongDau,
+                    GhiChu = @GhiChu
+                WHERE id = @id;";
+                }
 
                 using var cmd = new SQLiteCommand(sql, conn, tx);
 
                 cmd.Parameters.AddWithValue("@KiHieu", kiHieu?.Trim());
                 cmd.Parameters.AddWithValue("@TenKho", tenKho?.Trim());
-                cmd.Parameters.AddWithValue("@TenKho_KhongDau", CoreHelper.BoDauTiengViet(tenKho?.Trim()));
+
+                cmd.Parameters.AddWithValue("@TenKho_KhongDau",
+                    string.IsNullOrWhiteSpace(tenKho)
+                        ? (object)DBNull.Value
+                        : CoreHelper.BoDauTiengViet(tenKho.Trim()));
+
                 cmd.Parameters.AddWithValue("@GhiChu",
                     string.IsNullOrWhiteSpace(ghiChu) ? (object)DBNull.Value : ghiChu.Trim());
 
@@ -3548,7 +3577,22 @@ namespace DG_TonKhoBTP_v02.Database
 
                 cmd.ExecuteNonQuery();
 
+                // 🔥 LẤY ID
+                int finalId;
+
+                if (isInsert)
+                {
+                    using var getIdCmd = new SQLiteCommand("SELECT last_insert_rowid();", conn, tx);
+                    finalId = Convert.ToInt32(getIdCmd.ExecuteScalar());
+                }
+                else
+                {
+                    finalId = Convert.ToInt32(id);
+                }
+
                 tx.Commit();
+
+                return finalId;
             }
             catch
             {
@@ -4810,52 +4854,40 @@ namespace DG_TonKhoBTP_v02.Database
             cmd.ExecuteNonQuery();
         }
 
-        public static string UpdateDanhSachMaSP(DanhSachMaSP sp, int key)
+        public static int UpdateDanhSachMaSP(DanhSachMaSP sp, int id)
         {
-            string query = @"
-                UPDATE DanhSachMaSP
-                SET 
-                    Ten = @Ten,
-                    Ten_KhongDau = @Ten_KhongDau,
-                    Ma = @Ma,
-                    DonVi = @DonVi,
-                    KieuSP = @KieuSP,
-                    ChuyenDoi = @ChuyenDoi,
-                    DateInsert = @DateInsert
-                WHERE id = @Id;
-            ";
+            const string sql = @"
+            UPDATE DanhSachMaSP
+            SET
+                Ten = @Ten,
+                Ten_KhongDau = @Ten_KhongDau,
+                Ma = @Ma,
+                DonVi = @DonVi,
+                KieuSP = @KieuSP,
+                ChuyenDoi = @ChuyenDoi,
+                DateInsert = @DateInsert
+            WHERE id = @Id;";
 
-            try
-            {
-                using (var conn = new SQLiteConnection(_connStr))
-                {
-                    conn.Open();
-                    using (var cmd = new SQLiteCommand(query, conn))
-                    {
-                        cmd.Parameters.AddWithValue("@Ten", sp.Ten);
-                        cmd.Parameters.AddWithValue("@Ten_KhongDau", sp.Ten_KhongDau);
-                        cmd.Parameters.AddWithValue("@Ma", sp.Ma);
-                        cmd.Parameters.AddWithValue("@DonVi", sp.DonVi);
-                        cmd.Parameters.AddWithValue("@KieuSP", sp.KieuSP);
-                        cmd.Parameters.AddWithValue("@ChuyenDoi", sp.ChuyenDoi);
-                        cmd.Parameters.AddWithValue("@DateInsert", sp.DateInsert);
-                        cmd.Parameters.AddWithValue("@Id", key);
+            using var conn = new SQLiteConnection(_connStr);
+            conn.Open();
 
-                        int rowsAffected = cmd.ExecuteNonQuery();
+            using var cmd = new SQLiteCommand(sql, conn);
 
-                        // Nếu cập nhật thành công → trả về chuỗi rỗng
-                        if (rowsAffected > 0)
-                            return "";
-                        else
-                            return $"Không tìm thấy bản ghi với Tên = {sp.Ten}";
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                // Trả về lỗi từ helper
-                return CoreHelper.ShowErrorDatabase(ex, sp.Ten);
-            }
+            cmd.Parameters.AddWithValue("@Ten", sp.Ten);
+            cmd.Parameters.AddWithValue("@Ten_KhongDau", sp.Ten_KhongDau);
+            cmd.Parameters.AddWithValue("@Ma", sp.Ma);
+            cmd.Parameters.AddWithValue("@DonVi", sp.DonVi);
+            cmd.Parameters.AddWithValue("@KieuSP", sp.KieuSP);
+            cmd.Parameters.AddWithValue("@ChuyenDoi", sp.ChuyenDoi);
+            cmd.Parameters.AddWithValue("@DateInsert", sp.DateInsert ?? DateTime.Now);
+            cmd.Parameters.AddWithValue("@Id", id);
+
+            int rows = cmd.ExecuteNonQuery();
+
+            if (rows == 0)
+                throw new Exception($"Không tìm thấy bản ghi ID = {id}");
+
+            return id; // 🔥 update thì trả lại id cũ
         }
 
         public static string UpdateKLConLai_BanTran(BanTran bt)
@@ -5349,38 +5381,44 @@ namespace DG_TonKhoBTP_v02.Database
             cmd.ExecuteNonQuery();
         }
 
-        public static string InsertDSMaSP(DanhSachMaSP sp)
+        public static int InsertDSMaSP(DanhSachMaSP sp)
         {
+            const string sql = @"
+            INSERT INTO DanhSachMaSP
+            (Ten, Ten_KhongDau, Ma, DonVi, KieuSP, ChuyenDoi, DateInsert)
+            VALUES
+            (@Ten, @Ten_KhongDau, @Ma, @DonVi, @KieuSP, @ChuyenDoi, @DateInsert);";
+
+            using var conn = new SQLiteConnection(_connStr);
+            conn.Open();
+
+            using var tx = conn.BeginTransaction();
+
             try
             {
-                using var conn = new SQLiteConnection(_connStr);
-                conn.Open();
-                using var tx = conn.BeginTransaction();
+                using var cmd = new SQLiteCommand(sql, conn, tx);
 
-                string sql = @"
-                    INSERT INTO DanhSachMaSP (Ten, Ten_KhongDau, Ma, DonVi, KieuSP,ChuyenDoi,DateInsert)
-                    VALUES (@Ten,@Ten_KhongDau, @Ma, @DonVi, @KieuSP, @ChuyenDoi, @DateInsert);
-                ";
+                cmd.Parameters.AddWithValue("@Ten", sp.Ten);
+                cmd.Parameters.AddWithValue("@Ten_KhongDau", sp.Ten_KhongDau);
+                cmd.Parameters.AddWithValue("@Ma", sp.Ma);
+                cmd.Parameters.AddWithValue("@DonVi", sp.DonVi);
+                cmd.Parameters.AddWithValue("@KieuSP", sp.KieuSP);
+                cmd.Parameters.AddWithValue("@ChuyenDoi", sp.ChuyenDoi);
+                cmd.Parameters.AddWithValue("@DateInsert", sp.DateInsert ?? DateTime.Now);
 
-                using (var cmd = new SQLiteCommand(sql, conn, tx))
-                {
-                    cmd.Parameters.AddWithValue("@Ten", sp.Ten);
-                    cmd.Parameters.AddWithValue("@Ten_KhongDau", sp.Ten_KhongDau);
-                    cmd.Parameters.AddWithValue("@Ma", sp.Ma);
-                    cmd.Parameters.AddWithValue("@DonVi", sp.DonVi);
-                    cmd.Parameters.AddWithValue("@KieuSP", sp.KieuSP);
-                    cmd.Parameters.AddWithValue("@ChuyenDoi", sp.ChuyenDoi);
-                    cmd.Parameters.AddWithValue("@DateInsert", sp.DateInsert ?? DateTime.Now);
+                cmd.ExecuteNonQuery();
 
-                    cmd.ExecuteNonQuery();
-                }
+                // 🔥 lấy ID vừa insert
+                using var getIdCmd = new SQLiteCommand("SELECT last_insert_rowid();", conn, tx);
+                int finalId = Convert.ToInt32(getIdCmd.ExecuteScalar());
 
                 tx.Commit();
-                return ""; 
+                return finalId;
             }
-            catch (Exception ex)
+            catch
             {
-                return CoreHelper.ShowErrorDatabase(ex, sp.Ma);
+                tx.Rollback();
+                throw;
             }
         }
         #endregion

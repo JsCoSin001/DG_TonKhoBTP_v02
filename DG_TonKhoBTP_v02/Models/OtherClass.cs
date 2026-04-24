@@ -27,6 +27,14 @@ namespace DG_TonKhoBTP_v02.Models
     }
 
 
+    public class Kho_NCC
+    {
+        public int ID { get; set; }
+        public string Ma { get; set; }
+        public string Ten { get; set; }
+    }
+
+
     public class NhaCungCapItem
     {
         public int Id { get; set; }

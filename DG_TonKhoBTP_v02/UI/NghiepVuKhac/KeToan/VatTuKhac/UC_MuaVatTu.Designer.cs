@@ -131,7 +131,7 @@
             // 
             this.cbxTimTenVatTu.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbxTimTenVatTu.FormattingEnabled = true;
-            this.cbxTimTenVatTu.Location = new System.Drawing.Point(874, 20);
+            this.cbxTimTenVatTu.Location = new System.Drawing.Point(874, 18);
             this.cbxTimTenVatTu.Name = "cbxTimTenVatTu";
             this.cbxTimTenVatTu.Size = new System.Drawing.Size(145, 26);
             this.cbxTimTenVatTu.TabIndex = 2;
@@ -252,7 +252,7 @@
             "Người 13",
             "Người 14",
             "Người 15"});
-            this.nguoiDat.Location = new System.Drawing.Point(348, 18);
+            this.nguoiDat.Location = new System.Drawing.Point(348, 20);
             this.nguoiDat.Name = "nguoiDat";
             this.nguoiDat.Size = new System.Drawing.Size(163, 26);
             this.nguoiDat.TabIndex = 5;
@@ -262,7 +262,7 @@
             this.cbxTimThemTheoTen.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbxTimThemTheoTen.Enabled = false;
             this.cbxTimThemTheoTen.FormattingEnabled = true;
-            this.cbxTimThemTheoTen.Location = new System.Drawing.Point(1129, 20);
+            this.cbxTimThemTheoTen.Location = new System.Drawing.Point(1129, 18);
             this.cbxTimThemTheoTen.Name = "cbxTimThemTheoTen";
             this.cbxTimThemTheoTen.Size = new System.Drawing.Size(145, 26);
             this.cbxTimThemTheoTen.TabIndex = 6;

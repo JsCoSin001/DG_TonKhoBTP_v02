@@ -1,18 +1,15 @@
-﻿using DG_TonKhoBTP_v02.Core;
+﻿using ClosedXML.Excel;
+using DG_TonKhoBTP_v02.Core;
 using DG_TonKhoBTP_v02.Database;
 using DG_TonKhoBTP_v02.Helper;
+using DG_TonKhoBTP_v02.Helper.Reuseable;
 using DG_TonKhoBTP_v02.Models;
 using DG_TonKhoBTP_v02.UI.Helper;
-using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
-using DocumentFormat.OpenXml.Spreadsheet;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Data.SQLite;
 using System.Drawing;
-using System.Linq;
-using System.Text;
+using System.IO;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -25,6 +22,10 @@ namespace DG_TonKhoBTP_v02.UI
 
         private CancellationTokenSource _searchCts;
 
+        private static readonly string folderPath = @"\\192.168.4.10\DungChungDG\DanhSach_SP_NCC_Kho";
+        private static readonly string filePath = Path.Combine(folderPath, "data.xlsx");
+
+
         public UC_CapNhatSP()
         {
             InitializeComponent();
@@ -35,11 +36,12 @@ namespace DG_TonKhoBTP_v02.UI
         private async void btnLuu_Click(object sender, EventArgs e)
         {
             btnLuu.Enabled = false;
+
             try
             {
-                if (kieuSP.Text == "")
+                if (string.IsNullOrWhiteSpace(kieuSP.Text))
                 {
-                    FrmWaiting.ShowGifAlert($"KIỂU SẢN PHẨM KHÔNG HỢP LỆ.");
+                    FrmWaiting.ShowGifAlert("KIỂU SẢN PHẨM KHÔNG HỢP LỆ.");
                     return;
                 }
 
@@ -54,53 +56,58 @@ namespace DG_TonKhoBTP_v02.UI
                     DateInsert = DateTime.Now
                 };
 
-                if (string.IsNullOrEmpty(sp.Ma) ||
-                    string.IsNullOrEmpty(sp.Ten) ||
-                    string.IsNullOrEmpty(sp.DonVi))
+                if (string.IsNullOrWhiteSpace(sp.Ma) ||
+                    string.IsNullOrWhiteSpace(sp.Ten) ||
+                    string.IsNullOrWhiteSpace(sp.DonVi))
                 {
                     FrmWaiting.ShowGifAlert("THIẾU DỮ LIỆU.");
                     return;
                 }
 
-                // Lấy giá trị UI trước
-                var idText = id.Text?.Trim();
+                string idText = id.Text?.Trim();
+                bool isInsert = string.IsNullOrWhiteSpace(idText);
 
-                // Chạy logic với waiting form, TRẢ VỀ KẾT QUẢ
-                string result = await WaitingHelper.RunWithWaiting(async () =>
+                int finalId = 0;
+
+                await WaitingHelper.RunWithWaiting(() =>
                 {
-                    return await Task.Run(() =>
+                    try
                     {
-                        bool isInsert = string.IsNullOrEmpty(idText);
-
                         if (!isInsert)
                         {
-                            if (!int.TryParse(idText, out int parsedId))  return "ID KHÔNG HỢP LỆ.";
-                            return DatabaseHelper.UpdateDanhSachMaSP(sp, parsedId);
-                        }
+                            if (!int.TryParse(idText, out int parsedId))
+                                throw new Exception("ID KHÔNG HỢP LỆ.");
 
-                        if (UserContext.HasPermission("CAN_WRITE") == false)
+                            finalId = DatabaseHelper.UpdateDanhSachMaSP(sp, parsedId);
+                        }
+                        else
                         {
-                            return "BẠN KHÔNG CÓ QUYỀN THÊM MỚI SẢN PHẨM.";
-                        }
+                            if (!UserContext.HasPermission("CAN_WRITE"))
+                                throw new Exception("BẠN KHÔNG CÓ QUYỀN THÊM MỚI.");
 
-                        return DatabaseHelper.InsertDSMaSP(sp);
-                    });
+                            finalId = DatabaseHelper.InsertDSMaSP(sp);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        FrmWaiting.ShowGifAlert(
+                            CoreHelper.ShowErrorDatabase(ex, sp.Ma),
+                            "LỖI CƠ SỞ DỮ LIỆU");
+                        throw;
+                    }
                 }, "ĐANG LƯU DỮ LIỆU...");
 
-                // >>>> HIỂN THỊ MESSAGEBOX SAU KHI WAITING FORM ĐÃ ĐÓNG <<
-                string icon = "warning";
-                if (string.IsNullOrEmpty(result))
-                {
-                    result = "THAO TÁC THÀNH CÔNG";
-                    icon = EnumStore.Icon.Success;
-                    Clear();
-                }
 
-                FrmWaiting.ShowGifAlert(result, "THÔNG BÁO",icon);
+                if (cbxExSanPham.Checked) GhiExcelAsync(finalId, sp.Ma, sp.Ten, "DsSanPham");
+
+
+                FrmWaiting.ShowGifAlert("THAO TÁC THÀNH CÔNG", "THÔNG BÁO", EnumStore.Icon.Success);
+
+                Clear();
             }
-            catch (Exception ex)
+            catch
             {
-                FrmWaiting.ShowGifAlert($"Đã xảy ra lỗi: {ex.Message}".ToUpper());
+                // lỗi đã show bên trong rồi
             }
             finally
             {
@@ -379,13 +386,14 @@ namespace DG_TonKhoBTP_v02.UI
             }
 
             bool isSuccess = false;
+            int finalId = 0;
             string actionName = string.IsNullOrWhiteSpace(id) ? "THÊM MỚI" : "CẬP NHẬT";
 
             await WaitingHelper.RunWithWaiting(() =>
             {
                 try
                 {
-                    DatabaseHelper.UpsertDanhSachNCC(id, ma, tenNcc);
+                    finalId = DatabaseHelper.UpsertDanhSachNCC(id, ma, tenNcc);
                     isSuccess = true;
                 }
                 catch (Exception ex)
@@ -399,6 +407,9 @@ namespace DG_TonKhoBTP_v02.UI
 
             if (!isSuccess) return;
 
+            // Ghi Excel chạy nền, không block UI
+            if(cbxExNCC.Checked) GhiExcelAsync(finalId, ma, tenNcc, "DsNcc");
+
             FrmWaiting.ShowGifAlert($"{actionName} NHÀ CUNG CẤP THÀNH CÔNG.", "THÔNG BÁO");
 
             tbxID.Clear();
@@ -406,7 +417,6 @@ namespace DG_TonKhoBTP_v02.UI
             tbxTenNcc.Clear();
             tbxMaNcc.Focus();
 
-            // nếu có hàm reload grid thì gọi tại đây
             // LoadDanhSachNCC();
         }
 
@@ -438,7 +448,8 @@ namespace DG_TonKhoBTP_v02.UI
             {
                 try
                 {
-                    DatabaseHelper.UpsertDanhSachKho(id, kiHieu, tenKho, ghiChu);
+                    int finalId = DatabaseHelper.UpsertDanhSachKho(id, kiHieu, tenKho, ghiChu);
+                    if(cbxExKho.Checked) GhiExcelAsync(finalId, kiHieu, tenKho, "DsKho");
                     isSuccess = true;
                 }
                 catch (Exception ex)
@@ -460,5 +471,44 @@ namespace DG_TonKhoBTP_v02.UI
             //tbxGhiChuKho.Clear();
             tbxKiHieuKho.Focus();
         }
+
+
+        private void GhiExcelAsync(int finalId, string ma, string ten, string sheetName)
+        {
+            Task.Run(() =>
+            {
+                try
+                {
+                    var model = new Kho_NCC
+                    {
+                        ID = finalId,
+                        Ma = ma,
+                        Ten = ten
+                    };
+
+                    ExcelHelper.InsertModelToSheet(model, sheetName);
+                }
+                catch (Exception ex)
+                {
+                    if (this.InvokeRequired)
+                    {
+                        this.Invoke(new Action(() =>
+                        {
+                            FrmWaiting.ShowGifAlert(
+                                "Ghi file Excel thất bại:\n" + ex.Message,
+                                "LỖI EXCEL");
+                        }));
+                    }
+                    else
+                    {
+                        FrmWaiting.ShowGifAlert(
+                            "Ghi file Excel thất bại:\n" + ex.Message,
+                            "LỖI EXCEL");
+                    }
+                }
+            });
+        }
     }
+
+   
 }

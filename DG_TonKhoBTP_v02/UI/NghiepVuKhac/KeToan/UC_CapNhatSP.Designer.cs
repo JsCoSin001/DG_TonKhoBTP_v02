@@ -29,9 +29,10 @@
         private void InitializeComponent()
         {
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
-            this.btnLuu = new System.Windows.Forms.Button();
+            this.tableLayoutPanel6 = new System.Windows.Forms.TableLayoutPanel();
             this.btnXoa = new System.Windows.Forms.Button();
+            this.btnLuu = new System.Windows.Forms.Button();
+            this.cbxExSanPham = new System.Windows.Forms.CheckBox();
             this.tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
             this.label8 = new System.Windows.Forms.Label();
             this.nbrDM_CU_AL = new System.Windows.Forms.NumericUpDown();
@@ -67,6 +68,8 @@
             this.tbxTenKho = new System.Windows.Forms.TextBox();
             this.btnLuuKho = new System.Windows.Forms.Button();
             this.tbxLuuNcc = new System.Windows.Forms.Button();
+            this.cbxExNCC = new System.Windows.Forms.CheckBox();
+            this.cbxExKho = new System.Windows.Forms.CheckBox();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
             this.cbxLoaiSP = new System.Windows.Forms.ComboBox();
@@ -76,7 +79,7 @@
             this.panel1 = new System.Windows.Forms.Panel();
             this.grvDanhSach = new System.Windows.Forms.DataGridView();
             this.groupBox1.SuspendLayout();
-            this.flowLayoutPanel1.SuspendLayout();
+            this.tableLayoutPanel6.SuspendLayout();
             this.tableLayoutPanel4.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nbrDM_CU_AL)).BeginInit();
             this.tableLayoutPanel1.SuspendLayout();
@@ -93,7 +96,7 @@
             // 
             // groupBox1
             // 
-            this.groupBox1.Controls.Add(this.flowLayoutPanel1);
+            this.groupBox1.Controls.Add(this.tableLayoutPanel6);
             this.groupBox1.Controls.Add(this.tableLayoutPanel4);
             this.groupBox1.Controls.Add(this.tableLayoutPanel1);
             this.groupBox1.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -105,23 +108,40 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Bảng Nhập Liệu";
             // 
-            // flowLayoutPanel1
+            // tableLayoutPanel6
             // 
-            this.flowLayoutPanel1.Controls.Add(this.btnLuu);
-            this.flowLayoutPanel1.Controls.Add(this.btnXoa);
-            this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flowLayoutPanel1.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
-            this.flowLayoutPanel1.Location = new System.Drawing.Point(3, 169);
-            this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(528, 63);
-            this.flowLayoutPanel1.TabIndex = 1;
+            this.tableLayoutPanel6.ColumnCount = 3;
+            this.tableLayoutPanel6.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 64.65753F));
+            this.tableLayoutPanel6.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 35.34246F));
+            this.tableLayoutPanel6.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 137F));
+            this.tableLayoutPanel6.Controls.Add(this.btnXoa, 1, 0);
+            this.tableLayoutPanel6.Controls.Add(this.btnLuu, 2, 0);
+            this.tableLayoutPanel6.Controls.Add(this.cbxExSanPham, 0, 0);
+            this.tableLayoutPanel6.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanel6.Location = new System.Drawing.Point(3, 169);
+            this.tableLayoutPanel6.Name = "tableLayoutPanel6";
+            this.tableLayoutPanel6.RowCount = 1;
+            this.tableLayoutPanel6.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel6.Size = new System.Drawing.Size(528, 63);
+            this.tableLayoutPanel6.TabIndex = 3;
+            // 
+            // btnXoa
+            // 
+            this.btnXoa.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnXoa.Location = new System.Drawing.Point(255, 3);
+            this.btnXoa.Name = "btnXoa";
+            this.btnXoa.Size = new System.Drawing.Size(114, 46);
+            this.btnXoa.TabIndex = 6;
+            this.btnXoa.Text = "Xoá";
+            this.btnXoa.UseVisualStyleBackColor = true;
+            this.btnXoa.Click += new System.EventHandler(this.btnXoa_Click);
             // 
             // btnLuu
             // 
             this.btnLuu.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
             this.btnLuu.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnLuu.ForeColor = System.Drawing.SystemColors.Control;
-            this.btnLuu.Location = new System.Drawing.Point(411, 3);
+            this.btnLuu.Location = new System.Drawing.Point(393, 3);
             this.btnLuu.Name = "btnLuu";
             this.btnLuu.Size = new System.Drawing.Size(114, 46);
             this.btnLuu.TabIndex = 5;
@@ -129,16 +149,18 @@
             this.btnLuu.UseVisualStyleBackColor = false;
             this.btnLuu.Click += new System.EventHandler(this.btnLuu_Click);
             // 
-            // btnXoa
+            // cbxExSanPham
             // 
-            this.btnXoa.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnXoa.Location = new System.Drawing.Point(291, 3);
-            this.btnXoa.Name = "btnXoa";
-            this.btnXoa.Size = new System.Drawing.Size(114, 46);
-            this.btnXoa.TabIndex = 6;
-            this.btnXoa.Text = "Xoá";
-            this.btnXoa.UseVisualStyleBackColor = true;
-            this.btnXoa.Click += new System.EventHandler(this.btnXoa_Click);
+            this.cbxExSanPham.AutoSize = true;
+            this.cbxExSanPham.Checked = true;
+            this.cbxExSanPham.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.cbxExSanPham.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cbxExSanPham.Location = new System.Drawing.Point(3, 3);
+            this.cbxExSanPham.Name = "cbxExSanPham";
+            this.cbxExSanPham.Size = new System.Drawing.Size(126, 18);
+            this.cbxExSanPham.TabIndex = 9;
+            this.cbxExSanPham.Text = "Cập nhật file Excel";
+            this.cbxExSanPham.UseVisualStyleBackColor = true;
             // 
             // tableLayoutPanel4
             // 
@@ -419,6 +441,8 @@
             this.tableLayoutPanel5.Controls.Add(this.tbxTenKho, 2, 4);
             this.tableLayoutPanel5.Controls.Add(this.btnLuuKho, 2, 5);
             this.tableLayoutPanel5.Controls.Add(this.tbxLuuNcc, 2, 2);
+            this.tableLayoutPanel5.Controls.Add(this.cbxExNCC, 0, 2);
+            this.tableLayoutPanel5.Controls.Add(this.cbxExKho, 0, 5);
             this.tableLayoutPanel5.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel5.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.tableLayoutPanel5.Location = new System.Drawing.Point(3, 26);
@@ -579,6 +603,32 @@
             this.tbxLuuNcc.UseVisualStyleBackColor = true;
             this.tbxLuuNcc.Click += new System.EventHandler(this.tbxLuuNcc_Click);
             // 
+            // cbxExNCC
+            // 
+            this.cbxExNCC.AutoSize = true;
+            this.cbxExNCC.Checked = true;
+            this.cbxExNCC.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.tableLayoutPanel5.SetColumnSpan(this.cbxExNCC, 2);
+            this.cbxExNCC.Location = new System.Drawing.Point(3, 54);
+            this.cbxExNCC.Name = "cbxExNCC";
+            this.cbxExNCC.Size = new System.Drawing.Size(131, 20);
+            this.cbxExNCC.TabIndex = 9;
+            this.cbxExNCC.Text = "Cập nhật file Excel";
+            this.cbxExNCC.UseVisualStyleBackColor = true;
+            // 
+            // cbxExKho
+            // 
+            this.cbxExKho.AutoSize = true;
+            this.cbxExKho.Checked = true;
+            this.cbxExKho.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.tableLayoutPanel5.SetColumnSpan(this.cbxExKho, 2);
+            this.cbxExKho.Location = new System.Drawing.Point(3, 168);
+            this.cbxExKho.Name = "cbxExKho";
+            this.cbxExKho.Size = new System.Drawing.Size(131, 20);
+            this.cbxExKho.TabIndex = 10;
+            this.cbxExKho.Text = "Cập nhật file Excel";
+            this.cbxExKho.UseVisualStyleBackColor = true;
+            // 
             // groupBox3
             // 
             this.groupBox3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
@@ -699,7 +749,8 @@
             this.Padding = new System.Windows.Forms.Padding(5);
             this.Size = new System.Drawing.Size(1143, 662);
             this.groupBox1.ResumeLayout(false);
-            this.flowLayoutPanel1.ResumeLayout(false);
+            this.tableLayoutPanel6.ResumeLayout(false);
+            this.tableLayoutPanel6.PerformLayout();
             this.tableLayoutPanel4.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.nbrDM_CU_AL)).EndInit();
             this.tableLayoutPanel1.ResumeLayout(false);
@@ -730,7 +781,6 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.TextBox ma;
         private System.Windows.Forms.ComboBox kieuSP;
-        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
         private System.Windows.Forms.Button btnLuu;
         private System.Windows.Forms.Button btnXoa;
         private System.Windows.Forms.GroupBox groupBox2;
@@ -769,5 +819,9 @@
         private System.Windows.Forms.TextBox tbxTenKho;
         private System.Windows.Forms.Button btnLuuKho;
         private System.Windows.Forms.Button tbxLuuNcc;
+        private System.Windows.Forms.CheckBox cbxExNCC;
+        private System.Windows.Forms.CheckBox cbxExKho;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel6;
+        private System.Windows.Forms.CheckBox cbxExSanPham;
     }
 }

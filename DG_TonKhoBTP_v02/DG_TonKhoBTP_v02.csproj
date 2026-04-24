@@ -151,6 +151,7 @@
     <Compile Include="Helper\Helper.cs" />
     <Compile Include="Helper\ReportHelper.cs" />
     <Compile Include="Helper\Reuseable\DataGridViewClipboardHelper.cs" />
+    <Compile Include="Helper\Reuseable\ExcelHelper.cs" />
     <Compile Include="Helper\Reuseable\TableListPrinter.cs" />
     <Compile Include="Helper\Validator.cs" />
     <Compile Include="MainForm.cs">

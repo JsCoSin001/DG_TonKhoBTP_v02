@@ -34,7 +34,7 @@ namespace DG_TonKhoBTP_v02
     {
         private string _URL = Properties.Settings.Default.URL;
         private CongDoanUiService _ui;
-        private string _ver = "2.5.25";
+        private string _ver = "2.5.27";
         private bool show = false;
         private void InitUiService()
         {
@@ -1127,6 +1127,7 @@ namespace DG_TonKhoBTP_v02
         private ContextMenuStrip userMenu;
         private ToolStripMenuItem mnuLogout;
         private CongDoanUiService _cdUi;
+        private ToolStripMenuItem mnuChangePassword;
 
         private void MnuLogout_Click(object sender, EventArgs e)
         {
@@ -1142,14 +1143,26 @@ namespace DG_TonKhoBTP_v02
             userMenu = new ContextMenuStrip();
             userMenu.Font = new Font("Tahoma", 10F);
 
+            // Menu đổi mật khẩu
+            mnuChangePassword = new ToolStripMenuItem("Đổi mật khẩu");
+            mnuChangePassword.Font = new Font("Tahoma", 10F);
+            mnuChangePassword.Click += MnuChangePassword_Click;
+
+            // Menu logout
             mnuLogout = new ToolStripMenuItem("Đăng xuất");
-
             mnuLogout.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-
             mnuLogout.Click += MnuLogout_Click;
 
+            // Add vào menu
+            userMenu.Items.Add(mnuChangePassword);
             userMenu.Items.Add(new ToolStripSeparator());
             userMenu.Items.Add(mnuLogout);
+        }
+
+        private void MnuChangePassword_Click(object sender, EventArgs e)
+        {
+            FrmChangePassword frm = new FrmChangePassword();
+            frm.ShowDialog(); // hoặc Show() nếu không muốn block
         }
 
         private void pdropdown_Click(object sender, EventArgs e)

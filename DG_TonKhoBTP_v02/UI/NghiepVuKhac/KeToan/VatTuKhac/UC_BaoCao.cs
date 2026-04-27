@@ -17,6 +17,11 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
     {
         // ─── Fields ────────────────────────────────────────────────────────────
         private readonly DataGridView grvBaoCao = new DataGridView();
+
+        // ─── Filter fields (giống UC_MonthyReport) ─────────────────────────────
+        private Panel _filterPanel;
+        private TextBox[] _filterBoxes;
+        private DataView _dataView;
         private int? GetSelectedKhoId()
         {
             if (cbxdsKho.SelectedIndex <= 0)
@@ -83,7 +88,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
             {
                 int? khoId = GetSelectedKhoId();
 
-                DateTime? ngayBatDau = cbxThoiGian.SelectedIndex == 0  ? null : (DateTime?)dtBatDau.Value;
+                DateTime? ngayBatDau = cbxThoiGian.SelectedIndex == 0 ? null : (DateTime?)dtBatDau.Value;
                 DateTime? ngayKetThuc = cbxThoiGian.SelectedIndex == 0 ? null : (DateTime?)dtKetThuc.Value;
 
                 await WaitingHelper.RunWithWaiting(async () =>
@@ -148,7 +153,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
             cbxAll.Checked = false;
             lblTieuDe.Text = "BÁO CÁO";
 
-           
+
             int kho = cbxdsKho.SelectedIndex;
             string nguoiThucHien = cbxNguoiThucHien.SelectedIndex == 0 ? "" : cbxNguoiThucHien.SelectedItem.ToString();
             int tinhTrang = cbxLoaiYC.SelectedIndex;
@@ -158,7 +163,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
             SetToolbarEnabled(false);
             DataTable dt = null;
 
-            DateTime? ngayBatDau = cbxThoiGian.SelectedIndex == 0 ?  null : (DateTime?)dtBatDau.Value;
+            DateTime? ngayBatDau = cbxThoiGian.SelectedIndex == 0 ? null : (DateTime?)dtBatDau.Value;
             DateTime? ngayKetThuc = cbxThoiGian.SelectedIndex == 0 ? null : (DateTime?)dtKetThuc.Value;
 
             try
@@ -280,8 +285,20 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
         private void HienThiLenLuoi(DataTable dt, bool applyFormatTimDL, int kieu = 0)
         {
             pnBaoCao.Controls.Clear();
+
+            // ── Tạo filterPanel (giống UC_MonthyReport) ──
+            _filterPanel = new Panel
+            {
+                Dock = DockStyle.Top,
+                Height = 35,
+                BackColor = Color.WhiteSmoke
+            };
+
             grvBaoCao.Dock = DockStyle.Fill;
+
+            // Quan trọng: add Fill trước, Top sau để winform xếp đúng thứ tự
             pnBaoCao.Controls.Add(grvBaoCao);
+            pnBaoCao.Controls.Add(_filterPanel);
 
             grvBaoCao.DataSource = null;
             grvBaoCao.Columns.Clear();
@@ -292,13 +309,113 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
                 return;
             }
 
+            _dataView = dt.DefaultView;
             grvBaoCao.AutoGenerateColumns = true;
-            grvBaoCao.DataSource = dt;
+            grvBaoCao.DataSource = _dataView;
+
+            // Đồng bộ filterBox khi scroll hoặc thay đổi độ rộng cột
+            grvBaoCao.Scroll -= GrvBaoCao_Scroll;
+            grvBaoCao.Scroll += GrvBaoCao_Scroll;
+            grvBaoCao.ColumnWidthChanged -= GrvBaoCao_ColumnWidthChanged;
+            grvBaoCao.ColumnWidthChanged += GrvBaoCao_ColumnWidthChanged;
 
             if (applyFormatTimDL)
                 ApplyFormatTimDL(grvBaoCao, kieu);
             else
                 ApplyFormatInOut(grvBaoCao);
+
+            BuildFilterBoxes(dt);
+        }
+
+        private void GrvBaoCao_Scroll(object sender, ScrollEventArgs e) => AlignFilterBoxes(grvBaoCao, _filterPanel, _filterBoxes);
+        private void GrvBaoCao_ColumnWidthChanged(object sender, DataGridViewColumnEventArgs e) => AlignFilterBoxes(grvBaoCao, _filterPanel, _filterBoxes);
+
+        private void BuildFilterBoxes(DataTable table)
+        {
+            if (_filterPanel == null) return;
+            _filterPanel.Controls.Clear();
+            _filterBoxes = new TextBox[table.Columns.Count];
+
+            for (int i = 0; i < table.Columns.Count; i++)
+            {
+                var tb = new TextBox
+                {
+                    Tag = table.Columns[i].ColumnName,
+                    Font = new Font("Segoe UI", 9F),
+                    BorderStyle = BorderStyle.FixedSingle
+                };
+                tb.TextChanged += (s, e) => ApplyFilter();
+
+                _filterPanel.Controls.Add(tb);
+                _filterBoxes[i] = tb;
+            }
+
+            // Căn vị trí sau khi grid đã render
+            grvBaoCao.ColumnAdded -= GrvBaoCao_ColumnAdded;
+            grvBaoCao.ColumnAdded += GrvBaoCao_ColumnAdded;
+
+            // Căn ngay sau khi form/control hiển thị
+            if (this.ParentForm != null)
+            {
+                this.ParentForm.Shown -= ParentForm_Shown;
+                this.ParentForm.Shown += ParentForm_Shown;
+            }
+
+            // Căn ngay lập tức nếu đã visible
+            if (this.IsHandleCreated)
+                this.BeginInvoke(new Action(() => AlignFilterBoxes(grvBaoCao, _filterPanel, _filterBoxes)));
+        }
+
+        private void GrvBaoCao_ColumnAdded(object sender, DataGridViewColumnEventArgs e) => AlignFilterBoxes(grvBaoCao, _filterPanel, _filterBoxes);
+        private void ParentForm_Shown(object sender, EventArgs e) => AlignFilterBoxes(grvBaoCao, _filterPanel, _filterBoxes);
+
+        private static void AlignFilterBoxes(DataGridView dgr, Panel filterPanel, TextBox[] filterBoxes)
+        {
+            if (filterBoxes == null || filterPanel == null) return;
+
+            // Lấy danh sách CÁC CỘT DỮ LIỆU thực sự (bỏ qua checkbox/action thêm bằng code)
+            // Các cột này có Tag là tên cột DataTable, được lưu trong filterBoxes[i].Tag
+            // Duyệt theo filterBoxes (DataTable columns), tìm cột tương ứng trên grid theo Name
+            for (int i = 0; i < filterBoxes.Length; i++)
+            {
+                if (filterBoxes[i] == null) continue;
+
+                string colName = filterBoxes[i].Tag?.ToString();
+                if (colName == null || !dgr.Columns.Contains(colName))
+                {
+                    filterBoxes[i].Visible = false;
+                    continue;
+                }
+
+                var col = dgr.Columns[colName];
+                var rect = dgr.GetColumnDisplayRectangle(col.Index, true);
+
+                filterBoxes[i].SetBounds(
+                    dgr.Left + rect.Left,
+                    2,
+                    rect.Width,
+                    filterPanel.Height - 4
+                );
+                filterBoxes[i].Visible = rect.Width > 0;
+            }
+        }
+
+        private void ApplyFilter()
+        {
+            if (_dataView == null || _filterBoxes == null) return;
+
+            var conditions = new System.Collections.Generic.List<string>();
+
+            foreach (var tb in _filterBoxes)
+            {
+                if (string.IsNullOrWhiteSpace(tb.Text)) continue;
+
+                string colName = tb.Tag.ToString();
+                string value = tb.Text.Replace("'", "''");
+                conditions.Add($"CONVERT([{colName}], System.String) LIKE '%{value}%'");
+            }
+
+            _dataView.RowFilter = string.Join(" AND ", conditions);
         }
 
         // ═══════════════════════════════════════════════════════════════════════
@@ -338,22 +455,65 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
             };
             pnTitle.Controls.Add(lblTitle);
 
+            // ── Filter panel cho cửa sổ mới ──
+            var localFilterPanel = new Panel
+            {
+                Dock = DockStyle.Top,
+                Height = 35,
+                BackColor = Color.WhiteSmoke
+            };
+
             var dgr = new DataGridView { Dock = DockStyle.Fill };
             dgr.CellContentClick += GrvBaoCao_CellContentClick;
 
             var pnGrid = new Panel { Dock = DockStyle.Fill };
-            pnGrid.Controls.Add(dgr);
+            pnGrid.Controls.Add(dgr);           // Fill trước
+            pnGrid.Controls.Add(localFilterPanel); // Top sau
 
             frm.Controls.Add(pnGrid);
             frm.Controls.Add(pnTitle);
 
+            var localDataView = dt.DefaultView.Table.Copy().DefaultView;
             dgr.AutoGenerateColumns = true;
-            dgr.DataSource = dt;
+            dgr.DataSource = localDataView;
 
             if (applyFormatTimDL)
                 ApplyFormatTimDL(dgr, kieu);
             else
                 ApplyFormatInOut(dgr);
+
+            // Xây dựng filter boxes cho cửa sổ mới
+            TextBox[] localFilterBoxes = new TextBox[dt.Columns.Count];
+            for (int i = 0; i < dt.Columns.Count; i++)
+            {
+                var tb = new TextBox
+                {
+                    Tag = dt.Columns[i].ColumnName,
+                    Font = new Font("Segoe UI", 9F),
+                    BorderStyle = BorderStyle.FixedSingle
+                };
+                // Capture cho closure
+                var capturedDv = localDataView;
+                var capturedBoxes = localFilterBoxes;
+                tb.TextChanged += (s, e) =>
+                {
+                    var conditions = new System.Collections.Generic.List<string>();
+                    foreach (var box in capturedBoxes)
+                    {
+                        if (box == null || string.IsNullOrWhiteSpace(box.Text)) continue;
+                        string col = box.Tag.ToString();
+                        string val = box.Text.Replace("'", "''");
+                        conditions.Add($"CONVERT([{col}], System.String) LIKE '%{val}%'");
+                    }
+                    capturedDv.RowFilter = string.Join(" AND ", conditions);
+                };
+                localFilterPanel.Controls.Add(tb);
+                localFilterBoxes[i] = tb;
+            }
+
+            dgr.Scroll += (s, e) => AlignFilterBoxes(dgr, localFilterPanel, localFilterBoxes);
+            dgr.ColumnWidthChanged += (s, e) => AlignFilterBoxes(dgr, localFilterPanel, localFilterBoxes);
+            frm.Shown += (s, e) => AlignFilterBoxes(dgr, localFilterPanel, localFilterBoxes);
 
             frm.Show();
         }

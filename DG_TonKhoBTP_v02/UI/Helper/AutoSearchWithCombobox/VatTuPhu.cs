@@ -204,7 +204,6 @@ namespace DG_TonKhoBTP_v02.UI.Helper.AutoSearchWithCombobox
                          "AND LoaiDon = " + kieuDon + " " +
                          "LIMIT " + Limit;
 
-            Console.WriteLine(sql);
             DataTable source = DatabaseHelper.GetData(sql, pattern, "keyword");
 
             foreach (DataRow row in source.Rows)
@@ -246,9 +245,10 @@ namespace DG_TonKhoBTP_v02.UI.Helper.AutoSearchWithCombobox
             };
         }
 
-        public List<ThongTinDatHang> GetChiTietDonHang(string maDon, int loaiDon)
+        public List<ThongTinDatHang> GetChiTietDonHang(string maDon, int loaiDon, string nguoiDat)
         {
             var result = new List<ThongTinDatHang>();
+
             string sql = @"
                 SELECT 
                     ttdh.Id,
@@ -263,14 +263,28 @@ namespace DG_TonKhoBTP_v02.UI.Helper.AutoSearchWithCombobox
                     COALESCE((
                         SELECT SUM(lsxn.SoLuong)
                         FROM LichSuXuatNhap lsxn
-                        INNER JOIN ThongTinDatHang ttdh2 ON ttdh2.Id = lsxn.ThongTinDatHang_ID
+                        INNER JOIN ThongTinDatHang ttdh2 
+                            ON ttdh2.Id = lsxn.ThongTinDatHang_ID
                         WHERE ttdh2.DanhSachMaSP_ID = ttdh.DanhSachMaSP_ID
                     ), 0) AS slTon
                 FROM ThongTinDatHang ttdh
-                INNER JOIN DanhSachDatHang dsdh ON dsdh.Id = ttdh.DanhSachDatHang_ID
-                WHERE dsdh.MaDon = @MaDon
-                  AND dsdh.LoaiDon = " + loaiDon;
+                INNER JOIN DanhSachDatHang dsdh 
+                    ON dsdh.Id = ttdh.DanhSachDatHang_ID
+                WHERE dsdh.MaDon = @MaDon 
+                  AND dsdh.NguoiDat = '" + nguoiDat + @"'
+                  AND dsdh.LoaiDon = " + loaiDon + @"
+                  AND NOT EXISTS (
+                      SELECT 1
+                      FROM LichSuXuatNhap lsxn_check
+                      INNER JOIN ThongTinDatHang ttdh_check
+                          ON ttdh_check.Id = lsxn_check.ThongTinDatHang_ID
+                      INNER JOIN DanhSachDatHang dsdh_check
+                          ON dsdh_check.Id = ttdh_check.DanhSachDatHang_ID
+                      WHERE dsdh_check.MaDon = @MaDon
+                  )";
+
             DataTable dt = DatabaseHelper.GetData(sql, maDon, "MaDon");
+
             foreach (DataRow row in dt.Rows)
             {
                 result.Add(new ThongTinDatHang
@@ -286,6 +300,7 @@ namespace DG_TonKhoBTP_v02.UI.Helper.AutoSearchWithCombobox
                     TonKho = Convert.ToDecimal(row["slTon"])
                 });
             }
+
             return result;
         }
 
@@ -537,11 +552,11 @@ namespace DG_TonKhoBTP_v02.UI.Helper.AutoSearchWithCombobox
         private long GetDanhSachDatHangIdByMaDon(SQLiteConnection conn, SQLiteTransaction tx, string maDon)
         {
             using var cmd = new SQLiteCommand(@"
-            SELECT id
-            FROM DanhSachDatHang
-            WHERE MaDon = @MaDon
-            LIMIT 1;
-        ", conn, tx);
+                SELECT id
+                FROM DanhSachDatHang
+                WHERE MaDon = @MaDon
+                LIMIT 1;
+            ", conn, tx);
 
             AddParam(cmd, "@MaDon", DbType.String, CoreHelper.TrimToNull(maDon));
 

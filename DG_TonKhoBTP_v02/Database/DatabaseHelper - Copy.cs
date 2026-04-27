@@ -30,13 +30,14 @@ using UserInfo = DG_TonKhoBTP_v02.Models.UserInfo;
 
 namespace DG_TonKhoBTP_v02.Database
 {
-    public static class DatabaseHelper
+    public static class DatabaseHelper_backup
     {
         public static string _connStr;
 
         // Thiết lập đường dẫn đến cơ sở dữ liệu SQLite
         public static void SetDatabasePath(string path)
         {
+            //_connStr = $"Data Source={path};Version=3;";
             _connStr = $"Data Source={path};Version=3;Foreign Keys=True;";
         }
 

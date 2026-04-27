@@ -137,7 +137,9 @@
     <Compile Include="Core\ProviderAggregator.cs" />
     <Compile Include="Core\SectionMerger.cs" />
     <Compile Include="Core\StateStore.cs" />
+    <Compile Include="Database\DatabaseHelper - Copy.cs" />
     <Compile Include="Database\DatabaseHelper.cs" />
+    <Compile Include="Database\User_DatabaseHelper.cs" />
     <Compile Include="Dictionary\EnumStore.cs" />
     <Compile Include="Dictionary\ThongTinChungCongDoan.cs" />
     <Compile Include="DL_Ben\AutoIncrementAttribute.cs" />
@@ -181,6 +183,12 @@
     <Compile Include="Printer\Qr\PrintHelper.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UI\Authentication\FrmChangePassword.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\Authentication\FrmChangePassword.Designer.cs">
+      <DependentUpon>FrmChangePassword.cs</DependentUpon>
+    </Compile>
     <Compile Include="UI\Helper\AutoSearchWithCombobox\ComboBoxSearchHelper.cs" />
     <Compile Include="UI\Helper\AutoSearchWithCombobox\VatTuPhu.cs" />
     <Compile Include="UI\NghiepVuKhac\KeToan\UC_KiemKe.cs">
@@ -427,6 +435,9 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <EmbeddedResource Include="UI\Authentication\FrmChangePassword.resx">
+      <DependentUpon>FrmChangePassword.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="UI\NghiepVuKhac\KeToan\UC_KiemKe.resx">
       <DependentUpon>UC_KiemKe.cs</DependentUpon>
     </EmbeddedResource>

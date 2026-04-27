@@ -182,10 +182,21 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
                 tbMaDon.Text = row["MaDon"]?.ToString();
                 dgvDSMua.Rows.Clear();
 
-                var chiTietList = repo.GetChiTietDonHang(row["MaDon"]?.ToString(), _KieuDon);
+                string ngDat = nguoiDat.Text.Trim();
+                if (String.IsNullOrEmpty(ngDat))
+                {
+                    FrmWaiting.ShowGifAlert("Người Làm không được trống");
+                    return;
+                }
+
+                var chiTietList = repo.GetChiTietDonHang(row["MaDon"]?.ToString(), _KieuDon, ngDat);
+
 
                 if (chiTietList == null || chiTietList.Count == 0)
+                {
+                    FrmWaiting.ShowGifAlert("Không thể sửa đơn này");
                     return;
+                }    
 
                 // Xác định layout dựa trên dữ liệu thực tế của đơn hàng
                 bool coNullMaSP = chiTietList.Any(ct => !ct.DanhSachMaSP_ID.HasValue);

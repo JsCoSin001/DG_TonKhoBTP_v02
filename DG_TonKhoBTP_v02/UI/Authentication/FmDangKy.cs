@@ -226,7 +226,7 @@ namespace DG_TonKhoBTP_v02.UI.Setting
                 {
                     mess = "Thao tác thành công!";
                     icon = EnumStore.Icon.Success;
-                    this.Close();
+                    //this.Close();
                 }
 
                 FrmWaiting.ShowGifAlert(mess, "THÔNG BÁO", icon);

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
 
 namespace DG_TonKhoBTP_v02.Models
 {
@@ -9,6 +10,7 @@ namespace DG_TonKhoBTP_v02.Models
         public string Message { get; set; }
         public int UserId { get; set; }
         public string Name { get; set; }
+        public string UserName { get; set; }
 
         // role_name -> description
         public Dictionary<string, string> RolesDict { get; set; }
@@ -21,6 +23,7 @@ namespace DG_TonKhoBTP_v02.Models
             Success = false;
             Message = "";
             Name = "";
+            UserName = "";
 
             RolesDict = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             PermissionsDict = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
@@ -61,6 +64,7 @@ namespace DG_TonKhoBTP_v02.Models
 
         public static int UserId { get; private set; }
         public static string Name { get; private set; }
+        public static string UserName { get; private set; }
 
         // role_name -> description
         public static Dictionary<string, string> RolesDict { get; private set; }
@@ -79,6 +83,7 @@ namespace DG_TonKhoBTP_v02.Models
             IsAuthenticated = true;
             UserId = login.UserId;
             Name = login.Name;
+            UserName = login.UserName;
 
             RolesDict = login.RolesDict ?? new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             PermissionsDict = login.PermissionsDict ?? new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);

@@ -81,10 +81,7 @@ namespace DG_TonKhoBTP_v02.UI
                             finalId = DatabaseHelper.UpdateDanhSachMaSP(sp, parsedId);
                         }
                         else
-                        {
-                            if (!UserContext.HasPermission("CAN_WRITE"))
-                                throw new Exception("BẠN KHÔNG CÓ QUYỀN THÊM MỚI.");
-
+                        {       
                             finalId = DatabaseHelper.InsertDSMaSP(sp);
                         }
                     }

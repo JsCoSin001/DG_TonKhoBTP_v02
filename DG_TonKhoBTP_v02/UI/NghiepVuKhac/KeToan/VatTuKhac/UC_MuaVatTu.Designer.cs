@@ -43,11 +43,11 @@
             this.radioButton2 = new System.Windows.Forms.RadioButton();
             this.tbMaDon = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
-            this.nguoiDat = new System.Windows.Forms.ComboBox();
             this.cbxTimThemTheoTen = new System.Windows.Forms.ComboBox();
             this.label3 = new System.Windows.Forms.Label();
             this.dtNgay = new System.Windows.Forms.DateTimePicker();
             this.label4 = new System.Windows.Forms.Label();
+            this.nguoiDat = new System.Windows.Forms.TextBox();
             this.panel2 = new System.Windows.Forms.Panel();
             this.dgvDSMua = new System.Windows.Forms.DataGridView();
             this.ID = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -114,11 +114,11 @@
             this.tableLayoutPanel1.Controls.Add(this.panel4, 1, 0);
             this.tableLayoutPanel1.Controls.Add(this.tbMaDon, 11, 0);
             this.tableLayoutPanel1.Controls.Add(this.label1, 2, 0);
-            this.tableLayoutPanel1.Controls.Add(this.nguoiDat, 3, 0);
             this.tableLayoutPanel1.Controls.Add(this.cbxTimThemTheoTen, 9, 0);
             this.tableLayoutPanel1.Controls.Add(this.label3, 8, 0);
             this.tableLayoutPanel1.Controls.Add(this.dtNgay, 5, 0);
             this.tableLayoutPanel1.Controls.Add(this.label4, 4, 0);
+            this.tableLayoutPanel1.Controls.Add(this.nguoiDat, 3, 0);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Top;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 33);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
@@ -231,32 +231,6 @@
             this.label1.Text = "Người làm";
             this.label1.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
-            // nguoiDat
-            // 
-            this.nguoiDat.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.nguoiDat.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.nguoiDat.FormattingEnabled = true;
-            this.nguoiDat.Items.AddRange(new object[] {
-            "Người 1",
-            "Người 2",
-            "Người 3",
-            "Người 4",
-            "Người 5",
-            "Người 6",
-            "Người 7",
-            "Người 8",
-            "Người 9",
-            "Người 10",
-            "Người 11",
-            "Người 12",
-            "Người 13",
-            "Người 14",
-            "Người 15"});
-            this.nguoiDat.Location = new System.Drawing.Point(348, 18);
-            this.nguoiDat.Name = "nguoiDat";
-            this.nguoiDat.Size = new System.Drawing.Size(163, 26);
-            this.nguoiDat.TabIndex = 5;
-            // 
             // cbxTimThemTheoTen
             // 
             this.cbxTimThemTheoTen.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
@@ -296,6 +270,15 @@
             this.label4.TabIndex = 9;
             this.label4.Text = "Ngày";
             this.label4.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            // 
+            // nguoiDat
+            // 
+            this.nguoiDat.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.nguoiDat.Enabled = false;
+            this.nguoiDat.Location = new System.Drawing.Point(348, 18);
+            this.nguoiDat.Name = "nguoiDat";
+            this.nguoiDat.Size = new System.Drawing.Size(163, 26);
+            this.nguoiDat.TabIndex = 10;
             // 
             // panel2
             // 
@@ -454,7 +437,6 @@
         private System.Windows.Forms.RadioButton rdoTaoMoi;
         private System.Windows.Forms.RadioButton radioButton2;
         private System.Windows.Forms.TextBox tbMaDon;
-        private System.Windows.Forms.ComboBox nguoiDat;
         private System.Windows.Forms.ComboBox cbxTimThemTheoTen;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.DateTimePicker dtNgay;
@@ -469,5 +451,6 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn ngayGiao;
         private System.Windows.Forms.DataGridViewTextBoxColumn slTon;
         private System.Windows.Forms.DataGridViewButtonColumn colXoa;
+        private System.Windows.Forms.TextBox nguoiDat;
     }
 }

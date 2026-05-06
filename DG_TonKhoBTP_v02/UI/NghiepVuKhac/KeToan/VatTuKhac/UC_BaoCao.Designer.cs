@@ -37,7 +37,6 @@
             this.cbxdsKho = new System.Windows.Forms.ComboBox();
             this.label6 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
-            this.cbxNguoiThucHien = new System.Windows.Forms.ComboBox();
             this.cbxLoaiYC = new System.Windows.Forms.ComboBox();
             this.panel3 = new System.Windows.Forms.Panel();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
@@ -49,6 +48,7 @@
             this.btnChinhTrangThai = new System.Windows.Forms.Button();
             this.cbxMoCuaSo = new System.Windows.Forms.CheckBox();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
+            this.cbxNguoiThucHien = new System.Windows.Forms.ComboBox();
             this.cbxThoiGian = new System.Windows.Forms.ComboBox();
             this.label4 = new System.Windows.Forms.Label();
             this.cbxKieu = new System.Windows.Forms.ComboBox();
@@ -153,33 +153,6 @@
             this.label7.TabIndex = 5;
             this.label7.Text = "Người thực hiện";
             this.label7.TextAlign = System.Drawing.ContentAlignment.TopRight;
-            // 
-            // cbxNguoiThucHien
-            // 
-            this.cbxNguoiThucHien.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.cbxNguoiThucHien.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cbxNguoiThucHien.FormattingEnabled = true;
-            this.cbxNguoiThucHien.Items.AddRange(new object[] {
-            "Không lọc",
-            "Người 1",
-            "Người 2",
-            "Người 3",
-            "Người 4",
-            "Người 5",
-            "Người 6",
-            "Người 7",
-            "Người 8",
-            "Người 9",
-            "Người 10",
-            "Người 11",
-            "Người 12",
-            "Người 13",
-            "Người 14",
-            "Người 15"});
-            this.cbxNguoiThucHien.Location = new System.Drawing.Point(1095, 11);
-            this.cbxNguoiThucHien.Name = "cbxNguoiThucHien";
-            this.cbxNguoiThucHien.Size = new System.Drawing.Size(64, 26);
-            this.cbxNguoiThucHien.TabIndex = 6;
             // 
             // cbxLoaiYC
             // 
@@ -348,6 +321,16 @@
             this.tableLayoutPanel2.Size = new System.Drawing.Size(1162, 44);
             this.tableLayoutPanel2.TabIndex = 0;
             // 
+            // cbxNguoiThucHien
+            // 
+            this.cbxNguoiThucHien.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.cbxNguoiThucHien.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cbxNguoiThucHien.FormattingEnabled = true;
+            this.cbxNguoiThucHien.Location = new System.Drawing.Point(1095, 11);
+            this.cbxNguoiThucHien.Name = "cbxNguoiThucHien";
+            this.cbxNguoiThucHien.Size = new System.Drawing.Size(64, 26);
+            this.cbxNguoiThucHien.TabIndex = 6;
+            // 
             // cbxThoiGian
             // 
             this.cbxThoiGian.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
@@ -441,7 +424,6 @@
         private System.Windows.Forms.ComboBox cbxdsKho;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Label label7;
-        private System.Windows.Forms.ComboBox cbxNguoiThucHien;
         private System.Windows.Forms.ComboBox cbxLoaiYC;
         private System.Windows.Forms.Panel panel3;
         private System.Windows.Forms.GroupBox groupBox1;
@@ -458,5 +440,6 @@
         private System.Windows.Forms.Button btnChinhTrangThai;
         private System.Windows.Forms.ComboBox cbxKieu;
         private System.Windows.Forms.CheckBox cbxMoCuaSo;
+        private System.Windows.Forms.ComboBox cbxNguoiThucHien;
     }
 }

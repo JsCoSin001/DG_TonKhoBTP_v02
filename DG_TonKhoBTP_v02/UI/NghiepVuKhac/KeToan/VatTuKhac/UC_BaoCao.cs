@@ -55,7 +55,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
         {
             cbxThoiGian.SelectedIndex = 0;
             cbxLoaiYC.SelectedIndex = 0;
-            cbxNguoiThucHien.SelectedIndex = 0;
+            LoadNguoiThucHien();
 
             // Clone cấu trúc + copy dữ liệu
             var newList = khoList.Copy();
@@ -73,6 +73,26 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
             cbxdsKho.ValueMember = "ID";
             cbxdsKho.SelectedIndex = 0;
             cbxKieu.SelectedIndex = 0;
+        }
+
+        private void LoadNguoiThucHien()
+        {
+            string sql = "SELECT username FROM users";
+
+            DataTable dt = DatabaseHelper.GetData(sql);
+
+            // Tạo dòng mới và chèn vào vị trí 0
+            DataRow row = dt.NewRow();
+            row["username"] = "Không cần";
+            dt.Rows.InsertAt(row, 0);
+
+            // Đổ dữ liệu vào ComboBox
+            cbxNguoiThucHien.DataSource = dt;
+            cbxNguoiThucHien.DisplayMember = "username";
+            cbxNguoiThucHien.ValueMember = "username";
+
+            // Chọn mặc định dòng đầu tiên
+            cbxNguoiThucHien.SelectedIndex = 0;
         }
 
         private async void btnIn_Out_Click(object sender, EventArgs e)

@@ -11,6 +11,35 @@ public enum StoreKeyKeHoach
     // sau này thêm nữa thì add vào đây
 }
 
+public static class PermissionCodes
+{
+    // Các mã quyền được định nghĩa ở đây
+    public const string NhapDuLieuCongDoan = "NHAP_DU_LIEU_CD";
+    public const string BaoCaoTonKho = "BC_TON_KHO";
+    public const string QuanDocKiemTra = "QD_KIEM_TRA";
+    public const string TruyVetDuLieu = "TRUY_VET_DU_LIEU";
+    public const string UpdateMaHang = "UPDATE_MA_HANG";
+    public const string TachBin = "TACH_BIN";
+    public const string GopBinHanNoi = "GOP_BIN_HAN_NOI";
+    public const string HaLoNhapLai = "HA_LO_NHAP_LAI";
+    public const string VatTu = "VAT_TU";
+    public const string KiemKe = "KIEM_KE";
+    public const string LapKeHoach = "LAP_KE_HOACH";
+    public const string TrienKhaiKeHoach = "TRIEN_KHAI_KH";
+    public const string CauHinhUngDung = "CAU_HINH_UNG_DUNG";
+    public const string UserPermission = "USER_PERMISSION";
+}
+
+public static class RoleNames
+{
+    public const string Admin = "Admin";
+    public const string Pro = "Pro";
+    public const string Plan = "Plan";
+    public const string Acc = "Acc";
+    public const string Wh = "Wh";
+    public const string Other = "Other";
+}
+
 public static class EnumStore
 {
 

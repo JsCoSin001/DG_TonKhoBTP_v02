@@ -48,6 +48,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
             _kieu = kieu;
             _khoList = khoList;
 
+            lblGiao_Nhan.Text = isNhapKho ? "Người giao hàng" : "Người nhận hàng";
+
             string label = "Nhập vật tư";
             cbxKieu.SelectedIndex = 0;
 
@@ -65,6 +67,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
             }
 
             lblTitle.Text = label.ToUpper();
+            tbxnguoiLam.Text = UserContext.UserName;
         }
 
         // ────────────────────────────────────────────────────────────
@@ -566,16 +569,16 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
         // Lấy dữ liệu theo mã đơn
         private async Task LoadChiTietDonAsync(string maDon, bool isEdit)
         {
+
             if (string.IsNullOrWhiteSpace(maDon)) return;
 
             await WaitingHelper.RunWithWaiting(async () =>
             {
 
                 var dt = _isNhapKho
-                    ? await DatabaseHelper.LayChiTietDonDatHang(maDon, IsEdit)
+                    ? await DatabaseHelper.LayChiTietDonDatHang(maDon, IsEdit)      // Lấy dữ liệu
                     : await DatabaseHelper.LayChiTietDonDatHangXuatKho(maDon, IsEdit);
 
-                Console.WriteLine(dt.Rows.Count);
 
                 MergeVaoDgv(dt, IsKhac);
 
@@ -610,7 +613,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
                 return;
             }
 
-            if (rdoLoai.Checked == true && !IsEdit && nbrIDNCC.Value == 0)
+            if (rdoLoai.Checked == true && _isNhapKho && !IsEdit && nbrIDNCC.Value == 0)
             {
                 FrmWaiting.ShowGifAlert("Nhà cung cấp không được trống");
                 return;
@@ -704,8 +707,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
                 dt.Clear();
 
             txtNguoiGiaoNhan.Text = "";
-            tbxnguoiLam.SelectedIndex = -1;
-            tbxnguoiLam.Text = "";
+            tbxnguoiLam.Text = UserContext.Name;
 
             cbxKhoHang.SelectedIndex = -1;
             cbxKhoHang.Text = "";
@@ -737,13 +739,17 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
                 var row = dgvChiTietDon.Rows[i];
                 if (row.IsNewRow) continue;
 
+                string sl = row.Cells["thucNhan"]?.Value?.ToString() ?? "";
+
+                if (sl == "") continue;
+
                 items.Add(new WarehouseIssuesItem
                 {
                     No = i + 1,
                     Ten = row.Cells["ten"]?.Value?.ToString() ?? "",
                     Ma = row.Cells["ma"]?.Value?.ToString() ?? "",
                     DonVi = row.Cells["donVi"]?.Value?.ToString() ?? "",
-                    SoLuong = row.Cells["thucNhan"]?.Value?.ToString() ?? "",
+                    SoLuong = sl,
                     DonGia = "",
                     ThanhTien = "",
                     GhiChu = dgvChiTietDon.Columns.Contains("ghiChu")
@@ -869,6 +875,9 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
                 var row = dgvChiTietDon.Rows[i];
                 if (row.IsNewRow) continue;
 
+                string tn = row.Cells["thucNhan"]?.Value?.ToString() ?? "";
+                if (tn == "") continue;
+
                 items.Add(new WarehouseReceiptItem
                 {
                     No = i + 1,
@@ -889,7 +898,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
                 SoPO = "",
                 SoPhieu = tenPhieu,
                 NguoiGiao = txtNguoiGiaoNhan.Text.Trim(),
-                NhaCungCap = cbxNhaCungCap.Text.Trim(),    // ← ĐÃ SỬA: lấy từ cbxNhaCungCap thay vì txtNguoiGiaoNhan
+                NhaCungCap = cbxNhaCungCap.Text.Trim(), 
                 LyDoNhap = rdoLoai.Checked ? "Theo đề nghị" : "Khác",
                 KhoHang = cbxKhoHang.Text,
                 Items = items,

@@ -61,11 +61,18 @@ namespace DG_TonKhoBTP_v02.Printer.A4
         protected abstract IReadOnlyList<ColumnDef<TItem>> BuildColumns(int totalWidth);
 
         // ── IPrintRenderer ──────────────────────────────────────────────────
-        public void Reset()
+        public virtual void Reset()
         {
             _currentItemIndex = 0;
             _columns = null;
+            OnReset();
         }
+
+        /// <summary>
+        /// Hook cho lớp con reset thêm state riêng (phân trang tuỳ chỉnh).
+        /// Được gọi tự động bởi Reset() mỗi khi bắt đầu lệnh in mới.
+        /// </summary>
+        protected virtual void OnReset() { }
 
         public virtual void Render(Graphics g, Rectangle marginBounds, PrintPageEventArgs e, TPrintData data)
         {

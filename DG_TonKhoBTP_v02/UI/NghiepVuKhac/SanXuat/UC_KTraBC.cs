@@ -96,7 +96,7 @@ namespace DG_TonKhoBTP_v02.UI.Actions
         {
             string k = EnumStore.Group["KiemTraBaoCaoSX"];            
 
-            if (!CoreHelper.CheckLoginAndPermission(k)) return;
+            //if (!CoreHelper.CheckLoginAndPermission(k)) return;
 
             string nguoiKT = tbNguoiKiemTra.Text.Trim();
 

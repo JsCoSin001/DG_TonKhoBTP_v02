@@ -2106,9 +2106,9 @@ namespace DG_TonKhoBTP_v02.Database
         }
 
 
-        public static int GetSoLuongXuatNhapThangHienTai(bool isNhapKho = false)
+        public static int GetSoLuongXuatNhapThangHienTai(bool isNhapKho = false, DateTime? currentDate = null)
         {
-            DateTime now = DateTime.Now;
+            DateTime now = currentDate ?? DateTime.Now;
 
             string start = new DateTime(now.Year, now.Month, 1)
                 .ToString("yyyy-MM-dd");
@@ -2311,7 +2311,7 @@ namespace DG_TonKhoBTP_v02.Database
 
                 try
                 {
-                    int soThuTu = GetSoLuongXuatNhapThangHienTai(isNhapKho) + 1;
+                    int soThuTu = GetSoLuongXuatNhapThangHienTai(isNhapKho, parsedNgay) + 1;
                     string prefix = isNhapKho ? "KNK" : "KXK";
                     tenPhieu = $"{prefix}{parsedNgay:yy/MM}-{soThuTu:D4}";
 
@@ -2393,7 +2393,7 @@ namespace DG_TonKhoBTP_v02.Database
 
             DateTime ngay = info.Ngay == default ? DateTime.Now : info.Ngay;
 
-            int soThuTu = GetSoLuongXuatNhapThangHienTai(info.IsNhapKho) + 1;
+            int soThuTu = GetSoLuongXuatNhapThangHienTai(info.IsNhapKho, ngay) + 1;
             string prefix = info.IsNhapKho ? "KNK" : "KXK";
             string tenPhieu = $"{prefix}{ngay:yy/MM}-{soThuTu:D4}";
             string maDon = tenPhieu;
@@ -2857,16 +2857,10 @@ namespace DG_TonKhoBTP_v02.Database
                     SUM(SoLuong) AS TonKho
                 FROM LichSuXuatNhap
                 GROUP BY ThongTinDatHang_ID
-            ) ls 
-                ON ls.ThongTinDatHang_ID = t.id
-            WHERE
-                (
-                    (t.DanhSachMaSP_ID IS NULL AND t.TenVatTu_KhongDau = @tenVatTu COLLATE NOCASE)
-                    OR
-                    (t.DanhSachMaSP_ID IS NOT NULL AND sp.Ten_KhongDau = @tenVatTu COLLATE NOCASE)
-                )
-                AND IFNULL(ls.TonKho, 0) > 0
-            ORDER BY t.id;";
+            )  ls ON ls.ThongTinDatHang_ID = t.id
+            WHERE d.MaDon = @maDon
+              AND IFNULL(ls.TonKho, 0) > 0
+            ORDER BY t.id";
 
 
             if (isEdit)
@@ -6057,6 +6051,12 @@ namespace DG_TonKhoBTP_v02.Database
         {
             LoginResult result = new LoginResult();
 
+            if (string.IsNullOrWhiteSpace(usernameInput) || string.IsNullOrEmpty(passwordInput))
+            {
+                result.Message = "Tài khoản hoặc mật khẩu đang bỏ trống.";
+                return result;
+            }
+
             using (SQLiteConnection conn = new SQLiteConnection(_connStr))
             {
                 conn.Open();
@@ -6064,19 +6064,24 @@ namespace DG_TonKhoBTP_v02.Database
                 int userId = 0;
                 string storedHash = null;
                 string name = null;
+                string username = null;
 
                 // ===== QUERY 1: XÁC THỰC USER =====
                 string sqlUser = @"
-                    SELECT user_id, name, password_hash
+                    SELECT 
+                        user_id, 
+                        username, 
+                        name, 
+                        password_hash
                     FROM users
-                    WHERE username = @username
+                    WHERE username = @username COLLATE NOCASE
                       AND is_active = 1
                     LIMIT 1;
                 ";
 
                 using (SQLiteCommand cmd = new SQLiteCommand(sqlUser, conn))
                 {
-                    cmd.Parameters.AddWithValue("@username", usernameInput);
+                    cmd.Parameters.AddWithValue("@username", usernameInput.Trim());
 
                     using (SQLiteDataReader rd = cmd.ExecuteReader())
                     {
@@ -6087,29 +6092,51 @@ namespace DG_TonKhoBTP_v02.Database
                         }
 
                         userId = Convert.ToInt32(rd["user_id"]);
-                        name = Convert.ToString(rd["name"]);
-                        storedHash = rd["password_hash"].ToString();
+                        name = rd["name"] == DBNull.Value ? "" : Convert.ToString(rd["name"]);
+                        username = rd["username"] == DBNull.Value ? "" : Convert.ToString(rd["username"]);
+                        storedHash = rd["password_hash"] == DBNull.Value ? null : Convert.ToString(rd["password_hash"]);
                     }
                 }
 
-                // Verify BCrypt
-                if (!BCrypt.Net.BCrypt.Verify(passwordInput, storedHash))
+                // ===== KIỂM TRA MẬT KHẨU =====
+                if (string.IsNullOrWhiteSpace(storedHash))
                 {
                     result.Message = "Sai tài khoản hoặc mật khẩu.";
                     return result;
                 }
 
-                // ===== QUERY 2: LOAD ROLES + PERMISSIONS =====
+                bool passwordOk = false;
+
+                try
+                {
+                    passwordOk = BCrypt.Net.BCrypt.Verify(passwordInput, storedHash);
+                }
+                catch
+                {
+                    passwordOk = false;
+                }
+
+                if (!passwordOk)
+                {
+                    result.Message = "Sai tài khoản hoặc mật khẩu.";
+                    return result;
+                }
+
+                // ===== QUERY 2: LOAD TOÀN BỘ NHÓM + QUYỀN CỦA USER =====
                 string sqlPerms = @"
                     SELECT
                         r.role_name,
                         r.description AS role_description,
                         p.permission_code
                     FROM user_roles ur
-                    JOIN roles r ON r.role_id = ur.role_id
-                    LEFT JOIN role_permissions rp ON rp.role_id = r.role_id
-                    LEFT JOIN permissions p ON p.permission_id = rp.permission_id
-                    WHERE ur.user_id = @user_id;
+                    JOIN roles r 
+                        ON r.role_id = ur.role_id
+                    LEFT JOIN role_permissions rp 
+                        ON rp.role_id = r.role_id
+                    LEFT JOIN permissions p 
+                        ON p.permission_id = rp.permission_id
+                    WHERE ur.user_id = @user_id
+                    ORDER BY r.role_name, p.permission_code;
                 ";
 
                 var rolesDict = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
@@ -6123,33 +6150,40 @@ namespace DG_TonKhoBTP_v02.Database
                     {
                         while (rd.Read())
                         {
-                            // role_name -> description
-                            if (rd["role_name"] != DBNull.Value)
+                            if (rd["role_name"] == DBNull.Value)
+                                continue;
+
+                            string roleName = Convert.ToString(rd["role_name"]);
+                            string roleDesc = rd["role_description"] == DBNull.Value
+                                ? null
+                                : Convert.ToString(rd["role_description"]);
+
+                            if (string.IsNullOrWhiteSpace(roleName))
+                                continue;
+
+                            roleName = roleName.Trim();
+
+                            // Lưu nhóm của user
+                            if (!rolesDict.ContainsKey(roleName))
                             {
-                                string roleName = rd["role_name"].ToString();
-                                string roleDesc = rd["role_description"] == DBNull.Value ? null : rd["role_description"].ToString();
+                                rolesDict.Add(roleName, roleDesc);
+                            }
 
-                                if (!rolesDict.ContainsKey(roleName))
-                                    rolesDict.Add(roleName, roleDesc);
+                            // Mỗi nhóm có 1 danh sách quyền
+                            if (!permsDict.TryGetValue(roleName, out HashSet<string> permissionSet))
+                            {
+                                permissionSet = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                                permsDict[roleName] = permissionSet;
+                            }
 
-                                // role_name -> set(permission_code)
-                                if (rd["permission_code"] != DBNull.Value)
+                            // Lưu quyền của nhóm
+                            if (rd["permission_code"] != DBNull.Value)
+                            {
+                                string permissionCode = Convert.ToString(rd["permission_code"]);
+
+                                if (!string.IsNullOrWhiteSpace(permissionCode))
                                 {
-                                    string permCode = rd["permission_code"].ToString();
-
-                                    if (!permsDict.TryGetValue(roleName, out var set))
-                                    {
-                                        set = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-                                        permsDict[roleName] = set;
-                                    }
-
-                                    set.Add(permCode);
-                                }
-                                else
-                                {
-                                    // đảm bảo role vẫn có key dù chưa gán permission nào
-                                    if (!permsDict.ContainsKey(roleName))
-                                        permsDict[roleName] = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                                    permissionSet.Add(permissionCode.Trim());
                                 }
                             }
                         }
@@ -6160,6 +6194,7 @@ namespace DG_TonKhoBTP_v02.Database
                 result.Success = true;
                 result.UserId = userId;
                 result.Name = name;
+                result.UserName = username;
                 result.RolesDict = rolesDict;
                 result.PermissionsDict = permsDict;
                 result.Message = "OK";
@@ -6167,7 +6202,6 @@ namespace DG_TonKhoBTP_v02.Database
                 return result;
             }
         }
-
         #endregion
 
 

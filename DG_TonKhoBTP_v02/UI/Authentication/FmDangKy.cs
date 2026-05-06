@@ -11,6 +11,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using DG_TonKhoBTP_v02.Database.User;
 
 namespace DG_TonKhoBTP_v02.UI.Setting
 {
@@ -20,52 +21,48 @@ namespace DG_TonKhoBTP_v02.UI.Setting
         CancellationTokenSource _cts = null;
         bool _updating = false;
 
+        private async Task RunBusyAsync(Func<Task> action, string waitingText)
+        {
+            if (_updating) return;
+
+            _updating = true;
+            UseWaitCursor = true;
+
+            try
+            {
+                await WaitingHelper.RunWithWaiting(async () =>
+                {
+                    await action();
+                }, waitingText);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+            finally
+            {
+                UseWaitCursor = false;
+                _updating = false;
+            }
+        }
+
         public FmDangKy()
         {
             InitializeComponent();
-            //FirstLoad();
-
             this.Load += FmDangKy_Load;
 
-            _t.Tick += async (_, __) =>
-            {
-                if (rdoAddUser.Checked) { _t.Stop(); return; }
-                _t.Stop();
-                await LoadUsernamesAsync(userName.Text);
-            };
+            grvRoles.CellClick += grvRoles_CellClick;
+            grvPermissions.CellClick += grvPermissions_CellClick;
 
-            userName.TextUpdate += (_, __) =>
-            {
-                if (_updating) return;
-                if (rdoAddUser.Checked) { _t.Stop(); userName.DroppedDown = false; return; }
+            btnThemRole.Click += btnThemRole_Click;
+            btnSuaRole.Click += btnSuaRole_Click;
+            btnXoaRole.Click += btnXoaRole_Click;
 
-                _t.Stop();
-                _t.Start();
-            };
+            btnThemPermission.Click += btnThemPermission_Click;
+            btnSuaPermission.Click += btnSuaPermission_Click;
+            btnXoaPermission.Click += btnXoaPermission_Click;
 
-            userName.SelectionChangeCommitted += async (_, __) =>
-            {
-                if (rdoAddUser.Checked) return;
-
-                // Kiểm tra có item được chọn không
-                if (userName.SelectedItem == null) return;
-
-                // Lấy giá trị được chọn
-                string selectedUsername = userName.SelectedItem.ToString();
-
-                // Hoặc nếu bạn bind object vào ComboBox
-                // string selectedUsername = userName.SelectedValue?.ToString();
-
-                var u = await DatabaseHelper.GetUserWithRolesByUsernameAsync(selectedUsername, CancellationToken.None);
-
-                if (u == null) return;
-
-                tbName.Text = u.Name;
-                rdoActive.Checked = u.IsActive;
-                rdoDisActive.Checked = !u.IsActive;
-
-                ApplyCheckedRolesByName(u.Roles);
-            };
+            btnLuuPhanQuyen.Click += btnLuuPhanQuyen_Click;
         }
 
         private async void FmDangKy_Load(object sender, EventArgs e)
@@ -74,251 +71,364 @@ namespace DG_TonKhoBTP_v02.UI.Setting
             {
                 await FirstLoadAsync();
             }, "ĐANG TẢI DỮ LIỆU...");
+
+            LoadRoles();
+            LoadPermissions();
+            LoadPermissionMatrix();
         }
 
         private async Task FirstLoadAsync()
         {
-            // Chạy query database trên background thread
             DataTable dsNhom = await Task.Run(() =>
             {
-                string query = "SELECT role_id, role_name, description FROM Roles";
-                return DatabaseHelper.GetData(query);
+                return DatabaseHelper.GetData("SELECT role_id, role_name FROM roles");
             });
 
-            // Phần dưới đây tự động chạy trên UI thread
-            // (vì await trong async method tự động quay về context gốc)
-
-            if (dsNhom == null || dsNhom.Rows.Count == 0)
-            {
-                MessageBox.Show("Không có nhóm/quyền nào trong hệ thống. Vui lòng thêm nhóm/quyền trước.");
-                return;
-            }
-
             clbDanhSachNhom.DataSource = dsNhom;
             clbDanhSachNhom.DisplayMember = "role_name";
             clbDanhSachNhom.ValueMember = "role_id";
             clbDanhSachNhom.CheckOnClick = true;
         }
 
-        private void FirstLoad()
+        // ================= USER =================
+
+        private List<int> GetCheckedRoleIds()
         {
-            string query = "SELECT role_id, role_name, description FROM Roles";
-
-            DataTable dsNhom = DatabaseHelper.GetData(query);
-
-            // check if data table is not null and has rows
-            if (dsNhom == null || dsNhom.Rows.Count == 0)
-            {
-                MessageBox.Show("Không có nhóm/quyền nào trong hệ thống. Vui lòng thêm nhóm/quyền trước.");
-                return;
-            }
-            clbDanhSachNhom.DataSource = dsNhom;
-            clbDanhSachNhom.DisplayMember = "role_name";
-            clbDanhSachNhom.ValueMember = "role_id";
-            clbDanhSachNhom.CheckOnClick = true;
+            var list = new List<int>();
+            foreach (DataRowView item in clbDanhSachNhom.CheckedItems)
+                list.Add(Convert.ToInt32(item["role_id"]));
+            return list;
         }
 
-        async Task LoadUsernamesAsync(string typed)
+        private async void btnDangKi_Click(object sender, EventArgs e)
         {
-            if (_cts != null) _cts.Cancel();
-            _cts = new CancellationTokenSource();
-            var ct = _cts.Token;
-
-            var items = await DatabaseHelper.QueryAsync(typed ?? "", ct);
-            if (ct.IsCancellationRequested) return;
-
-            var text = userName.Text;
-            var caret = userName.SelectionStart;
-
-            _updating = true;
-            userName.BeginUpdate();
-            userName.Items.Clear();
-            userName.Items.AddRange(items.ToArray());
-            userName.EndUpdate();
-            _updating = false;
-
-            userName.DroppedDown = items.Count > 0;
-            userName.Text = text;
-            userName.SelectionStart = caret;
-            userName.SelectionLength = 0;
-        }
-
-        private List<int> GetCheckedRoleIds(CheckedListBox clbDanhSachNhom)
-        {
-            List<int> roleIds = new List<int>();
-
-            foreach (var item in clbDanhSachNhom.CheckedItems)
-            {
-                if (item is DataRowView drv)
-                {
-                    roleIds.Add(Convert.ToInt32(drv["role_id"]));
-                }
-            }
-
-            return roleIds;
-        }
-
-        private void ApplyCheckedRolesByName(IEnumerable<string> roleNames)
-        {
-            var set = new HashSet<string>(roleNames ?? Enumerable.Empty<string>(),
-                                          StringComparer.OrdinalIgnoreCase);
-
-            clbDanhSachNhom.BeginUpdate();
-            try
-            {
-                for (int i = 0; i < clbDanhSachNhom.Items.Count; i++)
-                {
-                    var item = clbDanhSachNhom.Items[i];
-
-                    // Vì DataSource là DataTable => item thường là DataRowView
-                    string roleName = item is DataRowView drv
-                        ? drv["role_name"]?.ToString()
-                        : clbDanhSachNhom.GetItemText(item);
-
-                    clbDanhSachNhom.SetItemChecked(i, set.Contains(roleName));
-                }
-            }
-            finally
-            {
-                clbDanhSachNhom.EndUpdate();
-            }
-        }
-
-
-        private void btnDangKi_Click(object sender, EventArgs e)
-        {
-            btnDangKi.Enabled = false;
-
-            try
+            await RunBusyAsync(async () =>
             {
                 string username = userName.Text.Trim();
                 string password = txtPassword.Text;
                 string name = tbName.Text;
-                List<int> roleIds = GetCheckedRoleIds(clbDanhSachNhom);
                 bool active = rdoActive.Checked;
+                var roleIds = GetCheckedRoleIds();
+                bool isAdd = rdoAddUser.Checked;
 
-                if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(name) || roleIds.Count == 0)
+                bool success = await Task.Run(() =>
                 {
-                    MessageBox.Show("Vui lòng nhập đầy đủ thông tin");
-                    return;
+                    string hash = string.IsNullOrWhiteSpace(password)
+                        ? null
+                        : BCrypt.Net.BCrypt.HashPassword(password);
+
+                    return isAdd
+                        ? DatabaseHelper.CreateUserWithRoles(username, hash, name, roleIds, active)
+                        : DatabaseHelper.UpdateUserWithRoles(username, hash, name, roleIds, active);
+                });
+
+                MessageBox.Show(success ? "Thành công" : "Thất bại");
+
+            }, "ĐANG XỬ LÝ ĐĂNG KÝ...");
+        }
+        // ================= ROLES =================
+
+        void LoadRoles()
+        {
+            grvRoles.DataSource = PermissionDbHelper.GetData("SELECT * FROM roles");
+            grvRoles.Columns["role_id"].Visible = false;
+        }
+
+        private void grvRoles_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0) return;
+            var r = grvRoles.Rows[e.RowIndex];
+
+            txtRoleName.Text = r.Cells["role_name"].Value?.ToString();
+            txtRoleDescription.Text = r.Cells["description"].Value?.ToString();
+        }
+
+        private async void btnThemRole_Click(object sender, EventArgs e)
+        {
+            await RunBusyAsync(async () =>
+            {
+                string roleName = txtRoleName.Text;
+                string description = txtRoleDescription.Text;
+
+                await Task.Run(() =>
+                {
+                    PermissionDbHelper.Execute(
+                        "INSERT INTO roles(role_name, description) VALUES(@n,@d)",
+                        new SQLiteParameter("@n", roleName),
+                        new SQLiteParameter("@d", description)
+                    );
+                });
+
+                LoadRoles();
+                LoadPermissionMatrix();
+                ClearRoleInput();
+
+            }, "ĐANG THÊM NHÓM...");
+        }
+
+        private async void btnSuaRole_Click(object sender, EventArgs e)
+        {
+            if (grvRoles.CurrentRow == null) return;
+
+            await RunBusyAsync(async () =>
+            {
+                int id = Convert.ToInt32(grvRoles.CurrentRow.Cells["role_id"].Value);
+                string roleName = txtRoleName.Text;
+                string description = txtRoleDescription.Text;
+
+                await Task.Run(() =>
+                {
+                    PermissionDbHelper.Execute(
+                        "UPDATE roles SET role_name=@n, description=@d WHERE role_id=@id",
+                        new SQLiteParameter("@n", roleName),
+                        new SQLiteParameter("@d", description),
+                        new SQLiteParameter("@id", id)
+                    );
+                });
+
+                LoadRoles();
+                LoadPermissionMatrix();
+                ClearRoleInput();
+
+            }, "ĐANG SỬA NHÓM...");
+        }
+
+        private async void btnXoaRole_Click(object sender, EventArgs e)
+        {
+            if (grvRoles.CurrentRow == null) return;
+
+            await RunBusyAsync(async () =>
+            {
+                int id = Convert.ToInt32(grvRoles.CurrentRow.Cells["role_id"].Value);
+
+                await Task.Run(() =>
+                {
+                    PermissionDbHelper.Execute(
+                        "DELETE FROM roles WHERE role_id=@id",
+                        new SQLiteParameter("@id", id)
+                    );
+                });
+
+                LoadRoles();
+                LoadPermissionMatrix();
+
+            }, "ĐANG XÓA NHÓM...");
+        }
+
+        // ================= PERMISSIONS =================
+
+        void LoadPermissions()
+        {
+            grvPermissions.DataSource = PermissionDbHelper.GetData("SELECT * FROM permissions");
+            grvPermissions.Columns["permission_id"].Visible = false;
+        }
+
+        private void grvPermissions_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0) return;
+
+            var r = grvPermissions.Rows[e.RowIndex];
+
+            txtPermissionName.Text = r.Cells["permission_name"].Value?.ToString();
+            txtPermissionCode.Text = r.Cells["permission_code"].Value?.ToString();
+        }
+
+        private async void btnThemPermission_Click(object sender, EventArgs e)
+        {
+            await RunBusyAsync(async () =>
+            {
+                string code = txtPermissionCode.Text.ToUpper();
+                string name = txtPermissionName.Text;
+
+                await Task.Run(() =>
+                {
+                    PermissionDbHelper.Execute(
+                        "INSERT INTO permissions(permission_code, permission_name) VALUES(@c,@n)",
+                        new SQLiteParameter("@c", code),
+                        new SQLiteParameter("@n", name)
+                    );
+                });
+
+                LoadPermissions();
+                LoadPermissionMatrix();
+                ClearPermissionInput();
+
+            }, "ĐANG THÊM QUYỀN...");
+        }
+
+        private async void btnSuaPermission_Click(object sender, EventArgs e)
+        {
+            if (grvPermissions.CurrentRow == null) return;
+
+            await RunBusyAsync(async () =>
+            {
+                int id = Convert.ToInt32(grvPermissions.CurrentRow.Cells["permission_id"].Value);
+                string code = txtPermissionCode.Text;
+                string name = txtPermissionName.Text;
+
+                await Task.Run(() =>
+                {
+                    PermissionDbHelper.Execute(
+                        "UPDATE permissions SET permission_code=@c, permission_name=@n WHERE permission_id=@id",
+                        new SQLiteParameter("@c", code),
+                        new SQLiteParameter("@n", name),
+                        new SQLiteParameter("@id", id)
+                    );
+                });
+
+                LoadPermissions();
+                LoadPermissionMatrix();
+                ClearPermissionInput();
+
+            }, "ĐANG SỬA QUYỀN...");
+        }
+
+        private async void btnXoaPermission_Click(object sender, EventArgs e)
+        {
+            if (grvPermissions.CurrentRow == null) return;
+
+            await RunBusyAsync(async () =>
+            {
+                int id = Convert.ToInt32(grvPermissions.CurrentRow.Cells["permission_id"].Value);
+
+                await Task.Run(() =>
+                {
+                    PermissionDbHelper.Execute(
+                        "DELETE FROM permissions WHERE permission_id=@id",
+                        new SQLiteParameter("@id", id)
+                    );
+                });
+
+                LoadPermissions();
+                LoadPermissionMatrix();
+
+            }, "ĐANG XÓA QUYỀN...");
+        }
+
+        // ================= MATRIX =================
+
+        void LoadPermissionMatrix()
+        {
+            grvPhanQuyen.Columns.Clear();
+            grvPhanQuyen.Rows.Clear();
+
+            var roles = PermissionDbHelper.GetData("SELECT * FROM roles");
+            var perms = PermissionDbHelper.GetData("SELECT * FROM permissions");
+
+            grvPhanQuyen.Columns.Add("role_name", "Nhóm");
+
+            foreach (DataRow p in perms.Rows)
+            {
+                var col = new DataGridViewCheckBoxColumn();
+                col.Name = p["permission_id"].ToString();
+                col.HeaderText = p["permission_name"].ToString();
+                grvPhanQuyen.Columns.Add(col);
+            }
+
+            foreach (DataRow r in roles.Rows)
+            {
+                int idx = grvPhanQuyen.Rows.Add();
+                var row = grvPhanQuyen.Rows[idx];
+
+                row.Cells[0].Value = r["role_name"];
+                row.Tag = r["role_id"];
+
+                foreach (DataRow p in perms.Rows)
+                {
+                    bool has = Convert.ToInt32(PermissionDbHelper.ExecuteScalar(
+                        "SELECT COUNT(*) FROM role_permissions WHERE role_id=@r AND permission_id=@p",
+                        new SQLiteParameter("@r", r["role_id"]),
+                        new SQLiteParameter("@p", p["permission_id"])
+                    )) > 0;
+
+                    row.Cells[p["permission_id"].ToString()].Value = has;
                 }
+            }
+        }
 
-                if (rdoAddUser.Checked && string.IsNullOrEmpty(password))
+
+        //private void ClearUserInput()
+        //{
+        //    userName.Clear();
+        //    txtPassword.Clear();
+        //    tbName.Clear();
+
+        //    for (int i = 0; i < clbDanhSachNhom.Items.Count; i++)
+        //        clbDanhSachNhom.SetItemChecked(i, false);
+
+        //    rdoActive.Checked = true;
+        //    rdoAddUser.Checked = true;
+        //}
+
+        private void ClearRoleInput()
+        {
+            txtRoleName.Clear();
+            txtRoleDescription.Clear();
+            grvRoles.ClearSelection();
+        }
+
+        private void ClearPermissionInput()
+        {
+            txtPermissionName.Clear();
+            txtPermissionCode.Clear();
+            grvPermissions.ClearSelection();
+        }
+        private async void btnLuuPhanQuyen_Click(object sender, EventArgs e)
+        {
+            await RunBusyAsync(async () =>
+            {
+                var saveList = new List<(int RoleId, int PermissionId, bool IsChecked)>();
+
+                foreach (DataGridViewRow row in grvPhanQuyen.Rows)
                 {
-                    MessageBox.Show("Vui lòng nhập đầy đủ thông tin");
-                    return;
-                }
+                    if (row.Tag == null) continue;
 
-                string hash = string.IsNullOrWhiteSpace(password)
-                ? null
-                : BCrypt.Net.BCrypt.HashPassword(password);
+                    int roleId = Convert.ToInt32(row.Tag);
 
-                bool success = false;
-
-                if (rdoAddUser.Checked)
-                    success = DatabaseHelper.CreateUserWithRoles(username, hash, name, roleIds, active);
-                else
-                    success = DatabaseHelper.UpdateUserWithRoles(username, hash, name, roleIds, active);
-
-                string mess = "Thao tác thất bại. Vui lòng thử lại.";
-                string icon = EnumStore.Icon.Warning;
-                if (success)
-                {
-                    mess = "Thao tác thành công!";
-                    icon = EnumStore.Icon.Success;
-                    //this.Close();
-                }
-
-                FrmWaiting.ShowGifAlert(mess, "THÔNG BÁO", icon);
-            }
-            catch (Exception ex)
-            {
-                var mess = CoreHelper.ShowErrorDatabase(ex, "TÀI KHOẢN");
-                FrmWaiting.ShowGifAlert(mess, "THÔNG BÁO", EnumStore.Icon.Warning);
-            }
-            finally
-            {
-                btnDangKi.Enabled = true;
-            }
-
-
-        }
-
-        private void rdoAddUser_CheckedChanged(object sender, EventArgs e)
-        {
-            userName.Text = "";
-        }
-
-        private void tabControl1_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            string tabName = tabControl1.SelectedTab?.Name;
-            if (tabName != "tbPhanQuyen") return;
-
-            CoreHelper.LoadUsersWithSameRoles(tvDanhSach);
-        }
-
-        private int idRole = 0;
-        private string roleName = "";
-        private string fatherRoleName = "";
-        private void tvDanhSach_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
-        {
-            idRole = 0;
-            // Xử lý khi click vào node
-            if (e.Node.Tag is RoleInfo role)
-            {         
-                DatabaseHelper.LoadQuyenTheoRole(role.RoleId, grvQuyen);
-                this.idRole = role.RoleId;
-                this.roleName = role.RoleName;
-                this.fatherRoleName = e.Node.Parent?.Text ?? "";
-                lblDoiTuongSetQuen.Text = $"Đang gán quyền cho {this.fatherRoleName} ở nhóm {role.RoleName} ";
-            }
-        }
-
-        private async void btnLuu_Click(object sender, EventArgs e)
-        {
-            if (idRole == 0)
-            {
-                FrmWaiting.ShowGifAlert("Không tìm thấy đối tượng cần đặt quyền");
-                return;
-            }
-
-            btnLuu.Enabled = false; // Disable button khi đang xử lý
-
-            try
-            {
-                await WaitingHelper.RunWithWaiting(async () =>
-                {
-                    await Task.Run(() =>
+                    foreach (DataGridViewColumn col in grvPhanQuyen.Columns)
                     {
-                        DatabaseHelper.SaveRolePermissions_ByGrid(idRole, grvQuyen);
-                    });
-                }, "ĐANG LƯU QUYỀN...");
+                        if (col.Name == "role_name") continue;
 
-                // Thông báo thành công
-                FrmWaiting.ShowGifAlert("Áp quyền thành công cho nhóm: " + roleName, "THÔNG BÁO", EnumStore.Icon.Success);
-            }
-            catch (Exception ex)
-            {
-                FrmWaiting.ShowGifAlert($"Lỗi khi lưu quyền: {ex.Message}", "THÔNG BÁO", EnumStore.Icon.Warning);
-            }
-            finally
-            {
-                btnLuu.Enabled = true; // Enable lại button
-            }
+                        int pid = Convert.ToInt32(col.Name);
+                        bool isChecked = Convert.ToBoolean(row.Cells[col.Name].Value ?? false);
+
+                        saveList.Add((roleId, pid, isChecked));
+                    }
+                }
+
+                await Task.Run(() =>
+                {
+                    foreach (var item in saveList)
+                    {
+                        if (item.IsChecked)
+                        {
+                            PermissionDbHelper.Execute(@"
+                                INSERT INTO role_permissions(role_id, permission_id)
+                                SELECT @r,@p
+                                WHERE NOT EXISTS(
+                                    SELECT 1 FROM role_permissions 
+                                    WHERE role_id=@r AND permission_id=@p)",
+                                new SQLiteParameter("@r", item.RoleId),
+                                new SQLiteParameter("@p", item.PermissionId));
+                        }
+                        else
+                        {
+                            PermissionDbHelper.Execute(
+                                "DELETE FROM role_permissions WHERE role_id=@r AND permission_id=@p",
+                                new SQLiteParameter("@r", item.RoleId),
+                                new SQLiteParameter("@p", item.PermissionId));
+                        }
+                    }
+                });
+
+                FrmWaiting.ShowGifAlert("Đã lưu phân quyền thành công", myIcon: EnumStore.Icon.Success);
+
+            }, "ĐANG LƯU PHÂN QUYỀN...");
         }
 
-        private void grvQuyen_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        private void txtPermissionName_TextChanged(object sender, EventArgs e)
         {
-            if (e.RowIndex < 0 || e.ColumnIndex != 0) return; // chỉ cột checkbox
-
-            var code = grvQuyen.Rows[e.RowIndex].Cells[3].Value?.ToString(); // cột ẩn chứa permission_code
-            if (string.Equals(code, "can_delete", StringComparison.OrdinalIgnoreCase))
-            {
-                // không cho chuyển sang true
-                grvQuyen.EndEdit();
-                grvQuyen.Rows[e.RowIndex].Cells[0].Value = false;
-                FrmWaiting.ShowGifAlert("QUYỀN NÀY KHÔNG ĐƯỢC CẤP!");
-            }
+            txtPermissionCode.Text = CoreHelper.BoDauTiengViet(txtPermissionName.Text.Trim()).ToUpper().Replace(" ", "_");
         }
     }
 }

@@ -24,7 +24,7 @@ namespace DG_TonKhoBTP_v02.UI.Authentication
             string username = (txtUser.Text ?? "").Trim();
             string passwordInput = (txtPassword.Text ?? "").Trim();
 
-
+            // Cấu hình khi lần đầu chạy app
             if (flg)
             {
                 string privateDBPath = Settings.Default.PassApp;
@@ -52,7 +52,7 @@ namespace DG_TonKhoBTP_v02.UI.Authentication
                 return;
             }
 
-
+            // Bắt đầu đăng nhâp
             if (string.IsNullOrWhiteSpace(username) || string.IsNullOrEmpty(passwordInput))
             {
                 FrmWaiting.ShowGifAlert("Tài khoản hoặc mật khẩu đang bỏ trống");

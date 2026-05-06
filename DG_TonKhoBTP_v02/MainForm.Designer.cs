@@ -38,14 +38,14 @@ namespace DG_TonKhoBTP_v02
             this.grbCongCu = new System.Windows.Forms.GroupBox();
             this.pnKiemKe = new System.Windows.Forms.Panel();
             this.pnVatTuPhu = new System.Windows.Forms.Panel();
-            this.panel19 = new System.Windows.Forms.Panel();
-            this.panel21 = new System.Windows.Forms.Panel();
-            this.panel17 = new System.Windows.Forms.Panel();
+            this.pnHaLo_NhapLai = new System.Windows.Forms.Panel();
+            this.pnGopBin_HanNoi = new System.Windows.Forms.Panel();
+            this.pnTachBin = new System.Windows.Forms.Panel();
             this.pnUpdateMaHang = new System.Windows.Forms.Panel();
             this.grbBaoCao = new System.Windows.Forms.GroupBox();
-            this.panel4 = new System.Windows.Forms.Panel();
+            this.pnTruyVetDL = new System.Windows.Forms.Panel();
             this.pnKiemTraBC = new System.Windows.Forms.Panel();
-            this.panel2 = new System.Windows.Forms.Panel();
+            this.pnBC_TonKho = new System.Windows.Forms.Panel();
             this.grbChucNang = new System.Windows.Forms.GroupBox();
             this.panel13 = new System.Windows.Forms.Panel();
             this.panel12 = new System.Windows.Forms.Panel();
@@ -71,7 +71,7 @@ namespace DG_TonKhoBTP_v02
             this.panel1 = new System.Windows.Forms.Panel();
             this.panel15 = new System.Windows.Forms.Panel();
             this.pnShow = new System.Windows.Forms.Panel();
-            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
+            this.menuApp = new System.Windows.Forms.MenuStrip();
             this.homeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.settingApp = new System.Windows.Forms.ToolStripMenuItem();
             this.userRegistration = new System.Windows.Forms.ToolStripMenuItem();
@@ -101,14 +101,14 @@ namespace DG_TonKhoBTP_v02
             this.grbCongCu.SuspendLayout();
             this.pnKiemKe.SuspendLayout();
             this.pnVatTuPhu.SuspendLayout();
-            this.panel19.SuspendLayout();
-            this.panel21.SuspendLayout();
-            this.panel17.SuspendLayout();
+            this.pnHaLo_NhapLai.SuspendLayout();
+            this.pnGopBin_HanNoi.SuspendLayout();
+            this.pnTachBin.SuspendLayout();
             this.pnUpdateMaHang.SuspendLayout();
             this.grbBaoCao.SuspendLayout();
-            this.panel4.SuspendLayout();
+            this.pnTruyVetDL.SuspendLayout();
             this.pnKiemTraBC.SuspendLayout();
-            this.panel2.SuspendLayout();
+            this.pnBC_TonKho.SuspendLayout();
             this.grbChucNang.SuspendLayout();
             this.panel13.SuspendLayout();
             this.panel12.SuspendLayout();
@@ -129,7 +129,7 @@ namespace DG_TonKhoBTP_v02
             this.pnMain.SuspendLayout();
             this.panel1.SuspendLayout();
             this.panel15.SuspendLayout();
-            this.menuStrip1.SuspendLayout();
+            this.menuApp.SuspendLayout();
             this.SuspendLayout();
             // 
             // pnLeft
@@ -141,7 +141,7 @@ namespace DG_TonKhoBTP_v02
             this.pnLeft.Location = new System.Drawing.Point(0, 0);
             this.pnLeft.Margin = new System.Windows.Forms.Padding(4);
             this.pnLeft.Name = "pnLeft";
-            this.pnLeft.Size = new System.Drawing.Size(202, 1035);
+            this.pnLeft.Size = new System.Drawing.Size(202, 1061);
             this.pnLeft.TabIndex = 0;
             // 
             // fpnButton
@@ -154,7 +154,7 @@ namespace DG_TonKhoBTP_v02
             this.fpnButton.Dock = System.Windows.Forms.DockStyle.Fill;
             this.fpnButton.Location = new System.Drawing.Point(0, 70);
             this.fpnButton.Name = "fpnButton";
-            this.fpnButton.Size = new System.Drawing.Size(202, 921);
+            this.fpnButton.Size = new System.Drawing.Size(202, 947);
             this.fpnButton.TabIndex = 2;
             // 
             // grbKeHoach
@@ -169,7 +169,6 @@ namespace DG_TonKhoBTP_v02
             this.grbKeHoach.TabIndex = 3;
             this.grbKeHoach.TabStop = false;
             this.grbKeHoach.Text = "Kế hoạch";
-            this.grbKeHoach.Visible = false;
             // 
             // pnKeHoach
             // 
@@ -186,9 +185,9 @@ namespace DG_TonKhoBTP_v02
             this.grbCongCu.AutoSize = true;
             this.grbCongCu.Controls.Add(this.pnKiemKe);
             this.grbCongCu.Controls.Add(this.pnVatTuPhu);
-            this.grbCongCu.Controls.Add(this.panel19);
-            this.grbCongCu.Controls.Add(this.panel21);
-            this.grbCongCu.Controls.Add(this.panel17);
+            this.grbCongCu.Controls.Add(this.pnHaLo_NhapLai);
+            this.grbCongCu.Controls.Add(this.pnGopBin_HanNoi);
+            this.grbCongCu.Controls.Add(this.pnTachBin);
             this.grbCongCu.Controls.Add(this.pnUpdateMaHang);
             this.grbCongCu.Dock = System.Windows.Forms.DockStyle.Top;
             this.grbCongCu.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -219,35 +218,35 @@ namespace DG_TonKhoBTP_v02
             this.pnVatTuPhu.Size = new System.Drawing.Size(179, 63);
             this.pnVatTuPhu.TabIndex = 10;
             // 
-            // panel19
+            // pnHaLo_NhapLai
             // 
-            this.panel19.Controls.Add(this.btnHaLo);
-            this.panel19.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panel19.Location = new System.Drawing.Point(3, 206);
-            this.panel19.Name = "panel19";
-            this.panel19.Padding = new System.Windows.Forms.Padding(5, 6, 5, 6);
-            this.panel19.Size = new System.Drawing.Size(179, 63);
-            this.panel19.TabIndex = 10;
+            this.pnHaLo_NhapLai.Controls.Add(this.btnHaLo);
+            this.pnHaLo_NhapLai.Dock = System.Windows.Forms.DockStyle.Top;
+            this.pnHaLo_NhapLai.Location = new System.Drawing.Point(3, 206);
+            this.pnHaLo_NhapLai.Name = "pnHaLo_NhapLai";
+            this.pnHaLo_NhapLai.Padding = new System.Windows.Forms.Padding(5, 6, 5, 6);
+            this.pnHaLo_NhapLai.Size = new System.Drawing.Size(179, 63);
+            this.pnHaLo_NhapLai.TabIndex = 10;
             // 
-            // panel21
+            // pnGopBin_HanNoi
             // 
-            this.panel21.Controls.Add(this.btnGopBin);
-            this.panel21.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panel21.Location = new System.Drawing.Point(3, 143);
-            this.panel21.Name = "panel21";
-            this.panel21.Padding = new System.Windows.Forms.Padding(5, 6, 5, 6);
-            this.panel21.Size = new System.Drawing.Size(179, 63);
-            this.panel21.TabIndex = 11;
+            this.pnGopBin_HanNoi.Controls.Add(this.btnGopBin);
+            this.pnGopBin_HanNoi.Dock = System.Windows.Forms.DockStyle.Top;
+            this.pnGopBin_HanNoi.Location = new System.Drawing.Point(3, 143);
+            this.pnGopBin_HanNoi.Name = "pnGopBin_HanNoi";
+            this.pnGopBin_HanNoi.Padding = new System.Windows.Forms.Padding(5, 6, 5, 6);
+            this.pnGopBin_HanNoi.Size = new System.Drawing.Size(179, 63);
+            this.pnGopBin_HanNoi.TabIndex = 11;
             // 
-            // panel17
+            // pnTachBin
             // 
-            this.panel17.Controls.Add(this.btnTachBin);
-            this.panel17.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panel17.Location = new System.Drawing.Point(3, 80);
-            this.panel17.Name = "panel17";
-            this.panel17.Padding = new System.Windows.Forms.Padding(5, 6, 5, 6);
-            this.panel17.Size = new System.Drawing.Size(179, 63);
-            this.panel17.TabIndex = 8;
+            this.pnTachBin.Controls.Add(this.btnTachBin);
+            this.pnTachBin.Dock = System.Windows.Forms.DockStyle.Top;
+            this.pnTachBin.Location = new System.Drawing.Point(3, 80);
+            this.pnTachBin.Name = "pnTachBin";
+            this.pnTachBin.Padding = new System.Windows.Forms.Padding(5, 6, 5, 6);
+            this.pnTachBin.Size = new System.Drawing.Size(179, 63);
+            this.pnTachBin.TabIndex = 8;
             // 
             // pnUpdateMaHang
             // 
@@ -262,9 +261,9 @@ namespace DG_TonKhoBTP_v02
             // grbBaoCao
             // 
             this.grbBaoCao.AutoSize = true;
-            this.grbBaoCao.Controls.Add(this.panel4);
+            this.grbBaoCao.Controls.Add(this.pnTruyVetDL);
             this.grbBaoCao.Controls.Add(this.pnKiemTraBC);
-            this.grbBaoCao.Controls.Add(this.panel2);
+            this.grbBaoCao.Controls.Add(this.pnBC_TonKho);
             this.grbBaoCao.Dock = System.Windows.Forms.DockStyle.Top;
             this.grbBaoCao.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.grbBaoCao.Location = new System.Drawing.Point(0, 518);
@@ -274,15 +273,15 @@ namespace DG_TonKhoBTP_v02
             this.grbBaoCao.TabStop = false;
             this.grbBaoCao.Text = "BÁO CÁO";
             // 
-            // panel4
+            // pnTruyVetDL
             // 
-            this.panel4.Controls.Add(this.btnTruyVetDL);
-            this.panel4.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panel4.Location = new System.Drawing.Point(3, 143);
-            this.panel4.Name = "panel4";
-            this.panel4.Padding = new System.Windows.Forms.Padding(5, 6, 5, 6);
-            this.panel4.Size = new System.Drawing.Size(179, 63);
-            this.panel4.TabIndex = 6;
+            this.pnTruyVetDL.Controls.Add(this.btnTruyVetDL);
+            this.pnTruyVetDL.Dock = System.Windows.Forms.DockStyle.Top;
+            this.pnTruyVetDL.Location = new System.Drawing.Point(3, 143);
+            this.pnTruyVetDL.Name = "pnTruyVetDL";
+            this.pnTruyVetDL.Padding = new System.Windows.Forms.Padding(5, 6, 5, 6);
+            this.pnTruyVetDL.Size = new System.Drawing.Size(179, 63);
+            this.pnTruyVetDL.TabIndex = 6;
             // 
             // pnKiemTraBC
             // 
@@ -294,15 +293,15 @@ namespace DG_TonKhoBTP_v02
             this.pnKiemTraBC.Size = new System.Drawing.Size(179, 63);
             this.pnKiemTraBC.TabIndex = 5;
             // 
-            // panel2
+            // pnBC_TonKho
             // 
-            this.panel2.Controls.Add(this.btnBaoCaoTonKho);
-            this.panel2.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panel2.Location = new System.Drawing.Point(3, 17);
-            this.panel2.Name = "panel2";
-            this.panel2.Padding = new System.Windows.Forms.Padding(5, 6, 5, 6);
-            this.panel2.Size = new System.Drawing.Size(179, 63);
-            this.panel2.TabIndex = 4;
+            this.pnBC_TonKho.Controls.Add(this.btnBaoCaoTonKho);
+            this.pnBC_TonKho.Dock = System.Windows.Forms.DockStyle.Top;
+            this.pnBC_TonKho.Location = new System.Drawing.Point(3, 17);
+            this.pnBC_TonKho.Name = "pnBC_TonKho";
+            this.pnBC_TonKho.Padding = new System.Windows.Forms.Padding(5, 6, 5, 6);
+            this.pnBC_TonKho.Size = new System.Drawing.Size(179, 63);
+            this.pnBC_TonKho.TabIndex = 4;
             // 
             // grbChucNang
             // 
@@ -408,7 +407,7 @@ namespace DG_TonKhoBTP_v02
             // 
             this.panel18.Controls.Add(this.tbUser);
             this.panel18.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel18.Location = new System.Drawing.Point(0, 991);
+            this.panel18.Location = new System.Drawing.Point(0, 1017);
             this.panel18.Name = "panel18";
             this.panel18.Padding = new System.Windows.Forms.Padding(0, 0, 17, 0);
             this.panel18.Size = new System.Drawing.Size(202, 44);
@@ -546,7 +545,7 @@ namespace DG_TonKhoBTP_v02
             // 
             this.pnSign.Controls.Add(this.lblAuthor);
             this.pnSign.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.pnSign.Location = new System.Drawing.Point(0, 1016);
+            this.pnSign.Location = new System.Drawing.Point(0, 1042);
             this.pnSign.Margin = new System.Windows.Forms.Padding(0);
             this.pnSign.Name = "pnSign";
             this.pnSign.Size = new System.Drawing.Size(1132, 19);
@@ -567,9 +566,9 @@ namespace DG_TonKhoBTP_v02
             // 
             this.pnMain.Controls.Add(this.panel1);
             this.pnMain.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pnMain.Location = new System.Drawing.Point(0, 26);
+            this.pnMain.Location = new System.Drawing.Point(0, 0);
             this.pnMain.Name = "pnMain";
-            this.pnMain.Size = new System.Drawing.Size(1334, 1035);
+            this.pnMain.Size = new System.Drawing.Size(1334, 1061);
             this.pnMain.TabIndex = 1;
             // 
             // panel1
@@ -579,7 +578,7 @@ namespace DG_TonKhoBTP_v02
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(1334, 1035);
+            this.panel1.Size = new System.Drawing.Size(1334, 1061);
             this.panel1.TabIndex = 5;
             // 
             // panel15
@@ -589,7 +588,7 @@ namespace DG_TonKhoBTP_v02
             this.panel15.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel15.Location = new System.Drawing.Point(202, 0);
             this.panel15.Name = "panel15";
-            this.panel15.Size = new System.Drawing.Size(1132, 1035);
+            this.panel15.Size = new System.Drawing.Size(1132, 1061);
             this.panel15.TabIndex = 5;
             // 
             // pnShow
@@ -597,22 +596,23 @@ namespace DG_TonKhoBTP_v02
             this.pnShow.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnShow.Location = new System.Drawing.Point(0, 0);
             this.pnShow.Name = "pnShow";
-            this.pnShow.Size = new System.Drawing.Size(1132, 1016);
+            this.pnShow.Size = new System.Drawing.Size(1132, 1042);
             this.pnShow.TabIndex = 1;
             // 
-            // menuStrip1
+            // menuApp
             // 
-            this.menuStrip1.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.menuApp.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.menuApp.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.homeToolStripMenuItem,
             this.settingApp,
             this.userRegistration,
             this.môPhỏngSXToolStripMenuItem});
-            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
-            this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(1334, 26);
-            this.menuStrip1.TabIndex = 2;
-            this.menuStrip1.Text = "menuStrip1";
+            this.menuApp.Location = new System.Drawing.Point(0, 0);
+            this.menuApp.Name = "menuApp";
+            this.menuApp.Size = new System.Drawing.Size(1334, 26);
+            this.menuApp.TabIndex = 2;
+            this.menuApp.Text = "menuStrip1";
+            this.menuApp.Visible = false;
             // 
             // homeToolStripMenuItem
             // 
@@ -626,7 +626,6 @@ namespace DG_TonKhoBTP_v02
             this.settingApp.Name = "settingApp";
             this.settingApp.Size = new System.Drawing.Size(66, 22);
             this.settingApp.Text = "Cài đặt";
-            this.settingApp.Visible = false;
             this.settingApp.Click += new System.EventHandler(this.setiingToolStripMenuItem_Click);
             // 
             // userRegistration
@@ -634,7 +633,6 @@ namespace DG_TonKhoBTP_v02
             this.userRegistration.Name = "userRegistration";
             this.userRegistration.Size = new System.Drawing.Size(75, 22);
             this.userRegistration.Text = "Nhân sự";
-            this.userRegistration.Visible = false;
             this.userRegistration.Click += new System.EventHandler(this.đăngKýToolStripMenuItem_Click);
             // 
             // môPhỏngSXToolStripMenuItem
@@ -642,7 +640,6 @@ namespace DG_TonKhoBTP_v02
             this.môPhỏngSXToolStripMenuItem.Name = "môPhỏngSXToolStripMenuItem";
             this.môPhỏngSXToolStripMenuItem.Size = new System.Drawing.Size(107, 22);
             this.môPhỏngSXToolStripMenuItem.Text = "Mô Phỏng SX";
-            this.môPhỏngSXToolStripMenuItem.Visible = false;
             this.môPhỏngSXToolStripMenuItem.Click += new System.EventHandler(this.môPhỏngSXToolStripMenuItem_Click);
             // 
             // btnKeHoach
@@ -1020,11 +1017,11 @@ namespace DG_TonKhoBTP_v02
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1334, 1061);
             this.Controls.Add(this.pnMain);
-            this.Controls.Add(this.menuStrip1);
+            this.Controls.Add(this.menuApp);
             this.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.MainMenuStrip = this.menuStrip1;
+            this.MainMenuStrip = this.menuApp;
             this.Margin = new System.Windows.Forms.Padding(4);
             this.MinimizeBox = false;
             this.Name = "MainForm";
@@ -1041,14 +1038,14 @@ namespace DG_TonKhoBTP_v02
             this.grbCongCu.ResumeLayout(false);
             this.pnKiemKe.ResumeLayout(false);
             this.pnVatTuPhu.ResumeLayout(false);
-            this.panel19.ResumeLayout(false);
-            this.panel21.ResumeLayout(false);
-            this.panel17.ResumeLayout(false);
+            this.pnHaLo_NhapLai.ResumeLayout(false);
+            this.pnGopBin_HanNoi.ResumeLayout(false);
+            this.pnTachBin.ResumeLayout(false);
             this.pnUpdateMaHang.ResumeLayout(false);
             this.grbBaoCao.ResumeLayout(false);
-            this.panel4.ResumeLayout(false);
+            this.pnTruyVetDL.ResumeLayout(false);
             this.pnKiemTraBC.ResumeLayout(false);
-            this.panel2.ResumeLayout(false);
+            this.pnBC_TonKho.ResumeLayout(false);
             this.grbChucNang.ResumeLayout(false);
             this.panel13.ResumeLayout(false);
             this.panel13.PerformLayout();
@@ -1078,8 +1075,8 @@ namespace DG_TonKhoBTP_v02
             this.pnMain.ResumeLayout(false);
             this.panel1.ResumeLayout(false);
             this.panel15.ResumeLayout(false);
-            this.menuStrip1.ResumeLayout(false);
-            this.menuStrip1.PerformLayout();
+            this.menuApp.ResumeLayout(false);
+            this.menuApp.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -1116,10 +1113,9 @@ namespace DG_TonKhoBTP_v02
 
         private System.Windows.Forms.Panel pnMain;
         private System.Windows.Forms.Panel pnShow;
-        private System.Windows.Forms.MenuStrip menuStrip1;
+        private System.Windows.Forms.MenuStrip menuApp;
         private System.Windows.Forms.ToolStripMenuItem homeToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem settingApp;
-        private System.Windows.Forms.GroupBox grbBaoCao;
         private System.Windows.Forms.GroupBox grbCongCu;
         private System.Windows.Forms.GroupBox grbChucNang;
 
@@ -1137,9 +1133,9 @@ namespace DG_TonKhoBTP_v02
 
         private System.Windows.Forms.Label lblAuthor;
         private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.Panel panel4;
+        private System.Windows.Forms.Panel pnTruyVetDL;
         private System.Windows.Forms.Panel pnKiemTraBC;
-        private System.Windows.Forms.Panel panel2;
+        private System.Windows.Forms.Panel pnBC_TonKho;
         private System.Windows.Forms.Panel pnUpdateMaHang;
         private System.Windows.Forms.Panel panel13;
         private System.Windows.Forms.Panel panel6;
@@ -1161,18 +1157,19 @@ namespace DG_TonKhoBTP_v02
         private System.Windows.Forms.GroupBox grbKeHoach;
         private System.Windows.Forms.Panel pnKeHoach;
         private CustomButton btnKeHoach;
-        private System.Windows.Forms.Panel panel17;
+        private System.Windows.Forms.Panel pnTachBin;
         private CustomButton btnTachBin;
         private System.Windows.Forms.Panel panel18;
         private System.Windows.Forms.ToolStripMenuItem môPhỏngSXToolStripMenuItem;
-        private System.Windows.Forms.Panel panel19;
+        private System.Windows.Forms.Panel pnHaLo_NhapLai;
         private CustomButton btnHaLo;
         private System.Windows.Forms.Panel pnVatTuPhu;
         private CustomButton btnVatTuPhu;
-        private System.Windows.Forms.Panel panel21;
+        private System.Windows.Forms.Panel pnGopBin_HanNoi;
         private CustomButton btnGopBin;
         private System.Windows.Forms.Panel pnKiemKe;
         private CustomButton btnKiemKe;
+        private System.Windows.Forms.GroupBox grbBaoCao;
     }
 }
 

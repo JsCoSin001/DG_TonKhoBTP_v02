@@ -66,7 +66,7 @@ namespace DG_TonKhoBTP_v02.UI.Setting
             string k = EnumStore.Group["Admin"];
             string per = "CAN_SET_DB";
 
-            if (!CoreHelper.CheckLoginAndPermission(k, per)) return;
+            //if (!CoreHelper.CheckLoginAndPermission(k, per)) return;
 
 
 
@@ -93,7 +93,7 @@ namespace DG_TonKhoBTP_v02.UI.Setting
             string k = EnumStore.Group["Admin"];
             string per = "CAN_SET_PRINTER";
 
-            if (!CoreHelper.CheckLoginAndPermission(k, per)) return;
+            //if (!CoreHelper.CheckLoginAndPermission(k, per)) return;
 
 
             string printerName = "";
@@ -123,7 +123,7 @@ namespace DG_TonKhoBTP_v02.UI.Setting
             string k = EnumStore.Group["Chung"];
             string per = "CAN_STOP_SOFTWARE";
 
-            if (!CoreHelper.CheckLoginAndPermission(k, per)) return;
+            //if (!CoreHelper.CheckLoginAndPermission(k, per)) return;
 
 
             string rtbMsg = rtbMessage.Text.Trim();

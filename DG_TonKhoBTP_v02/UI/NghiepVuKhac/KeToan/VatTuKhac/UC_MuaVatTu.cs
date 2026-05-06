@@ -50,6 +50,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
         private void setupUI()
         {
             lblTitle.Text = _KieuDon == 1 ? EnumStore.TieuDeFormVatTu.DON_DE_NGHI_VAT_TU : EnumStore.TieuDeFormVatTu.DON_DE_NGHI_DICH_VU;
+            nguoiDat.Text = UserContext.UserName;
 
             SetupDGVColumns();
         }

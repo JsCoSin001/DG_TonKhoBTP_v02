@@ -997,24 +997,24 @@ namespace DG_TonKhoBTP_v02.Helper
             FrmWaiting.ShowGifAlert("KHÔNG TÌM THẤY MÁY IN");
         }
 
-        public static bool CheckLoginAndPermission(string k, string requiredPermission = "CAN_WRITE")
-        {
-            if (!UserContext.IsAuthenticated)
-            {
-                FrmWaiting.ShowGifAlert(EnumStore.ThongBao.YeuCauDangNhap);
-                return false;
-            }
+        //public static bool CheckLoginAndPermission(string k, string requiredPermission = "CAN_WRITE")
+        //{
+        //    if (!UserContext.IsAuthenticated)
+        //    {
+        //        FrmWaiting.ShowGifAlert(EnumStore.ThongBao.YeuCauDangNhap);
+        //        return false;
+        //    }
 
-            if (!UserContext.PermissionsDict.TryGetValue(k, out var perms)
-                || perms == null
-                || !perms.Contains(requiredPermission))
-            {
-                FrmWaiting.ShowGifAlert(EnumStore.ThongBao.YeuCauCapQuyen);
-                return false;
-            }
+        //    if (!UserContext.PermissionsDict.TryGetValue(k, out var perms)
+        //        || perms == null
+        //        || !perms.Contains(requiredPermission))
+        //    {
+        //        FrmWaiting.ShowGifAlert(EnumStore.ThongBao.YeuCauCapQuyen);
+        //        return false;
+        //    }
 
-            return true;
-        }
+        //    return true;
+        //}
 
 
         public static void LoadUsersWithSameRoles(TreeView treeView)

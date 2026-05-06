@@ -47,17 +47,25 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
 
         private void showMuaVatTu(int kieuForm = 1) => ShowMediaControls(new UC_MuaVatTu(kieuForm));
 
-        private void xuấtKhoToolStripMenuItem_Click(object sender, EventArgs e) => ShowMediaControls(new UC_NhapXuatVatTu(false, 1, _dsKho));
+        private void xuấtKhoToolStripMenuItem_Click(object sender, EventArgs e)
+            => ShowMediaControls(new UC_NhapXuatVatTu(false, 1, _dsKho));
 
-        private void deNghiDichVuToolStrip_Click(object sender, EventArgs e) => showMuaVatTu(2); 
-        private void deNghiVatTuToolStrip_Click(object sender, EventArgs e) => showMuaVatTu(1);
-        private void nhapKhoVatTuToolStrip_Click(object sender, EventArgs e) => ShowMediaControls(new UC_NhapXuatVatTu(true,1, _dsKho));
+        private void deNghiDichVuToolStrip_Click(object sender, EventArgs e) 
+            => showMuaVatTu(2); 
 
-        private void xacNhanDichVuToolStrip_Click(object sender, EventArgs e) => ShowMediaControls(new UC_NhapXuatVatTu(true, 2, _dsKho));
+        private void deNghiVatTuToolStrip_Click(object sender, EventArgs e) 
+            => showMuaVatTu(1);
+        private void nhapKhoVatTuToolStrip_Click(object sender, EventArgs e) 
+            => ShowMediaControls(new UC_NhapXuatVatTu(true,1, _dsKho));
 
-        private void xuấtKhoToolStripMenuItem1_Click(object sender, EventArgs e) => ShowMediaControls(new UC_NhapXuatVatTu(false, 1, _dsKho));
+        private void xacNhanDichVuToolStrip_Click(object sender, EventArgs e) 
+            => ShowMediaControls(new UC_NhapXuatVatTu(true, 2, _dsKho));
 
-        private void timKiemToolStrip_Click(object sender, EventArgs e) => ShowMediaControls(new UC_BaoCao(_dsKho));
+        private void xuấtKhoToolStripMenuItem1_Click(object sender, EventArgs e) 
+            => ShowMediaControls(new UC_NhapXuatVatTu(false, 1, _dsKho));
+
+        private void timKiemToolStrip_Click(object sender, EventArgs e) 
+            => ShowMediaControls(new UC_BaoCao(_dsKho));
 
         private void ShowMediaControls(Control uc)
         {

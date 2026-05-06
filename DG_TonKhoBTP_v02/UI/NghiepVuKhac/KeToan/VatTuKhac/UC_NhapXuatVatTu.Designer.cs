@@ -33,15 +33,14 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             this.panel1 = new System.Windows.Forms.Panel();
             this.lblTitle = new System.Windows.Forms.Label();
             this.panel2 = new System.Windows.Forms.Panel();
             this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
-            this.label1 = new System.Windows.Forms.Label();
+            this.lblGiao_Nhan = new System.Windows.Forms.Label();
             this.txtNguoiGiaoNhan = new System.Windows.Forms.ComboBox();
             this.label5 = new System.Windows.Forms.Label();
-            this.tbxnguoiLam = new System.Windows.Forms.ComboBox();
             this.label3 = new System.Windows.Forms.Label();
             this.cbxKhoHang = new System.Windows.Forms.ComboBox();
             this.label2 = new System.Windows.Forms.Label();
@@ -75,6 +74,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
             this.NhaCungCap = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.ghiChu = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.xoa = new System.Windows.Forms.DataGridViewButtonColumn();
+            this.tbxnguoiLam = new System.Windows.Forms.TextBox();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.tableLayoutPanel3.SuspendLayout();
@@ -131,15 +131,15 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
             this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 126F));
             this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 46F));
-            this.tableLayoutPanel3.Controls.Add(this.label1, 0, 0);
+            this.tableLayoutPanel3.Controls.Add(this.lblGiao_Nhan, 0, 0);
             this.tableLayoutPanel3.Controls.Add(this.txtNguoiGiaoNhan, 1, 0);
             this.tableLayoutPanel3.Controls.Add(this.label5, 2, 0);
-            this.tableLayoutPanel3.Controls.Add(this.tbxnguoiLam, 3, 0);
             this.tableLayoutPanel3.Controls.Add(this.label3, 4, 0);
             this.tableLayoutPanel3.Controls.Add(this.cbxKhoHang, 5, 0);
             this.tableLayoutPanel3.Controls.Add(this.label2, 6, 0);
             this.tableLayoutPanel3.Controls.Add(this.cbxNhaCungCap, 7, 0);
             this.tableLayoutPanel3.Controls.Add(this.nbrIDNCC, 8, 0);
+            this.tableLayoutPanel3.Controls.Add(this.tbxnguoiLam, 3, 0);
             this.tableLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Top;
             this.tableLayoutPanel3.Location = new System.Drawing.Point(0, 55);
             this.tableLayoutPanel3.Name = "tableLayoutPanel3";
@@ -148,16 +148,16 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
             this.tableLayoutPanel3.Size = new System.Drawing.Size(1360, 62);
             this.tableLayoutPanel3.TabIndex = 1;
             // 
-            // label1
+            // lblGiao_Nhan
             // 
-            this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.label1.AutoSize = true;
-            this.label1.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(3, 22);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(144, 18);
-            this.label1.TabIndex = 0;
-            this.label1.Text = "Người giao hàng";
+            this.lblGiao_Nhan.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblGiao_Nhan.AutoSize = true;
+            this.lblGiao_Nhan.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblGiao_Nhan.Location = new System.Drawing.Point(3, 22);
+            this.lblGiao_Nhan.Name = "lblGiao_Nhan";
+            this.lblGiao_Nhan.Size = new System.Drawing.Size(144, 18);
+            this.lblGiao_Nhan.TabIndex = 0;
+            this.lblGiao_Nhan.Text = "Người giao hàng";
             // 
             // txtNguoiGiaoNhan
             // 
@@ -179,32 +179,6 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
             this.label5.TabIndex = 0;
             this.label5.Text = "Người làm";
             this.label5.TextAlign = System.Drawing.ContentAlignment.TopRight;
-            // 
-            // tbxnguoiLam
-            // 
-            this.tbxnguoiLam.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.tbxnguoiLam.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.tbxnguoiLam.FormattingEnabled = true;
-            this.tbxnguoiLam.Items.AddRange(new object[] {
-            "Người 1",
-            "Người 2",
-            "Người 3",
-            "Người 4",
-            "Người 5",
-            "Người 6",
-            "Người 7",
-            "Người 8",
-            "Người 9",
-            "Người 10",
-            "Người 11",
-            "Người 12",
-            "Người 13",
-            "Người 14",
-            "Người 15"});
-            this.tbxnguoiLam.Location = new System.Drawing.Point(453, 20);
-            this.tbxnguoiLam.Name = "tbxnguoiLam";
-            this.tbxnguoiLam.Size = new System.Drawing.Size(206, 27);
-            this.tbxnguoiLam.TabIndex = 7;
             // 
             // label3
             // 
@@ -432,14 +406,14 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
             // dgvChiTietDon
             // 
             this.dgvChiTietDon.AllowUserToAddRows = false;
-            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Control;
-            dataGridViewCellStyle1.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.WindowText;
-            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dgvChiTietDon.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle2.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dgvChiTietDon.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle2;
             this.dgvChiTietDon.ColumnHeadersHeight = 35;
             this.dgvChiTietDon.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
             this.dgvChiTietDon.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
@@ -565,6 +539,15 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
             this.xoa.UseColumnTextForButtonValue = true;
             this.xoa.Width = 70;
             // 
+            // tbxnguoiLam
+            // 
+            this.tbxnguoiLam.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.tbxnguoiLam.Enabled = false;
+            this.tbxnguoiLam.Location = new System.Drawing.Point(453, 17);
+            this.tbxnguoiLam.Name = "tbxnguoiLam";
+            this.tbxnguoiLam.Size = new System.Drawing.Size(206, 27);
+            this.tbxnguoiLam.TabIndex = 9;
+            // 
             // UC_NhapXuatVatTu
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 19F);
@@ -599,7 +582,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
         private System.Windows.Forms.Label lblTitle;
         private System.Windows.Forms.Panel panel2;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
-        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label lblGiao_Nhan;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.ComboBox txtNguoiGiaoNhan;
@@ -615,7 +598,6 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
         private System.Windows.Forms.FlowLayoutPanel fl;
         private System.Windows.Forms.RadioButton rdoLoai;
         private System.Windows.Forms.RadioButton radioButton2;
-        private System.Windows.Forms.ComboBox tbxnguoiLam;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel3;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.DateTimePicker dtNgayNhapXuat;
@@ -636,5 +618,6 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
         private System.Windows.Forms.DataGridViewTextBoxColumn ghiChu;
         private System.Windows.Forms.DataGridViewButtonColumn xoa;
         private System.Windows.Forms.NumericUpDown nbrIDNCC;
+        private System.Windows.Forms.TextBox tbxnguoiLam;
     }
 }

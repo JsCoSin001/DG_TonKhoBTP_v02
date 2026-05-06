@@ -139,7 +139,13 @@
     <Compile Include="Core\StateStore.cs" />
     <Compile Include="Database\DatabaseHelper - Copy.cs" />
     <Compile Include="Database\DatabaseHelper.cs" />
+    <Compile Include="Database\DB_Base.cs" />
+    <Compile Include="Database\DB_KiemKe.cs" />
+    <Compile Include="Database\DB_SanXuat.cs" />
+    <Compile Include="Database\DB_XuatNhapKho.cs" />
+    <Compile Include="Database\User\PermissionDbHelper.cs" />
     <Compile Include="Database\User_DatabaseHelper.cs" />
+    <Compile Include="Dictionary\AppContext.cs" />
     <Compile Include="Dictionary\EnumStore.cs" />
     <Compile Include="Dictionary\ThongTinChungCongDoan.cs" />
     <Compile Include="DL_Ben\AutoIncrementAttribute.cs" />

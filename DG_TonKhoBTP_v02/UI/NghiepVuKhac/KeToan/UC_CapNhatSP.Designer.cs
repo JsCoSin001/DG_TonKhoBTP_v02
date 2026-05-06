@@ -113,7 +113,7 @@
             this.tableLayoutPanel6.ColumnCount = 3;
             this.tableLayoutPanel6.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 64.65753F));
             this.tableLayoutPanel6.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 35.34246F));
-            this.tableLayoutPanel6.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 137F));
+            this.tableLayoutPanel6.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 138F));
             this.tableLayoutPanel6.Controls.Add(this.btnXoa, 1, 0);
             this.tableLayoutPanel6.Controls.Add(this.btnLuu, 2, 0);
             this.tableLayoutPanel6.Controls.Add(this.cbxExSanPham, 0, 0);
@@ -141,7 +141,7 @@
             this.btnLuu.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
             this.btnLuu.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnLuu.ForeColor = System.Drawing.SystemColors.Control;
-            this.btnLuu.Location = new System.Drawing.Point(393, 3);
+            this.btnLuu.Location = new System.Drawing.Point(392, 3);
             this.btnLuu.Name = "btnLuu";
             this.btnLuu.Size = new System.Drawing.Size(114, 46);
             this.btnLuu.TabIndex = 5;
@@ -204,6 +204,11 @@
             this.nbrDM_CU_AL.Name = "nbrDM_CU_AL";
             this.nbrDM_CU_AL.Size = new System.Drawing.Size(170, 28);
             this.nbrDM_CU_AL.TabIndex = 9;
+            this.nbrDM_CU_AL.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
             // 
             // donVi
             // 
@@ -379,7 +384,7 @@
             "Tên SP",
             "Nhà cung cấp",
             "Kho"});
-            this.cbxLoaiTimKiem.Location = new System.Drawing.Point(3, 18);
+            this.cbxLoaiTimKiem.Location = new System.Drawing.Point(3, 15);
             this.cbxLoaiTimKiem.Name = "cbxLoaiTimKiem";
             this.cbxLoaiTimKiem.Size = new System.Drawing.Size(153, 28);
             this.cbxLoaiTimKiem.TabIndex = 7;
@@ -388,7 +393,7 @@
             // 
             this.cbxMaSP.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbxMaSP.FormattingEnabled = true;
-            this.cbxMaSP.Location = new System.Drawing.Point(162, 18);
+            this.cbxMaSP.Location = new System.Drawing.Point(162, 15);
             this.cbxMaSP.Name = "cbxMaSP";
             this.cbxMaSP.Size = new System.Drawing.Size(363, 28);
             this.cbxMaSP.TabIndex = 8;

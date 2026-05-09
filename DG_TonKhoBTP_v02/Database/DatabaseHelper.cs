@@ -2357,7 +2357,7 @@ namespace DG_TonKhoBTP_v02.Database
                         cmd.Parameters["@DonGia"].Value = donGia;
 
                         cmd.Parameters["@TenPhieu"].Value = tenPhieu;
-                        cmd.Parameters["@Kho"].Value = kho;
+                        cmd.Parameters["@Kho"].Value = kho == 0 ? (object)DBNull.Value : kho;
                         cmd.Parameters["@nguoiLam"].Value = nguoiLam;
 
                         cmd.ExecuteNonQuery();

@@ -137,6 +137,7 @@
     <Compile Include="Core\ProviderAggregator.cs" />
     <Compile Include="Core\SectionMerger.cs" />
     <Compile Include="Core\StateStore.cs" />
+    <Compile Include="Database\Kho\NhapKho.cs" />
     <Compile Include="Database\DatabaseHelper - Copy.cs" />
     <Compile Include="Database\DatabaseHelper.cs" />
     <Compile Include="Database\DB_Base.cs" />
@@ -197,6 +198,12 @@
     </Compile>
     <Compile Include="UI\Helper\AutoSearchWithCombobox\ComboBoxSearchHelper.cs" />
     <Compile Include="UI\Helper\AutoSearchWithCombobox\VatTuPhu.cs" />
+    <Compile Include="UI\NghiepVuKhac\Kho\UC_NhapKho.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\NghiepVuKhac\Kho\UC_NhapKho.Designer.cs">
+      <DependentUpon>UC_NhapKho.cs</DependentUpon>
+    </Compile>
     <Compile Include="UI\NghiepVuKhac\KeToan\UC_KiemKe.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -443,6 +450,9 @@
     </Compile>
     <EmbeddedResource Include="UI\Authentication\FrmChangePassword.resx">
       <DependentUpon>FrmChangePassword.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\NghiepVuKhac\Kho\UC_NhapKho.resx">
+      <DependentUpon>UC_NhapKho.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UI\NghiepVuKhac\KeToan\UC_KiemKe.resx">
       <DependentUpon>UC_KiemKe.cs</DependentUpon>

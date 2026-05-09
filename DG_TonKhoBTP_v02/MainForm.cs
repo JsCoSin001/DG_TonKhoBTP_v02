@@ -14,6 +14,7 @@ using DG_TonKhoBTP_v02.UI.NghiepVu.KeHoach;
 using DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan;
 using DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu;
 using DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho;
+using DG_TonKhoBTP_v02.UI.NghiepVuKhac.ChatLuong;
 using DG_TonKhoBTP_v02.UI.Setting;
 using DocumentFormat.OpenXml.Office.SpreadSheetML.Y2023.MsForms;
 using QLDuLieuTonKho_BTP;
@@ -34,7 +35,7 @@ namespace DG_TonKhoBTP_v02
     {
         private string _URL = Properties.Settings.Default.URL;
         private CongDoanUiService _ui;
-        private string _ver = "2.6.0";
+        private string _ver = "2.6.1";
         private bool show = false;
         private void InitUiService()
         {
@@ -994,27 +995,37 @@ namespace DG_TonKhoBTP_v02
             homePage.Dock = DockStyle.Fill;
             homePage.lblVersion.Text = "Phiên bản: v" + _ver;
 
-            menuApp.Visible = false;
 
-            grbChucNang.Visible = true;
-            pnBC_TonKho.Visible = true;
-            pnKiemTraBC.Visible = false;
-            pnTruyVetDL.Visible = true;
-            pnUpdateMaHang.Visible = false;
-            pnTachBin.Visible = true;
-            pnGopBin_HanNoi.Visible = true;
-            pnHaLo_NhapLai.Visible = true;
-            pnVatTuPhu.Visible = false;
-            pnKiemKe.Visible = false;
-            grbKeHoach.Visible = false;
+            if (UserContext.IsAuthenticated)
+            {
+                SetThongTinUser();
+            }
+            else
+            {
+                menuApp.Visible = false;
 
-            grbBaoCao.Visible = true;
+                grbChucNang.Visible = true;
+                pnBC_TonKho.Visible = true;
+                pnKiemTraBC.Visible = false;
+                pnTruyVetDL.Visible = true;
+                pnUpdateMaHang.Visible = false;
+                pnTachBin.Visible = true;
+                pnGopBin_HanNoi.Visible = true;
+                pnHaLo_NhapLai.Visible = true;
+                pnVatTuPhu.Visible = false;
+                pnKiemKe.Visible = false;
+                grbKeHoach.Visible = false;
 
-            lblUserName.Text = "Đăng nhập";
-            lblChucDanh.Text = "Chưa đăng nhập";
+                grbBaoCao.Visible = true;
 
-            string iconAvatar = EnumStore.Icon.NoneLogin;
-            avatar.Image = Image.FromFile(@"Assets\" + iconAvatar + ".ico");
+                lblUserName.Text = "Đăng nhập";
+                lblChucDanh.Text = "Chưa đăng nhập";
+
+                string iconAvatar = EnumStore.Icon.NoneLogin;
+                avatar.Image = Image.FromFile(@"Assets\" + iconAvatar + ".ico");
+            }
+
+                
         }
 
         private void homeToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1238,14 +1249,6 @@ namespace DG_TonKhoBTP_v02
 
         private void PhanQuyen()
         {
-            setFunctionApp();
-            //SetupDefault(UserContext.IsAuthenticated);
-
-        }
-
-        private void setFunctionApp()
-        {
-
             this.MinimizeBox = UserContext.IsAuthenticated;
             this.MaximizeBox = UserContext.IsAuthenticated;
 
@@ -1270,12 +1273,8 @@ namespace DG_TonKhoBTP_v02
             // Cấu hình riêng: Bộ phận kế hoạch không có chức năng xem báo cáo => ẩn
             grbBaoCao.Visible = !UserContext.HasRole(RoleNames.Plan);
 
-            Console.WriteLine(!UserContext.HasRole(RoleNames.Plan));
 
         }
-
-
-
 
         private void đăngKýToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -1473,6 +1472,39 @@ namespace DG_TonKhoBTP_v02
                     pnShow.ResumeLayout(true);
                     waiting?.CloseAndDispose();
                     BtnKiemTraBc.Enabled = true;
+                }
+            }
+        }
+
+        private void btnNhapKho_Click(object sender, EventArgs e)
+        {
+            using (var waiting = new FrmWaiting("ĐANG KHỞI TẠO GIAO DIỆN..."))
+            {
+                try
+                {
+                    waiting.ShowAndRefresh();
+
+                    pnShow.SuspendLayout();
+                    pnShow.Visible = false;
+
+                    pnShow.Controls.Clear();
+
+                    var uc = new UC_NhapKho
+                    {
+                        Dock = DockStyle.Fill
+                    };
+                    pnShow.Controls.Add(uc);
+                }
+                catch (Exception ex)
+                {
+                    FrmWaiting.ShowGifAlert($"Lỗi khởi tạo giao diện cập nhật mã hàng: {ex.Message}");
+                }
+                finally
+                {
+                    pnShow.Visible = true;
+                    pnShow.ResumeLayout(true);
+                    waiting?.CloseAndDispose();
+                    btnCapNhatMaHang.Enabled = true;
                 }
             }
         }

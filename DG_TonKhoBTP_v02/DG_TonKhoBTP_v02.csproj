@@ -137,7 +137,7 @@
     <Compile Include="Core\ProviderAggregator.cs" />
     <Compile Include="Core\SectionMerger.cs" />
     <Compile Include="Core\StateStore.cs" />
-    <Compile Include="Database\Kho\NhapKho.cs" />
+    <Compile Include="Database\Kho\NhapKho_DB.cs" />
     <Compile Include="Database\DatabaseHelper - Copy.cs" />
     <Compile Include="Database\DatabaseHelper.cs" />
     <Compile Include="Database\DB_Base.cs" />
@@ -173,6 +173,7 @@
     <Compile Include="Models\KeHoach.cs" />
     <Compile Include="Models\KiemKe.cs" />
     <Compile Include="Models\LoginClass.cs" />
+    <Compile Include="Models\Kho\NhapKho_Model.cs" />
     <Compile Include="Models\OtherClass.cs" />
     <Compile Include="Models\ThongTinDatHangUpdateModel.cs" />
     <Compile Include="Printer\A4\A4Config.cs" />
@@ -198,6 +199,12 @@
     </Compile>
     <Compile Include="UI\Helper\AutoSearchWithCombobox\ComboBoxSearchHelper.cs" />
     <Compile Include="UI\Helper\AutoSearchWithCombobox\VatTuPhu.cs" />
+    <Compile Include="UI\NghiepVuKhac\Kho\Frm_DLCuon.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\NghiepVuKhac\Kho\Frm_DLCuon.Designer.cs">
+      <DependentUpon>Frm_DLCuon.cs</DependentUpon>
+    </Compile>
     <Compile Include="UI\NghiepVuKhac\Kho\UC_NhapKho.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -450,6 +457,9 @@
     </Compile>
     <EmbeddedResource Include="UI\Authentication\FrmChangePassword.resx">
       <DependentUpon>FrmChangePassword.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\NghiepVuKhac\Kho\Frm_DLCuon.resx">
+      <DependentUpon>Frm_DLCuon.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UI\NghiepVuKhac\Kho\UC_NhapKho.resx">
       <DependentUpon>UC_NhapKho.cs</DependentUpon>

@@ -10,7 +10,7 @@ using System.Windows.Forms;
 
 namespace DG_TonKhoBTP_v02.Database.ChatLuong
 {
-    public static class NhapKho
+    public static class NhapKho_DB
     {
         public static Task<DataTable> TimKiemMaBinAsync(string keyword, CancellationToken ct)
         {
@@ -47,44 +47,51 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
         }
 
         // ════════════════════════════════════════════════════════════════════════
-        // CHỨC NĂNG 1 – LƯU MỘT DÒNG MỚI (INSERT), trả về id vừa tạo
+        // CHỨC NĂNG 1 – NHẬP KHO (INSERT TTNhapKho + TTCuonDay), trả về id vừa tạo
         // ════════════════════════════════════════════════════════════════════════
 
         /// <summary>
-        /// INSERT một bản ghi vào TTNhapKho và cập nhật TTThanhPham.
-        /// Trả về id (rowid) vừa được tạo.
-        /// Ném ngoại lệ nếu thất bại.
+        /// INSERT một bản ghi vào TTNhapKho, sau đó INSERT từng dòng cuộn/lô
+        /// vào TTCuonDay (ThongTinNhapKho_ID = id vừa tạo), và cập nhật TTThanhPham.
+        /// Toàn bộ thực hiện trong 1 transaction – ném ngoại lệ nếu thất bại.
         /// </summary>
-        public static long LuuMotDong(
-            string ngay,
-            int soBB,
-            long ttThanhPhamId,
-            string tenSP,
-            double soMet,
-            string loaiDon,
-            string khachHang,
-            string ghiChu,
-            string loai,
-            double chieuCaoLo,
-            double tongChieuDai,
-            int soDau,
-            int soCuoi,
-            string thongTinCuon,
-            string nguoiLam)
+        /// <param name="model">Thông tin header nhập kho.</param>
+        /// <param name="dsCuon">
+        /// Danh sách cuộn / lô chi tiết (từ Frm_DLCuon).
+        /// Không được null; có thể rỗng nếu người dùng chưa nhập chi tiết.
+        /// </param>
+        /// <returns>id (rowid) của bản ghi TTNhapKho vừa tạo.</returns>
+        public static long NhapKho(
+            DG_TonKhoBTP_v02.Models.NhapKho_Model model,
+            List<DG_TonKhoBTP_v02.Models.ThongTinCuonDay> dsCuon)
         {
-            const string sqlInsert = @"
+            if (model == null) throw new ArgumentNullException(nameof(model));
+            if (dsCuon == null) dsCuon = new List<DG_TonKhoBTP_v02.Models.ThongTinCuonDay>();
+
+            bool isLo = model.Loai == "Lô";
+
+            // ── SQL INSERT TTNhapKho ────────────────────────────────────────────
+            const string sqlInsertNhapKho = @"
                 INSERT INTO TTNhapKho
                     (Ngay, SoBB, TTThanhPham_ID, TenSP, SoMet,
                      LoaiDon, KhachHang, GhiChu,
-                     Loai, ChieuCaoLo, TongChieuDai, SoDau, SoCuoi, ThongTinCuon,
+                     Loai, ChieuCaoLo,
                      NguoiLam)
                 VALUES
                     (@Ngay, @SoBB, @TTThanhPham_ID, @TenSP, @SoMet,
                      @LoaiDon, @KhachHang, @GhiChu,
-                     @Loai, @ChieuCaoLo, @TongChieuDai, @SoDau, @SoCuoi, @ThongTinCuon,
+                     @Loai, @ChieuCaoLo,
                      @NguoiLam);
                 SELECT last_insert_rowid();";
 
+            // ── SQL INSERT TTCuonDay ────────────────────────────────────────────
+            const string sqlInsertCuon = @"
+                INSERT INTO TTCuonDay
+                    (SoCuon,TongChieuDai, SoDau, SoCuoi, GhiChu, ThongTinNhapKho_ID)
+                VALUES
+                    (@SoCuon,@TongChieuDai, @SoDau, @SoCuoi, @GhiChu, @ThongTinNhapKho_ID);";
+
+            // ── SQL cập nhật TTThanhPham ────────────────────────────────────────
             const string sqlUpdateThanhPham = @"
                 UPDATE TTThanhPham
                 SET KhoiLuongSau = 0,
@@ -92,46 +99,74 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                     NhapKho      = 1
                 WHERE id = @id;";
 
-            bool isLo = loai == "Lô";
-
             using var conn = DB_Base.OpenConnection();
             using var tran = conn.BeginTransaction();
 
             try
             {
+                // ── Bước 1: INSERT TTNhapKho ────────────────────────────────────
                 long newId;
-
-                using (var cmd = new SQLiteCommand(sqlInsert, conn, tran))
+                using (var cmd = new SQLiteCommand(sqlInsertNhapKho, conn, tran))
                 {
-                    cmd.Parameters.AddWithValue("@Ngay", string.IsNullOrWhiteSpace(ngay) ? (object)DBNull.Value : ngay);
-                    cmd.Parameters.AddWithValue("@SoBB", soBB);
-                    cmd.Parameters.AddWithValue("@TTThanhPham_ID", ttThanhPhamId);
-                    cmd.Parameters.AddWithValue("@TenSP", string.IsNullOrWhiteSpace(tenSP) ? (object)DBNull.Value : tenSP);
-                    cmd.Parameters.AddWithValue("@SoMet", soMet);
-                    cmd.Parameters.AddWithValue("@LoaiDon", string.IsNullOrWhiteSpace(loaiDon) ? (object)DBNull.Value : loaiDon);
-                    cmd.Parameters.AddWithValue("@KhachHang", string.IsNullOrWhiteSpace(khachHang) ? (object)DBNull.Value : khachHang);
-                    cmd.Parameters.AddWithValue("@GhiChu", string.IsNullOrWhiteSpace(ghiChu) ? (object)DBNull.Value : ghiChu);
-                    cmd.Parameters.AddWithValue("@Loai", loai);
-                    cmd.Parameters.AddWithValue("@ChieuCaoLo", isLo ? (object)chieuCaoLo : DBNull.Value);
-                    cmd.Parameters.AddWithValue("@TongChieuDai", isLo ? (object)tongChieuDai : DBNull.Value);
-                    cmd.Parameters.AddWithValue("@SoDau", isLo ? (object)soDau : DBNull.Value);
-                    cmd.Parameters.AddWithValue("@SoCuoi", isLo ? (object)soCuoi : DBNull.Value);
-                    cmd.Parameters.AddWithValue("@ThongTinCuon", isLo ? (object)DBNull.Value : (string.IsNullOrWhiteSpace(thongTinCuon) ? (object)DBNull.Value : thongTinCuon));
-                    cmd.Parameters.AddWithValue("@NguoiLam", string.IsNullOrWhiteSpace(nguoiLam) ? (object)DBNull.Value : nguoiLam.Trim());
+                    cmd.Parameters.AddWithValue("@Ngay",
+                        string.IsNullOrWhiteSpace(model.Ngay) ? (object)DBNull.Value : model.Ngay);
+                    cmd.Parameters.AddWithValue("@SoBB", model.SoBB);
+                    cmd.Parameters.AddWithValue("@TTThanhPham_ID", model.TTThanhPham_ID);
+                    cmd.Parameters.AddWithValue("@TenSP",
+                        string.IsNullOrWhiteSpace(model.TenSP) ? (object)DBNull.Value : model.TenSP);
+                    cmd.Parameters.AddWithValue("@SoMet", model.SoMet);
+                    cmd.Parameters.AddWithValue("@LoaiDon",
+                        string.IsNullOrWhiteSpace(model.LoaiDon) ? (object)DBNull.Value : model.LoaiDon);
+                    cmd.Parameters.AddWithValue("@KhachHang",
+                        string.IsNullOrWhiteSpace(model.KhachHang) ? (object)DBNull.Value : model.KhachHang);
+                    cmd.Parameters.AddWithValue("@GhiChu",
+                        string.IsNullOrWhiteSpace(model.GhiChu) ? (object)DBNull.Value : model.GhiChu);
+                    cmd.Parameters.AddWithValue("@Loai", model.Loai);
+                    cmd.Parameters.AddWithValue("@ChieuCaoLo",
+                        isLo ? (object)model.ChieuCaoLo : DBNull.Value);
+                    cmd.Parameters.AddWithValue("@NguoiLam",
+                        string.IsNullOrWhiteSpace(model.NguoiLam) ? (object)DBNull.Value : model.NguoiLam.Trim());
 
                     newId = (long)cmd.ExecuteScalar();
                 }
 
-                using (var cmd2 = new SQLiteCommand(sqlUpdateThanhPham, conn, tran))
+                // ── Bước 2: INSERT từng dòng vào TTCuonDay ──────────────────────
+                if (dsCuon.Count > 0)
                 {
-                    cmd2.Parameters.AddWithValue("@id", ttThanhPhamId);
-                    int updated = cmd2.ExecuteNonQuery();
+                    using var cmdCuon = new SQLiteCommand(sqlInsertCuon, conn, tran);
+                    cmdCuon.Parameters.Add("@SoCuon", DbType.Int32);
+                    cmdCuon.Parameters.Add("@TongChieuDai", DbType.Int32);
+                    cmdCuon.Parameters.Add("@SoDau", DbType.Int32);
+                    cmdCuon.Parameters.Add("@SoCuoi", DbType.Int32);
+                    cmdCuon.Parameters.Add("@GhiChu", DbType.String);
+                    cmdCuon.Parameters.Add("@ThongTinNhapKho_ID", DbType.Int64);
 
-                    if (updated == 0)
-                        throw new InvalidOperationException("Không cập nhật được TTThanhPham sau khi nhập kho.");
+                    foreach (var cuon in dsCuon)
+                    {
+                        cmdCuon.Parameters["@SoCuon"].Value = cuon.SoCuon;
+                        cmdCuon.Parameters["@TongChieuDai"].Value = cuon.TongChieuDai;
+                        cmdCuon.Parameters["@SoDau"].Value = cuon.SoDau;
+                        cmdCuon.Parameters["@SoCuoi"].Value = cuon.SoCuoi;
+                        cmdCuon.Parameters["@GhiChu"].Value =
+                            string.IsNullOrWhiteSpace(cuon.Ghichu) ? (object)DBNull.Value : cuon.Ghichu;
+                        cmdCuon.Parameters["@ThongTinNhapKho_ID"].Value = newId;
+                        cmdCuon.ExecuteNonQuery();
+                    }
+                }
+
+                // ── Bước 3: Cập nhật TTThanhPham ────────────────────────────────
+                using (var cmd3 = new SQLiteCommand(sqlUpdateThanhPham, conn, tran))
+                {
+                    cmd3.Parameters.AddWithValue("@id", model.TTThanhPham_ID);
+                    if (cmd3.ExecuteNonQuery() == 0)
+                        throw new InvalidOperationException(
+                            $"Không cập nhật được TTThanhPham id={model.TTThanhPham_ID} sau khi nhập kho.");
                 }
 
                 tran.Commit();
+
+                // Ghi lại id vào model để caller có thể dùng ngay
+                model.Id = newId;
                 return newId;
             }
             catch
@@ -144,75 +179,75 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
         // ════════════════════════════════════════════════════════════════════════
         // CHỨC NĂNG 2 – CẬP NHẬT MỘT DÒNG ĐÃ CÓ (UPDATE theo id_NhapKho)
         // ════════════════════════════════════════════════════════════════════════
-
-        /// <summary>
-        /// UPDATE bản ghi TTNhapKho theo id. Luôn thực hiện đủ 3 bước trong 1 transaction:
-        ///   1. Rollback TTThanhPham cũ: ChieuDaiSau = soMetCu, NhapKho = 0
-        ///      (ttThanhPhamIdCu và soMetCu được truyền vào từ caller – lấy từ grid, không SELECT lại DB)
-        ///   2. UPDATE TTNhapKho với dữ liệu mới
-        ///   3. Cập nhật TTThanhPham mới: ChieuDaiSau = 0, NhapKho = 1
-        /// Ném ngoại lệ nếu bất kỳ bước nào thất bại (tự động rollback transaction).
-        /// </summary>
-        public static void CapNhatMotDong(
-            long idNhapKho,
-            long ttThanhPhamIdCu,   // lấy từ grid cell "TTThanhPham_ID"
-            double soMetCu,         // lấy từ grid cell "soMet"
-            string ngay,
-            int soBB,
-            long ttThanhPhamIdMoi,
-            string tenSP,
-            double soMet,
-            string loaiDon,
-            string khachHang,
-            string ghiChu,
-            string loai,
-            double chieuCaoLo,
-            double tongChieuDai,
-            int soDau,
-            int soCuoi,
-            string thongTinCuon,
-            string nguoiLam)
+        public static void CapNhatNhapKho(
+    long idNhapKho,
+    long ttThanhPhamIdCu,
+    double soMetCu,
+    DG_TonKhoBTP_v02.Models.NhapKho_Model model,
+    List<DG_TonKhoBTP_v02.Models.ThongTinCuonDay> dsCuon,
+    bool capNhatTTCuonDay)
         {
-            bool isLo = loai == "Lô";
+            if (idNhapKho <= 0)
+                throw new ArgumentException("idNhapKho không hợp lệ.", nameof(idNhapKho));
+
+            if (ttThanhPhamIdCu <= 0)
+                throw new ArgumentException("ttThanhPhamIdCu không hợp lệ.", nameof(ttThanhPhamIdCu));
+
+            if (model == null)
+                throw new ArgumentNullException(nameof(model));
+
+            if (model.TTThanhPham_ID <= 0)
+                throw new ArgumentException("TTThanhPham_ID mới không hợp lệ.", nameof(model));
+
+            if (capNhatTTCuonDay && (dsCuon == null || dsCuon.Count == 0))
+                throw new InvalidOperationException("Không có dữ liệu TTCuonDay mới để cập nhật.");
+
+            bool isLo = model.Loai == "Lô";
 
             const string sqlRollbackCu = @"
-                UPDATE TTThanhPham
-                SET ChieuDaiSau = @SoMetCu,
-                    NhapKho     = 0
-                WHERE id = @idCu;";
+        UPDATE TTThanhPham
+        SET ChieuDaiSau = @SoMetCu,
+            NhapKho     = 0
+        WHERE id = @idCu;";
 
             const string sqlUpdateNhapKho = @"
-                UPDATE TTNhapKho SET
-                    Ngay           = @Ngay,
-                    SoBB           = @SoBB,
-                    TTThanhPham_ID = @TTThanhPham_ID,
-                    TenSP          = @TenSP,
-                    SoMet          = @SoMet,
-                    LoaiDon        = @LoaiDon,
-                    KhachHang      = @KhachHang,
-                    GhiChu         = @GhiChu,
-                    Loai           = @Loai,
-                    ChieuCaoLo     = @ChieuCaoLo,
-                    TongChieuDai   = @TongChieuDai,
-                    SoDau          = @SoDau,
-                    SoCuoi         = @SoCuoi,
-                    ThongTinCuon   = @ThongTinCuon,
-                    NguoiLam       = @NguoiLam
-                WHERE id = @id;";
+        UPDATE TTNhapKho SET
+            Ngay           = @Ngay,
+            SoBB           = @SoBB,
+            TTThanhPham_ID = @TTThanhPham_ID,
+            TenSP          = @TenSP,
+            SoMet          = @SoMet,
+            LoaiDon        = @LoaiDon,
+            KhachHang      = @KhachHang,
+            GhiChu         = @GhiChu,
+            Loai           = @Loai,
+            ChieuCaoLo     = @ChieuCaoLo,
+            NguoiLam       = @NguoiLam
+        WHERE id = @id;";
+
+            const string sqlDeleteCuonDay = @"
+        DELETE FROM TTCuonDay
+        WHERE ThongTinNhapKho_ID = @ThongTinNhapKho_ID;";
+
+            const string sqlInsertCuonDay = @"
+        INSERT INTO TTCuonDay
+            (SoCuon, TongChieuDai, SoDau, SoCuoi, GhiChu, ThongTinNhapKho_ID)
+        VALUES
+            (@SoCuon, @TongChieuDai, @SoDau, @SoCuoi, @GhiChu, @ThongTinNhapKho_ID);";
 
             const string sqlCapNhatMoi = @"
-                UPDATE TTThanhPham
-                SET ChieuDaiSau = 0,
-                    NhapKho     = 1
-                WHERE id = @idMoi;";
+        UPDATE TTThanhPham
+        SET KhoiLuongSau = 0,
+            ChieuDaiSau  = 0,
+            NhapKho      = 1
+        WHERE id = @idMoi;";
 
             using var conn = DB_Base.OpenConnection();
             using var tran = conn.BeginTransaction();
 
             try
             {
-                // ── Bước 1: Rollback TTThanhPham cũ ────────────────────────────────
-                // ttThanhPhamIdCu và soMetCu đã được caller đọc từ grid → không cần SELECT lại DB
+                // Bước 1: Rollback TTThanhPham cũ.
                 using (var cmd = new SQLiteCommand(sqlRollbackCu, conn, tran))
                 {
                     cmd.Parameters.AddWithValue("@SoMetCu", soMetCu);
@@ -223,39 +258,87 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                             $"Không rollback được TTThanhPham id={ttThanhPhamIdCu}.");
                 }
 
-                // ── Bước 2: UPDATE TTNhapKho ────────────────────────────────────────
+                // Bước 2: Update header TTNhapKho theo schema mới.
                 using (var cmd = new SQLiteCommand(sqlUpdateNhapKho, conn, tran))
                 {
                     cmd.Parameters.AddWithValue("@id", idNhapKho);
-                    cmd.Parameters.AddWithValue("@Ngay", string.IsNullOrWhiteSpace(ngay) ? (object)DBNull.Value : ngay);
-                    cmd.Parameters.AddWithValue("@SoBB", soBB);
-                    cmd.Parameters.AddWithValue("@TTThanhPham_ID", ttThanhPhamIdMoi);
-                    cmd.Parameters.AddWithValue("@TenSP", string.IsNullOrWhiteSpace(tenSP) ? (object)DBNull.Value : tenSP);
-                    cmd.Parameters.AddWithValue("@SoMet", soMet);
-                    cmd.Parameters.AddWithValue("@LoaiDon", string.IsNullOrWhiteSpace(loaiDon) ? (object)DBNull.Value : loaiDon);
-                    cmd.Parameters.AddWithValue("@KhachHang", string.IsNullOrWhiteSpace(khachHang) ? (object)DBNull.Value : khachHang);
-                    cmd.Parameters.AddWithValue("@GhiChu", string.IsNullOrWhiteSpace(ghiChu) ? (object)DBNull.Value : ghiChu);
-                    cmd.Parameters.AddWithValue("@Loai", loai);
-                    cmd.Parameters.AddWithValue("@ChieuCaoLo", isLo ? (object)chieuCaoLo : DBNull.Value);
-                    cmd.Parameters.AddWithValue("@TongChieuDai", isLo ? (object)tongChieuDai : DBNull.Value);
-                    cmd.Parameters.AddWithValue("@SoDau", isLo ? (object)soDau : DBNull.Value);
-                    cmd.Parameters.AddWithValue("@SoCuoi", isLo ? (object)soCuoi : DBNull.Value);
-                    cmd.Parameters.AddWithValue("@ThongTinCuon", isLo ? (object)DBNull.Value : (string.IsNullOrWhiteSpace(thongTinCuon) ? (object)DBNull.Value : thongTinCuon));
-                    cmd.Parameters.AddWithValue("@NguoiLam", string.IsNullOrWhiteSpace(nguoiLam) ? (object)DBNull.Value : nguoiLam.Trim());
+
+                    cmd.Parameters.AddWithValue("@Ngay",
+                        string.IsNullOrWhiteSpace(model.Ngay) ? (object)DBNull.Value : model.Ngay);
+
+                    cmd.Parameters.AddWithValue("@SoBB", model.SoBB);
+                    cmd.Parameters.AddWithValue("@TTThanhPham_ID", model.TTThanhPham_ID);
+
+                    cmd.Parameters.AddWithValue("@TenSP",
+                        string.IsNullOrWhiteSpace(model.TenSP) ? (object)DBNull.Value : model.TenSP);
+
+                    cmd.Parameters.AddWithValue("@SoMet", model.SoMet);
+
+                    cmd.Parameters.AddWithValue("@LoaiDon",
+                        string.IsNullOrWhiteSpace(model.LoaiDon) ? (object)DBNull.Value : model.LoaiDon);
+
+                    cmd.Parameters.AddWithValue("@KhachHang",
+                        string.IsNullOrWhiteSpace(model.KhachHang) ? (object)DBNull.Value : model.KhachHang);
+
+                    cmd.Parameters.AddWithValue("@GhiChu",
+                        string.IsNullOrWhiteSpace(model.GhiChu) ? (object)DBNull.Value : model.GhiChu);
+
+                    cmd.Parameters.AddWithValue("@Loai",
+                        string.IsNullOrWhiteSpace(model.Loai) ? (object)DBNull.Value : model.Loai);
+
+                    cmd.Parameters.AddWithValue("@ChieuCaoLo",
+                        isLo ? (object)model.ChieuCaoLo : DBNull.Value);
+
+                    cmd.Parameters.AddWithValue("@NguoiLam",
+                        string.IsNullOrWhiteSpace(model.NguoiLam) ? (object)DBNull.Value : model.NguoiLam.Trim());
 
                     if (cmd.ExecuteNonQuery() == 0)
                         throw new InvalidOperationException(
                             $"Không cập nhật được TTNhapKho id={idNhapKho}.");
                 }
 
-                // ── Bước 3: Cập nhật TTThanhPham mới ───────────────────────────────
+                // Bước 3: Chỉ update TTCuonDay nếu người dùng đã sửa trong Frm_DLCuon.
+                if (capNhatTTCuonDay)
+                {
+                    using (var cmd = new SQLiteCommand(sqlDeleteCuonDay, conn, tran))
+                    {
+                        cmd.Parameters.AddWithValue("@ThongTinNhapKho_ID", idNhapKho);
+                        cmd.ExecuteNonQuery();
+                    }
+
+                    using var cmdInsertCuon = new SQLiteCommand(sqlInsertCuonDay, conn, tran);
+
+                    cmdInsertCuon.Parameters.Add("@SoCuon", DbType.Int32);
+                    cmdInsertCuon.Parameters.Add("@TongChieuDai", DbType.Int32);
+                    cmdInsertCuon.Parameters.Add("@SoDau", DbType.Int32);
+                    cmdInsertCuon.Parameters.Add("@SoCuoi", DbType.Int32);
+                    cmdInsertCuon.Parameters.Add("@GhiChu", DbType.String);
+                    cmdInsertCuon.Parameters.Add("@ThongTinNhapKho_ID", DbType.Int64);
+
+                    foreach (var cuon in dsCuon)
+                    {
+                        cmdInsertCuon.Parameters["@SoCuon"].Value = cuon.SoCuon;
+                        cmdInsertCuon.Parameters["@TongChieuDai"].Value = cuon.TongChieuDai;
+                        cmdInsertCuon.Parameters["@SoDau"].Value = cuon.SoDau;
+                        cmdInsertCuon.Parameters["@SoCuoi"].Value = cuon.SoCuoi;
+
+                        cmdInsertCuon.Parameters["@GhiChu"].Value =
+                            string.IsNullOrWhiteSpace(cuon.Ghichu) ? (object)DBNull.Value : cuon.Ghichu;
+
+                        cmdInsertCuon.Parameters["@ThongTinNhapKho_ID"].Value = idNhapKho;
+
+                        cmdInsertCuon.ExecuteNonQuery();
+                    }
+                }
+
+                // Bước 4: Cập nhật TTThanhPham mới.
                 using (var cmd = new SQLiteCommand(sqlCapNhatMoi, conn, tran))
                 {
-                    cmd.Parameters.AddWithValue("@idMoi", ttThanhPhamIdMoi);
+                    cmd.Parameters.AddWithValue("@idMoi", model.TTThanhPham_ID);
 
                     if (cmd.ExecuteNonQuery() == 0)
                         throw new InvalidOperationException(
-                            $"Không cập nhật được TTThanhPham mới id={ttThanhPhamIdMoi}.");
+                            $"Không cập nhật được TTThanhPham mới id={model.TTThanhPham_ID}.");
                 }
 
                 tran.Commit();
@@ -266,6 +349,7 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                 throw;
             }
         }
+
 
         // ════════════════════════════════════════════════════════════════════════
         // GIỮ NGUYÊN – LuuDanhSachNhapKho (batch insert từ grid – dùng nếu cần)
@@ -388,7 +472,12 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
         {
             keyword = keyword?.Trim() ?? string.Empty;
 
-            string keywordDate = keyword;
+            string keywordDateDMY = keyword;
+            string keywordDateISO = keyword;
+
+            int? keywordSoBB = null;
+            if (int.TryParse(keyword, out int soBB))
+                keywordSoBB = soBB;
 
             string[] dateFormats =
             {
@@ -404,52 +493,72 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                     System.Globalization.DateTimeStyles.None,
                     out DateTime parsedDate))
             {
-                keywordDate = parsedDate.ToString("dd/MM/yyyy");
+                keywordDateDMY = parsedDate.ToString("dd/MM/yyyy");
+                keywordDateISO = parsedDate.ToString("yyyy-MM-dd");
             }
 
             const string sql = @"
+            WITH found AS
+            (
                 SELECT
                     nk.id                   AS id_NhapKho,
                     nk.TTThanhPham_ID       AS TTThanhPham_ID,
-                    nk.Ngay                 AS ngay,
+
+                    CASE
+                        WHEN nk.Ngay LIKE '____-__-__'
+                        THEN strftime('%d/%m/%Y', nk.Ngay)
+                        ELSE nk.Ngay
+                    END                     AS ngay,
+
                     nk.SoBB                 AS soBB,
                     nk.TenSP                AS tenSP,
                     IFNULL(tp.MaBin, '')    AS maBin2,
                     nk.SoMet                AS soMet,
                     nk.LoaiDon              AS loaiDon,
                     nk.KhachHang            AS khachHang,
-                    nk.SoDau                AS soDau,
-                    nk.SoCuoi               AS soCuoi,
                     nk.Loai                 AS loai,
                     nk.ChieuCaoLo           AS chieuCaoLo,
-                    nk.TongChieuDai         AS tongChieuDai,
-                    nk.ThongTinCuon         AS cuon,
                     nk.GhiChu               AS ghiChu
+
                 FROM TTNhapKho nk
                 LEFT JOIN TTThanhPham tp ON tp.id = nk.TTThanhPham_ID
                 WHERE
-                       nk.TenSP LIKE @keyword
-                    OR nk.Ngay LIKE @keyword
-                    OR nk.Ngay LIKE @keywordDate
-                    OR CAST(nk.SoBB AS TEXT) LIKE @keyword
-                    OR IFNULL(tp.MaBin, '') LIKE @keyword
+                       TRIM(IFNULL(nk.TenSP, '')) = @keyword COLLATE NOCASE
+                    OR TRIM(IFNULL(nk.Ngay, '')) = @keyword COLLATE NOCASE
+                    OR TRIM(IFNULL(nk.Ngay, '')) = @keywordDateDMY COLLATE NOCASE
+                    OR TRIM(IFNULL(nk.Ngay, '')) = @keywordDateISO COLLATE NOCASE
+                    OR (@keywordSoBB IS NOT NULL AND nk.SoBB = @keywordSoBB)
+                    OR TRIM(IFNULL(tp.MaBin, '')) = @keyword COLLATE NOCASE
                 ORDER BY nk.id DESC
-                LIMIT 200;";
+                LIMIT 200
+            )
+            SELECT
+                f.*,
+                cd.SoCuon       AS ct_SoCuon,
+                cd.TongChieuDai AS ct_TongChieuDai,
+                cd.SoDau        AS ct_SoDau,
+                cd.SoCuoi       AS ct_SoCuoi,
+                cd.GhiChu       AS ct_GhiChu
+            FROM found f
+            LEFT JOIN TTCuonDay cd
+                    ON cd.ThongTinNhapKho_ID = f.id_NhapKho
+            ORDER BY f.id_NhapKho DESC, cd.rowid;";
 
             DataTable dt = new DataTable();
 
             using var conn = DB_Base.OpenConnection();
             using var cmd = new SQLiteCommand(sql, conn);
 
-            cmd.Parameters.AddWithValue("@keyword", "%" + keyword + "%");
-            cmd.Parameters.AddWithValue("@keywordDate", "%" + keywordDate + "%");
+            cmd.Parameters.AddWithValue("@keyword", keyword);
+            cmd.Parameters.AddWithValue("@keywordDateDMY", keywordDateDMY);
+            cmd.Parameters.AddWithValue("@keywordDateISO", keywordDateISO);
+            cmd.Parameters.AddWithValue("@keywordSoBB", keywordSoBB.HasValue ? (object)keywordSoBB.Value : DBNull.Value);
 
             using var adapter = new SQLiteDataAdapter(cmd);
             adapter.Fill(dt);
 
             return dt;
         }
-
         public static void XoaMotDong(long idNhapKho, long ttThanhPhamId, double soMet)
         {
             const string sqlRollback = @"
@@ -495,6 +604,47 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                 tran.Rollback();
                 throw;
             }
+        }
+
+        public static List<DG_TonKhoBTP_v02.Models.ThongTinCuonDay> LayThongTinCuonDay(long idNhapKho)
+        {
+            List<DG_TonKhoBTP_v02.Models.ThongTinCuonDay> result =
+                new List<DG_TonKhoBTP_v02.Models.ThongTinCuonDay>();
+
+            if (idNhapKho <= 0)
+                return result;
+
+            const string sql = @"
+        SELECT
+            SoCuon,
+            TongChieuDai,
+            SoDau,
+            SoCuoi,
+            GhiChu
+        FROM TTCuonDay
+        WHERE ThongTinNhapKho_ID = @ThongTinNhapKho_ID
+        ORDER BY id;";
+
+            using var conn = DB_Base.OpenConnection();
+            using var cmd = new SQLiteCommand(sql, conn);
+
+            cmd.Parameters.AddWithValue("@ThongTinNhapKho_ID", idNhapKho);
+
+            using SQLiteDataReader reader = cmd.ExecuteReader();
+
+            while (reader.Read())
+            {
+                result.Add(new DG_TonKhoBTP_v02.Models.ThongTinCuonDay
+                {
+                    SoCuon = reader["SoCuon"] == DBNull.Value ? 0 : Convert.ToInt32(reader["SoCuon"]),
+                    TongChieuDai = reader["TongChieuDai"] == DBNull.Value ? 0 : Convert.ToInt32(reader["TongChieuDai"]),
+                    SoDau = reader["SoDau"] == DBNull.Value ? 0 : Convert.ToInt32(reader["SoDau"]),
+                    SoCuoi = reader["SoCuoi"] == DBNull.Value ? 0 : Convert.ToInt32(reader["SoCuoi"]),
+                    Ghichu = reader["GhiChu"] == DBNull.Value ? string.Empty : reader["GhiChu"].ToString()
+                });
+            }
+
+            return result;
         }
 
         // ════════════════════════════════════════════════════════════════════════

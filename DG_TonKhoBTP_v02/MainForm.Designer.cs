@@ -174,7 +174,7 @@ namespace DG_TonKhoBTP_v02
             this.groupBox1.Size = new System.Drawing.Size(185, 83);
             this.groupBox1.TabIndex = 4;
             this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "CHẤT LƯỢNG";
+            this.groupBox1.Text = "KHO";
             // 
             // panel2
             // 

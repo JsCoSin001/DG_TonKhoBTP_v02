@@ -39,12 +39,44 @@ namespace DG_TonKhoBTP_v02.Helper
         }
 
 
+        public static string TaoChuoiThongTinCuonDay( List<ThongTinCuonDay> ds, bool isCuon, decimal chieuCaoLo)
+        {
+            if (ds == null || ds.Count == 0)
+                return string.Empty;
+
+            if (isCuon)
+            {
+                return string.Join(" + ", ds.Select(x =>
+                    x.SoCuon == 1
+                        ? $"{x.TongChieuDai}"
+                        : $"{x.SoCuon}c x {x.TongChieuDai}"
+                ));
+            }
+
+            var chieuCaoLoText = chieuCaoLo.ToString(CultureInfo.InvariantCulture);
+
+            return string.Join(" + ", ds.Select(x =>
+                $"L{chieuCaoLoText} {x.TongChieuDai}({x.SoDau:D2}-{x.SoCuoi:D2})"
+            ));
+        }
+
+
+
+
         public static string TaoMaDon_Khac()
         {
             var now = DateTime.Now;
             return $"Khac_{now.Day:D2}_{now.Month:D2}_{now.Year}_{now.Hour:D2}_{now.Minute:D2}";
         
         }
+
+        public static string ChuanHoaChuoiCuonDay(string input)
+        {
+            return Regex.Replace(input ?? string.Empty, @"\s+", "")
+                        .Replace(',', '.')
+                        .ToUpperInvariant();
+        }
+                
 
         public static string BoDauTiengViet(string text)
         {

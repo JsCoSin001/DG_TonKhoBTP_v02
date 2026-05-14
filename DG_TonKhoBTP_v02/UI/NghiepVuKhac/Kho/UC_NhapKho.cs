@@ -1,14 +1,17 @@
-﻿using DG_TonKhoBTP_v02.Database.ChatLuong;
+﻿using DG_TonKhoBTP_v02.Database;
+using DG_TonKhoBTP_v02.Database.ChatLuong;
 using DG_TonKhoBTP_v02.Models;
+using DG_TonKhoBTP_v02.Printer.TemXuatHang;
 using DG_TonKhoBTP_v02.UI.Helper.AutoSearchWithCombobox;
 using DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho;
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
-using System.Collections.Generic;
+using System.Linq;
 using System.Windows.Forms;
 using CoreHelper = DG_TonKhoBTP_v02.Helper.Helper;
-using DG_TonKhoBTP_v02.Database;
+using FontStyle = System.Drawing.FontStyle;
 
 namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.ChatLuong
 {
@@ -395,10 +398,10 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.ChatLuong
 
             string[] dateFormats =
             {
-        "dd/MM/yyyy", "d/M/yyyy",
-        "yyyy-MM-dd",
-        "dd-MM-yyyy", "d-M-yyyy"
-    };
+                "dd/MM/yyyy", "d/M/yyyy",
+                "yyyy-MM-dd",
+                "dd-MM-yyyy", "d-M-yyyy"
+            };
 
             if (DateTime.TryParseExact(
                     ngayText,
@@ -497,9 +500,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.ChatLuong
                 tbxThongTinDay.Text = string.Empty;
                 _ttCuonDayChanged = false;
 
-                MessageBox.Show(
-                    $"Lỗi khi tải thông tin cuộn/dây:\n{ex.Message}",
-                    "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                FrmWaiting.ShowGifAlert($"Lỗi khi tải thông tin cuộn/dây:\n{ex.Message}");
+
             }
 
             rtbGhiChu.Text = row.Cells["ghiChu"].Value?.ToString() ?? string.Empty;
@@ -740,14 +742,29 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.ChatLuong
                 ? new List<ThongTinCuonDay>()
                 : new List<ThongTinCuonDay>(thongTinDayNhapKho);
 
-            Frm_DLCuon frm = new Frm_DLCuon(
+            using (Frm_DLCuon frm = new Frm_DLCuon(
                 isCuon: isCuon,
                 thongTinCuonHienTai: duLieuHienTai
-            );
-
-            if (frm.ShowDialog() == DialogResult.OK)
+            ))
             {
-                thongTinDayNhapKho = frm.ThongTinCuon ?? new List<ThongTinCuonDay>();
+                if (frm.ShowDialog() != DialogResult.OK)
+                    return;
+
+                List<ThongTinCuonDay> duLieuMoi =
+                    frm.ThongTinCuon ?? new List<ThongTinCuonDay>();
+
+                decimal tongCD = duLieuMoi.Sum(x => (decimal)x.SoCuon * x.TongChieuDai);
+                decimal soMet = nbSoMet.Value;
+
+                if (tongCD != soMet)
+                {
+                    FrmWaiting.ShowGifAlert("Tổng chiều dài các cuộn không hợp lệ");
+
+                    duLieuMoi.Clear();
+                    return;
+                }
+
+                thongTinDayNhapKho = duLieuMoi;
 
                 tbxThongTinDay.Text = CoreHelper.TaoChuoiThongTinCuonDay(
                     thongTinDayNhapKho,
@@ -847,9 +864,73 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.ChatLuong
                 : 0;
         }
 
+
+
+        // ── Cấu hình cố định (khai báo 1 lần, dùng lại) ─────────────────────
+        // Đường dẫn ảnh: thay bằng đường dẫn thực tế trong project của bạn
+        private static readonly LabelPrintConfig _printConfig = LabelPrintConfig.CreateDefault(
+            logoSmallPath: @"Assets\Tem\Goldcup-logo.png",    
+            certLogoPath: @"Assets\Tem\Certificate.png",      
+            kcsLogoPath: @"Assets\Tem\kcs.png",      
+            publishedDate: "Ban hành: 13/12/2025"
+        );
+
         private void btnXemDL_Click(object sender, EventArgs e)
         {
+            // 1. Xây dựng danh sách tem cần in
+            //    (thực tế: lấy từ database / DataGridView / BindingSource...)
+            var labels = new List<LabelData>
+            {
+                new LabelData
+                {
+                    ProductType    = "Cáp ngầm nhôm 0.6/1kV\nAL/XLPE/PVC/DSTA/PVC 4x150mm2",
+                    ProductCode    = "E10-261743/7-01",
+                    Length         = "180 m",
+                    LengthRange    = "( 0000 ~ 0180 )",
+                    CableWeight    = "730 Kg",
+                    TotalWeight    = "945 Kg",
+                    InspectionDate = "23/04/2026",
+                    Inspector      = "Nguyễn Huy Toàn-DG112",
+                    QualityResult  = "Đạt",
+                    Standard       = "IEC 60502-1",
+                    Project        = ""                         // để trống nếu không có dự án
+                },
+                
+            };
 
+            // 2. Gọi service in
+            using (var svc = new LabelPrintService())
+            {
+                // ShowPreview = true → mở cửa sổ xem trước, người dùng chọn "Print" để in thật
+                // ShowPreview = false → in thẳng ra máy in mặc định
+                _printConfig.ShowPreview = true;
+
+                svc.Print(labels, _printConfig, ownerForm: this.FindForm());
+            }
+        }
+
+        // ── Lấy danh sách LabelData từ DataGridView (ví dụ thực tế hơn) ─────
+        private List<LabelData> GetLabelsFromGrid(DataGridView dgv)
+        {
+            var result = new List<LabelData>();
+            foreach (DataGridViewRow row in dgv.SelectedRows)
+            {
+                result.Add(new LabelData
+                {
+                    ProductType = row.Cells["colProductType"].Value?.ToString() ?? "",
+                    ProductCode = row.Cells["colProductCode"].Value?.ToString() ?? "",
+                    Length = row.Cells["colLength"].Value?.ToString() ?? "",
+                    LengthRange = row.Cells["colLengthRange"].Value?.ToString() ?? "",
+                    CableWeight = row.Cells["colCableWeight"].Value?.ToString() ?? "",
+                    TotalWeight = row.Cells["colTotalWeight"].Value?.ToString() ?? "",
+                    InspectionDate = row.Cells["colInspectionDate"].Value?.ToString() ?? "",
+                    Inspector = row.Cells["colInspector"].Value?.ToString() ?? "",
+                    QualityResult = row.Cells["colQualityResult"].Value?.ToString() ?? "",
+                    Standard = row.Cells["colStandard"].Value?.ToString() ?? "",
+                    Project = row.Cells["colProject"].Value?.ToString() ?? ""
+                });
+            }
+            return result;
         }
     }
 }

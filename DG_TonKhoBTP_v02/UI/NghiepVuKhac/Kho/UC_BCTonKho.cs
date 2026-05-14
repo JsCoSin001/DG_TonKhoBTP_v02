@@ -3,27 +3,27 @@ using DG_TonKhoBTP_v02.Database;
 using DG_TonKhoBTP_v02.Dictionary;
 using DG_TonKhoBTP_v02.Helper;
 using DG_TonKhoBTP_v02.Models;
-using DG_TonKhoBTP_v02.Printer;
+using DG_TonKhoBTP_v02.Models.Kho;
 using DG_TonKhoBTP_v02.UI.Helper;
-using DocumentFormat.OpenXml.Office2010.Excel;
-using DocumentFormat.OpenXml.Office2019.Excel.RichData2;
+using DocumentFormat.OpenXml;
+using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Wordprocessing;
 using System;
-using CoreHelper = DG_TonKhoBTP_v02.Helper.Helper;
 using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
+using Control = System.Windows.Forms.Control;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using CoreHelper = DG_TonKhoBTP_v02.Helper.Helper;
+using CheckBox = System.Windows.Forms.CheckBox;
 
 namespace DG_TonKhoBTP_v02.UI
 {
-    public partial class UC_TonKho : UserControl
+    public partial class UC_BCTonKho : UserControl
     {
 
         private CancellationTokenSource _searchCts;
-        public UC_TonKho()
+        public UC_BCTonKho()
         {
             InitializeComponent();
             cbxKeoRut.Tag = ThongTinChungCongDoan.KeoRut;
@@ -387,5 +387,44 @@ namespace DG_TonKhoBTP_v02.UI
             dtKetThuc.Enabled = !cbxBaoCaoTon.Checked;
 
         }
+
+        private void btnTaoBC_Khach_Click(object sender, EventArgs e)
+        {
+            var model = new LotCode
+            {
+                SoM = "50",
+                ChieuCao = "3",
+                SoDau = "1",
+                SoThuTu = "02",
+                TenKhach = "ABC",
+                SoCuoi = "5",
+                KHSX = "KHSX01",
+                MauSac = "Do"
+            };
+
+            using var dialog = new SaveFileDialog
+            {
+                Filter = "Word Document (*.docx)|*.docx",
+                FileName = $"LotCode_{model.SoM}_{DateTime.Now:yyyyMMdd_HHmmss}.docx"
+            };
+
+            if (dialog.ShowDialog() != DialogResult.OK) return;
+
+            try
+            {
+                LotCodeDocxWriter.Write(model, dialog.FileName);
+                MessageBox.Show("Xuất file thành công!", "Thông báo",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi: {ex.Message}", "Lỗi",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+
+        
+
     }
 }

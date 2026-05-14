@@ -34,6 +34,8 @@ namespace DG_TonKhoBTP_v02
             this.pnLeft = new System.Windows.Forms.Panel();
             this.fpnButton = new System.Windows.Forms.Panel();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.panel3 = new System.Windows.Forms.Panel();
+            this.btnXuatKho = new DG_TonKhoBTP_v02.UI.Component.CustomButton();
             this.panel2 = new System.Windows.Forms.Panel();
             this.btnNhapKho = new DG_TonKhoBTP_v02.UI.Component.CustomButton();
             this.grbKeHoach = new System.Windows.Forms.GroupBox();
@@ -100,6 +102,7 @@ namespace DG_TonKhoBTP_v02
             this.pnLeft.SuspendLayout();
             this.fpnButton.SuspendLayout();
             this.groupBox1.SuspendLayout();
+            this.panel3.SuspendLayout();
             this.panel2.SuspendLayout();
             this.grbKeHoach.SuspendLayout();
             this.pnKeHoach.SuspendLayout();
@@ -166,15 +169,46 @@ namespace DG_TonKhoBTP_v02
             // groupBox1
             // 
             this.groupBox1.AutoSize = true;
+            this.groupBox1.Controls.Add(this.panel3);
             this.groupBox1.Controls.Add(this.panel2);
             this.groupBox1.Dock = System.Windows.Forms.DockStyle.Top;
             this.groupBox1.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.groupBox1.Location = new System.Drawing.Point(0, 1208);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(185, 83);
+            this.groupBox1.Size = new System.Drawing.Size(185, 146);
             this.groupBox1.TabIndex = 4;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "KHO";
+            // 
+            // panel3
+            // 
+            this.panel3.Controls.Add(this.btnXuatKho);
+            this.panel3.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panel3.Location = new System.Drawing.Point(3, 80);
+            this.panel3.Name = "panel3";
+            this.panel3.Padding = new System.Windows.Forms.Padding(5, 6, 5, 6);
+            this.panel3.Size = new System.Drawing.Size(179, 63);
+            this.panel3.TabIndex = 8;
+            // 
+            // btnXuatKho
+            // 
+            this.btnXuatKho.BackColor = System.Drawing.Color.Snow;
+            this.btnXuatKho.BorderRadius = 10;
+            this.btnXuatKho.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnXuatKho.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.btnXuatKho.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnXuatKho.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnXuatKho.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.btnXuatKho.Location = new System.Drawing.Point(5, 6);
+            this.btnXuatKho.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
+            this.btnXuatKho.Name = "btnXuatKho";
+            this.btnXuatKho.Size = new System.Drawing.Size(169, 51);
+            this.btnXuatKho.TabIndex = 9;
+            this.btnXuatKho.TabStop = false;
+            this.btnXuatKho.Text = "XUẤT KHO";
+            this.btnXuatKho.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnXuatKho.UseVisualStyleBackColor = false;
+            this.btnXuatKho.Click += new System.EventHandler(this.btnXuatKho_Click);
             // 
             // panel2
             // 
@@ -598,7 +632,7 @@ namespace DG_TonKhoBTP_v02
             this.btnBocVo.Size = new System.Drawing.Size(169, 45);
             this.btnBocVo.TabIndex = 8;
             this.btnBocVo.TabStop = false;
-            this.btnBocVo.Text = "CĐ BỌC VỎ";
+            this.btnBocVo.Text = "CĐ THÀNH PHẨM";
             this.btnBocVo.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.btnBocVo.UseVisualStyleBackColor = false;
             this.btnBocVo.Click += new System.EventHandler(this.btnBocVo_Click);
@@ -1083,6 +1117,7 @@ namespace DG_TonKhoBTP_v02
             this.fpnButton.ResumeLayout(false);
             this.fpnButton.PerformLayout();
             this.groupBox1.ResumeLayout(false);
+            this.panel3.ResumeLayout(false);
             this.panel2.ResumeLayout(false);
             this.grbKeHoach.ResumeLayout(false);
             this.pnKeHoach.ResumeLayout(false);
@@ -1224,6 +1259,8 @@ namespace DG_TonKhoBTP_v02
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.Panel panel2;
         private CustomButton btnNhapKho;
+        private System.Windows.Forms.Panel panel3;
+        private CustomButton btnXuatKho;
     }
 }
 

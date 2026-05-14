@@ -34,6 +34,7 @@
             this.panel2 = new System.Windows.Forms.Panel();
             this.tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
             this.flowLayoutPanel2 = new System.Windows.Forms.FlowLayoutPanel();
+            this.btnXemTonKho = new System.Windows.Forms.Button();
             this.btnXemDL = new System.Windows.Forms.Button();
             this.tableLayoutPanel5 = new System.Windows.Forms.TableLayoutPanel();
             this.tbTimKiem = new System.Windows.Forms.TextBox();
@@ -61,6 +62,19 @@
             this.panel3 = new System.Windows.Forms.Panel();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.grvDSNhapKho = new System.Windows.Forms.DataGridView();
+            this.TTThanhPham_ID = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.id_NhapKho = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ngay = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.soBB = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.tenSP = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.maBin2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.loaiDon = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.soMet = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.khachHang = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.loai = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.chieuCaoLo = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.cuon = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ghiChu = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.panel5 = new System.Windows.Forms.Panel();
             this.panel4 = new System.Windows.Forms.Panel();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
@@ -75,26 +89,12 @@
             this.label8 = new System.Windows.Forms.Label();
             this.btnTTCuon = new System.Windows.Forms.Button();
             this.flowLayoutPanel3 = new System.Windows.Forms.FlowLayoutPanel();
-            this.btnNhapKho = new System.Windows.Forms.Button();
-            this.btnSua = new System.Windows.Forms.Button();
+            this.button1 = new System.Windows.Forms.Button();
             this.btnDelete = new System.Windows.Forms.Button();
+            this.btnSua = new System.Windows.Forms.Button();
+            this.btnNhapKho = new System.Windows.Forms.Button();
             this.tbxThongTinDay = new System.Windows.Forms.RichTextBox();
             this.label13 = new System.Windows.Forms.Label();
-            this.button1 = new System.Windows.Forms.Button();
-            this.TTThanhPham_ID = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.id_NhapKho = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.ngay = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.soBB = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.tenSP = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.maBin2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.loaiDon = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.soMet = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.khachHang = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.loai = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.chieuCaoLo = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.cuon = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.ghiChu = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.btnXemTonKho = new System.Windows.Forms.Button();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.tableLayoutPanel4.SuspendLayout();
@@ -173,6 +173,16 @@
             this.flowLayoutPanel2.Name = "flowLayoutPanel2";
             this.flowLayoutPanel2.Size = new System.Drawing.Size(789, 67);
             this.flowLayoutPanel2.TabIndex = 0;
+            // 
+            // btnXemTonKho
+            // 
+            this.btnXemTonKho.Location = new System.Drawing.Point(669, 3);
+            this.btnXemTonKho.Name = "btnXemTonKho";
+            this.btnXemTonKho.Size = new System.Drawing.Size(117, 50);
+            this.btnXemTonKho.TabIndex = 2;
+            this.btnXemTonKho.Text = "Xem Tồn kho";
+            this.btnXemTonKho.UseVisualStyleBackColor = true;
+            this.btnXemTonKho.Click += new System.EventHandler(this.btnXemDL_Click);
             // 
             // btnXemDL
             // 
@@ -369,7 +379,7 @@
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(194, 18);
             this.label5.TabIndex = 0;
-            this.label5.Text = "Mã bin";
+            this.label5.Text = "LOT tìm kiếm";
             // 
             // tbTenSP
             // 
@@ -526,6 +536,101 @@
             this.grvDSNhapKho.RowHeadersVisible = false;
             this.grvDSNhapKho.Size = new System.Drawing.Size(1459, 289);
             this.grvDSNhapKho.TabIndex = 0;
+            // 
+            // TTThanhPham_ID
+            // 
+            this.TTThanhPham_ID.DataPropertyName = "TTThanhPham_ID";
+            this.TTThanhPham_ID.HeaderText = "id";
+            this.TTThanhPham_ID.Name = "TTThanhPham_ID";
+            // 
+            // id_NhapKho
+            // 
+            this.id_NhapKho.DataPropertyName = "id_NhapKho";
+            this.id_NhapKho.HeaderText = "id nhập kho";
+            this.id_NhapKho.Name = "id_NhapKho";
+            // 
+            // ngay
+            // 
+            this.ngay.DataPropertyName = "ngay";
+            this.ngay.HeaderText = "Ngày";
+            this.ngay.Name = "ngay";
+            this.ngay.ReadOnly = true;
+            this.ngay.Width = 125;
+            // 
+            // soBB
+            // 
+            this.soBB.DataPropertyName = "soBB";
+            this.soBB.HeaderText = "Số BB";
+            this.soBB.Name = "soBB";
+            this.soBB.ReadOnly = true;
+            // 
+            // tenSP
+            // 
+            this.tenSP.DataPropertyName = "tenSP";
+            this.tenSP.HeaderText = "Chủng loại SP";
+            this.tenSP.Name = "tenSP";
+            this.tenSP.ReadOnly = true;
+            this.tenSP.Width = 250;
+            // 
+            // maBin2
+            // 
+            this.maBin2.DataPropertyName = "maBin2";
+            this.maBin2.FillWeight = 150F;
+            this.maBin2.HeaderText = "Mã SP";
+            this.maBin2.Name = "maBin2";
+            this.maBin2.ReadOnly = true;
+            this.maBin2.Width = 200;
+            // 
+            // loaiDon
+            // 
+            this.loaiDon.DataPropertyName = "loaiDon";
+            this.loaiDon.HeaderText = "Loại";
+            this.loaiDon.Name = "loaiDon";
+            this.loaiDon.ReadOnly = true;
+            // 
+            // soMet
+            // 
+            this.soMet.DataPropertyName = "soMet";
+            this.soMet.HeaderText = "Số Mét";
+            this.soMet.Name = "soMet";
+            this.soMet.Width = 120;
+            // 
+            // khachHang
+            // 
+            this.khachHang.DataPropertyName = "khachHang";
+            this.khachHang.HeaderText = "Khách hàng";
+            this.khachHang.Name = "khachHang";
+            this.khachHang.ReadOnly = true;
+            this.khachHang.Width = 150;
+            // 
+            // loai
+            // 
+            this.loai.DataPropertyName = "loai";
+            this.loai.HeaderText = "Loại";
+            this.loai.Name = "loai";
+            // 
+            // chieuCaoLo
+            // 
+            this.chieuCaoLo.DataPropertyName = "chieuCaoLo";
+            this.chieuCaoLo.HeaderText = "Chiều cao lô";
+            this.chieuCaoLo.Name = "chieuCaoLo";
+            this.chieuCaoLo.ReadOnly = true;
+            this.chieuCaoLo.Width = 130;
+            // 
+            // cuon
+            // 
+            this.cuon.DataPropertyName = "cuon";
+            this.cuon.HeaderText = "Thông tin cuộn";
+            this.cuon.Name = "cuon";
+            this.cuon.Width = 200;
+            // 
+            // ghiChu
+            // 
+            this.ghiChu.DataPropertyName = "ghiChu";
+            this.ghiChu.HeaderText = "Ghi chú";
+            this.ghiChu.Name = "ghiChu";
+            this.ghiChu.ReadOnly = true;
+            this.ghiChu.Width = 190;
             // 
             // panel5
             // 
@@ -710,16 +815,27 @@
             this.flowLayoutPanel3.Size = new System.Drawing.Size(477, 61);
             this.flowLayoutPanel3.TabIndex = 16;
             // 
-            // btnNhapKho
+            // button1
             // 
-            this.btnNhapKho.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnNhapKho.Location = new System.Drawing.Point(24, 3);
-            this.btnNhapKho.Name = "btnNhapKho";
-            this.btnNhapKho.Size = new System.Drawing.Size(108, 42);
-            this.btnNhapKho.TabIndex = 14;
-            this.btnNhapKho.Text = "Nhập kho";
-            this.btnNhapKho.UseVisualStyleBackColor = true;
-            this.btnNhapKho.Click += new System.EventHandler(this.BtnNhapKho_Click);
+            this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.button1.Location = new System.Drawing.Point(366, 3);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(108, 42);
+            this.button1.TabIndex = 14;
+            this.button1.Text = "Reset";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.btnResetForm_Click);
+            // 
+            // btnDelete
+            // 
+            this.btnDelete.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnDelete.Location = new System.Drawing.Point(252, 3);
+            this.btnDelete.Name = "btnDelete";
+            this.btnDelete.Size = new System.Drawing.Size(108, 42);
+            this.btnDelete.TabIndex = 14;
+            this.btnDelete.Text = "Xoá";
+            this.btnDelete.UseVisualStyleBackColor = true;
+            this.btnDelete.Click += new System.EventHandler(this.btnDelete_Click);
             // 
             // btnSua
             // 
@@ -732,16 +848,16 @@
             this.btnSua.UseVisualStyleBackColor = true;
             this.btnSua.Click += new System.EventHandler(this.btnSua_Click);
             // 
-            // btnDelete
+            // btnNhapKho
             // 
-            this.btnDelete.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnDelete.Location = new System.Drawing.Point(252, 3);
-            this.btnDelete.Name = "btnDelete";
-            this.btnDelete.Size = new System.Drawing.Size(108, 42);
-            this.btnDelete.TabIndex = 14;
-            this.btnDelete.Text = "Xoá";
-            this.btnDelete.UseVisualStyleBackColor = true;
-            this.btnDelete.Click += new System.EventHandler(this.btnDelete_Click);
+            this.btnNhapKho.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnNhapKho.Location = new System.Drawing.Point(24, 3);
+            this.btnNhapKho.Name = "btnNhapKho";
+            this.btnNhapKho.Size = new System.Drawing.Size(108, 42);
+            this.btnNhapKho.TabIndex = 14;
+            this.btnNhapKho.Text = "Nhập kho";
+            this.btnNhapKho.UseVisualStyleBackColor = true;
+            this.btnNhapKho.Click += new System.EventHandler(this.BtnNhapKho_Click);
             // 
             // tbxThongTinDay
             // 
@@ -764,122 +880,6 @@
             this.label13.TabIndex = 0;
             this.label13.Text = "Dữ liệu kiểm tra";
             this.label13.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // button1
-            // 
-            this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.button1.Location = new System.Drawing.Point(366, 3);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(108, 42);
-            this.button1.TabIndex = 14;
-            this.button1.Text = "Reset";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.btnResetForm_Click);
-            // 
-            // TTThanhPham_ID
-            // 
-            this.TTThanhPham_ID.DataPropertyName = "TTThanhPham_ID";
-            this.TTThanhPham_ID.HeaderText = "id";
-            this.TTThanhPham_ID.Name = "TTThanhPham_ID";
-            // 
-            // id_NhapKho
-            // 
-            this.id_NhapKho.DataPropertyName = "id_NhapKho";
-            this.id_NhapKho.HeaderText = "id nhập kho";
-            this.id_NhapKho.Name = "id_NhapKho";
-            // 
-            // ngay
-            // 
-            this.ngay.DataPropertyName = "ngay";
-            this.ngay.HeaderText = "Ngày";
-            this.ngay.Name = "ngay";
-            this.ngay.ReadOnly = true;
-            this.ngay.Width = 125;
-            // 
-            // soBB
-            // 
-            this.soBB.DataPropertyName = "soBB";
-            this.soBB.HeaderText = "Số BB";
-            this.soBB.Name = "soBB";
-            this.soBB.ReadOnly = true;
-            // 
-            // tenSP
-            // 
-            this.tenSP.DataPropertyName = "tenSP";
-            this.tenSP.HeaderText = "Chủng loại SP";
-            this.tenSP.Name = "tenSP";
-            this.tenSP.ReadOnly = true;
-            this.tenSP.Width = 250;
-            // 
-            // maBin2
-            // 
-            this.maBin2.DataPropertyName = "maBin2";
-            this.maBin2.FillWeight = 150F;
-            this.maBin2.HeaderText = "Mã SP";
-            this.maBin2.Name = "maBin2";
-            this.maBin2.ReadOnly = true;
-            this.maBin2.Width = 200;
-            // 
-            // loaiDon
-            // 
-            this.loaiDon.DataPropertyName = "loaiDon";
-            this.loaiDon.HeaderText = "Loại";
-            this.loaiDon.Name = "loaiDon";
-            this.loaiDon.ReadOnly = true;
-            // 
-            // soMet
-            // 
-            this.soMet.DataPropertyName = "soMet";
-            this.soMet.HeaderText = "Số Mét";
-            this.soMet.Name = "soMet";
-            this.soMet.Width = 120;
-            // 
-            // khachHang
-            // 
-            this.khachHang.DataPropertyName = "khachHang";
-            this.khachHang.HeaderText = "Khách hàng";
-            this.khachHang.Name = "khachHang";
-            this.khachHang.ReadOnly = true;
-            this.khachHang.Width = 150;
-            // 
-            // loai
-            // 
-            this.loai.DataPropertyName = "loai";
-            this.loai.HeaderText = "Loại";
-            this.loai.Name = "loai";
-            // 
-            // chieuCaoLo
-            // 
-            this.chieuCaoLo.DataPropertyName = "chieuCaoLo";
-            this.chieuCaoLo.HeaderText = "Chiều cao lô";
-            this.chieuCaoLo.Name = "chieuCaoLo";
-            this.chieuCaoLo.ReadOnly = true;
-            this.chieuCaoLo.Width = 130;
-            // 
-            // cuon
-            // 
-            this.cuon.DataPropertyName = "cuon";
-            this.cuon.HeaderText = "Thông tin cuộn";
-            this.cuon.Name = "cuon";
-            this.cuon.Width = 200;
-            // 
-            // ghiChu
-            // 
-            this.ghiChu.DataPropertyName = "ghiChu";
-            this.ghiChu.HeaderText = "Ghi chú";
-            this.ghiChu.Name = "ghiChu";
-            this.ghiChu.ReadOnly = true;
-            this.ghiChu.Width = 190;
-            // 
-            // btnXemTonKho
-            // 
-            this.btnXemTonKho.Location = new System.Drawing.Point(669, 3);
-            this.btnXemTonKho.Name = "btnXemTonKho";
-            this.btnXemTonKho.Size = new System.Drawing.Size(117, 50);
-            this.btnXemTonKho.TabIndex = 2;
-            this.btnXemTonKho.Text = "Xem Tồn kho";
-            this.btnXemTonKho.UseVisualStyleBackColor = true;
-            this.btnXemTonKho.Click += new System.EventHandler(this.btnXemDL_Click);
             // 
             // UC_NhapKho
             // 

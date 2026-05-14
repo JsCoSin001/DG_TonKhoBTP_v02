@@ -30,6 +30,32 @@ public static class PermissionCodes
     public const string UserPermission = "USER_PERMISSION";
 }
 
+public static class LotCodeDocxConfig
+{
+    // ─── Font ───────────────────────────────────────────────────────
+    /// <summary>Tên font chữ</summary>
+    public static string FontName = "Times New Roman";
+
+    /// <summary>Cỡ chữ chính (half-points: 24 = 12pt)</summary>
+    public static int BaseFontSizeHp = 24;
+
+    /// <summary>Cỡ chữ sub/superscript (half-points: 18 = 9pt)</summary>
+    public static int SubSuperSizeHp = 18;
+
+    // ─── Page margins (twentieths of a point, 1440 = 1 inch) ────────
+    /// <summary>Lề trên</summary>
+    public static uint MarginTopTwip = 1440;
+
+    /// <summary>Lề dưới</summary>
+    public static uint MarginBotTwip = 1440;
+
+    /// <summary>Lề trái</summary>
+    public static uint MarginLeftTwip = 1800;
+
+    /// <summary>Lề phải</summary>
+    public static uint MarginRightTwip = 1800;
+}
+
 public static class RoleNames
 {
     public const string Admin = "Admin";

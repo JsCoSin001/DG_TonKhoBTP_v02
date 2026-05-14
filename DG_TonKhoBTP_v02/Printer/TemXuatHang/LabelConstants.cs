@@ -21,12 +21,12 @@ namespace DG_TonKhoBTP_v02.Printer.TemXuatHang
         public const float PaddingMm = 2f;
 
         // ─── QR Code (mm) ────────────────────────────────────────────────────
-        public const float QrSizeMm = 32f;   // to hơn để dễ quét
+        public const float QrSizeMm = 28f;   // giảm kích thước QR code xuống 25mm
         public const float QrRightGapMm = 1.5f;  // khoảng cách QR với mép phải inner
 
         // ─── Watermark ───────────────────────────────────────────────────────
         public const float WatermarkOpacityDefault = 0.12f;  // 12% — đủ thấy
-        public const float WatermarkSizeMm = 42f;    // 70% của 60mm — logo lớn giữa tem
+        public const float WatermarkSizeMm = 58.8f;  // 140% so với bản hiện tại 42mm
 
         // ─── Font names ──────────────────────────────────────────────────────
         public const string FontDefault = "Play";

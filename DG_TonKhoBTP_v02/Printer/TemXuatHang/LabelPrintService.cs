@@ -2,9 +2,6 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Printing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace DG_TonKhoBTP_v02.Printer.TemXuatHang
@@ -27,14 +24,9 @@ namespace DG_TonKhoBTP_v02.Printer.TemXuatHang
 
         /// <summary>
         /// In danh sách tem. Mỗi phần tử = 1 tem. 4 tem/tờ A4.
-        /// Nếu <see cref="LabelPrintConfig.ShowPreview"/> = true → mở PrintPreviewDialog.
+        /// Nếu LabelPrintConfig.ShowPreview = true → mở PrintPreviewDialog.
         /// Ngược lại → in thẳng ra máy in.
         /// </summary>
-        /// <param name="labels">Danh sách dữ liệu tem cần in. Không được null/rỗng.</param>
-        /// <param name="config">Cấu hình in (đường dẫn ảnh, ngày ban hành...).</param>
-        /// <param name="ownerForm">
-        ///     Form cha cho PrintPreviewDialog (có thể null, dialog vẫn hiện).
-        /// </param>
         public void Print(
             List<LabelData> labels,
             LabelPrintConfig config,
@@ -42,6 +34,7 @@ namespace DG_TonKhoBTP_v02.Printer.TemXuatHang
         {
             if (labels == null || labels.Count == 0)
                 throw new ArgumentException("Danh sách tem không được rỗng.", nameof(labels));
+
             if (config == null)
                 throw new ArgumentNullException(nameof(config));
 
@@ -71,11 +64,12 @@ namespace DG_TonKhoBTP_v02.Printer.TemXuatHang
             if (!string.IsNullOrWhiteSpace(config.PrinterName))
                 doc.PrinterSettings.PrinterName = config.PrinterName;
 
-            // Tờ A4, landscape = false (dọc)
+            // Tờ A4, portrait
             doc.DefaultPageSettings.PaperSize = new PaperSize("A4", 827, 1169); // 1/100 inch
             doc.DefaultPageSettings.Landscape = false;
 
-            // Margin = 0 để tem có thể chiếm toàn bộ tờ
+            // Margin = 0.
+            // Lưu ý: máy in thật vẫn có vùng không in được ở mép giấy.
             doc.DefaultPageSettings.Margins = new Margins(0, 0, 0, 0);
 
             doc.DocumentName = "In tem nhãn cáp - Goldcup";
@@ -85,7 +79,7 @@ namespace DG_TonKhoBTP_v02.Printer.TemXuatHang
         }
 
         // ═════════════════════════════════════════════════════════════════════
-        // PRIVATE — sự kiện PrintPage (gọi mỗi tờ)
+        // PRIVATE — sự kiện PrintPage
         // ═════════════════════════════════════════════════════════════════════
 
         private void OnPrintPage(object sender, PrintPageEventArgs e)
@@ -93,25 +87,62 @@ namespace DG_TonKhoBTP_v02.Printer.TemXuatHang
             Graphics g = e.Graphics;
             g.PageUnit = GraphicsUnit.Pixel;
             g.PageScale = 1f;
+
             float dpiX = g.DpiX;
             float dpiY = g.DpiY;
 
             // Convert mm → pixel
             float labelWPx = MmToPx(LabelWMm, dpiX);
             float labelHPx = MmToPx(LabelHMm, dpiY);
+
             float cellWPx = MmToPx(LabelConstants.A4WidthMm / LabelConstants.LabelsPerRow, dpiX);
             float cellHPx = MmToPx(LabelConstants.A4HeightMm / LabelConstants.LabelsPerCol, dpiY);
+
             float horizontalInsetPx = Math.Max(0, (cellWPx - labelWPx) / 2f);
             float verticalInsetPx = Math.Max(0, (cellHPx - labelHPx) / 2f);
 
-            // Vị trí 4 ô tem trên tờ A4 (2 cột × 2 hàng).
-            // Tem được căn giữa trong mỗi ô sau khi thu nhỏ rộng/cao.
+            // Giảm khoảng cách ngang giữa 2 tem:
+            // cột trái dịch phải 1.5mm, cột phải dịch trái 1.5mm.
+            float horizontalGapAdjustPx = MmToPx(1.5f, dpiX);
+
+            // Dịch toàn bộ nội dung in sang trái để item 2 và item 4
+            // không bị rơi vào vùng không in được ở mép phải máy in.
+            // Do mép trái thực tế còn khoảng 11mm, dịch 5mm là mức an toàn.
+            float wholePageLeftShiftPx = MmToPx(5f, dpiX);
+
             RectangleF[] slots = new RectangleF[]
             {
-                new RectangleF(horizontalInsetPx,                 verticalInsetPx,           labelWPx, labelHPx),  // top-left
-                new RectangleF(cellWPx + horizontalInsetPx,       verticalInsetPx,           labelWPx, labelHPx),  // top-right
-                new RectangleF(horizontalInsetPx,                 cellHPx + verticalInsetPx, labelWPx, labelHPx),  // bottom-left
-                new RectangleF(cellWPx + horizontalInsetPx,       cellHPx + verticalInsetPx, labelWPx, labelHPx),  // bottom-right
+                // Item 1 — trên trái
+                new RectangleF(
+                    horizontalInsetPx + horizontalGapAdjustPx - wholePageLeftShiftPx,
+                    verticalInsetPx,
+                    labelWPx,
+                    labelHPx
+                ),
+
+                // Item 2 — trên phải
+                new RectangleF(
+                    cellWPx + horizontalInsetPx - horizontalGapAdjustPx - wholePageLeftShiftPx,
+                    verticalInsetPx,
+                    labelWPx,
+                    labelHPx
+                ),
+
+                // Item 3 — dưới trái
+                new RectangleF(
+                    horizontalInsetPx + horizontalGapAdjustPx - wholePageLeftShiftPx,
+                    cellHPx + verticalInsetPx,
+                    labelWPx,
+                    labelHPx
+                ),
+
+                // Item 4 — dưới phải
+                new RectangleF(
+                    cellWPx + horizontalInsetPx - horizontalGapAdjustPx - wholePageLeftShiftPx,
+                    cellHPx + verticalInsetPx,
+                    labelWPx,
+                    labelHPx
+                ),
             };
 
             int startIndex = _currentPageIndex * LabelConstants.LabelsPerPage;
@@ -119,17 +150,17 @@ namespace DG_TonKhoBTP_v02.Printer.TemXuatHang
             for (int i = 0; i < LabelConstants.LabelsPerPage; i++)
             {
                 int dataIndex = startIndex + i;
-                if (dataIndex >= _labels.Count) break;   // ô trống — bỏ qua
+
+                if (dataIndex >= _labels.Count)
+                    break;
 
                 _renderer.DrawLabel(g, _labels[dataIndex], slots[i]);
             }
 
             _currentPageIndex++;
 
-            // Còn tem chưa in → báo còn trang tiếp
             e.HasMorePages = (_currentPageIndex * LabelConstants.LabelsPerPage) < _labels.Count;
 
-            // Reset về tờ đầu nếu in xong (chuẩn bị cho lần Print() tiếp theo)
             if (!e.HasMorePages)
                 _currentPageIndex = 0;
         }
@@ -154,7 +185,9 @@ namespace DG_TonKhoBTP_v02.Printer.TemXuatHang
         // ═════════════════════════════════════════════════════════════════════
 
         private static float MmToPx(float mm, float dpi)
-            => mm * dpi / 25.4f;
+        {
+            return mm * dpi / 25.4f;
+        }
 
         // ═════════════════════════════════════════════════════════════════════
         // DISPOSE

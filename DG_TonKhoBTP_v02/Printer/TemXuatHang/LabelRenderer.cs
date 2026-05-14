@@ -82,7 +82,7 @@ namespace DG_TonKhoBTP_v02.Printer.TemXuatHang
 
         private void DrawBorder(Graphics g, RectangleF b)
         {
-            using (Pen pen = new Pen(Color.Black, 4f))
+            using (Pen pen = new Pen(Color.Black, 28f))
                 g.DrawRectangle(pen, b.X, b.Y, b.Width - 1f, b.Height - 1f);
         }
 
@@ -95,8 +95,8 @@ namespace DG_TonKhoBTP_v02.Printer.TemXuatHang
             if (_logoSmall == null) return;
 
             float size = Mm2Px(LabelConstants.WatermarkSizeMm);
-            float cx = bounds.X + (bounds.Width - size) / 2f;
-            float cy = bounds.Y + (bounds.Height - size) / 2f;
+            float cx = bounds.X + (bounds.Width - size) / 2f - Mm2Px(12f); // dịch phải 5mm so với bản v8 (còn lệch trái 12mm)
+            float cy = bounds.Y + (bounds.Height - size) / 2f + Mm2Px(20f); // lệch xuống 2cm
 
             using (ImageAttributes ia = new ImageAttributes())
             {
@@ -140,10 +140,10 @@ namespace DG_TonKhoBTP_v02.Printer.TemXuatHang
 
             // ── Logo | Tên công ty | Cert ─────────────────────────────────────
             float hH = Mm2Px(HeaderBodyMm);
-            float logoW = Mm2Px(9f);     // 1/2 kích thước hiện tại
-            float logoH = Mm2Px(9f);
-            float certW = Mm2Px(11f);    // giữ vùng certificate đã giảm 1/2 ở bản trước
-            float certH = Mm2Px(9f);
+            float logoW = Mm2Px(9.45f);  // tăng 105% so với 9mm hiện tại
+            float logoH = Mm2Px(9.45f);
+            float certW = Mm2Px(16.5f);  // tăng 150% so với 11mm hiện tại
+            float certH = Mm2Px(13.5f);
             float nameX = x + logoW + Mm2Px(2f);
             float nameW = w - logoW - certW - Mm2Px(3f);
 
@@ -168,28 +168,38 @@ namespace DG_TonKhoBTP_v02.Printer.TemXuatHang
                     StringAlignment.Far, StringAlignment.Near);
             }
 
-            // Tên công ty
+            // Tên công ty + địa chỉ + ĐT/FAX/Website.
+            // CompanyName dịch xuống 3mm so với bản v5; các dòng còn lại giữ đủ khoảng trống
+            // để không đè lên đường kẻ đã được đưa lên 5mm.
+            float headerTextY = y - Mm2Px(5f);
+            float companyY = headerTextY + Mm2Px(3f);
+            float companyH = hH * 0.32f;
+            float addressY = companyY + companyH;
+            float addressH = hH * 0.23f;
+            float phoneY = addressY + addressH;
+            float phoneH = hH * 0.23f;
+
             using (GdiFont f = MakeFont(LabelConstants.FontSizeCompanyName, bold: true))
                 DrawText(g, LabelConstants.CompanyName, f, Brushes.Black,
-                    new RectangleF(nameX, y, nameW, hH * 0.40f),
+                    new RectangleF(nameX, companyY, nameW, companyH),
                     StringAlignment.Center, StringAlignment.Center);
 
-            // Địa chỉ
-            using (GdiFont f = MakeFont(LabelConstants.FontSizeSubTitle, bold: false))
+            // Địa chỉ — tăng 1 size
+            using (GdiFont f = MakeFont(LabelConstants.FontSizeSubTitle + 1f, bold: false))
                 DrawText(g, LabelConstants.FactoryAddress, f, Brushes.Black,
-                    new RectangleF(nameX, y + hH * 0.40f, nameW, hH * 0.30f),
+                    new RectangleF(nameX, addressY, nameW, addressH),
                     StringAlignment.Center, StringAlignment.Center);
 
-            // ĐT / FAX / Website
-            using (GdiFont f = MakeFont(LabelConstants.FontSizeSubTitle, bold: false))
-                DrawText(g, LabelConstants.PhoneFax, f, Brushes.Black,
-                    new RectangleF(nameX, y + hH * 0.70f, nameW, hH * 0.30f),
+            // ĐT / FAX / Website — tăng 1 size, không xuống dòng và không cắt bằng dấu ...
+            using (GdiFont f = MakeFont(LabelConstants.FontSizeSubTitle + 1f, bold: false))
+                DrawTextNoWrap(g, LabelConstants.PhoneFax, f, Brushes.Black,
+                    new RectangleF(nameX, phoneY, nameW, phoneH),
                     StringAlignment.Center, StringAlignment.Center);
 
             y += hH;
 
-            // ── Đường kẻ đậm cuối header ─────────────────────────────────────
-            DrawHLine(g, x, y, w, 1.5f);
+            // ── Đường kẻ đậm cuối header — đặt lên trên 5mm so với bản v5 ─────
+            DrawHLine(g, x, y - Mm2Px(5f), w, 4.5f);
         }
 
         // ═════════════════════════════════════════════════════════════════════
@@ -208,7 +218,7 @@ namespace DG_TonKhoBTP_v02.Printer.TemXuatHang
             float pH = Mm2Px(ProductMm);
 
             // KCS badge — góc phải, vuông tròn hoặc dùng ảnh
-            float kcsSize = Mm2Px(14.52f);  // tăng 110% so với 13.2mm hiện tại
+            float kcsSize = Mm2Px(18.15f);  // tăng 125% so với 14.52mm hiện tại
             float kcsX = x + w - kcsSize - Mm2Px(0.5f);
             float kcsY = y + Mm2Px(1f);
             if (_kcsLogo != null)
@@ -226,6 +236,8 @@ namespace DG_TonKhoBTP_v02.Printer.TemXuatHang
                     StringAlignment.Center, StringAlignment.Center);
 
             // Tên sản phẩm — căn giữa, đậm, có thể xuống 2 dòng
+            float productTypeY = y + labelH + Mm2Px(1.5f);
+            float productTypeH = Mm2Px(13f);
             using (GdiFont f = MakeFont(LabelConstants.FontSizeProductName + 0.5f, bold: true))
             {
                 var sf = new StringFormat
@@ -235,12 +247,19 @@ namespace DG_TonKhoBTP_v02.Printer.TemXuatHang
                     Trimming = StringTrimming.None,
                     FormatFlags = StringFormatFlags.NoClip
                 };
-                g.DrawString(data.ProductType, f, Brushes.Black,
-                    new RectangleF(x, y + labelH + Mm2Px(1.5f), textW, Mm2Px(14f)), sf);
+
+                string productType = data.ProductType ?? string.Empty;
+                SizeF measured = g.MeasureString(productType, f, (int)textW, sf);
+                float usedProductTypeH = Math.Min(productTypeH, Math.Max(labelH, measured.Height));
+
+                g.DrawString(productType, f, Brushes.Black,
+                    new RectangleF(x, productTypeY, textW, usedProductTypeH), sf);
+
+                productTypeH = usedProductTypeH;
             }
 
-            // "Dự án:" + giá trị — căn giữa, đậm nghiêng
-            float projY = y + Mm2Px(20f);
+            // "Dự án:" + giá trị — đặt ngay bên dưới ProductType
+            float projY = productTypeY + productTypeH + Mm2Px(0.5f);
             using (GdiFont fLabel = MakeFont(LabelConstants.FontSizeLabel + 0.5f, bold: true, italic: true))
                 DrawText(g, LabelConstants.LblProject, fLabel, Brushes.Black,
                     new RectangleF(x, projY, textW, labelH),
@@ -315,12 +334,13 @@ namespace DG_TonKhoBTP_v02.Printer.TemXuatHang
             float qrX = x + w - qrSize - Mm2Px(LabelConstants.QrRightGapMm);
             float dataW = w - qrSize - Mm2Px(LabelConstants.QrRightGapMm + 1f);
 
-            float y = inner.Y + Mm2Px(DataStartOffsetMm);
+            float y = inner.Y + Mm2Px(DataStartOffsetMm - 8f);
+            float rowStep = rowH + Mm2Px(1.5f); // tăng giãn cách các dòng dữ liệu thêm 1mm so với bản v8
 
             // ── Dòng 1: Mã sản phẩm ──────────────────────────────────────────
-            float lblCodeW = Mm2Px(22f);
-            using (GdiFont fLabel = MakeFont(LabelConstants.FontSizeLabel + 1f, bold: true, italic: true))
-            using (GdiFont fCode = MakeFont(LabelConstants.FontSizeProductCode + 1.5f, bold: true))
+            float lblCodeW = Mm2Px(30f);
+            using (GdiFont fLabel = MakeFont(LabelConstants.FontSizeLabel + 3f, bold: true, italic: true))
+            using (GdiFont fCode = MakeFont(LabelConstants.FontSizeProductCode + 3.5f, bold: true))
             {
                 DrawText(g, LabelConstants.LblProductCode, fLabel, Brushes.Black,
                     new RectangleF(x, y, lblCodeW, rowH),
@@ -331,7 +351,10 @@ namespace DG_TonKhoBTP_v02.Printer.TemXuatHang
                 float bPad = Mm2Px(2.5f);
                 float bW = sz.Width + bPad * 2f;
                 float bH = rowH * 0.88f;
-                float bX = x + lblCodeW + Mm2Px(1f);
+                // Giá trị ProductCode giảm thêm 1 size và dịch trái 5mm; không để đè lên nhãn.
+                float codeLeft = x + lblCodeW + Mm2Px(1f) - Mm2Px(5f);
+                float minCodeLeft = x + g.MeasureString(LabelConstants.LblProductCode, fLabel).Width + Mm2Px(1f);
+                float bX = Math.Max(codeLeft, minCodeLeft);
                 float bY = y + (rowH - bH) / 2f;
 
                 using (Pen pen = new Pen(Color.Black, 1.2f))
@@ -341,7 +364,7 @@ namespace DG_TonKhoBTP_v02.Printer.TemXuatHang
                     new RectangleF(bX, bY, bW, bH),
                     StringAlignment.Center, StringAlignment.Center);
             }
-            y += rowH;
+            y += rowStep;
 
             // QR code — bắt đầu từ đây (dòng Chiều dài)
             float qrStartY = y;
@@ -354,33 +377,35 @@ namespace DG_TonKhoBTP_v02.Printer.TemXuatHang
             // ── Dòng 2: Chiều dài ─────────────────────────────────────────────
             DrawDataRow(g, x, y, dataW, rowH,
                 LabelConstants.LblLength, data.Length,
-                labelFontSize: LabelConstants.FontSizeLabel + 1f,
-                valueFontSize: LabelConstants.FontSizeValue + 4f,
+                labelFontSize: LabelConstants.FontSizeLabel + 3f,
+                valueFontSize: LabelConstants.FontSizeValue + 7f,
                 valueBold: true);
-            y += rowH;
+            y += rowStep;
 
             // ── Dòng 3: Dải chiều dài ─────────────────────────────────────────
-            using (GdiFont fRange = MakeFont(LabelConstants.FontSizeLabel + 1f, bold: true))
+            using (GdiFont fRange = MakeFont(LabelConstants.FontSizeLabel + 2f, bold: false))
                 DrawText(g, data.LengthRange, fRange, Brushes.Black,
-                    new RectangleF(x + Mm2Px(6f), y, dataW - Mm2Px(6f), rowH * 0.85f),
+                    new RectangleF(x + Mm2Px(21f), y, dataW - Mm2Px(21f), rowH * 0.85f),
                     StringAlignment.Near, StringAlignment.Center);
-            y += rowH * 0.85f;
+            y += rowH * 0.85f + Mm2Px(2f);
 
             // ── Dòng 4: Khối lượng cáp ────────────────────────────────────────
             DrawDataRow(g, x, y, dataW, rowH,
                 LabelConstants.LblCableWeight, data.CableWeight,
-                labelFontSize: LabelConstants.FontSizeLabel + 1f,
-                valueFontSize: LabelConstants.FontSizeValue + 2f,
-                valueBold: true);
-            y += rowH;
+                labelFontSize: LabelConstants.FontSizeLabel + 3f,
+                valueFontSize: LabelConstants.FontSizeValue + 4f,
+                valueBold: true,
+                valueLeftExpandMm: 5f);
+            y += rowStep;
 
             // ── Dòng 5: Khối lượng tổng ───────────────────────────────────────
             DrawDataRow(g, x, y, dataW, rowH,
                 LabelConstants.LblTotalWeight, data.TotalWeight,
-                labelFontSize: LabelConstants.FontSizeLabel + 1f,
-                valueFontSize: LabelConstants.FontSizeValue + 2f,
-                valueBold: true);
-            y += rowH;
+                labelFontSize: LabelConstants.FontSizeLabel + 3f,
+                valueFontSize: LabelConstants.FontSizeValue + 4f,
+                valueBold: true,
+                valueLeftExpandMm: 5f);
+            y += rowStep;
 
             // Không vẽ gạch dưới nội dung khối lượng tổng theo mẫu in mới.
             y += Mm2Px(1f);
@@ -390,39 +415,43 @@ namespace DG_TonKhoBTP_v02.Printer.TemXuatHang
             // Dòng 6: Ngày kiểm tra
             DrawDataRow(g, x, y, w, rowH,
                 LabelConstants.LblInspectionDate, data.InspectionDate,
-                labelFontSize: LabelConstants.FontSizeLabel + 1f,
-                valueFontSize: LabelConstants.FontSizeValue + 1f,
-                valueBold: true);
-            y += rowH;
+                labelFontSize: LabelConstants.FontSizeLabel + 3f,
+                valueFontSize: LabelConstants.FontSizeValue + 3f,
+                valueBold: true,
+                valueLeftExpandMm: 5f);
+            y += rowStep;
 
             // Dòng 7: Người kiểm tra
             DrawDataRow(g, x, y, w, rowH,
                 LabelConstants.LblInspector, data.Inspector,
-                labelFontSize: LabelConstants.FontSizeLabel + 1f,
-                valueFontSize: LabelConstants.FontSizeValue + 1f,
-                valueBold: true);
-            y += rowH;
+                labelFontSize: LabelConstants.FontSizeLabel + 3f,
+                valueFontSize: LabelConstants.FontSizeValue + 2f,
+                valueBold: true,
+                valueLeftExpandMm: 5f);
+            y += rowStep;
 
             // Dòng 8: Đánh giá chất lượng
             DrawDataRow(g, x, y, w, rowH,
                 LabelConstants.LblQuality, data.QualityResult,
-                labelFontSize: LabelConstants.FontSizeLabel + 1f,
-                valueFontSize: LabelConstants.FontSizeValue + 1f,
-                valueBold: true);
-            y += rowH;
+                labelFontSize: LabelConstants.FontSizeLabel + 3f,
+                valueFontSize: LabelConstants.FontSizeValue + 2f,
+                valueBold: true,
+                valueLeftExpandMm: 5f);
+            y += rowStep;
 
             // Dòng 9: Tiêu chuẩn sản xuất
             DrawDataRow(g, x, y, w, rowH,
                 LabelConstants.LblStandard, data.Standard,
-                labelFontSize: LabelConstants.FontSizeLabel + 1f,
-                valueFontSize: LabelConstants.FontSizeValue + 1f,
-                valueBold: true);
-            y += rowH;
+                labelFontSize: LabelConstants.FontSizeLabel + 3f,
+                valueFontSize: LabelConstants.FontSizeValue + 2f,
+                valueBold: true,
+                valueLeftExpandMm: 5f);
+            y += rowStep;
 
             // "Sản xuất tại Việt Nam" — căn giữa, nghiêng
             using (GdiFont f = MakeFont(LabelConstants.FontSizeSubTitle, italic: true))
                 DrawText(g, LabelConstants.MadeIn, f, Brushes.Black,
-                    new RectangleF(x, y, w, rowH),
+                    new RectangleF(x, y + Mm2Px(2f), w, rowH),
                     StringAlignment.Center, StringAlignment.Center);
         }
 
@@ -440,13 +469,12 @@ namespace DG_TonKhoBTP_v02.Printer.TemXuatHang
             float fX = bounds.X;
             float fW = bounds.Width;
 
-            // Nền đen
-            g.FillRectangle(Brushes.Black, fX, fY, fW, fH);
+            // Nền footer giảm độ đậm so với nền đen cũ
+            using (Brush footerBg = new SolidBrush(Color.FromArgb(125, 125, 125)))
+                g.FillRectangle(footerBg, fX, fY, fW, fH);
 
-            // Đường kẻ trắng dọc phân cách
+            // Bỏ đường/ký tự phân cách giữa FooterLeft và FooterRight
             float divX = fX + Mm2Px(28f);
-            using (Pen pen = new Pen(Color.White, 1f))
-                g.DrawLine(pen, divX, fY + Mm2Px(1.5f), divX, fY + fH - Mm2Px(1.5f));
 
             // "GOLDCUP" — to, đậm, trắng
             using (GdiFont f = MakeFont(LabelConstants.FontSizeFooter, bold: true))
@@ -474,13 +502,18 @@ namespace DG_TonKhoBTP_v02.Printer.TemXuatHang
             string label, string value,
             float labelFontSize = 0f,
             float valueFontSize = 0f,
-            bool valueBold = true)
+            bool valueBold = true,
+            float valueLeftExpandMm = 0f)
         {
             float lfs = labelFontSize > 0 ? labelFontSize : LabelConstants.FontSizeLabel;
             float vfs = valueFontSize > 0 ? valueFontSize : LabelConstants.FontSizeValue;
 
-            // Label chiếm ~48% width, value phần còn lại căn phải
+            // Label chiếm ~48% width, value phần còn lại căn phải.
+            // valueLeftExpandMm mở rộng vùng giá trị về bên trái để tăng bề rộng hiển thị LabelData.
             float labelW = width * 0.48f;
+            float valueExpand = Mm2Px(valueLeftExpandMm);
+            float valueX = x + labelW - valueExpand;
+            float valueW = width - labelW + valueExpand;
 
             using (GdiFont fLabel = MakeFont(lfs, bold: true, italic: true))
             using (GdiFont fValue = MakeFont(vfs, bold: valueBold))
@@ -490,7 +523,7 @@ namespace DG_TonKhoBTP_v02.Printer.TemXuatHang
                     StringAlignment.Near, StringAlignment.Center);
 
                 DrawText(g, value, fValue, Brushes.Black,
-                    new RectangleF(x + labelW, y, width - labelW, rowH),
+                    new RectangleF(valueX, y, valueW, rowH),
                     StringAlignment.Far, StringAlignment.Center);
             }
         }
@@ -552,6 +585,54 @@ namespace DG_TonKhoBTP_v02.Printer.TemXuatHang
                 sf.LineAlignment = vAlign;
                 sf.Trimming = StringTrimming.EllipsisCharacter;
                 g.DrawString(text, font, brush, rect, sf);
+            }
+        }
+
+        private void DrawTextNoWrap(
+            Graphics g, string text, GdiFont font, Brush brush,
+            RectangleF rect,
+            StringAlignment hAlign = StringAlignment.Near,
+            StringAlignment vAlign = StringAlignment.Center)
+        {
+            if (string.IsNullOrEmpty(text)) return;
+
+            // Không dùng EllipsisCharacter vì PhoneFax cần hiển thị đủ nội dung.
+            // Nếu vùng vẽ không đủ rộng, tự giảm font theo cùng font family/style hiện tại.
+            using (StringFormat sf = new StringFormat(StringFormat.GenericTypographic))
+            {
+                sf.Alignment = hAlign;
+                sf.LineAlignment = vAlign;
+                sf.Trimming = StringTrimming.None;
+                sf.FormatFlags = StringFormatFlags.NoWrap;
+
+                const float minFontSize = 4.0f;
+                GdiFont fittedFont = null;
+
+                for (float size = font.Size; size >= minFontSize; size -= 0.25f)
+                {
+                    GdiFont testFont = new GdiFont(font.FontFamily, size, font.Style, GraphicsUnit.Point);
+                    SizeF measured = g.MeasureString(text, testFont, int.MaxValue, sf);
+
+                    if (measured.Width <= rect.Width && measured.Height <= rect.Height * 1.25f)
+                    {
+                        fittedFont = testFont;
+                        break;
+                    }
+
+                    testFont.Dispose();
+                }
+
+                if (fittedFont == null)
+                    fittedFont = new GdiFont(font.FontFamily, minFontSize, font.Style, GraphicsUnit.Point);
+
+                try
+                {
+                    g.DrawString(text, fittedFont, brush, rect, sf);
+                }
+                finally
+                {
+                    fittedFont.Dispose();
+                }
             }
         }
 

@@ -12,9 +12,9 @@ namespace DG_TonKhoBTP_v02.Database.KeToan
             const string sql = @"
                 SELECT 
                     id, 
-                    KichThuoc, 
-                    KhoiLuong, 
-                    KhoiLuongCaNanPhu
+                    KichThuoc as Kích_thước, 
+                    KhoiLuong as Khối_lượng, 
+                    KhoiLuongCaNanPhu as Khối_lượng_cả_nan_phủ
                 FROM TTLo
                 ORDER BY id DESC";
 

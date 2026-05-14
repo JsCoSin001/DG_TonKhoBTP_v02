@@ -14,45 +14,41 @@ namespace DG_TonKhoBTP_v02.Printer.TemXuatHang
         public const float A4HeightMm = 297f;
 
         // ─── Kích thước 1 tem A6 (mm) ────────────────────────────────────────
-        public const float LabelWidthMm = 105f;
-        public const float LabelHeightMm = 148f;
+        public const float LabelWidthMm = 95.55f;  // 91% của 105mm
+        public const float LabelHeightMm = 126.54f; // 85.5% của 148mm
 
         // ─── Padding bên trong tem (mm) ───────────────────────────────────────
         public const float PaddingMm = 2f;
 
-        // ─── Chiều cao các vùng (mm) ─────────────────────────────────────────
-        public const float HeaderHeightMm = 16f;   // logo + tên công ty + ĐT
-        public const float SubHeaderHeightMm = 4f;    // đường kẻ phân cách
-        public const float ProductAreaHeightMm = 22f;   // sản phẩm + dự án + KCS
-        public const float FooterHeightMm = 9f;    // GOLDCUP | WIRE AND CABLE
-        public const float RowHeightMm = 7f;    // chiều cao mỗi dòng data
-
         // ─── QR Code (mm) ────────────────────────────────────────────────────
-        public const float QrSizeMm = 28f;   // chiều rộng = chiều cao QR
-        public const float QrRightGapMm = 2f;   // khoảng cách QR với mép phải
+        public const float QrSizeMm = 32f;   // to hơn để dễ quét
+        public const float QrRightGapMm = 1.5f;  // khoảng cách QR với mép phải inner
 
         // ─── Watermark ───────────────────────────────────────────────────────
-        public const float WatermarkOpacityDefault = 0.07f;   // 7% opacity
-        public const float WatermarkSizeMm = 55f;     // logo lớn giữa tem
+        public const float WatermarkOpacityDefault = 0.12f;  // 12% — đủ thấy
+        public const float WatermarkSizeMm = 42f;    // 70% của 60mm — logo lớn giữa tem
 
         // ─── Font names ──────────────────────────────────────────────────────
-        public const string FontDefault = "Arial";
-        public const string FontCompany = "Arial";
+        public const string FontDefault = "Play";
+        public const string FontCompany = "Play";
 
         // ─── Font sizes (point) ──────────────────────────────────────────────
-        public const float FontSizeCompanyName = 10f;
+        public const float FontSizeCompanyName = 10.5f;
         public const float FontSizeSubTitle = 6f;
-        public const float FontSizeProductName = 7.5f;
-        public const float FontSizeLabel = 6.5f;   // nhãn cột trái ("Chiều dài:")
-        public const float FontSizeValue = 8f;     // giá trị cột phải
-        public const float FontSizeProductCode = 8f;     // mã sản phẩm trong box
-        public const float FontSizeFooter = 9f;
-        public const float FontSizeBhCode = 5.5f;   // BH-QC-13-58-02
+        public const float FontSizeProductName = 8f;
+        public const float FontSizeLabel = 7f;    // nhãn cột trái ("Chiều dài:")
+        public const float FontSizeValue = 8f;    // giá trị cột phải
+        public const float FontSizeProductCode = 8.5f;  // mã sản phẩm trong box
+        public const float FontSizeFooter = 12f;   // "GOLDCUP"
+        public const float FontSizeBhCode = 6f;    // BH-QC-13-58-02
 
-        // ─── Màu sắc (grayscale — in trắng đen) ─────────────────────────────
+        // ─── Row height (mm) ─────────────────────────────────────────────────
+        public const float RowHeightMm = 6f;
+
+        // ─── Màu sắc ─────────────────────────────────────────────────────────
         public static readonly Color ColorBlack = Color.Black;
         public static readonly Color ColorWhite = Color.White;
-        public static readonly Color ColorFooterBg = Color.Black;   // nền footer
+        public static readonly Color ColorFooterBg = Color.Black;
         public static readonly Color ColorBorder = Color.Black;
         public static readonly Color ColorLightGray = Color.FromArgb(200, 200, 200);
 

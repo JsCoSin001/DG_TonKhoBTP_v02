@@ -129,7 +129,7 @@
             this.tableLayoutPanel6.ColumnCount = 3;
             this.tableLayoutPanel6.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 64.65753F));
             this.tableLayoutPanel6.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 35.34246F));
-            this.tableLayoutPanel6.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 145F));
+            this.tableLayoutPanel6.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 146F));
             this.tableLayoutPanel6.Controls.Add(this.btnXoa, 1, 0);
             this.tableLayoutPanel6.Controls.Add(this.btnLuu, 2, 0);
             this.tableLayoutPanel6.Controls.Add(this.cbxExSanPham, 0, 0);
@@ -144,7 +144,7 @@
             // btnXoa
             // 
             this.btnXoa.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnXoa.Location = new System.Drawing.Point(250, 3);
+            this.btnXoa.Location = new System.Drawing.Point(249, 3);
             this.btnXoa.Name = "btnXoa";
             this.btnXoa.Size = new System.Drawing.Size(114, 46);
             this.btnXoa.TabIndex = 6;
@@ -157,7 +157,7 @@
             this.btnLuu.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
             this.btnLuu.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnLuu.ForeColor = System.Drawing.SystemColors.Control;
-            this.btnLuu.Location = new System.Drawing.Point(385, 3);
+            this.btnLuu.Location = new System.Drawing.Point(384, 3);
             this.btnLuu.Name = "btnLuu";
             this.btnLuu.Size = new System.Drawing.Size(114, 46);
             this.btnLuu.TabIndex = 5;
@@ -417,7 +417,7 @@
             "Nhà cung cấp",
             "Kho",
             "Rulo"});
-            this.cbxLoaiTimKiem.Location = new System.Drawing.Point(3, 18);
+            this.cbxLoaiTimKiem.Location = new System.Drawing.Point(3, 15);
             this.cbxLoaiTimKiem.Name = "cbxLoaiTimKiem";
             this.cbxLoaiTimKiem.Size = new System.Drawing.Size(153, 28);
             this.cbxLoaiTimKiem.TabIndex = 7;
@@ -426,7 +426,7 @@
             // 
             this.cbxMaSP.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbxMaSP.FormattingEnabled = true;
-            this.cbxMaSP.Location = new System.Drawing.Point(162, 18);
+            this.cbxMaSP.Location = new System.Drawing.Point(162, 15);
             this.cbxMaSP.Name = "cbxMaSP";
             this.cbxMaSP.Size = new System.Drawing.Size(363, 28);
             this.cbxMaSP.TabIndex = 8;
@@ -748,8 +748,14 @@
             // nbrKichThuocRolo
             // 
             this.nbrKichThuocRolo.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.nbrKichThuocRolo.DecimalPlaces = 2;
             this.nbrKichThuocRolo.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.nbrKichThuocRolo.Location = new System.Drawing.Point(3, 37);
+            this.nbrKichThuocRolo.Maximum = new decimal(new int[] {
+            276447231,
+            23283,
+            0,
+            0});
             this.nbrKichThuocRolo.Name = "nbrKichThuocRolo";
             this.nbrKichThuocRolo.Size = new System.Drawing.Size(169, 26);
             this.nbrKichThuocRolo.TabIndex = 2;
@@ -757,8 +763,14 @@
             // nbrKhoiLuongRulo
             // 
             this.nbrKhoiLuongRulo.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.nbrKhoiLuongRulo.DecimalPlaces = 1;
             this.nbrKhoiLuongRulo.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.nbrKhoiLuongRulo.Location = new System.Drawing.Point(178, 37);
+            this.nbrKhoiLuongRulo.Maximum = new decimal(new int[] {
+            -1486618625,
+            232830643,
+            0,
+            0});
             this.nbrKhoiLuongRulo.Name = "nbrKhoiLuongRulo";
             this.nbrKhoiLuongRulo.Size = new System.Drawing.Size(170, 26);
             this.nbrKhoiLuongRulo.TabIndex = 2;
@@ -766,8 +778,14 @@
             // nbrKhoiLuongCaNanPhu
             // 
             this.nbrKhoiLuongCaNanPhu.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.nbrKhoiLuongCaNanPhu.DecimalPlaces = 1;
             this.nbrKhoiLuongCaNanPhu.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.nbrKhoiLuongCaNanPhu.Location = new System.Drawing.Point(354, 37);
+            this.nbrKhoiLuongCaNanPhu.Maximum = new decimal(new int[] {
+            276447231,
+            23283,
+            0,
+            0});
             this.nbrKhoiLuongCaNanPhu.Name = "nbrKhoiLuongCaNanPhu";
             this.nbrKhoiLuongCaNanPhu.Size = new System.Drawing.Size(171, 26);
             this.nbrKhoiLuongCaNanPhu.TabIndex = 2;

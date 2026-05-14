@@ -99,19 +99,19 @@ namespace DG_TonKhoBTP_v02.Printer.TemXuatHang
             // Convert mm → pixel
             float labelWPx = MmToPx(LabelWMm, dpiX);
             float labelHPx = MmToPx(LabelHMm, dpiY);
+            float cellWPx = MmToPx(LabelConstants.A4WidthMm / LabelConstants.LabelsPerRow, dpiX);
+            float cellHPx = MmToPx(LabelConstants.A4HeightMm / LabelConstants.LabelsPerCol, dpiY);
+            float horizontalInsetPx = Math.Max(0, (cellWPx - labelWPx) / 2f);
+            float verticalInsetPx = Math.Max(0, (cellHPx - labelHPx) / 2f);
 
-            // Vị trí 4 ô tem trên tờ A4 (2 cột × 2 hàng)
-            // ┌──────┬──────┐
-            // │  [0] │  [1] │
-            // ├──────┼──────┤
-            // │  [2] │  [3] │
-            // └──────┴──────┘
+            // Vị trí 4 ô tem trên tờ A4 (2 cột × 2 hàng).
+            // Tem được căn giữa trong mỗi ô sau khi thu nhỏ rộng/cao.
             RectangleF[] slots = new RectangleF[]
             {
-                new RectangleF(0,          0,          labelWPx, labelHPx),  // top-left
-                new RectangleF(labelWPx,   0,          labelWPx, labelHPx),  // top-right
-                new RectangleF(0,          labelHPx,   labelWPx, labelHPx),  // bottom-left
-                new RectangleF(labelWPx,   labelHPx,   labelWPx, labelHPx),  // bottom-right
+                new RectangleF(horizontalInsetPx,                 verticalInsetPx,           labelWPx, labelHPx),  // top-left
+                new RectangleF(cellWPx + horizontalInsetPx,       verticalInsetPx,           labelWPx, labelHPx),  // top-right
+                new RectangleF(horizontalInsetPx,                 cellHPx + verticalInsetPx, labelWPx, labelHPx),  // bottom-left
+                new RectangleF(cellWPx + horizontalInsetPx,       cellHPx + verticalInsetPx, labelWPx, labelHPx),  // bottom-right
             };
 
             int startIndex = _currentPageIndex * LabelConstants.LabelsPerPage;

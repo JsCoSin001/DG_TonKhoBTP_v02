@@ -88,8 +88,8 @@ namespace DG_TonKhoBTP_v02.Printer.TemXuatHang
 
         // ── Typography ────────────────────────────────────────────────────────
 
-        /// <summary>Tên font. Mặc định: Arial.</summary>
-        public string FontName { get; set; } = "Arial";
+        /// <summary>Tên font. Mặc định: Play.</summary>
+        public string FontName { get; set; } = LabelConstants.FontDefault;
 
         /// <summary>Cỡ chữ (point).</summary>
         public float FontSize { get; set; } = 8f;

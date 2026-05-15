@@ -46,6 +46,27 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
             }, ct);
         }
 
+        /// <summary>
+        /// Lấy danh sách kích thước lô từ TTLo để đổ vào ComboBox nrChieuCaoLo.
+        /// </summary>
+        public static DataTable LayDanhSachKichThuocLo()
+        {
+            const string sql = @"
+                SELECT KichThuoc
+                FROM TTLo
+                WHERE TRIM(IFNULL(KichThuoc, '')) <> ''
+                ORDER BY CAST(KichThuoc AS REAL), KichThuoc;";
+
+            DataTable dt = new DataTable();
+
+            using var conn = DB_Base.OpenConnection();
+            using var cmd = new SQLiteCommand(sql, conn);
+            using var adapter = new SQLiteDataAdapter(cmd);
+            adapter.Fill(dt);
+
+            return dt;
+        }
+
         // ════════════════════════════════════════════════════════════════════════
         // CHỨC NĂNG 1 – NHẬP KHO (INSERT TTNhapKho + TTCuonDay), trả về id vừa tạo
         // ════════════════════════════════════════════════════════════════════════
@@ -76,12 +97,12 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                     (Ngay, SoBB, TTThanhPham_ID, TenSP, SoMet,
                      LoaiDon, KhachHang, GhiChu,
                      Loai, ChieuCaoLo,
-                     NguoiLam)
+                     NguoiLam, TenDuAn)
                 VALUES
                     (@Ngay, @SoBB, @TTThanhPham_ID, @TenSP, @SoMet,
                      @LoaiDon, @KhachHang, @GhiChu,
                      @Loai, @ChieuCaoLo,
-                     @NguoiLam);
+                     @NguoiLam, @TenDuAn);
                 SELECT last_insert_rowid();";
 
             // ── SQL INSERT TTCuonDay ────────────────────────────────────────────
@@ -126,6 +147,8 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                         isLo ? (object)model.ChieuCaoLo : DBNull.Value);
                     cmd.Parameters.AddWithValue("@NguoiLam",
                         string.IsNullOrWhiteSpace(model.NguoiLam) ? (object)DBNull.Value : model.NguoiLam.Trim());
+                    cmd.Parameters.AddWithValue("@TenDuAn",
+                        string.IsNullOrWhiteSpace(model.TenDuAn) ? (object)DBNull.Value : model.TenDuAn.Trim());
 
                     newId = (long)cmd.ExecuteScalar();
                 }
@@ -222,7 +245,8 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
             GhiChu         = @GhiChu,
             Loai           = @Loai,
             ChieuCaoLo     = @ChieuCaoLo,
-            NguoiLam       = @NguoiLam
+            NguoiLam       = @NguoiLam,
+            TenDuAn        = @TenDuAn
         WHERE id = @id;";
 
             const string sqlDeleteCuonDay = @"
@@ -291,6 +315,9 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
 
                     cmd.Parameters.AddWithValue("@NguoiLam",
                         string.IsNullOrWhiteSpace(model.NguoiLam) ? (object)DBNull.Value : model.NguoiLam.Trim());
+
+                    cmd.Parameters.AddWithValue("@TenDuAn",
+                        string.IsNullOrWhiteSpace(model.TenDuAn) ? (object)DBNull.Value : model.TenDuAn.Trim());
 
                     if (cmd.ExecuteNonQuery() == 0)
                         throw new InvalidOperationException(
@@ -511,6 +538,7 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                     END                     AS ngay,
 
                     nk.SoBB                 AS soBB,
+                    nk.NguoiLam             AS nguoiLam,
                     nk.TenSP                AS tenSP,
                     IFNULL(tp.MaBin, '')    AS maBin2,
                     nk.SoMet                AS soMet,
@@ -518,10 +546,20 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                     nk.KhachHang            AS khachHang,
                     nk.Loai                 AS loai,
                     nk.ChieuCaoLo           AS chieuCaoLo,
-                    nk.GhiChu               AS ghiChu
+                    nk.GhiChu               AS ghiChu,
+                    nk.TenDuAn              AS tenDuAn,
+
+                    bs.TenChiTiet           AS tenChiTiet,
+                    bs.TieuChuan            AS tieuChuan,
+                    CAST(IFNULL(bs.T, 0) AS REAL) AS heSoT,
+
+                    lo.KhoiLuong            AS klLoKhoiLuong,
+                    lo.KhoiLuongCaNanPhu    AS klLoKhoiLuongCaNanPhu
 
                 FROM TTNhapKho nk
                 LEFT JOIN TTThanhPham tp ON tp.id = nk.TTThanhPham_ID
+                LEFT JOIN TTBoSung bs    ON bs.DanhSachMaSP_ID = tp.DanhSachSP_ID
+                LEFT JOIN TTLo lo        ON CAST(lo.KichThuoc AS TEXT) = CAST(nk.ChieuCaoLo AS TEXT)
                 WHERE
                        TRIM(IFNULL(nk.TenSP, '')) = @keyword COLLATE NOCASE
                     OR TRIM(IFNULL(nk.Ngay, '')) = @keyword COLLATE NOCASE
@@ -669,5 +707,57 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                 System.Globalization.NumberStyles.Any,
                 System.Globalization.CultureInfo.CurrentCulture,
                 out double v) ? v : (double?)null;
+
+        // ════════════════════════════════════════════════════════════════════════
+        // LẤY THÔNG TIN TTBoSung VÀ TTLo ĐỂ ĐIỀN VÀO GRID
+        // ════════════════════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Trả về thông tin từ TTBoSung (tenChiTiet, tieuChuan, heSoT)
+        /// và TTLo (klKhoiLuong, klKhoiLuongCaNanPhu) theo TTThanhPham_ID và chieuCaoLo.
+        /// </summary>
+        public static ThongTinBoSungVaLo LayThongTinBoSungVaLo(long ttThanhPhamId, double chieuCaoLo)
+        {
+            const string sql = @"
+                SELECT
+                    bs.TenChiTiet               AS tenChiTiet,
+                    bs.TieuChuan                AS tieuChuan,
+                    CAST(IFNULL(bs.T, 0) AS REAL) AS heSoT,
+                    lo.KhoiLuong                AS klKhoiLuong,
+                    lo.KhoiLuongCaNanPhu        AS klKhoiLuongCaNanPhu
+                FROM TTThanhPham tp
+                LEFT JOIN TTBoSung bs ON bs.DanhSachMaSP_ID = tp.DanhSachSP_ID
+                LEFT JOIN TTLo lo     ON CAST(lo.KichThuoc AS TEXT) = CAST(@chieuCaoLo AS TEXT)
+                WHERE tp.id = @ttThanhPhamId
+                LIMIT 1;";
+
+            using var conn = DB_Base.OpenConnection();
+            using var cmd = new SQLiteCommand(sql, conn);
+            cmd.Parameters.AddWithValue("@ttThanhPhamId", ttThanhPhamId);
+            cmd.Parameters.AddWithValue("@chieuCaoLo", chieuCaoLo);
+
+            using var reader = cmd.ExecuteReader();
+            if (!reader.Read())
+                return new ThongTinBoSungVaLo();
+
+            return new ThongTinBoSungVaLo
+            {
+                TenChiTiet = reader["tenChiTiet"] == DBNull.Value ? string.Empty : reader["tenChiTiet"].ToString(),
+                TieuChuan = reader["tieuChuan"] == DBNull.Value ? string.Empty : reader["tieuChuan"].ToString(),
+                HeSoT = reader["heSoT"] == DBNull.Value ? 0 : Convert.ToDouble(reader["heSoT"]),
+                KlKhoiLuong = reader["klKhoiLuong"] == DBNull.Value ? (double?)null : Convert.ToDouble(reader["klKhoiLuong"]),
+                KlKhoiLuongCaNanPhu = reader["klKhoiLuongCaNanPhu"] == DBNull.Value ? (double?)null : Convert.ToDouble(reader["klKhoiLuongCaNanPhu"]),
+            };
+        }
+    }
+
+    /// <summary>DTO chứa kết quả từ TTBoSung và TTLo.</summary>
+    public class ThongTinBoSungVaLo
+    {
+        public string TenChiTiet { get; set; } = string.Empty;
+        public string TieuChuan { get; set; } = string.Empty;
+        public double HeSoT { get; set; }
+        public double? KlKhoiLuong { get; set; }
+        public double? KlKhoiLuongCaNanPhu { get; set; }
     }
 }

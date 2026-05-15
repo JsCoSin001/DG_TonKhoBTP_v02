@@ -58,5 +58,6 @@ namespace DG_TonKhoBTP_v02.Models
         public string NguoiLam { get; set; }
 
         public string ThongTinCuonDay { get; set; }
+        public string TenDuAn { get; set; }
     }
 }

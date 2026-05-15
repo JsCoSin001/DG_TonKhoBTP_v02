@@ -272,7 +272,7 @@ namespace DG_TonKhoBTP_v02.Printer.TemXuatHang
 
             // "Dự án:" + giá trị — đặt ngay bên dưới phần ProductType thực tế,
             // không còn dùng khoảng cứng 13mm nữa.
-            float productProjectGapMm = 1.5f;
+            float productProjectGapMm = 4f;
             float projY = productTypeY + measuredProductTypeH + Mm2Px(productProjectGapMm);
 
             using (GdiFont fLabel = MakeFont(LabelConstants.FontSizeLabel + 0.5f, bold: true, italic: true))
@@ -284,7 +284,7 @@ namespace DG_TonKhoBTP_v02.Printer.TemXuatHang
             {
                 using (GdiFont fVal = MakeFont(LabelConstants.FontSizeValue, bold: true))
                     DrawText(g, data.Project, fVal, Brushes.Black,
-                        new RectangleF(x, projY + labelH, textW, labelH),
+                        new RectangleF(x, projY + labelH - Mm2Px(2f), textW, labelH),
                         StringAlignment.Center, StringAlignment.Center);
             }
 
@@ -471,7 +471,7 @@ namespace DG_TonKhoBTP_v02.Printer.TemXuatHang
                 + Mm2Px(LabelConstants.PaddingMm)
                 - Mm2Px(FooterMm);
 
-            float madeInGapToFooter = Mm2Px(1f);
+            float madeInGapToFooter = Mm2Px(0f);
             float madeInY = footerTopY - madeInGapToFooter - rowH;
 
             using (GdiFont f = MakeFont(LabelConstants.FontSizeSubTitle, italic: true))
@@ -548,9 +548,9 @@ namespace DG_TonKhoBTP_v02.Printer.TemXuatHang
             using (GdiFont fLabel = MakeFont(lfs, bold: true, italic: true))
             using (GdiFont fValue = MakeFont(vfs, bold: valueBold))
             {
-                DrawText(g, label, fLabel, Brushes.Black,
-                    new RectangleF(x, y, labelW, rowH),
-                    StringAlignment.Near, StringAlignment.Center);
+                DrawTextNoWrap(g, label, fLabel, Brushes.Black,
+                 new RectangleF(x, y, labelW, rowH),
+                 StringAlignment.Near, StringAlignment.Center);
 
                 DrawText(g, value, fValue, Brushes.Black,
                     new RectangleF(valueX, y, valueW, rowH),

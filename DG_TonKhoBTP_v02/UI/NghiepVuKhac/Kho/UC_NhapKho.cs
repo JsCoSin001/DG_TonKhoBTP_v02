@@ -894,7 +894,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.ChatLuong
                     QualityResult  = "Đạt",
                     Standard       = "IEC 60502-1",
                     Project        = ""
-                }, new LabelData
+                }, 
+                new LabelData
                 {
                     ProductType    = "Cáp ngầm nhôm 0.6/1kV\nAL/XLPE/PVC/DSTA/PVC 4x150mm2",
                     ProductCode    = "E10-261743/7-01",
@@ -907,7 +908,64 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.ChatLuong
                     QualityResult  = "Đạt",
                     Standard       = "IEC 60502-1",
                     Project        = ""
-                }, new LabelData
+                },
+                new LabelData
+                {
+                    ProductType    = "Cáp ngầm nhôm 0.6/1kV\nAL/XLPE/PVC/DSTA/PVC 4x150mm2",
+                    ProductCode    = "E10-261743/7-01",
+                    Length         = "180 m",
+                    LengthRange    = "( 0000 ~ 0180 )",
+                    CableWeight    = "730 Kg",
+                    TotalWeight    = "945 Kg",
+                    InspectionDate = "23/04/2026",
+                    Inspector      = "Nguyễn Huy Toàn-DG112",
+                    QualityResult  = "Đạt",
+                    Standard       = "IEC 60502-1",
+                    Project        = ""
+                },
+                new LabelData
+                {
+                    ProductType    = "Cáp ngầm nhôm 0.6/1kV\nAL/XLPE/PVC/DSTA/PVC 4x150mm2",
+                    ProductCode    = "E10-261743/7-01",
+                    Length         = "180 m",
+                    LengthRange    = "( 0000 ~ 0180 )",
+                    CableWeight    = "730 Kg",
+                    TotalWeight    = "945 Kg",
+                    InspectionDate = "23/04/2026",
+                    Inspector      = "Nguyễn Huy Toàn-DG112",
+                    QualityResult  = "Đạt",
+                    Standard       = "IEC 60502-1",
+                    Project        = ""
+                },
+                new LabelData
+                {
+                    ProductType    = "Cáp ngầm nhôm 0.6/1kV\nAL/XLPE/PVC/DSTA/PVC 4x150mm2",
+                    ProductCode    = "E10-261743/7-01",
+                    Length         = "180 m",
+                    LengthRange    = "( 0000 ~ 0180 )",
+                    CableWeight    = "730 Kg",
+                    TotalWeight    = "945 Kg",
+                    InspectionDate = "23/04/2026",
+                    Inspector      = "Nguyễn Huy Toàn-DG112",
+                    QualityResult  = "Đạt",
+                    Standard       = "IEC 60502-1",
+                    Project        = ""
+                },
+                new LabelData
+                {
+                    ProductType    = "Cáp ngầm nhôm 0.6/1kV\nAL/XLPE/PVC/DSTA/PVC 4x150mm2",
+                    ProductCode    = "E10-261743/7-01",
+                    Length         = "180 m",
+                    LengthRange    = "( 0000 ~ 0180 )",
+                    CableWeight    = "730 Kg",
+                    TotalWeight    = "945 Kg",
+                    InspectionDate = "23/04/2026",
+                    Inspector      = "Nguyễn Huy Toàn-DG112",
+                    QualityResult  = "Đạt",
+                    Standard       = "IEC 60502-1",
+                    Project        = ""
+                },
+                new LabelData
                 {
                     ProductType    = "Cáp ngầm nhôm 0.6/1kV\nAL/XLPE/PVC/DSTA/PVC 4x150mm2",
                     ProductCode    = "E10-261743/7-01",

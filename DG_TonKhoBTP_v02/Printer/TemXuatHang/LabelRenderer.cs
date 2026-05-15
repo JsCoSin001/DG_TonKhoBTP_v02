@@ -221,45 +221,60 @@ namespace DG_TonKhoBTP_v02.Printer.TemXuatHang
             float kcsSize = Mm2Px(18.15f);  // tăng 125% so với 14.52mm hiện tại
             float kcsX = x + w - kcsSize - Mm2Px(0.5f);
             float kcsY = y + Mm2Px(1f);
+
             if (_kcsLogo != null)
                 DrawImageKeepAspect(g, _kcsLogo, new RectangleF(kcsX, kcsY, kcsSize, kcsSize),
                     StringAlignment.Center, StringAlignment.Center);
             else
                 DrawFallbackKcsBadge(g, kcsX, kcsY, kcsSize);
 
-            // "Sản phẩm:" — căn giữa, đậm nghiêng
+            // "Sản phẩm:" / ProductType / "Dự án:" / Project
+            // Dịch riêng cụm nội dung này lên trên 6mm.
+            // Trong GDI+, trục Y tăng xuống dưới, nên muốn lên trên thì phải TRỪ 6mm khỏi tọa độ Y.
+            float productTextShiftUpMm = 6f;
+            float textBaseY = y - Mm2Px(productTextShiftUpMm);
+
             float textW = w - kcsSize - Mm2Px(2f);  // bỏ vùng KCS
             float labelH = Mm2Px(5.5f);
+
+            // "Sản phẩm:"
             using (GdiFont f = MakeFont(LabelConstants.FontSizeLabel + 0.5f, bold: true, italic: true))
                 DrawText(g, LabelConstants.LblProduct, f, Brushes.Black,
-                    new RectangleF(x, y + Mm2Px(1f), textW, labelH),
+                    new RectangleF(x, textBaseY + Mm2Px(1f), textW, labelH),
                     StringAlignment.Center, StringAlignment.Center);
 
-            // Tên sản phẩm — căn giữa, đậm, có thể xuống 2 dòng
-            float productTypeY = y + labelH + Mm2Px(1.5f);
-            float productTypeH = Mm2Px(13f);
+            // ProductType — căn giữa, đậm, tự động xuống dòng khi quá dài.
+            // productTypeMaxH là ceiling để DrawString biết chỗ cắt/ellipsis,
+            // nhưng projY sẽ dùng chiều cao thực đo được, không cứng theo ceiling này.
+            float productTypeY = textBaseY + labelH + Mm2Px(1.5f);
+            float productTypeMaxH = Mm2Px(13f);
+            float measuredProductTypeH;
+
             using (GdiFont f = MakeFont(LabelConstants.FontSizeProductName + 0.5f, bold: true))
+            using (StringFormat sf = new StringFormat())
             {
-                var sf = new StringFormat
-                {
-                    Alignment = StringAlignment.Center,
-                    LineAlignment = StringAlignment.Near,
-                    Trimming = StringTrimming.None,
-                    FormatFlags = StringFormatFlags.NoClip
-                };
+                sf.Alignment = StringAlignment.Center;
+                sf.LineAlignment = StringAlignment.Near;
+                sf.Trimming = StringTrimming.EllipsisWord;
+                sf.FormatFlags = StringFormatFlags.LineLimit;
 
                 string productType = data.ProductType ?? string.Empty;
+
+                // Đo chiều cao thực tế GDI+ sẽ render (với đúng font + wrap width).
+                // Clamp về ceiling để không vượt quá vùng tối đa cho phép.
                 SizeF measured = g.MeasureString(productType, f, (int)textW, sf);
-                float usedProductTypeH = Math.Min(productTypeH, Math.Max(labelH, measured.Height));
+                measuredProductTypeH = Math.Min(measured.Height, productTypeMaxH);
 
+                // Vẫn truyền productTypeMaxH vào DrawString để LineLimit + EllipsisWord hoạt động đúng.
                 g.DrawString(productType, f, Brushes.Black,
-                    new RectangleF(x, productTypeY, textW, usedProductTypeH), sf);
-
-                productTypeH = usedProductTypeH;
+                    new RectangleF(x, productTypeY, textW, productTypeMaxH), sf);
             }
 
-            // "Dự án:" + giá trị — đặt ngay bên dưới ProductType
-            float projY = productTypeY + productTypeH + Mm2Px(0.5f);
+            // "Dự án:" + giá trị — đặt ngay bên dưới phần ProductType thực tế,
+            // không còn dùng khoảng cứng 13mm nữa.
+            float productProjectGapMm = 1.5f;
+            float projY = productTypeY + measuredProductTypeH + Mm2Px(productProjectGapMm);
+
             using (GdiFont fLabel = MakeFont(LabelConstants.FontSizeLabel + 0.5f, bold: true, italic: true))
                 DrawText(g, LabelConstants.LblProject, fLabel, Brushes.Black,
                     new RectangleF(x, projY, textW, labelH),
@@ -334,7 +349,7 @@ namespace DG_TonKhoBTP_v02.Printer.TemXuatHang
             float qrX = x + w - qrSize - Mm2Px(LabelConstants.QrRightGapMm);
             float dataW = w - qrSize - Mm2Px(LabelConstants.QrRightGapMm + 1f);
 
-            float y = inner.Y + Mm2Px(DataStartOffsetMm - 8f);
+            float y = inner.Y + Mm2Px(DataStartOffsetMm - 11f);
             float rowStep = rowH + Mm2Px(1.5f); // tăng giãn cách các dòng dữ liệu thêm 1mm so với bản v8
 
             // ── Dòng 1: Mã sản phẩm ──────────────────────────────────────────
@@ -449,10 +464,22 @@ namespace DG_TonKhoBTP_v02.Printer.TemXuatHang
             y += rowStep;
 
             // "Sản xuất tại Việt Nam" — căn giữa, nghiêng
+            // "Sản xuất tại Việt Nam" — nằm trên footer, cách footer 1mm
+            float footerTopY =
+                inner.Y
+                + inner.Height
+                + Mm2Px(LabelConstants.PaddingMm)
+                - Mm2Px(FooterMm);
+
+            float madeInGapToFooter = Mm2Px(1f);
+            float madeInY = footerTopY - madeInGapToFooter - rowH;
+
             using (GdiFont f = MakeFont(LabelConstants.FontSizeSubTitle, italic: true))
+            {
                 DrawText(g, LabelConstants.MadeIn, f, Brushes.Black,
-                    new RectangleF(x, y + Mm2Px(2f), w, rowH),
+                    new RectangleF(x, madeInY, w, rowH),
                     StringAlignment.Center, StringAlignment.Center);
+            }
         }
 
         // ═════════════════════════════════════════════════════════════════════
@@ -470,7 +497,7 @@ namespace DG_TonKhoBTP_v02.Printer.TemXuatHang
             float fW = bounds.Width;
 
             // Nền footer giảm độ đậm so với nền đen cũ
-            using (Brush footerBg = new SolidBrush(Color.FromArgb(125, 125, 125)))
+            using (Brush footerBg = new SolidBrush(Color.FromArgb(165, 165, 165)))
                 g.FillRectangle(footerBg, fX, fY, fW, fH);
 
             // Bỏ đường/ký tự phân cách giữa FooterLeft và FooterRight
@@ -478,9 +505,12 @@ namespace DG_TonKhoBTP_v02.Printer.TemXuatHang
 
             // "GOLDCUP" — to, đậm, trắng
             using (GdiFont f = MakeFont(LabelConstants.FontSizeFooter, bold: true))
-                DrawText(g, LabelConstants.FooterLeft, f, Brushes.White,
+            {
+                DrawTextExtraBold(g, LabelConstants.FooterLeft, f, Brushes.White,
                     new RectangleF(fX, fY, divX - fX, fH),
-                    StringAlignment.Center, StringAlignment.Center);
+                    StringAlignment.Center, StringAlignment.Center,
+                    strokePx: Math.Max(1f, Mm2Px(0.12f)));
+            }
 
             // "WIRE AND CABLE — ISO 9001 : 2015" — trắng
             using (GdiFont f = MakeFont(LabelConstants.FontSizeFooter - 2f, bold: true))
@@ -713,6 +743,29 @@ namespace DG_TonKhoBTP_v02.Printer.TemXuatHang
             if (!File.Exists(path)) return null;
             try { return Image.FromFile(path); }
             catch { return null; }
+        }
+
+        private void DrawTextExtraBold(
+            Graphics g, string text, GdiFont font, Brush brush,
+            RectangleF rect,
+            StringAlignment hAlign = StringAlignment.Near,
+            StringAlignment vAlign = StringAlignment.Center,
+            float strokePx = 1f)
+        {
+            if (string.IsNullOrEmpty(text)) return;
+
+            // Vẽ chồng theo trục X để tăng độ dày chữ, không làm tăng chiều cao chữ.
+            DrawText(g, text, font, brush,
+                new RectangleF(rect.X - strokePx * 0.5f, rect.Y, rect.Width, rect.Height),
+                hAlign, vAlign);
+
+            DrawText(g, text, font, brush,
+                rect,
+                hAlign, vAlign);
+
+            DrawText(g, text, font, brush,
+                new RectangleF(rect.X + strokePx * 0.5f, rect.Y, rect.Width, rect.Height),
+                hAlign, vAlign);
         }
 
         // ═════════════════════════════════════════════════════════════════════

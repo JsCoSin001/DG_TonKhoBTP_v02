@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using CoreHelper = DG_TonKhoBTP_v02.Helper.Helper;
 
-namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
+namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
 {
     public partial class UC_BaoCao : UserControl
     {

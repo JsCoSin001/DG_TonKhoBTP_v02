@@ -178,6 +178,7 @@
     <Compile Include="Models\KeToan\TTLo_Model.cs" />
     <Compile Include="Models\Kho\LotCode.cs" />
     <Compile Include="Models\Kho\LotCodeDocxWriter.cs" />
+    <Compile Include="Models\Kho\XuatKho_Model.cs" />
     <Compile Include="Models\KiemKe.cs" />
     <Compile Include="Models\LoginClass.cs" />
     <Compile Include="Models\Kho\NhapKho_Model.cs" />
@@ -217,6 +218,12 @@
     </Compile>
     <Compile Include="UI\NghiepVuKhac\KeToan\Frm_BoSungThemDuLieu.Designer.cs">
       <DependentUpon>Frm_BoSungThemDuLieu.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\NghiepVuKhac\KeToan\VatTuKhac\UC_VatTuKhac.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\NghiepVuKhac\KeToan\VatTuKhac\UC_VatTuKhac.Designer.cs">
+      <DependentUpon>UC_VatTuKhac.cs</DependentUpon>
     </Compile>
     <Compile Include="UI\NghiepVuKhac\Kho\Frm_DLCuon.cs">
       <SubType>Form</SubType>
@@ -485,6 +492,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="UI\NghiepVuKhac\KeToan\Frm_BoSungThemDuLieu.resx">
       <DependentUpon>Frm_BoSungThemDuLieu.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\NghiepVuKhac\KeToan\VatTuKhac\UC_VatTuKhac.resx">
+      <DependentUpon>UC_VatTuKhac.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UI\NghiepVuKhac\Kho\Frm_DLCuon.resx">
       <DependentUpon>Frm_DLCuon.cs</DependentUpon>

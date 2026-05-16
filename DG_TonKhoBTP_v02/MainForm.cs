@@ -12,7 +12,7 @@ using DG_TonKhoBTP_v02.UI.KeHoach;
 using DG_TonKhoBTP_v02.UI.NghiepVu;
 using DG_TonKhoBTP_v02.UI.NghiepVu.KeHoach;
 using DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan;
-using DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu;
+using DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac;
 using DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho;
 using DG_TonKhoBTP_v02.UI.NghiepVuKhac.ChatLuong;
 using DG_TonKhoBTP_v02.UI.Setting;
@@ -1421,12 +1421,52 @@ namespace DG_TonKhoBTP_v02
             }
         }
 
+        //private void btnVatTuPhu_Click(object sender, EventArgs e)
+        //{
+        //    using (var f = new FrmVatTuKhac())
+        //    {
+        //        f.StartPosition = FormStartPosition.CenterScreen;
+        //        f.ShowDialog(this); // this là form cha
+        //    }
+        //}
+
         private void btnVatTuPhu_Click(object sender, EventArgs e)
         {
-            using (var f = new FrmVatTuKhac())
+            if (CoreHelper.KiemTraEmpty(_URL))
+                return;
+
+            HighlightMenuButton((Button)sender);
+            btnVatTuPhu.Enabled = false;
+
+            using (var waiting = new FrmWaiting("ĐANG KHỞI TẠO GIAO DIỆN."))
             {
-                f.StartPosition = FormStartPosition.CenterScreen;
-                f.ShowDialog(this); // this là form cha
+                try
+                {
+                    waiting.ShowAndRefresh();
+
+                    pnShow.SuspendLayout();
+                    pnShow.Visible = false;
+
+                    pnShow.Controls.Clear();
+
+                    var uc = new UC_VatTuKhac
+                    {
+                        Dock = DockStyle.Fill
+                    };
+
+                    pnShow.Controls.Add(uc);
+                }
+                catch (Exception ex)
+                {
+                    FrmWaiting.ShowGifAlert($"Lỗi khởi tạo giao diện vật tư: {ex.Message}");
+                }
+                finally
+                {
+                    pnShow.Visible = true;
+                    pnShow.ResumeLayout(true);
+                    waiting?.CloseAndDispose();
+                    btnVatTuPhu.Enabled = true;
+                }
             }
         }
 

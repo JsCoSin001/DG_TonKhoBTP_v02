@@ -1,4 +1,4 @@
-﻿namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu
+﻿namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
 {
     partial class UC_BaoCao
     {

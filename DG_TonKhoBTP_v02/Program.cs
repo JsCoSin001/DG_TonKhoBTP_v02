@@ -1,5 +1,5 @@
 ﻿using DG_TonKhoBTP_v02.UI;
-using DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuPhu;
+using DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac;
 using System;
 using System.Diagnostics;
 using System.Drawing;

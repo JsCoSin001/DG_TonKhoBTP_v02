@@ -41,7 +41,7 @@
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Padding = new System.Windows.Forms.Padding(9, 2, 0, 2);
-            this.menuStrip1.Size = new System.Drawing.Size(1558, 26);
+            this.menuStrip1.Size = new System.Drawing.Size(1556, 26);
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -81,21 +81,21 @@
             // deNghiVatTuToolStrip
             // 
             this.deNghiVatTuToolStrip.Name = "deNghiVatTuToolStrip";
-            this.deNghiVatTuToolStrip.Size = new System.Drawing.Size(180, 22);
+            this.deNghiVatTuToolStrip.Size = new System.Drawing.Size(140, 22);
             this.deNghiVatTuToolStrip.Text = "Đề nghị";
             this.deNghiVatTuToolStrip.Click += new System.EventHandler(this.deNghiVatTuToolStrip_Click);
             // 
             // nhapKhoVatTuToolStrip
             // 
             this.nhapKhoVatTuToolStrip.Name = "nhapKhoVatTuToolStrip";
-            this.nhapKhoVatTuToolStrip.Size = new System.Drawing.Size(180, 22);
+            this.nhapKhoVatTuToolStrip.Size = new System.Drawing.Size(140, 22);
             this.nhapKhoVatTuToolStrip.Text = "Nhập Kho";
             this.nhapKhoVatTuToolStrip.Click += new System.EventHandler(this.nhapKhoVatTuToolStrip_Click);
             // 
             // xuatKhoToolStripMenuItem1
             // 
             this.xuatKhoToolStripMenuItem1.Name = "xuatKhoToolStripMenuItem1";
-            this.xuatKhoToolStripMenuItem1.Size = new System.Drawing.Size(180, 22);
+            this.xuatKhoToolStripMenuItem1.Size = new System.Drawing.Size(140, 22);
             this.xuatKhoToolStripMenuItem1.Text = "Xuất kho";
             this.xuatKhoToolStripMenuItem1.Click += new System.EventHandler(this.xuatKhoToolStripMenuItem1_Click);
             // 
@@ -113,19 +113,20 @@
             this.pnMainVatTuPhu.Margin = new System.Windows.Forms.Padding(4);
             this.pnMainVatTuPhu.Name = "pnMainVatTuPhu";
             this.pnMainVatTuPhu.Padding = new System.Windows.Forms.Padding(15, 14, 15, 14);
-            this.pnMainVatTuPhu.Size = new System.Drawing.Size(1558, 750);
+            this.pnMainVatTuPhu.Size = new System.Drawing.Size(1556, 748);
             this.pnMainVatTuPhu.TabIndex = 1;
             // 
             // UC_VatTuKhac
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 18F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.Controls.Add(this.pnMainVatTuPhu);
             this.Controls.Add(this.menuStrip1);
             this.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "UC_VatTuKhac";
-            this.Size = new System.Drawing.Size(1558, 776);
+            this.Size = new System.Drawing.Size(1556, 774);
             this.Load += new System.EventHandler(this.UC_VatTuKhac_Load);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();

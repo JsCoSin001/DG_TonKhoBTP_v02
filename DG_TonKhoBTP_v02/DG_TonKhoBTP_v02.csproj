@@ -243,12 +243,6 @@
     <Compile Include="UI\NghiepVuKhac\KeToan\UC_KiemKe.Designer.cs">
       <DependentUpon>UC_KiemKe.cs</DependentUpon>
     </Compile>
-    <Compile Include="UI\NghiepVuKhac\KeToan\VatTuKhac\FrmVatTuKhac.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="UI\NghiepVuKhac\KeToan\VatTuKhac\FrmVatTuKhac.Designer.cs">
-      <DependentUpon>FrmVatTuKhac.cs</DependentUpon>
-    </Compile>
     <Compile Include="UI\NghiepVuKhac\KeToan\VatTuKhac\UC_BaoCao.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -504,9 +498,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="UI\NghiepVuKhac\KeToan\UC_KiemKe.resx">
       <DependentUpon>UC_KiemKe.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="UI\NghiepVuKhac\KeToan\VatTuKhac\FrmVatTuKhac.resx">
-      <DependentUpon>FrmVatTuKhac.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UI\NghiepVuKhac\KeToan\VatTuKhac\UC_BaoCao.resx">
       <DependentUpon>UC_BaoCao.cs</DependentUpon>

@@ -1224,7 +1224,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.ChatLuong
                     SoCuon = ParseDbInt(row, "ct_SoCuon"),
                     TongChieuDai = ParseDbInt(row, "ct_TongChieuDai"),
                     SoDau = ParseDbInt(row, "ct_SoDau"),
-                    SoCuoi = ParseDbInt(row, "ct_SoCuoi"),
+                    soCuoi = ParseDbInt(row, "ct_soCuoi"),
                     Ghichu = GetDbText(row, "ct_GhiChu")
                 });
             }

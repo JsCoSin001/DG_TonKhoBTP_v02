@@ -56,7 +56,7 @@ namespace DG_TonKhoBTP_v02.Helper
             var chieuCaoLoText = chieuCaoLo.ToString(CultureInfo.InvariantCulture);
 
             return string.Join(" + ", ds.Select(x =>
-                $"L{chieuCaoLoText} {x.TongChieuDai}({x.SoDau:D2}-{x.SoCuoi:D2})"
+                $"L{chieuCaoLoText} {x.TongChieuDai}({x.SoDau:D2}-{x.soCuoi:D2})"
             ));
         }
 

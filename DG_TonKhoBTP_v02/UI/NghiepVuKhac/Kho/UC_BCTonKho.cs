@@ -397,7 +397,7 @@ namespace DG_TonKhoBTP_v02.UI
                 SoDau = "1",
                 SoThuTu = "02",
                 TenKhach = "ABC",
-                SoCuoi = "5",
+                soCuoi = "5",
                 KHSX = "KHSX01",
                 MauSac = "Do"
             };

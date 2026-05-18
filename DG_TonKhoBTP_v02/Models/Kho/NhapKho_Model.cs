@@ -11,12 +11,12 @@ namespace DG_TonKhoBTP_v02.Models
         public int SoCuon { get; set; }
         public int TongChieuDai { get; set; }
         public int SoDau { get; set; }
-        public int SoCuoi { get; set; }
+        public int soCuoi { get; set; }
         public string Ghichu { get; set; }
     }
 
     /// <summary>
-    /// Ánh xạ với bảng TTNhapKho (schema mới – không còn SoDau/SoCuoi/TongChieuDai/ThongTinCuon).
+    /// Ánh xạ với bảng TTNhapKho (schema mới – không còn SoDau/soCuoi/TongChieuDai/ThongTinCuon).
     /// Danh sách cuộn/lô chi tiết nằm trong List&lt;ThongTinCuonDay&gt; truyền kèm.
     /// </summary>
     public class NhapKho_Model

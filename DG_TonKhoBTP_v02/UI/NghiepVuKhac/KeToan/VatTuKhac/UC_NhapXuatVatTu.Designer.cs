@@ -44,7 +44,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
             this.label3 = new System.Windows.Forms.Label();
             this.cbxKhoHang = new System.Windows.Forms.ComboBox();
             this.label2 = new System.Windows.Forms.Label();
-            this.cbxNhaCungCap = new System.Windows.Forms.ComboBox();
+            this.cbxDoiTuongCongNo = new System.Windows.Forms.ComboBox();
             this.nbrIDNCC = new System.Windows.Forms.NumericUpDown();
             this.tbxnguoiLam = new System.Windows.Forms.TextBox();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
@@ -125,19 +125,19 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
             this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 150F));
             this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 196F));
             this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 104F));
-            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 212F));
-            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 88F));
+            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 147F));
+            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 80F));
             this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 126F));
+            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 142F));
             this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 46F));
+            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 47F));
             this.tableLayoutPanel3.Controls.Add(this.lblGiao_Nhan, 0, 0);
             this.tableLayoutPanel3.Controls.Add(this.txtNguoiGiaoNhan, 1, 0);
             this.tableLayoutPanel3.Controls.Add(this.label5, 2, 0);
             this.tableLayoutPanel3.Controls.Add(this.label3, 4, 0);
             this.tableLayoutPanel3.Controls.Add(this.cbxKhoHang, 5, 0);
             this.tableLayoutPanel3.Controls.Add(this.label2, 6, 0);
-            this.tableLayoutPanel3.Controls.Add(this.cbxNhaCungCap, 7, 0);
+            this.tableLayoutPanel3.Controls.Add(this.cbxDoiTuongCongNo, 7, 0);
             this.tableLayoutPanel3.Controls.Add(this.nbrIDNCC, 8, 0);
             this.tableLayoutPanel3.Controls.Add(this.tbxnguoiLam, 3, 0);
             this.tableLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Top;
@@ -185,9 +185,9 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
             this.label3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.label3.AutoSize = true;
             this.label3.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label3.Location = new System.Drawing.Point(665, 22);
+            this.label3.Location = new System.Drawing.Point(600, 22);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(82, 18);
+            this.label3.Size = new System.Drawing.Size(74, 18);
             this.label3.TabIndex = 0;
             this.label3.Text = "Kho hàng";
             this.label3.TextAlign = System.Drawing.ContentAlignment.TopRight;
@@ -199,9 +199,9 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
             this.cbxKhoHang.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.ListItems;
             this.cbxKhoHang.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbxKhoHang.FormattingEnabled = true;
-            this.cbxKhoHang.Location = new System.Drawing.Point(753, 17);
+            this.cbxKhoHang.Location = new System.Drawing.Point(680, 17);
             this.cbxKhoHang.Name = "cbxKhoHang";
-            this.cbxKhoHang.Size = new System.Drawing.Size(213, 27);
+            this.cbxKhoHang.Size = new System.Drawing.Size(241, 27);
             this.cbxKhoHang.TabIndex = 5;
             // 
             // label2
@@ -209,24 +209,24 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
             this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.Location = new System.Drawing.Point(972, 22);
+            this.label2.Location = new System.Drawing.Point(927, 22);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(120, 18);
+            this.label2.Size = new System.Drawing.Size(136, 18);
             this.label2.TabIndex = 1;
-            this.label2.Text = "Nhà cung cấp";
+            this.label2.Text = "Đối tượng công nợ";
             // 
-            // cbxNhaCungCap
+            // cbxDoiTuongCongNo
             // 
-            this.cbxNhaCungCap.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.cbxNhaCungCap.FormattingEnabled = true;
-            this.cbxNhaCungCap.Location = new System.Drawing.Point(1098, 17);
-            this.cbxNhaCungCap.Name = "cbxNhaCungCap";
-            this.cbxNhaCungCap.Size = new System.Drawing.Size(213, 27);
-            this.cbxNhaCungCap.TabIndex = 4;
+            this.cbxDoiTuongCongNo.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.cbxDoiTuongCongNo.FormattingEnabled = true;
+            this.cbxDoiTuongCongNo.Location = new System.Drawing.Point(1069, 17);
+            this.cbxDoiTuongCongNo.Name = "cbxDoiTuongCongNo";
+            this.cbxDoiTuongCongNo.Size = new System.Drawing.Size(241, 27);
+            this.cbxDoiTuongCongNo.TabIndex = 4;
             // 
             // nbrIDNCC
             // 
-            this.nbrIDNCC.Location = new System.Drawing.Point(1317, 3);
+            this.nbrIDNCC.Location = new System.Drawing.Point(1316, 3);
             this.nbrIDNCC.Maximum = new decimal(new int[] {
             1661992959,
             1808227885,
@@ -243,7 +243,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
             this.tbxnguoiLam.Enabled = false;
             this.tbxnguoiLam.Location = new System.Drawing.Point(453, 17);
             this.tbxnguoiLam.Name = "tbxnguoiLam";
-            this.tbxnguoiLam.Size = new System.Drawing.Size(206, 27);
+            this.tbxnguoiLam.Size = new System.Drawing.Size(141, 27);
             this.tbxnguoiLam.TabIndex = 9;
             // 
             // tableLayoutPanel1
@@ -586,7 +586,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.ComboBox txtNguoiGiaoNhan;
-        private System.Windows.Forms.ComboBox cbxNhaCungCap;
+        private System.Windows.Forms.ComboBox cbxDoiTuongCongNo;
         private System.Windows.Forms.ComboBox cbxKhoHang;
         private System.Windows.Forms.Panel panel3;
         private System.Windows.Forms.Panel panel4;

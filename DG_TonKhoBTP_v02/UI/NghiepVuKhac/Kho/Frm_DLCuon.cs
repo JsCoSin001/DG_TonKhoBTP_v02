@@ -77,7 +77,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho
                         row.Cells["slCuon"].Value = item.SoCuon;
                         row.Cells["tongChieuDai"].Value = item.TongChieuDai;
                         row.Cells["soDau"].Value = item.SoDau;
-                        row.Cells["soCuoi"].Value = item.SoCuoi;
+                        row.Cells["soCuoi"].Value = item.soCuoi;
                         row.Cells["ghichu"].Value = item.Ghichu;
 
                         if (!_isCuon)
@@ -391,7 +391,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho
                     SoCuon = slCuon,
                     TongChieuDai = tongCD,
                     SoDau = soDau,
-                    SoCuoi = soCuoi,
+                    soCuoi = soCuoi,
                     Ghichu = dataGridView1.Rows[i].Cells["ghichu"].Value?.ToString()?.Trim() ?? string.Empty
                 });
             }

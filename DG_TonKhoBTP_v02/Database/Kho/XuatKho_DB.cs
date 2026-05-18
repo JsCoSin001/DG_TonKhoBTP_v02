@@ -44,7 +44,7 @@ namespace DG_TonKhoBTP_v02.Database.Kho
                         FROM   TTCuonDay cd
                         WHERE  cd.ThongTinNhapKho_ID = nk.id
                           AND (
-                                (nk.Loai = 'Lô'    AND cd.SoCuoi > cd.SoDau)
+                                (nk.Loai = 'Lô'    AND cd.soCuoi > cd.SoDau)
                              OR (nk.Loai = 'Cuộn'  AND cd.SoCuon <> 0)
                           )
                   )
@@ -89,7 +89,7 @@ namespace DG_TonKhoBTP_v02.Database.Kho
                         cd.TongChieuDai,
                         cd.SoCuon,
                         cd.SoDau,
-                        cd.SoCuoi,
+                        cd.soCuoi,
                         cd.GhiChu,
                         nk.Loai
                 FROM    TTNhapKho   nk
@@ -115,7 +115,7 @@ namespace DG_TonKhoBTP_v02.Database.Kho
         /// <summary>
         /// Chèn một bản ghi vào TTXuatKho.
         /// Trả về id mới được chèn (last insert rowid).
-        /// TongChieuDai = SoCuon * (SoCuoi - SoDau) — tính ở tầng DB để nhất quán.
+        /// TongChieuDai = SoCuon * (soCuoi - SoDau) — tính ở tầng DB để nhất quán.
         /// </summary>
         public static long ThemXuatKho(
             long ttCuonDayId,
@@ -132,7 +132,7 @@ namespace DG_TonKhoBTP_v02.Database.Kho
 
             const string sql = @"
                 INSERT INTO TTXuatKho
-                    (TTCuonDay_ID, SoCuon, TongChieuDai, SoDau, SoCuoi, GhiChu, NgayXuat, NguoiLam)
+                    (TTCuonDay_ID, SoCuon, TongChieuDai, SoDau, soCuoi, GhiChu, NgayXuat, NguoiLam)
                 VALUES
                     (@ttCuonDayId, @soCuon, @tongChieuDai, @soDau, @soCuoi, @ghiChu, @ngayXuat, @nguoiLam);
                 SELECT last_insert_rowid();";
@@ -174,7 +174,7 @@ namespace DG_TonKhoBTP_v02.Database.Kho
                 SET    SoCuon       = @soCuon,
                        TongChieuDai = @tongChieuDai,
                        SoDau        = @soDau,
-                       SoCuoi       = @soCuoi,
+                       soCuoi       = @soCuoi,
                        GhiChu       = @ghiChu,
                        NgayXuat     = @ngayXuat,
                        NguoiLam     = @nguoiLam
@@ -216,11 +216,11 @@ namespace DG_TonKhoBTP_v02.Database.Kho
             SELECT  cd.TongChieuDai  AS TongChieuDai_NK,
                     cd.SoCuon        AS SoCuon_CD,
                     cd.SoDau         AS SoDau_CD,
-                    cd.SoCuoi        AS SoCuoi_CD,
+                    cd.soCuoi        AS soCuoi_CD,
                     cd.GhiChu        AS GhiChu_CD,
                     xk.SoCuon        AS SoCuon_XK,
                     xk.SoDau         AS SoDau_XK,
-                    xk.SoCuoi        AS SoCuoi_XK,
+                    xk.soCuoi        AS soCuoi_XK,
                     xk.GhiChu        AS GhiChu_XK,
                     xk.NgayXuat,
                     xk.NguoiLam,
@@ -264,11 +264,11 @@ namespace DG_TonKhoBTP_v02.Database.Kho
                         tp.MaBin            AS lot_preview,
                         cd.SoCuon           AS soCuon_preview,
                         cd.SoDau            AS soDau_preview,
-                        cd.SoCuoi           AS soCuoi_preview,
+                        cd.soCuoi           AS soCuoi_preview,
                         cd.GhiChu           AS ghiChu_preview,
                         xk.SoCuon           AS SoCuon_user_preview,
                         xk.SoDau            AS soDau_user_preview,
-                        xk.SoCuoi           AS soCuoi_user_preview,
+                        xk.soCuoi           AS soCuoi_user_preview,
                         xk.GhiChu           AS ghiChu_user_preview,
                         xk.NgayXuat,
                         xk.NguoiLam,

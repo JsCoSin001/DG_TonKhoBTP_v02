@@ -24,7 +24,7 @@ namespace DG_TonKhoBTP_v02.Models.Kho
         public string TenKhach { get; set; } = string.Empty;
 
         /// <summary>Chỉ số ngoài (phần trong ngoặc của superscript - vị trí F)</summary>
-        public string SoCuoi { get; set; } = string.Empty;
+        public string soCuoi { get; set; } = string.Empty;
 
         /// <summary>Kế hoạch sản xuất (subscript của dấu đóng ngoặc - vị trí G)</summary>
         public string KHSX { get; set; } = string.Empty;

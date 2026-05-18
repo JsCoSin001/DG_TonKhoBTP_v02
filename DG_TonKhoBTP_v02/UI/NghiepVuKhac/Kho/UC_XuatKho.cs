@@ -18,6 +18,9 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho
         /// <summary>Loại nhập kho của bin đang chọn: "Lô" hoặc "Cuộn".</summary>
         private string _loaiNhapKho = string.Empty;
 
+
+        private bool _isLoadingPreviewToEdit = false;
+
         /// <summary>
         /// id của bản ghi TTXuatKho đang được chỉnh sửa/xem.
         /// null = đang ở chế độ nhập mới.
@@ -50,7 +53,6 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho
         {
             dgvLayDL.CellValueChanged += DgvLayDL_CellValueChanged;
             dgvLayDL.CurrentCellDirtyStateChanged += DgvLayDL_CurrentCellDirtyStateChanged;
-            dgvLayDL.EditingControlShowing += DgvLayDL_EditingControlShowing;
 
             dgvLayDL_preview.CellDoubleClick += dgvLayDL_preview_CellDoubleClick;
 
@@ -128,7 +130,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho
                     r.Cells["tongCD"].Value = dr["TongChieuDai"];
                     r.Cells["soCuon"].Value = dr["SoCuon"];
                     r.Cells["soDau"].Value = dr["SoDau"];
-                    r.Cells["soCuoi"].Value = dr["SoCuoi"];
+                    r.Cells["soCuoi"].Value = dr["soCuoi"];
                     r.Cells["ghiChu"].Value = dr["GhiChu"];
 
                     // Lưu TTCuonDay_ID vào tag của dòng để dùng khi lưu
@@ -137,7 +139,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho
                     // Cột user: để trống mặc định rồi áp giá trị theo Loai (FIX #1)
                     r.Cells["soCuon_user"].Value = string.Empty;
                     r.Cells["soDau_user"].Value = string.Empty;
-                    r.Cells["socuoi_user"].Value = string.Empty;
+                    r.Cells["soCuoi_user"].Value = string.Empty;
                     r.Cells["ghiChu_user"].Value = string.Empty;
                     r.Cells["getAll"].Value = false;
 
@@ -154,9 +156,9 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho
 
         // ── Áp readonly theo Loai cho một dòng ──────────────────────────────────
         /// <summary>
-        /// "Lô"   → soDau_user + socuoi_user có thể nhập; soCuon_user readonly và
+        /// "Lô"   → soDau_user + soCuoi_user có thể nhập; soCuon_user readonly và
         ///           tự điền = soCuon (giá trị gốc).
-        /// "Cuộn" → soCuon_user có thể nhập; soDau_user + socuoi_user readonly và
+        /// "Cuộn" → soCuon_user có thể nhập; soDau_user + soCuoi_user readonly và
         ///           tự điền = soDau / soCuoi (giá trị gốc).
         /// FIX #1: sau khi đặt readonly thì điền giá trị gốc vào ô bị khoá.
         /// </summary>
@@ -168,7 +170,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho
             // ── readonly ──────────────────────────────────────────────────────────
             r.Cells["soCuon_user"].ReadOnly = isLo;
             r.Cells["soDau_user"].ReadOnly = isCuon;
-            r.Cells["socuoi_user"].ReadOnly = isCuon;
+            r.Cells["soCuoi_user"].ReadOnly = isCuon;
 
             // ── Màu nền để phân biệt ──────────────────────────────────────────────
             Color readonlyColor = Color.FromArgb(230, 230, 230);
@@ -176,7 +178,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho
 
             r.Cells["soCuon_user"].Style.BackColor = isLo ? readonlyColor : normalColor;
             r.Cells["soDau_user"].Style.BackColor = isCuon ? readonlyColor : normalColor;
-            r.Cells["socuoi_user"].Style.BackColor = isCuon ? readonlyColor : normalColor;
+            r.Cells["soCuoi_user"].Style.BackColor = isCuon ? readonlyColor : normalColor;
 
             // ── FIX #1: Điền giá trị gốc vào ô readonly ─────────────────────────
             if (isLo)
@@ -186,9 +188,9 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho
             }
             else if (isCuon)
             {
-                // Loại "Cuộn" → khóa soDau_user + socuoi_user, điền = soDau / soCuoi gốc
+                // Loại "Cuộn" → khóa soDau_user + soCuoi_user, điền = soDau / soCuoi gốc
                 r.Cells["soDau_user"].Value = r.Cells["soDau"].Value;
-                r.Cells["socuoi_user"].Value = r.Cells["soCuoi"].Value;
+                r.Cells["soCuoi_user"].Value = r.Cells["soCuoi"].Value;
             }
         }
 
@@ -208,6 +210,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho
 
         private void DgvLayDL_CellValueChanged(object sender, DataGridViewCellEventArgs e)
         {
+            if (_isLoadingPreviewToEdit) return;
+
             if (e.RowIndex < 0) return;
             if (dgvLayDL.Columns[e.ColumnIndex].Name != "getAll") return;
 
@@ -216,78 +220,58 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho
 
             if (isChecked)
             {
-                // Copy dữ liệu gốc sang cột user
                 r.Cells["soCuon_user"].Value = r.Cells["soCuon"].Value;
                 r.Cells["soDau_user"].Value = r.Cells["soDau"].Value;
-                r.Cells["socuoi_user"].Value = r.Cells["soCuoi"].Value;
+                r.Cells["soCuoi_user"].Value = r.Cells["soCuoi"].Value;
 
-                // Khoá tất cả ô user lại
                 r.Cells["soCuon_user"].ReadOnly = true;
                 r.Cells["soDau_user"].ReadOnly = true;
-                r.Cells["socuoi_user"].ReadOnly = true;
+                r.Cells["soCuoi_user"].ReadOnly = true;
 
-                Color readonlyColor = Color.FromArgb(200, 230, 200); // xanh nhạt = "lấy hết"
+                Color readonlyColor = Color.FromArgb(200, 230, 200);
                 r.Cells["soCuon_user"].Style.BackColor = readonlyColor;
                 r.Cells["soDau_user"].Style.BackColor = readonlyColor;
-                r.Cells["socuoi_user"].Style.BackColor = readonlyColor;
+                r.Cells["soCuoi_user"].Style.BackColor = readonlyColor;
             }
             else
             {
-                // Xoá và mở khoá, rồi áp lại logic theo Loai (kể cả điền giá trị mặc định)
                 r.Cells["soCuon_user"].Value = string.Empty;
                 r.Cells["soDau_user"].Value = string.Empty;
-                r.Cells["socuoi_user"].Value = string.Empty;
+                r.Cells["soCuoi_user"].Value = string.Empty;
 
                 ApplyLoaiReadOnly(r, _loaiNhapKho);
             }
         }
 
         // ════════════════════════════════════════════════════════════════════════
-        // CHỈ CHO PHÉP NHẬP SỐ vào soCuon_user, soDau_user, socuoi_user
+        // VALIDATION DỮ LIỆU USER
         // ════════════════════════════════════════════════════════════════════════
 
+        /// <summary>
+        /// Các cột số cho phép người dùng nhập tạm thời bất kỳ giá trị nào.
+        /// Khi bấm Lưu/Sửa mới kiểm tra để tránh lưu dữ liệu không hợp lệ.
+        /// </summary>
         private static readonly string[] _numericUserCols =
-            { "soCuon_user", "soDau_user", "socuoi_user" };
+            { "soCuon_user", "soDau_user", "soCuoi_user" };
 
         private void DgvLayDL_EditingControlShowing(object sender,
             DataGridViewEditingControlShowingEventArgs e)
         {
-            string colName = dgvLayDL.CurrentCell?.OwningColumn?.Name ?? string.Empty;
-
-            if (Array.IndexOf(_numericUserCols, colName) >= 0)
-            {
-                if (e.Control is TextBox tb)
-                {
-                    tb.KeyPress -= NumericOnly_KeyPress;
-                    tb.KeyPress += NumericOnly_KeyPress;
-                }
-            }
-            else
-            {
-                if (e.Control is TextBox tb)
-                    tb.KeyPress -= NumericOnly_KeyPress;
-            }
+            // Giữ lại method để không phá các wiring cũ nếu Designer có gắn event.
+            // Theo yêu cầu mới: cho nhập tạm thời, validate khi bấm Lưu/Sửa.
         }
 
         private static void NumericOnly_KeyPress(object sender, KeyPressEventArgs e)
         {
-            if (!char.IsDigit(e.KeyChar) && e.KeyChar != (char)Keys.Back)
-                e.Handled = true;
+            // Không dùng chặn phím nữa vì người dùng được phép nhập tạm thời.
+            // Dữ liệu không phải số nguyên dương sẽ bị bỏ qua khi Lưu hoặc báo lỗi khi Sửa.
         }
 
-        // ════════════════════════════════════════════════════════════════════════
-        // VALIDATION CHUNG (FIX #2 + #4)
-        // ════════════════════════════════════════════════════════════════════════
-
         /// <summary>
-        /// Kiểm tra toàn bộ grid trước khi Lưu / Sửa.
-        /// FIX #2: soCuon_user &lt;= soCuon; soDau_user &lt;= soDau; soCuoi_user &lt;= soCuoi.
-        /// FIX #4: chỉ hiện đúng 1 thông báo lỗi đầu tiên gặp phải.
+        /// Kiểm tra thông tin chung bắt buộc trước khi Lưu/Sửa.
         /// </summary>
-        /// <returns>true = hợp lệ, false = có lỗi (đã hiện MessageBox).</returns>
-        private bool ValidateGrid()
+        private bool ValidateRequiredInfo()
         {
-            // Kiểm tra tbNguoiLam trước
             if (string.IsNullOrWhiteSpace(tbNguoiLam.Text))
             {
                 MessageBox.Show("Vui lòng nhập tên người làm.",
@@ -296,55 +280,117 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho
                 return false;
             }
 
+            return true;
+        }
+
+        /// <summary>
+        /// Dùng cho nút Sửa: nếu dòng đang sửa không hợp lệ thì báo lỗi và không cập nhật.
+        /// Lưu ý: soDau_user không so sánh với soDau gốc; chỉ cần > 0 và <= soCuoi_user.
+        /// </summary>
+        private bool ValidateGrid()
+        {
+            if (!ValidateRequiredInfo()) return false;
+
             foreach (DataGridViewRow r in dgvLayDL.Rows)
             {
-                if (r.Tag == null || r.Tag is DBNull) continue;
+                if (r.IsNewRow) continue;
 
-                // Lấy giá trị gốc
+                int rowNumber = r.Index + 1;
+
+                if (!TryReadPositiveInt(r, "soCuon_user", out int soCuonUser))
+                {
+                    MessageBox.Show($"Dòng {rowNumber}: Số cuộn lấy phải là số nguyên lớn hơn 0.",
+                        "Giá trị không hợp lệ", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return false;
+                }
+
+                if (!TryReadNonNegativeInt(r, "soDau_user", out int soDauUser))
+                {
+                    MessageBox.Show($"Dòng {rowNumber}: Số đầu lấy phải là số nguyên lớn hơn hoặc bằng 0.",
+                        "Giá trị không hợp lệ", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return false;
+                }
+
+                if (!TryReadPositiveInt(r, "soCuoi_user", out int soCuoiUser))
+                {
+                    MessageBox.Show($"Dòng {rowNumber}: Số cuối lấy phải là số nguyên lớn hơn 0.",
+                        "Giá trị không hợp lệ", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return false;
+                }
+
                 int soCuonGoc = ParseInt(r.Cells["soCuon"].Value);
-                int soDauGoc = ParseInt(r.Cells["soDau"].Value);
                 int soCuoiGoc = ParseInt(r.Cells["soCuoi"].Value);
 
-                // Lấy giá trị người dùng
-                string sCuon = r.Cells["soCuon_user"].Value?.ToString() ?? string.Empty;
-                string sDau = r.Cells["soDau_user"].Value?.ToString() ?? string.Empty;
-                string sCuoi = r.Cells["socuoi_user"].Value?.ToString() ?? string.Empty;
-
-                // Chỉ validate những ô không trống
-                if (!string.IsNullOrWhiteSpace(sCuon))
+                if (soCuonUser > soCuonGoc)
                 {
-                    if (!int.TryParse(sCuon, out int vCuon) || vCuon > soCuonGoc)
-                    {
-                        // FIX #4: hiện 1 lỗi rồi dừng
-                        MessageBox.Show(
-                            $"Số cuộn lấy ({vCuon}) không được lớn hơn số cuộn gốc ({soCuonGoc}).",
-                            "Giá trị không hợp lệ", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        return false;
-                    }
+                    MessageBox.Show(
+                        $"Dòng {rowNumber}: Số cuộn lấy ({soCuonUser}) không được lớn hơn số cuộn gốc ({soCuonGoc}).",
+                        "Giá trị không hợp lệ", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return false;
                 }
 
-                if (!string.IsNullOrWhiteSpace(sDau))
+                if (soCuoiUser > soCuoiGoc)
                 {
-                    if (!int.TryParse(sDau, out int vDau) || vDau > soDauGoc)
-                    {
-                        MessageBox.Show(
-                            $"Số đầu lấy ({vDau}) không được lớn hơn số đầu gốc ({soDauGoc}).",
-                            "Giá trị không hợp lệ", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        return false;
-                    }
+                    MessageBox.Show(
+                        $"Dòng {rowNumber}: Số cuối lấy ({soCuoiUser}) không được lớn hơn số cuối gốc ({soCuoiGoc}).",
+                        "Giá trị không hợp lệ", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return false;
                 }
 
-                if (!string.IsNullOrWhiteSpace(sCuoi))
+                if (soDauUser > soCuoiUser)
                 {
-                    if (!int.TryParse(sCuoi, out int vCuoi) || vCuoi > soCuoiGoc)
-                    {
-                        MessageBox.Show(
-                            $"Số cuối lấy ({vCuoi}) không được lớn hơn số cuối gốc ({soCuoiGoc}).",
-                            "Giá trị không hợp lệ", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        return false;
-                    }
+                    MessageBox.Show(
+                        $"Dòng {rowNumber}: Số đầu lấy ({soDauUser}) không được lớn hơn số cuối lấy ({soCuoiUser}).",
+                        "Giá trị không hợp lệ", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return false;
                 }
             }
+
+            return true;
+        }
+
+        private static bool TryReadPositiveInt(DataGridViewRow r, string columnName, out int value)
+        {
+            value = 0;
+            string text = r.Cells[columnName].Value?.ToString().Trim() ?? string.Empty;
+            return int.TryParse(text, out value) && value > 0;
+        }
+
+        private static bool TryReadNonNegativeInt(DataGridViewRow r, string columnName, out int value)
+        {
+            value = 0;
+            string text = r.Cells[columnName].Value?.ToString().Trim() ?? string.Empty;
+            return int.TryParse(text, out value) && value >= 0;
+        }
+
+        /// <summary>
+        /// Dùng cho nút Lưu: không báo lỗi từng dòng, chỉ trả về hợp lệ/không hợp lệ.
+        /// Điều kiện hợp lệ:
+        /// - soCuon_user, soDau_user, soCuoi_user là số nguyên > 0
+        /// - soCuon_user <= soCuon
+        /// - soCuoi_user <= soCuoi
+        /// - soDau_user <= soCuoi_user
+        /// </summary>
+        private static bool TryGetValidSaveValues(
+            DataGridViewRow r,
+            out int soCuonUser,
+            out int soDauUser,
+            out int soCuoiUser)
+        {
+            soCuonUser = 0;
+            soDauUser = 0;
+            soCuoiUser = 0;
+
+            if (!TryReadPositiveInt(r, "soCuon_user", out soCuonUser)) return false;
+            if (!TryReadNonNegativeInt(r, "soDau_user", out soDauUser)) return false;
+            if (!TryReadPositiveInt(r, "soCuoi_user", out soCuoiUser)) return false;
+
+            int soCuonGoc = ParseInt(r.Cells["soCuon"].Value);
+            int soCuoiGoc = ParseInt(r.Cells["soCuoi"].Value);
+
+            if (soCuonUser > soCuonGoc) return false;
+            if (soCuoiUser > soCuoiGoc) return false;
+            if (soDauUser > soCuoiUser) return false;
 
             return true;
         }
@@ -360,33 +406,37 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho
 
         private void BtnLuuXuatKho_Click(object sender, EventArgs e)
         {
-            // FIX #2 + #4: validate tập trung, chỉ 1 lỗi
-            if (!ValidateGrid()) return;
+            dgvLayDL.EndEdit();
+
+            if (!ValidateRequiredInfo()) return;
 
             string ngayXuat = dtNgayXuatKho.Value.ToString("yyyy-MM-dd");
             string nguoiLam = tbNguoiLam.Text.Trim();
 
             int saved = 0;
-            bool errorShown = false; // FIX #4: cờ kiểm soát chỉ hiện 1 lỗi
+            int skipped = 0;
+            string firstDbError = null;
 
             foreach (DataGridViewRow r in dgvLayDL.Rows)
             {
-                if (r.Tag == null || r.Tag is DBNull) continue;
-                if (!long.TryParse(r.Tag.ToString(), out long ttCuonDayId)) continue;
+                if (r.IsNewRow) continue;
 
-                string sCuon = r.Cells["soCuon_user"].Value?.ToString() ?? string.Empty;
-                string sDau = r.Cells["soDau_user"].Value?.ToString() ?? string.Empty;
-                string sCuoi = r.Cells["socuoi_user"].Value?.ToString() ?? string.Empty;
+                if (r.Tag == null || r.Tag is DBNull ||
+                    !long.TryParse(r.Tag.ToString(), out long ttCuonDayId))
+                {
+                    skipped++;
+                    continue;
+                }
 
-                bool hasData = !string.IsNullOrWhiteSpace(sCuon)
-                            || !string.IsNullOrWhiteSpace(sDau)
-                            || !string.IsNullOrWhiteSpace(sCuoi);
+                if (!TryGetValidSaveValues(r,
+                        out int soCuon,
+                        out int soDau,
+                        out int soCuoi))
+                {
+                    skipped++;
+                    continue;
+                }
 
-                if (!hasData) continue;
-
-                int? soCuon = int.TryParse(sCuon, out int v1) ? v1 : (int?)null;
-                int? soDau = int.TryParse(sDau, out int v2) ? v2 : (int?)null;
-                int? soCuoi = int.TryParse(sCuoi, out int v3) ? v3 : (int?)null;
                 string ghiChu = r.Cells["ghiChu_user"].Value?.ToString() ?? string.Empty;
 
                 try
@@ -396,16 +446,16 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho
 
                     AddRowToPreview(
                         id: newId,
-                        tongCD: (soCuon ?? 0) * ((soCuoi ?? 0) - (soDau ?? 0)),
+                        tongCD: soCuon * (soCuoi - soDau),
                         ten: tbTenSP.Text,
                         lot: tbLot.Text,
                         soCuonGoc: r.Cells["soCuon"].Value,
                         soDauGoc: r.Cells["soDau"].Value,
                         soCuoiGoc: r.Cells["soCuoi"].Value,
                         ghiChuGoc: r.Cells["ghiChu"].Value,
-                        soCuonUser: sCuon,
-                        soDauUser: sDau,
-                        soCuoiUser: sCuoi,
+                        soCuonUser: soCuon.ToString(),
+                        soDauUser: soDau.ToString(),
+                        soCuoiUser: soCuoi.ToString(),
                         ghiChuUser: ghiChu
                     );
 
@@ -413,27 +463,37 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho
                 }
                 catch (Exception ex)
                 {
-                    // FIX #4: chỉ hiện lỗi đầu tiên
-                    if (!errorShown)
-                    {
-                        MessageBox.Show($"Lỗi khi lưu dòng:\n{ex.Message}",
-                            "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        errorShown = true;
-                    }
+                    skipped++;
+                    if (firstDbError == null)
+                        firstDbError = ex.Message;
                 }
             }
 
             if (saved > 0)
             {
-                MessageBox.Show($"Đã lưu {saved} dòng xuất kho thành công.",
+                string message = $"Đã lưu {saved} dòng xuất kho thành công.";
+
+                if (skipped > 0)
+                    message += $"\nCó {skipped} dòng không được thêm.";
+
+                if (!string.IsNullOrWhiteSpace(firstDbError))
+                    message += $"\nLỗi đầu tiên khi lưu: {firstDbError}";
+
+                MessageBox.Show(message,
                     "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
                 ResetForm();
             }
-            else if (!errorShown)
+            else
             {
-                MessageBox.Show(
-                    "Không có dòng nào có dữ liệu để lưu.\n" +
-                    "Vui lòng điền ít nhất một cột: Số cuộn lấy, Số đầu lấy hoặc Số cuối lấy.",
+                string message = skipped > 0
+                    ? $"Không có dòng nào được lưu.\nCó {skipped} dòng không được thêm do không hợp lệ."
+                    : "Không có dòng nào để lưu.";
+
+                if (!string.IsNullOrWhiteSpace(firstDbError))
+                    message += $"\nLỗi đầu tiên khi lưu: {firstDbError}";
+
+                MessageBox.Show(message,
                     "Chú ý", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
@@ -472,54 +532,67 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho
 
             DataGridViewRow previewRow = dgvLayDL_preview.Rows[e.RowIndex];
 
-            // Lấy id bản ghi TTXuatKho
             if (!long.TryParse(previewRow.Cells["id_preview"].Value?.ToString(), out long xuatKhoId))
                 return;
 
             _editingXuatKhoId = xuatKhoId;
 
-            // ── FIX #3: truy vấn dữ liệu gốc từ DB, không dùng lại giá trị trong preview ──
-            DataRow nhapKhoRow = null;
-            DataRow cuonDayRow = null;
-            DataRow xuatKhoRow = null;
-
             try
             {
-                // Lấy thông tin TTNhapKho + TTCuonDay theo xuatKhoId
                 DataTable dtSource = XuatKho_DB.LayChiTietXuatKho(xuatKhoId);
                 if (dtSource != null && dtSource.Rows.Count > 0)
                 {
                     DataRow dr = dtSource.Rows[0];
 
-                    // ── Thông tin chung ──────────────────────────────────────────
-                    tbTenSP.Text = previewRow.Cells["ten_preview"].Value?.ToString() ?? string.Empty;
-                    tbLot.Text = previewRow.Cells["lot_preview"].Value?.ToString() ?? string.Empty;
+                    _isLoadingPreviewToEdit = true;
 
-                    // ── Xoá grid và tạo 1 dòng sửa ─────────────────────────────
-                    dgvLayDL.Rows.Clear();
-                    int rowIdx = dgvLayDL.Rows.Add();
-                    DataGridViewRow nr = dgvLayDL.Rows[rowIdx];
+                    try
+                    {
+                        _loaiNhapKho = dr["Loai"]?.ToString() ?? string.Empty;
 
-                    // Cột gốc: từ TTNhapKho / TTCuonDay
-                    nr.Cells["tongCD"].Value = dr["TongChieuDai_NK"];  // từ TTNhapKho
-                    nr.Cells["soCuon"].Value = dr["SoCuon_CD"];         // từ TTCuonDay
-                    nr.Cells["soDau"].Value = dr["SoDau_CD"];          // từ TTCuonDay
-                    nr.Cells["soCuoi"].Value = dr["SoCuoi_CD"];         // từ TTCuonDay
-                    nr.Cells["ghiChu"].Value = dr["GhiChu_CD"];         // từ TTCuonDay
+                        tbTenSP.Text = previewRow.Cells["ten_preview"].Value?.ToString() ?? string.Empty;
+                        tbLot.Text = previewRow.Cells["lot_preview"].Value?.ToString() ?? string.Empty;
 
-                    // Cột lấy: từ TTXuatKho — FIX #3: tất cả cột lấy là readonly
-                    nr.Cells["soCuon_user"].Value = dr["SoCuon_XK"];    // từ TTXuatKho
-                    nr.Cells["soDau_user"].Value = dr["SoDau_XK"];     // từ TTXuatKho
-                    nr.Cells["socuoi_user"].Value = dr["SoCuoi_XK"];    // từ TTXuatKho
-                    nr.Cells["ghiChu_user"].Value = dr["GhiChu_XK"];    // từ TTXuatKho
-                    nr.Cells["getAll"].Value = false;
+                        tbNguoiLam.Text = dr["NguoiLam"]?.ToString() ?? string.Empty;
 
-                    // FIX #3: đặt tất cả cột "_user" thành readonly khi ở chế độ xem từ preview
-                    SetAllUserColumnsReadonly(nr);
+                        // Điền ngày xuất từ TTXuatKho
+                        if (DateTime.TryParse(dr["NgayXuat"]?.ToString(), out DateTime ngayXuat))
+                        {
+                            dtNgayXuatKho.Value = ngayXuat;
+                        }
+
+                        // Lấy Loai trước khi xử lý grid để tránh dùng _loaiNhapKho cũ
+                        _loaiNhapKho = dr["Loai"]?.ToString() ?? string.Empty;
+
+                        dgvLayDL.Rows.Clear();
+
+                        int rowIdx = dgvLayDL.Rows.Add();
+                        DataGridViewRow nr = dgvLayDL.Rows[rowIdx];
+
+                        nr.Cells["getAll"].Value = false;
+
+                        // Cột gốc
+                        nr.Cells["tongCD"].Value = dr["TongChieuDai_NK"];
+                        nr.Cells["soCuon"].Value = dr["SoCuon_CD"];
+                        nr.Cells["soDau"].Value = dr["SoDau_CD"];
+                        nr.Cells["soCuoi"].Value = dr["soCuoi_CD"];
+                        nr.Cells["ghiChu"].Value = dr["GhiChu_CD"];
+
+                        // Cột lấy từ TTXuatKho
+                        nr.Cells["soCuon_user"].Value = dr["SoCuon_XK"];
+                        nr.Cells["soDau_user"].Value = dr["SoDau_XK"];
+                        nr.Cells["soCuoi_user"].Value = dr["soCuoi_XK"];
+                        nr.Cells["ghiChu_user"].Value = dr["GhiChu_XK"];
+
+                        ApplyPreviewEditReadOnly(nr, _loaiNhapKho);
+                    }
+                    finally
+                    {
+                        _isLoadingPreviewToEdit = false;
+                    }
                 }
                 else
                 {
-                    // Fallback: không có dữ liệu DB thì dùng giá trị từ preview row
                     FallbackLoadFromPreviewRow(previewRow);
                 }
             }
@@ -530,26 +603,60 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho
                 return;
             }
 
-            // Chuyển sang chế độ sửa/xoá
             SetEditMode();
         }
 
         /// <summary>
-        /// FIX #3: Đặt tất cả cột "_user" thành readonly (màu xám nhạt) để hiển thị.
+        /// Double click từ preview: khoá cột "Lấy tất", còn các cột lấy mở/khoá theo Loai.
+        /// Không tự ghi đè giá trị user vì các giá trị này đang lấy từ TTXuatKho.
         /// </summary>
-        private static void SetAllUserColumnsReadonly(DataGridViewRow r)
+        private static void ApplyPreviewEditReadOnly(DataGridViewRow r, string loai)
         {
+            bool isLo = loai == "Lô";
+            bool isCuon = loai == "Cuộn";
+
             Color readonlyColor = Color.FromArgb(230, 230, 230);
+            Color normalColor = Color.White;
 
-            r.Cells["soCuon_user"].ReadOnly = true;
-            r.Cells["soDau_user"].ReadOnly = true;
-            r.Cells["socuoi_user"].ReadOnly = true;
-            r.Cells["ghiChu_user"].ReadOnly = true;
+            // Cột Lấy tất luôn bị khoá khi load dữ liệu từ preview lên để sửa
+            if (r.DataGridView != null && r.DataGridView.Columns.Contains("getAll"))
+                r.DataGridView.Columns["getAll"].ReadOnly = true;
 
-            r.Cells["soCuon_user"].Style.BackColor = readonlyColor;
-            r.Cells["soDau_user"].Style.BackColor = readonlyColor;
-            r.Cells["socuoi_user"].Style.BackColor = readonlyColor;
-            r.Cells["ghiChu_user"].Style.BackColor = readonlyColor;
+            r.Cells["getAll"].ReadOnly = true;
+            r.Cells["getAll"].Style.BackColor = readonlyColor;
+
+            // Ghi chú xuất kho vẫn cho sửa
+            r.Cells["ghiChu_user"].ReadOnly = false;
+            r.Cells["ghiChu_user"].Style.BackColor = normalColor;
+
+            if (isLo)
+            {
+                // TTNhapKho.Loai = "Lô"
+                r.Cells["soCuon_user"].ReadOnly = true;
+                r.Cells["soDau_user"].ReadOnly = false;
+                r.Cells["soCuoi_user"].ReadOnly = false;
+            }
+            else if (isCuon)
+            {
+                // TTNhapKho.Loai = "Cuộn"
+                r.Cells["soCuon_user"].ReadOnly = false;
+                r.Cells["soDau_user"].ReadOnly = true;
+                r.Cells["soCuoi_user"].ReadOnly = true;
+            }
+            else
+            {
+                // Không xác định Loai thì mở các ô số để tránh khoá nhầm
+                r.Cells["soCuon_user"].ReadOnly = false;
+                r.Cells["soDau_user"].ReadOnly = false;
+                r.Cells["soCuoi_user"].ReadOnly = false;
+            }
+
+            r.Cells["soCuon_user"].Style.BackColor =
+                r.Cells["soCuon_user"].ReadOnly ? readonlyColor : normalColor;
+            r.Cells["soDau_user"].Style.BackColor =
+                r.Cells["soDau_user"].ReadOnly ? readonlyColor : normalColor;
+            r.Cells["soCuoi_user"].Style.BackColor =
+                r.Cells["soCuoi_user"].ReadOnly ? readonlyColor : normalColor;
         }
 
         /// <summary>
@@ -557,26 +664,37 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho
         /// </summary>
         private void FallbackLoadFromPreviewRow(DataGridViewRow previewRow)
         {
-            tbTenSP.Text = previewRow.Cells["ten_preview"].Value?.ToString() ?? string.Empty;
-            tbLot.Text = previewRow.Cells["lot_preview"].Value?.ToString() ?? string.Empty;
+            _isLoadingPreviewToEdit = true;
 
-            dgvLayDL.Rows.Clear();
-            int rowIdx = dgvLayDL.Rows.Add();
-            DataGridViewRow nr = dgvLayDL.Rows[rowIdx];
+            try
+            {
+                tbTenSP.Text = previewRow.Cells["ten_preview"].Value?.ToString() ?? string.Empty;
+                tbLot.Text = previewRow.Cells["lot_preview"].Value?.ToString() ?? string.Empty;
 
-            nr.Cells["tongCD"].Value = previewRow.Cells["tongCD_preview"].Value;
-            nr.Cells["soCuon"].Value = previewRow.Cells["soCuon_preview"].Value;
-            nr.Cells["soDau"].Value = previewRow.Cells["soDau_preview"].Value;
-            nr.Cells["soCuoi"].Value = previewRow.Cells["soCuoi_preview"].Value;
-            nr.Cells["ghiChu"].Value = previewRow.Cells["ghiChu_preview"].Value;
+                dgvLayDL.Rows.Clear();
 
-            nr.Cells["soCuon_user"].Value = previewRow.Cells["SoCuon_user_preview"].Value;
-            nr.Cells["soDau_user"].Value = previewRow.Cells["soDau_user_preview"].Value;
-            nr.Cells["socuoi_user"].Value = previewRow.Cells["soCuoi_user_preview"].Value;
-            nr.Cells["ghiChu_user"].Value = previewRow.Cells["ghiChu_user_preview"].Value;
-            nr.Cells["getAll"].Value = false;
+                int rowIdx = dgvLayDL.Rows.Add();
+                DataGridViewRow nr = dgvLayDL.Rows[rowIdx];
 
-            SetAllUserColumnsReadonly(nr);
+                nr.Cells["getAll"].Value = false;
+
+                nr.Cells["tongCD"].Value = previewRow.Cells["tongCD_preview"].Value;
+                nr.Cells["soCuon"].Value = previewRow.Cells["soCuon_preview"].Value;
+                nr.Cells["soDau"].Value = previewRow.Cells["soDau_preview"].Value;
+                nr.Cells["soCuoi"].Value = previewRow.Cells["soCuoi_preview"].Value;
+                nr.Cells["ghiChu"].Value = previewRow.Cells["ghiChu_preview"].Value;
+
+                nr.Cells["soCuon_user"].Value = previewRow.Cells["SoCuon_user_preview"].Value;
+                nr.Cells["soDau_user"].Value = previewRow.Cells["soDau_user_preview"].Value;
+                nr.Cells["soCuoi_user"].Value = previewRow.Cells["soCuoi_user_preview"].Value;
+                nr.Cells["ghiChu_user"].Value = previewRow.Cells["ghiChu_user_preview"].Value;
+
+                ApplyPreviewEditReadOnly(nr, _loaiNhapKho);
+            }
+            finally
+            {
+                _isLoadingPreviewToEdit = false;
+            }
         }
 
         // ════════════════════════════════════════════════════════════════════════
@@ -594,7 +712,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho
 
             string sCuon = r.Cells["soCuon_user"].Value?.ToString() ?? string.Empty;
             string sDau = r.Cells["soDau_user"].Value?.ToString() ?? string.Empty;
-            string sCuoi = r.Cells["socuoi_user"].Value?.ToString() ?? string.Empty;
+            string sCuoi = r.Cells["soCuoi_user"].Value?.ToString() ?? string.Empty;
             string ghiChu = r.Cells["ghiChu_user"].Value?.ToString() ?? string.Empty;
 
             int? soCuon = int.TryParse(sCuon, out int v1) ? v1 : (int?)null;
@@ -750,6 +868,10 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho
             btnLuuXuatKho.Enabled = true;
             btnSua.Enabled = false;
             btnXoa.Enabled = false;
+
+            // Khi quay về nhập mới, cột "Lấy tất" phải dùng được lại.
+            if (dgvLayDL.Columns.Contains("getAll"))
+                dgvLayDL.Columns["getAll"].ReadOnly = false;
         }
 
         private void SetEditMode()
@@ -819,6 +941,11 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho
         {
             _lotSearchHelper?.Dispose();
             base.OnHandleDestroyed(e);
+        }
+
+        private void btnLuuXuatKho_Click_1(object sender, EventArgs e)
+        {
+
         }
     }
 }

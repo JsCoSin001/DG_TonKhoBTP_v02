@@ -74,7 +74,7 @@ namespace DG_TonKhoBTP_v02.Models.Kho
             para.AppendChild(PlainRun(m.SoM));
 
             // SoThuTu/TenKhach(ChiSoNgoai) — superscript của SoM
-            string supText = $"{m.SoThuTu}/{m.TenKhach}({m.SoCuoi})";
+            string supText = $"{m.SoThuTu}/{m.TenKhach}({m.soCuoi})";
             para.AppendChild(SupRun(supText));
 
             // ChiSoDau — subscript bên phải của SoM

@@ -278,7 +278,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
             nbrIDNCC.Value = 0;
 
             _cbxNhaCungCapHelper = new ComboBoxSearchHelper(
-                comboBox: cbxNhaCungCap,
+                comboBox: cbxDoiTuongCongNo,
                 queryFunc: async (keyword, ct) =>
                 {
                     var list = await DatabaseHelper.TimKiemNhaCungCap(keyword);
@@ -306,9 +306,9 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
         // Đặt ngay sau KhoiTaoCbxNhaCungCap
         private void OnNhaCungCapSelected(string ten, int? id)
         {
-            cbxNhaCungCap.Text = ten ?? string.Empty;
-            cbxNhaCungCap.SelectionStart = cbxNhaCungCap.Text.Length;
-            cbxNhaCungCap.SelectionLength = 0;
+            cbxDoiTuongCongNo.Text = ten ?? string.Empty;
+            cbxDoiTuongCongNo.SelectionStart = cbxDoiTuongCongNo.Text.Length;
+            cbxDoiTuongCongNo.SelectionLength = 0;
 
             if (id.HasValue)
                 nbrIDNCC.Value = id.Value;
@@ -714,8 +714,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
 
             nbrIDNCC.Value = 0;
 
-            cbxNhaCungCap.SelectedIndex = -1;
-            cbxNhaCungCap.Text = "";
+            cbxDoiTuongCongNo.SelectedIndex = -1;
+            cbxDoiTuongCongNo.Text = "";
 
             // [ĐÃ SỬA] Clear() → Reset() theo API mới của ComboBoxSearchHelper
             //_cbxTimDonHelper?.Reset();
@@ -898,7 +898,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
                 SoPO = "",
                 SoPhieu = tenPhieu,
                 NguoiGiao = txtNguoiGiaoNhan.Text.Trim(),
-                NhaCungCap = cbxNhaCungCap.Text.Trim(), 
+                NhaCungCap = cbxDoiTuongCongNo.Text.Trim(), 
                 LyDoNhap = rdoLoai.Checked ? "Theo đề nghị" : "Khác",
                 KhoHang = cbxKhoHang.Text,
                 Items = items,

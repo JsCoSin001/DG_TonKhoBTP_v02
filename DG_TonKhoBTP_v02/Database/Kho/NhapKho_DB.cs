@@ -108,9 +108,9 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
             // ── SQL INSERT TTCuonDay ────────────────────────────────────────────
             const string sqlInsertCuon = @"
                 INSERT INTO TTCuonDay
-                    (SoCuon,TongChieuDai, SoDau, SoCuoi, GhiChu, ThongTinNhapKho_ID)
+                    (SoCuon,TongChieuDai, SoDau, soCuoi, GhiChu, ThongTinNhapKho_ID)
                 VALUES
-                    (@SoCuon,@TongChieuDai, @SoDau, @SoCuoi, @GhiChu, @ThongTinNhapKho_ID);";
+                    (@SoCuon,@TongChieuDai, @SoDau, @soCuoi, @GhiChu, @ThongTinNhapKho_ID);";
 
             // ── SQL cập nhật TTThanhPham ────────────────────────────────────────
             const string sqlUpdateThanhPham = @"
@@ -160,7 +160,7 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                     cmdCuon.Parameters.Add("@SoCuon", DbType.Int32);
                     cmdCuon.Parameters.Add("@TongChieuDai", DbType.Int32);
                     cmdCuon.Parameters.Add("@SoDau", DbType.Int32);
-                    cmdCuon.Parameters.Add("@SoCuoi", DbType.Int32);
+                    cmdCuon.Parameters.Add("@soCuoi", DbType.Int32);
                     cmdCuon.Parameters.Add("@GhiChu", DbType.String);
                     cmdCuon.Parameters.Add("@ThongTinNhapKho_ID", DbType.Int64);
 
@@ -169,7 +169,7 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                         cmdCuon.Parameters["@SoCuon"].Value = cuon.SoCuon;
                         cmdCuon.Parameters["@TongChieuDai"].Value = cuon.TongChieuDai;
                         cmdCuon.Parameters["@SoDau"].Value = cuon.SoDau;
-                        cmdCuon.Parameters["@SoCuoi"].Value = cuon.SoCuoi;
+                        cmdCuon.Parameters["@soCuoi"].Value = cuon.soCuoi;
                         cmdCuon.Parameters["@GhiChu"].Value =
                             string.IsNullOrWhiteSpace(cuon.Ghichu) ? (object)DBNull.Value : cuon.Ghichu;
                         cmdCuon.Parameters["@ThongTinNhapKho_ID"].Value = newId;
@@ -255,9 +255,9 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
 
             const string sqlInsertCuonDay = @"
         INSERT INTO TTCuonDay
-            (SoCuon, TongChieuDai, SoDau, SoCuoi, GhiChu, ThongTinNhapKho_ID)
+            (SoCuon, TongChieuDai, SoDau, soCuoi, GhiChu, ThongTinNhapKho_ID)
         VALUES
-            (@SoCuon, @TongChieuDai, @SoDau, @SoCuoi, @GhiChu, @ThongTinNhapKho_ID);";
+            (@SoCuon, @TongChieuDai, @SoDau, @soCuoi, @GhiChu, @ThongTinNhapKho_ID);";
 
             const string sqlCapNhatMoi = @"
         UPDATE TTThanhPham
@@ -338,7 +338,7 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                     cmdInsertCuon.Parameters.Add("@SoCuon", DbType.Int32);
                     cmdInsertCuon.Parameters.Add("@TongChieuDai", DbType.Int32);
                     cmdInsertCuon.Parameters.Add("@SoDau", DbType.Int32);
-                    cmdInsertCuon.Parameters.Add("@SoCuoi", DbType.Int32);
+                    cmdInsertCuon.Parameters.Add("@soCuoi", DbType.Int32);
                     cmdInsertCuon.Parameters.Add("@GhiChu", DbType.String);
                     cmdInsertCuon.Parameters.Add("@ThongTinNhapKho_ID", DbType.Int64);
 
@@ -347,7 +347,7 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                         cmdInsertCuon.Parameters["@SoCuon"].Value = cuon.SoCuon;
                         cmdInsertCuon.Parameters["@TongChieuDai"].Value = cuon.TongChieuDai;
                         cmdInsertCuon.Parameters["@SoDau"].Value = cuon.SoDau;
-                        cmdInsertCuon.Parameters["@SoCuoi"].Value = cuon.SoCuoi;
+                        cmdInsertCuon.Parameters["@soCuoi"].Value = cuon.soCuoi;
 
                         cmdInsertCuon.Parameters["@GhiChu"].Value =
                             string.IsNullOrWhiteSpace(cuon.Ghichu) ? (object)DBNull.Value : cuon.Ghichu;
@@ -391,12 +391,12 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
             INSERT INTO TTNhapKho
                 (Ngay, SoBB, TTThanhPham_ID, TenSP, SoMet,
                  LoaiDon, KhachHang, GhiChu,
-                 Loai, ChieuCaoLo, TongChieuDai, SoDau, SoCuoi, ThongTinCuon,
+                 Loai, ChieuCaoLo, TongChieuDai, SoDau, soCuoi, ThongTinCuon,
                  NguoiLam)
             VALUES
                 (@Ngay, @SoBB, @TTThanhPham_ID, @TenSP, @SoMet,
                  @LoaiDon, @KhachHang, @GhiChu,
-                 @Loai, @ChieuCaoLo, @TongChieuDai, @SoDau, @SoCuoi, @ThongTinCuon,
+                 @Loai, @ChieuCaoLo, @TongChieuDai, @SoDau, @soCuoi, @ThongTinCuon,
                  @NguoiLam);";
 
             int rowsInserted = 0;
@@ -421,7 +421,7 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                 cmdInsert.Parameters.Add("@ChieuCaoLo", DbType.Double);
                 cmdInsert.Parameters.Add("@TongChieuDai", DbType.Double);
                 cmdInsert.Parameters.Add("@SoDau", DbType.Int32);
-                cmdInsert.Parameters.Add("@SoCuoi", DbType.Int32);
+                cmdInsert.Parameters.Add("@soCuoi", DbType.Int32);
                 cmdInsert.Parameters.Add("@ThongTinCuon", DbType.String);
                 cmdInsert.Parameters.Add("@NguoiLam", DbType.String);
 
@@ -448,7 +448,7 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                     cmdInsert.Parameters["@ChieuCaoLo"].Value = isLo ? ParseDbl(row, "chieuCaoLo") ?? (object)DBNull.Value : DBNull.Value;
                     cmdInsert.Parameters["@TongChieuDai"].Value = isLo ? ParseDbl(row, "tongChieuDai") ?? (object)DBNull.Value : DBNull.Value;
                     cmdInsert.Parameters["@SoDau"].Value = isLo ? ParseInt(row, "soDau") ?? (object)DBNull.Value : DBNull.Value;
-                    cmdInsert.Parameters["@SoCuoi"].Value = isLo ? ParseInt(row, "soCuoi") ?? (object)DBNull.Value : DBNull.Value;
+                    cmdInsert.Parameters["@soCuoi"].Value = isLo ? ParseInt(row, "soCuoi") ?? (object)DBNull.Value : DBNull.Value;
                     cmdInsert.Parameters["@ThongTinCuon"].Value = isLo ? DBNull.Value : ParseStr(row, "cuon") ?? (object)DBNull.Value;
                     cmdInsert.Parameters["@NguoiLam"].Value = string.IsNullOrWhiteSpace(nguoiLam) ? (object)DBNull.Value : nguoiLam.Trim();
 
@@ -575,7 +575,7 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                 cd.SoCuon       AS ct_SoCuon,
                 cd.TongChieuDai AS ct_TongChieuDai,
                 cd.SoDau        AS ct_SoDau,
-                cd.SoCuoi       AS ct_SoCuoi,
+                cd.soCuoi       AS ct_soCuoi,
                 cd.GhiChu       AS ct_GhiChu
             FROM found f
             LEFT JOIN TTCuonDay cd
@@ -657,7 +657,7 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
             SoCuon,
             TongChieuDai,
             SoDau,
-            SoCuoi,
+            soCuoi,
             GhiChu
         FROM TTCuonDay
         WHERE ThongTinNhapKho_ID = @ThongTinNhapKho_ID
@@ -677,7 +677,7 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                     SoCuon = reader["SoCuon"] == DBNull.Value ? 0 : Convert.ToInt32(reader["SoCuon"]),
                     TongChieuDai = reader["TongChieuDai"] == DBNull.Value ? 0 : Convert.ToInt32(reader["TongChieuDai"]),
                     SoDau = reader["SoDau"] == DBNull.Value ? 0 : Convert.ToInt32(reader["SoDau"]),
-                    SoCuoi = reader["SoCuoi"] == DBNull.Value ? 0 : Convert.ToInt32(reader["SoCuoi"]),
+                    soCuoi = reader["soCuoi"] == DBNull.Value ? 0 : Convert.ToInt32(reader["soCuoi"]),
                     Ghichu = reader["GhiChu"] == DBNull.Value ? string.Empty : reader["GhiChu"].ToString()
                 });
             }

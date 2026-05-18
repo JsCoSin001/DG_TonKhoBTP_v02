@@ -15,13 +15,13 @@ namespace DG_TonKhoBTP_v02.Models.Kho
         public int TongChieuDai { get; set; }
         public int? SoCuon { get; set; }
         public int? SoDau { get; set; }
-        public int? SoCuoi { get; set; }
+        public int? soCuoi { get; set; }
         public string GhiChu { get; set; } = string.Empty;
 
         // ── Giá trị người dùng nhập ──────────────────────────────────────────────
         public int? SoCuon_User { get; set; }
         public int? SoDau_User { get; set; }
-        public int? SoCuoi_User { get; set; }
+        public int? soCuoi_User { get; set; }
         public string GhiChu_User { get; set; } = string.Empty;
 
         /// <summary>true = checkbox "Lấy tất" được tích.</summary>
@@ -47,13 +47,13 @@ namespace DG_TonKhoBTP_v02.Models.Kho
         public int TongChieuDai { get; set; }
         public int? SoCuon { get; set; }
         public int? SoDau { get; set; }
-        public int? SoCuoi { get; set; }
+        public int? soCuoi { get; set; }
         public string GhiChu { get; set; } = string.Empty;
 
         // ── Giá trị đã xuất từ TTXuatKho ────────────────────────────────────────
         public int? SoCuon_User { get; set; }
         public int? SoDau_User { get; set; }
-        public int? SoCuoi_User { get; set; }
+        public int? soCuoi_User { get; set; }
         public string GhiChu_User { get; set; } = string.Empty;
     }
 }

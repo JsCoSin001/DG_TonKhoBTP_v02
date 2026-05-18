@@ -40,7 +40,7 @@
             this.ghiChu = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.soCuon_user = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.soDau_user = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.socuoi_user = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.soCuoi_user = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.ghiChu_user = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.getAll = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
@@ -61,12 +61,7 @@
             this.panel2 = new System.Windows.Forms.Panel();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.dgvLayDL_preview = new System.Windows.Forms.DataGridView();
-            this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
-            this.label18 = new System.Windows.Forms.Label();
-            this.label17 = new System.Windows.Forms.Label();
-            this.tbTimKiem = new System.Windows.Forms.TextBox();
             this.id_preview = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.tongCD_preview = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.ten_preview = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.lot_preview = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.soCuon_preview = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -76,7 +71,12 @@
             this.SoCuon_user_preview = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.soDau_user_preview = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.soCuoi_user_preview = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.tongCD_preview = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.ghiChu_user_preview = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
+            this.label18 = new System.Windows.Forms.Label();
+            this.label17 = new System.Windows.Forms.Label();
+            this.tbTimKiem = new System.Windows.Forms.TextBox();
             this.panel1.SuspendLayout();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvLayDL)).BeginInit();
@@ -107,6 +107,7 @@
             this.panel1.Location = new System.Drawing.Point(0, 53);
             this.panel1.Margin = new System.Windows.Forms.Padding(4);
             this.panel1.Name = "panel1";
+            this.panel1.Padding = new System.Windows.Forms.Padding(0, 0, 0, 10);
             this.panel1.Size = new System.Drawing.Size(1375, 364);
             this.panel1.TabIndex = 2;
             // 
@@ -121,10 +122,10 @@
             this.groupBox1.Margin = new System.Windows.Forms.Padding(4);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Padding = new System.Windows.Forms.Padding(5);
-            this.groupBox1.Size = new System.Drawing.Size(1375, 364);
+            this.groupBox1.Size = new System.Drawing.Size(1375, 354);
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "groupBox1";
+            this.groupBox1.Text = "Nhập dữ liệu";
             // 
             // dgvLayDL
             // 
@@ -139,14 +140,14 @@
             this.ghiChu,
             this.soCuon_user,
             this.soDau_user,
-            this.socuoi_user,
+            this.soCuoi_user,
             this.ghiChu_user,
             this.getAll});
             this.dgvLayDL.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dgvLayDL.Location = new System.Drawing.Point(5, 66);
             this.dgvLayDL.Name = "dgvLayDL";
             this.dgvLayDL.RowHeadersVisible = false;
-            this.dgvLayDL.Size = new System.Drawing.Size(1365, 228);
+            this.dgvLayDL.Size = new System.Drawing.Size(1365, 218);
             this.dgvLayDL.TabIndex = 1;
             // 
             // ttNhapKho_ID
@@ -206,12 +207,12 @@
             this.soDau_user.Name = "soDau_user";
             this.soDau_user.Width = 130;
             // 
-            // socuoi_user
+            // soCuoi_user
             // 
-            this.socuoi_user.DataPropertyName = "socuoi_user";
-            this.socuoi_user.HeaderText = "Số cuối lấy";
-            this.socuoi_user.Name = "socuoi_user";
-            this.socuoi_user.Width = 130;
+            this.soCuoi_user.DataPropertyName = "soCuoi_user";
+            this.soCuoi_user.HeaderText = "Số cuối lấy";
+            this.soCuoi_user.Name = "soCuoi_user";
+            this.soCuoi_user.Width = 130;
             // 
             // ghiChu_user
             // 
@@ -233,7 +234,7 @@
             this.flowLayoutPanel1.Controls.Add(this.btnLuuXuatKho);
             this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.flowLayoutPanel1.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
-            this.flowLayoutPanel1.Location = new System.Drawing.Point(5, 294);
+            this.flowLayoutPanel1.Location = new System.Drawing.Point(5, 284);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
             this.flowLayoutPanel1.Padding = new System.Windows.Forms.Padding(0, 10, 0, 0);
             this.flowLayoutPanel1.Size = new System.Drawing.Size(1365, 65);
@@ -241,6 +242,7 @@
             // 
             // btnXoa
             // 
+            this.btnXoa.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnXoa.Location = new System.Drawing.Point(1258, 13);
             this.btnXoa.Name = "btnXoa";
             this.btnXoa.Size = new System.Drawing.Size(104, 44);
@@ -250,6 +252,7 @@
             // 
             // btnSua
             // 
+            this.btnSua.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnSua.Location = new System.Drawing.Point(1148, 13);
             this.btnSua.Name = "btnSua";
             this.btnSua.Size = new System.Drawing.Size(104, 44);
@@ -259,12 +262,14 @@
             // 
             // btnLuuXuatKho
             // 
+            this.btnLuuXuatKho.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnLuuXuatKho.Location = new System.Drawing.Point(1038, 13);
             this.btnLuuXuatKho.Name = "btnLuuXuatKho";
             this.btnLuuXuatKho.Size = new System.Drawing.Size(104, 44);
             this.btnLuuXuatKho.TabIndex = 1;
             this.btnLuuXuatKho.Text = "Lưu";
             this.btnLuuXuatKho.UseVisualStyleBackColor = true;
+            this.btnLuuXuatKho.Click += new System.EventHandler(this.btnLuuXuatKho_Click_1);
             // 
             // tableLayoutPanel1
             // 
@@ -332,7 +337,7 @@
             // 
             this.cbxTimLOT.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbxTimLOT.FormattingEnabled = true;
-            this.cbxTimLOT.Location = new System.Drawing.Point(547, 9);
+            this.cbxTimLOT.Location = new System.Drawing.Point(547, 12);
             this.cbxTimLOT.Name = "cbxTimLOT";
             this.cbxTimLOT.Size = new System.Drawing.Size(65, 26);
             this.cbxTimLOT.TabIndex = 2;
@@ -413,6 +418,7 @@
             this.groupBox2.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.groupBox2.Location = new System.Drawing.Point(0, 0);
             this.groupBox2.Name = "groupBox2";
+            this.groupBox2.Padding = new System.Windows.Forms.Padding(3, 10, 3, 3);
             this.groupBox2.Size = new System.Drawing.Size(1375, 329);
             this.groupBox2.TabIndex = 0;
             this.groupBox2.TabStop = false;
@@ -424,7 +430,6 @@
             this.dgvLayDL_preview.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvLayDL_preview.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.id_preview,
-            this.tongCD_preview,
             this.ten_preview,
             this.lot_preview,
             this.soCuon_preview,
@@ -434,61 +439,14 @@
             this.SoCuon_user_preview,
             this.soDau_user_preview,
             this.soCuoi_user_preview,
+            this.tongCD_preview,
             this.ghiChu_user_preview});
             this.dgvLayDL_preview.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dgvLayDL_preview.Location = new System.Drawing.Point(3, 19);
+            this.dgvLayDL_preview.Location = new System.Drawing.Point(3, 26);
             this.dgvLayDL_preview.Name = "dgvLayDL_preview";
             this.dgvLayDL_preview.RowHeadersVisible = false;
-            this.dgvLayDL_preview.Size = new System.Drawing.Size(1369, 239);
+            this.dgvLayDL_preview.Size = new System.Drawing.Size(1369, 232);
             this.dgvLayDL_preview.TabIndex = 2;
-            // 
-            // tableLayoutPanel2
-            // 
-            this.tableLayoutPanel2.ColumnCount = 2;
-            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 5.697589F));
-            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 94.30241F));
-            this.tableLayoutPanel2.Controls.Add(this.label18, 0, 1);
-            this.tableLayoutPanel2.Controls.Add(this.label17, 0, 0);
-            this.tableLayoutPanel2.Controls.Add(this.tbTimKiem, 1, 0);
-            this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.tableLayoutPanel2.Location = new System.Drawing.Point(3, 258);
-            this.tableLayoutPanel2.Name = "tableLayoutPanel2";
-            this.tableLayoutPanel2.RowCount = 2;
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel2.Size = new System.Drawing.Size(1369, 68);
-            this.tableLayoutPanel2.TabIndex = 1;
-            // 
-            // label18
-            // 
-            this.label18.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.label18.AutoSize = true;
-            this.tableLayoutPanel2.SetColumnSpan(this.label18, 2);
-            this.label18.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label18.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
-            this.label18.Location = new System.Drawing.Point(3, 43);
-            this.label18.Name = "label18";
-            this.label18.Size = new System.Drawing.Size(1363, 16);
-            this.label18.TabIndex = 4;
-            this.label18.Text = "Tìm kiếm theo: Tên sản phẩm; Ngày ; số biên bản; LOT";
-            // 
-            // label17
-            // 
-            this.label17.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.label17.AutoSize = true;
-            this.label17.Location = new System.Drawing.Point(3, 9);
-            this.label17.Name = "label17";
-            this.label17.Size = new System.Drawing.Size(71, 16);
-            this.label17.TabIndex = 3;
-            this.label17.Text = "Tìm kiếm";
-            // 
-            // tbTimKiem
-            // 
-            this.tbTimKiem.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.tbTimKiem.Location = new System.Drawing.Point(80, 5);
-            this.tbTimKiem.Name = "tbTimKiem";
-            this.tbTimKiem.Size = new System.Drawing.Size(427, 23);
-            this.tbTimKiem.TabIndex = 2;
             // 
             // id_preview
             // 
@@ -498,18 +456,13 @@
             this.id_preview.ReadOnly = true;
             this.id_preview.Width = 50;
             // 
-            // tongCD_preview
-            // 
-            this.tongCD_preview.DataPropertyName = "tongCD_preview";
-            this.tongCD_preview.HeaderText = "Tổng CD";
-            this.tongCD_preview.Name = "tongCD_preview";
-            // 
             // ten_preview
             // 
             this.ten_preview.DataPropertyName = "ten_preview";
             this.ten_preview.HeaderText = "Tên sản phẩm";
             this.ten_preview.Name = "ten_preview";
             this.ten_preview.ReadOnly = true;
+            this.ten_preview.Width = 230;
             // 
             // lot_preview
             // 
@@ -517,6 +470,7 @@
             this.lot_preview.HeaderText = "LOT";
             this.lot_preview.Name = "lot_preview";
             this.lot_preview.ReadOnly = true;
+            this.lot_preview.Width = 150;
             // 
             // soCuon_preview
             // 
@@ -531,6 +485,7 @@
             this.soDau_preview.HeaderText = "Số đầu";
             this.soDau_preview.Name = "soDau_preview";
             this.soDau_preview.ReadOnly = true;
+            this.soDau_preview.Width = 70;
             // 
             // soCuoi_preview
             // 
@@ -538,6 +493,7 @@
             this.soCuoi_preview.HeaderText = "Số cuối";
             this.soCuoi_preview.Name = "soCuoi_preview";
             this.soCuoi_preview.ReadOnly = true;
+            this.soCuoi_preview.Width = 70;
             // 
             // ghiChu_preview
             // 
@@ -553,7 +509,6 @@
             this.SoCuon_user_preview.HeaderText = "Số cuộn lấy";
             this.SoCuon_user_preview.Name = "SoCuon_user_preview";
             this.SoCuon_user_preview.ReadOnly = true;
-            this.SoCuon_user_preview.Width = 130;
             // 
             // soDau_user_preview
             // 
@@ -561,7 +516,7 @@
             this.soDau_user_preview.HeaderText = "Số đầu lấy";
             this.soDau_user_preview.Name = "soDau_user_preview";
             this.soDau_user_preview.ReadOnly = true;
-            this.soDau_user_preview.Width = 130;
+            this.soDau_user_preview.Width = 80;
             // 
             // soCuoi_user_preview
             // 
@@ -569,7 +524,13 @@
             this.soCuoi_user_preview.HeaderText = "Số cuối lấy";
             this.soCuoi_user_preview.Name = "soCuoi_user_preview";
             this.soCuoi_user_preview.ReadOnly = true;
-            this.soCuoi_user_preview.Width = 130;
+            this.soCuoi_user_preview.Width = 80;
+            // 
+            // tongCD_preview
+            // 
+            this.tongCD_preview.DataPropertyName = "tongCD_preview";
+            this.tongCD_preview.HeaderText = "Tổng CD";
+            this.tongCD_preview.Name = "tongCD_preview";
             // 
             // ghiChu_user_preview
             // 
@@ -578,6 +539,57 @@
             this.ghiChu_user_preview.HeaderText = "Ghi chú";
             this.ghiChu_user_preview.Name = "ghiChu_user_preview";
             this.ghiChu_user_preview.ReadOnly = true;
+            // 
+            // tableLayoutPanel2
+            // 
+            this.tableLayoutPanel2.ColumnCount = 2;
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 5.697589F));
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 94.30241F));
+            this.tableLayoutPanel2.Controls.Add(this.label18, 0, 1);
+            this.tableLayoutPanel2.Controls.Add(this.label17, 0, 0);
+            this.tableLayoutPanel2.Controls.Add(this.tbTimKiem, 1, 0);
+            this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.tableLayoutPanel2.Location = new System.Drawing.Point(3, 258);
+            this.tableLayoutPanel2.Name = "tableLayoutPanel2";
+            this.tableLayoutPanel2.RowCount = 2;
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 58.82353F));
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 41.17647F));
+            this.tableLayoutPanel2.Size = new System.Drawing.Size(1369, 68);
+            this.tableLayoutPanel2.TabIndex = 1;
+            // 
+            // label18
+            // 
+            this.label18.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.label18.AutoSize = true;
+            this.tableLayoutPanel2.SetColumnSpan(this.label18, 2);
+            this.label18.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label18.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.label18.Location = new System.Drawing.Point(3, 46);
+            this.label18.Name = "label18";
+            this.label18.Size = new System.Drawing.Size(1363, 16);
+            this.label18.TabIndex = 4;
+            this.label18.Text = "Tìm kiếm theo: Tên sản phẩm; Ngày ; số biên bản; LOT";
+            // 
+            // label17
+            // 
+            this.label17.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.label17.AutoSize = true;
+            this.label17.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label17.Location = new System.Drawing.Point(3, 22);
+            this.label17.Name = "label17";
+            this.label17.Size = new System.Drawing.Size(71, 18);
+            this.label17.TabIndex = 3;
+            this.label17.Text = "Tìm kiếm";
+            // 
+            // tbTimKiem
+            // 
+            this.tbTimKiem.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.tbTimKiem.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.tbTimKiem.Location = new System.Drawing.Point(80, 11);
+            this.tbTimKiem.Name = "tbTimKiem";
+            this.tbTimKiem.Size = new System.Drawing.Size(427, 26);
+            this.tbTimKiem.TabIndex = 2;
             // 
             // UC_XuatKho
             // 
@@ -641,11 +653,10 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn ghiChu;
         private System.Windows.Forms.DataGridViewTextBoxColumn soCuon_user;
         private System.Windows.Forms.DataGridViewTextBoxColumn soDau_user;
-        private System.Windows.Forms.DataGridViewTextBoxColumn socuoi_user;
+        private System.Windows.Forms.DataGridViewTextBoxColumn soCuoi_user;
         private System.Windows.Forms.DataGridViewTextBoxColumn ghiChu_user;
         private System.Windows.Forms.DataGridViewCheckBoxColumn getAll;
         private System.Windows.Forms.DataGridViewTextBoxColumn id_preview;
-        private System.Windows.Forms.DataGridViewTextBoxColumn tongCD_preview;
         private System.Windows.Forms.DataGridViewTextBoxColumn ten_preview;
         private System.Windows.Forms.DataGridViewTextBoxColumn lot_preview;
         private System.Windows.Forms.DataGridViewTextBoxColumn soCuon_preview;
@@ -655,6 +666,7 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn SoCuon_user_preview;
         private System.Windows.Forms.DataGridViewTextBoxColumn soDau_user_preview;
         private System.Windows.Forms.DataGridViewTextBoxColumn soCuoi_user_preview;
+        private System.Windows.Forms.DataGridViewTextBoxColumn tongCD_preview;
         private System.Windows.Forms.DataGridViewTextBoxColumn ghiChu_user_preview;
     }
 }

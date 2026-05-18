@@ -1667,7 +1667,7 @@ namespace DG_TonKhoBTP_v02.Database
                         lsxn.SoLuong AS SoLuong,
                         lsxn.DonGia AS DonGia,
                         dsk.TenKho AS TenKho,
-                        ncc.TenNcc AS NCC,
+                        ncc.TenNcc AS DoiTuongCongNo,
                         lsxn.GhiChu AS GhiChu,
                         dsdh.MaDon AS MaDon,
                         dsdh.NguoiDat AS NguoiDat,

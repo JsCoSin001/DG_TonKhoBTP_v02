@@ -424,7 +424,7 @@ namespace DG_TonKhoBTP_v02.UI
         }
 
 
-        private void btnXemTonKho_Click(object sender, EventArgs e)
+        private async void btnXemTonKho_Click(object sender, EventArgs e)
         {
             using var dialog = new SaveFileDialog
             {
@@ -436,37 +436,48 @@ namespace DG_TonKhoBTP_v02.UI
             if (dialog.ShowDialog() != DialogResult.OK)
                 return;
 
+            string savedPath = dialog.FileName;
+            btnXemTonKho.Enabled = false;
+
             try
             {
-                DataTable dtLo = TonKhoExcelReport_DB.LayTonKhoLo();
-                DataTable dtCuon = TonKhoExcelReport_DB.LayTonKhoCuon();
+                DataTable dtLo = null;
+                DataTable dtCuon = null;
 
-                if ((dtLo == null || dtLo.Rows.Count == 0) &&
-                    (dtCuon == null || dtCuon.Rows.Count == 0))
+                await WaitingHelper.RunWithWaiting(async () =>
                 {
-                    MessageBox.Show(
-                        "Không có dữ liệu tồn kho để xuất báo cáo.",
-                        "Thông báo",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Information);
-                    return;
-                }
+                    dtLo = await Task.Run(() => TonKhoExcelReport_DB.LayTonKhoLo());
+                    dtCuon = await Task.Run(() => TonKhoExcelReport_DB.LayTonKhoCuon());
 
-                TonKhoExcelExporter.ExportToPath(dtLo, dtCuon, dialog.FileName);
+                    bool isEmpty = (dtLo == null || dtLo.Rows.Count == 0)
+                                && (dtCuon == null || dtCuon.Rows.Count == 0);
 
-                MessageBox.Show(
-                    "Xuất file Excel thành công!",
-                    "Thông báo",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Information);
+                    if (isEmpty)
+                    {
+                        dtLo = dtCuon = null;
+                        return;
+                    }
+
+                    await Task.Run(() => TonKhoExcelExporter.ExportToPath(dtLo, dtCuon, savedPath));
+
+                }, "ĐANG XUẤT BÁO CÁO TỒN KHO EXCEL...");
+
+                if (dtLo == null && dtCuon == null)
+                    FrmWaiting.ShowGifAlert("KHÔNG CÓ DỮ LIỆU TỒN KHO ĐỂ XUẤT BÁO CÁO.", "THÔNG BÁO", EnumStore.Icon.Warning);
+                else
+                    FrmWaiting.ShowGifAlert("XUẤT FILE EXCEL THÀNH CÔNG!", "THÔNG BÁO", EnumStore.Icon.Success);
+            }
+            catch (InvalidOperationException ex) // thiếu Mã LOT hoặc lỗi nghiệp vụ
+            {
+                FrmWaiting.ShowGifAlert(ex.Message, "LỖI DỮ LIỆU", EnumStore.Icon.Warning);
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
-                    $"Lỗi: {ex.Message}",
-                    "Lỗi",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
+                FrmWaiting.ShowGifAlert($"Có lỗi xảy ra: {ex.Message}", "LỖI", EnumStore.Icon.Warning);
+            }
+            finally
+            {
+                btnXemTonKho.Enabled = true;
             }
         }
     }

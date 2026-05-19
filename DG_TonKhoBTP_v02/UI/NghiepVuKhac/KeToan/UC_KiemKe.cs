@@ -197,36 +197,35 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
                 _isProgrammaticChange = false;
             }
         }
-        
+
         private async void UC_KiemKe_Load(object sender, EventArgs e)
         {
-            // Dùng WaitingHelper.RunWithWaiting<T>:
-            //   - Func<Task<T>> chạy phần DB bất đồng bộ trên thread pool
-            //   - Sau khi await xong, kết quả trả về UI thread → gán control an toàn
-            (Dictionary<string, decimal> bins, DataTable dt) result =
-                await WaitingHelper.RunWithWaiting(
-                    async () =>
-                    {
-                        // Chạy song song hai truy vấn độc lập để nhanh hơn
-                        var t1 = DatabaseHelper.LayDanhSachBin_KhoiLuong();
-                        var t2 = System.Threading.Tasks.Task.Run(
-                                     () => DatabaseHelper.Load_TTKiemKeThang());
+            try
+            {
+                (Dictionary<string, decimal> bins, DataTable dt) result =
+                    await WaitingHelper.RunWithWaiting(
+                        async () =>
+                        {
+                            var t1 = DatabaseHelper.LayDanhSachBin_KhoiLuong();
+                            var t2 = System.Threading.Tasks.Task.Run(
+                                         () => DatabaseHelper.Load_TTKiemKeThang());
+                            await System.Threading.Tasks.Task.WhenAll(t1, t2);
+                            return (t1.Result, t2.Result);
+                        },
+                        "ĐANG TẢI DỮ LIỆU...");
 
-                        await System.Threading.Tasks.Task.WhenAll(t1, t2);
-                        return (t1.Result, t2.Result);
-                    },
-                    "ĐANG TẢI DỮ LIỆU...");
-
-            // ── Cập nhật UI – luôn ở UI thread vì await trả về đây ──
-            dsBin = result.bins ?? new Dictionary<string, decimal>();
-
-            InitDataGridView();
-
-            _dtKiemKe = result.dt ?? new DataTable();
-            dsKiemKe.DataSource = _dtKiemKe;
-            dsKiemKe.ClearSelection();
+                dsBin = result.bins ?? new Dictionary<string, decimal>();
+                InitDataGridView();
+                _dtKiemKe = result.dt ?? new DataTable();
+                dsKiemKe.DataSource = _dtKiemKe;
+                dsKiemKe.ClearSelection();
+            }
+            catch (Exception ex)
+            {
+                FrmWaiting.ShowGifAlert($"Có lỗi xảy ra khi tải dữ liệu: {ex.Message}", "LỖI", EnumStore.Icon.Warning);
+            }
         }
-        
+
         private async void tbTimKiem_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode != Keys.Enter) return;

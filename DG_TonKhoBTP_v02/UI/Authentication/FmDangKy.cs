@@ -67,14 +67,21 @@ namespace DG_TonKhoBTP_v02.UI.Setting
 
         private async void FmDangKy_Load(object sender, EventArgs e)
         {
-            await WaitingHelper.RunWithWaiting(async () =>
+            try
             {
-                await FirstLoadAsync();
-            }, "ĐANG TẢI DỮ LIỆU...");
+                await WaitingHelper.RunWithWaiting(async () =>
+                {
+                    await FirstLoadAsync();
+                }, "ĐANG TẢI DỮ LIỆU...");
 
-            LoadRoles();
-            LoadPermissions();
-            LoadPermissionMatrix();
+                LoadRoles();
+                LoadPermissions();
+                LoadPermissionMatrix();
+            }
+            catch (Exception ex)
+            {
+                FrmWaiting.ShowGifAlert("KHÔNG THỂ TẢI DỮ LIỆU!");
+            }
         }
 
         private async Task FirstLoadAsync()

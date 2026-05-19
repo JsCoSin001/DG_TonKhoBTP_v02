@@ -56,7 +56,6 @@ namespace DG_TonKhoBTP_v02.UI
         private async void btnTim_Click(object sender, EventArgs e)
         {
             var type = GetKieuEdit(nbrSaoChep.Value, nbrSua.Value);
-
             int kieuEdit = type.kieuEdit;
             long stt = type.stt;
 
@@ -71,8 +70,6 @@ namespace DG_TonKhoBTP_v02.UI
 
             try
             {
-                //string soLOT = GetSoLOT?.Invoke();
-
                 await WaitingHelper.RunWithWaiting(async () =>
                 {
                     DataTable dt = await Task.Run(() =>
@@ -85,8 +82,11 @@ namespace DG_TonKhoBTP_v02.UI
                     }
 
                     DataTableSubmitted?.Invoke(this, new DataTableEventArgs(dt, kieuEdit));
-
                 }, "ĐANG TÌM KIẾM, VUI LÒNG ĐỢI...");
+            }
+            catch (Exception ex)
+            {
+                FrmWaiting.ShowGifAlert($"Có lỗi xảy ra: {ex.Message}", "LỖI", EnumStore.Icon.Warning);
             }
             finally
             {

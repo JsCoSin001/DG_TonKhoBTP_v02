@@ -40,19 +40,26 @@ namespace DG_TonKhoBTP_v02.UI.Authentication
 
             bool result = false;
 
-            await WaitingHelper.RunWithWaiting(() =>
+            try
             {
-                result = User_DatabaseHelper.UpdatePassword(userId, newPassword);
-            }, "ĐANG ĐỔI MẬT KHẨU...");
+                await WaitingHelper.RunWithWaiting(() =>
+                {
+                    result = User_DatabaseHelper.UpdatePassword(userId, newPassword);
+                }, "ĐANG ĐỔI MẬT KHẨU...");
 
-            if (result)
-            {
-                FrmWaiting.ShowGifAlert("Đổi mật khẩu thành công.", "THÔNG BÁO", EnumStore.Icon.Success);
-                this.Close();
+                if (result)
+                {
+                    FrmWaiting.ShowGifAlert("Đổi mật khẩu thành công.", "THÔNG BÁO", EnumStore.Icon.Success);
+                    this.Close();
+                }
+                else
+                {
+                    FrmWaiting.ShowGifAlert("Đổi mật khẩu thất bại.");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                FrmWaiting.ShowGifAlert("Đổi mật khẩu thất bại.");
+                FrmWaiting.ShowGifAlert($"Có lỗi xảy ra: {ex.Message}", "LỖI", EnumStore.Icon.Warning);
             }
         }
 

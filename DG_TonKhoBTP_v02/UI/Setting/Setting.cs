@@ -24,41 +24,31 @@ namespace DG_TonKhoBTP_v02.UI.Setting
 
         public async Task LoadDataAsync()
         {
-            await WaitingHelper.RunWithWaiting(async () =>
+            try
             {
-                ConfigDB config = null;
-                Exception loadException = null;
-
-                // Chạy việc đọc database trong background thread
-                await Task.Run(() =>
+                await WaitingHelper.RunWithWaiting(async () =>
                 {
-                    try
+                    ConfigDB config = null;
+
+                    await Task.Run(() =>
                     {
                         config = DatabaseHelper.GetConfig();
-                    }
-                    catch (Exception ex)
+                    });
+
+                    if (config != null)
                     {
-                        loadException = ex;
+                        rdoHoatDong.Checked = config.Active;
+                        rdoTamDung.Checked = !config.Active;
+                        tbxNguoiThucHien.Text = config.Author.ToString();
+                        rtbMessage.Text = config.Message;
+                        lblThongBao.Visible = !config.Active;
                     }
-                });
-
-                // Cập nhật UI trên UI thread (không cần Invoke vì đã ở UI thread)
-                if (loadException != null)
-                {
-                    FrmWaiting.ShowGifAlert("Không thể đọc dữ liệu từ database!\nChi tiết lỗi: " + loadException.Message);
-                }
-                else if (config != null)
-                {
-                    //cbxActive.SelectedIndex = config.Active ? 1 : 0;
-                    rdoHoatDong.Checked = config.Active;
-                    rdoTamDung.Checked = !config.Active;
-
-                    tbxNguoiThucHien.Text = config.Author.ToString();
-                    rtbMessage.Text = config.Message;
-                    lblThongBao.Visible = !config.Active;
-                }
-
-            }, "ĐANG LẤY DỮ LIỆU...");
+                }, "ĐANG LẤY DỮ LIỆU...");
+            }
+            catch (Exception ex)
+            {
+                FrmWaiting.ShowGifAlert($"Không thể đọc dữ liệu từ database: {ex.Message}", "LỖI", EnumStore.Icon.Warning);
+            }
         }
 
         private void btnFindPathDB_Click(object sender, EventArgs e)

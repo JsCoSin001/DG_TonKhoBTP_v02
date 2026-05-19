@@ -24,11 +24,9 @@ namespace DG_TonKhoBTP_v02.UI.Authentication
             string username = (txtUser.Text ?? "").Trim();
             string passwordInput = (txtPassword.Text ?? "").Trim();
 
-            // Cấu hình khi lần đầu chạy app
             if (flg)
             {
                 string privateDBPath = Settings.Default.PassApp;
-
                 if (passwordInput == privateDBPath)
                 {
                     using (var dlg = new OpenFileDialog())
@@ -36,14 +34,10 @@ namespace DG_TonKhoBTP_v02.UI.Authentication
                         dlg.Title = "Chọn file database";
                         dlg.Multiselect = false;
                         dlg.CheckFileExists = true;
-
-                        // Lọc theo đuôi file database
                         dlg.Filter = "Database files (*.db)|*.db|All files (*.*)|*.*";
-
                         if (dlg.ShowDialog(this) == DialogResult.OK)
                         {
-                            string dbPath = dlg.FileName;
-                            Properties.Settings.Default.URL = dbPath;
+                            Properties.Settings.Default.URL = dlg.FileName;
                             Properties.Settings.Default.Save();
                         }
                     }
@@ -52,29 +46,33 @@ namespace DG_TonKhoBTP_v02.UI.Authentication
                 return;
             }
 
-            // Bắt đầu đăng nhâp
             if (string.IsNullOrWhiteSpace(username) || string.IsNullOrEmpty(passwordInput))
             {
                 FrmWaiting.ShowGifAlert("Tài khoản hoặc mật khẩu đang bỏ trống");
-                return ;
+                return;
             }
 
-            var login = await WaitingHelper.RunWithWaiting(() =>
-                Task.Run(() => DatabaseHelper.Login(username, txtPassword.Text)),
-                "ĐANG ĐĂNG NHẬP, VUI LÒNG ĐỢI..."
-            );
-
-            if (login == null || !login.Success)
+            try
             {
-                FrmWaiting.ShowGifAlert(login?.Message ?? "Đăng nhập thất bại.");
-                return; // KHÔNG Close để user có thể nhập lại
+                var login = await WaitingHelper.RunWithWaiting(
+                    () => Task.Run(() => DatabaseHelper.Login(username, txtPassword.Text)),
+                    "ĐANG ĐĂNG NHẬP, VUI LÒNG ĐỢI..."
+                );
+
+                if (login == null || !login.Success)
+                {
+                    FrmWaiting.ShowGifAlert(login?.Message ?? "Đăng nhập thất bại.");
+                    return;
+                }
+
+                UserContext.Set(login);
+                this.DialogResult = DialogResult.OK;
+                this.Close();
             }
-
-            // ✅ Login thành công
-            UserContext.Set(login);
-
-            this.DialogResult = DialogResult.OK; // 👈 báo thành công
-            this.Close();
+            catch (Exception ex)
+            {
+                FrmWaiting.ShowGifAlert($"Có lỗi xảy ra: {ex.Message}", "LỖI", EnumStore.Icon.Warning);
+            }
         }
 
         private void btnCancel_Click(object sender, EventArgs e)

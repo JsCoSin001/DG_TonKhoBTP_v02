@@ -77,48 +77,49 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
         {
             base.OnLoad(e);
 
-            _ = WaitingHelper.RunWithWaiting(async () =>
+            _ = LoadOnStartAsync();            
+        }
+
+        private async Task LoadOnStartAsync()
+        {
+            try
             {
-                KhoiTaoCbxTimDon();
-
-                KhoiTaoCbxTimTen();
-
-                KhoiTaoGiaoDienKhac();
-
-                TimKiemTenNCC();
-
-                // ── KHỞI TẠO DataSource rỗng ngay từ đầu ───────────────────────
-                // Đảm bảo dgvChiTietDon luôn có DataSource là DataTable,
-                // tránh mất dữ liệu nhập tay khi MergeVaoDgv được gọi lần đầu.
-                if (dgvChiTietDon.DataSource == null)
+                await WaitingHelper.RunWithWaiting(async () =>
                 {
-                    dgvChiTietDon.AutoGenerateColumns = false;
-                    dgvChiTietDon.DataSource = TaoDtRong();
-                }
-                // ── HẾT KHỞI TẠO ─────────────────────────────────────────────────
+                    KhoiTaoCbxTimDon();
+                    KhoiTaoCbxTimTen();
+                    KhoiTaoGiaoDienKhac();
+                    TimKiemTenNCC();
 
-                dgvChiTietDon.CellClick -= DgvChiTietDon_CellClick;
-                dgvChiTietDon.CellClick += DgvChiTietDon_CellClick;
+                    if (dgvChiTietDon.DataSource == null)
+                    {
+                        dgvChiTietDon.AutoGenerateColumns = false;
+                        dgvChiTietDon.DataSource = TaoDtRong();
+                    }
 
-                if (!_isNhapKho)
-                {
-                    dgvChiTietDon.Columns["yeuCau"].HeaderText = "Tồn Kho";
-                    dgvChiTietDon.Columns["thucNhan"].HeaderText = "Số Lượng Xuất";
-                }
+                    dgvChiTietDon.CellClick -= DgvChiTietDon_CellClick;
+                    dgvChiTietDon.CellClick += DgvChiTietDon_CellClick;
 
+                    if (!_isNhapKho)
+                    {
+                        dgvChiTietDon.Columns["yeuCau"].HeaderText = "Tồn Kho";
+                        dgvChiTietDon.Columns["thucNhan"].HeaderText = "Số Lượng Xuất";
+                    }
 
-                dgvChiTietDon.CellFormatting -= DgvChiTietDon_CellFormatting;
-                dgvChiTietDon.CellFormatting += DgvChiTietDon_CellFormatting;
+                    dgvChiTietDon.CellFormatting -= DgvChiTietDon_CellFormatting;
+                    dgvChiTietDon.CellFormatting += DgvChiTietDon_CellFormatting;
+                    dgvChiTietDon.CellValidating -= DgvChiTietDon_CellValidating;
+                    dgvChiTietDon.CellValidating += DgvChiTietDon_CellValidating;
+                    dgvChiTietDon.CellParsing -= DgvChiTietDon_CellParsing;
+                    dgvChiTietDon.CellParsing += DgvChiTietDon_CellParsing;
 
-                dgvChiTietDon.CellValidating -= DgvChiTietDon_CellValidating;
-                dgvChiTietDon.CellValidating += DgvChiTietDon_CellValidating;
-
-                dgvChiTietDon.CellParsing -= DgvChiTietDon_CellParsing;
-                dgvChiTietDon.CellParsing += DgvChiTietDon_CellParsing;
-
-
-                await Task.CompletedTask;
-            }, "ĐANG KHỞI TẠO GIAO DIỆN...");
+                    await Task.CompletedTask;
+                }, "ĐANG KHỞI TẠO GIAO DIỆN...");
+            }
+            catch (Exception ex)
+            {
+                FrmWaiting.ShowGifAlert($"Có lỗi xảy ra khi khởi tạo: {ex.Message}", "LỖI", EnumStore.Icon.Warning);
+            }
         }
 
         private void DgvChiTietDon_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
@@ -537,52 +538,57 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
         {
             if (string.IsNullOrWhiteSpace(tenVatTu)) return;
 
-            await WaitingHelper.RunWithWaiting(async () =>
+            try
             {
-                DataTable dt;
-
-                if (IsEdit)
+                await WaitingHelper.RunWithWaiting(async () =>
                 {
-                    if (string.IsNullOrWhiteSpace(NguoiLam))
+                    DataTable dt;
+
+                    if (IsEdit)
                     {
-                        FrmWaiting.ShowGifAlert("Cần nhập người làm trước");
-                        return;
+                        if (string.IsNullOrWhiteSpace(NguoiLam))
+                        {
+                            FrmWaiting.ShowGifAlert("Cần nhập người làm trước");
+                            return;
+                        }
+                        dt = await DatabaseHelper.GetDataTuTenVatTuXuatNhap_Edit(tenVatTu, NguoiLam, _isNhapKho);
+                    }
+                    else
+                    {
+                        dt = _isNhapKho
+                            ? await DatabaseHelper.LayChiTietDonTheoTenVatTu(tenVatTu, _kieu, IsKhac)
+                            : await DatabaseHelper.LayChiTietDonTheoTenVatTuXuatKho(tenVatTu);
                     }
 
-                    dt = await DatabaseHelper.GetDataTuTenVatTuXuatNhap_Edit(tenVatTu, NguoiLam, _isNhapKho);
-                }
-                else
-                {
-                    dt = _isNhapKho
-                        ? await DatabaseHelper.LayChiTietDonTheoTenVatTu(tenVatTu, _kieu, IsKhac)
-                        : await DatabaseHelper.LayChiTietDonTheoTenVatTuXuatKho(tenVatTu);
-                }
-
-                Console.WriteLine(dt.Rows.Count);
-
-                MergeVaoDgv(dt, IsKhac);
-                // [ĐÃ SỬA] Clear() → Reset() theo API mới của ComboBoxSearchHelper
-                //_cbxTimTenHelper.Reset();
-            }, "ĐANG TẢI DỮ LIỆU VẬT TƯ...");
+                    MergeVaoDgv(dt, IsKhac);
+                }, "ĐANG TẢI DỮ LIỆU VẬT TƯ...");
+            }
+            catch (Exception ex)
+            {
+                FrmWaiting.ShowGifAlert($"Có lỗi xảy ra: {ex.Message}", "LỖI", EnumStore.Icon.Warning);
+            }
         }
 
         // Lấy dữ liệu theo mã đơn
         private async Task LoadChiTietDonAsync(string maDon, bool isEdit)
         {
-
             if (string.IsNullOrWhiteSpace(maDon)) return;
 
-            await WaitingHelper.RunWithWaiting(async () =>
+            try
             {
+                await WaitingHelper.RunWithWaiting(async () =>
+                {
+                    var dt = _isNhapKho
+                        ? await DatabaseHelper.LayChiTietDonDatHang(maDon, IsEdit)
+                        : await DatabaseHelper.LayChiTietDonDatHangXuatKho(maDon, IsEdit);
 
-                var dt = _isNhapKho
-                    ? await DatabaseHelper.LayChiTietDonDatHang(maDon, IsEdit)      // Lấy dữ liệu
-                    : await DatabaseHelper.LayChiTietDonDatHangXuatKho(maDon, IsEdit);
-
-
-                MergeVaoDgv(dt, IsKhac);
-
-            }, "ĐANG TẢI CHI TIẾT ĐƠN...");
+                    MergeVaoDgv(dt, IsKhac);
+                }, "ĐANG TẢI CHI TIẾT ĐƠN...");
+            }
+            catch (Exception ex)
+            {
+                FrmWaiting.ShowGifAlert($"Có lỗi xảy ra: {ex.Message}", "LỖI", EnumStore.Icon.Warning);
+            }
         }
 
         private async void btnLuu_Click(object sender, EventArgs e)
@@ -620,85 +626,73 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
             }
 
             btnLuu.Enabled = false;
-
             string tenPhieu = null;
 
-            await WaitingHelper.RunWithWaiting(async () =>
+            try
             {
-                if (!IsEdit)
+                await WaitingHelper.RunWithWaiting(async () =>
                 {
-                    if (IsKhac)
+                    if (!IsEdit)
                     {
-                        var info = new DonKhacInfo
+                        if (IsKhac)
                         {
-                            NguoiDat = nguoiLam,
-                            NguoiGiaoNhan = nguoiGiaoNhan,
-                            LyDoChung = lyDoChung,
-                            Ngay = dtNgayNhapXuat.Value,
-                            KhoId = kho,
-                            Nhacc = ncc,
-                            NguoiLam = nguoiLam,
-                            IsNhapKho = _isNhapKho
-                        };
+                            var info = new DonKhacInfo
+                            {
+                                NguoiDat = nguoiLam,
+                                NguoiGiaoNhan = nguoiGiaoNhan,
+                                LyDoChung = lyDoChung,
+                                Ngay = dtNgayNhapXuat.Value,
+                                KhoId = kho,
+                                Nhacc = ncc,
+                                NguoiLam = nguoiLam,
+                                IsNhapKho = _isNhapKho
+                            };
+                            var items = LayDanhSachDonKhacItems(dgvChiTietDon);
+                            tenPhieu = await DatabaseHelper.LuuDonKhacAsync(info, items);
+                        }
+                        else
+                        {
+                            tenPhieu = await DatabaseHelper.LuuLichSuXuatNhap(
+                                dgvChiTietDon, nguoiGiaoNhan, lyDoChung,
+                                ngay, ncc, kho, nguoiLam, _isNhapKho);
 
-                        var items = LayDanhSachDonKhacItems(dgvChiTietDon);
-
-                        tenPhieu = await DatabaseHelper.LuuDonKhacAsync(info, items);
+                            if (_kieu == 2)
+                            {
+                                await DatabaseHelper.LuuLichSuXuatNhap(
+                                    dgvChiTietDon, nguoiGiaoNhan, lyDoChung,
+                                    ngay, ncc, kho, nguoiLam, false);
+                            }
+                        }
                     }
                     else
                     {
-                        tenPhieu = await DatabaseHelper.LuuLichSuXuatNhap(
-                                              dgvChiTietDon,
-                                              nguoiGiaoNhan,
-                                              lyDoChung,
-                                              ngay,
-                                              ncc,
-                                              kho, nguoiLam,
-                                              _isNhapKho);
-
-                        if (_kieu == 2)
-                        {
-                            await DatabaseHelper.LuuLichSuXuatNhap(
-                                dgvChiTietDon,
-                                nguoiGiaoNhan,
-                                lyDoChung,
-                                ngay,
-                                ncc,
-                                kho, nguoiLam,
-                                false);
-                        }
+                        await DatabaseHelper.CapNhatLichSuXuatNhap(
+                            dgvChiTietDon, nguoiGiaoNhan, lyDoChung, nguoiLam, _isNhapKho);
                     }
+                }, _isNhapKho ? "ĐANG LƯU PHIẾU NHẬP KHO..." : "ĐANG LƯU PHIẾU XUẤT KHO...");
 
-                }
-                else
+                if (string.IsNullOrWhiteSpace(tenPhieu) && !IsEdit)
                 {
-                    await DatabaseHelper.CapNhatLichSuXuatNhap(
-                        dgvChiTietDon,
-                        nguoiGiaoNhan,
-                        lyDoChung, nguoiLam, _isNhapKho);
+                    FrmWaiting.ShowGifAlert("Lưu thất bại. Vui lòng thử lại.");
+                    return;
                 }
 
-            }, _isNhapKho
-             ? "ĐANG LƯU PHIẾU NHẬP KHO..."
-             : "ĐANG LƯU PHIẾU XUẤT KHO...");
+                if (_isNhapKho)
+                    In_PhieuNhapKho(tenPhieu);
+                else
+                    In_PhieuXuatKho(tenPhieu);
 
-            btnLuu.Enabled = true;
-
-            if (string.IsNullOrWhiteSpace(tenPhieu) && !IsEdit)
-            {
-                FrmWaiting.ShowGifAlert("Lưu thất bại. Vui lòng thử lại.");
-                return;
+                FrmWaiting.ShowGifAlert("Lưu thành công", myIcon: EnumStore.Icon.Success);
+                Reset();
             }
-
-            if (_isNhapKho)
-                In_PhieuNhapKho(tenPhieu);
-            else
-                In_PhieuXuatKho(tenPhieu);
-
-            FrmWaiting.ShowGifAlert("Lưu thành công", myIcon: EnumStore.Icon.Success);
-
-            Reset();
-
+            catch (Exception ex)
+            {
+                FrmWaiting.ShowGifAlert($"Có lỗi xảy ra: {ex.Message}", "LỖI", EnumStore.Icon.Warning);
+            }
+            finally
+            {
+                btnLuu.Enabled = true;
+            }
         }
 
         private void Reset()

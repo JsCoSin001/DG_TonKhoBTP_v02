@@ -436,35 +436,38 @@ namespace DG_TonKhoBTP_v02.UI
             int finalId = 0;
             string actionName = string.IsNullOrWhiteSpace(id) ? "THÊM MỚI" : "CẬP NHẬT";
 
-            await WaitingHelper.RunWithWaiting(() =>
+            try
             {
-                try
+                await WaitingHelper.RunWithWaiting(() =>
                 {
-                    finalId = DatabaseHelper.UpsertDanhSachNCC(id, ma, tenNcc);
-                    isSuccess = true;
-                }
-                catch (Exception ex)
-                {
-                    isSuccess = false;
-                    FrmWaiting.ShowGifAlert(
-                        CoreHelper.ShowErrorDatabase(ex, "NHÀ CUNG CẤP"),
-                        "LỖI CƠ SỞ DỮ LIỆU");
-                }
-            }, $"{actionName} NHÀ CUNG CẤP, VUI LÒNG ĐỢI...");
+                    try
+                    {
+                        finalId = DatabaseHelper.UpsertDanhSachNCC(id, ma, tenNcc);
+                        isSuccess = true;
+                    }
+                    catch (Exception ex)
+                    {
+                        isSuccess = false;
+                        FrmWaiting.ShowGifAlert(
+                            CoreHelper.ShowErrorDatabase(ex, "NHÀ CUNG CẤP"),
+                            "LỖI CƠ SỞ DỮ LIỆU");
+                    }
+                }, $"{actionName} NHÀ CUNG CẤP, VUI LÒNG ĐỢI...");
 
-            if (!isSuccess) return;
+                if (!isSuccess) return;
 
-            // Ghi Excel chạy nền, không block UI
-            if (cbxExNCC.Checked) GhiExcelAsync(finalId, ma, tenNcc, "DsNcc");
+                if (cbxExNCC.Checked) GhiExcelAsync(finalId, ma, tenNcc, "DsNcc");
+                FrmWaiting.ShowGifAlert($"{actionName} NHÀ CUNG CẤP THÀNH CÔNG.", "THÔNG BÁO");
 
-            FrmWaiting.ShowGifAlert($"{actionName} NHÀ CUNG CẤP THÀNH CÔNG.", "THÔNG BÁO");
-
-            tbxID.Clear();
-            tbxMaNcc.Clear();
-            tbxTenNcc.Clear();
-            tbxMaNcc.Focus();
-
-            // LoadDanhSachNCC();
+                tbxID.Clear();
+                tbxMaNcc.Clear();
+                tbxTenNcc.Clear();
+                tbxMaNcc.Focus();
+            }
+            catch (Exception ex)
+            {
+                FrmWaiting.ShowGifAlert($"Có lỗi xảy ra: {ex.Message}", "LỖI", EnumStore.Icon.Warning);
+            }
         }
 
         private async void btnLuuKho_Click(object sender, EventArgs e)
@@ -491,32 +494,38 @@ namespace DG_TonKhoBTP_v02.UI
             bool isSuccess = false;
             string actionName = string.IsNullOrWhiteSpace(id) ? "THÊM MỚI" : "CẬP NHẬT";
 
-            await WaitingHelper.RunWithWaiting(() =>
+            try
             {
-                try
+                await WaitingHelper.RunWithWaiting(() =>
                 {
-                    int finalId = DatabaseHelper.UpsertDanhSachKho(id, kiHieu, tenKho, ghiChu);
-                    if (cbxExKho.Checked) GhiExcelAsync(finalId, kiHieu, tenKho, "DsKho");
-                    isSuccess = true;
-                }
-                catch (Exception ex)
-                {
-                    isSuccess = false;
-                    FrmWaiting.ShowGifAlert(
-                        CoreHelper.ShowErrorDatabase(ex, "KHO"),
-                        "LỖI CƠ SỞ DỮ LIỆU");
-                }
-            }, $"{actionName} KHO, VUI LÒNG ĐỢI...");
+                    try
+                    {
+                        int finalId = DatabaseHelper.UpsertDanhSachKho(id, kiHieu, tenKho, ghiChu);
+                        if (cbxExKho.Checked) GhiExcelAsync(finalId, kiHieu, tenKho, "DsKho");
+                        isSuccess = true;
+                    }
+                    catch (Exception ex)
+                    {
+                        isSuccess = false;
+                        FrmWaiting.ShowGifAlert(
+                            CoreHelper.ShowErrorDatabase(ex, "KHO"),
+                            "LỖI CƠ SỞ DỮ LIỆU");
+                    }
+                }, $"{actionName} KHO, VUI LÒNG ĐỢI...");
 
-            if (!isSuccess) return;
+                if (!isSuccess) return;
 
-            FrmWaiting.ShowGifAlert($"{actionName} KHO THÀNH CÔNG.", "THÔNG BÁO");
+                FrmWaiting.ShowGifAlert($"{actionName} KHO THÀNH CÔNG.", "THÔNG BÁO");
 
-            tbxIDKho.Clear();
-            tbxKiHieuKho.Clear();
-            tbxTenKho.Clear();
-            //tbxGhiChuKho.Clear();
-            tbxKiHieuKho.Focus();
+                tbxIDKho.Clear();
+                tbxKiHieuKho.Clear();
+                tbxTenKho.Clear();
+                tbxKiHieuKho.Focus();
+            }
+            catch (Exception ex)
+            {
+                FrmWaiting.ShowGifAlert($"Có lỗi xảy ra: {ex.Message}", "LỖI", EnumStore.Icon.Warning);
+            }
         }
 
 
@@ -640,13 +649,10 @@ namespace DG_TonKhoBTP_v02.UI
                         else
                         {
                             int affectedRows = TTLo_DB.Update(rulo);
-
                             if (affectedRows <= 0)
                                 throw new Exception("KHÔNG TÌM THẤY RU LÔ CẦN CẬP NHẬT.");
-
                             finalId = rulo.Id;
                         }
-
                         isSuccess = true;
                     }
                     catch (Exception ex)
@@ -666,6 +672,10 @@ namespace DG_TonKhoBTP_v02.UI
                     EnumStore.Icon.Success);
 
                 ClearRulo();
+            }
+            catch (Exception ex)
+            {
+                FrmWaiting.ShowGifAlert($"Có lỗi xảy ra: {ex.Message}", "LỖI", EnumStore.Icon.Warning);
             }
             finally
             {

@@ -227,58 +227,67 @@ namespace DG_TonKhoBTP_v02.UI
         {
             DateTime batDau = dtBatDau.Value;
             DateTime ketThuc = dtKetThuc.Value;
+
             if (ketThuc <= batDau)
             {
                 FrmWaiting.ShowGifAlert("Thời gian kết thúc phải lớn hơn thời gian bắt đầu!");
                 return;
             }
+
             var selectedCongDoans = CoreHelper.GetCheckedCongDoans(tbCheckBox);
             if (selectedCongDoans == null || selectedCongDoans.Count == 0)
             {
                 FrmWaiting.ShowGifAlert("Vui lòng chọn ít nhất một công đoạn!");
                 return;
             }
+
             string fileName = selectedCongDoans.Count == 1
                 ? $"Report_{selectedCongDoans[0].TenCongDoan}"
                 : "Report_MultiCongDoan";
 
-            await WaitingHelper.RunWithWaiting(async () =>
+            try
             {
-                DataTable dt = await Task.Run(() =>
+                await WaitingHelper.RunWithWaiting(async () =>
                 {
-                    if (cbxBaoCaoTon.Checked)
-                        return DatabaseHelper.GetTonKhoCD(selectedCongDoans);
+                    DataTable dt = await Task.Run(() =>
+                    {
+                        if (cbxBaoCaoTon.Checked)
+                            return DatabaseHelper.GetTonKhoCD(selectedCongDoans);
+                        else
+                            return DatabaseHelper.GetDataBaoCaoSX(batDau, ketThuc, selectedCongDoans);
+                    });
+
+                    if (dt == null || dt.Rows.Count == 0)
+                    {
+                        FrmWaiting.ShowGifAlert("KHÔNG CÓ DỮ LIỆU");
+                        return;
+                    }
+
+                    if (btnXuatExcel.Checked)
+                    {
+                        try
+                        {
+                            ExportExcelFile(dt, fileName);
+                        }
+                        catch (UnauthorizedAccessException ex)
+                        {
+                            FrmWaiting.ShowGifAlert(ex.Message, "THÔNG BÁO", EnumStore.Icon.Warning);
+                        }
+                        catch (Exception ex)
+                        {
+                            FrmWaiting.ShowGifAlert($"Lỗi khi xuất Excel: {ex.Message}", "THÔNG BÁO", EnumStore.Icon.Warning);
+                        }
+                    }
                     else
-                        return DatabaseHelper.GetDataBaoCaoSX(batDau, ketThuc, selectedCongDoans);
+                    {
+                        ShowResult(dt);
+                    }
                 });
-
-                if (dt == null || dt.Rows.Count == 0)
-                {
-                    FrmWaiting.ShowGifAlert("KHÔNG CÓ DỮ LIỆU");
-                    return;
-                }
-
-                if (btnXuatExcel.Checked)
-                {
-                    try
-                    {
-                        ExportExcelFile(dt, fileName);
-                        //FrmWaiting.ShowGifAlert("XUẤT EXCEL THÀNH CÔNG", "THÔNG BÁO", EnumStore.Icon.Success);
-                    }
-                    catch (UnauthorizedAccessException ex)
-                    {
-                        FrmWaiting.ShowGifAlert(ex.Message, "THÔNG BÁO", EnumStore.Icon.Warning);
-                    }
-                    catch (Exception ex)
-                    {
-                        FrmWaiting.ShowGifAlert($"Lỗi khi xuất Excel: {ex.Message}", "THÔNG BÁO", EnumStore.Icon.Warning);
-                    }
-                }
-                else
-                {
-                    ShowResult(dt);
-                }
-            });
+            }
+            catch (Exception ex)
+            {
+                FrmWaiting.ShowGifAlert($"Có lỗi xảy ra: {ex.Message}", "LỖI", EnumStore.Icon.Warning);
+            }
         }
 
 
@@ -302,85 +311,77 @@ namespace DG_TonKhoBTP_v02.UI
         private async void btnTonDong_Click(object sender, EventArgs e)
         {
             grvShowBaoCao.DataSource = null;
+
             string query = @"
-                SELECT 
-                    TTThanhPham.MaBin,
-                    DanhSachMaSP.Ma,
-                    DanhSachMaSP.Ten,
-                    DanhSachMaSP.DonVi,
-                    TTThanhPham.KhoiLuongTruoc as KLTruoc,
-                    TTThanhPham.KhoiLuongSau as KLSau,
-                    TTThanhPham.ChieuDaiTruoc as CDTruoc,
-                    TTThanhPham.ChieuDaiSau as CDSau,
-                    TTThanhPham.Phe,
-                    TTThanhPham.KLBanTran,
-                    TTThanhPham.GhiChu
-                FROM TTThanhPham
-                INNER JOIN DanhSachMaSP 
-                    ON TTThanhPham.DanhSachSP_ID = DanhSachMaSP.id
-                WHERE 
-                    (
-                        (DanhSachMaSP.DonVi = 'KG' AND TTThanhPham.KhoiLuongSau <> 0)
-                        OR
-                        (DanhSachMaSP.DonVi = 'M' AND TTThanhPham.ChieuDaiSau <> 0)
-                    )
-                    AND (DanhSachMaSP.Ten LIKE 'C %R%'  or DanhSachMaSP.Ten LIKE 'C-AWG %' or DanhSachMaSP.Ten = 'C 1.02' or DanhSachMaSP.Ten = 'C 1.20'  or DanhSachMaSP.Ten LIKE 'A %R%' )
-                    AND DanhSachMaSP.Ten NOT LIKE '%/T' AND TTThanhPham.MaBin NOT LIKE 'R%-%'  AND TTThanhPham.MaBin NOT LIKE 'MD%-%' 
-                    
-                ORDER BY TTThanhPham.id DESC
-            ";
+        SELECT 
+            TTThanhPham.MaBin,
+            DanhSachMaSP.Ma,
+            DanhSachMaSP.Ten,
+            DanhSachMaSP.DonVi,
+            TTThanhPham.KhoiLuongTruoc as KLTruoc,
+            TTThanhPham.KhoiLuongSau as KLSau,
+            TTThanhPham.ChieuDaiTruoc as CDTruoc,
+            TTThanhPham.ChieuDaiSau as CDSau,
+            TTThanhPham.Phe,
+            TTThanhPham.KLBanTran,
+            TTThanhPham.GhiChu
+        FROM TTThanhPham
+        INNER JOIN DanhSachMaSP 
+            ON TTThanhPham.DanhSachSP_ID = DanhSachMaSP.id
+        WHERE 
+            (
+                (DanhSachMaSP.DonVi = 'KG' AND TTThanhPham.KhoiLuongSau <> 0)
+                OR
+                (DanhSachMaSP.DonVi = 'M' AND TTThanhPham.ChieuDaiSau <> 0)
+            )
+            AND (DanhSachMaSP.Ten LIKE 'C %R%' OR DanhSachMaSP.Ten LIKE 'C-AWG %' 
+                OR DanhSachMaSP.Ten = 'C 1.02' OR DanhSachMaSP.Ten = 'C 1.20' 
+                OR DanhSachMaSP.Ten LIKE 'A %R%')
+            AND DanhSachMaSP.Ten NOT LIKE '%/T' 
+            AND TTThanhPham.MaBin NOT LIKE 'R%-%' 
+            AND TTThanhPham.MaBin NOT LIKE 'MD%-%'
+        ORDER BY TTThanhPham.id DESC";
 
-
-            //string query = @"
-            //    SELECT 
-            //        con.MaBin AS Con,con.Khoiluongsau AS klSau,con.chieudaisau AS cdSau,
-            //        cha.MaBin AS Cha
-            //    FROM TTThanhPham con
-            //    LEFT JOIN TTThanhPham cha 
-            //        ON con.LastEdit_id = cha.id
-            //    WHERE con.id > 5558;
-            //";
-
-            //query = @"
-            //    SELECT 
-            //        Mabin,KhoiLuongSau,ChieuDaiSau,GhiChu, CongDoan,DanhSachSP_ID,LastEdit_id
-
-            //    FROM TTThanhPham
-            //    WHERE id > 5558;
-            //";
             string col = null;
             string fileName = "BaoCaoTonKho_" + DateTime.Now.ToString("ddMMMyyyy");
 
-            await WaitingHelper.RunWithWaiting(async () =>
+            try
             {
-                DataTable dt = await Task.Run(() => DatabaseHelper.GetData(query, col, "KieuSP"));
+                await WaitingHelper.RunWithWaiting(async () =>
+                {
+                    DataTable dt = await Task.Run(() => DatabaseHelper.GetData(query, col, "KieuSP"));
 
-                if (dt == null || dt.Rows.Count == 0)
-                {
-                    FrmWaiting.ShowGifAlert("KHÔNG CÓ DỮ LIỆU");
-                    return;
-                }
+                    if (dt == null || dt.Rows.Count == 0)
+                    {
+                        FrmWaiting.ShowGifAlert("KHÔNG CÓ DỮ LIỆU");
+                        return;
+                    }
 
-                if (btnXuatExcel.Checked)
-                {
-                    try
+                    if (btnXuatExcel.Checked)
                     {
-                        ExportExcelFile(dt, fileName);                       
+                        try
+                        {
+                            ExportExcelFile(dt, fileName);
+                        }
+                        catch (UnauthorizedAccessException ex)
+                        {
+                            FrmWaiting.ShowGifAlert(ex.Message, "THÔNG BÁO", EnumStore.Icon.Warning);
+                        }
+                        catch (Exception ex)
+                        {
+                            FrmWaiting.ShowGifAlert($"Lỗi khi xuất Excel: {ex.Message}", "THÔNG BÁO", EnumStore.Icon.Warning);
+                        }
                     }
-                    catch (UnauthorizedAccessException ex)
+                    else
                     {
-                        FrmWaiting.ShowGifAlert(ex.Message, "THÔNG BÁO", EnumStore.Icon.Warning);
+                        ShowResult(dt);
                     }
-                    catch (Exception ex)
-                    {
-                        FrmWaiting.ShowGifAlert($"Lỗi khi xuất Excel: {ex.Message}", "THÔNG BÁO", EnumStore.Icon.Warning);
-                    }
-                }
-                else
-                {
-                    ShowResult(dt);
-                }
-            });
+                });
+            }
+            catch (Exception ex)
+            {
+                FrmWaiting.ShowGifAlert($"Có lỗi xảy ra: {ex.Message}", "LỖI", EnumStore.Icon.Warning);
+            }
         }
 
         private void cbxBaoCaoTon_Click(object sender, EventArgs e)

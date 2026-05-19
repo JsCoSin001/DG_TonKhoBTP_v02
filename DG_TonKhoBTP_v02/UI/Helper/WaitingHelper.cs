@@ -47,24 +47,15 @@ namespace DG_TonKhoBTP_v02.UI.Helper
         /// </summary>
         public static async Task<T> RunWithWaiting<T>(Func<Task<T>> func, string message = "ĐANG THỰC HIỆN YÊU CẦU...")
         {
-            using (var waiting = new FrmWaiting(message))
+            using var waiting = new FrmWaiting(message);
+            waiting.ShowAndRefresh();
+            try
             {
-                waiting.ShowAndRefresh(); // ✅ Dùng method mới
-
-                try
-                {
-                    return await func();
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Lỗi: " + ex.Message, "Lỗi",
-                        MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return default;
-                }
-                finally
-                {
-                    waiting.Close();
-                }
+                return await func();
+            }
+            finally
+            {
+                waiting.Close();
             }
         }
     }

@@ -27,28 +27,27 @@ namespace DG_TonKhoBTP_v02.UI
         private async void btnShowBaoCao_Click(object sender, EventArgs e)
         {
             DateTime selected = ngayBC.Value;
-
             btnShowBaoCao.Enabled = false;
-
             try
             {
-                // Lấy dữ liệu với waiting form
                 DataTable dt = await WaitingHelper.RunWithWaiting(
                     async () => await Task.Run(() => DatabaseHelper.GetDataByMonth(selected, CongDoan)),
                     "ĐANG TẢI BÁO CÁO THÁNG " + selected.ToString("MM/yyyy") + "..."
                 );
 
-                // Kiểm tra kết quả
                 if (dt == null || dt.Rows.Count == 0)
                 {
                     FrmWaiting.ShowGifAlert("THÁNG " + selected.ToString("MM/yyyy") + " KHÔNG CÓ DỮ LIỆU!", "LỖI");
                     return;
                 }
 
-                // Hiển thị báo cáo
                 UC_MonthyReport fBaoCao = new UC_MonthyReport();
                 fBaoCao.LoadData(dt);
                 fBaoCao.ShowDialog();
+            }
+            catch (Exception ex) // thêm dòng này
+            {
+                FrmWaiting.ShowGifAlert($"Có lỗi xảy ra: {ex.Message}", "LỖI", EnumStore.Icon.Warning);
             }
             finally
             {

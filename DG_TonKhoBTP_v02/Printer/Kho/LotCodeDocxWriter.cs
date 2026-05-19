@@ -1,4 +1,5 @@
-﻿using DocumentFormat.OpenXml;
+﻿using DG_TonKhoBTP_v02.Models.Kho;
+using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
 using System;
@@ -7,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DG_TonKhoBTP_v02.Models.Kho
+namespace DG_TonKhoBTP_v02.Printer.Kho
 {
     public static class LotCodeDocxWriter
     {
@@ -68,13 +69,13 @@ namespace DG_TonKhoBTP_v02.Models.Kho
             para.AppendChild(PlainRun("("));
 
             // ChieuCao — subscript bên trái của SoM
-            para.AppendChild(SubRun(m.ChieuCao));
+            para.AppendChild(SubRun(m.ChieuCaoLo));
 
             // SoM — ký tự chính
             para.AppendChild(PlainRun(m.SoM));
 
             // SoThuTu/TenKhach(ChiSoNgoai) — superscript của SoM
-            string supText = $"{m.SoThuTu}/{m.TenKhach}({m.soCuoi})";
+            string supText = $"{m.SoThuTuBin}/{m.TenKhach}({m.SoCuoi})";
             para.AppendChild(SupRun(supText));
 
             // ChiSoDau — subscript bên phải của SoM
@@ -134,5 +135,4 @@ namespace DG_TonKhoBTP_v02.Models.Kho
             return run;
         }
     }
-
 }

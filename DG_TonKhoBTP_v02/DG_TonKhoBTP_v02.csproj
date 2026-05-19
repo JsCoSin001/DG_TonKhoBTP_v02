@@ -139,6 +139,7 @@
     <Compile Include="Core\StateStore.cs" />
     <Compile Include="Database\KeToan\BoSungThongTinSP_DB.cs" />
     <Compile Include="Database\KeToan\TTLo_DB.cs" />
+    <Compile Include="Database\Kho\BaoCaoTonKhoLo_DB.cs" />
     <Compile Include="Database\Kho\NhapKho_DB.cs" />
     <Compile Include="Database\DatabaseHelper - Copy.cs" />
     <Compile Include="Database\DatabaseHelper.cs" />
@@ -146,6 +147,7 @@
     <Compile Include="Database\DB_KiemKe.cs" />
     <Compile Include="Database\DB_SanXuat.cs" />
     <Compile Include="Database\DB_XuatNhapKho.cs" />
+    <Compile Include="Database\Kho\TonKhoExcelReport_DB.cs" />
     <Compile Include="Database\Kho\XuatKho_DB.cs" />
     <Compile Include="Database\User\PermissionDbHelper.cs" />
     <Compile Include="Database\User_DatabaseHelper.cs" />
@@ -177,7 +179,7 @@
     <Compile Include="Models\KeToan\BoSungThongTinSP_Model.cs" />
     <Compile Include="Models\KeToan\TTLo_Model.cs" />
     <Compile Include="Models\Kho\LotCode.cs" />
-    <Compile Include="Models\Kho\LotCodeDocxWriter.cs" />
+    <Compile Include="Models\Kho\TonKhoLoReportModels.cs" />
     <Compile Include="Models\Kho\XuatKho_Model.cs" />
     <Compile Include="Models\KiemKe.cs" />
     <Compile Include="Models\LoginClass.cs" />
@@ -194,6 +196,9 @@
     <Compile Include="Printer\A4\PurchaseRequestPrintService.cs" />
     <Compile Include="Printer\A4\WarehouseIssuesRenderer.cs" />
     <Compile Include="Printer\A4\WarehouseReceiptRenderer.cs" />
+    <Compile Include="Printer\Kho\LotCodeDocxWriter.cs" />
+    <Compile Include="Printer\Kho\TonKhoExcelExporter.cs" />
+    <Compile Include="Printer\Kho\TonKhoLoReportDocxWriter.cs" />
     <Compile Include="Printer\Qr\LabelConfig.cs" />
     <Compile Include="Printer\Qr\PrinterModel.cs" />
     <Compile Include="Printer\Qr\PrintHelper.cs" />
@@ -657,9 +662,7 @@
     <Content Include="Goldcup-logo-K-ten.ico" />
     <None Include="Resources\user_131563.png" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Helper\Kho\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Stub.System.Data.SQLite.Core.NetFramework.1.0.119.0\build\net46\Stub.System.Data.SQLite.Core.NetFramework.targets" Condition="Exists('..\packages\Stub.System.Data.SQLite.Core.NetFramework.1.0.119.0\build\net46\Stub.System.Data.SQLite.Core.NetFramework.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

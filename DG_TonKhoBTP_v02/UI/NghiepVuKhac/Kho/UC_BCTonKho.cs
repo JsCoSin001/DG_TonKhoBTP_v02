@@ -1,21 +1,23 @@
 ﻿using DG_TonKhoBTP_v02.Core;
 using DG_TonKhoBTP_v02.Database;
+using DG_TonKhoBTP_v02.Database.Kho;
 using DG_TonKhoBTP_v02.Dictionary;
 using DG_TonKhoBTP_v02.Helper;
 using DG_TonKhoBTP_v02.Models;
 using DG_TonKhoBTP_v02.Models.Kho;
+using DG_TonKhoBTP_v02.Printer.Kho;
 using DG_TonKhoBTP_v02.UI.Helper;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
 using System;
 using System.Data;
-using Control = System.Windows.Forms.Control;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using CoreHelper = DG_TonKhoBTP_v02.Helper.Helper;
 using CheckBox = System.Windows.Forms.CheckBox;
+using Control = System.Windows.Forms.Control;
+using CoreHelper = DG_TonKhoBTP_v02.Helper.Helper;
 
 namespace DG_TonKhoBTP_v02.UI
 {
@@ -388,43 +390,83 @@ namespace DG_TonKhoBTP_v02.UI
 
         }
 
+
         private void btnTaoBC_Khach_Click(object sender, EventArgs e)
         {
-            var model = new LotCode
-            {
-                SoM = "50",
-                ChieuCao = "3",
-                SoDau = "1",
-                SoThuTu = "02",
-                TenKhach = "ABC",
-                soCuoi = "5",
-                KHSX = "KHSX01",
-                MauSac = "Do"
-            };
-
             using var dialog = new SaveFileDialog
             {
                 Filter = "Word Document (*.docx)|*.docx",
-                FileName = $"LotCode_{model.SoM}_{DateTime.Now:yyyyMMdd_HHmmss}.docx"
+                FileName = $"TồnKhoĐG_{DateTime.Now:yyyyMMdd_HHmmss}.docx"
             };
 
-            if (dialog.ShowDialog() != DialogResult.OK) return;
+            if (dialog.ShowDialog() != DialogResult.OK)
+                return;
 
             try
             {
-                LotCodeDocxWriter.Write(model, dialog.FileName);
-                MessageBox.Show("Xuất file thành công!", "Thông báo",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                TonKhoLoReport report = BaoCaoTonKhoLo_DB.LayBaoCaoTonKhoLo();
+
+                if (!report.HasData)
+                {
+                    FrmWaiting.ShowGifAlert("KHÔNG CÓ DỮ LIỆU TỒN KHO LOẠI LÔ");
+                    return;
+                }
+
+                TonKhoLoReportDocxWriter.Write(report, dialog.FileName);
+
+                FrmWaiting.ShowGifAlert("Xuất file thành công!", "Thông báo", EnumStore.Icon.Success);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Lỗi: {ex.Message}", "Lỗi",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                FrmWaiting.ShowGifAlert($"Lỗi: {ex.Message}", "Lỗi", EnumStore.Icon.Warning);
             }
         }
 
 
-        
+        private void btnXemTonKho_Click(object sender, EventArgs e)
+        {
+            using var dialog = new SaveFileDialog
+            {
+                Title = "Xuất báo cáo tồn kho Excel",
+                Filter = "Excel Workbook (*.xlsx)|*.xlsx",
+                FileName = $"TonKho_DG_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx"
+            };
 
+            if (dialog.ShowDialog() != DialogResult.OK)
+                return;
+
+            try
+            {
+                DataTable dtLo = TonKhoExcelReport_DB.LayTonKhoLo();
+                DataTable dtCuon = TonKhoExcelReport_DB.LayTonKhoCuon();
+
+                if ((dtLo == null || dtLo.Rows.Count == 0) &&
+                    (dtCuon == null || dtCuon.Rows.Count == 0))
+                {
+                    MessageBox.Show(
+                        "Không có dữ liệu tồn kho để xuất báo cáo.",
+                        "Thông báo",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Information);
+                    return;
+                }
+
+                TonKhoExcelExporter.ExportToPath(dtLo, dtCuon, dialog.FileName);
+
+                MessageBox.Show(
+                    "Xuất file Excel thành công!",
+                    "Thông báo",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    $"Lỗi: {ex.Message}",
+                    "Lỗi",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+            }
+        }
     }
 }

@@ -12,19 +12,19 @@ namespace DG_TonKhoBTP_v02.Models.Kho
         public string SoM { get; set; } = string.Empty;
 
         /// <summary>Chiều cao lô (subscript bên trái của SoM - vị trí B)</summary>
-        public string ChieuCao { get; set; } = string.Empty;
+        public string ChieuCaoLo { get; set; } = string.Empty;
 
         /// <summary>Chỉ số đầu (subscript bên phải của SoM - vị trí C)</summary>
         public string SoDau { get; set; } = string.Empty;
 
         /// <summary>Số thứ tự của lô so với KHSX (phần đầu superscript - vị trí D)</summary>
-        public string SoThuTu { get; set; } = string.Empty;
+        public string SoThuTuBin { get; set; } = string.Empty;
 
         /// <summary>Tên khách (phần giữa superscript - vị trí E)</summary>
         public string TenKhach { get; set; } = string.Empty;
 
         /// <summary>Chỉ số ngoài (phần trong ngoặc của superscript - vị trí F)</summary>
-        public string soCuoi { get; set; } = string.Empty;
+        public string SoCuoi { get; set; } = string.Empty;
 
         /// <summary>Kế hoạch sản xuất (subscript của dấu đóng ngoặc - vị trí G)</summary>
         public string KHSX { get; set; } = string.Empty;

@@ -269,7 +269,6 @@
             this.btnLuuXuatKho.TabIndex = 1;
             this.btnLuuXuatKho.Text = "Lưu";
             this.btnLuuXuatKho.UseVisualStyleBackColor = true;
-            this.btnLuuXuatKho.Click += new System.EventHandler(this.btnLuuXuatKho_Click_1);
             // 
             // tableLayoutPanel1
             // 

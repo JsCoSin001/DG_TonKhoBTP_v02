@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Data;
 using System.Data.SQLite;
 using System.Threading;
@@ -9,13 +9,13 @@ namespace DG_TonKhoBTP_v02.Database.Kho
     public static class XuatKho_DB
     {
         // ════════════════════════════════════════════════════════════════════════
-        // TÌM KIẾM LOT / BIN ĐÃ NHẬP KHO
+        // TÌM KIẾM LOT / BIN CÒN TỒN KHO
         // ════════════════════════════════════════════════════════════════════════
 
         /// <summary>
-        /// Tìm các bin khớp với keyword.
+        /// Tìm các bin khớp với keyword và chỉ trả về những bin còn tồn kho thực tế.
         /// Trả về: MaBin, Ten, TTThanhPham_ID, DanhSachMaSP_ID, Loai (của TTNhapKho).
-        /// Chỉ lấy những bin đã nhập kho: TTThanhPham.NhapKho = 1.
+        /// Không lọc TTThanhPham.NhapKho; chỉ lọc TTNhapKho.Kieu = 1 theo nghiệp vụ tồn khả dụng.
         /// </summary>
         public static Task<DataTable> TimKiemLotAsync(string keyword, CancellationToken ct)
         {
@@ -26,29 +26,47 @@ namespace DG_TonKhoBTP_v02.Database.Kho
                 ct.ThrowIfCancellationRequested();
 
                 const string sql = @"
+                WITH ton AS (
+                    SELECT  nk.TTThanhPham_ID AS TTThanhPham_ID,
+                            tp.MaBin,
+                            sp.Ten,
+                            sp.id AS DanhSachMaSP_ID,
+                            nk.Loai,
+                            cd.id AS TTCuonDay_ID,
+                            cd.SoDau AS SoDauNhap,
+                            CASE
+                                WHEN nk.Loai = 'Lô'
+                                    THEN COALESCE(MIN(xk.SoDau), cd.SoCuoi)
+                                ELSE cd.SoCuoi
+                            END AS SoCuoiTon,
+                            CASE
+                                WHEN nk.Loai = 'Cuộn'
+                                    THEN COALESCE(cd.SoCuon, 0) - COALESCE(SUM(COALESCE(xk.SoCuon, 0)), 0)
+                                WHEN nk.Loai = 'Lô'
+                                    THEN 1
+                                ELSE 0
+                            END AS SoCuonTon
+                    FROM    TTNhapKho    nk
+                    JOIN    TTThanhPham  tp ON tp.id = nk.TTThanhPham_ID
+                    JOIN    DanhSachMaSP sp ON sp.id = tp.DanhSachSP_ID
+                    JOIN    TTCuonDay    cd ON cd.ThongTinNhapKho_ID = nk.id
+                    LEFT JOIN TTXuatKho  xk ON xk.TTCuonDay_ID = cd.id
+                    WHERE   nk.Kieu = 1
+                      AND  (tp.MaBin           LIKE @kw
+                            OR sp.Ten_KhongDau LIKE @kw
+                            OR sp.Ten          LIKE @kw)
+                    GROUP BY nk.id, cd.id
+                )
                 SELECT DISTINCT
-                        nk.TTThanhPham_ID AS TTThanhPham_ID,
-                        tp.MaBin,
-                        sp.Ten,
-                        sp.id             AS DanhSachMaSP_ID,
-                        nk.Loai
-                FROM    TTNhapKho      nk
-                JOIN    TTThanhPham    tp ON tp.id = nk.TTThanhPham_ID
-                JOIN    DanhSachMaSP   sp ON sp.id = tp.DanhSachSP_ID
-                WHERE   nk.Kieu = 1
-                  AND  (tp.MaBin          LIKE @kw
-                        OR sp.Ten_KhongDau LIKE @kw
-                        OR sp.Ten          LIKE @kw)
-                  AND EXISTS (
-                        SELECT 1
-                        FROM   TTCuonDay cd
-                        WHERE  cd.ThongTinNhapKho_ID = nk.id
-                          AND (
-                                (nk.Loai = 'Lô'    AND cd.soCuoi > cd.SoDau)
-                             OR (nk.Loai = 'Cuộn'  AND cd.SoCuon <> 0)
-                          )
-                  )
-                ORDER BY tp.MaBin
+                        TTThanhPham_ID,
+                        MaBin,
+                        Ten,
+                        DanhSachMaSP_ID,
+                        Loai
+                FROM    ton
+                WHERE  (Loai = 'Cuộn' AND SoCuonTon > 0)
+                   OR  (Loai = 'Lô'   AND SoCuoiTon > SoDauNhap)
+                ORDER BY MaBin
                 LIMIT 50";
 
                 DataTable dt = new DataTable();
@@ -69,14 +87,35 @@ namespace DG_TonKhoBTP_v02.Database.Kho
         }
 
         // ════════════════════════════════════════════════════════════════════════
-        // LẤY DỮ LIỆU CUỘN / DÂY THEO THÀNH PHẨM
+        // LẤY DỮ LIỆU TỒN KHO CUỘN / LÔ THEO THÀNH PHẨM
         // ════════════════════════════════════════════════════════════════════════
 
         /// <summary>
-        /// Query JOIN TTNhapKho ↔ TTCuonDay theo TTThanhPham_ID.
-        /// Trả về thêm TTCuonDay.id để dùng làm khoá khi lưu TTXuatKho.
+        /// Lấy tồn kho thực tế theo TTThanhPham_ID.
+        /// Trả về thêm TTCuonDay_ID để dùng làm khoá khi lưu TTXuatKho.
+        ///
+        /// Quy tắc:
+        /// - Cuộn: SoCuonTon = SoCuon nhập - tổng SoCuon đã xuất.
+        /// - Lô:   SoCuoiTon = nếu chưa xuất thì SoCuoi nhập,
+        ///                 nếu đã xuất thì MIN(SoDau xuất), vì xuất giảm dần từ cuối về đầu.
+        /// Chỉ trả về dòng còn tồn và TTNhapKho.Kieu = 1.
         /// </summary>
-        public static DataTable LayDuLieuCuonDay(long ttThanhPhamId)
+        public static DataTable LayDuLieuTonKhoCuonDay(long ttThanhPhamId)
+        {
+            return LayDuLieuTonKhoCuonDayNoiBo(ttThanhPhamId, null);
+        }
+
+        /// <summary>
+        /// Lấy tồn khả dụng khi sửa một phiếu xuất cũ.
+        /// Phiếu đang sửa được loại trừ khỏi phần tổng xuất, tương đương:
+        /// tồn khả dụng khi sửa = tồn hiện tại + lượng đã xuất của chính phiếu đang sửa.
+        /// </summary>
+        public static DataTable LayDuLieuTonKhoCuonDayChoSua(long ttThanhPhamId, long xuatKhoIdDangSua)
+        {
+            return LayDuLieuTonKhoCuonDayNoiBo(ttThanhPhamId, xuatKhoIdDangSua);
+        }
+
+        private static DataTable LayDuLieuTonKhoCuonDayNoiBo(long ttThanhPhamId, long? xuatKhoIdDangSua)
         {
             DataTable dt = new DataTable();
 
@@ -84,28 +123,72 @@ namespace DG_TonKhoBTP_v02.Database.Kho
                 return dt;
 
             const string sql = @"
-                SELECT  nk.id           AS TTNhapKho_ID,
-                        cd.id           AS TTCuonDay_ID,
-                        cd.TongChieuDai,
-                        cd.SoCuon,
-                        cd.SoDau,
-                        cd.soCuoi,
-                        cd.GhiChu,
-                        nk.Loai
-                FROM    TTNhapKho   nk
-                JOIN    TTCuonDay   cd ON cd.ThongTinNhapKho_ID = nk.id
-                WHERE   nk.TTThanhPham_ID = @id
-                ORDER BY nk.id, cd.id";
+                WITH ton AS (
+                    SELECT  nk.id AS TTNhapKho_ID,
+                            cd.id AS TTCuonDay_ID,
+                            nk.Loai,
+                            cd.SoDau AS SoDauNhap,
+                            cd.SoCuoi AS SoCuoiNhap,
+                            cd.GhiChu,
+                            CASE
+                                WHEN nk.Loai = 'Lô'
+                                    THEN 1
+                                WHEN nk.Loai = 'Cuộn'
+                                    THEN COALESCE(cd.SoCuon, 0) - COALESCE(SUM(COALESCE(xk.SoCuon, 0)), 0)
+                                ELSE 0
+                            END AS SoCuonTon,
+                            CASE
+                                WHEN nk.Loai = 'Lô'
+                                    THEN COALESCE(MIN(xk.SoDau), cd.SoCuoi)
+                                ELSE cd.SoCuoi
+                            END AS SoCuoiTon
+                    FROM    TTNhapKho   nk
+                    JOIN    TTCuonDay   cd ON cd.ThongTinNhapKho_ID = nk.id
+                    LEFT JOIN TTXuatKho xk ON xk.TTCuonDay_ID = cd.id
+                                           AND (@xuatKhoIdDangSua IS NULL OR xk.id <> @xuatKhoIdDangSua)
+                    WHERE   nk.TTThanhPham_ID = @id
+                      AND   nk.Kieu = 1
+                    GROUP BY nk.id, cd.id
+                )
+                SELECT  TTNhapKho_ID,
+                        TTCuonDay_ID,
+                        CASE
+                            WHEN Loai = 'Cuộn'
+                                THEN SoCuonTon * (SoCuoiNhap - SoDauNhap)
+                            WHEN Loai = 'Lô'
+                                THEN SoCuoiTon - SoDauNhap
+                            ELSE 0
+                        END AS TongChieuDai,
+                        SoCuonTon AS SoCuon,
+                        SoDauNhap AS SoDau,
+                        SoCuoiTon AS soCuoi,
+                        GhiChu,
+                        Loai
+                FROM    ton
+                WHERE  (Loai = 'Cuộn' AND SoCuonTon > 0)
+                   OR  (Loai = 'Lô'   AND SoCuoiTon > SoDauNhap)
+                ORDER BY TTNhapKho_ID, TTCuonDay_ID";
 
             using var conn = DB_Base.OpenConnection();
             using var cmd = new SQLiteCommand(sql, conn);
 
             cmd.Parameters.AddWithValue("@id", ttThanhPhamId);
+            cmd.Parameters.AddWithValue("@xuatKhoIdDangSua", (object?)xuatKhoIdDangSua ?? DBNull.Value);
 
             using var adapter = new SQLiteDataAdapter(cmd);
             adapter.Fill(dt);
 
             return dt;
+        }
+
+        /// <summary>
+        /// Hàm cũ được giữ lại để tránh lỗi nếu còn nơi khác đang gọi.
+        /// Nghiệp vụ xuất kho mới nên dùng LayDuLieuTonKhoCuonDay.
+        /// </summary>
+        [Obsolete("Dùng LayDuLieuTonKhoCuonDay để lấy tồn kho thực tế thay vì dữ liệu nhập gốc.")]
+        public static DataTable LayDuLieuCuonDay(long ttThanhPhamId)
+        {
+            return LayDuLieuTonKhoCuonDay(ttThanhPhamId);
         }
 
         // ════════════════════════════════════════════════════════════════════════
@@ -165,6 +248,13 @@ namespace DG_TonKhoBTP_v02.Database.Kho
             string ngayXuat,
             string nguoiLam)
         {
+            if (!LaPhieuXuatLoMoiNhat(id))
+            {
+                throw new InvalidOperationException(
+                    "Phiếu xuất loại Lô này không phải lần xuất mới nhất nên không được sửa trực tiếp. " +
+                    "Vui lòng sửa/xoá các lần xuất sau trước, hoặc tạo nghiệp vụ điều chỉnh.");
+            }
+
             int tongChieuDai = 0;
             if (soCuon.HasValue && soDau.HasValue && soCuoi.HasValue)
                 tongChieuDai = soCuon.Value * (soCuoi.Value - soDau.Value);
@@ -210,25 +300,106 @@ namespace DG_TonKhoBTP_v02.Database.Kho
             cmd.ExecuteNonQuery();
         }
 
+        /// <summary>
+        /// Với Loại = 'Lô', chỉ cho sửa phiếu xuất mới nhất của cùng TTCuonDay_ID
+        /// để tránh phá chuỗi xuất giảm dần từ cuối về đầu.
+        /// Với Loại khác 'Lô', luôn trả về true.
+        /// </summary>
+        public static bool LaPhieuXuatLoMoiNhat(long xuatKhoId)
+        {
+            const string sql = @"
+                SELECT CASE
+                    WHEN nk.Loai <> 'Lô' THEN 1
+                    WHEN NOT EXISTS (
+                        SELECT 1
+                        FROM   TTXuatKho xkSau
+                        WHERE  xkSau.TTCuonDay_ID = xk.TTCuonDay_ID
+                          AND  xkSau.id > xk.id
+                    ) THEN 1
+                    ELSE 0
+                END AS IsMoiNhat
+                FROM    TTXuatKho xk
+                JOIN    TTCuonDay cd ON cd.id = xk.TTCuonDay_ID
+                JOIN    TTNhapKho nk ON nk.id = cd.ThongTinNhapKho_ID
+                WHERE   xk.id = @id
+                LIMIT 1";
+
+            using var conn = DB_Base.OpenConnection();
+            using var cmd = new SQLiteCommand(sql, conn);
+            cmd.Parameters.AddWithValue("@id", xuatKhoId);
+
+            object result = cmd.ExecuteScalar();
+            return result != null && result != DBNull.Value && Convert.ToInt32(result) == 1;
+        }
+
         public static DataTable LayChiTietXuatKho(long xuatKhoId)
         {
             const string sql = @"
-            SELECT  cd.TongChieuDai  AS TongChieuDai_NK,
-                    cd.SoCuon        AS SoCuon_CD,
-                    cd.SoDau         AS SoDau_CD,
-                    cd.soCuoi        AS soCuoi_CD,
-                    cd.GhiChu        AS GhiChu_CD,
-                    xk.SoCuon        AS SoCuon_XK,
-                    xk.SoDau         AS SoDau_XK,
-                    xk.soCuoi        AS soCuoi_XK,
-                    xk.GhiChu        AS GhiChu_XK,
-                    xk.NgayXuat,
-                    xk.NguoiLam,
-                    nk.Loai
-            FROM    TTXuatKho    xk
-            JOIN    TTCuonDay    cd ON cd.id  = xk.TTCuonDay_ID
-            JOIN    TTNhapKho    nk ON nk.id  = cd.ThongTinNhapKho_ID
-            WHERE   xk.id = @id
+            WITH chi_tiet AS (
+                SELECT  xk.id AS XuatKho_ID,
+                        nk.id AS TTNhapKho_ID,
+                        cd.id AS TTCuonDay_ID,
+                        nk.Loai,
+                        cd.SoCuon AS SoCuonNhap,
+                        cd.TongChieuDai AS TongChieuDaiNhap,
+                        cd.SoDau AS SoDauNhap,
+                        cd.SoCuoi AS SoCuoiNhap,
+                        cd.GhiChu AS GhiChu_CD,
+                        xk.SoCuon AS SoCuon_XK,
+                        xk.SoDau AS SoDau_XK,
+                        xk.SoCuoi AS soCuoi_XK,
+                        xk.GhiChu AS GhiChu_XK,
+                        xk.NgayXuat,
+                        xk.NguoiLam,
+                        COALESCE(SUM(COALESCE(xkKhac.SoCuon, 0)), 0) AS TongSoCuonXuatKhac,
+                        MIN(xkKhac.SoDau) AS MinSoDauXuatKhac,
+                        CASE
+                            WHEN nk.Loai <> 'Lô' THEN 1
+                            WHEN NOT EXISTS (
+                                SELECT 1
+                                FROM   TTXuatKho xkSau
+                                WHERE  xkSau.TTCuonDay_ID = xk.TTCuonDay_ID
+                                  AND  xkSau.id > xk.id
+                            ) THEN 1
+                            ELSE 0
+                        END AS IsLoMoiNhat
+                FROM    TTXuatKho    xk
+                JOIN    TTCuonDay    cd ON cd.id  = xk.TTCuonDay_ID
+                JOIN    TTNhapKho    nk ON nk.id  = cd.ThongTinNhapKho_ID
+                LEFT JOIN TTXuatKho xkKhac ON xkKhac.TTCuonDay_ID = cd.id
+                                          AND xkKhac.id <> xk.id
+                WHERE   xk.id = @id
+                GROUP BY xk.id
+            )
+            SELECT  TTNhapKho_ID,
+                    TTCuonDay_ID,
+                    CASE
+                        WHEN Loai = 'Cuộn'
+                            THEN (COALESCE(SoCuonNhap, 0) - TongSoCuonXuatKhac) * (SoCuoiNhap - SoDauNhap)
+                        WHEN Loai = 'Lô'
+                            THEN COALESCE(MinSoDauXuatKhac, SoCuoiNhap) - SoDauNhap
+                        ELSE TongChieuDaiNhap
+                    END AS TongChieuDai_NK,
+                    CASE
+                        WHEN Loai = 'Lô' THEN 1
+                        WHEN Loai = 'Cuộn' THEN COALESCE(SoCuonNhap, 0) - TongSoCuonXuatKhac
+                        ELSE SoCuonNhap
+                    END AS SoCuon_CD,
+                    SoDauNhap AS SoDau_CD,
+                    CASE
+                        WHEN Loai = 'Lô' THEN COALESCE(MinSoDauXuatKhac, SoCuoiNhap)
+                        ELSE SoCuoiNhap
+                    END AS soCuoi_CD,
+                    GhiChu_CD,
+                    SoCuon_XK,
+                    SoDau_XK,
+                    soCuoi_XK,
+                    GhiChu_XK,
+                    NgayXuat,
+                    NguoiLam,
+                    Loai,
+                    IsLoMoiNhat
+            FROM    chi_tiet
             LIMIT 1";
 
             DataTable dt = new DataTable();

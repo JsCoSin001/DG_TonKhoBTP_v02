@@ -116,7 +116,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho
         {
             try
             {
-                DataTable dt = XuatKho_DB.LayDuLieuCuonDay(ttThanhPhamId);
+                DataTable dt = XuatKho_DB.LayDuLieuTonKhoCuonDay(ttThanhPhamId);
 
                 dgvLayDL.Rows.Clear();
 
@@ -125,7 +125,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho
                     int rowIdx = dgvLayDL.Rows.Add();
                     DataGridViewRow r = dgvLayDL.Rows[rowIdx];
 
-                    // Dữ liệu gốc (readonly) — từ TTNhapKho + TTCuonDay
+                    // Dữ liệu tồn thực tế (readonly) — đã trừ TTXuatKho
                     r.Cells["ttNhapKho_ID"].Value = dr["TTNhapKho_ID"];
                     r.Cells["tongCD"].Value = dr["TongChieuDai"];
                     r.Cells["soCuon"].Value = dr["SoCuon"];
@@ -156,42 +156,52 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho
 
         // ── Áp readonly theo Loai cho một dòng ──────────────────────────────────
         /// <summary>
-        /// "Lô"   → soDau_user + soCuoi_user có thể nhập; soCuon_user readonly và
-        ///           tự điền = soCuon (giá trị gốc).
-        /// "Cuộn" → soCuon_user có thể nhập; soDau_user + soCuoi_user readonly và
-        ///           tự điền = soDau / soCuoi (giá trị gốc).
-        /// FIX #1: sau khi đặt readonly thì điền giá trị gốc vào ô bị khoá.
+        /// Áp dụng trạng thái nhập theo Loai dựa trên dữ liệu tồn thực tế:
+        /// - "Lô"   → soCuon_user readonly = 1, soCuoi_user readonly = SoCuoi tồn,
+        ///             người dùng chỉ nhập SoDau xuất.
+        /// - "Cuộn" → người dùng nhập SoCuon xuất, SoDau/SoCuoi readonly theo thông tin cuộn tồn.
         /// </summary>
         private static void ApplyLoaiReadOnly(DataGridViewRow r, string loai)
         {
             bool isLo = loai == "Lô";
             bool isCuon = loai == "Cuộn";
 
-            // ── readonly ──────────────────────────────────────────────────────────
-            r.Cells["soCuon_user"].ReadOnly = isLo;
-            r.Cells["soDau_user"].ReadOnly = isCuon;
-            r.Cells["soCuoi_user"].ReadOnly = isCuon;
-
-            // ── Màu nền để phân biệt ──────────────────────────────────────────────
             Color readonlyColor = Color.FromArgb(230, 230, 230);
             Color normalColor = Color.White;
 
-            r.Cells["soCuon_user"].Style.BackColor = isLo ? readonlyColor : normalColor;
-            r.Cells["soDau_user"].Style.BackColor = isCuon ? readonlyColor : normalColor;
-            r.Cells["soCuoi_user"].Style.BackColor = isCuon ? readonlyColor : normalColor;
-
-            // ── FIX #1: Điền giá trị gốc vào ô readonly ─────────────────────────
             if (isLo)
             {
-                // Loại "Lô" → khóa soCuon_user, điền = soCuon gốc
+                r.Cells["soCuon_user"].ReadOnly = true;
+                r.Cells["soDau_user"].ReadOnly = false;
+                r.Cells["soCuoi_user"].ReadOnly = true;
+
+                // Lô luôn xem là 1 đơn vị. Số cuối xuất bị khóa bằng số cuối tồn.
                 r.Cells["soCuon_user"].Value = r.Cells["soCuon"].Value;
+                r.Cells["soCuoi_user"].Value = r.Cells["soCuoi"].Value;
             }
             else if (isCuon)
             {
-                // Loại "Cuộn" → khóa soDau_user + soCuoi_user, điền = soDau / soCuoi gốc
+                r.Cells["soCuon_user"].ReadOnly = false;
+                r.Cells["soDau_user"].ReadOnly = true;
+                r.Cells["soCuoi_user"].ReadOnly = true;
+
+                // Cuộn xuất nguyên cuộn nên SoDau/SoCuoi bị khóa theo thông tin cuộn tồn.
                 r.Cells["soDau_user"].Value = r.Cells["soDau"].Value;
                 r.Cells["soCuoi_user"].Value = r.Cells["soCuoi"].Value;
             }
+            else
+            {
+                r.Cells["soCuon_user"].ReadOnly = false;
+                r.Cells["soDau_user"].ReadOnly = false;
+                r.Cells["soCuoi_user"].ReadOnly = false;
+            }
+
+            r.Cells["soCuon_user"].Style.BackColor =
+                r.Cells["soCuon_user"].ReadOnly ? readonlyColor : normalColor;
+            r.Cells["soDau_user"].Style.BackColor =
+                r.Cells["soDau_user"].ReadOnly ? readonlyColor : normalColor;
+            r.Cells["soCuoi_user"].Style.BackColor =
+                r.Cells["soCuoi_user"].ReadOnly ? readonlyColor : normalColor;
         }
 
         // ════════════════════════════════════════════════════════════════════════
@@ -285,7 +295,6 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho
 
         /// <summary>
         /// Dùng cho nút Sửa: nếu dòng đang sửa không hợp lệ thì báo lỗi và không cập nhật.
-        /// Lưu ý: soDau_user không so sánh với soDau gốc; chỉ cần > 0 và <= soCuoi_user.
         /// </summary>
         private bool ValidateGrid()
         {
@@ -295,53 +304,12 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho
             {
                 if (r.IsNewRow) continue;
 
-                int rowNumber = r.Index + 1;
-
-                if (!TryReadPositiveInt(r, "soCuon_user", out int soCuonUser))
+                if (!TryReadAndValidateRow(
+                        r,
+                        _loaiNhapKho,
+                        showMessage: true,
+                        out _, out _, out _))
                 {
-                    MessageBox.Show($"Dòng {rowNumber}: Số cuộn lấy phải là số nguyên lớn hơn 0.",
-                        "Giá trị không hợp lệ", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return false;
-                }
-
-                if (!TryReadNonNegativeInt(r, "soDau_user", out int soDauUser))
-                {
-                    MessageBox.Show($"Dòng {rowNumber}: Số đầu lấy phải là số nguyên lớn hơn hoặc bằng 0.",
-                        "Giá trị không hợp lệ", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return false;
-                }
-
-                if (!TryReadPositiveInt(r, "soCuoi_user", out int soCuoiUser))
-                {
-                    MessageBox.Show($"Dòng {rowNumber}: Số cuối lấy phải là số nguyên lớn hơn 0.",
-                        "Giá trị không hợp lệ", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return false;
-                }
-
-                int soCuonGoc = ParseInt(r.Cells["soCuon"].Value);
-                int soCuoiGoc = ParseInt(r.Cells["soCuoi"].Value);
-
-                if (soCuonUser > soCuonGoc)
-                {
-                    MessageBox.Show(
-                        $"Dòng {rowNumber}: Số cuộn lấy ({soCuonUser}) không được lớn hơn số cuộn gốc ({soCuonGoc}).",
-                        "Giá trị không hợp lệ", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return false;
-                }
-
-                if (soCuoiUser > soCuoiGoc)
-                {
-                    MessageBox.Show(
-                        $"Dòng {rowNumber}: Số cuối lấy ({soCuoiUser}) không được lớn hơn số cuối gốc ({soCuoiGoc}).",
-                        "Giá trị không hợp lệ", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return false;
-                }
-
-                if (soDauUser > soCuoiUser)
-                {
-                    MessageBox.Show(
-                        $"Dòng {rowNumber}: Số đầu lấy ({soDauUser}) không được lớn hơn số cuối lấy ({soCuoiUser}).",
-                        "Giá trị không hợp lệ", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return false;
                 }
             }
@@ -365,14 +333,27 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho
 
         /// <summary>
         /// Dùng cho nút Lưu: không báo lỗi từng dòng, chỉ trả về hợp lệ/không hợp lệ.
-        /// Điều kiện hợp lệ:
-        /// - soCuon_user, soDau_user, soCuoi_user là số nguyên > 0
-        /// - soCuon_user <= soCuon
-        /// - soCuoi_user <= soCuoi
-        /// - soDau_user <= soCuoi_user
+        /// Dữ liệu giới hạn theo tồn thực tế đang hiển thị trên grid.
         /// </summary>
-        private static bool TryGetValidSaveValues(
+        private bool TryGetValidSaveValues(
             DataGridViewRow r,
+            out int soCuonUser,
+            out int soDauUser,
+            out int soCuoiUser)
+        {
+            return TryReadAndValidateRow(
+                r,
+                _loaiNhapKho,
+                showMessage: false,
+                out soCuonUser,
+                out soDauUser,
+                out soCuoiUser);
+        }
+
+        private static bool TryReadAndValidateRow(
+            DataGridViewRow r,
+            string loai,
+            bool showMessage,
             out int soCuonUser,
             out int soDauUser,
             out int soCuoiUser)
@@ -381,18 +362,112 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho
             soDauUser = 0;
             soCuoiUser = 0;
 
-            if (!TryReadPositiveInt(r, "soCuon_user", out soCuonUser)) return false;
-            if (!TryReadNonNegativeInt(r, "soDau_user", out soDauUser)) return false;
-            if (!TryReadPositiveInt(r, "soCuoi_user", out soCuoiUser)) return false;
+            int rowNumber = r.Index + 1;
 
-            int soCuonGoc = ParseInt(r.Cells["soCuon"].Value);
-            int soCuoiGoc = ParseInt(r.Cells["soCuoi"].Value);
+            if (!TryReadPositiveInt(r, "soCuon_user", out soCuonUser))
+            {
+                ShowValidationMessage(showMessage,
+                    $"Dòng {rowNumber}: Số cuộn lấy phải là số nguyên lớn hơn 0.");
+                return false;
+            }
 
-            if (soCuonUser > soCuonGoc) return false;
-            if (soCuoiUser > soCuoiGoc) return false;
-            if (soDauUser > soCuoiUser) return false;
+            if (!TryReadNonNegativeInt(r, "soDau_user", out soDauUser))
+            {
+                ShowValidationMessage(showMessage,
+                    $"Dòng {rowNumber}: Số đầu lấy phải là số nguyên lớn hơn hoặc bằng 0.");
+                return false;
+            }
+
+            if (!TryReadPositiveInt(r, "soCuoi_user", out soCuoiUser))
+            {
+                ShowValidationMessage(showMessage,
+                    $"Dòng {rowNumber}: Số cuối lấy phải là số nguyên lớn hơn 0.");
+                return false;
+            }
+
+            int soCuonTon = ParseInt(r.Cells["soCuon"].Value);
+            int soDauTon = ParseInt(r.Cells["soDau"].Value);
+            int soCuoiTon = ParseInt(r.Cells["soCuoi"].Value);
+
+            if (loai == "Lô")
+            {
+                if (soCuonUser != 1)
+                {
+                    ShowValidationMessage(showMessage,
+                        $"Dòng {rowNumber}: Loại Lô luôn phải có số cuộn lấy bằng 1.");
+                    return false;
+                }
+
+                if (soCuoiUser != soCuoiTon)
+                {
+                    ShowValidationMessage(showMessage,
+                        $"Dòng {rowNumber}: Loại Lô phải xuất đến đúng số cuối tồn ({soCuoiTon}).");
+                    return false;
+                }
+
+                if (soDauUser < soDauTon)
+                {
+                    ShowValidationMessage(showMessage,
+                        $"Dòng {rowNumber}: Số đầu lấy ({soDauUser}) không được nhỏ hơn số đầu tồn ({soDauTon}).");
+                    return false;
+                }
+
+                if (soDauUser >= soCuoiUser)
+                {
+                    ShowValidationMessage(showMessage,
+                        $"Dòng {rowNumber}: Số đầu lấy ({soDauUser}) phải nhỏ hơn số cuối lấy ({soCuoiUser}).");
+                    return false;
+                }
+            }
+            else if (loai == "Cuộn")
+            {
+                if (soCuonUser > soCuonTon)
+                {
+                    ShowValidationMessage(showMessage,
+                        $"Dòng {rowNumber}: Số cuộn lấy ({soCuonUser}) không được lớn hơn số cuộn tồn ({soCuonTon}).");
+                    return false;
+                }
+
+                if (soDauUser != soDauTon || soCuoiUser != soCuoiTon)
+                {
+                    ShowValidationMessage(showMessage,
+                        $"Dòng {rowNumber}: Loại Cuộn phải xuất nguyên cuộn theo đúng đoạn tồn ({soDauTon}–{soCuoiTon}).");
+                    return false;
+                }
+
+                if (soDauUser >= soCuoiUser)
+                {
+                    ShowValidationMessage(showMessage,
+                        $"Dòng {rowNumber}: Số đầu lấy ({soDauUser}) phải nhỏ hơn số cuối lấy ({soCuoiUser}).");
+                    return false;
+                }
+            }
+            else
+            {
+                if (soCuonUser > soCuonTon)
+                {
+                    ShowValidationMessage(showMessage,
+                        $"Dòng {rowNumber}: Số cuộn lấy ({soCuonUser}) không được lớn hơn số cuộn tồn ({soCuonTon}).");
+                    return false;
+                }
+
+                if (soDauUser >= soCuoiUser)
+                {
+                    ShowValidationMessage(showMessage,
+                        $"Dòng {rowNumber}: Số đầu lấy ({soDauUser}) phải nhỏ hơn số cuối lấy ({soCuoiUser}).");
+                    return false;
+                }
+            }
 
             return true;
+        }
+
+        private static void ShowValidationMessage(bool showMessage, string message)
+        {
+            if (!showMessage) return;
+
+            MessageBox.Show(message,
+                "Giá trị không hợp lệ", MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
 
         private static int ParseInt(object val)
@@ -550,6 +625,20 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho
                     {
                         _loaiNhapKho = dr["Loai"]?.ToString() ?? string.Empty;
 
+                        bool isLoMoiNhat = !dtSource.Columns.Contains("IsLoMoiNhat")
+                            || ParseInt(dr["IsLoMoiNhat"]) == 1;
+
+                        if (_loaiNhapKho == "Lô" && !isLoMoiNhat)
+                        {
+                            MessageBox.Show(
+                                "Phiếu xuất loại Lô này không phải lần xuất mới nhất của lô nên không được sửa trực tiếp.\n" +
+                                "Vui lòng sửa/xoá các lần xuất sau trước, hoặc tạo nghiệp vụ điều chỉnh.",
+                                "Không thể sửa", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+
+                            _editingXuatKhoId = null;
+                            return;
+                        }
+
                         tbTenSP.Text = previewRow.Cells["ten_preview"].Value?.ToString() ?? string.Empty;
                         tbLot.Text = previewRow.Cells["lot_preview"].Value?.ToString() ?? string.Empty;
 
@@ -571,7 +660,13 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho
 
                         nr.Cells["getAll"].Value = false;
 
-                        // Cột gốc
+                        if (dtSource.Columns.Contains("TTNhapKho_ID"))
+                            nr.Cells["ttNhapKho_ID"].Value = dr["TTNhapKho_ID"];
+
+                        if (dtSource.Columns.Contains("TTCuonDay_ID"))
+                            nr.Tag = dr["TTCuonDay_ID"];
+
+                        // Cột tồn khả dụng khi sửa = tồn hiện tại + lượng của phiếu đang sửa
                         nr.Cells["tongCD"].Value = dr["TongChieuDai_NK"];
                         nr.Cells["soCuon"].Value = dr["SoCuon_CD"];
                         nr.Cells["soDau"].Value = dr["SoDau_CD"];
@@ -631,10 +726,10 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho
 
             if (isLo)
             {
-                // TTNhapKho.Loai = "Lô"
+                // TTNhapKho.Loai = "Lô": chỉ cho sửa số đầu; số cuối phải bằng số cuối tồn.
                 r.Cells["soCuon_user"].ReadOnly = true;
                 r.Cells["soDau_user"].ReadOnly = false;
-                r.Cells["soCuoi_user"].ReadOnly = false;
+                r.Cells["soCuoi_user"].ReadOnly = true;
             }
             else if (isCuon)
             {
@@ -943,9 +1038,5 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho
             base.OnHandleDestroyed(e);
         }
 
-        private void btnLuuXuatKho_Click_1(object sender, EventArgs e)
-        {
-
-        }
     }
 }

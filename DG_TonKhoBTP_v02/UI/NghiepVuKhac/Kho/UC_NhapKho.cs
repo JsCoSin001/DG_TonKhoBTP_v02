@@ -36,6 +36,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.ChatLuong
             InitializeComponent();
             InitMaBinSearch();
             InitGridFont();
+            InitImportExcelButton();
 
             //grvDSNhapKho.CellClick += GrvDSNhapKho_CellClick;
             grvDSNhapKho.CellDoubleClick += GrvDSNhapKho_CellDoubleClick;
@@ -303,7 +304,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.ChatLuong
                     ChieuCaoLo = rdLo.Checked ? GetChieuCaoLoDoubleOrZero() : 0,
 
                     NguoiLam = tbNguoiLam.Text.Trim(),
-                    TenDuAn = rtbDuAn.Text.Trim()
+                    TenDuAn = rtbDuAn.Text.Trim(),
+                    Kieu = 1
                 };
 
                 List<ThongTinCuonDay> dsCuon = new List<ThongTinCuonDay>(thongTinDayNhapKho);
@@ -431,7 +433,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.ChatLuong
                     ChieuCaoLo = rdLo.Checked ? GetChieuCaoLoDoubleOrZero() : 0,
 
                     NguoiLam = tbNguoiLam.Text.Trim(),
-                    TenDuAn = rtbDuAn.Text.Trim()
+                    TenDuAn = rtbDuAn.Text.Trim(),
+                    Kieu = 1
                 };
 
                 List<ThongTinCuonDay> dsCuon = thongTinDayNhapKho == null
@@ -897,6 +900,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.ChatLuong
             btnSua.Enabled = editMode;
             btnDelete.Enabled = editMode;
             btnNhapKho.Enabled = !editMode;
+            SetImportExcelButtonEnabled(!editMode);
         }
 
         // ════════════════════════════════════════════════════════════════════════
@@ -1324,6 +1328,11 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.ChatLuong
             if (!row.DataGridView.Columns.Contains(columnName)) return string.Empty;
 
             return row.Cells[columnName].Value?.ToString()?.Trim() ?? string.Empty;
+        }
+
+        private void btnSetLoLe_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

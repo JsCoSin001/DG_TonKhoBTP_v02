@@ -97,12 +97,12 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                     (Ngay, SoBB, TTThanhPham_ID, TenSP, SoMet,
                      LoaiDon, KhachHang, GhiChu,
                      Loai, ChieuCaoLo,
-                     NguoiLam, TenDuAn)
+                     NguoiLam, TenDuAn, Kieu)
                 VALUES
                     (@Ngay, @SoBB, @TTThanhPham_ID, @TenSP, @SoMet,
                      @LoaiDon, @KhachHang, @GhiChu,
                      @Loai, @ChieuCaoLo,
-                     @NguoiLam, @TenDuAn);
+                     @NguoiLam, @TenDuAn, @Kieu);
                 SELECT last_insert_rowid();";
 
             // ── SQL INSERT TTCuonDay ────────────────────────────────────────────
@@ -149,6 +149,7 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                         string.IsNullOrWhiteSpace(model.NguoiLam) ? (object)DBNull.Value : model.NguoiLam.Trim());
                     cmd.Parameters.AddWithValue("@TenDuAn",
                         string.IsNullOrWhiteSpace(model.TenDuAn) ? (object)DBNull.Value : model.TenDuAn.Trim());
+                    cmd.Parameters.AddWithValue("@Kieu", model.Kieu);
 
                     newId = (long)cmd.ExecuteScalar();
                 }
@@ -246,7 +247,8 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
             Loai           = @Loai,
             ChieuCaoLo     = @ChieuCaoLo,
             NguoiLam       = @NguoiLam,
-            TenDuAn        = @TenDuAn
+            TenDuAn        = @TenDuAn,
+            Kieu           = @Kieu
         WHERE id = @id;";
 
             const string sqlDeleteCuonDay = @"
@@ -318,6 +320,7 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
 
                     cmd.Parameters.AddWithValue("@TenDuAn",
                         string.IsNullOrWhiteSpace(model.TenDuAn) ? (object)DBNull.Value : model.TenDuAn.Trim());
+                    cmd.Parameters.AddWithValue("@Kieu", model.Kieu);
 
                     if (cmd.ExecuteNonQuery() == 0)
                         throw new InvalidOperationException(
@@ -548,6 +551,7 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                     nk.ChieuCaoLo           AS chieuCaoLo,
                     nk.GhiChu               AS ghiChu,
                     nk.TenDuAn              AS tenDuAn,
+                    nk.Kieu                 AS kieu,
 
                     bs.TenChiTiet           AS tenChiTiet,
                     bs.TieuChuan            AS tieuChuan,
@@ -597,6 +601,116 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
 
             return dt;
         }
+
+        /// <summary>
+        /// Tìm chính xác một mã bin trong TTThanhPham để lấy TTThanhPham_ID khi import Excel.
+        /// Không dùng LIKE để tránh lấy nhầm mã bin gần giống.
+        /// </summary>
+        public static DataTable LayTTThanhPhamTheoMaBin(string maBin)
+        {
+            const string sql = @"
+                SELECT  tp.id          AS TTThanhPham_ID,
+                        tp.MaBin,
+                        sp.Ten,
+                        tp.ChieuDaiSau,
+                        tp.GhiChu,
+                        tp.NhapKho
+                FROM    TTThanhPham   tp
+                LEFT JOIN DanhSachMaSP sp ON sp.id = tp.DanhSachSP_ID
+                WHERE   TRIM(tp.MaBin) = TRIM(@MaBin)
+                LIMIT   2;";
+
+            DataTable dt = new DataTable();
+
+            using var conn = DB_Base.OpenConnection();
+            using var cmd = new SQLiteCommand(sql, conn);
+            cmd.Parameters.AddWithValue("@MaBin", maBin ?? string.Empty);
+
+            using var adapter = new SQLiteDataAdapter(cmd);
+            adapter.Fill(dt);
+
+            return dt;
+        }
+
+        /// <summary>
+        /// Lấy lại danh sách nhập kho theo id vừa import, trả về đúng shape dữ liệu mà LoadNhapKhoVaoGrid đang dùng.
+        /// </summary>
+        public static DataTable LayNhapKhoTheoIds(IEnumerable<long> ids)
+        {
+            List<long> idList = ids == null
+                ? new List<long>()
+                : ids.Where(x => x > 0).Distinct().ToList();
+
+            DataTable dt = new DataTable();
+            if (idList.Count == 0)
+                return dt;
+
+            List<string> paramNames = new List<string>();
+            for (int i = 0; i < idList.Count; i++)
+                paramNames.Add("@id" + i);
+
+            string sql = $@"
+            WITH found AS
+            (
+                SELECT
+                    nk.id                   AS id_NhapKho,
+                    nk.TTThanhPham_ID       AS TTThanhPham_ID,
+
+                    CASE
+                        WHEN nk.Ngay LIKE '____-__-__'
+                        THEN strftime('%d/%m/%Y', nk.Ngay)
+                        ELSE nk.Ngay
+                    END                     AS ngay,
+
+                    nk.SoBB                 AS soBB,
+                    nk.NguoiLam             AS nguoiLam,
+                    nk.TenSP                AS tenSP,
+                    IFNULL(tp.MaBin, '')    AS maBin2,
+                    nk.SoMet                AS soMet,
+                    nk.LoaiDon              AS loaiDon,
+                    nk.KhachHang            AS khachHang,
+                    nk.Loai                 AS loai,
+                    nk.ChieuCaoLo           AS chieuCaoLo,
+                    nk.GhiChu               AS ghiChu,
+                    nk.TenDuAn              AS tenDuAn,
+                    nk.Kieu                 AS kieu,
+
+                    bs.TenChiTiet           AS tenChiTiet,
+                    bs.TieuChuan            AS tieuChuan,
+                    CAST(IFNULL(bs.T, 0) AS REAL) AS heSoT,
+
+                    lo.KhoiLuong            AS klLoKhoiLuong,
+                    lo.KhoiLuongCaNanPhu    AS klLoKhoiLuongCaNanPhu
+
+                FROM TTNhapKho nk
+                LEFT JOIN TTThanhPham tp ON tp.id = nk.TTThanhPham_ID
+                LEFT JOIN TTBoSung bs    ON bs.DanhSachMaSP_ID = tp.DanhSachSP_ID
+                LEFT JOIN TTLo lo        ON CAST(lo.KichThuoc AS TEXT) = CAST(nk.ChieuCaoLo AS TEXT)
+                WHERE nk.id IN ({string.Join(",", paramNames)})
+            )
+            SELECT
+                f.*,
+                cd.SoCuon       AS ct_SoCuon,
+                cd.TongChieuDai AS ct_TongChieuDai,
+                cd.SoDau        AS ct_SoDau,
+                cd.SoCuoi       AS ct_soCuoi,
+                cd.GhiChu       AS ct_GhiChu
+            FROM found f
+            LEFT JOIN TTCuonDay cd
+                    ON cd.ThongTinNhapKho_ID = f.id_NhapKho
+            ORDER BY f.id_NhapKho DESC, cd.rowid;";
+
+            using var conn = DB_Base.OpenConnection();
+            using var cmd = new SQLiteCommand(sql, conn);
+            for (int i = 0; i < idList.Count; i++)
+                cmd.Parameters.AddWithValue("@id" + i, idList[i]);
+
+            using var adapter = new SQLiteDataAdapter(cmd);
+            adapter.Fill(dt);
+
+            return dt;
+        }
+
         public static void XoaMotDong(long idNhapKho, long ttThanhPhamId, double soMet)
         {
             const string sqlRollback = @"

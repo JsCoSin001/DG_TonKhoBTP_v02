@@ -59,5 +59,8 @@ namespace DG_TonKhoBTP_v02.Models
 
         public string ThongTinCuonDay { get; set; }
         public string TenDuAn { get; set; }
+
+        /// <summary>Kiểu nhập kho: 1 = Lô, 0 = Lẻ.</summary>
+        public int Kieu { get; set; } = 1;
     }
 }

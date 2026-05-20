@@ -284,7 +284,7 @@
             // 
             this.cbxTimMaBin.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbxTimMaBin.FormattingEnabled = true;
-            this.cbxTimMaBin.Location = new System.Drawing.Point(103, 9);
+            this.cbxTimMaBin.Location = new System.Drawing.Point(103, 6);
             this.cbxTimMaBin.Name = "cbxTimMaBin";
             this.cbxTimMaBin.Size = new System.Drawing.Size(434, 28);
             this.cbxTimMaBin.TabIndex = 3;
@@ -616,7 +616,7 @@
             this.tableLayoutPanel3.Name = "tableLayoutPanel3";
             this.tableLayoutPanel3.RowCount = 1;
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 77F));
+            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 84F));
             this.tableLayoutPanel3.Size = new System.Drawing.Size(540, 84);
             this.tableLayoutPanel3.TabIndex = 0;
             // 

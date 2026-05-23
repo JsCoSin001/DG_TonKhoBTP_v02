@@ -38,21 +38,15 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.ChatLuong
             InitGridFont();
             InitImportExcelButton();
 
-            //grvDSNhapKho.CellClick += GrvDSNhapKho_CellClick;
             grvDSNhapKho.CellDoubleClick += GrvDSNhapKho_CellDoubleClick;
 
-            // Để ComboBox commit ngay khi chọn (không cần click ra ngoài)
             grvDSNhapKho.CurrentCellDirtyStateChanged += GrvDSNhapKho_CurrentCellDirtyStateChanged;
             grvDSNhapKho.CellValueChanged += GrvDSNhapKho_CellValueChanged;
             grvDSNhapKho.EditingControlShowing += GrvDSNhapKho_EditingControlShowing;
 
-            // nrChieuCaoLo hiện là ComboBox: khi đổi kích thước lô thì cập nhật lại chuỗi hiển thị.
             nrChieuCaoLo.SelectedIndexChanged += NrChieuCaoLo_SelectedIndexChanged;
         }
 
-        // ════════════════════════════════════════════════════════════════════════
-        // COMBOBOX TÌM KIẾM MÃ BIN
-        // ════════════════════════════════════════════════════════════════════════
 
         private void InitMaBinSearch()
         {
@@ -65,9 +59,6 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.ChatLuong
             _maBinSearchHelper.Cleared += OnMaBinCleared;
         }
 
-        // ════════════════════════════════════════════════════════════════════════
-        // COMBOBOX CHIỀU CAO LÔ
-        // ════════════════════════════════════════════════════════════════════════
 
         private void LoadDanhSachChieuCaoLo()
         {
@@ -203,10 +194,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.ChatLuong
             _selectedTTThanhPhamID = null;
         }
 
-        // ════════════════════════════════════════════════════════════════════════
-        // VALIDATE
-        // ════════════════════════════════════════════════════════════════════════
-
+        
         private bool ValidateInputs()
         {
             bool valid = true;
@@ -268,9 +256,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.ChatLuong
             nrChieuCaoLo.BackColor = n;
         }
 
-        // ════════════════════════════════════════════════════════════════════════
-        // CHỨC NĂNG 1 – NHẬP KHO (INSERT ngay vào DB rồi thêm dòng vào grid)
-        // ════════════════════════════════════════════════════════════════════════
+        
 
         private void BtnNhapKho_Click(object sender, EventArgs e)
         {
@@ -323,9 +309,6 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.ChatLuong
             }
         }
 
-        // ════════════════════════════════════════════════════════════════════════
-        // CHỨC NĂNG 2 – SỬA (UPDATE bản ghi đã có trong DB)
-        // ════════════════════════════════════════════════════════════════════════
 
         private void btnDelete_Click(object sender, EventArgs e)
         {
@@ -466,9 +449,6 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.ChatLuong
             }
         }
 
-        // ════════════════════════════════════════════════════════════════════════
-        // GHI DỮ LIỆU FORM → DÒNG GRID
-        // ════════════════════════════════════════════════════════════════════════
 
         private void WriteRowFromForm(DataGridViewRow row)
         {
@@ -578,9 +558,6 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.ChatLuong
             }
         }
 
-        // ════════════════════════════════════════════════════════════════════════
-        // CLICK DÒNG GRID → load form (dùng cho cả Chức năng 2 và 3)
-        // ════════════════════════════════════════════════════════════════════════
 
         private void GrvDSNhapKho_RowClick(object sender, DataGridViewCellEventArgs e)
         {
@@ -706,10 +683,6 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.ChatLuong
             SetEditMode(true);
             ResetValidationColors();
         }
-
-        // ════════════════════════════════════════════════════════════════════════
-        // CHỨC NĂNG 3 – TÌM KIẾM
-        // ════════════════════════════════════════════════════════════════════════
 
         private void tbTimKiem_KeyDown(object sender, KeyEventArgs e)
         {
@@ -891,10 +864,6 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.ChatLuong
             }
         }
 
-        // ════════════════════════════════════════════════════════════════════════
-        // CHUYỂN CHẾ ĐỘ THÊM ↔ SỬA
-        // ════════════════════════════════════════════════════════════════════════
-
         private void SetEditMode(bool editMode)
         {
             btnSua.Enabled = editMode;
@@ -902,10 +871,6 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.ChatLuong
             btnNhapKho.Enabled = !editMode;
             SetImportExcelButtonEnabled(!editMode);
         }
-
-        // ════════════════════════════════════════════════════════════════════════
-        // RESET FORM
-        // ════════════════════════════════════════════════════════════════════════
 
         private void ResetForm(bool resetAll = false)
         {
@@ -942,10 +907,6 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.ChatLuong
 
         private void btnResetForm_Click(object sender, EventArgs e) => ResetForm(resetAll: true);
 
-        // ════════════════════════════════════════════════════════════════════════
-        // CỘT XOÁ TRONG GRID
-        // ════════════════════════════════════════════════════════════════════════
-
 
         private void GrvDSNhapKho_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
@@ -953,11 +914,6 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.ChatLuong
 
             GrvDSNhapKho_RowClick(sender, e);
         }
-
-
-        // ════════════════════════════════════════════════════════════════════════
-        // LOAD
-        // ════════════════════════════════════════════════════════════════════════
 
         private void UC_QcDuyetNhapKho_Load(object sender, EventArgs e)
         {
@@ -972,11 +928,6 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.ChatLuong
             _maBinSearchHelper?.Dispose();
             base.OnHandleDestroyed(e);
         }
-
-
-        // ════════════════════════════════════════════════════════════════════════
-        // FONT GRID
-        // ════════════════════════════════════════════════════════════════════════
 
         private void InitGridFont()
         {
@@ -1000,10 +951,6 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.ChatLuong
             if (grvDSNhapKho.Columns.Contains("tenChiTiet"))
                 grvDSNhapKho.Columns["tenChiTiet"].DefaultCellStyle.WrapMode = DataGridViewTriState.True;
         }
-
-        // ════════════════════════════════════════════════════════════════════════
-        // TÍNH LẠI klTong KHI NGƯỜI DÙNG ĐỔI klLo HOẶC KL CÁP
-        // ════════════════════════════════════════════════════════════════════════
 
         private void GrvDSNhapKho_CurrentCellDirtyStateChanged(object sender, EventArgs e)
         {
@@ -1109,10 +1056,6 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.ChatLuong
             DataGridViewCell cell = row.Cells["khoiLuongCap"];
             cell.Style.BackColor = Color.Empty;
         }
-
-        // ════════════════════════════════════════════════════════════════════════
-        // HELPERS ĐỌC GIÁ TRỊ TỪ DataRow
-        // ════════════════════════════════════════════════════════════════════════
 
         private void btnTTCuon_Click(object sender, EventArgs e)
         {
@@ -1334,5 +1277,6 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.ChatLuong
         {
 
         }
+
     }
 }

@@ -5219,8 +5219,6 @@ namespace DG_TonKhoBTP_v02.Database
                 pSoSoi.Value = m.SoSoi;
                 pKetCauLoi.Value = m.KetCauLoi;
                 pDuongKinhSoiMach.Value = m.DuongKinhSoiMach;
-                pBanRongBang.Value = m.BanRongBang;
-                pDoDayBang.Value = m.DoDayBang;
 
                 cmd.ExecuteNonQuery();
             }

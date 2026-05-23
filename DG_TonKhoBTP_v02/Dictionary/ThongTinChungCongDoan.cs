@@ -143,9 +143,7 @@ namespace DG_TonKhoBTP_v02.Dictionary
              EnumStore.MayTheoCongDoan["QB_Mica"],
             BaseColumns(
                 new ColumnDefinition { Name = "DuongKinhSoiDong", DataType = typeof(double), Header = "ĐK sợi đồng" },
-                new ColumnDefinition { Name = "DuongKinhSoiMach", DataType = typeof(double), Header = "ĐK sợi mạch" },
-                new ColumnDefinition { Name = "BanRongBang", DataType = typeof(double), Header = "Độ rộng băng" },
-                new ColumnDefinition { Name = "DoDayBang", DataType = typeof(double), Header = "Độ dày băng" }
+                new ColumnDefinition { Name = "DuongKinhSoiMach", DataType = typeof(double), Header = "ĐK sợi mạch" }
             ),
             new List<string> { "BTP.20107%", "BTP.20207%" },
             Select_TP_KhongKhoiLuong(),

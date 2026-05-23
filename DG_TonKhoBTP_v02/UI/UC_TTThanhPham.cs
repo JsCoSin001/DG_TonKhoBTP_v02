@@ -24,14 +24,43 @@ namespace DG_TonKhoBTP_v02.UI
 
         public void SetTenCongDoan(string value) => tenCongDoan = value;
 
-        public event Action<(decimal KhoiLuong, decimal ChieuDai, string donVi, decimal chuyenDoi)> KL_CD_Changed;
-        public decimal KhoiLuongValue => khoiLuong.Value;
-        public decimal ChieuDaiValue => chieuDai.Value;
-        public string DonVi => donVi.Text;
-        public decimal ChuyenDoi => nbrChuyenDoi.Value;
 
         public event Action<string> SoLOTChanged;
         public string SoLOTValue => soLOT.Text;
+
+        public event Action<ThanhPhamData> ThanhPhamChanged;
+
+
+        public ThanhPhamData GetThanhPhamData()
+        {
+            int.TryParse(id.Text, out int danhSachSpId);
+
+            return new ThanhPhamData
+            {
+                DanhSachSPId = danhSachSpId,
+                MaTP = ma.Text,
+                TenTP = ten.Text,
+                DonVi = donVi.Text,
+                KhoiLuong = khoiLuong.Value,
+                ChieuDai = chieuDai.Value,
+                ChuyenDoi = nbrChuyenDoi.Value,
+                Phe = phe.Value,
+                GhiChu = GhiChu?.Text ?? string.Empty,
+                SoLOT = soLOT?.Text ?? string.Empty,
+                TenMay = LayTenMayTuSoLOT()
+            };
+        }
+
+        private string LayTenMayTuSoLOT()
+        {
+            return SoLOTValue?.Split('-')[0] ?? string.Empty;
+        }
+
+        private void RaiseThanhPhamChanged()
+        {
+            ThanhPhamChanged?.Invoke(GetThanhPhamData());
+        }
+
 
         public UC_TTThanhPham(CongDoan cd)
         {
@@ -58,6 +87,9 @@ namespace DG_TonKhoBTP_v02.UI
         private void CapNhatSoLot()
         {
             soLOT.Text = CoreHelper.LOTGenerated(may, maHanhTrinh, sttCongDoan, sttLo, soBin);
+
+            SoLOTChanged?.Invoke(SoLOTValue);
+            RaiseThanhPhamChanged();
         }
 
         private void maHanhTrinh_ValueChanged(object sender, EventArgs e)
@@ -371,17 +403,17 @@ namespace DG_TonKhoBTP_v02.UI
 
         private void khoiLuong_ValueChanged(object sender, EventArgs e)
         {
-            KL_CD_Changed?.Invoke((KhoiLuongValue, ChieuDaiValue, donVi.Text, nbrChuyenDoi.Value));
+            RaiseThanhPhamChanged();
         }
 
         private void may_TextChanged(object sender, EventArgs e)
         {
-            SoLOTChanged?.Invoke(may.Text);
+            CapNhatSoLot();
         }
 
         private void chieuDai_ValueChanged(object sender, EventArgs e)
         {
-            KL_CD_Changed?.Invoke((KhoiLuongValue, ChieuDaiValue, donVi.Text, nbrChuyenDoi.Value));
+            RaiseThanhPhamChanged();
         }
     }
 

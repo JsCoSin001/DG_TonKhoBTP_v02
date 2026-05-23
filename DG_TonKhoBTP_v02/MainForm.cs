@@ -35,7 +35,7 @@ namespace DG_TonKhoBTP_v02
     {
         private string _URL = Properties.Settings.Default.URL;
         private CongDoanUiService _ui;
-        private string _ver = "2.6.1";
+        private string _ver = "2.7.0";
         private bool show = false;
         private void InitUiService()
         {
@@ -243,6 +243,8 @@ namespace DG_TonKhoBTP_v02
                 errorMessagePrefix: "bọc vỏ",
                 afterShowUI: root => _ui.HookNvlThanhPham(root)
             );
+
+            HienThiCauTruc();
         }
 
         private void btnCapNhatMaHang_Click(object sender, EventArgs e)

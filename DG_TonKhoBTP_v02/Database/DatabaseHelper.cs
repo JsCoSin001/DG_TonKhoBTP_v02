@@ -3908,6 +3908,35 @@ namespace DG_TonKhoBTP_v02.Database
             }
         }
 
+        public static DataTable GetNVL(string query, Dictionary<string, object> parameters = null)
+        {
+            using (SQLiteConnection conn = new SQLiteConnection(_connStr))
+            {
+                conn.Open();
+
+                using (SQLiteCommand cmd = new SQLiteCommand(query, conn))
+                {
+                    if (parameters != null)
+                    {
+                        foreach (var p in parameters)
+                        {
+                            string paramName = p.Key.StartsWith("@") ? p.Key : "@" + p.Key;
+                            object paramValue = p.Value ?? DBNull.Value;
+
+                            cmd.Parameters.AddWithValue(paramName, paramValue);
+                        }
+                    }
+
+                    using (SQLiteDataAdapter adapter = new SQLiteDataAdapter(cmd))
+                    {
+                        DataTable resultTable = new DataTable();
+                        adapter.Fill(resultTable);
+                        return resultTable;
+                    }
+                }
+            }
+        }
+
         public static DataTable GetDataByCongDoan(DateTime selectedDate, CongDoan cd,int ca, string nguoiKiemTra)
         {
             string key = selectedDate.ToString("yyyy-MM-dd");
@@ -5177,9 +5206,9 @@ namespace DG_TonKhoBTP_v02.Database
 
             const string sql = @"
             INSERT INTO TTNVL
-                (TTThanhPham_ID, BinNVL,QC, DanhSachMaSP_ID, KlBatDau, CdBatDau, KlConLai, CdConLai, DuongKinhSoiDong, SoSoi, KetCauLoi, DuongKinhSoiMach, BanRongBang, DoDayBang)
+                (TTThanhPham_ID, BinNVL,QC, DanhSachMaSP_ID, KlBatDau, CdBatDau, KlConLai, CdConLai, DuongKinhSoiDong, SoSoi, KetCauLoi, DuongKinhSoiMach)
             VALUES
-                (@TTThanhPham_ID, @BinNVL,@QC,@DanhSachMaSP_ID, @KlBatDau, @CdBatDau, @KlConLai, @CdConLai, @DuongKinhSoiDong, @SoSoi, @KetCauLoi, @DuongKinhSoiMach, @BanRongBang, @DoDayBang);";
+                (@TTThanhPham_ID, @BinNVL,@QC,@DanhSachMaSP_ID, @KlBatDau, @CdBatDau, @KlConLai, @CdConLai, @DuongKinhSoiDong, @SoSoi, @KetCauLoi, @DuongKinhSoiMach);";
 
             using var cmd = new SQLiteCommand(sql, conn, tx);
 
@@ -5195,8 +5224,6 @@ namespace DG_TonKhoBTP_v02.Database
             var pSoSoi = cmd.Parameters.Add("@SoSoi", DbType.Int32);
             var pKetCauLoi = cmd.Parameters.Add("@KetCauLoi", DbType.Double);
             var pDuongKinhSoiMach = cmd.Parameters.Add("@DuongKinhSoiMach", DbType.Double);
-            var pBanRongBang = cmd.Parameters.Add("@BanRongBang", DbType.Double);
-            var pDoDayBang = cmd.Parameters.Add("@DoDayBang", DbType.Double);
 
             foreach (TTNVL m in items)
             {
@@ -5211,9 +5238,6 @@ namespace DG_TonKhoBTP_v02.Database
                 pDuongKinhSoiDong.Value = m.DuongKinhSoiDong;
                 pSoSoi.Value = m.SoSoi;
                 pKetCauLoi.Value = m.KetCauLoi;
-                pDuongKinhSoiMach.Value = m.DuongKinhSoiMach;
-                pBanRongBang.Value = m.BanRongBang;
-                pDoDayBang.Value = m.DoDayBang;
 
                 cmd.ExecuteNonQuery();
             }
@@ -5357,23 +5381,18 @@ namespace DG_TonKhoBTP_v02.Database
 
         private static void InsertCDGhepLoiQB(SQLiteConnection conn, SQLiteTransaction tx, long thongTinSpId, CD_GhepLoiQB m)
         {
-            //const string sql = @"
-            //INSERT INTO CD_GhepLoiQB
-            //(TTThanhPham_ID, BuocXoan, ChieuXoan, GoiCachMep, DKBTP)
-            //VALUES
-            //(@TTThanhPham_ID, @BuocXoan, @ChieuXoan, @GoiCachMep, @DKBTP);";
-
 
             const string sql = @"
             INSERT INTO CD_GhepLoiQB
-            (TTThanhPham_ID, ChieuXoan, GoiCachMep, DKBTP)
+            (TTThanhPham_ID, ChieuXoan, GoiCachMep, DKBTP, DoRongBang, DoDayBang)
             VALUES
-            (@TTThanhPham_ID,  @ChieuXoan, @GoiCachMep, @DKBTP);";
+            (@TTThanhPham_ID,  @ChieuXoan, @GoiCachMep, @DKBTP, @DoRongBang, @DoDayBang);";
 
 
             using var cmd = new SQLiteCommand(sql, conn, tx);
             cmd.Parameters.AddWithValue("@TTThanhPham_ID", thongTinSpId);
-            //cmd.Parameters.AddWithValue("@BuocXoan", m.BuocXoan);
+            cmd.Parameters.AddWithValue("@DoDayBang", m.DoDayBang);
+            cmd.Parameters.AddWithValue("@DoRongBang", m.DoRongBang);
             cmd.Parameters.AddWithValue("@ChieuXoan", m.ChieuXoan);
             cmd.Parameters.AddWithValue("@GoiCachMep", m.GoiCachMep);
             cmd.Parameters.AddWithValue("@DKBTP", m.DKBTP);

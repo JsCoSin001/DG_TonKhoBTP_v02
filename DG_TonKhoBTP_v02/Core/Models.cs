@@ -36,8 +36,8 @@ namespace DG_TonKhoBTP_v02.Core
         public int? SoSoi { get; set; } = -1;
         public double? KetCauLoi { get; set; } = -1;
         public double? DuongKinhSoiMach { get; set; } = -1;
-        public double? BanRongBang { get; set; } = -1;
-        public double? DoDayBang { get; set; } = -1;
+        //public double? BanRongBang { get; set; } = -1;
+        //public double? DoDayBang { get; set; } = -1;
         public string? DonVi { get; set; } = "";
         // Lưu thay cho TTThanhPham.QC
         public string? QC { get; set; }
@@ -179,6 +179,8 @@ namespace DG_TonKhoBTP_v02.Core
         public string? ChieuXoan { get; set; }     // NOT NULL DEFAULT 'Z'
         public double? GoiCachMep { get; set; }    // NOT NULL
         public double? DKBTP { get; set; }         // NOT NULL
+        public double? DoRongBang { get; set; }         // NOT NULL
+        public double? DoDayBang { get; set; }         // NOT NULL
     }
 
     public class FormSnapshot

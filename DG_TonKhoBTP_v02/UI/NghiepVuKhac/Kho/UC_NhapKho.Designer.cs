@@ -213,6 +213,7 @@
             this.btnImportExcel.TabIndex = 2;
             this.btnImportExcel.Text = "Import Excel";
             this.btnImportExcel.UseVisualStyleBackColor = true;
+            this.btnImportExcel.Click += new System.EventHandler(this.btnImportExcel_Click);
             // 
             // tableLayoutPanel5
             // 

@@ -147,17 +147,7 @@ namespace DG_TonKhoBTP_v02.UI.Helper
             if (ucNVL == null || ucTP == null)
                 return;
 
-
-            ucNVL.GetKL_CD = () => (ucTP.KhoiLuongValue, ucTP.ChieuDaiValue, ucTP.DonVi, ucTP.ChuyenDoi);
-
-            ucNVL.GetTenMay = () =>
-            {
-                string may = ucTP.SoLOTValue?.Split('-')[0] ?? "";
-                return may;
-            };
-
-            ucNVL.GetSoLOT = () => ucTP.SoLOTValue;
-
+            ucNVL.GetThanhPhamData = () => ucTP.GetThanhPhamData();
 
             ucTP.SoLOTChanged -= ucNVL.OnSoLOTChanged;
             ucTP.SoLOTChanged += ucNVL.OnSoLOTChanged;

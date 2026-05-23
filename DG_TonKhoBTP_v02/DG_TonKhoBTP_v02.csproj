@@ -187,6 +187,7 @@
     <Compile Include="Models\LoginClass.cs" />
     <Compile Include="Models\Kho\NhapKho_Model.cs" />
     <Compile Include="Models\OtherClass.cs" />
+    <Compile Include="Models\ThanhPhamData.cs" />
     <Compile Include="Models\ThongTinDatHangUpdateModel.cs" />
     <Compile Include="Printer\A4\A4Config.cs" />
     <Compile Include="Printer\A4\A4Printer.cs" />

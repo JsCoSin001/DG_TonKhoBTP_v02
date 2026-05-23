@@ -27,7 +27,9 @@ namespace DG_TonKhoBTP_v02.UI
                 //BuocXoan = (double)buocXoan.Value == 0 ? (double?)null : (double)buocXoan.Value,
                 ChieuXoan = chieuXoan.SelectedIndex == -1 ? null : chieuXoan.Text,
                 GoiCachMep = (double)goiCachMep.Value == 0 ? (double?)null : (double)goiCachMep.Value,
-                DKBTP = (double)dkBTP.Value == 0 ? (double?)null : (double)dkBTP.Value
+                DKBTP = (double)dkBTP.Value == 0 ? (double?)null : (double)dkBTP.Value,
+                DoRongBang = (double)nbrDoRongBang.Value == 0 ? (double?)null : (double)nbrDoRongBang.Value,
+                DoDayBang = (double)nbrDoDayBang.Value == 0 ? (double?)null : (double)nbrDoDayBang.Value
             };
         }
 
@@ -42,6 +44,8 @@ namespace DG_TonKhoBTP_v02.UI
             CoreHelper.SetIfPresent(row, "GhepLoi_ChieuXoan", val => chieuXoan.Text = Convert.ToString(val));
             CoreHelper.SetIfPresent(row, "GoiCachMep", val => goiCachMep.Value = Convert.ToDecimal(val));
             CoreHelper.SetIfPresent(row, "DKBTP", val => dkBTP.Value = Convert.ToDecimal(val));
+            CoreHelper.SetIfPresent(row, "DoRongBang", val => nbrDoRongBang.Value = Convert.ToDecimal(val));
+            CoreHelper.SetIfPresent(row, "DoDayBang", val => nbrDoDayBang.Value = Convert.ToDecimal(val));
         }
     }
 }

@@ -284,7 +284,7 @@
             // 
             this.cbxTimMaBin.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbxTimMaBin.FormattingEnabled = true;
-            this.cbxTimMaBin.Location = new System.Drawing.Point(103, 6);
+            this.cbxTimMaBin.Location = new System.Drawing.Point(103, 9);
             this.cbxTimMaBin.Name = "cbxTimMaBin";
             this.cbxTimMaBin.Size = new System.Drawing.Size(434, 28);
             this.cbxTimMaBin.TabIndex = 3;

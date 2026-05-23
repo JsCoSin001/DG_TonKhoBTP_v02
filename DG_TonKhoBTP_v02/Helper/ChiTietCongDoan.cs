@@ -18,7 +18,7 @@ namespace DG_TonKhoBTP_v02.Helper
             "cbr.DKSoi as DKSoi, cbr.SoSoi as BenRuot_SoSoi, cbr.ChieuXoan AS BenRuot_ChieuXoan, cbr.BuocBen as BuocBen ",
 
             // 2: Ghép lõi - Quấn băng
-            "cgl.BuocXoan, cgl.ChieuXoan as GhepLoi_ChieuXoan, cgl.GoiCachMep, cgl.DKBTP",
+            "cgl.ChieuXoan as GhepLoi_ChieuXoan, cgl.GoiCachMep, cgl.DKBTP, cgl.DoRongBang, cgl.DoDayBang",
 
             // 3: Bọc mạch
             "cbm.NgoaiQuan AS BocMach_NgoaiQuan, cbm.LanDanhThung, cbm.SoMet, cbm.Mau",

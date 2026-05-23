@@ -6,6 +6,7 @@ using DG_TonKhoBTP_v02.Models;
 using DG_TonKhoBTP_v02.UI.Helper;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Drawing;
+using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.VisualBasic;
 using System;
 using System.Collections.Generic;
@@ -30,13 +31,7 @@ namespace DG_TonKhoBTP_v02.UI
 
         public decimal? klDongThua = null;
 
-        public Func<string> GetSoLOT { get; set; }
-
-        //public Func<decimal> GetKhoiLuong { get; set; }
-
-        public Func<(decimal KhoiLuong, decimal ChieuDai, string donVi, decimal chuyenDoi)> GetKL_CD { get; set; }
-
-        public Func<string> GetTenMay { get; set; }
+        public Func<ThanhPhamData> GetThanhPhamData { get; set; }
 
         private bool _warnedThisFocus = false;
 
@@ -339,7 +334,21 @@ namespace DG_TonKhoBTP_v02.UI
 
             dtgTTNVL.BeginInvoke(new Action(() =>
             {
-                string may = CoreHelper.CatMaBin(GetSoLOT())[0];
+
+                string bin = string.Empty;
+
+                if (dt.Rows.Count > 0 && dt.Columns.Contains("MaBin"))
+                {
+                    bin = dt.Rows[0]["MaBin"]?.ToString() ?? string.Empty;
+                }
+
+                string may = string.Empty;
+                string[] maBinParts = CoreHelper.CatMaBin(bin);
+
+                if (maBinParts.Length > 0)
+                {
+                    may = maBinParts[0];
+                }
 
                 string[] arr = { "B10", "B13", "B14", "B15", "B16", "MD16A4", "R10", "R12" };
 
@@ -417,23 +426,22 @@ namespace DG_TonKhoBTP_v02.UI
             EnsureColumnOrderAndDeleteLast();
 
 
-            var v = GetKL_CD?.Invoke() ?? (0m, 0m,"",1);
+            var thanhPham = GetThanhPhamData?.Invoke() ?? new ThanhPhamData();
 
 
-            if (v.donVi == "")
+            if (string.IsNullOrWhiteSpace(thanhPham.DonVi))
             {
                 FrmWaiting.ShowGifAlert("Thông tin thành phẩm công đoạn cần hoàn thiện trước.");
                 return;
             }
 
-            if (v.donVi == "M" && v.ChieuDai == 0m)
+            if (thanhPham.DonVi == "M" && thanhPham.ChieuDai == 0m)
             {
                 FrmWaiting.ShowGifAlert("Vui lòng nhập Chiều dài trước khi quét mã QR.");
                 return;
             }
 
-
-            if (v.donVi == "KG" && v.KhoiLuong == 0m)
+            if (thanhPham.DonVi == "KG" && thanhPham.KhoiLuong == 0m)
             {
                 FrmWaiting.ShowGifAlert("Vui lòng nhập Khối lượng trước khi quét mã QR.");
                 return;
@@ -454,15 +462,21 @@ namespace DG_TonKhoBTP_v02.UI
 
                 bool cdHanNoi = _CD.Id == 9 && isEdit.Value == 2 ? true : false;
 
-                string para = "ten";
+                var parameters = new Dictionary<string, object>
+                {
+                    { "ten", keyword },
+                    { "ParentProductId", 1 }
+                };
+
                 string query = RawMaterial
+                    // Nếu là nguyên liệu
                     ? CoreHelper.TaoSQL_LayDLNVL_TTThanhPham()
                     : CoreHelper.TaoSQL_LayDLTTThanhPham(cdHanNoi);
 
                 try
                 {
                     result = await Task.Run(() =>
-                        DatabaseHelper.GetData(query, keyword, para)
+                        DatabaseHelper.GetNVL(query, parameters)
                     );
                 }
                 catch (Exception ex)
@@ -514,11 +528,11 @@ namespace DG_TonKhoBTP_v02.UI
 
                 result.Rows.Add(r);
             }
-                // ===== ADD DATA =====
-                AddRowsToGrid(result,v);
+            // ===== ADD DATA =====
+            AddRowsToGrid(result, thanhPham);
         }
 
-        private void AddRowsToGrid(DataTable source, (decimal KhoiLuong, decimal ChieuDai, string donVi, decimal chuyenDoi) cd_KL_TP)
+        private void AddRowsToGrid(DataTable source, ThanhPhamData thanhPham)
         {
             DataTable table = null;
 
@@ -588,18 +602,24 @@ namespace DG_TonKhoBTP_v02.UI
                         decimal tyLe = 1m;
                         decimal kl = 0;
 
-                        if (dvNVL != cd_KL_TP.donVi)
+                        if (dvNVL != thanhPham.DonVi)
                         {
-                            tyLe = cd_KL_TP.chuyenDoi;
+                            tyLe = thanhPham.ChuyenDoi;
 
-                            kl = KlBatDau - tyLe * cd_KL_TP.ChieuDai < 0 ? 0 : KlBatDau - tyLe * cd_KL_TP.ChieuDai;
+                            kl = KlBatDau - tyLe * thanhPham.ChieuDai < 0
+                                ? 0
+                                : KlBatDau - tyLe * thanhPham.ChieuDai;
                         }
                         else
                         {
-                            kl = KlBatDau - cd_KL_TP.KhoiLuong < 0 ? 0 : KlBatDau - cd_KL_TP.KhoiLuong;
-                        } 
-                       
-                        decimal cd = CDBatDau - cd_KL_TP.ChieuDai < 0 ? 0 : CDBatDau - cd_KL_TP.ChieuDai;
+                            kl = KlBatDau - thanhPham.KhoiLuong < 0
+                                ? 0
+                                : KlBatDau - thanhPham.KhoiLuong;
+                        }
+
+                        decimal cd = CDBatDau - thanhPham.ChieuDai < 0
+                            ? 0
+                            : CDBatDau - thanhPham.ChieuDai;
 
 
                         gtConLai_New = _CD.Id == 9 ? 0 : kl;
@@ -679,7 +699,9 @@ namespace DG_TonKhoBTP_v02.UI
         }
 
         private string ReadTenMay()
-            => GetTenMay?.Invoke() ?? "";
+        {
+            return GetThanhPhamData?.Invoke()?.TenMay ?? string.Empty;
+        }
 
         private void cbxTimKiem_Enter(object sender, EventArgs e)
         {

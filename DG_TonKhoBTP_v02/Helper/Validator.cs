@@ -54,7 +54,7 @@ namespace DG_TonKhoBTP_v02.Helper
 
 
                 // B1.3) Các dữ liệu yêu cầu phải được nhập
-                if (t.BanRongBang == null || t.DoDayBang == null || t.KetCauLoi == null || t.DanhSachMaSP_ID == 0 || t.BinNVL == "")
+                if ( t.KetCauLoi == null || t.DanhSachMaSP_ID == 0 || t.BinNVL == "")
                 {
                     tupleError = (Id: 4, Lot: lot);
                     break;

@@ -40,7 +40,6 @@ namespace DG_TonKhoBTP_v02.Database.Kho
                 string maBin = GetString(row, "MaBin");
                 string[] parts = CatMaBin(maBin);
 
-                // Theo yêu cầu: MaBin phải đủ để lấy KHSX = parts[1], SoThuTuBin = parts[2].
                 if (parts.Length < 3)
                 {
                     invalidMaBins.Add($"- LOT: {maBin}; Sản phẩm: {tenSanPham}");

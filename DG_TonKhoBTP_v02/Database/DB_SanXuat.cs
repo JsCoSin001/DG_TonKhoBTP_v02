@@ -479,8 +479,6 @@ namespace DG_TonKhoBTP_v02.Database
             var pSS = cmd.Parameters.Add("@SoSoi", DbType.Int32);
             var pKCL = cmd.Parameters.Add("@KetCauLoi", DbType.Double);
             var pDKSM = cmd.Parameters.Add("@DuongKinhSoiMach", DbType.Double);
-            var pBRB = cmd.Parameters.Add("@BanRongBang", DbType.Double);
-            var pDDB = cmd.Parameters.Add("@DoDayBang", DbType.Double);
 
             foreach (TTNVL m in items)
             {
@@ -488,7 +486,7 @@ namespace DG_TonKhoBTP_v02.Database
                 pMaSP.Value = m.DanhSachMaSP_ID; pKlBD.Value = m.KlBatDau; pQC.Value = m.QC;
                 pCdBD.Value = m.CdBatDau; pKlCL.Value = m.KlConLai; pCdCL.Value = m.CdConLai;
                 pDKSD.Value = m.DuongKinhSoiDong; pSS.Value = m.SoSoi; pKCL.Value = m.KetCauLoi;
-                pDKSM.Value = m.DuongKinhSoiMach; pBRB.Value = m.BanRongBang; pDDB.Value = m.DoDayBang;
+                pDKSM.Value = m.DuongKinhSoiMach;
                 cmd.ExecuteNonQuery();
             }
         }

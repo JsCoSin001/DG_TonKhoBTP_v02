@@ -205,9 +205,9 @@ namespace DG_TonKhoBTP_v02.Helper
 
         }
 
+        // 1. Lấy dữ liệu TTThanhPham
         public static string TaoSQL_LayDLTTThanhPham(bool hanNoi)
         {
-            // KHÔNG đặt dấu ; ở cuối vì còn nối UNION ALL ở hàm sau
             string sql = @"
                 SELECT
                     t.CongDoan      AS CongDoan,
@@ -255,7 +255,7 @@ namespace DG_TonKhoBTP_v02.Helper
                         @ten IS NULL OR TRIM(@ten) = ''
                         OR t.MaBin = @ten COLLATE NOCASE
                     )
-                ";
+            ";
 
             if (!hanNoi)
             {
@@ -265,49 +265,7 @@ namespace DG_TonKhoBTP_v02.Helper
             return sql;
         }
 
-        //public static string TaoSQL_LayDLTTThanhPham(bool hanNoi)
-        //{
 
-        //    // KHÔNG đặt dấu ; ở cuối vì còn nối UNION ALL ở hàm sau
-        //    string sql = @"
-        //    SELECT
-        //        t.CongDoan      AS CongDoan,
-        //        t.KhoiLuongSau  AS KlBatDau,
-        //        t.ChieuDaiSau   AS CDBatDau,
-        //        t.id            AS id,
-        //        d.Ma           AS MaNVL,
-        //        d.DonVi         AS DonVi,
-        //        d.id            as DanhSachMaSP_ID,
-        //        d.ChuyenDoi     AS ChuyenDoi,
-        //        t.Qc            as Qc,
-        //        t.MaBin         AS BinNVL,
-        //        v.Ngay          AS Ngay,
-        //        v.Ca            AS Ca,
-        //        v.NguoiLam      AS NguoiLam,
-        //        t.GhiChu        as GhiChu
-        //    FROM TTThanhPham AS t
-        //    JOIN DanhSachMaSP AS d
-        //        ON d.id = t.DanhSachSP_ID
-        //    LEFT JOIN ThongTinCaLamViec AS v
-        //        ON t.id = v.TTThanhPham_id
-        //    WHERE
-        //        (
-        //            t.Active = 1  
-        //        )
-        //        AND (
-        //            @ten IS NULL OR TRIM(@ten) = ''
-        //            OR t.MaBin = @ten COLLATE NOCASE
-        //        )
-        //    ";
-
-        //    if (!hanNoi)
-        //    {
-        //        sql += TaoSQL_DieuKien();
-        //    }
-
-
-        //    return sql;
-        //}
 
         public static string TaoSQL_DieuKien(string kieu = "<>")
         {
@@ -319,13 +277,10 @@ namespace DG_TonKhoBTP_v02.Helper
         }
 
 
-        public static string TaoSQL_LayDLNVL_TTThanhPham()
+        // 2. Lấy danh sách NVL từ DanhSachMaSP
+        public static string TaoSQL_LayDLNVL()
         {
-            string baseQuery = TaoSQL_LayDLTTThanhPham(false); // KHÔNG có ; ở cuối
-
-            return baseQuery + @"
-                UNION ALL
-
+            return @"
                 SELECT
                     -1          AS CongDoan,
                     -1          AS KlBatDau,
@@ -367,7 +322,7 @@ namespace DG_TonKhoBTP_v02.Helper
                         OR d.Ten = @ten COLLATE NOCASE
                         OR d.Ma  = @ten COLLATE NOCASE
                     )
-                ";
+            ";
         }
 
         //public static string TaoSQL_LayDLNVL_TTThanhPham()
@@ -402,7 +357,7 @@ namespace DG_TonKhoBTP_v02.Helper
         //        )
         //    ";
         //}
-         
+
 
         public static string GetNgayHienTai()
         {

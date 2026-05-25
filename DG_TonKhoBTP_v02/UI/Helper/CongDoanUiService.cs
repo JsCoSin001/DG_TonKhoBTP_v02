@@ -143,7 +143,6 @@ namespace DG_TonKhoBTP_v02.UI.Helper
             var ucNVL = _findNVL(root);
             var ucTP = _findTP(root);
 
-
             if (ucNVL == null || ucTP == null)
                 return;
 
@@ -151,6 +150,9 @@ namespace DG_TonKhoBTP_v02.UI.Helper
 
             ucTP.SoLOTChanged -= ucNVL.OnSoLOTChanged;
             ucTP.SoLOTChanged += ucNVL.OnSoLOTChanged;
+
+            ucTP.ThanhPhamChanged -= ucNVL.OnThanhPhamChanged;
+            ucTP.ThanhPhamChanged += ucNVL.OnThanhPhamChanged;
         }
     }
 }

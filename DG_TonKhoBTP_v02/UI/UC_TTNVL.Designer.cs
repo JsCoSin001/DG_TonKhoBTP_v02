@@ -223,7 +223,6 @@
             this.isEdit.Name = "isEdit";
             this.isEdit.Size = new System.Drawing.Size(120, 22);
             this.isEdit.TabIndex = 6;
-            this.isEdit.Visible = false;
             // 
             // UC_TTNVL
             // 

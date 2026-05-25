@@ -190,6 +190,11 @@ namespace DG_TonKhoBTP_v02.UI
             
         }
 
+        public void OnThanhPhamChanged(ThanhPhamData data)
+        {
+            ClearGridKeepHeader();
+        }
+
         private void SetColumnHeaders(DataGridView dgv, List<ColumnDefinition> columns)
         {
             // Lấy header từ danh sách cột truyền vào
@@ -413,6 +418,7 @@ namespace DG_TonKhoBTP_v02.UI
 
         public void ClearInputs()
         {
+            ResetNvlState();
             DataGridViewUtils.ClearSmart(dtgTTNVL);
         }
         #endregion
@@ -424,7 +430,6 @@ namespace DG_TonKhoBTP_v02.UI
             e.SuppressKeyPress = true;
 
             EnsureColumnOrderAndDeleteLast();
-
 
             var thanhPham = GetThanhPhamData?.Invoke() ?? new ThanhPhamData();
 
@@ -450,84 +455,134 @@ namespace DG_TonKhoBTP_v02.UI
 
             string keyword = cbxTimKiem.Text?.Trim();
 
+            if (string.IsNullOrWhiteSpace(keyword) || string.IsNullOrEmpty(keyword)) return;
+
             DataTable result = new DataTable();
 
-            cbxTimKiem.Text = "";   // luôn clear sau khi scan
+            cbxTimKiem.Text = "";           
 
-            if (CoreHelper.CheckMaBin(keyword))
-            {
-                if (string.IsNullOrEmpty(keyword)) return;
+            if (!TenMayDaNhap()) return;
 
-                if (!TenMayDaNhap()) return;
+            bool cdHanNoi = _CD.Id == 9 && isEdit.Value == 2 ? true : false;
 
-                bool cdHanNoi = _CD.Id == 9 && isEdit.Value == 2 ? true : false;
-
-                var parameters = new Dictionary<string, object>
+            var parameters = new Dictionary<string, object>
                 {
                     { "ten", keyword },
-                    { "ParentProductId", 1 }
+                    { "ParentProductId", thanhPham.DanhSachSPId }
                 };
 
-                string query = RawMaterial
-                    // Nếu là nguyên liệu
-                    ? CoreHelper.TaoSQL_LayDLNVL_TTThanhPham()
-                    : CoreHelper.TaoSQL_LayDLTTThanhPham(cdHanNoi);
+            //bool isMaterial = DatabaseHelper.isMaterial(keyword);
+            bool isMaterial = keyword.Split('.')[0].ToUpper() == "NVL";
 
-                try
-                {
-                    result = await Task.Run(() =>
-                        DatabaseHelper.GetNVL(query, parameters)
-                    );
-                }
-                catch (Exception ex)
-                {
-                    FrmWaiting.ShowGifAlert("Lỗi truy vấn dữ liệu: " + ex.Message);
-                    return;
-                }
+            if (isMaterial != RawMaterial) {
+                FrmWaiting.ShowGifAlert("Mã QR vừa quét không phù hợp với công đoạn."); 
+                return;
+            }
 
-                if (result == null || result.Rows.Count == 0)
-                {
-                    FrmWaiting.ShowGifAlert("Không tìm thấy dữ liệu cho mã QR vừa quét.");
-                    return;
-                }
+            string query;
+
+            if (isMaterial)
+            {
+                query = CoreHelper.TaoSQL_LayDLNVL();
             }
             else
             {
-
-                result.Columns.Add("CongDoan", typeof(int));
-                result.Columns.Add("KlBatDau", typeof(int));
-                result.Columns.Add("CDBatDau", typeof(int));
-                result.Columns.Add("ChuyenDoi", typeof(decimal));
-                result.Columns.Add("id", typeof(long));
-                result.Columns.Add("MaNVL", typeof(string));
-                result.Columns.Add("DonVi", typeof(string));
-                result.Columns.Add("DanhSachMaSP_ID", typeof(long));
-                result.Columns.Add("Qc", typeof(string));
-                result.Columns.Add("BinNVL", typeof(string));
-                result.Columns.Add("Ngay", typeof(object));   // để nhận NULL/DBNull dễ hơn
-                result.Columns.Add("Ca", typeof(string));
-                result.Columns.Add("NguoiLam", typeof(string));
-                result.Columns.Add("GhiChu", typeof(string));
-
-                // Gán giá trị cho 1 dòng
-                DataRow r = result.NewRow();
-                r["CongDoan"] = -1;
-                r["KlBatDau"] = -1;
-                r["CDBatDau"] = -1;
-                r["ChuyenDoi"] = 1;
-                r["id"] = new Random().Next(1, int.MaxValue) * -1;
-                r["MaNVL"] = keyword;
-                r["DonVi"] = "KG";
-                r["DanhSachMaSP_ID"] = 0;
-                r["Qc"] = "NA";
-                r["BinNVL"] = keyword;
-                r["Ngay"] = DBNull.Value;   
-                r["Ca"] = "";               
-                r["NguoiLam"] = "";
-                r["GhiChu"] = "";
-
-                result.Rows.Add(r);
+                query = CoreHelper.TaoSQL_LayDLTTThanhPham(cdHanNoi);
             }
+
+
+            try
+            {
+                result = await Task.Run(() =>
+                    DatabaseHelper.GetNVL(query, parameters)
+                );
+            }
+            catch (Exception ex)
+            {
+                FrmWaiting.ShowGifAlert("Lỗi truy vấn dữ liệu: " + ex.Message);
+                return;
+            }
+
+            if (result == null || result.Rows.Count == 0)
+            {
+                FrmWaiting.ShowGifAlert("Không tìm thấy dữ liệu cho mã QR vừa quét.");
+                return;
+            }
+
+
+
+            //if (DatabaseHelper.isMaterial(keyword))
+            //{
+            //    result.Columns.Add("CongDoan", typeof(int));
+            //    result.Columns.Add("KlBatDau", typeof(int));
+            //    result.Columns.Add("CDBatDau", typeof(int));
+            //    result.Columns.Add("ChuyenDoi", typeof(decimal));
+            //    result.Columns.Add("id", typeof(long));
+            //    result.Columns.Add("MaNVL", typeof(string));
+            //    result.Columns.Add("DonVi", typeof(string));
+            //    result.Columns.Add("DanhSachMaSP_ID", typeof(long));
+            //    result.Columns.Add("Qc", typeof(string));
+            //    result.Columns.Add("BinNVL", typeof(string));
+            //    result.Columns.Add("Ngay", typeof(object));   // để nhận NULL/DBNull dễ hơn
+            //    result.Columns.Add("Ca", typeof(string));
+            //    result.Columns.Add("NguoiLam", typeof(string));
+            //    result.Columns.Add("GhiChu", typeof(string));
+
+            //    // Gán giá trị cho 1 dòng
+            //    DataRow r = result.NewRow();
+            //    r["CongDoan"] = -1;
+            //    r["KlBatDau"] = -1;
+            //    r["CDBatDau"] = -1;
+            //    r["ChuyenDoi"] = 1;
+            //    r["id"] = new Random().Next(1, int.MaxValue) * -1;
+            //    r["MaNVL"] = keyword;
+            //    r["DonVi"] = "KG";
+            //    r["DanhSachMaSP_ID"] = 0;
+            //    r["Qc"] = "NA";
+            //    r["BinNVL"] = keyword;
+            //    r["Ngay"] = DBNull.Value;
+            //    r["Ca"] = "";
+            //    r["NguoiLam"] = "";
+            //    r["GhiChu"] = "";
+
+            //    result.Rows.Add(r);
+            //}
+            //else
+            //{
+            //    if (string.IsNullOrEmpty(keyword)) return;
+
+            //    if (!TenMayDaNhap()) return;
+
+            //    bool cdHanNoi = _CD.Id == 9 && isEdit.Value == 2 ? true : false;
+
+            //    var parameters = new Dictionary<string, object>
+            //    {
+            //        { "ten", keyword },
+            //        { "ParentProductId", thanhPham.DanhSachSPId }
+            //    };
+
+            //    string query = RawMaterial
+            //        ? CoreHelper.TaoSQL_LayDLNVL_TTThanhPham()
+            //        : CoreHelper.TaoSQL_LayDLTTThanhPham(cdHanNoi);
+
+            //    try
+            //    {
+            //        result = await Task.Run(() =>
+            //            DatabaseHelper.GetNVL(query, parameters)
+            //        );
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        FrmWaiting.ShowGifAlert("Lỗi truy vấn dữ liệu: " + ex.Message);
+            //        return;
+            //    }
+
+            //    if (result == null || result.Rows.Count == 0)
+            //    {
+            //        FrmWaiting.ShowGifAlert("Không tìm thấy dữ liệu cho mã QR vừa quét.");
+            //        return;
+            //    }
+            //}
             // ===== ADD DATA =====
             AddRowsToGrid(result, thanhPham);
         }
@@ -592,8 +647,6 @@ namespace DG_TonKhoBTP_v02.UI
                         decimal cdConLai_New = Convert.ToDecimal(newRow["cdBatDau"]);
 
 
-                        //var row = result.Rows[0];
-
                         string dvNVL = newRow["DonVi"].ToString();
 
                         decimal KlBatDau = Convert.ToDecimal(newRow["KlBatDau"]);
@@ -631,7 +684,6 @@ namespace DG_TonKhoBTP_v02.UI
 
                         dtgTTNVL.Rows[addedIndex]
                                   .Cells["CdConLai"].Value = cdConLai_New;
-
 
 
                         // ===== tô tới cột dữ liệu cuối cùng =====
@@ -675,6 +727,8 @@ namespace DG_TonKhoBTP_v02.UI
 
         private void ClearGridKeepHeader()
         {
+            ResetNvlState();
+
             if (dtgTTNVL.DataSource is DataTable dt)
             {
                 dt.Rows.Clear();
@@ -686,9 +740,19 @@ namespace DG_TonKhoBTP_v02.UI
                 dt2.Rows.Clear();
                 return;
             }
-            klDongThua = null;
 
             dtgTTNVL.Rows.Clear();
+        }
+
+        private void ResetNvlState()
+        {
+            klDongThua = null;
+            _warnedThisFocus = false;
+
+            cbxTimKiem.Text = string.Empty;
+
+            tbTem1.Text = string.Empty;
+            nbrTemp2.Value = nbrTemp2.Minimum;
         }
 
         private bool TenMayDaNhap()

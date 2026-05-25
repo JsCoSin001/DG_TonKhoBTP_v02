@@ -112,6 +112,42 @@ namespace DG_TonKhoBTP_v02.Database
             return dt;
         }
 
+        public static bool isMaterial(string vl, string kieu = "NVL")
+        {          
+
+            string ten = vl.Trim();
+            string tenKhongDau = CoreHelper.BoDauTiengViet(ten);
+
+            using (var conn = new SQLiteConnection(_connStr))
+            {
+                conn.Open();
+
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"
+                    SELECT 1
+                    FROM DanhSachMaSP
+                    WHERE Active = 1
+                      AND KieuSP = @KieuSP
+                      AND (
+                            Ten = @Ten COLLATE NOCASE
+                            OR Ten_KhongDau = @TenKhongDau COLLATE NOCASE
+                            OR Ten_KhongDau = @Ten COLLATE NOCASE
+                          )
+                    LIMIT 1;
+                ";
+
+                    cmd.Parameters.AddWithValue("@KieuSP", kieu);
+                    cmd.Parameters.AddWithValue("@Ten", ten);
+                    cmd.Parameters.AddWithValue("@TenKhongDau", tenKhongDau);
+
+                    object result = cmd.ExecuteScalar();
+
+                    return result != null && result != DBNull.Value;
+                }
+            }
+        }
+
         public static async Task<List<NhaCungCapItem>> TimKiemNhaCungCap(string keyword)
         {
             const string sql = @"

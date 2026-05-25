@@ -227,10 +227,6 @@ namespace DG_TonKhoBTP_v02
 
         private void btnBocVo_Click(object sender, EventArgs e)
         {
-
-            //FrmWaiting.ShowGifAlert($"Chức năng này chưa hoàn thiện. \nVui lòng thử lại sau...");
-            //return;
-
             _ui.InitCongDoanUI(
                 clickedButton: (Button)sender,
                 thongTinCD: ThongTinChungCongDoan.BocVo,
@@ -244,7 +240,7 @@ namespace DG_TonKhoBTP_v02
                 afterShowUI: root => _ui.HookNvlThanhPham(root)
             );
 
-            HienThiCauTruc();
+            //HienThiCauTruc();
         }
 
         private void btnCapNhatMaHang_Click(object sender, EventArgs e)
@@ -1422,15 +1418,6 @@ namespace DG_TonKhoBTP_v02
                 f.ShowDialog(this); // this là form cha
             }
         }
-
-        //private void btnVatTuPhu_Click(object sender, EventArgs e)
-        //{
-        //    using (var f = new FrmVatTuKhac())
-        //    {
-        //        f.StartPosition = FormStartPosition.CenterScreen;
-        //        f.ShowDialog(this); // this là form cha
-        //    }
-        //}
 
         private void btnVatTuPhu_Click(object sender, EventArgs e)
         {

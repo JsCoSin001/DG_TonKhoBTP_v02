@@ -28,6 +28,7 @@ namespace DG_TonKhoBTP_v02.UI
         public event Action<string> SoLOTChanged;
         public string SoLOTValue => soLOT.Text;
 
+
         public event Action<ThanhPhamData> ThanhPhamChanged;
 
 
@@ -81,7 +82,6 @@ namespace DG_TonKhoBTP_v02.UI
         public void ChonMay(string value)
         {
             may.Text = value;
-            CapNhatSoLot();
         }
 
         private void CapNhatSoLot()
@@ -309,6 +309,10 @@ namespace DG_TonKhoBTP_v02.UI
         {
             if (row == null) return;
 
+            string oldId = id.Text;
+            string oldMa = ma.Text;
+            string oldTen = ten.Text;
+
             ten.Text = row["ten"]?.ToString() ?? string.Empty;
             ma.Text = row["ma"]?.ToString() ?? string.Empty;
             id.Text = row["id"]?.ToString() ?? string.Empty;
@@ -319,6 +323,11 @@ namespace DG_TonKhoBTP_v02.UI
             timNVL.DroppedDown = false;
             timNVL.SelectedIndex = -1;
             timNVL.Text = string.Empty;
+
+            if (oldId != id.Text || oldMa != ma.Text || oldTen != ten.Text)
+            {
+                RaiseThanhPhamChanged();
+            }
         }
 
         private void timNVL_SelectionChangeCommitted(object sender, EventArgs e)

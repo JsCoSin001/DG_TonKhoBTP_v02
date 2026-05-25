@@ -42,6 +42,7 @@ namespace DG_TonKhoBTP_v02.UI
 
         CongDoan _CD;
 
+
         public bool RawMaterial { get; set; } = false;
         public void SetStatusRawMaterial(bool value) => RawMaterial = value;
 
@@ -511,79 +512,6 @@ namespace DG_TonKhoBTP_v02.UI
 
 
 
-            //if (DatabaseHelper.isMaterial(keyword))
-            //{
-            //    result.Columns.Add("CongDoan", typeof(int));
-            //    result.Columns.Add("KlBatDau", typeof(int));
-            //    result.Columns.Add("CDBatDau", typeof(int));
-            //    result.Columns.Add("ChuyenDoi", typeof(decimal));
-            //    result.Columns.Add("id", typeof(long));
-            //    result.Columns.Add("MaNVL", typeof(string));
-            //    result.Columns.Add("DonVi", typeof(string));
-            //    result.Columns.Add("DanhSachMaSP_ID", typeof(long));
-            //    result.Columns.Add("Qc", typeof(string));
-            //    result.Columns.Add("BinNVL", typeof(string));
-            //    result.Columns.Add("Ngay", typeof(object));   // để nhận NULL/DBNull dễ hơn
-            //    result.Columns.Add("Ca", typeof(string));
-            //    result.Columns.Add("NguoiLam", typeof(string));
-            //    result.Columns.Add("GhiChu", typeof(string));
-
-            //    // Gán giá trị cho 1 dòng
-            //    DataRow r = result.NewRow();
-            //    r["CongDoan"] = -1;
-            //    r["KlBatDau"] = -1;
-            //    r["CDBatDau"] = -1;
-            //    r["ChuyenDoi"] = 1;
-            //    r["id"] = new Random().Next(1, int.MaxValue) * -1;
-            //    r["MaNVL"] = keyword;
-            //    r["DonVi"] = "KG";
-            //    r["DanhSachMaSP_ID"] = 0;
-            //    r["Qc"] = "NA";
-            //    r["BinNVL"] = keyword;
-            //    r["Ngay"] = DBNull.Value;
-            //    r["Ca"] = "";
-            //    r["NguoiLam"] = "";
-            //    r["GhiChu"] = "";
-
-            //    result.Rows.Add(r);
-            //}
-            //else
-            //{
-            //    if (string.IsNullOrEmpty(keyword)) return;
-
-            //    if (!TenMayDaNhap()) return;
-
-            //    bool cdHanNoi = _CD.Id == 9 && isEdit.Value == 2 ? true : false;
-
-            //    var parameters = new Dictionary<string, object>
-            //    {
-            //        { "ten", keyword },
-            //        { "ParentProductId", thanhPham.DanhSachSPId }
-            //    };
-
-            //    string query = RawMaterial
-            //        ? CoreHelper.TaoSQL_LayDLNVL_TTThanhPham()
-            //        : CoreHelper.TaoSQL_LayDLTTThanhPham(cdHanNoi);
-
-            //    try
-            //    {
-            //        result = await Task.Run(() =>
-            //            DatabaseHelper.GetNVL(query, parameters)
-            //        );
-            //    }
-            //    catch (Exception ex)
-            //    {
-            //        FrmWaiting.ShowGifAlert("Lỗi truy vấn dữ liệu: " + ex.Message);
-            //        return;
-            //    }
-
-            //    if (result == null || result.Rows.Count == 0)
-            //    {
-            //        FrmWaiting.ShowGifAlert("Không tìm thấy dữ liệu cho mã QR vừa quét.");
-            //        return;
-            //    }
-            //}
-            // ===== ADD DATA =====
             AddRowsToGrid(result, thanhPham);
         }
 
@@ -752,7 +680,7 @@ namespace DG_TonKhoBTP_v02.UI
             cbxTimKiem.Text = string.Empty;
 
             tbTem1.Text = string.Empty;
-            nbrTemp2.Value = nbrTemp2.Minimum;
+            nbrTemp2.Value = 0;
         }
 
         private bool TenMayDaNhap()

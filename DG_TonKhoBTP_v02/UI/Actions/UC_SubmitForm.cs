@@ -207,8 +207,8 @@ namespace DG_TonKhoBTP_v02.UI
 
                 #region Validate NVL
                 swStep.Restart();
-                List<TTNVL> list_TTNVL = snap.Sections["UC_TTNVL"] as List<TTNVL>;
-                string loiNVL = Validator.TTNVL(list_TTNVL, thongTinCaLamViec.May);
+                List<TTNVLRow> list_TTNVLRows = snap.Sections["UC_TTNVL"] as List<TTNVLRow>;
+                string loiNVL = Validator.TTNVL(list_TTNVLRows, thongTinCaLamViec.May);
                 Debug.WriteLine($"Validator.TTNVL: {swStep.ElapsedMilliseconds} ms (tổng: {swTotal.ElapsedMilliseconds} ms)");
 
                 if (!string.IsNullOrEmpty(loiNVL))
@@ -219,6 +219,12 @@ namespace DG_TonKhoBTP_v02.UI
                     Debug.WriteLine($"Lỗi TTNVL, thoát: {swTotal.ElapsedMilliseconds} ms");
                     return;
                 }
+
+                // Sau khi validate xong mới convert model màn hình sang model lưu DB.
+                // IsCorrect/TyLe/TyLeHoanDoi vẫn nằm trong TTNVLRow để validate, không lưu trực tiếp vào bảng TTNVL.
+                List<TTNVL> list_TTNVL = list_TTNVLRows
+                    .Select(x => x.ToTTNVL())
+                    .ToList();
                 #endregion
 
                 #region Validate TP công đoạn
@@ -336,13 +342,13 @@ namespace DG_TonKhoBTP_v02.UI
                         if (idEdit == 0)
                         {
                             saveSuccessLocal = DatabaseHelper.SaveDataSanPham(
-                                thongTinCaLamViec, thongTinThanhPham, list_TTNVL, chiTietCD, out err);
+                                thongTinCaLamViec, thongTinThanhPham, list_TTNVL, chiTietCD, list_TTNVLRows, out err);
                             Debug.WriteLine($"SaveDataSanPham: {swDb.ElapsedMilliseconds} ms");
                         }
                         else
                         {
                             saveSuccessLocal = DatabaseHelper.UpdateDataSanPham(
-                                idEdit, thongTinCaLamViec, thongTinThanhPham, list_TTNVL, chiTietCD, out err);
+                                idEdit, thongTinCaLamViec, thongTinThanhPham, list_TTNVL, chiTietCD, list_TTNVLRows, out err);
                             Debug.WriteLine($"UpdateDataSanPham: {swDb.ElapsedMilliseconds} ms");
                         }
 

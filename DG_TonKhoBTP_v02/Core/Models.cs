@@ -43,6 +43,72 @@ namespace DG_TonKhoBTP_v02.Core
         public string? QC { get; set; }
     }
 
+    /// <summary>
+    /// Model dùng riêng cho UC_TTNVL.
+    /// DataGridView bind vào model này; khi lưu sẽ convert sang TTNVL.
+    /// </summary>
+    public class TTNVLRow
+    {
+        // Dữ liệu gốc / dữ liệu cần lưu
+        public int? Id { get; set; }
+        public int? TTThanhPhan_ID { get; set; }
+        public int? DanhSachMaSP_ID { get; set; }
+
+        public string BinNVL { get; set; } = string.Empty;
+        public int? CongDoan { get; set; } = -1;
+        public double? KlBatDau { get; set; } = -1;
+        public double? CdBatDau { get; set; } = -1;
+        public double? KlConLai { get; set; } = -1;
+        public double? CdConLai { get; set; } = -1;
+        public double? DuongKinhSoiDong { get; set; } = -1;
+        public int? SoSoi { get; set; } = -1;
+        public double? KetCauLoi { get; set; } = -1;
+        public double? DuongKinhSoiMach { get; set; } = -1;
+        public string? QC { get; set; } = string.Empty;
+
+        // Dữ liệu hiển thị / validate / BOM
+        public string MaNVL { get; set; } = string.Empty;
+        public string? DonVi { get; set; } = string.Empty;
+        public string Ngay { get; set; } = string.Empty;
+        public string Ca { get; set; } = string.Empty;
+        public string NguoiLam { get; set; } = string.Empty;
+        public string TenNVL { get; set; } = string.Empty;
+        public string? GhiChu { get; set; } = string.Empty;
+        public double? TyLe { get; set; } = 1;
+        public double? TyLeHoanDoi { get; set; } = 1;
+
+        // Mặc định true để dữ liệu cũ/LoadData không có cột IsCorrect không bị chặn nhầm.
+        // Khi quét mới, SQL trả về IsCorrect = 0/1 sẽ ghi đè giá trị này.
+        public bool IsCorrect { get; set; } = true;
+
+        public TTNVL ToTTNVL()
+        {
+            return new TTNVL
+            {
+                Id = Id,
+                TTThanhPhan_ID = TTThanhPhan_ID,
+                DanhSachMaSP_ID = DanhSachMaSP_ID,
+                BinNVL = BinNVL ?? string.Empty,
+                CongDoan = CongDoan,
+                KlBatDau = KlBatDau,
+                Ngay = Ngay ?? string.Empty,
+                Ca = Ca ?? string.Empty,
+                NguoiLam = NguoiLam ?? string.Empty,
+                TenNVL = TenNVL ?? string.Empty,
+                GhiChu = GhiChu ?? string.Empty,
+                CdBatDau = CdBatDau,
+                KlConLai = KlConLai,
+                CdConLai = CdConLai,
+                DuongKinhSoiDong = DuongKinhSoiDong,
+                SoSoi = SoSoi,
+                KetCauLoi = KetCauLoi,
+                DuongKinhSoiMach = DuongKinhSoiMach,
+                DonVi = DonVi ?? string.Empty,
+                QC = QC ?? string.Empty
+            };
+        }
+    }
+
     public class Submit {
         public bool IsInTemTP { get; set; }
         public bool IsInTemNVL { get; set; }

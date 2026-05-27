@@ -143,7 +143,6 @@
     <Compile Include="Database\KeToan\TTLo_DB.cs" />
     <Compile Include="Database\Kho\BaoCaoTonKhoLo_DB.cs" />
     <Compile Include="Database\Kho\NhapKho_DB.cs" />
-    <Compile Include="Database\DatabaseHelper - Copy.cs" />
     <Compile Include="Database\DatabaseHelper.cs" />
     <Compile Include="Database\DB_Base.cs" />
     <Compile Include="Database\DB_KiemKe.cs" />

@@ -20,7 +20,7 @@ namespace DG_TonKhoBTP_v02.Helper
             return 0;
         }
 
-        public static string TTNVL(List<TTNVL> data, string tenMay)
+        public static string TTNVL(List<TTNVLRow> data, string tenMay)
         {
             string errorMessage = "";
 
@@ -28,11 +28,14 @@ namespace DG_TonKhoBTP_v02.Helper
 
             if (data == null || data.Count == 0) return EnumStore.ErrorNVL[1];
 
-            foreach (TTNVL t in data)
+            foreach (TTNVLRow t in data)
             {
                 #region B1) Kiểm tra việc nhập hay không nhập dữ liệu
                 string lot = t.BinNVL;
 
+
+                // IsCorrect == false không chặn lưu tại Validator.TTNVL.
+                // Dòng khác BOM đã được cảnh báo ở lúc quét và sẽ được đồng bộ vào bảng KhacBietBOM khi lưu/update.
 
                 // B1.1) Nếu là nguyên vật liệu thì bỏ qua để kiểm tra dòng khác
                 if (t.CdBatDau < 0 && t.KlBatDau < 0) continue;

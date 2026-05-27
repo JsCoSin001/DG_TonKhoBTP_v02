@@ -230,7 +230,7 @@ namespace DG_TonKhoBTP_v02.Helper
                     CASE
                         WHEN bom.id IS NULL THEN 0
                         ELSE 1
-                    END AS isCorrect
+                    END AS IsCorrect
 
                 FROM TTThanhPham AS t
 
@@ -302,7 +302,7 @@ namespace DG_TonKhoBTP_v02.Helper
                     CASE
                         WHEN bom.id IS NULL THEN 0
                         ELSE 1
-                    END AS isCorrect
+                    END AS IsCorrect
 
                 FROM DanhSachMaSP AS d
 
@@ -393,7 +393,13 @@ namespace DG_TonKhoBTP_v02.Helper
               tclv.NguoiLam, tclv.ToTruong, tclv.QuanDoc,
               ttp.KhoiLuongTruoc AS KhoiLuongTruoc, ttp.KhoiLuongSau as KhoiLuongSau,
               ttp.ChieuDaiTruoc as ChieuDaiTruoc, ttp.ChieuDaiSau as ChieuDaiSau,
-              ttp.Phe as Phe, ttp.HanNoi as HanNoi, ttp.GhiChu as GhiChu ";
+              ttp.Phe as Phe, ttp.HanNoi as HanNoi, ttp.GhiChu as GhiChu,
+              COALESCE(bom_edit.TyLe, 1) AS TyLe,
+              COALESCE(bom_edit.TyLeHoanDoi, 1) AS TyLeHoanDoi,
+              CASE
+                  WHEN bom_edit.id IS NULL THEN 0
+                  ELSE 1
+              END AS IsCorrect ";
         }
 
         public static string TaoSQL_LayDLTruyVet(bool col, string key, out string selectedCol)

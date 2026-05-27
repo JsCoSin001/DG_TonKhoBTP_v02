@@ -152,6 +152,7 @@
             this.label4.TabIndex = 0;
             this.label4.Text = "KL còn lại";
             this.label4.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.label4.Visible = false;
             // 
             // nbrTemp2
             // 
@@ -172,6 +173,7 @@
             this.nbrTemp2.Name = "nbrTemp2";
             this.nbrTemp2.Size = new System.Drawing.Size(142, 26);
             this.nbrTemp2.TabIndex = 1;
+            this.nbrTemp2.Visible = false;
             // 
             // label3
             // 
@@ -183,6 +185,7 @@
             this.label3.TabIndex = 3;
             this.label3.Text = "Kết quả";
             this.label3.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.label3.Visible = false;
             // 
             // cbxTimKiem
             // 
@@ -216,6 +219,7 @@
             this.tbTem1.Name = "tbTem1";
             this.tbTem1.Size = new System.Drawing.Size(441, 26);
             this.tbTem1.TabIndex = 4;
+            this.tbTem1.Visible = false;
             // 
             // isEdit
             // 

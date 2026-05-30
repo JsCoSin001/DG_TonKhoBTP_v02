@@ -240,7 +240,7 @@ namespace DG_TonKhoBTP_v02
                 afterShowUI: root => _ui.HookNvlThanhPham(root)
             );
 
-            //HienThiCauTruc();
+            HienThiCauTruc();
         }
 
         private void btnCapNhatMaHang_Click(object sender, EventArgs e)
@@ -753,25 +753,57 @@ namespace DG_TonKhoBTP_v02
             return pnTop;
         }
 
+        //private Panel UI_BottomPanel(List<ColumnDefinition> columns, Control productInfoControl, CongDoan cd, bool rawMaterial = false)
+        //{
+        //    Panel pnBottom = new Panel();
+        //    pnBottom.Dock = DockStyle.Fill;
+        //    pnBottom.AutoSize = false;
+
+        //    // pn Bottom - Left
+        //    #region Tạo UI panel ở dưới - bên trái  - Đặt size = 800
+        //    Panel pnLeft = UI_BottomLeftPanel(columns, rawMaterial,cd);
+        //    #endregion
+
+        //    // pn Bottom - Right
+        //    #region Tạo UI panel ở dưới - bên phải - Đặt full kích thước
+        //    Panel pnRight = UI_BottomRightPanel(productInfoControl,cd);
+        //    #endregion
+
+        //    pnBottom.Controls.Add(pnRight);
+        //    pnBottom.Controls.Add(pnLeft);
+
+
+        //    return pnBottom;
+        //}
+
         private Panel UI_BottomPanel(List<ColumnDefinition> columns, Control productInfoControl, CongDoan cd, bool rawMaterial = false)
         {
             Panel pnBottom = new Panel();
             pnBottom.Dock = DockStyle.Fill;
             pnBottom.AutoSize = false;
 
-            // pn Bottom - Left
-            #region Tạo UI panel ở dưới - bên trái  - Đặt size = 800
-            Panel pnLeft = UI_BottomLeftPanel(columns, rawMaterial,cd);
-            #endregion
+            TableLayoutPanel layout = new TableLayoutPanel();
+            layout.Dock = DockStyle.Fill;
+            layout.ColumnCount = 2;
+            layout.RowCount = 1;
 
-            // pn Bottom - Right
-            #region Tạo UI panel ở dưới - bên phải - Đặt full kích thước
-            Panel pnRight = UI_BottomRightPanel(productInfoControl,cd);
-            #endregion
+            layout.ColumnStyles.Clear();
+            layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
 
-            pnBottom.Controls.Add(pnRight);
-            pnBottom.Controls.Add(pnLeft);
+            layout.RowStyles.Clear();
+            layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
 
+            Panel pnLeft = UI_BottomLeftPanel(columns, rawMaterial, cd);
+            Panel pnRight = UI_BottomRightPanel(productInfoControl, cd);
+
+            pnLeft.Dock = DockStyle.Fill;
+            pnRight.Dock = DockStyle.Fill;
+
+            layout.Controls.Add(pnLeft, 0, 0);
+            layout.Controls.Add(pnRight, 1, 0);
+
+            pnBottom.Controls.Add(layout);
 
             return pnBottom;
         }
@@ -857,17 +889,32 @@ namespace DG_TonKhoBTP_v02
             }
         }
 
+        //private Panel UI_BottomLeftPanel(List<ColumnDefinition> columns, bool rawMaterial, CongDoan cd)
+        //{
+        //    Panel pnLeft = new Panel();
+        //    pnLeft.Dock = DockStyle.Left;
+        //    pnLeft.AutoSize = false;
+        //    pnLeft.Width = 800;
+
+        //    UC_TTNVL uC_TTNVL = new UC_TTNVL(columns,cd);
+        //    uC_TTNVL.Dock = DockStyle.Fill;
+        //    uC_TTNVL.SetStatusRawMaterial(rawMaterial);
+        //    pnLeft.Controls.Add(uC_TTNVL);
+        //    return pnLeft;
+        //}
+
         private Panel UI_BottomLeftPanel(List<ColumnDefinition> columns, bool rawMaterial, CongDoan cd)
         {
             Panel pnLeft = new Panel();
-            pnLeft.Dock = DockStyle.Left;
+            pnLeft.Dock = DockStyle.Fill;
             pnLeft.AutoSize = false;
-            pnLeft.Width = 800;
 
-            UC_TTNVL uC_TTNVL = new UC_TTNVL(columns,cd);
+            UC_TTNVL uC_TTNVL = new UC_TTNVL(columns, cd);
             uC_TTNVL.Dock = DockStyle.Fill;
             uC_TTNVL.SetStatusRawMaterial(rawMaterial);
+
             pnLeft.Controls.Add(uC_TTNVL);
+
             return pnLeft;
         }
 

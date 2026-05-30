@@ -128,7 +128,7 @@
             // 
             this.binhSay.DecimalPlaces = 3;
             this.binhSay.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.binhSay.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.binhSay.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.binhSay.Increment = new decimal(new int[] {
             1,
             0,
@@ -141,14 +141,14 @@
             5421010,
             0});
             this.binhSay.Name = "binhSay";
-            this.binhSay.Size = new System.Drawing.Size(168, 26);
+            this.binhSay.Size = new System.Drawing.Size(168, 27);
             this.binhSay.TabIndex = 15;
             // 
             // khuon
             // 
             this.khuon.DecimalPlaces = 3;
             this.khuon.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.khuon.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.khuon.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.khuon.Increment = new decimal(new int[] {
             1,
             0,
@@ -161,14 +161,14 @@
             5421010,
             0});
             this.khuon.Name = "khuon";
-            this.khuon.Size = new System.Drawing.Size(165, 26);
+            this.khuon.Size = new System.Drawing.Size(165, 27);
             this.khuon.TabIndex = 14;
             // 
             // dau2
             // 
             this.dau2.DecimalPlaces = 3;
             this.dau2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dau2.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.dau2.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.dau2.Increment = new decimal(new int[] {
             1,
             0,
@@ -181,14 +181,14 @@
             5421010,
             0});
             this.dau2.Name = "dau2";
-            this.dau2.Size = new System.Drawing.Size(165, 26);
+            this.dau2.Size = new System.Drawing.Size(165, 27);
             this.dau2.TabIndex = 13;
             // 
             // dau1
             // 
             this.dau1.DecimalPlaces = 3;
             this.dau1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dau1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.dau1.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.dau1.Increment = new decimal(new int[] {
             1,
             0,
@@ -201,14 +201,14 @@
             5421010,
             0});
             this.dau1.Name = "dau1";
-            this.dau1.Size = new System.Drawing.Size(165, 26);
+            this.dau1.Size = new System.Drawing.Size(165, 27);
             this.dau1.TabIndex = 12;
             // 
             // co
             // 
             this.co.DecimalPlaces = 3;
             this.co.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.co.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.co.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.co.Increment = new decimal(new int[] {
             1,
             0,
@@ -221,170 +221,170 @@
             5421010,
             0});
             this.co.Name = "co";
-            this.co.Size = new System.Drawing.Size(165, 26);
+            this.co.Size = new System.Drawing.Size(165, 27);
             this.co.TabIndex = 11;
             // 
             // v6
             // 
             this.v6.DecimalPlaces = 3;
             this.v6.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.v6.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.v6.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.v6.Increment = new decimal(new int[] {
             1,
             0,
             0,
             65536});
-            this.v6.Location = new System.Drawing.Point(687, 87);
+            this.v6.Location = new System.Drawing.Point(687, 86);
             this.v6.Maximum = new decimal(new int[] {
             -469762049,
             -590869294,
             5421010,
             0});
             this.v6.Name = "v6";
-            this.v6.Size = new System.Drawing.Size(168, 26);
+            this.v6.Size = new System.Drawing.Size(168, 27);
             this.v6.TabIndex = 10;
             // 
             // v5
             // 
             this.v5.DecimalPlaces = 3;
             this.v5.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.v5.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.v5.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.v5.Increment = new decimal(new int[] {
             1,
             0,
             0,
             65536});
-            this.v5.Location = new System.Drawing.Point(516, 87);
+            this.v5.Location = new System.Drawing.Point(516, 86);
             this.v5.Maximum = new decimal(new int[] {
             -469762049,
             -590869294,
             5421010,
             0});
             this.v5.Name = "v5";
-            this.v5.Size = new System.Drawing.Size(165, 26);
+            this.v5.Size = new System.Drawing.Size(165, 27);
             this.v5.TabIndex = 9;
             // 
             // v4
             // 
             this.v4.DecimalPlaces = 3;
             this.v4.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.v4.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.v4.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.v4.Increment = new decimal(new int[] {
             1,
             0,
             0,
             65536});
-            this.v4.Location = new System.Drawing.Point(345, 87);
+            this.v4.Location = new System.Drawing.Point(345, 86);
             this.v4.Maximum = new decimal(new int[] {
             -469762049,
             -590869294,
             5421010,
             0});
             this.v4.Name = "v4";
-            this.v4.Size = new System.Drawing.Size(165, 26);
+            this.v4.Size = new System.Drawing.Size(165, 27);
             this.v4.TabIndex = 8;
             // 
             // v3
             // 
             this.v3.DecimalPlaces = 3;
             this.v3.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.v3.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.v3.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.v3.Increment = new decimal(new int[] {
             1,
             0,
             0,
             65536});
-            this.v3.Location = new System.Drawing.Point(174, 87);
+            this.v3.Location = new System.Drawing.Point(174, 86);
             this.v3.Maximum = new decimal(new int[] {
             -469762049,
             -590869294,
             5421010,
             0});
             this.v3.Name = "v3";
-            this.v3.Size = new System.Drawing.Size(165, 26);
+            this.v3.Size = new System.Drawing.Size(165, 27);
             this.v3.TabIndex = 7;
             // 
             // v2
             // 
             this.v2.DecimalPlaces = 3;
             this.v2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.v2.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.v2.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.v2.Increment = new decimal(new int[] {
             1,
             0,
             0,
             65536});
-            this.v2.Location = new System.Drawing.Point(3, 87);
+            this.v2.Location = new System.Drawing.Point(3, 86);
             this.v2.Maximum = new decimal(new int[] {
             -469762049,
             -590869294,
             5421010,
             0});
             this.v2.Name = "v2";
-            this.v2.Size = new System.Drawing.Size(165, 26);
+            this.v2.Size = new System.Drawing.Size(165, 27);
             this.v2.TabIndex = 6;
             // 
             // boDemMet
             // 
             this.boDemMet.Dock = System.Windows.Forms.DockStyle.Fill;
             this.boDemMet.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.boDemMet.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.boDemMet.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.boDemMet.FormattingEnabled = true;
             this.boDemMet.Items.AddRange(new object[] {
             "Bình thường",
             "Lỗi"});
             this.boDemMet.Location = new System.Drawing.Point(345, 28);
             this.boDemMet.Name = "boDemMet";
-            this.boDemMet.Size = new System.Drawing.Size(165, 28);
+            this.boDemMet.Size = new System.Drawing.Size(165, 27);
             this.boDemMet.TabIndex = 3;
             // 
             // puliDanDay
             // 
             this.puliDanDay.Dock = System.Windows.Forms.DockStyle.Fill;
             this.puliDanDay.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.puliDanDay.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.puliDanDay.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.puliDanDay.FormattingEnabled = true;
             this.puliDanDay.Items.AddRange(new object[] {
             "Bình thường",
             "Lỗi"});
             this.puliDanDay.Location = new System.Drawing.Point(174, 28);
             this.puliDanDay.Name = "puliDanDay";
-            this.puliDanDay.Size = new System.Drawing.Size(165, 28);
+            this.puliDanDay.Size = new System.Drawing.Size(165, 27);
             this.puliDanDay.TabIndex = 2;
             // 
             // mangNuoc
             // 
             this.mangNuoc.Dock = System.Windows.Forms.DockStyle.Fill;
             this.mangNuoc.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.mangNuoc.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.mangNuoc.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.mangNuoc.FormattingEnabled = true;
             this.mangNuoc.Items.AddRange(new object[] {
             "Bình thường",
             "Lỗi"});
             this.mangNuoc.Location = new System.Drawing.Point(3, 28);
             this.mangNuoc.Name = "mangNuoc";
-            this.mangNuoc.Size = new System.Drawing.Size(165, 28);
+            this.mangNuoc.Size = new System.Drawing.Size(165, 27);
             this.mangNuoc.TabIndex = 1;
             // 
             // mayIn
             // 
             this.mayIn.Dock = System.Windows.Forms.DockStyle.Fill;
             this.mayIn.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.mayIn.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.mayIn.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.mayIn.FormattingEnabled = true;
             this.mayIn.Items.AddRange(new object[] {
             "Bình thường",
             "Lỗi"});
             this.mayIn.Location = new System.Drawing.Point(516, 28);
             this.mayIn.Name = "mayIn";
-            this.mayIn.Size = new System.Drawing.Size(165, 28);
+            this.mayIn.Size = new System.Drawing.Size(165, 27);
             this.mayIn.TabIndex = 4;
             // 
             // label11
             // 
             this.label11.AutoSize = true;
             this.label11.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label11.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label11.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label11.Location = new System.Drawing.Point(3, 116);
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(165, 25);
@@ -396,7 +396,7 @@
             // 
             this.label12.AutoSize = true;
             this.label12.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label12.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label12.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label12.Location = new System.Drawing.Point(174, 116);
             this.label12.Name = "label12";
             this.label12.Size = new System.Drawing.Size(165, 25);
@@ -408,7 +408,7 @@
             // 
             this.label13.AutoSize = true;
             this.label13.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label13.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label13.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label13.Location = new System.Drawing.Point(345, 116);
             this.label13.Name = "label13";
             this.label13.Size = new System.Drawing.Size(165, 25);
@@ -420,7 +420,7 @@
             // 
             this.label14.AutoSize = true;
             this.label14.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label14.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label14.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label14.Location = new System.Drawing.Point(516, 116);
             this.label14.Name = "label14";
             this.label14.Size = new System.Drawing.Size(165, 25);
@@ -432,7 +432,7 @@
             // 
             this.label15.AutoSize = true;
             this.label15.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label15.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label15.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label15.Location = new System.Drawing.Point(687, 116);
             this.label15.Name = "label15";
             this.label15.Size = new System.Drawing.Size(168, 25);
@@ -444,8 +444,8 @@
             // 
             this.label6.AutoSize = true;
             this.label6.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label6.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label6.Location = new System.Drawing.Point(3, 59);
+            this.label6.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label6.Location = new System.Drawing.Point(3, 58);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(165, 25);
             this.label6.TabIndex = 14;
@@ -456,8 +456,8 @@
             // 
             this.label7.AutoSize = true;
             this.label7.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label7.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label7.Location = new System.Drawing.Point(174, 59);
+            this.label7.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label7.Location = new System.Drawing.Point(174, 58);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(165, 25);
             this.label7.TabIndex = 13;
@@ -468,8 +468,8 @@
             // 
             this.label8.AutoSize = true;
             this.label8.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label8.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label8.Location = new System.Drawing.Point(345, 59);
+            this.label8.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label8.Location = new System.Drawing.Point(345, 58);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(165, 25);
             this.label8.TabIndex = 12;
@@ -480,8 +480,8 @@
             // 
             this.label9.AutoSize = true;
             this.label9.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label9.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label9.Location = new System.Drawing.Point(516, 59);
+            this.label9.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label9.Location = new System.Drawing.Point(516, 58);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(165, 25);
             this.label9.TabIndex = 11;
@@ -492,8 +492,8 @@
             // 
             this.label10.AutoSize = true;
             this.label10.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label10.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label10.Location = new System.Drawing.Point(687, 59);
+            this.label10.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label10.Location = new System.Drawing.Point(687, 58);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(168, 25);
             this.label10.TabIndex = 10;
@@ -504,7 +504,7 @@
             // 
             this.label5.AutoSize = true;
             this.label5.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label5.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label5.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label5.Location = new System.Drawing.Point(687, 0);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(168, 25);
@@ -516,7 +516,7 @@
             // 
             this.label4.AutoSize = true;
             this.label4.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label4.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label4.Location = new System.Drawing.Point(516, 0);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(165, 25);
@@ -528,7 +528,7 @@
             // 
             this.label3.AutoSize = true;
             this.label3.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label3.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label3.Location = new System.Drawing.Point(345, 0);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(165, 25);
@@ -540,7 +540,7 @@
             // 
             this.label2.AutoSize = true;
             this.label2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label2.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label2.Location = new System.Drawing.Point(174, 0);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(165, 25);
@@ -552,7 +552,7 @@
             // 
             this.label1.AutoSize = true;
             this.label1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label1.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label1.Location = new System.Drawing.Point(3, 0);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(165, 25);
@@ -564,7 +564,7 @@
             // 
             this.v1.DecimalPlaces = 3;
             this.v1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.v1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.v1.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.v1.Increment = new decimal(new int[] {
             1,
             0,
@@ -577,7 +577,7 @@
             5421010,
             0});
             this.v1.Name = "v1";
-            this.v1.Size = new System.Drawing.Size(168, 26);
+            this.v1.Size = new System.Drawing.Size(168, 27);
             this.v1.TabIndex = 5;
             // 
             // UC_CaiDatMay

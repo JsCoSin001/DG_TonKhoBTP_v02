@@ -41,14 +41,14 @@
             // 
             this.tableLayoutPanel1.AutoSize = true;
             this.tableLayoutPanel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.tableLayoutPanel1.ColumnCount = 7;
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 14.28F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 14.28F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 14.28F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 14.28F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 14.28F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 14.28F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 14.32F));
+            this.tableLayoutPanel1.ColumnCount = 5;
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.tableLayoutPanel1.Controls.Add(this.label2, 1, 0);
             this.tableLayoutPanel1.Controls.Add(this.label1, 0, 0);
             this.tableLayoutPanel1.Controls.Add(this.inAn, 0, 1);
@@ -60,16 +60,17 @@
             this.tableLayoutPanel1.RowCount = 2;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 35F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(777, 65);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(545, 65);
             this.tableLayoutPanel1.TabIndex = 0;
             // 
             // label2
             // 
             this.label2.AutoSize = true;
             this.label2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label2.Location = new System.Drawing.Point(113, 0);
+            this.label2.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label2.Location = new System.Drawing.Point(112, 0);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(104, 30);
+            this.label2.Size = new System.Drawing.Size(103, 30);
             this.label2.TabIndex = 1;
             this.label2.Text = "Dày vỏ TB";
             this.label2.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
@@ -78,9 +79,10 @@
             // 
             this.label1.AutoSize = true;
             this.label1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.label1.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label1.Location = new System.Drawing.Point(3, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(104, 30);
+            this.label1.Size = new System.Drawing.Size(103, 30);
             this.label1.TabIndex = 0;
             this.label1.Text = "In ấn";
             this.label1.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
@@ -88,32 +90,34 @@
             // inAn
             // 
             this.inAn.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.inAn.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.inAn.FormattingEnabled = true;
             this.inAn.Items.AddRange(new object[] {
             "Tốt",
             "Xấu"});
             this.inAn.Location = new System.Drawing.Point(3, 33);
             this.inAn.Name = "inAn";
-            this.inAn.Size = new System.Drawing.Size(104, 26);
+            this.inAn.Size = new System.Drawing.Size(103, 26);
             this.inAn.TabIndex = 17;
             // 
             // dayVoTB
             // 
             this.dayVoTB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.dayVoTB.DecimalPlaces = 3;
+            this.dayVoTB.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.dayVoTB.Increment = new decimal(new int[] {
             1,
             0,
             0,
             65536});
-            this.dayVoTB.Location = new System.Drawing.Point(113, 35);
+            this.dayVoTB.Location = new System.Drawing.Point(112, 34);
             this.dayVoTB.Maximum = new decimal(new int[] {
             1569325055,
             23283064,
             0,
             0});
             this.dayVoTB.Name = "dayVoTB";
-            this.dayVoTB.Size = new System.Drawing.Size(104, 24);
+            this.dayVoTB.Size = new System.Drawing.Size(103, 26);
             this.dayVoTB.TabIndex = 16;
             // 
             // UC_CDBocVo
@@ -124,7 +128,7 @@
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.Controls.Add(this.tableLayoutPanel1);
             this.Name = "UC_CDBocVo";
-            this.Size = new System.Drawing.Size(777, 65);
+            this.Size = new System.Drawing.Size(545, 65);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dayVoTB)).EndInit();

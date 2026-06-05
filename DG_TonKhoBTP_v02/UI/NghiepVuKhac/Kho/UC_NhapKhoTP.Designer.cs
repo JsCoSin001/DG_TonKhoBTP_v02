@@ -1,6 +1,6 @@
 ﻿namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.ChatLuong
 {
-    partial class UC_NhapKho
+    partial class UC_NhapKhoTP
     {
         /// <summary> 
         /// Required designer variable.
@@ -144,7 +144,7 @@
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(1473, 43);
             this.label1.TabIndex = 0;
-            this.label1.Text = "DANH SÁCH THÀNH PHẨM NHẬP KHO";
+            this.label1.Text = "DANH SÁCH NHẬP KHO THÀNH PHẨM";
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // panel2
@@ -988,7 +988,7 @@
             this.tbxThongTinDay.TabIndex = 15;
             this.tbxThongTinDay.Text = "";
             // 
-            // UC_NhapKho
+            // UC_NhapKhoThanhPham
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 18F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -999,7 +999,7 @@
             this.Controls.Add(this.panel1);
             this.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Margin = new System.Windows.Forms.Padding(4);
-            this.Name = "UC_NhapKho";
+            this.Name = "UC_NhapKhoThanhPham";
             this.Padding = new System.Windows.Forms.Padding(10);
             this.Size = new System.Drawing.Size(1493, 669);
             this.Load += new System.EventHandler(this.UC_QcDuyetNhapKho_Load);

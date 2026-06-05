@@ -571,18 +571,8 @@ namespace DG_TonKhoBTP_v02.UI
                 { "ParentProductId", thanhPham.DanhSachSPId }
             };
 
-            bool isMaterial = keyword.Split('.')[0].ToUpper() == "NVL";
-
-            if (isMaterial != RawMaterial)
-            {
-                FrmWaiting.ShowGifAlert("Mã QR vừa quét không phù hợp với công đoạn.");
-                return;
-            }
-
-            string query = isMaterial
-                ? CoreHelper.TaoSQL_LayDLNVL()
-                : CoreHelper.TaoSQL_LayDLTTThanhPham(cdHanNoi);
-
+            string query =  CoreHelper.TaoSQL_LayDLTTThanhPham(cdHanNoi);
+             
             try
             {
                 result = await Task.Run(() => DatabaseHelper.GetNVL(query, parameters));

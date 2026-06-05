@@ -211,7 +211,8 @@ namespace DG_TonKhoBTP_v02.UI
                 SELECT id, ten, ma, donvi, chuyenDoi
                 FROM DanhSachMaSP
                 WHERE ten LIKE '%' || @{para} || '%'
-                  AND Ma NOT LIKE 'NVL.%'
+                  AND Ma NOT LIKE 'NVL.%' 
+                  AND Active = 1 
                   AND ({likeConditions});
             ";
 
@@ -309,6 +310,12 @@ namespace DG_TonKhoBTP_v02.UI
         {
             if (row == null) return;
 
+            if (!XacNhanTiepTucNeuKhacCongDoanBOM(row))
+            {
+                ClearThanhPhamSelectionForRetry();
+                return;
+            }
+
             string oldId = id.Text;
             string oldMa = ma.Text;
             string oldTen = ten.Text;
@@ -328,6 +335,80 @@ namespace DG_TonKhoBTP_v02.UI
             {
                 RaiseThanhPhamChanged();
             }
+        }
+
+        private bool XacNhanTiepTucNeuKhacCongDoanBOM(DataRowView row)
+        {
+            if (row == null) return true;
+
+            if (!int.TryParse(row["id"]?.ToString(), out int selectedProductId) || selectedProductId <= 0)
+                return true;
+
+            int currentCongDoanId = congDoan?.Id ?? 0;
+            if (currentCongDoanId <= 0)
+                return true;
+
+            int? congDoanThucTe;
+            try
+            {
+                congDoanThucTe = DatabaseHelper.KiemTraKhacBietCongDoanBOM(selectedProductId, currentCongDoanId);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    $"Không kiểm tra được BOM công đoạn.\n{ex.Message}",
+                    "Lỗi kiểm tra BOM",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+                return false;
+            }
+
+            if (!congDoanThucTe.HasValue)
+                return true;
+
+            // Theo rule đã chốt: không có BOM thì vẫn cho đi tiếp, không thông báo;
+            // khi lưu sẽ ghi KhacBietBOM.CongDoanThucTe = -1.
+            if (congDoanThucTe.Value == -1)
+                return true;
+
+            string tenSanPham = row["ten"]?.ToString() ?? string.Empty;
+            string tenCongDoanHienTai = congDoan?.TenCongDoan ?? currentCongDoanId.ToString();
+
+            string message =
+                $"Sản phẩm '{tenSanPham}' không phù hợp với công đoạn hiện tại '{tenCongDoanHienTai}'. Bạn có muốn tiếp tục chọn sản phẩm này không?";
+
+            DialogResult result = MessageBox.Show(
+                message,
+                "Xác nhận khác biệt BOM",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Warning);
+
+            return result == DialogResult.Yes;
+        }
+
+        private void ClearThanhPhamSelectionForRetry()
+        {
+            _searchCts?.Cancel();
+
+            _suppressTextChange = true;
+            try
+            {
+                _userNavigatingSuggestions = false;
+                timNVL.DroppedDown = false;
+                timNVL.SelectedIndex = -1;
+                timNVL.DataSource = null;
+                timNVL.Items.Clear();
+                timNVL.Text = string.Empty;
+
+                ResetController_TimTenSP();
+            }
+            finally
+            {
+                _suppressTextChange = false;
+            }
+
+            RaiseThanhPhamChanged();
+            timNVL.Focus();
         }
 
         private void timNVL_SelectionChangeCommitted(object sender, EventArgs e)

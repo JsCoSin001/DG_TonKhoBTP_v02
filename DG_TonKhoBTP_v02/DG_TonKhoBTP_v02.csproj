@@ -142,6 +142,7 @@
     <Compile Include="Database\KeToan\BoSungThongTinSP_DB.cs" />
     <Compile Include="Database\KeToan\TTLo_DB.cs" />
     <Compile Include="Database\Kho\BaoCaoTonKhoLo_DB.cs" />
+    <Compile Include="Database\Kho\NhapKhoNVL_DB.cs" />
     <Compile Include="Database\Kho\NhapKho_DB.cs" />
     <Compile Include="Database\DatabaseHelper.cs" />
     <Compile Include="Database\DB_Base.cs" />
@@ -244,11 +245,17 @@
     <Compile Include="UI\NghiepVuKhac\Kho\Frm_DLCuon.Designer.cs">
       <DependentUpon>Frm_DLCuon.cs</DependentUpon>
     </Compile>
-    <Compile Include="UI\NghiepVuKhac\Kho\UC_NhapKho.cs">
+    <Compile Include="UI\NghiepVuKhac\Kho\UC_NhapKhoNVL.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="UI\NghiepVuKhac\Kho\UC_NhapKho.Designer.cs">
-      <DependentUpon>UC_NhapKho.cs</DependentUpon>
+    <Compile Include="UI\NghiepVuKhac\Kho\UC_NhapKhoNVL.Designer.cs">
+      <DependentUpon>UC_NhapKhoNVL.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\NghiepVuKhac\Kho\UC_NhapKhoTP.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\NghiepVuKhac\Kho\UC_NhapKhoTP.Designer.cs">
+      <DependentUpon>UC_NhapKhoTP.cs</DependentUpon>
     </Compile>
     <Compile Include="UI\NghiepVuKhac\KeToan\UC_KiemKe.cs">
       <SubType>UserControl</SubType>
@@ -512,8 +519,11 @@
     <EmbeddedResource Include="UI\NghiepVuKhac\Kho\Frm_DLCuon.resx">
       <DependentUpon>Frm_DLCuon.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="UI\NghiepVuKhac\Kho\UC_NhapKho.resx">
-      <DependentUpon>UC_NhapKho.cs</DependentUpon>
+    <EmbeddedResource Include="UI\NghiepVuKhac\Kho\UC_NhapKhoNVL.resx">
+      <DependentUpon>UC_NhapKhoNVL.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\NghiepVuKhac\Kho\UC_NhapKhoTP.resx">
+      <DependentUpon>UC_NhapKhoTP.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UI\NghiepVuKhac\KeToan\UC_KiemKe.resx">
       <DependentUpon>UC_KiemKe.cs</DependentUpon>

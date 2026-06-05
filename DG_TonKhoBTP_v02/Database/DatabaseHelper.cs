@@ -4498,7 +4498,7 @@ namespace DG_TonKhoBTP_v02.Database
                         throw new ArgumentException("Lỗi bất thường.");
                 }
 
-                LuuKhacBietBOM(conn, tx, tpId, nvlRowsForBomDiff);
+                LuuKhacBietBOM(conn, tx, tpId, nvlRowsForBomDiff, tp);
 
                 tx.Commit();
                 return true;
@@ -4943,6 +4943,7 @@ namespace DG_TonKhoBTP_v02.Database
                 DonVi = @DonVi,
                 KieuSP = @KieuSP,
                 ChuyenDoi = @ChuyenDoi,
+                Active = @Active,
                 DateInsert = @DateInsert
             WHERE id = @Id;";
 
@@ -4957,6 +4958,7 @@ namespace DG_TonKhoBTP_v02.Database
             cmd.Parameters.AddWithValue("@DonVi", sp.DonVi);
             cmd.Parameters.AddWithValue("@KieuSP", sp.KieuSP);
             cmd.Parameters.AddWithValue("@ChuyenDoi", sp.ChuyenDoi);
+            cmd.Parameters.AddWithValue("@Active", sp.Active ? 1:0);
             cmd.Parameters.AddWithValue("@DateInsert", sp.DateInsert ?? DateTime.Now);
             cmd.Parameters.AddWithValue("@Id", id);
 
@@ -5155,7 +5157,7 @@ namespace DG_TonKhoBTP_v02.Database
                         throw new ArgumentException("Lỗi bất thường: Công đoạn không hợp lệ.");
                 }
 
-                LuuKhacBietBOM(conn, tx, tpId, nvlRowsForBomDiff);
+                LuuKhacBietBOM(conn, tx, tpId, nvlRowsForBomDiff, tp);
 
                 tx.Commit(); // ✅ nhớ commit
                 return true;
@@ -5169,11 +5171,62 @@ namespace DG_TonKhoBTP_v02.Database
             }
         }
 
-        private static void LuuKhacBietBOM( SQLiteConnection conn, SQLiteTransaction tx, long ttThanhPhamId, List<TTNVLRow> nvlRows)
+        /// <summary>
+        /// Kiểm tra thành phẩm được chọn có khớp công đoạn trong BOM hay không.
+        /// Trả về null nếu phù hợp; trả về -1 nếu không có BOM; trả về currentCongDoanId nếu có BOM nhưng không khớp công đoạn.
+        /// </summary>
+        public static int? KiemTraKhacBietCongDoanBOM(int selectedProductId, int currentCongDoanId)
+        {
+            using var conn = new SQLiteConnection(_connStr);
+            conn.Open();
+
+            return KiemTraKhacBietCongDoanBOM(conn, null, selectedProductId, currentCongDoanId);
+        }
+
+        private static int? KiemTraKhacBietCongDoanBOM(
+            SQLiteConnection conn,
+            SQLiteTransaction tx,
+            int selectedProductId,
+            int currentCongDoanId)
+        {
+            if (conn == null) throw new ArgumentNullException(nameof(conn));
+
+            // Chưa chọn thành phẩm hoặc chưa có công đoạn hợp lệ thì không ghi khác biệt BOM.
+            if (selectedProductId <= 0 || currentCongDoanId <= 0)
+                return null;
+
+            const string sql = @"
+                SELECT
+                    COUNT(1) AS TotalBom,
+                    SUM(CASE WHEN ""CongDoan"" = @CurrentCongDoanId THEN 1 ELSE 0 END) AS MatchedBom
+                FROM BOMStructure
+                WHERE ""ParentProduct"" = @SelectedProductId;";
+
+            using var cmd = new SQLiteCommand(sql, conn);
+            cmd.Transaction = tx;
+            cmd.Parameters.Add("@SelectedProductId", DbType.Int32).Value = selectedProductId;
+            cmd.Parameters.Add("@CurrentCongDoanId", DbType.Int32).Value = currentCongDoanId;
+
+            using var reader = cmd.ExecuteReader();
+            if (!reader.Read())
+                return -1;
+
+            int totalBom = reader["TotalBom"] == DBNull.Value ? 0 : Convert.ToInt32(reader["TotalBom"]);
+            int matchedBom = reader["MatchedBom"] == DBNull.Value ? 0 : Convert.ToInt32(reader["MatchedBom"]);
+
+            if (totalBom == 0)
+                return -1;
+
+            if (matchedBom > 0)
+                return null;
+
+            return currentCongDoanId;
+        }
+
+        private static void LuuKhacBietBOM(SQLiteConnection conn, SQLiteTransaction tx, long ttThanhPhamId, List<TTNVLRow> nvlRows, TTThanhPham tp)
         {
             if (conn == null) throw new ArgumentNullException(nameof(conn));
             if (tx == null) throw new ArgumentNullException(nameof(tx));
-            if (nvlRows == null) return;
 
             using (var delete = new SQLiteCommand(conn))
             {
@@ -5185,53 +5238,79 @@ namespace DG_TonKhoBTP_v02.Database
                 delete.ExecuteNonQuery();
             }
 
-            var invalidRows = nvlRows
+            var invalidRows = (nvlRows ?? new List<TTNVLRow>())
                 .Where(x => x != null && x.IsCorrect == false)
                 .ToList();
 
-            if (invalidRows.Count == 0) return;
-
-            // Validate trước — fail sớm, không insert nửa vời
-            foreach (TTNVLRow item in invalidRows)
+            if (invalidRows.Count > 0)
             {
-                if (!item.DanhSachMaSP_ID.HasValue)
-                    throw new InvalidOperationException("Dòng khác BOM thiếu DanhSachMaSP_ID.");
-                if (string.IsNullOrWhiteSpace(item.BinNVL))
-                    throw new InvalidOperationException("Dòng khác BOM thiếu TenBinNVL/BinNVL.");
+                // Validate trước — fail sớm, không insert nửa vời
+                foreach (TTNVLRow item in invalidRows)
+                {
+                    if (!item.DanhSachMaSP_ID.HasValue)
+                        throw new InvalidOperationException("Dòng khác BOM thiếu DanhSachMaSP_ID.");
+                    if (string.IsNullOrWhiteSpace(item.BinNVL))
+                        throw new InvalidOperationException("Dòng khác BOM thiếu TenBinNVL/BinNVL.");
+                }
+
+                // 1 SELECT batch lấy toàn bộ DonVi
+                var distinctIds = invalidRows
+                    .Select(x => x.DanhSachMaSP_ID!.Value)
+                    .Distinct()
+                    .ToList();
+
+                var donViMap = LayDonViDanhSachMaSP_Batch(conn, tx, distinctIds);
+
+                // Chuẩn bị data cuối — tính SoLuong luôn, tránh tính lại trong loop insert
+                var rows = invalidRows.Select(item =>
+                {
+                    if (!donViMap.TryGetValue(item.DanhSachMaSP_ID!.Value, out string donVi))
+                        throw new InvalidOperationException(
+                            $"Không tìm thấy DonVi với id = {item.DanhSachMaSP_ID.Value}.");
+
+                    return (
+                        TTThanhPhamId: ttThanhPhamId,
+                        TenBinNVL: item.BinNVL.Trim(),
+                        DanhSachMaSPId: item.DanhSachMaSP_ID.Value,
+                        SoLuong: TinhSoLuongKhacBietBOM(item, donVi)
+                    );
+                }).ToList();
+
+                // Batch INSERT, mỗi chunk tối đa 64 rows
+                // SQLite giới hạn 999 parameters — 64 rows × 5 cột = 320, an toàn
+                const int chunkSize = 64;
+
+                for (int offset = 0; offset < rows.Count; offset += chunkSize)
+                {
+                    var chunk = rows.Skip(offset).Take(chunkSize).ToList();
+                    BatchInsertKhacBietBOM(conn, tx, chunk);
+                }
             }
 
-            // 1 SELECT batch lấy toàn bộ DonVi
-            var distinctIds = invalidRows
-                .Select(x => x.DanhSachMaSP_ID!.Value)
-                .Distinct()
-                .ToList();
+            LuuKhacBietCongDoanBOM(conn, tx, ttThanhPhamId, tp);
+        }
 
-            var donViMap = LayDonViDanhSachMaSP_Batch(conn, tx, distinctIds);
+        private static void LuuKhacBietCongDoanBOM(SQLiteConnection conn, SQLiteTransaction tx, long ttThanhPhamId, TTThanhPham tp)
+        {
+            if (tp == null) return;
 
-            // Chuẩn bị data cuối — tính SoLuong luôn, tránh tính lại trong loop insert
-            var rows = invalidRows.Select(item =>
-            {
-                if (!donViMap.TryGetValue(item.DanhSachMaSP_ID!.Value, out string donVi))
-                    throw new InvalidOperationException(
-                        $"Không tìm thấy DonVi với id = {item.DanhSachMaSP_ID.Value}.");
+            int selectedProductId = tp.DanhSachSP_ID;
+            int currentCongDoanId = tp.CongDoan?.Id ?? 0;
 
-                return (
-                    TTThanhPhamId: ttThanhPhamId,
-                    TenBinNVL: item.BinNVL.Trim(),
-                    DanhSachMaSPId: item.DanhSachMaSP_ID.Value,
-                    SoLuong: TinhSoLuongKhacBietBOM(item, donVi)
-                );
-            }).ToList();
+            int? congDoanThucTe = KiemTraKhacBietCongDoanBOM(conn, tx, selectedProductId, currentCongDoanId);
+            if (!congDoanThucTe.HasValue)
+                return;
 
-            // Batch INSERT, mỗi chunk tối đa 64 rows
-            // SQLite giới hạn 999 parameters — 64 rows × 4 cột = 256, an toàn
-            const int chunkSize = 64;
+            using var cmd = new SQLiteCommand(@"
+                INSERT INTO KhacBietBOM
+                    (""TTThanhpham_ID"", ""TenBinNVL"", ""DanhSachMaSP_ID"", ""SoLuong"", ""CongDoanThucTe"")
+                VALUES
+                    (@TTThanhpham_ID, NULL, @DanhSachMaSP_ID, NULL, @CongDoanThucTe);", conn, tx);
 
-            for (int offset = 0; offset < rows.Count; offset += chunkSize)
-            {
-                var chunk = rows.Skip(offset).Take(chunkSize).ToList();
-                BatchInsertKhacBietBOM(conn, tx, chunk);
-            }
+            cmd.Parameters.Add("@TTThanhpham_ID", DbType.Int64).Value = ttThanhPhamId;
+            cmd.Parameters.Add("@DanhSachMaSP_ID", DbType.Int64).Value = selectedProductId;
+            cmd.Parameters.Add("@CongDoanThucTe", DbType.Int32).Value = congDoanThucTe.Value;
+            cmd.ExecuteNonQuery();
         }
 
         private static void BatchInsertKhacBietBOM(
@@ -5239,17 +5318,17 @@ namespace DG_TonKhoBTP_v02.Database
             SQLiteTransaction tx,
             List<(long TTThanhPhamId, string TenBinNVL, int DanhSachMaSPId, double? SoLuong)> chunk)
         {
-            // Xây VALUES (@p0_0, @p0_1, @p0_2, @p0_3), (@p1_0, ...), ...
+            // Xây VALUES (@t0, @b0, @m0, @s0, @c0), (@t1, ...), ...
             var sb = new System.Text.StringBuilder();
             sb.Append(@"
                 INSERT INTO KhacBietBOM
-                    (""TTThanhpham_ID"", ""TenBinNVL"", ""DanhSachMaSP_ID"", ""SoLuong"")
+                    (""TTThanhpham_ID"", ""TenBinNVL"", ""DanhSachMaSP_ID"", ""SoLuong"", ""CongDoanThucTe"")
                 VALUES ");
 
             for (int i = 0; i < chunk.Count; i++)
             {
                 if (i > 0) sb.Append(", ");
-                sb.Append($"(@t{i}, @b{i}, @m{i}, @s{i})");
+                sb.Append($"(@t{i}, @b{i}, @m{i}, @s{i}, @c{i})");
             }
             sb.Append(';');
 
@@ -5263,6 +5342,7 @@ namespace DG_TonKhoBTP_v02.Database
                 cmd.Parameters.Add($"@m{i}", DbType.Int64).Value = r.DanhSachMaSPId;
                 cmd.Parameters.Add($"@s{i}", DbType.Double).Value =
                     r.SoLuong.HasValue ? (object)r.SoLuong.Value : DBNull.Value;
+                cmd.Parameters.Add($"@c{i}", DbType.Int32).Value = DBNull.Value;
             }
 
             cmd.ExecuteNonQuery();
@@ -5621,9 +5701,9 @@ namespace DG_TonKhoBTP_v02.Database
         {
             const string sql = @"
             INSERT INTO DanhSachMaSP
-            (Ten, Ten_KhongDau, Ma, DonVi, KieuSP, ChuyenDoi, DateInsert)
+            (Ten, Ten_KhongDau, Ma, DonVi, KieuSP, ChuyenDoi, Active, DateInsert)
             VALUES
-            (@Ten, @Ten_KhongDau, @Ma, @DonVi, @KieuSP, @ChuyenDoi, @DateInsert);";
+            (@Ten, @Ten_KhongDau, @Ma, @DonVi, @KieuSP, @ChuyenDoi, @Active, @DateInsert);";
 
             using var conn = new SQLiteConnection(_connStr);
             conn.Open();
@@ -5640,6 +5720,7 @@ namespace DG_TonKhoBTP_v02.Database
                 cmd.Parameters.AddWithValue("@DonVi", sp.DonVi);
                 cmd.Parameters.AddWithValue("@KieuSP", sp.KieuSP);
                 cmd.Parameters.AddWithValue("@ChuyenDoi", sp.ChuyenDoi);
+                cmd.Parameters.AddWithValue("@Active", sp.Active ? 1:0);
                 cmd.Parameters.AddWithValue("@DateInsert", sp.DateInsert ?? DateTime.Now);
 
                 cmd.ExecuteNonQuery();

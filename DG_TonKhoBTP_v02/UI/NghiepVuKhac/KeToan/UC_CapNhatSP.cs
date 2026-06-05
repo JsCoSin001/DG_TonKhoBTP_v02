@@ -60,6 +60,7 @@ namespace DG_TonKhoBTP_v02.UI
                     KieuSP = kieuSP.Text.Trim().ToUpper(),
                     DonVi = donVi.Text.Trim().ToUpper(),
                     ChuyenDoi = nbrDM_CU_AL.Value == 0 ? 1 : nbrDM_CU_AL.Value,
+                    Active = cbActive.Checked,
                     DateInsert = DateTime.Now
                 };
 
@@ -408,7 +409,7 @@ namespace DG_TonKhoBTP_v02.UI
             donVi.Text = row["donVi"].ToString();
             kieuSP.Text = row["kieuSP"].ToString();
             id.Text = row["id"].ToString();
-
+            cbActive.Checked = Convert.ToBoolean(row["active"]);
             btnLuu.Text = "Cập nhật";
         }
 

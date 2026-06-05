@@ -1565,7 +1565,7 @@ namespace DG_TonKhoBTP_v02
 
                     pnShow.Controls.Clear();
 
-                    var uc = new UC_NhapKho
+                    var uc = new UC_NhapKhoTP
                     {
                         Dock = DockStyle.Fill
                     };

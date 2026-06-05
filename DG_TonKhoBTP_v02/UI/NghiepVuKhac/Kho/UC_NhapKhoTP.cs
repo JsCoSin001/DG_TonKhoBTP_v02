@@ -17,7 +17,7 @@ using FontStyle = System.Drawing.FontStyle;
 
 namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.ChatLuong
 {
-    public partial class UC_NhapKho : UserControl
+    public partial class UC_NhapKhoTP : UserControl
     {
         private ComboBoxSearchHelper _maBinSearchHelper;
 
@@ -31,7 +31,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.ChatLuong
         private List<ThongTinCuonDay> thongTinDayNhapKho = new List<ThongTinCuonDay>();
         private bool _ttCuonDayChanged = false;
 
-        public UC_NhapKho()
+        public UC_NhapKhoTP()
         {
             InitializeComponent();
             InitMaBinSearch();

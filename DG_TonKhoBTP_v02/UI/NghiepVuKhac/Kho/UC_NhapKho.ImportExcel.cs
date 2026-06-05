@@ -16,7 +16,7 @@ using System.Xml.Linq;
 
 namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.ChatLuong
 {
-    public partial class UC_NhapKho
+    public partial class UC_NhapKhoTP
     {
         private const int ImportExcelColumnCount = 17;
 

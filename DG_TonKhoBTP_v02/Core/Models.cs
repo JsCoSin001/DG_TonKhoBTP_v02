@@ -269,7 +269,7 @@ namespace DG_TonKhoBTP_v02.Core
         public string DonVi { get; set; }
         public string KieuSP { get; set; }
         public decimal? ChuyenDoi { get; set; }
-
+        public bool Active { get; set; } = true;
         public DateTime? DateInsert { get; set; }
     }
 

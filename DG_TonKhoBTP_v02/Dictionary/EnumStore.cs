@@ -120,6 +120,7 @@ public static class EnumStore
         { 2, "Kiểm tra lại mã Bin" },
         { 3, "Thiếu khối lượng Thành phẩm" },
         { 4, "Thiếu chiều dài Thành phẩm" },
+        { 5, "Thiếu thông tin Đóng gói" },
     };
 
 

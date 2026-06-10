@@ -14,7 +14,7 @@ using System.Xml.Linq;
 
 
 
-namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.ChatLuong
+namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
 {
     public partial class UC_NhapKhoTP
     {
@@ -878,5 +878,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.ChatLuong
                     writer.Write(content);
             }
         }
+
+        
     }
 }

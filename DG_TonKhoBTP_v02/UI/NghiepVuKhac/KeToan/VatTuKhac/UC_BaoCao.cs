@@ -140,7 +140,11 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
                         filePath = sfd.FileName;
                     }
                     await WaitingHelper.RunWithWaiting(
-                        () => ExcelExporter.ExportToPath(dt, filePath),
+                        () => ExcelExporter.ExportToPath(
+                            dt, 
+                            filePath,
+                            cbxXuatTCVN.Checked ? ExcelExportTextFormat.TCVN : ExcelExportTextFormat.Unicode
+                        ),
                         "ĐANG XUẤT FILE EXCEL...");
                     FrmWaiting.ShowGifAlert("Đã xuất Excel thành công!", "Export", EnumStore.Icon.Success);
                     return;

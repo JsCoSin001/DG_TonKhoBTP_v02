@@ -233,28 +233,28 @@
     <Compile Include="UI\NghiepVuKhac\KeToan\VatTuKhac\UC_VatTuKhac.Designer.cs">
       <DependentUpon>UC_VatTuKhac.cs</DependentUpon>
     </Compile>
-    <Compile Include="UI\NghiepVuKhac\Kho\Frm_DatLoLe.cs">
+    <Compile Include="UI\NghiepVuKhac\Kho\NhapKho\Frm_DatLoLe.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="UI\NghiepVuKhac\Kho\Frm_DatLoLe.Designer.cs">
+    <Compile Include="UI\NghiepVuKhac\Kho\NhapKho\Frm_DatLoLe.Designer.cs">
       <DependentUpon>Frm_DatLoLe.cs</DependentUpon>
     </Compile>
-    <Compile Include="UI\NghiepVuKhac\Kho\Frm_DLCuon.cs">
+    <Compile Include="UI\NghiepVuKhac\Kho\NhapKho\Frm_DLCuon.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="UI\NghiepVuKhac\Kho\Frm_DLCuon.Designer.cs">
+    <Compile Include="UI\NghiepVuKhac\Kho\NhapKho\Frm_DLCuon.Designer.cs">
       <DependentUpon>Frm_DLCuon.cs</DependentUpon>
     </Compile>
-    <Compile Include="UI\NghiepVuKhac\Kho\UC_NhapKhoNVL.cs">
+    <Compile Include="UI\NghiepVuKhac\Kho\NhapKho\UC_NhapKhoNVL.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="UI\NghiepVuKhac\Kho\UC_NhapKhoNVL.Designer.cs">
+    <Compile Include="UI\NghiepVuKhac\Kho\NhapKho\UC_NhapKhoNVL.Designer.cs">
       <DependentUpon>UC_NhapKhoNVL.cs</DependentUpon>
     </Compile>
-    <Compile Include="UI\NghiepVuKhac\Kho\UC_NhapKhoTP.cs">
+    <Compile Include="UI\NghiepVuKhac\Kho\NhapKho\UC_NhapKhoTP.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="UI\NghiepVuKhac\Kho\UC_NhapKhoTP.Designer.cs">
+    <Compile Include="UI\NghiepVuKhac\Kho\NhapKho\UC_NhapKhoTP.Designer.cs">
       <DependentUpon>UC_NhapKhoTP.cs</DependentUpon>
     </Compile>
     <Compile Include="UI\NghiepVuKhac\KeToan\UC_KiemKe.cs">
@@ -281,13 +281,19 @@
     <Compile Include="UI\NghiepVuKhac\KeToan\VatTuKhac\UC_NhapXuatVatTu.Designer.cs">
       <DependentUpon>UC_NhapXuatVatTu.cs</DependentUpon>
     </Compile>
-    <Compile Include="UI\NghiepVuKhac\Kho\UC_NhapKho.ImportExcel.cs">
+    <Compile Include="UI\NghiepVuKhac\Kho\NhapKho\UC_NhapKho.ImportExcel.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="UI\NghiepVuKhac\Kho\UC_XuatKho.cs">
+    <Compile Include="UI\NghiepVuKhac\Kho\UC_NhapKho.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="UI\NghiepVuKhac\Kho\UC_XuatKho.Designer.cs">
+    <Compile Include="UI\NghiepVuKhac\Kho\UC_NhapKho.Designer.cs">
+      <DependentUpon>UC_NhapKho.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\NghiepVuKhac\Kho\XuatKho\UC_XuatKho.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\NghiepVuKhac\Kho\XuatKho\UC_XuatKho.Designer.cs">
       <DependentUpon>UC_XuatKho.cs</DependentUpon>
     </Compile>
     <Compile Include="UI\NghiepVuKhac\SanXuat\UC_HaLo.cs">
@@ -513,16 +519,16 @@
     <EmbeddedResource Include="UI\NghiepVuKhac\KeToan\VatTuKhac\UC_VatTuKhac.resx">
       <DependentUpon>UC_VatTuKhac.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="UI\NghiepVuKhac\Kho\Frm_DatLoLe.resx">
+    <EmbeddedResource Include="UI\NghiepVuKhac\Kho\NhapKho\Frm_DatLoLe.resx">
       <DependentUpon>Frm_DatLoLe.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="UI\NghiepVuKhac\Kho\Frm_DLCuon.resx">
+    <EmbeddedResource Include="UI\NghiepVuKhac\Kho\NhapKho\Frm_DLCuon.resx">
       <DependentUpon>Frm_DLCuon.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="UI\NghiepVuKhac\Kho\UC_NhapKhoNVL.resx">
+    <EmbeddedResource Include="UI\NghiepVuKhac\Kho\NhapKho\UC_NhapKhoNVL.resx">
       <DependentUpon>UC_NhapKhoNVL.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="UI\NghiepVuKhac\Kho\UC_NhapKhoTP.resx">
+    <EmbeddedResource Include="UI\NghiepVuKhac\Kho\NhapKho\UC_NhapKhoTP.resx">
       <DependentUpon>UC_NhapKhoTP.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UI\NghiepVuKhac\KeToan\UC_KiemKe.resx">
@@ -537,7 +543,10 @@
     <EmbeddedResource Include="UI\NghiepVuKhac\KeToan\VatTuKhac\UC_NhapXuatVatTu.resx">
       <DependentUpon>UC_NhapXuatVatTu.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="UI\NghiepVuKhac\Kho\UC_XuatKho.resx">
+    <EmbeddedResource Include="UI\NghiepVuKhac\Kho\UC_NhapKho.resx">
+      <DependentUpon>UC_NhapKho.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\NghiepVuKhac\Kho\XuatKho\UC_XuatKho.resx">
       <DependentUpon>UC_XuatKho.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UI\NghiepVuKhac\SanXuat\UC_HaLo.resx">

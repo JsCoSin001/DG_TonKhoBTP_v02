@@ -23,9 +23,7 @@ namespace DG_TonKhoBTP_v02.Database.Kho
             {
                 NhapKhoNVL_SanPham sp = TimSanPhamNhapKhoTheoTenKhongDau(conn, tran, input.TenKhongDau);
 
-                string maBin = string.IsNullOrWhiteSpace(input.MaBin)
-                    ? TaoQrNhapKhoNVL(conn, tran, zeroDigit)
-                    : input.MaBin.Trim();
+                string maBin = input.MaBin.Trim();
 
                 const string sql = @"
                     INSERT INTO TTThanhPham
@@ -184,65 +182,19 @@ namespace DG_TonKhoBTP_v02.Database.Kho
             };
         }
 
-        internal static bool MaBinDaTonTai(string maBin)
+        internal static string TaoQrNhapKhoNVL(string zeroDigit, int plus = 0)
         {
-            using var conn = DB_Base.OpenConnection();
-            return MaBinDaTonTai(conn, null, maBin);
+            DateTime now = DateTime.Now;
+
+            int middlePart = int.Parse(now.ToString("yyMMdd")) + 100000;
+
+            int partAfterSlash = now.Hour;
+            int part4 = now.Minute;
+            int part5 = now.Second + plus;
+
+            return $"{zeroDigit}-{middlePart}/{partAfterSlash:D2}-{part4:D2}-{part5:D2}";
         }
 
-        internal static string TaoQrNhapKhoNVL(string zeroDigit = "X")
-        {
-            using var conn = DB_Base.OpenConnection();
-            return TaoQrNhapKhoNVL(conn, null, zeroDigit);
-        }
-
-        private static string TaoQrNhapKhoNVL(SQLiteConnection conn, SQLiteTransaction tran, string zeroDigit = "X")
-        {
-            zeroDigit = string.IsNullOrWhiteSpace(zeroDigit) ? "X" : zeroDigit.Trim().ToUpperInvariant();
-
-            for (int i = 0; i < 1000; i++)
-            {
-                string maBin = TaoQrNhapKhoNVLKhongKiemTraTrung(zeroDigit);
-                if (!MaBinDaTonTai(conn, tran, maBin))
-                    return maBin;
-            }
-
-            throw new InvalidOperationException("Không tạo được QR nhập kho NVL không trùng sau 1000 lần thử.");
-        }
-
-        private static string TaoQrNhapKhoNVLKhongKiemTraTrung(string zeroDigit)
-        {
-            int firstDigit;
-            int middlePart;
-            int partAfterSlash;
-            int part4;
-            int part5;
-
-            lock (_randomLock)
-            {
-                firstDigit = _random.Next(1, 10);
-                middlePart = _random.Next(300001, 500000);
-                partAfterSlash = _random.Next(1, 10);
-                part4 = _random.Next(0, 100);
-                part5 = _random.Next(0, 100);
-            }
-
-            return $"{zeroDigit}{firstDigit}-{middlePart}/{partAfterSlash}-{part4:D2}-{part5:D2}";
-        }
-
-        private static bool MaBinDaTonTai(SQLiteConnection conn, SQLiteTransaction tran, string maBin)
-        {
-            const string sql = @"
-                SELECT 1
-                FROM TTThanhPham
-                WHERE TRIM(MaBin) = TRIM(@MaBin) COLLATE NOCASE
-                LIMIT 1;";
-
-            using var cmd = new SQLiteCommand(sql, conn, tran);
-            cmd.Parameters.AddWithValue("@MaBin", maBin ?? string.Empty);
-            object result = cmd.ExecuteScalar();
-            return result != null && result != DBNull.Value;
-        }
 
         private static NhapKhoNVL_SanPham TimSanPhamNhapKhoTheoTenKhongDau(
             SQLiteConnection conn,

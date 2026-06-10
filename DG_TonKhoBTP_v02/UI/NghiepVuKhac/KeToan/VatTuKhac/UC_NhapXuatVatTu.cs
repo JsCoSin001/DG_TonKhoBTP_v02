@@ -36,11 +36,11 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
         private string NguoiLam => tbxnguoiLam.Text;
 
         bool _isNhapKho = true;
+        // kieu = 1: Vật tư
+        // kieu = 2: Dịch vụ
         int _kieu = 1;
         DataTable _khoList;
 
-        // kieu = 1: Vật tư
-        // kieu = 2: Dịch vụ
         public UC_NhapXuatVatTu(bool isNhapKho, int kieu, DataTable khoList)
         {
             InitializeComponent();

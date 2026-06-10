@@ -188,6 +188,7 @@ namespace DG_TonKhoBTP_v02.Core
         public int? TTThanhPhan_ID { get; set; }   // FK -> ThongTinSP.id (NULLABLE trong schema)
         public double? DayVoTB { get; set; }       // NOT NULL
         public string? InAn { get; set; }            // NOT NULL DEFAULT 1
+        public List<ThongTinCuonDay> TTCuonDay_CD { get; set; } = new List<ThongTinCuonDay>();
     }
 
     // --------------------------- Công đoạn: Bóc Lót ---------------------------

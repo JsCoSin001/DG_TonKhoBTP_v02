@@ -15,7 +15,7 @@ using System.Windows.Forms;
 using CoreHelper = DG_TonKhoBTP_v02.Helper.Helper;
 using FontStyle = System.Drawing.FontStyle;
 
-namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.ChatLuong
+namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
 {
     public partial class UC_NhapKhoTP : UserControl
     {
@@ -1074,7 +1074,6 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.ChatLuong
                 : new List<ThongTinCuonDay>(thongTinDayNhapKho);
 
             using (Frm_DLCuon frm = new Frm_DLCuon(
-                isCuon: isCuon,
                 thongTinCuonHienTai: duLieuHienTai
             ))
             {

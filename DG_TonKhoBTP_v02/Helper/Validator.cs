@@ -177,13 +177,15 @@ namespace DG_TonKhoBTP_v02.Helper
 
             if (data.Sections.TryGetValue("CD_BocVo", out var bocVoObj))
             {
-                // xử lý logic riêng cho BocLot...
-
                 // xử lý logic riêng cho cài đặt bọc...
                 caiDatCDBoc = (CaiDatCDBoc)data.Sections["CaiDatCDBoc"];
                 if (!Check_CaiDatCDBoc(caiDatCDBoc)) caiDatCDBoc = null;
 
-                chiTietCD = (CD_BocVo)bocVoObj;
+                CD_BocVo bocVo = (CD_BocVo)bocVoObj;
+
+                // Kiểm tra xem có thông tin cuộn dây chưa
+                chiTietCD = bocVo.TTCuonDay_CD.Count > 0 ? bocVo: null;
+
             }
 
             result.Add(chiTietCD);

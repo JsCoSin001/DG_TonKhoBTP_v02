@@ -1,4 +1,4 @@
-﻿namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.ChatLuong
+﻿namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
 {
     partial class UC_NhapKhoTP
     {
@@ -29,8 +29,6 @@
         private void InitializeComponent()
         {
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
-            this.panel1 = new System.Windows.Forms.Panel();
-            this.label1 = new System.Windows.Forms.Label();
             this.panel2 = new System.Windows.Forms.Panel();
             this.tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
             this.flowLayoutPanel2 = new System.Windows.Forms.FlowLayoutPanel();
@@ -106,7 +104,6 @@
             this.label8 = new System.Windows.Forms.Label();
             this.label11 = new System.Windows.Forms.Label();
             this.tbxThongTinDay = new System.Windows.Forms.RichTextBox();
-            this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.tableLayoutPanel4.SuspendLayout();
             this.flowLayoutPanel2.SuspendLayout();
@@ -124,28 +121,6 @@
             this.flowLayoutPanel3.SuspendLayout();
             this.tableLayoutPanel3.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // panel1
-            // 
-            this.panel1.Controls.Add(this.label1);
-            this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panel1.Location = new System.Drawing.Point(10, 10);
-            this.panel1.Margin = new System.Windows.Forms.Padding(4);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(1473, 43);
-            this.panel1.TabIndex = 0;
-            // 
-            // label1
-            // 
-            this.label1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label1.Font = new System.Drawing.Font("Tahoma", 12.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(0, 0);
-            this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(1473, 43);
-            this.label1.TabIndex = 0;
-            this.label1.Text = "DANH SÁCH NHẬP KHO THÀNH PHẨM";
-            this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // panel2
             // 
@@ -507,7 +482,7 @@
             // 
             this.panel3.Controls.Add(this.tableLayoutPanel1);
             this.panel3.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panel3.Location = new System.Drawing.Point(10, 53);
+            this.panel3.Location = new System.Drawing.Point(10, 10);
             this.panel3.Name = "panel3";
             this.panel3.Size = new System.Drawing.Size(1473, 65);
             this.panel3.TabIndex = 2;
@@ -520,7 +495,7 @@
             this.groupBox1.Location = new System.Drawing.Point(0, 0);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Padding = new System.Windows.Forms.Padding(7, 10, 7, 7);
-            this.groupBox1.Size = new System.Drawing.Size(1473, 322);
+            this.groupBox1.Size = new System.Drawing.Size(1473, 365);
             this.groupBox1.TabIndex = 1;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Danh sách nhập kho";
@@ -562,7 +537,7 @@
             this.grvDSNhapKho.Location = new System.Drawing.Point(7, 26);
             this.grvDSNhapKho.Name = "grvDSNhapKho";
             this.grvDSNhapKho.RowHeadersVisible = false;
-            this.grvDSNhapKho.Size = new System.Drawing.Size(1459, 289);
+            this.grvDSNhapKho.Size = new System.Drawing.Size(1459, 332);
             this.grvDSNhapKho.TabIndex = 0;
             // 
             // TTThanhPham_ID
@@ -710,16 +685,16 @@
             // 
             this.panel5.Controls.Add(this.groupBox1);
             this.panel5.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel5.Location = new System.Drawing.Point(10, 264);
+            this.panel5.Location = new System.Drawing.Point(10, 221);
             this.panel5.Name = "panel5";
-            this.panel5.Size = new System.Drawing.Size(1473, 322);
+            this.panel5.Size = new System.Drawing.Size(1473, 365);
             this.panel5.TabIndex = 4;
             // 
             // panel4
             // 
             this.panel4.Controls.Add(this.tableLayoutPanel2);
             this.panel4.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panel4.Location = new System.Drawing.Point(10, 118);
+            this.panel4.Location = new System.Drawing.Point(10, 75);
             this.panel4.Name = "panel4";
             this.panel4.Size = new System.Drawing.Size(1473, 146);
             this.panel4.TabIndex = 3;
@@ -988,7 +963,7 @@
             this.tbxThongTinDay.TabIndex = 15;
             this.tbxThongTinDay.Text = "";
             // 
-            // UC_NhapKhoThanhPham
+            // UC_NhapKhoTP
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 18F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -996,14 +971,12 @@
             this.Controls.Add(this.panel4);
             this.Controls.Add(this.panel3);
             this.Controls.Add(this.panel2);
-            this.Controls.Add(this.panel1);
             this.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Margin = new System.Windows.Forms.Padding(4);
-            this.Name = "UC_NhapKhoThanhPham";
+            this.Name = "UC_NhapKhoTP";
             this.Padding = new System.Windows.Forms.Padding(10);
             this.Size = new System.Drawing.Size(1493, 669);
             this.Load += new System.EventHandler(this.UC_QcDuyetNhapKho_Load);
-            this.panel1.ResumeLayout(false);
             this.panel2.ResumeLayout(false);
             this.tableLayoutPanel4.ResumeLayout(false);
             this.flowLayoutPanel2.ResumeLayout(false);
@@ -1030,9 +1003,6 @@
         }
 
         #endregion
-
-        private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Panel panel2;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel2;
         private System.Windows.Forms.Button btnXemDL;

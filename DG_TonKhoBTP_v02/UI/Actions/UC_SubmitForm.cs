@@ -25,7 +25,7 @@ namespace DG_TonKhoBTP_v02.UI
         private static readonly string _printer = Properties.Settings.Default.PrinterName;
 
         private CongDoan _Cd = null;
-        public UC_SubmitForm( CongDoan cd)
+        public UC_SubmitForm(CongDoan cd)
         {
             InitializeComponent();
 
@@ -55,7 +55,6 @@ namespace DG_TonKhoBTP_v02.UI
 
         private void btnLuu_Click(object sender, EventArgs e)
         {
-
             var swTotal = Stopwatch.StartNew();
             Debug.WriteLine("=== [BTN LƯU] BẮT ĐẦU ===");
 
@@ -243,6 +242,7 @@ namespace DG_TonKhoBTP_v02.UI
                     }
                 }
 
+                // Tiến hành validate TP công đoạn
                 sttLoi = Validator.TTThanhPham(thongTinThanhPham);
                 Debug.WriteLine($"Validator.TTThanhPham: {swStep.ElapsedMilliseconds} ms (tổng: {swTotal.ElapsedMilliseconds} ms)");
 
@@ -461,10 +461,17 @@ namespace DG_TonKhoBTP_v02.UI
                             if (saveSuccessLocal)
                             {
                                 var swClear = Stopwatch.StartNew();
+
                                 ControlCleaner.ClearAll(host);
+
+                                // Clear thêm các trạng thái private trong từng section, ví dụ:
+                                // UC_CDBocVo._thongTinCuonDay. ControlCleaner chỉ clear control UI nên không clear được biến private.
+                                foreach (Control c in host.Controls)
+                                    ClearSectionRecursive(c);
+
                                 if (_Cd.Id == 0 || _Cd.Id == 1)
                                     cbInTemNVL.Checked = false;
-                                Debug.WriteLine($"ClearAll host: {swClear.ElapsedMilliseconds} ms");
+                                Debug.WriteLine($"ClearAll + ClearSectionRecursive host: {swClear.ElapsedMilliseconds} ms");
                             }
 
                             // ✅ UI: enable nút đúng thời điểm (sau khi xong hết)

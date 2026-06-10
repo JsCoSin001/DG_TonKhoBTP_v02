@@ -1,4 +1,4 @@
-﻿namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho
+﻿namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
 {
     partial class Frm_DLCuon
     {
@@ -31,14 +31,15 @@
             this.label1 = new System.Windows.Forms.Label();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.btnLuuTTCuonDay = new System.Windows.Forms.Button();
-            this.dataGridView1 = new System.Windows.Forms.DataGridView();
+            this.grvThongTinCuonDay = new System.Windows.Forms.DataGridView();
+            this.loai = new System.Windows.Forms.DataGridViewComboBoxColumn();
             this.slCuon = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.tongChieuDai = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.soDau = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.soCuoi = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.ghiChu = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.tableLayoutPanel1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.grvThongTinCuonDay)).BeginInit();
             this.SuspendLayout();
             // 
             // label1
@@ -48,7 +49,7 @@
             this.label1.Location = new System.Drawing.Point(10, 10);
             this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(720, 35);
+            this.label1.Size = new System.Drawing.Size(850, 35);
             this.label1.TabIndex = 0;
             this.label1.Text = "BẢNG NHẬP LIỆU";
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -65,13 +66,13 @@
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 1;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(720, 65);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(850, 65);
             this.tableLayoutPanel1.TabIndex = 1;
             // 
             // btnLuuTTCuonDay
             // 
             this.btnLuuTTCuonDay.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.btnLuuTTCuonDay.Location = new System.Drawing.Point(292, 3);
+            this.btnLuuTTCuonDay.Location = new System.Drawing.Point(357, 3);
             this.btnLuuTTCuonDay.Name = "btnLuuTTCuonDay";
             this.btnLuuTTCuonDay.Size = new System.Drawing.Size(136, 59);
             this.btnLuuTTCuonDay.TabIndex = 0;
@@ -79,32 +80,39 @@
             this.btnLuuTTCuonDay.UseVisualStyleBackColor = true;
             this.btnLuuTTCuonDay.Click += new System.EventHandler(this.btnLuuTTCuonDay_Click);
             // 
-            // dataGridView1
+            // grvThongTinCuonDay
             // 
-            this.dataGridView1.BackgroundColor = System.Drawing.SystemColors.Control;
-            this.dataGridView1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.dataGridView1.ColumnHeadersHeight = 30;
-            this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
-            this.dataGridView1.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.grvThongTinCuonDay.BackgroundColor = System.Drawing.SystemColors.Control;
+            this.grvThongTinCuonDay.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.grvThongTinCuonDay.ColumnHeadersHeight = 30;
+            this.grvThongTinCuonDay.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
+            this.grvThongTinCuonDay.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.loai,
             this.slCuon,
             this.tongChieuDai,
             this.soDau,
             this.soCuoi,
             this.ghiChu});
-            this.dataGridView1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dataGridView1.Location = new System.Drawing.Point(10, 45);
-            this.dataGridView1.Name = "dataGridView1";
-            this.dataGridView1.RowHeadersVisible = false;
-            this.dataGridView1.RowTemplate.Height = 30;
-            this.dataGridView1.Size = new System.Drawing.Size(720, 280);
-            this.dataGridView1.TabIndex = 2;
+            this.grvThongTinCuonDay.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.grvThongTinCuonDay.Location = new System.Drawing.Point(10, 45);
+            this.grvThongTinCuonDay.Name = "grvThongTinCuonDay";
+            this.grvThongTinCuonDay.RowHeadersVisible = false;
+            this.grvThongTinCuonDay.RowTemplate.Height = 30;
+            this.grvThongTinCuonDay.Size = new System.Drawing.Size(850, 280);
+            this.grvThongTinCuonDay.TabIndex = 2;
+            // 
+            // loai
+            // 
+            this.loai.HeaderText = "Loại đóng gói";
+            this.loai.Name = "loai";
+            this.loai.Width = 130;
             // 
             // slCuon
             // 
             this.slCuon.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.ColumnHeader;
-            this.slCuon.HeaderText = "SL Cuộn";
+            this.slCuon.HeaderText = "Số lượng";
             this.slCuon.Name = "slCuon";
-            this.slCuon.Width = 86;
+            this.slCuon.Width = 89;
             // 
             // tongChieuDai
             // 
@@ -137,8 +145,8 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 18F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(740, 400);
-            this.Controls.Add(this.dataGridView1);
+            this.ClientSize = new System.Drawing.Size(870, 400);
+            this.Controls.Add(this.grvThongTinCuonDay);
             this.Controls.Add(this.tableLayoutPanel1);
             this.Controls.Add(this.label1);
             this.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -148,7 +156,7 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Frm_DLCuon";
             this.tableLayoutPanel1.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.grvThongTinCuonDay)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -158,7 +166,8 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
         private System.Windows.Forms.Button btnLuuTTCuonDay;
-        private System.Windows.Forms.DataGridView dataGridView1;
+        private System.Windows.Forms.DataGridView grvThongTinCuonDay;
+        private System.Windows.Forms.DataGridViewComboBoxColumn loai;
         private System.Windows.Forms.DataGridViewTextBoxColumn slCuon;
         private System.Windows.Forms.DataGridViewTextBoxColumn tongChieuDai;
         private System.Windows.Forms.DataGridViewTextBoxColumn soDau;

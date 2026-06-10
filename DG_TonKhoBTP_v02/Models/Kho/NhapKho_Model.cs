@@ -8,6 +8,7 @@ namespace DG_TonKhoBTP_v02.Models
 {
     public class ThongTinCuonDay
     {
+        public int? TTLo_ID { get; set; } = null;
         public int SoCuon { get; set; }
         public int TongChieuDai { get; set; }
         public int SoDau { get; set; }

@@ -14,7 +14,7 @@ using DG_TonKhoBTP_v02.UI.NghiepVu.KeHoach;
 using DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan;
 using DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac;
 using DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho;
-using DG_TonKhoBTP_v02.UI.NghiepVuKhac.ChatLuong;
+using DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho;
 using DG_TonKhoBTP_v02.UI.Setting;
 using DocumentFormat.OpenXml.Office.SpreadSheetML.Y2023.MsForms;
 using QLDuLieuTonKho_BTP;
@@ -1565,7 +1565,7 @@ namespace DG_TonKhoBTP_v02
 
                     pnShow.Controls.Clear();
 
-                    var uc = new UC_NhapKhoTP
+                    var uc = new UC_NhapKho
                     {
                         Dock = DockStyle.Fill
                     };
@@ -1573,7 +1573,7 @@ namespace DG_TonKhoBTP_v02
                 }
                 catch (Exception ex)
                 {
-                    FrmWaiting.ShowGifAlert($"Lỗi khởi tạo giao diện cập nhật mã hàng: {ex.Message}");
+                    FrmWaiting.ShowGifAlert($"Lỗi khởi tạo giao diện nhập kho: {ex.Message}");
                 }
                 finally
                 {

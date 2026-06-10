@@ -9,7 +9,7 @@ using System.Text;
 using System.Windows.Forms;
 using AppHelper = DG_TonKhoBTP_v02.Helper.Helper;
 
-namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho
+namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
 {
     public partial class UC_NhapKhoNVL : UserControl
     {
@@ -20,6 +20,9 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho
         private const string COL_QR = "qr";
         private const string COL_GHI_CHU = "ghiChu";
         private const string COL_XOA = "colXoa";
+        private const string FITST_CHARACTOR_QR = "X0";
+        private const int GRID_ROW_HEIGHT = 30;
+
 
         private readonly string[] _cotDuocPaste = { COL_TEN, COL_KHOI_LUONG, COL_QR, COL_GHI_CHU };
         private NhapKhoNVL_Dong _dongDangIn;
@@ -35,7 +38,6 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho
             btnSua.Visible = false;
             btnLuu.Visible = true;
 
-            btnLuu.Click += btnLuu_Click;
             btnSua.Click += btnSua_Click;
 
             dgvDsNhapNVL.AllowUserToAddRows = true;
@@ -43,6 +45,16 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho
             dgvDsNhapNVL.MultiSelect = true;
             dgvDsNhapNVL.ClipboardCopyMode = DataGridViewClipboardCopyMode.EnableWithoutHeaderText;
             dgvDsNhapNVL.AutoGenerateColumns = false;
+
+            dgvDsNhapNVL.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.None;
+            dgvDsNhapNVL.RowTemplate.Height = GRID_ROW_HEIGHT;
+            dgvDsNhapNVL.AllowUserToResizeRows = false;
+
+            foreach (DataGridViewRow row in dgvDsNhapNVL.Rows)
+            {
+                row.Height = GRID_ROW_HEIGHT;
+            }
+
 
             if (dgvDsNhapNVL.Columns.Contains(COL_STT))
                 dgvDsNhapNVL.Columns[COL_STT].ReadOnly = true;
@@ -83,16 +95,23 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho
             string maBin = tbxTimQr.Text.Trim();
             if (string.IsNullOrWhiteSpace(maBin))
             {
-                MessageBox.Show("Vui lòng nhập QR cần tìm.", "THÔNG BÁO", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                FrmWaiting.ShowGifAlert("Vui lòng nhập QR cần tìm.");
                 return;
             }
+
+            if (maBin.Split('-')[0] != FITST_CHARACTOR_QR)
+            {
+                FrmWaiting.ShowGifAlert("Qr không hợp lệ");
+                return;
+            }
+
 
             try
             {
                 NhapKhoNVL_Dong dong = NhapKhoNVL_DB.TimTheoMaBin(maBin);
                 if (dong == null)
                 {
-                    MessageBox.Show("Không tìm thấy dữ liệu theo QR đã nhập.", "THÔNG BÁO", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    FrmWaiting.ShowGifAlert("Không tìm thấy dữ liệu theo QR đã nhập.");
                     return;
                 }
 
@@ -108,7 +127,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho
             }
             catch (Exception ex)
             {
-                MessageBox.Show(AppHelper.ShowErrorDatabase(ex, "TÌM QR"), "LỖI", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                FrmWaiting.ShowGifAlert(AppHelper.ShowErrorDatabase(ex, "TÌM QR"));
             }
         }
 
@@ -119,7 +138,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho
             List<DataGridViewRow> dsRow = LayDanhSachDongCoDuLieu();
             if (dsRow.Count == 0)
             {
-                MessageBox.Show("Không có dữ liệu để lưu.", "THÔNG BÁO", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                FrmWaiting.ShowGifAlert("Vui lòng nhập dữ liệu cần lưu.");
                 return;
             }
 
@@ -153,12 +172,13 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho
 
             if (dsLoi.Count > 0)
             {
-                MessageBox.Show(string.Join(Environment.NewLine, dsLoi), "CÁC DÒNG CHƯA LƯU ĐƯỢC", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                FrmWaiting.ShowGifAlert(string.Join(Environment.NewLine, dsLoi));
             }
 
             if (dsDaLuu.Count > 0)
             {
-                MessageBox.Show($"Đã lưu thành công {dsDaLuu.Count} dòng.", "THÔNG BÁO", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                FrmWaiting.ShowGifAlert($"Đã lưu thành công {dsDaLuu.Count} dòng. Bạn có muốn in tem ngay bây giờ không?", "THÔNG BÁO", "question");
+
                 HoiVaInDanhSach(dsDaLuu);
             }
         }
@@ -170,7 +190,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho
             List<DataGridViewRow> dsRow = LayDanhSachDongCoDuLieu();
             if (dsRow.Count == 0)
             {
-                MessageBox.Show("Không có dữ liệu để sửa.", "THÔNG BÁO", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                FrmWaiting.ShowGifAlert("Vui lòng nhập hoặc tìm kiếm dữ liệu cần sửa.");
                 return;
             }
 
@@ -203,12 +223,12 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho
 
             if (dsLoi.Count > 0)
             {
-                MessageBox.Show(string.Join(Environment.NewLine, dsLoi), "CÁC DÒNG CHƯA SỬA ĐƯỢC", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                FrmWaiting.ShowGifAlert(string.Join(Environment.NewLine, dsLoi));
             }
 
             if (dsDaSua.Count > 0)
             {
-                MessageBox.Show($"Đã sửa thành công {dsDaSua.Count} dòng.", "THÔNG BÁO", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                FrmWaiting.ShowGifAlert($"Đã sửa thành công {dsDaSua.Count} dòng.");
                 HoiVaInDanhSach(dsDaSua);
             }
         }
@@ -363,6 +383,13 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho
             if (!string.IsNullOrWhiteSpace(chieuDaiText) && !TryParseDouble(chieuDaiText, out chieuDai))
                 throw new InvalidOperationException("Chiều dài không hợp lệ.");
 
+
+            string qr = LayCellText(row, COL_QR);
+            if (string.IsNullOrWhiteSpace(qr))
+                throw new InvalidOperationException("Qr không được để trống. Vui lòng bấm Tạo Qr trước khi lưu.");
+
+
+
             long? id = null;
             if (row.Tag != null && long.TryParse(row.Tag.ToString(), out long tagId))
                 id = tagId;
@@ -377,7 +404,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho
                 TenKhongDau = AppHelper.BoDauTiengViet(ten).Trim(),
                 KhoiLuong = khoiLuong,
                 ChieuDai = chieuDai,
-                MaBin = LayCellText(row, COL_QR),
+                MaBin = qr,
                 GhiChu = LayCellText(row, COL_GHI_CHU)
             };
         }
@@ -430,7 +457,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho
 
             if (dsLoiIn.Count > 0)
             {
-                MessageBox.Show(string.Join(Environment.NewLine, dsLoiIn), "LỖI IN TEM", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                FrmWaiting.ShowGifAlert(string.Join(Environment.NewLine, dsLoiIn));
             }
         }
 
@@ -486,6 +513,31 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho
         private string FormatSo(double value)
         {
             return value.ToString("0.###", CultureInfo.CurrentCulture);
+        }
+
+        private void btnTaoQr_Click(object sender, EventArgs e)
+        {
+            dgvDsNhapNVL.EndEdit();
+            CapNhatSTT();
+
+            List<DataGridViewRow> dsRow = LayDanhSachDongCoDuLieu();
+            if (dsRow.Count == 0)
+            {
+                FrmWaiting.ShowGifAlert("Vui lòng nhập dữ liệu trước khi tạo QR.");
+                return;
+            }
+
+            foreach (DataGridViewRow row in dsRow)
+            {
+                int sttDong = LaySTTHienThi(row);
+
+                // plus được gán bằng STT của dòng
+                int plus = sttDong;
+
+                string maQr = NhapKhoNVL_DB.TaoQrNhapKhoNVL(FITST_CHARACTOR_QR, plus);
+
+                row.Cells[COL_QR].Value = maQr;
+            }
         }
     }
 }

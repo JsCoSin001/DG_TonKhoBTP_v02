@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             this.panel1 = new System.Windows.Forms.Panel();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.label2 = new System.Windows.Forms.Label();
@@ -40,6 +41,7 @@
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.dgvDsNhapNVL = new System.Windows.Forms.DataGridView();
             this.stt = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.congDoan = new System.Windows.Forms.DataGridViewComboBoxColumn();
             this.ten = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.khoiLuong = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.chieuDaiNhap = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -68,7 +70,7 @@
             this.tableLayoutPanel1.ColumnCount = 3;
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 13.51792F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 86.48209F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 495F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 498F));
             this.tableLayoutPanel1.Controls.Add(this.label2, 0, 0);
             this.tableLayoutPanel1.Controls.Add(this.tbxTimQr, 1, 0);
             this.tableLayoutPanel1.Controls.Add(this.flowLayoutPanel1, 2, 0);
@@ -102,29 +104,29 @@
             // flowLayoutPanel1
             // 
             this.flowLayoutPanel1.Controls.Add(this.btnLuu);
-            this.flowLayoutPanel1.Controls.Add(this.btnTaoQr);
             this.flowLayoutPanel1.Controls.Add(this.btnSua);
+            this.flowLayoutPanel1.Controls.Add(this.btnTaoQr);
             this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanel1.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
-            this.flowLayoutPanel1.Location = new System.Drawing.Point(613, 3);
+            this.flowLayoutPanel1.Location = new System.Drawing.Point(610, 3);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
             this.flowLayoutPanel1.Padding = new System.Windows.Forms.Padding(3);
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(490, 54);
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(493, 54);
             this.flowLayoutPanel1.TabIndex = 2;
             // 
             // btnLuu
             // 
-            this.btnLuu.Location = new System.Drawing.Point(361, 6);
+            this.btnLuu.Location = new System.Drawing.Point(364, 6);
             this.btnLuu.Name = "btnLuu";
             this.btnLuu.Size = new System.Drawing.Size(120, 48);
             this.btnLuu.TabIndex = 0;
-            this.btnLuu.Text = "Lưu/In";
+            this.btnLuu.Text = "In - Lưu";
             this.btnLuu.UseVisualStyleBackColor = true;
             this.btnLuu.Click += new System.EventHandler(this.btnLuu_Click);
             // 
             // btnTaoQr
             // 
-            this.btnTaoQr.Location = new System.Drawing.Point(235, 6);
+            this.btnTaoQr.Location = new System.Drawing.Point(112, 6);
             this.btnTaoQr.Name = "btnTaoQr";
             this.btnTaoQr.Size = new System.Drawing.Size(120, 48);
             this.btnTaoQr.TabIndex = 0;
@@ -134,7 +136,7 @@
             // 
             // btnSua
             // 
-            this.btnSua.Location = new System.Drawing.Point(109, 6);
+            this.btnSua.Location = new System.Drawing.Point(238, 6);
             this.btnSua.Name = "btnSua";
             this.btnSua.Size = new System.Drawing.Size(120, 48);
             this.btnSua.TabIndex = 0;
@@ -168,6 +170,7 @@
             this.dgvDsNhapNVL.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvDsNhapNVL.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.stt,
+            this.congDoan,
             this.ten,
             this.khoiLuong,
             this.chieuDaiNhap,
@@ -189,6 +192,16 @@
             this.stt.Name = "stt";
             this.stt.ReadOnly = true;
             this.stt.Width = 61;
+            // 
+            // congDoan
+            // 
+            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.congDoan.DefaultCellStyle = dataGridViewCellStyle1;
+            this.congDoan.HeaderText = "Tên công đoạn";
+            this.congDoan.Name = "congDoan";
+            this.congDoan.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            this.congDoan.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
+            this.congDoan.Width = 250;
             // 
             // ten
             // 
@@ -266,6 +279,7 @@
         private System.Windows.Forms.Button btnSua;
         private System.Windows.Forms.Button btnTaoQr;
         private System.Windows.Forms.DataGridViewTextBoxColumn stt;
+        private System.Windows.Forms.DataGridViewComboBoxColumn congDoan;
         private System.Windows.Forms.DataGridViewTextBoxColumn ten;
         private System.Windows.Forms.DataGridViewTextBoxColumn khoiLuong;
         private System.Windows.Forms.DataGridViewTextBoxColumn chieuDaiNhap;

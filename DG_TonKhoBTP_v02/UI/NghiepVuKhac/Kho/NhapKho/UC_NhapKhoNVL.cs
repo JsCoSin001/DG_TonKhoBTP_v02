@@ -1,13 +1,14 @@
 ﻿using DG_TonKhoBTP_v02.Database.Kho;
+using DG_TonKhoBTP_v02.Dictionary;
 using DG_TonKhoBTP_v02.Models;
 using DG_TonKhoBTP_v02.Printer;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Forms;
-using AppHelper = DG_TonKhoBTP_v02.Helper.Helper;
+using CoreHelper = DG_TonKhoBTP_v02.Helper.Helper;
 
 namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
 {
@@ -23,14 +24,119 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
         private const string FITST_CHARACTOR_QR = "X0";
         private const int GRID_ROW_HEIGHT = 30;
 
+        private const string COL_CONG_DOAN = "congDoan";
 
-        private readonly string[] _cotDuocPaste = { COL_TEN, COL_KHOI_LUONG, COL_QR, COL_GHI_CHU };
+
+        private readonly string[] _cotDuocPaste =
+        {
+            COL_CONG_DOAN,
+            COL_TEN,
+            COL_KHOI_LUONG,
+            COL_QR,
+            COL_GHI_CHU
+        };
+
         private NhapKhoNVL_Dong _dongDangIn;
 
         public UC_NhapKhoNVL()
         {
             InitializeComponent();
             CaiDatGridVaSuKien();
+            NapComboboxCongDoan();
+        }
+
+        private void NapComboboxCongDoan()
+        {
+            if (!dgvDsNhapNVL.Columns.Contains(COL_CONG_DOAN)) return;
+
+            if (dgvDsNhapNVL.Columns[COL_CONG_DOAN] is DataGridViewComboBoxColumn colCongDoan)
+            {
+                var dsCongDoan = ThongTinChungCongDoan.TatCaCongDoan
+                    .Where(x => x.Id != 2)
+                    .OrderBy(x => x.Id)
+                    .Select(x => new CongDoanComboItem
+                    {
+                        Id = x.Id,
+                        TenCongDoan = CoreHelper.VietHoaKyTuDau(x.TenCongDoan)
+                    })
+                    .ToList();
+
+                colCongDoan.DataSource = dsCongDoan;
+                colCongDoan.ValueMember = nameof(CongDoanComboItem.Id);
+                colCongDoan.DisplayMember = nameof(CongDoanComboItem.TenCongDoan);
+                colCongDoan.DisplayStyle = DataGridViewComboBoxDisplayStyle.DropDownButton;
+            }
+        }
+
+        private void KhoaNhapLieu(bool dangXuLy)
+        {
+            dgvDsNhapNVL.Enabled = !dangXuLy;
+            btnLuu.Enabled = !dangXuLy;
+            btnSua.Enabled = !dangXuLy;
+            btnTaoQr.Enabled = !dangXuLy;
+            tbxTimQr.Enabled = !dangXuLy;
+        }
+
+        private List<NhapKhoXuLyResult> LuuDanhSachTrongNen(List<NhapKhoXuLyItem> dsCanLuu)
+        {
+            List<NhapKhoXuLyResult> results = new List<NhapKhoXuLyResult>();
+
+            foreach (NhapKhoXuLyItem item in dsCanLuu)
+            {
+                try
+                {
+                    NhapKhoNVL_Dong daLuu = NhapKhoNVL_DB.LuuMotDong(item.Input);
+
+                    results.Add(new NhapKhoXuLyResult
+                    {
+                        Row = item.Row,
+                        SttDong = item.SttDong,
+                        Output = daLuu
+                    });
+                }
+                catch (Exception ex)
+                {
+                    results.Add(new NhapKhoXuLyResult
+                    {
+                        Row = item.Row,
+                        SttDong = item.SttDong,
+                        Error = ex
+                    });
+                }
+            }
+
+            return results;
+        }
+
+        private List<NhapKhoXuLyResult> SuaDanhSachTrongNen(List<NhapKhoXuLyItem> dsCanSua)
+        {
+            List<NhapKhoXuLyResult> results = new List<NhapKhoXuLyResult>();
+
+            foreach (NhapKhoXuLyItem item in dsCanSua)
+            {
+                try
+                {
+                    NhapKhoNVL_Dong daSua = NhapKhoNVL_DB.CapNhatMotDong(item.Input);
+
+                    results.Add(new NhapKhoXuLyResult
+                    {
+                        Row = item.Row,
+                        SttDong = item.SttDong,
+                        Output = daSua
+                    });
+                }
+                catch (Exception ex)
+                {
+                    results.Add(new NhapKhoXuLyResult
+                    {
+                        Row = item.Row,
+                        SttDong = item.SttDong,
+                        Error = ex
+                    });
+                }
+            }
+
+            return results;
         }
 
         private void CaiDatGridVaSuKien()
@@ -74,12 +180,27 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
                 colXoa.UseColumnTextForButtonValue = true;
             }
 
+            dgvDsNhapNVL.CellClick += dgvDsNhapNVL_CellClick;
             dgvDsNhapNVL.KeyDown += dgvDsNhapNVL_KeyDown;
             dgvDsNhapNVL.CellContentClick += dgvDsNhapNVL_CellContentClick;
             dgvDsNhapNVL.CellValueChanged += dgvDsNhapNVL_CellValueChanged;
             dgvDsNhapNVL.RowsAdded += dgvDsNhapNVL_RowsAdded;
             dgvDsNhapNVL.RowsRemoved += dgvDsNhapNVL_RowsRemoved;
             dgvDsNhapNVL.UserDeletedRow += dgvDsNhapNVL_UserDeletedRow;
+        }
+
+        private void dgvDsNhapNVL_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0 || e.ColumnIndex < 0) return;
+
+            if (dgvDsNhapNVL.Columns[e.ColumnIndex].Name != COL_CONG_DOAN) return;
+
+            dgvDsNhapNVL.BeginEdit(true);
+
+            if (dgvDsNhapNVL.EditingControl is ComboBox comboBox)
+            {
+                comboBox.DroppedDown = true;
+            }
         }
 
         private void tbxTimQr_KeyDown(object sender, KeyEventArgs e)
@@ -99,7 +220,12 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
                 return;
             }
 
-            if (maBin.Split('-')[0] != FITST_CHARACTOR_QR)
+            string[] arrSplitDash = maBin.Split('-');
+            string[] arrSplitSemicolon = maBin.Split(';');
+
+            if (arrSplitDash[0] != FITST_CHARACTOR_QR ||
+                arrSplitSemicolon.Length != 27 ||
+                arrSplitSemicolon[26].ToUpper() != "NOIBONK".ToUpper())
             {
                 FrmWaiting.ShowGifAlert("Qr không hợp lệ");
                 return;
@@ -127,11 +253,11 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
             }
             catch (Exception ex)
             {
-                FrmWaiting.ShowGifAlert(AppHelper.ShowErrorDatabase(ex, "TÌM QR"));
+                FrmWaiting.ShowGifAlert(CoreHelper.ShowErrorDatabase(ex, "TÌM QR"));
             }
         }
 
-        private void btnLuu_Click(object sender, EventArgs e)
+        private async void btnLuu_Click(object sender, EventArgs e)
         {
             dgvDsNhapNVL.EndEdit();
 
@@ -142,9 +268,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
                 return;
             }
 
-            List<DataGridViewRow> dsRowLuuOk = new List<DataGridViewRow>();
-            List<NhapKhoNVL_Dong> dsDaLuu = new List<NhapKhoNVL_Dong>();
-            List<string> dsLoi = new List<string>();
+            List<NhapKhoXuLyItem> dsCanLuu = new List<NhapKhoXuLyItem>();
+            int soDongLoi = 0;
 
             foreach (DataGridViewRow row in dsRow)
             {
@@ -154,36 +279,86 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
                 try
                 {
                     NhapKhoNVL_Dong input = LayDuLieuTuGrid(row, batBuocCoId: false);
-                    NhapKhoNVL_Dong daLuu = NhapKhoNVL_DB.LuuMotDong(input, "X");
 
-                    dsDaLuu.Add(daLuu);
-                    dsRowLuuOk.Add(row);
+                    dsCanLuu.Add(new NhapKhoXuLyItem
+                    {
+                        Row = row,
+                        SttDong = sttDong,
+                        Input = input
+                    });
                 }
                 catch (Exception ex)
                 {
-                    string loi = AppHelper.ShowErrorDatabase(ex, $"DÒNG {sttDong}");
+                    string loi = CoreHelper.ShowErrorDatabase(ex, $"DÒNG {sttDong}");
                     row.ErrorText = loi;
-                    dsLoi.Add($"Dòng {sttDong}: {loi}");
+                    soDongLoi++;
+                }
+            }
+
+            List<DataGridViewRow> dsRowLuuOk = new List<DataGridViewRow>();
+            List<NhapKhoNVL_Dong> dsDaLuu = new List<NhapKhoNVL_Dong>();
+
+            if (dsCanLuu.Count > 0)
+            {
+                FrmWaiting waiting = null;
+
+                try
+                {
+                    KhoaNhapLieu(true);
+
+                    waiting = new FrmWaiting("Đang lưu dữ liệu, vui lòng đợi...");
+                    waiting.ControlBox = false;
+                    waiting.ShowAndRefresh();
+
+                    List<NhapKhoXuLyResult> results =
+                        await Task.Run(() => LuuDanhSachTrongNen(dsCanLuu));
+
+                    foreach (NhapKhoXuLyResult result in results)
+                    {
+                        if (result.ThanhCong)
+                        {
+                            dsDaLuu.Add(result.Output);
+                            dsRowLuuOk.Add(result.Row);
+                        }
+                        else
+                        {
+                            string loi = CoreHelper.ShowErrorDatabase(result.Error, $"DÒNG {result.SttDong}");
+                            result.Row.ErrorText = loi;
+                            soDongLoi++;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    FrmWaiting.ShowGifAlert(CoreHelper.ShowErrorDatabase(ex, "LƯU DỮ LIỆU"));
+                    return;
+                }
+                finally
+                {
+                    if (waiting != null)
+                    {
+                        waiting.CloseAndDispose();
+                    }
+
+                    KhoaNhapLieu(false);
                 }
             }
 
             XoaCacDongDaXuLy(dsRowLuuOk);
             CapNhatSTT();
 
-            if (dsLoi.Count > 0)
+            if (soDongLoi > 0)
             {
-                FrmWaiting.ShowGifAlert(string.Join(Environment.NewLine, dsLoi));
+                FrmWaiting.ShowGifAlert($"Có {soDongLoi} dòng chưa được lưu.");
             }
 
             if (dsDaLuu.Count > 0)
             {
-                FrmWaiting.ShowGifAlert($"Đã lưu thành công {dsDaLuu.Count} dòng. Bạn có muốn in tem ngay bây giờ không?", "THÔNG BÁO", "question");
-
                 HoiVaInDanhSach(dsDaLuu);
             }
         }
 
-        private void btnSua_Click(object sender, EventArgs e)
+        private async void btnSua_Click(object sender, EventArgs e)
         {
             dgvDsNhapNVL.EndEdit();
 
@@ -194,8 +369,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
                 return;
             }
 
-            List<NhapKhoNVL_Dong> dsDaSua = new List<NhapKhoNVL_Dong>();
-            List<string> dsLoi = new List<string>();
+            List<NhapKhoXuLyItem> dsCanSua = new List<NhapKhoXuLyItem>();
+            int soDongLoi = 0;
 
             foreach (DataGridViewRow row in dsRow)
             {
@@ -205,30 +380,89 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
                 try
                 {
                     NhapKhoNVL_Dong input = LayDuLieuTuGrid(row, batBuocCoId: true);
-                    NhapKhoNVL_Dong daSua = NhapKhoNVL_DB.CapNhatMotDong(input);
 
-                    GanDongVaoGrid(row, daSua);
-                    row.Tag = daSua.TTThanhPhamId;
-                    dsDaSua.Add(daSua);
+                    dsCanSua.Add(new NhapKhoXuLyItem
+                    {
+                        Row = row,
+                        SttDong = sttDong,
+                        Input = input
+                    });
                 }
                 catch (Exception ex)
                 {
-                    string loi = AppHelper.ShowErrorDatabase(ex, $"DÒNG {sttDong}");
+                    string loi = CoreHelper.ShowErrorDatabase(ex, $"DÒNG {sttDong}");
                     row.ErrorText = loi;
-                    dsLoi.Add($"Dòng {sttDong}: {loi}");
+                    soDongLoi++;
                 }
             }
 
-            CapNhatSTT();
+            List<NhapKhoNVL_Dong> dsDaSua = new List<NhapKhoNVL_Dong>();
+            List<DataGridViewRow> dsRowSuaOk = new List<DataGridViewRow>();
 
-            if (dsLoi.Count > 0)
+            if (dsCanSua.Count > 0)
             {
-                FrmWaiting.ShowGifAlert(string.Join(Environment.NewLine, dsLoi));
+                FrmWaiting waiting = null;
+
+                try
+                {
+                    KhoaNhapLieu(true);
+
+                    waiting = new FrmWaiting("Đang cập nhật dữ liệu, vui lòng đợi...");
+                    waiting.ControlBox = false;
+                    waiting.ShowAndRefresh();
+
+                    List<NhapKhoXuLyResult> results =
+                        await Task.Run(() => SuaDanhSachTrongNen(dsCanSua));
+
+                    foreach (NhapKhoXuLyResult result in results)
+                    {
+                        if (result.ThanhCong)
+                        {
+                            dsDaSua.Add(result.Output);
+                            dsRowSuaOk.Add(result.Row);
+                        }
+                        else
+                        {
+                            string loi = CoreHelper.ShowErrorDatabase(result.Error, $"DÒNG {result.SttDong}");
+                            result.Row.ErrorText = loi;
+                            soDongLoi++;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    FrmWaiting.ShowGifAlert(CoreHelper.ShowErrorDatabase(ex, "CẬP NHẬT DỮ LIỆU"));
+                    return;
+                }
+                finally
+                {
+                    if (waiting != null)
+                    {
+                        waiting.CloseAndDispose();
+                    }
+
+                    KhoaNhapLieu(false);
+                }
             }
 
-            if (dsDaSua.Count > 0)
+            XoaCacDongDaXuLy(dsRowSuaOk);
+            CapNhatSTT();
+
+            bool coDongSuaThanhCong = dsDaSua.Count > 0;
+
+            if (coDongSuaThanhCong && soDongLoi == 0)
             {
-                FrmWaiting.ShowGifAlert($"Đã sửa thành công {dsDaSua.Count} dòng.");
+                tbxTimQr.Clear();
+                btnSua.Visible = false;
+                btnLuu.Visible = true;
+            }
+
+            if (soDongLoi > 0)
+                FrmWaiting.ShowGifAlert($"Có {soDongLoi} dòng chưa được sửa.");
+
+            if (coDongSuaThanhCong)
+            {
+                FrmWaiting.ShowGifAlert($"Đã sửa thành công {dsDaSua.Count} dòng.", myIcon:EnumStore.Icon.Success);
                 HoiVaInDanhSach(dsDaSua);
             }
         }
@@ -258,9 +492,13 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
                 .Replace('\r', '\n')
                 .Split('\n');
 
+            List<string> dsLoi = new List<string>();
+
             for (int i = 0; i < lines.Length; i++)
             {
                 DataGridViewRow row = LayHoacTaoRow(startRow + i);
+                row.ErrorText = string.Empty;
+
                 string[] cells = lines[i].Split('\t');
 
                 for (int j = 0; j < cells.Length; j++)
@@ -273,11 +511,55 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
                     if (!dgvDsNhapNVL.Columns.Contains(colName))
                         continue;
 
-                    row.Cells[colName].Value = cells[j]?.Trim();
+                    string cellText = cells[j]?.Trim() ?? string.Empty;
+
+                    try
+                    {
+                        if (colName == COL_CONG_DOAN)
+                        {
+                            row.Cells[colName].Value = LayCongDoanIdTheoTen(cellText);
+                        }
+                        else
+                        {
+                            row.Cells[colName].Value = cellText;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        int sttDong = row.Index + 1;
+                        row.ErrorText = ex.Message;
+                        dsLoi.Add($"Dòng {sttDong}: {ex.Message}");
+                    }
                 }
             }
 
             CapNhatSTT();
+
+            if (dsLoi.Count > 0)
+            {
+                FrmWaiting.ShowGifAlert(string.Join(Environment.NewLine, dsLoi));
+            }
+        }
+
+        private int LayCongDoanIdTheoTen(string tenCongDoan)
+        {
+            tenCongDoan = tenCongDoan?.Trim() ?? string.Empty;
+
+            if (string.IsNullOrWhiteSpace(tenCongDoan))
+                throw new InvalidOperationException("Tên công đoạn không được để trống khi paste.");
+
+            var congDoan = ThongTinChungCongDoan.TatCaCongDoan
+                .Where(x => x.Id != 2)
+                .FirstOrDefault(x =>
+                    string.Equals(
+                        x.TenCongDoan?.Trim(),
+                        tenCongDoan,
+                        StringComparison.CurrentCultureIgnoreCase));
+
+            if (congDoan == null)
+                throw new InvalidOperationException($"Tên công đoạn không hợp lệ: {tenCongDoan}");
+
+            return congDoan.Id;
         }
 
         private int LayViTriCotPaste(string colName)
@@ -361,7 +643,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
 
         private bool DongCoDuLieu(DataGridViewRow row)
         {
-            return !string.IsNullOrWhiteSpace(LayCellText(row, COL_TEN))
+            return row.Cells[COL_CONG_DOAN].Value != null
+                || !string.IsNullOrWhiteSpace(LayCellText(row, COL_TEN))
                 || !string.IsNullOrWhiteSpace(LayCellText(row, COL_KHOI_LUONG))
                 || !string.IsNullOrWhiteSpace(LayCellText(row, COL_CHIEU_DAI))
                 || !string.IsNullOrWhiteSpace(LayCellText(row, COL_QR))
@@ -397,20 +680,24 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
             if (batBuocCoId && (!id.HasValue || id.Value <= 0))
                 throw new InvalidOperationException("Dòng này chưa có TTThanhPham_ID, không thể sửa.");
 
+            int congDoanId = LayCongDoanIdTuGrid(row);
+
             return new NhapKhoNVL_Dong
             {
                 TTThanhPhamId = id,
                 Ten = ten.Trim(),
-                TenKhongDau = AppHelper.BoDauTiengViet(ten).Trim(),
+                TenKhongDau = CoreHelper.BoDauTiengViet(ten).Trim(),
                 KhoiLuong = khoiLuong,
                 ChieuDai = chieuDai,
                 MaBin = qr,
+                CongDoanId = congDoanId,
                 GhiChu = LayCellText(row, COL_GHI_CHU)
             };
         }
 
         private void GanDongVaoGrid(DataGridViewRow row, NhapKhoNVL_Dong dong)
         {
+            row.Cells[COL_CONG_DOAN].Value = dong.CongDoanId;
             row.Cells[COL_TEN].Value = dong.Ten;
             row.Cells[COL_KHOI_LUONG].Value = FormatSo(dong.KhoiLuong);
             row.Cells[COL_CHIEU_DAI].Value = FormatSo(dong.ChieuDai);
@@ -433,7 +720,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
             if (dsDong == null || dsDong.Count == 0) return;
 
             DialogResult result = MessageBox.Show(
-                $"Bạn có muốn in tem cho {dsDong.Count} dòng đã xử lý thành công không?",
+                $"Đã lưu {dsDong.Count} thành công, bạn muốn in không?",
                 "XÁC NHẬN IN TEM",
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Question);
@@ -459,6 +746,25 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
             {
                 FrmWaiting.ShowGifAlert(string.Join(Environment.NewLine, dsLoiIn));
             }
+        }
+
+        private int LayCongDoanIdTuGrid(DataGridViewRow row)
+        {
+            object value = row.Cells[COL_CONG_DOAN].Value;
+
+            if (value == null || value == DBNull.Value)
+                throw new InvalidOperationException("Vui lòng chọn công đoạn.");
+
+            if (!int.TryParse(value.ToString(), out int congDoanId))
+                throw new InvalidOperationException("Công đoạn không hợp lệ.");
+
+            bool tonTai = ThongTinChungCongDoan.TatCaCongDoan
+                .Any(x => x.Id == congDoanId && x.Id != 2);
+
+            if (!tonTai)
+                throw new InvalidOperationException("Công đoạn không hợp lệ hoặc không được phép chọn.");
+
+            return congDoanId;
         }
 
         private PrinterModel BuildPrinter()

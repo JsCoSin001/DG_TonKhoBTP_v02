@@ -39,6 +39,19 @@ namespace DG_TonKhoBTP_v02.Helper
         }
 
 
+        public static string VietHoaKyTuDau(string text)
+        {
+            text = text?.Trim() ?? string.Empty;
+
+            if (string.IsNullOrWhiteSpace(text))
+                return string.Empty;
+
+            text = text.ToLower();
+
+            return char.ToUpper(text[0]) + text.Substring(1);
+        }
+
+
         public static string TaoChuoiThongTinCuonDay( List<ThongTinCuonDay> ds, bool isCuon, decimal chieuCaoLo)
         {
             if (ds == null || ds.Count == 0)

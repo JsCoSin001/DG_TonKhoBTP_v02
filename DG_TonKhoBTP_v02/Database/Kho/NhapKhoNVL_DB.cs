@@ -1,17 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Data.SQLite;
 using System.Globalization;
+using DG_TonKhoBTP_v02.Models;
 
 namespace DG_TonKhoBTP_v02.Database.Kho
 {
     internal static class NhapKhoNVL_DB
     {
-        private static readonly Random _random = new Random();
-        private static readonly object _randomLock = new object();
-
-        internal static NhapKhoNVL_Dong LuuMotDong(NhapKhoNVL_Dong input, string zeroDigit = "X")
+        internal static NhapKhoNVL_Dong LuuMotDong(NhapKhoNVL_Dong input)
         {
             if (input == null)
                 throw new ArgumentNullException(nameof(input));
@@ -21,7 +18,11 @@ namespace DG_TonKhoBTP_v02.Database.Kho
 
             try
             {
-                NhapKhoNVL_SanPham sp = TimSanPhamNhapKhoTheoTenKhongDau(conn, tran, input.TenKhongDau);
+                NhapKhoNVL_SanPham sp = TimSanPhamNhapKhoTheoTenKhongDauVaCongDoan(
+                    conn,
+                    tran,
+                    input.TenKhongDau,
+                    input.CongDoanId);
 
                 string maBin = input.MaBin.Trim();
 
@@ -45,7 +46,7 @@ namespace DG_TonKhoBTP_v02.Database.Kho
                     cmd.Parameters.AddWithValue("@MaBin", maBin);
                     cmd.Parameters.AddWithValue("@KhoiLuong", input.KhoiLuong);
                     cmd.Parameters.AddWithValue("@ChieuDai", input.ChieuDai);
-                    cmd.Parameters.AddWithValue("@CongDoan", "0");
+                    cmd.Parameters.AddWithValue("@CongDoan", input.CongDoanId);
                     cmd.Parameters.AddWithValue("@GhiChu", string.IsNullOrWhiteSpace(input.GhiChu) ? (object)DBNull.Value : input.GhiChu.Trim());
                     cmd.Parameters.AddWithValue("@DateInsert", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture));
                     cmd.Parameters.AddWithValue("@NhapKho", 0);
@@ -65,6 +66,7 @@ namespace DG_TonKhoBTP_v02.Database.Kho
                     KhoiLuong = input.KhoiLuong,
                     ChieuDai = input.ChieuDai,
                     MaBin = maBin,
+                    CongDoanId = input.CongDoanId,
                     GhiChu = input.GhiChu ?? string.Empty
                 };
             }
@@ -91,7 +93,11 @@ namespace DG_TonKhoBTP_v02.Database.Kho
 
             try
             {
-                NhapKhoNVL_SanPham sp = TimSanPhamNhapKhoTheoTenKhongDau(conn, tran, input.TenKhongDau);
+                NhapKhoNVL_SanPham sp = TimSanPhamNhapKhoTheoTenKhongDauVaCongDoan(
+                    conn,
+                    tran,
+                    input.TenKhongDau,
+                    input.CongDoanId);
 
                 const string sql = @"
                     UPDATE TTThanhPham
@@ -101,6 +107,7 @@ namespace DG_TonKhoBTP_v02.Database.Kho
                         KhoiLuongSau    = @KhoiLuong,
                         ChieuDaiTruoc   = @ChieuDai,
                         ChieuDaiSau     = @ChieuDai,
+                        CongDoan        = @CongDoan,
                         GhiChu          = @GhiChu
                     WHERE id = @TTThanhPham_ID;";
 
@@ -110,6 +117,7 @@ namespace DG_TonKhoBTP_v02.Database.Kho
                     cmd.Parameters.AddWithValue("@MaBin", input.MaBin.Trim());
                     cmd.Parameters.AddWithValue("@KhoiLuong", input.KhoiLuong);
                     cmd.Parameters.AddWithValue("@ChieuDai", input.ChieuDai);
+                    cmd.Parameters.AddWithValue("@CongDoan", input.CongDoanId);
                     cmd.Parameters.AddWithValue("@GhiChu", string.IsNullOrWhiteSpace(input.GhiChu) ? (object)DBNull.Value : input.GhiChu.Trim());
                     cmd.Parameters.AddWithValue("@TTThanhPham_ID", input.TTThanhPhamId.Value);
 
@@ -129,6 +137,7 @@ namespace DG_TonKhoBTP_v02.Database.Kho
                     KhoiLuong = input.KhoiLuong,
                     ChieuDai = input.ChieuDai,
                     MaBin = input.MaBin.Trim(),
+                    CongDoanId = input.CongDoanId,
                     GhiChu = input.GhiChu ?? string.Empty
                 };
             }
@@ -139,7 +148,7 @@ namespace DG_TonKhoBTP_v02.Database.Kho
             }
         }
 
-        internal static NhapKhoNVL_Dong TimTheoMaBin(string maBin)
+        public static NhapKhoNVL_Dong TimTheoMaBin(string maBin)
         {
             maBin = maBin?.Trim() ?? string.Empty;
             if (string.IsNullOrWhiteSpace(maBin))
@@ -151,6 +160,7 @@ namespace DG_TonKhoBTP_v02.Database.Kho
                         tp.MaBin           AS MaBin,
                         tp.KhoiLuongSau    AS KhoiLuong,
                         tp.ChieuDaiSau     AS ChieuDai,
+                        tp.CongDoan        AS CongDoan,
                         tp.GhiChu          AS GhiChu,
                         sp.Ten             AS Ten,
                         sp.Ten_KhongDau    AS TenKhongDau,
@@ -175,6 +185,7 @@ namespace DG_TonKhoBTP_v02.Database.Kho
                 MaBin = LayString(reader, "MaBin"),
                 KhoiLuong = LayDouble(reader, "KhoiLuong"),
                 ChieuDai = LayDouble(reader, "ChieuDai"),
+                CongDoanId = LayInt(reader, "CongDoan"),
                 GhiChu = LayString(reader, "GhiChu"),
                 Ten = LayString(reader, "Ten"),
                 TenKhongDau = LayString(reader, "TenKhongDau"),
@@ -186,7 +197,7 @@ namespace DG_TonKhoBTP_v02.Database.Kho
         {
             DateTime now = DateTime.Now;
 
-            int middlePart = int.Parse(now.ToString("yyMMdd")) + 100000;
+            int middlePart = int.Parse(now.ToString("yyMMdd", CultureInfo.InvariantCulture), CultureInfo.InvariantCulture) + 100000;
 
             int partAfterSlash = now.Hour;
             int part4 = now.Minute;
@@ -195,25 +206,32 @@ namespace DG_TonKhoBTP_v02.Database.Kho
             return $"{zeroDigit}-{middlePart}/{partAfterSlash:D2}-{part4:D2}-{part5:D2}";
         }
 
-
-        private static NhapKhoNVL_SanPham TimSanPhamNhapKhoTheoTenKhongDau(
+        private static NhapKhoNVL_SanPham TimSanPhamNhapKhoTheoTenKhongDauVaCongDoan(
             SQLiteConnection conn,
             SQLiteTransaction tran,
-            string tenKhongDau)
+            string tenKhongDau,
+            int congDoanId)
         {
             tenKhongDau = tenKhongDau?.Trim() ?? string.Empty;
             if (string.IsNullOrWhiteSpace(tenKhongDau))
                 throw new InvalidOperationException("Tên sản phẩm không được để trống.");
 
             const string sql = @"
-                SELECT  id,
-                        Ten,
-                        Ten_KhongDau,
-                        Ma
-                FROM    DanhSachMaSP
-                WHERE   UPPER(TRIM(IFNULL(Ten_KhongDau, ''))) = UPPER(TRIM(@TenKhongDau))
-                    AND UPPER(KieuSP) <> 'TP'
-                    AND IFNULL(Active, 1) = 1
+                SELECT  sp.id,
+                        sp.Ten,
+                        sp.Ten_KhongDau,
+                        sp.Ma
+                FROM    DanhSachMaSP sp
+                WHERE   UPPER(TRIM(IFNULL(sp.Ten_KhongDau, ''))) = UPPER(TRIM(@TenKhongDau))
+                    AND UPPER(TRIM(sp.KieuSP)) <> 'TP'
+                    AND IFNULL(sp.Active, 1) = 1
+                    AND EXISTS (
+                        SELECT 1
+                        FROM BOMStructure bom
+                        WHERE bom.ParentProduct = sp.id
+                          AND bom.CongDoan = @CongDoan
+                          AND IFNULL(bom.Active, 1) = 1
+                    )
                 LIMIT   2;";
 
             List<NhapKhoNVL_SanPham> result = new List<NhapKhoNVL_SanPham>();
@@ -221,6 +239,7 @@ namespace DG_TonKhoBTP_v02.Database.Kho
             using (var cmd = new SQLiteCommand(sql, conn, tran))
             {
                 cmd.Parameters.AddWithValue("@TenKhongDau", tenKhongDau);
+                cmd.Parameters.AddWithValue("@CongDoan", congDoanId);
 
                 using SQLiteDataReader reader = cmd.ExecuteReader();
                 while (reader.Read())
@@ -236,10 +255,10 @@ namespace DG_TonKhoBTP_v02.Database.Kho
             }
 
             if (result.Count == 0)
-                throw new InvalidOperationException($"Không tìm thấy sản phẩm NVL/BTP theo Ten_KhongDau = '{tenKhongDau}'.");
+                throw new InvalidOperationException("Tên sản phẩm không phù hợp với công đoạn đã chọn.");
 
             if (result.Count > 1)
-                throw new InvalidOperationException($"Tên sản phẩm '{tenKhongDau}' đang trùng nhiều dòng trong DanhSachMaSP.");
+                throw new InvalidOperationException("Tên sản phẩm không phù hợp với công đoạn đã chọn.");
 
             return result[0];
         }
@@ -257,6 +276,23 @@ namespace DG_TonKhoBTP_v02.Database.Kho
             return Convert.ToInt64(value, CultureInfo.InvariantCulture);
         }
 
+        private static int LayInt(SQLiteDataReader reader, string col)
+        {
+            object value = reader[col];
+
+            if (value == DBNull.Value)
+                return 0;
+
+            string text = Convert.ToString(value, CultureInfo.InvariantCulture)?.Trim() ?? string.Empty;
+
+            if (string.IsNullOrWhiteSpace(text))
+                return 0;
+
+            return int.TryParse(text, NumberStyles.Any, CultureInfo.InvariantCulture, out int result)
+                ? result
+                : 0;
+        }
+
         private static double LayDouble(SQLiteDataReader reader, string col)
         {
             object value = reader[col];
@@ -265,24 +301,5 @@ namespace DG_TonKhoBTP_v02.Database.Kho
         }
     }
 
-    internal sealed class NhapKhoNVL_Dong
-    {
-        public long? TTThanhPhamId { get; set; }
-        public long? DanhSachSPId { get; set; }
-        public string Ten { get; set; } = string.Empty;
-        public string TenKhongDau { get; set; } = string.Empty;
-        public string MaSP { get; set; } = string.Empty;
-        public double KhoiLuong { get; set; }
-        public double ChieuDai { get; set; }
-        public string MaBin { get; set; } = string.Empty;
-        public string GhiChu { get; set; } = string.Empty;
-    }
-
-    internal sealed class NhapKhoNVL_SanPham
-    {
-        public long Id { get; set; }
-        public string Ten { get; set; } = string.Empty;
-        public string TenKhongDau { get; set; } = string.Empty;
-        public string Ma { get; set; } = string.Empty;
-    }
+    
 }

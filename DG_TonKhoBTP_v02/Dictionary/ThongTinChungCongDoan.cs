@@ -92,7 +92,7 @@ namespace DG_TonKhoBTP_v02.Dictionary
 
         public static readonly CongDoan BenRuot = new CongDoan(
             1,
-            "bện đồng - nhôm",
+            "Bện đồng - nhôm",
             EnumStore.MayTheoCongDoan["Ben_CU_AL"],
             BaseColumns(
                 new ColumnDefinition { Name = "DuongKinhSoiDong", DataType = typeof(double), Header = "ĐK sợi đồng" }
@@ -153,7 +153,7 @@ namespace DG_TonKhoBTP_v02.Dictionary
         public static readonly CongDoan GhepLoi = new CongDoan(GhepLoi_QB)
         {
             Id = 6,
-            TenCongDoan = "ghép lõi",
+            TenCongDoan = "Ghép lõi",
             DanhSachMay = EnumStore.MayTheoCongDoan["GhepLoi"],
             ListMa_Accept = new List<string> { "BTP.20104%", "BTP.20204%" }
         };
@@ -169,7 +169,7 @@ namespace DG_TonKhoBTP_v02.Dictionary
         public static readonly CongDoan Mica = new CongDoan(GhepLoi_QB)
         {
             Id = 8,
-            TenCongDoan = "quấn băng mica",
+            TenCongDoan = "Quấn băng mica",
         };
 
         public static readonly CongDoan HanNoi = new CongDoan(

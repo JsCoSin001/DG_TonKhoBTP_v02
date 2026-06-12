@@ -1,8 +1,10 @@
-﻿using System;
+﻿using DG_TonKhoBTP_v02.Database.Kho;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace DG_TonKhoBTP_v02.Models
 {
@@ -14,6 +16,53 @@ namespace DG_TonKhoBTP_v02.Models
         public int SoDau { get; set; }
         public int soCuoi { get; set; }
         public string Ghichu { get; set; }
+    }
+
+
+
+    public sealed class CongDoanComboItem
+    {
+        public int Id { get; set; }
+        public string TenCongDoan { get; set; } = string.Empty;
+    }
+
+    public sealed class NhapKhoXuLyItem
+    {
+        public DataGridViewRow Row { get; set; }
+        public int SttDong { get; set; }
+        public NhapKhoNVL_Dong Input { get; set; }
+    }
+
+    public sealed class NhapKhoNVL_Dong
+    {
+        public long? TTThanhPhamId { get; set; }
+        public long? DanhSachSPId { get; set; }
+        public int CongDoanId { get; set; }
+        public string Ten { get; set; } = string.Empty;
+        public string TenKhongDau { get; set; } = string.Empty;
+        public string MaSP { get; set; } = string.Empty;
+        public double KhoiLuong { get; set; }
+        public double ChieuDai { get; set; }
+        public string MaBin { get; set; } = string.Empty;
+        public string GhiChu { get; set; } = string.Empty;
+    }
+
+    public sealed class NhapKhoNVL_SanPham
+    {
+        public long Id { get; set; }
+        public string Ten { get; set; } = string.Empty;
+        public string TenKhongDau { get; set; } = string.Empty;
+        public string Ma { get; set; } = string.Empty;
+    }
+
+    public sealed class NhapKhoXuLyResult
+    {
+        public DataGridViewRow Row { get; set; }
+        public int SttDong { get; set; }
+        public NhapKhoNVL_Dong Output { get; set; }
+        public Exception Error { get; set; }
+
+        public bool ThanhCong => Error == null;
     }
 
     /// <summary>

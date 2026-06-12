@@ -611,7 +611,7 @@ namespace DG_TonKhoBTP_v02.UI
                     continue;
                 }
 
-                if (newItem.IsCorrect == false)
+                if (newItem.IsCorrect == false && _CD.Id != 1)
                 {
                     DialogResult confirm = MessageBox.Show(
                         $"Sản phẩm này không phù hợp với thành phẩm: {thanhPham.SoLOT}\nNếu tiếp tục chọn Yes, hoặc quét lại chọn No",

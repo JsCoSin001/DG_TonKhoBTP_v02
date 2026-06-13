@@ -42,8 +42,8 @@
             this.groupBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.groupBox1.Location = new System.Drawing.Point(10, 10);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Padding = new System.Windows.Forms.Padding(3, 0, 10, 3);
-            this.groupBox1.Size = new System.Drawing.Size(13, 18);
+            this.groupBox1.Padding = new System.Windows.Forms.Padding(3, 5, 10, 3);
+            this.groupBox1.Size = new System.Drawing.Size(13, 23);
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Chi tiết TP";
@@ -53,7 +53,7 @@
             this.panel1.AutoSize = true;
             this.panel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel1.Location = new System.Drawing.Point(3, 15);
+            this.panel1.Location = new System.Drawing.Point(3, 20);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(0, 0);
             this.panel1.TabIndex = 0;
@@ -67,7 +67,7 @@
             this.Controls.Add(this.groupBox1);
             this.Name = "UC_TTSanPham";
             this.Padding = new System.Windows.Forms.Padding(10);
-            this.Size = new System.Drawing.Size(33, 38);
+            this.Size = new System.Drawing.Size(33, 43);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.ResumeLayout(false);

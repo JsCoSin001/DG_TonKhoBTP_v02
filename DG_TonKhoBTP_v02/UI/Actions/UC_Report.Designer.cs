@@ -73,10 +73,10 @@
             // 
             this.label1.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.label1.AutoSize = true;
-            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(3, 14);
+            this.label1.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label1.Location = new System.Drawing.Point(3, 15);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(49, 18);
+            this.label1.Size = new System.Drawing.Size(43, 16);
             this.label1.TabIndex = 0;
             this.label1.Text = "Tháng";
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -85,7 +85,7 @@
             // 
             this.btnShowBaoCao.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.btnShowBaoCao.BackColor = System.Drawing.Color.LightSeaGreen;
-            this.btnShowBaoCao.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnShowBaoCao.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnShowBaoCao.ForeColor = System.Drawing.SystemColors.ControlLightLight;
             this.btnShowBaoCao.Location = new System.Drawing.Point(269, 4);
             this.btnShowBaoCao.Name = "btnShowBaoCao";
@@ -99,20 +99,21 @@
             // 
             this.panel1.Controls.Add(this.ngayBC);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel1.Location = new System.Drawing.Point(58, 3);
+            this.panel1.Location = new System.Drawing.Point(52, 3);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(205, 40);
+            this.panel1.Size = new System.Drawing.Size(211, 40);
             this.panel1.TabIndex = 2;
             // 
             // ngayBC
             // 
             this.ngayBC.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.ngayBC.CustomFormat = "MM/yyyy";
+            this.ngayBC.CalendarFont = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.ngayBC.CustomFormat = "MM";
             this.ngayBC.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.ngayBC.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
             this.ngayBC.Location = new System.Drawing.Point(0, 11);
             this.ngayBC.Name = "ngayBC";
-            this.ngayBC.Size = new System.Drawing.Size(199, 26);
+            this.ngayBC.Size = new System.Drawing.Size(205, 26);
             this.ngayBC.TabIndex = 0;
             // 
             // UC_Report

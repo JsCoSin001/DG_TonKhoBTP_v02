@@ -90,7 +90,7 @@
             this.groupBox1.Location = new System.Drawing.Point(10, 0);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Padding = new System.Windows.Forms.Padding(10);
-            this.groupBox1.Size = new System.Drawing.Size(1028, 155);
+            this.groupBox1.Size = new System.Drawing.Size(1028, 129);
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Thông tin TP công đoạn";
@@ -100,7 +100,7 @@
             this.panel1.Controls.Add(this.tableLayoutPanel1);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
             this.panel1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.panel1.Location = new System.Drawing.Point(10, 65);
+            this.panel1.Location = new System.Drawing.Point(10, 59);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(1008, 55);
             this.panel1.TabIndex = 0;
@@ -410,7 +410,7 @@
             this.panel3.Dock = System.Windows.Forms.DockStyle.Top;
             this.panel3.Location = new System.Drawing.Point(10, 25);
             this.panel3.Name = "panel3";
-            this.panel3.Size = new System.Drawing.Size(1008, 40);
+            this.panel3.Size = new System.Drawing.Size(1008, 34);
             this.panel3.TabIndex = 1;
             // 
             // tableLayoutPanel4
@@ -425,8 +425,6 @@
             this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 67F));
-            this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.tableLayoutPanel4.Controls.Add(this.ten, 7, 0);
             this.tableLayoutPanel4.Controls.Add(this.ma, 5, 0);
             this.tableLayoutPanel4.Controls.Add(this.label19, 6, 0);
@@ -440,8 +438,8 @@
             this.tableLayoutPanel4.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel4.Name = "tableLayoutPanel4";
             this.tableLayoutPanel4.RowCount = 1;
-            this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel4.Size = new System.Drawing.Size(1008, 40);
+            this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel4.Size = new System.Drawing.Size(1008, 34);
             this.tableLayoutPanel4.TabIndex = 0;
             // 
             // ten
@@ -565,7 +563,7 @@
             this.Controls.Add(this.groupBox1);
             this.Name = "UC_TTThanhPham";
             this.Padding = new System.Windows.Forms.Padding(10, 0, 10, 0);
-            this.Size = new System.Drawing.Size(1048, 155);
+            this.Size = new System.Drawing.Size(1048, 129);
             this.groupBox1.ResumeLayout(false);
             this.panel1.ResumeLayout(false);
             this.tableLayoutPanel1.ResumeLayout(false);

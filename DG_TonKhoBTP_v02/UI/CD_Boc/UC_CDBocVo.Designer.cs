@@ -49,8 +49,6 @@
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.tableLayoutPanel1.Controls.Add(this.label3, 2, 0);
             this.tableLayoutPanel1.Controls.Add(this.label2, 1, 0);
             this.tableLayoutPanel1.Controls.Add(this.label1, 0, 0);
@@ -62,9 +60,9 @@
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 2;
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 35F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(635, 65);
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(635, 51);
             this.tableLayoutPanel1.TabIndex = 0;
             // 
             // label3
@@ -74,7 +72,7 @@
             this.label3.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label3.Location = new System.Drawing.Point(257, 0);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(121, 30);
+            this.label3.Size = new System.Drawing.Size(121, 16);
             this.label3.TabIndex = 18;
             this.label3.Text = "Kiểu đóng gói";
             this.label3.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
@@ -86,7 +84,7 @@
             this.label2.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label2.Location = new System.Drawing.Point(130, 0);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(121, 30);
+            this.label2.Size = new System.Drawing.Size(121, 16);
             this.label2.TabIndex = 1;
             this.label2.Text = "Dày vỏ TB";
             this.label2.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
@@ -98,7 +96,7 @@
             this.label1.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label1.Location = new System.Drawing.Point(3, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(121, 30);
+            this.label1.Size = new System.Drawing.Size(121, 16);
             this.label1.TabIndex = 0;
             this.label1.Text = "In ấn";
             this.label1.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
@@ -112,7 +110,7 @@
             this.inAn.Items.AddRange(new object[] {
             "Tốt",
             "Xấu"});
-            this.inAn.Location = new System.Drawing.Point(3, 34);
+            this.inAn.Location = new System.Drawing.Point(3, 20);
             this.inAn.Name = "inAn";
             this.inAn.Size = new System.Drawing.Size(121, 26);
             this.inAn.TabIndex = 17;
@@ -127,7 +125,7 @@
             0,
             0,
             65536});
-            this.dayVoTB.Location = new System.Drawing.Point(130, 34);
+            this.dayVoTB.Location = new System.Drawing.Point(130, 20);
             this.dayVoTB.Maximum = new decimal(new int[] {
             1569325055,
             23283064,
@@ -143,7 +141,7 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.btnDongGoi.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnDongGoi.Location = new System.Drawing.Point(257, 33);
+            this.btnDongGoi.Location = new System.Drawing.Point(257, 19);
             this.btnDongGoi.Name = "btnDongGoi";
             this.btnDongGoi.Size = new System.Drawing.Size(121, 29);
             this.btnDongGoi.TabIndex = 19;
@@ -159,7 +157,7 @@
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.Controls.Add(this.tableLayoutPanel1);
             this.Name = "UC_CDBocVo";
-            this.Size = new System.Drawing.Size(635, 65);
+            this.Size = new System.Drawing.Size(635, 51);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dayVoTB)).EndInit();

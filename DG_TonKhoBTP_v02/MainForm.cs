@@ -35,7 +35,7 @@ namespace DG_TonKhoBTP_v02
     {
         private string _URL = Properties.Settings.Default.URL;
         private CongDoanUiService _ui;
-        private string _ver = "2.7.0";
+        private string _ver = "2.7.0 - Beta";
         private bool show = false;
         private void InitUiService()
         {
@@ -854,7 +854,7 @@ namespace DG_TonKhoBTP_v02
             UC_Edit uC_Edit = new UC_Edit(cd);
             // Đặt Form Sửa số liệu bên trái panel pnEdit_Report
             uC_Edit.Dock = DockStyle.Left;
-            uC_Edit.Width = 500;
+            uC_Edit.Width = 400;
 
             UC_Report uC_Report = new UC_Report(cd);
             // Đặt Form báo cáo toàn panel pnEdit_Report
@@ -1316,7 +1316,7 @@ namespace DG_TonKhoBTP_v02
 
 
             // Cấu hình riêng: Bộ phận kế hoạch không có chức năng xem báo cáo => ẩn
-            grbBaoCao.Visible = !UserContext.HasRole(RoleNames.Plan);
+            //grbBaoCao.Visible = !UserContext.HasRole(RoleNames.Plan);
 
 
         }
@@ -1599,6 +1599,39 @@ namespace DG_TonKhoBTP_v02
                     pnShow.Controls.Clear();
 
                     var uc = new UC_XuatKho
+                    {
+                        Dock = DockStyle.Fill
+                    };
+                    pnShow.Controls.Add(uc);
+                }
+                catch (Exception ex)
+                {
+                    FrmWaiting.ShowGifAlert($"Lỗi khởi tạo giao diện cập nhật mã hàng: {ex.Message}");
+                }
+                finally
+                {
+                    pnShow.Visible = true;
+                    pnShow.ResumeLayout(true);
+                    waiting?.CloseAndDispose();
+                    btnCapNhatMaHang.Enabled = true;
+                }
+            }
+        }
+
+        private void btnKiemTraDuLieu_Click(object sender, EventArgs e)
+        {
+            using (var waiting = new FrmWaiting("ĐANG KHỞI TẠO GIAO DIỆN..."))
+            {
+                try
+                {
+                    waiting.ShowAndRefresh();
+
+                    pnShow.SuspendLayout();
+                    pnShow.Visible = false;
+
+                    pnShow.Controls.Clear();
+
+                    var uc = new UC_KiemTraDuLieu
                     {
                         Dock = DockStyle.Fill
                     };

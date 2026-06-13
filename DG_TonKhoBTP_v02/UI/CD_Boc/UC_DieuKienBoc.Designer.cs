@@ -106,20 +106,20 @@
             this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(4);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 4;
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 35F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 35F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(1655, 130);
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(1669, 111);
             this.tableLayoutPanel1.TabIndex = 0;
             // 
             // ghiChuDayPhe
             // 
             this.ghiChuDayPhe.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.ghiChuDayPhe.Location = new System.Drawing.Point(1419, 38);
+            this.ghiChuDayPhe.Location = new System.Drawing.Point(1431, 19);
             this.ghiChuDayPhe.Name = "ghiChuDayPhe";
             this.tableLayoutPanel1.SetRowSpan(this.ghiChuDayPhe, 3);
-            this.ghiChuDayPhe.Size = new System.Drawing.Size(233, 89);
+            this.ghiChuDayPhe.Size = new System.Drawing.Size(235, 89);
             this.ghiChuDayPhe.TabIndex = 40;
             this.ghiChuDayPhe.Text = "";
             // 
@@ -133,14 +133,14 @@
             0,
             0,
             65536});
-            this.DiemMongLan2.Location = new System.Drawing.Point(947, 103);
+            this.DiemMongLan2.Location = new System.Drawing.Point(955, 67);
             this.DiemMongLan2.Maximum = new decimal(new int[] {
             1569325055,
             23283064,
             0,
             0});
             this.DiemMongLan2.Name = "DiemMongLan2";
-            this.DiemMongLan2.Size = new System.Drawing.Size(230, 26);
+            this.DiemMongLan2.Size = new System.Drawing.Size(232, 26);
             this.DiemMongLan2.TabIndex = 38;
             // 
             // label11
@@ -148,10 +148,10 @@
             this.label11.AutoSize = true;
             this.label11.Dock = System.Windows.Forms.DockStyle.Fill;
             this.label11.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label11.Location = new System.Drawing.Point(948, 65);
+            this.label11.Location = new System.Drawing.Point(956, 48);
             this.label11.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(228, 35);
+            this.label11.Size = new System.Drawing.Size(230, 16);
             this.label11.TabIndex = 37;
             this.label11.Text = "Mỏng vỏ 2";
             this.label11.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
@@ -166,14 +166,14 @@
             0,
             0,
             65536});
-            this.dayPhe.Location = new System.Drawing.Point(947, 38);
+            this.dayPhe.Location = new System.Drawing.Point(955, 19);
             this.dayPhe.Maximum = new decimal(new int[] {
             1569325055,
             23283064,
             0,
             0});
             this.dayPhe.Name = "dayPhe";
-            this.dayPhe.Size = new System.Drawing.Size(230, 26);
+            this.dayPhe.Size = new System.Drawing.Size(232, 26);
             this.dayPhe.TabIndex = 35;
             // 
             // DiemMongLan1
@@ -186,14 +186,14 @@
             0,
             0,
             65536});
-            this.DiemMongLan1.Location = new System.Drawing.Point(711, 103);
+            this.DiemMongLan1.Location = new System.Drawing.Point(717, 67);
             this.DiemMongLan1.Maximum = new decimal(new int[] {
             1569325055,
             23283064,
             0,
             0});
             this.DiemMongLan1.Name = "DiemMongLan1";
-            this.DiemMongLan1.Size = new System.Drawing.Size(230, 26);
+            this.DiemMongLan1.Size = new System.Drawing.Size(232, 26);
             this.DiemMongLan1.TabIndex = 33;
             // 
             // label10
@@ -201,10 +201,10 @@
             this.label10.AutoSize = true;
             this.label10.Dock = System.Windows.Forms.DockStyle.Fill;
             this.label10.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label10.Location = new System.Drawing.Point(712, 65);
+            this.label10.Location = new System.Drawing.Point(718, 48);
             this.label10.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(228, 35);
+            this.label10.Size = new System.Drawing.Size(230, 16);
             this.label10.TabIndex = 31;
             this.label10.Text = "Mỏng vỏ 1";
             this.label10.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
@@ -214,10 +214,10 @@
             this.label9.AutoSize = true;
             this.label9.Dock = System.Windows.Forms.DockStyle.Fill;
             this.label9.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label9.Location = new System.Drawing.Point(476, 65);
+            this.label9.Location = new System.Drawing.Point(480, 48);
             this.label9.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(228, 35);
+            this.label9.Size = new System.Drawing.Size(230, 16);
             this.label9.TabIndex = 30;
             this.label9.Text = "ĐK Lần 3";
             this.label9.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
@@ -227,12 +227,12 @@
             this.label6.AutoSize = true;
             this.label6.Dock = System.Windows.Forms.DockStyle.Fill;
             this.label6.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label6.Location = new System.Drawing.Point(1184, 0);
+            this.label6.Location = new System.Drawing.Point(1194, 0);
             this.label6.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(228, 35);
+            this.label6.Size = new System.Drawing.Size(230, 16);
             this.label6.TabIndex = 28;
-            this.label6.Text = "G.Chú nhựa/dây phế";
+            this.label6.Text = "Ghi chú phế";
             this.label6.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
             // 
             // label12
@@ -240,10 +240,10 @@
             this.label12.AutoSize = true;
             this.label12.Dock = System.Windows.Forms.DockStyle.Fill;
             this.label12.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label12.Location = new System.Drawing.Point(1420, 0);
+            this.label12.Location = new System.Drawing.Point(1432, 0);
             this.label12.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(231, 35);
+            this.label12.Size = new System.Drawing.Size(233, 16);
             this.label12.TabIndex = 26;
             this.label12.Text = "Ghi chú khác";
             this.label12.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
@@ -258,14 +258,14 @@
             0,
             0,
             65536});
-            this.KtDkLan1.Location = new System.Drawing.Point(3, 103);
+            this.KtDkLan1.Location = new System.Drawing.Point(3, 67);
             this.KtDkLan1.Maximum = new decimal(new int[] {
             1569325055,
             23283064,
             0,
             0});
             this.KtDkLan1.Name = "KtDkLan1";
-            this.KtDkLan1.Size = new System.Drawing.Size(230, 26);
+            this.KtDkLan1.Size = new System.Drawing.Size(232, 26);
             this.KtDkLan1.TabIndex = 23;
             // 
             // KtDkLan2
@@ -278,14 +278,14 @@
             0,
             0,
             65536});
-            this.KtDkLan2.Location = new System.Drawing.Point(239, 103);
+            this.KtDkLan2.Location = new System.Drawing.Point(241, 67);
             this.KtDkLan2.Maximum = new decimal(new int[] {
             1569325055,
             23283064,
             0,
             0});
             this.KtDkLan2.Name = "KtDkLan2";
-            this.KtDkLan2.Size = new System.Drawing.Size(230, 26);
+            this.KtDkLan2.Size = new System.Drawing.Size(232, 26);
             this.KtDkLan2.TabIndex = 22;
             // 
             // KtDkLan3
@@ -298,14 +298,14 @@
             0,
             0,
             65536});
-            this.KtDkLan3.Location = new System.Drawing.Point(475, 103);
+            this.KtDkLan3.Location = new System.Drawing.Point(479, 67);
             this.KtDkLan3.Maximum = new decimal(new int[] {
             1569325055,
             23283064,
             0,
             0});
             this.KtDkLan3.Name = "KtDkLan3";
-            this.KtDkLan3.Size = new System.Drawing.Size(230, 26);
+            this.KtDkLan3.Size = new System.Drawing.Size(232, 26);
             this.KtDkLan3.TabIndex = 21;
             // 
             // label7
@@ -313,10 +313,10 @@
             this.label7.AutoSize = true;
             this.label7.Dock = System.Windows.Forms.DockStyle.Fill;
             this.label7.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label7.Location = new System.Drawing.Point(4, 65);
+            this.label7.Location = new System.Drawing.Point(4, 48);
             this.label7.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(228, 35);
+            this.label7.Size = new System.Drawing.Size(230, 16);
             this.label7.TabIndex = 17;
             this.label7.Text = "ĐK Lần 1";
             this.label7.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
@@ -326,10 +326,10 @@
             this.label8.AutoSize = true;
             this.label8.Dock = System.Windows.Forms.DockStyle.Fill;
             this.label8.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label8.Location = new System.Drawing.Point(240, 65);
+            this.label8.Location = new System.Drawing.Point(242, 48);
             this.label8.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(228, 35);
+            this.label8.Size = new System.Drawing.Size(230, 16);
             this.label8.TabIndex = 16;
             this.label8.Text = "ĐK Lần 2";
             this.label8.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
@@ -344,14 +344,14 @@
             0,
             0,
             65536});
-            this.nhuaPhe.Location = new System.Drawing.Point(711, 38);
+            this.nhuaPhe.Location = new System.Drawing.Point(717, 19);
             this.nhuaPhe.Maximum = new decimal(new int[] {
             1569325055,
             23283064,
             0,
             0});
             this.nhuaPhe.Name = "nhuaPhe";
-            this.nhuaPhe.Size = new System.Drawing.Size(230, 26);
+            this.nhuaPhe.Size = new System.Drawing.Size(232, 26);
             this.nhuaPhe.TabIndex = 9;
             // 
             // dkKhuon2
@@ -364,14 +364,14 @@
             0,
             0,
             65536});
-            this.dkKhuon2.Location = new System.Drawing.Point(239, 38);
+            this.dkKhuon2.Location = new System.Drawing.Point(241, 19);
             this.dkKhuon2.Maximum = new decimal(new int[] {
             1569325055,
             23283064,
             0,
             0});
             this.dkKhuon2.Name = "dkKhuon2";
-            this.dkKhuon2.Size = new System.Drawing.Size(230, 26);
+            this.dkKhuon2.Size = new System.Drawing.Size(232, 26);
             this.dkKhuon2.TabIndex = 7;
             // 
             // label5
@@ -379,10 +379,10 @@
             this.label5.AutoSize = true;
             this.label5.Dock = System.Windows.Forms.DockStyle.Fill;
             this.label5.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label5.Location = new System.Drawing.Point(948, 0);
+            this.label5.Location = new System.Drawing.Point(956, 0);
             this.label5.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(228, 35);
+            this.label5.Size = new System.Drawing.Size(230, 16);
             this.label5.TabIndex = 4;
             this.label5.Text = "Dây phế";
             this.label5.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
@@ -392,10 +392,10 @@
             this.label4.AutoSize = true;
             this.label4.Dock = System.Windows.Forms.DockStyle.Fill;
             this.label4.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label4.Location = new System.Drawing.Point(712, 0);
+            this.label4.Location = new System.Drawing.Point(718, 0);
             this.label4.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(228, 35);
+            this.label4.Size = new System.Drawing.Size(230, 16);
             this.label4.TabIndex = 3;
             this.label4.Text = "Nhựa phế";
             this.label4.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
@@ -405,10 +405,10 @@
             this.label3.AutoSize = true;
             this.label3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.label3.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label3.Location = new System.Drawing.Point(476, 0);
+            this.label3.Location = new System.Drawing.Point(480, 0);
             this.label3.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(228, 35);
+            this.label3.Size = new System.Drawing.Size(230, 16);
             this.label3.TabIndex = 2;
             this.label3.Text = "Thông tin nhựa";
             this.label3.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
@@ -418,10 +418,10 @@
             this.label2.AutoSize = true;
             this.label2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.label2.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.Location = new System.Drawing.Point(240, 0);
+            this.label2.Location = new System.Drawing.Point(242, 0);
             this.label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(228, 35);
+            this.label2.Size = new System.Drawing.Size(230, 16);
             this.label2.TabIndex = 1;
             this.label2.Text = "Đk Khuôn 2";
             this.label2.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
@@ -434,7 +434,7 @@
             this.label1.Location = new System.Drawing.Point(4, 0);
             this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(228, 35);
+            this.label1.Size = new System.Drawing.Size(230, 16);
             this.label1.TabIndex = 0;
             this.label1.Text = "Đk Khuôn 1";
             this.label1.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
@@ -449,23 +449,23 @@
             0,
             0,
             65536});
-            this.dkKhuon1.Location = new System.Drawing.Point(3, 38);
+            this.dkKhuon1.Location = new System.Drawing.Point(3, 19);
             this.dkKhuon1.Maximum = new decimal(new int[] {
             1569325055,
             23283064,
             0,
             0});
             this.dkKhuon1.Name = "dkKhuon1";
-            this.dkKhuon1.Size = new System.Drawing.Size(230, 26);
+            this.dkKhuon1.Size = new System.Drawing.Size(232, 26);
             this.dkKhuon1.TabIndex = 6;
             // 
             // ghiChuNhuaPhe
             // 
             this.ghiChuNhuaPhe.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.ghiChuNhuaPhe.Location = new System.Drawing.Point(1183, 38);
+            this.ghiChuNhuaPhe.Location = new System.Drawing.Point(1193, 19);
             this.ghiChuNhuaPhe.Name = "ghiChuNhuaPhe";
             this.tableLayoutPanel1.SetRowSpan(this.ghiChuNhuaPhe, 3);
-            this.ghiChuNhuaPhe.Size = new System.Drawing.Size(230, 89);
+            this.ghiChuNhuaPhe.Size = new System.Drawing.Size(232, 89);
             this.ghiChuNhuaPhe.TabIndex = 39;
             this.ghiChuNhuaPhe.Text = "";
             // 
@@ -473,9 +473,9 @@
             // 
             this.ttNhua.Dock = System.Windows.Forms.DockStyle.Fill;
             this.ttNhua.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.ttNhua.Location = new System.Drawing.Point(475, 38);
+            this.ttNhua.Location = new System.Drawing.Point(479, 19);
             this.ttNhua.Name = "ttNhua";
-            this.ttNhua.Size = new System.Drawing.Size(230, 24);
+            this.ttNhua.Size = new System.Drawing.Size(232, 26);
             this.ttNhua.TabIndex = 41;
             this.ttNhua.Text = "";
             // 
@@ -488,7 +488,7 @@
             this.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "UC_DieuKienBoc";
-            this.Size = new System.Drawing.Size(1655, 130);
+            this.Size = new System.Drawing.Size(1669, 111);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.DiemMongLan2)).EndInit();

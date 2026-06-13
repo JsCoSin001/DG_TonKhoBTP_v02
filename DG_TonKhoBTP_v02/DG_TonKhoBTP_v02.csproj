@@ -140,6 +140,7 @@
     <Compile Include="Core\SectionMerger.cs" />
     <Compile Include="Core\StateStore.cs" />
     <Compile Include="Database\KeToan\BoSungThongTinSP_DB.cs" />
+    <Compile Include="Database\KeToan\KiemTraDuLieuSXNhap_DB.cs" />
     <Compile Include="Database\KeToan\TTLo_DB.cs" />
     <Compile Include="Database\Kho\BaoCaoTonKhoLo_DB.cs" />
     <Compile Include="Database\Kho\NhapKhoNVL_DB.cs" />
@@ -179,6 +180,7 @@
     <Compile Include="Models\DanhSachBin.cs" />
     <Compile Include="Models\KeHoach.cs" />
     <Compile Include="Models\KeToan\BoSungThongTinSP_Model.cs" />
+    <Compile Include="Models\KeToan\KiemTraDuLieuSXNhap_Model.cs" />
     <Compile Include="Models\KeToan\TTLo_Model.cs" />
     <Compile Include="Models\Kho\LotCode.cs" />
     <Compile Include="Models\Kho\TonKhoLoReportModels.cs" />
@@ -226,6 +228,12 @@
     </Compile>
     <Compile Include="UI\NghiepVuKhac\KeToan\Frm_BoSungThemDuLieu.Designer.cs">
       <DependentUpon>Frm_BoSungThemDuLieu.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\NghiepVuKhac\KeToan\UC_KiemTraDuLieu.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\NghiepVuKhac\KeToan\UC_KiemTraDuLieu.Designer.cs">
+      <DependentUpon>UC_KiemTraDuLieu.cs</DependentUpon>
     </Compile>
     <Compile Include="UI\NghiepVuKhac\KeToan\VatTuKhac\UC_VatTuKhac.cs">
       <SubType>UserControl</SubType>
@@ -515,6 +523,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="UI\NghiepVuKhac\KeToan\Frm_BoSungThemDuLieu.resx">
       <DependentUpon>Frm_BoSungThemDuLieu.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\NghiepVuKhac\KeToan\UC_KiemTraDuLieu.resx">
+      <DependentUpon>UC_KiemTraDuLieu.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UI\NghiepVuKhac\KeToan\VatTuKhac\UC_VatTuKhac.resx">
       <DependentUpon>UC_VatTuKhac.cs</DependentUpon>

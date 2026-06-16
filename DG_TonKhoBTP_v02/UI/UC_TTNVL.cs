@@ -642,37 +642,36 @@ namespace DG_TonKhoBTP_v02.UI
 
                 bool shouldMarkRequiredCells = false;
 
-                if (maSP != "NVL")
+                
+                decimal klBatDau = Convert.ToDecimal(newItem.KlBatDau ?? 0);
+                decimal cdBatDau = Convert.ToDecimal(newItem.CdBatDau ?? 0);
+                string dvNVL = newItem.DonVi ?? string.Empty;
+
+                decimal kl;
+                if (dvNVL != thanhPham.DonVi)
                 {
-                    decimal klBatDau = Convert.ToDecimal(newItem.KlBatDau ?? 0);
-                    decimal cdBatDau = Convert.ToDecimal(newItem.CdBatDau ?? 0);
-                    string dvNVL = newItem.DonVi ?? string.Empty;
+                    decimal tyLe = thanhPham.ChuyenDoi;
 
-                    decimal kl;
-                    if (dvNVL != thanhPham.DonVi)
-                    {
-                        decimal tyLe = thanhPham.ChuyenDoi;
-
-                        kl = klBatDau - tyLe * thanhPham.ChieuDai < 0
-                            ? 0
-                            : klBatDau - tyLe * thanhPham.ChieuDai;
-                    }
-                    else
-                    {
-                        kl = klBatDau - thanhPham.KhoiLuong < 0
-                            ? 0
-                            : klBatDau - thanhPham.KhoiLuong;
-                    }
-
-                    decimal cd = cdBatDau - thanhPham.ChieuDai < 0
+                    kl = klBatDau - tyLe * thanhPham.ChieuDai < 0
                         ? 0
-                        : cdBatDau - thanhPham.ChieuDai;
-
-                    newItem.KlConLai = _CD.Id == 9 ? 0 : Convert.ToDouble(kl);
-                    newItem.CdConLai = _CD.Id == 9 ? 0 : Convert.ToDouble(cd);
-
-                    shouldMarkRequiredCells = true;
+                        : klBatDau - tyLe * thanhPham.ChieuDai;
                 }
+                else
+                {
+                    kl = klBatDau - thanhPham.KhoiLuong < 0
+                        ? 0
+                        : klBatDau - thanhPham.KhoiLuong;
+                }
+
+                decimal cd = cdBatDau - thanhPham.ChieuDai < 0
+                    ? 0
+                    : cdBatDau - thanhPham.ChieuDai;
+
+                newItem.KlConLai = _CD.Id == 9 ? 0 : Convert.ToDouble(kl);
+                newItem.CdConLai = _CD.Id == 9 ? 0 : Convert.ToDouble(cd);
+
+                shouldMarkRequiredCells = true;
+               
 
                 _nvlRows.Add(newItem);
 

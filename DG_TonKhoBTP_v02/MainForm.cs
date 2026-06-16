@@ -815,8 +815,8 @@ namespace DG_TonKhoBTP_v02
             productInfoControl.Dock = DockStyle.Top;
 
             // Top: SubmitForm
-            //var uC_SubmitForm = new UC_SubmitForm { Dock = DockStyle.Top };
-            var uC_SubmitForm = new UC_SubmitForm(cd) { Dock = DockStyle.Top };
+            //var uC_SubmitForm = new UC_SubmitForm(cd) { Dock = DockStyle.Top };
+            var uC_SubmitForm = new UC_SubmitForm(cd, ShowHomePage) { Dock = DockStyle.Top };
 
             // Edit/Report
             Panel pnEdit_Report = UI_Edit_Report(cd);

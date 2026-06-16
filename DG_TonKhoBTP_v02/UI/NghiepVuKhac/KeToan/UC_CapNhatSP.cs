@@ -797,6 +797,9 @@ namespace DG_TonKhoBTP_v02.UI
             ReleaseCbxMaSPDataSource();
         }
 
-
+        private void ten_TextChanged(object sender, EventArgs e)
+        {
+            tbTenKhongDau.Text = CoreHelper.BoDauTiengViet(ten.Text.Trim());
+        }
     }
 }

@@ -51,6 +51,32 @@ namespace DG_TonKhoBTP_v02.Helper
             return char.ToUpper(text[0]) + text.Substring(1);
         }
 
+        public static string BoDauTiengViet(string text)
+        {
+            if (string.IsNullOrWhiteSpace(text))
+                return text;
+
+            text = text.ToLower();
+
+            string normalized = text.Normalize(NormalizationForm.FormD);
+            StringBuilder sb = new StringBuilder();
+
+            foreach (char c in normalized)
+            {
+                if (Char.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
+                {
+                    sb.Append(c);
+                }
+            }
+
+            string result = sb.ToString().Normalize(NormalizationForm.FormC);
+
+            // xử lý riêng chữ đ
+            result = result.Replace('đ', 'd');
+
+            return result;
+        }
+
 
         public static string TaoChuoiThongTinCuonDay( List<ThongTinCuonDay> ds, bool isCuon, decimal chieuCaoLo)
         {
@@ -91,31 +117,7 @@ namespace DG_TonKhoBTP_v02.Helper
         }
                 
 
-        public static string BoDauTiengViet(string text)
-        {
-            if (string.IsNullOrWhiteSpace(text))
-                return text;
-
-            text = text.ToLower();
-
-            string normalized = text.Normalize(NormalizationForm.FormD);
-            StringBuilder sb = new StringBuilder();
-
-            foreach (char c in normalized)
-            {
-                if (Char.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
-                {
-                    sb.Append(c);
-                }
-            }
-
-            string result = sb.ToString().Normalize(NormalizationForm.FormC);
-
-            // xử lý riêng chữ đ
-            result = result.Replace('đ', 'd');
-
-            return result;
-        }
+        
 
     // có phải tên máy thuộc danh sách máy đặc biệt hay không: true là thuộc
 

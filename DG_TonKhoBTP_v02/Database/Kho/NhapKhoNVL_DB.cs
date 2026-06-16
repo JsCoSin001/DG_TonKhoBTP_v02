@@ -237,15 +237,8 @@ namespace DG_TonKhoBTP_v02.Database.Kho
                         sp.Ma
                 FROM    DanhSachMaSP sp
                 WHERE   UPPER(TRIM(IFNULL(sp.Ten_KhongDau, ''))) = UPPER(TRIM(@TenKhongDau))
-                    AND UPPER(TRIM(sp.KieuSP)) <> 'TP'
+                    AND UPPER(TRIM(sp.KieuSP)) = 'BTP'
                     AND IFNULL(sp.Active, 1) = 1
-                    AND EXISTS (
-                        SELECT 1
-                        FROM BOMStructure bom
-                        WHERE bom.ParentProduct = sp.id
-                          AND bom.CongDoan = @CongDoan
-                          AND IFNULL(bom.Active, 1) = 1
-                    )
                 LIMIT   2;";
 
             List<NhapKhoNVL_SanPham> result = new List<NhapKhoNVL_SanPham>();

@@ -21,11 +21,12 @@ namespace DG_TonKhoBTP_v02.UI
     {
         public string SectionName => nameof(UC_SubmitForm);
         private readonly Timer _timerThongBao = new Timer();
+        private readonly Action _onSaveSuccess;
 
         private static readonly string _printer = Properties.Settings.Default.PrinterName;
 
         private CongDoan _Cd = null;
-        public UC_SubmitForm(CongDoan cd)
+        public UC_SubmitForm(CongDoan cd, Action onSaveSuccess = null)
         {
             InitializeComponent();
 
@@ -34,6 +35,7 @@ namespace DG_TonKhoBTP_v02.UI
             cbInTem.Checked = inTem;
 
             _Cd = cd;
+            _onSaveSuccess = onSaveSuccess;
 
             if (_printer != "")
             {
@@ -460,18 +462,19 @@ namespace DG_TonKhoBTP_v02.UI
                             // Clear form nếu lưu thành công
                             if (saveSuccessLocal)
                             {
-                                var swClear = Stopwatch.StartNew();
+                                //var swClear = Stopwatch.StartNew();
 
-                                ControlCleaner.ClearAll(host);
+                                //ControlCleaner.ClearAll(host);
 
-                                // Clear thêm các trạng thái private trong từng section, ví dụ:
-                                // UC_CDBocVo._thongTinCuonDay. ControlCleaner chỉ clear control UI nên không clear được biến private.
-                                foreach (Control c in host.Controls)
-                                    ClearSectionRecursive(c);
+                                //// Clear thêm các trạng thái private trong từng section, ví dụ:                                
+                                //foreach (Control c in host.Controls)
+                                //    ClearSectionRecursive(c);
 
-                                if (_Cd.Id == 0 || _Cd.Id == 1)
-                                    cbInTemNVL.Checked = false;
-                                Debug.WriteLine($"ClearAll + ClearSectionRecursive host: {swClear.ElapsedMilliseconds} ms");
+                                //if (_Cd.Id == 0 || _Cd.Id == 1)
+                                //    cbInTemNVL.Checked = false;
+                                //Debug.WriteLine($"ClearAll + ClearSectionRecursive host: {swClear.ElapsedMilliseconds} ms");
+
+                                _onSaveSuccess?.Invoke();
                             }
 
                             // ✅ UI: enable nút đúng thời điểm (sau khi xong hết)

@@ -35,8 +35,8 @@
             this.tbxTimQr = new System.Windows.Forms.TextBox();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.btnLuu = new System.Windows.Forms.Button();
-            this.btnTaoQr = new System.Windows.Forms.Button();
             this.btnSua = new System.Windows.Forms.Button();
+            this.btnTaoQr = new System.Windows.Forms.Button();
             this.panel2 = new System.Windows.Forms.Panel();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.dgvDsNhapNVL = new System.Windows.Forms.DataGridView();
@@ -70,7 +70,7 @@
             this.tableLayoutPanel1.ColumnCount = 3;
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 13.51792F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 86.48209F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 498F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 500F));
             this.tableLayoutPanel1.Controls.Add(this.label2, 0, 0);
             this.tableLayoutPanel1.Controls.Add(this.tbxTimQr, 1, 0);
             this.tableLayoutPanel1.Controls.Add(this.flowLayoutPanel1, 2, 0);
@@ -95,7 +95,7 @@
             // tbxTimQr
             // 
             this.tbxTimQr.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.tbxTimQr.Location = new System.Drawing.Point(85, 17);
+            this.tbxTimQr.Location = new System.Drawing.Point(84, 17);
             this.tbxTimQr.Name = "tbxTimQr";
             this.tbxTimQr.Size = new System.Drawing.Size(445, 26);
             this.tbxTimQr.TabIndex = 1;
@@ -108,15 +108,15 @@
             this.flowLayoutPanel1.Controls.Add(this.btnTaoQr);
             this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanel1.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
-            this.flowLayoutPanel1.Location = new System.Drawing.Point(610, 3);
+            this.flowLayoutPanel1.Location = new System.Drawing.Point(608, 3);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
             this.flowLayoutPanel1.Padding = new System.Windows.Forms.Padding(3);
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(493, 54);
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(495, 54);
             this.flowLayoutPanel1.TabIndex = 2;
             // 
             // btnLuu
             // 
-            this.btnLuu.Location = new System.Drawing.Point(364, 6);
+            this.btnLuu.Location = new System.Drawing.Point(366, 6);
             this.btnLuu.Name = "btnLuu";
             this.btnLuu.Size = new System.Drawing.Size(120, 48);
             this.btnLuu.TabIndex = 0;
@@ -124,25 +124,26 @@
             this.btnLuu.UseVisualStyleBackColor = true;
             this.btnLuu.Click += new System.EventHandler(this.btnLuu_Click);
             // 
-            // btnTaoQr
-            // 
-            this.btnTaoQr.Location = new System.Drawing.Point(112, 6);
-            this.btnTaoQr.Name = "btnTaoQr";
-            this.btnTaoQr.Size = new System.Drawing.Size(120, 48);
-            this.btnTaoQr.TabIndex = 0;
-            this.btnTaoQr.Text = "Tạo Qr";
-            this.btnTaoQr.UseVisualStyleBackColor = true;
-            this.btnTaoQr.Click += new System.EventHandler(this.btnTaoQr_Click);
-            // 
             // btnSua
             // 
-            this.btnSua.Location = new System.Drawing.Point(238, 6);
+            this.btnSua.Location = new System.Drawing.Point(240, 6);
             this.btnSua.Name = "btnSua";
             this.btnSua.Size = new System.Drawing.Size(120, 48);
             this.btnSua.TabIndex = 0;
             this.btnSua.Text = "Sửa";
             this.btnSua.UseVisualStyleBackColor = true;
             this.btnSua.Visible = false;
+            this.btnSua.Click += new System.EventHandler(this.btnSua_Click);
+            // 
+            // btnTaoQr
+            // 
+            this.btnTaoQr.Location = new System.Drawing.Point(114, 6);
+            this.btnTaoQr.Name = "btnTaoQr";
+            this.btnTaoQr.Size = new System.Drawing.Size(120, 48);
+            this.btnTaoQr.TabIndex = 0;
+            this.btnTaoQr.Text = "Tạo Qr";
+            this.btnTaoQr.UseVisualStyleBackColor = true;
+            this.btnTaoQr.Click += new System.EventHandler(this.btnTaoQr_Click);
             // 
             // panel2
             // 

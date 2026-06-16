@@ -42,6 +42,15 @@ namespace DG_TonKhoBTP_v02.UI
 
         private async void btnLuu_Click(object sender, EventArgs e)
         {
+            // 1) Kiểm tra quyền trước khi làm gì khác
+            if (!UserContext.IsAuthenticated
+                || (!UserContext.HasRole(RoleNames.Acc) && !UserContext.HasRole(RoleNames.Admin)))
+            {
+                FrmWaiting.ShowGifAlert($"Bạn cần cấp quyền để thực hiện yêu cầu này.");
+                return;
+            }
+
+
             btnLuu.Enabled = false;
 
             try
@@ -158,7 +167,7 @@ namespace DG_TonKhoBTP_v02.UI
             try
             {
                 int loaiSP = cbxLoaiSP.SelectedIndex;
-                string query = "SELECT * FROM DanhSachMaSP";
+                string query = "SELECT id as STT, Ma, Ten, DonVi, ChuyenDoi, Active FROM DanhSachMaSP";
                 string colValue = null;
                 string colParamName = "KieuSP";
 
@@ -415,6 +424,15 @@ namespace DG_TonKhoBTP_v02.UI
 
         private async void tbxLuuNcc_Click(object sender, EventArgs e)
         {
+            // 1) Kiểm tra quyền trước khi làm gì khác
+            if (!UserContext.IsAuthenticated
+                || (!UserContext.HasRole(RoleNames.Acc) && !UserContext.HasRole(RoleNames.Admin)))
+            {
+                FrmWaiting.ShowGifAlert($"Bạn cần cấp quyền để thực hiện yêu cầu này.");
+                return;
+            }
+
+
             string id = tbxID.Text.Trim();
             string ma = tbxMaNcc.Text.Trim();
             string tenNcc = tbxTenNcc.Text.Trim();
@@ -473,6 +491,14 @@ namespace DG_TonKhoBTP_v02.UI
 
         private async void btnLuuKho_Click(object sender, EventArgs e)
         {
+            // 1) Kiểm tra quyền trước khi làm gì khác
+            if (!UserContext.IsAuthenticated
+                || (!UserContext.HasRole(RoleNames.Acc) && !UserContext.HasRole(RoleNames.Admin)))
+            {
+                FrmWaiting.ShowGifAlert($"Bạn cần cấp quyền để thực hiện yêu cầu này.");
+                return;
+            }
+
             string id = tbxIDKho.Text.Trim();
             string kiHieu = tbxKiHieuKho.Text.Trim();
             string tenKho = tbxTenKho.Text.Trim();
@@ -614,6 +640,16 @@ namespace DG_TonKhoBTP_v02.UI
 
         private async void btnLuuRulo_Click(object sender, EventArgs e)
         {
+
+            // 1) Kiểm tra quyền trước khi làm gì khác
+            if (!UserContext.IsAuthenticated
+                || (!UserContext.HasRole(RoleNames.Wh) && !UserContext.HasRole(RoleNames.Acc) && !UserContext.HasRole(RoleNames.Admin)))
+            {
+                FrmWaiting.ShowGifAlert($"Bạn cần cấp quyền để thực hiện yêu cầu này.");
+                return;
+            }
+
+
             btnLuuRulo.Enabled = false;
 
             try

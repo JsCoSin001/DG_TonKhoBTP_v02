@@ -139,6 +139,8 @@
     <Compile Include="Core\ProviderAggregator.cs" />
     <Compile Include="Core\SectionMerger.cs" />
     <Compile Include="Core\StateStore.cs" />
+    <Compile Include="Database\Authentication\Login_DB.cs" />
+    <Compile Include="Database\KeToan\BOMStructure_DB.cs" />
     <Compile Include="Database\KeToan\BoSungThongTinSP_DB.cs" />
     <Compile Include="Database\KeToan\KiemTraDuLieuSXNhap_DB.cs" />
     <Compile Include="Database\KeToan\TTLo_DB.cs" />
@@ -179,6 +181,7 @@
     </Compile>
     <Compile Include="Models\DanhSachBin.cs" />
     <Compile Include="Models\KeHoach.cs" />
+    <Compile Include="Models\KeToan\BOMStructure_Model.cs" />
     <Compile Include="Models\KeToan\BoSungThongTinSP_Model.cs" />
     <Compile Include="Models\KeToan\KiemTraDuLieuSXNhap_Model.cs" />
     <Compile Include="Models\KeToan\TTLo_Model.cs" />

@@ -144,8 +144,6 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
             btnSua.Visible = false;
             btnLuu.Visible = true;
 
-            btnSua.Click += btnSua_Click;
-
             dgvDsNhapNVL.AllowUserToAddRows = true;
             dgvDsNhapNVL.SelectionMode = DataGridViewSelectionMode.CellSelect;
             dgvDsNhapNVL.MultiSelect = true;
@@ -220,12 +218,18 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
                 return;
             }
 
-            string[] arrSplitDash = maBin.Split('-');
-            string[] arrSplitSemicolon = maBin.Split(';');
+            //string[] arrSplitDash = maBin.Split('-');
+            //string[] isNgocKhanh = maBin.Split(';');
 
-            if (arrSplitDash[0] != FITST_CHARACTOR_QR ||
-                arrSplitSemicolon.Length != 27 ||
-                arrSplitSemicolon[26].ToUpper() != "NOIBONK".ToUpper())
+            //if (arrSplitDash[0] != FITST_CHARACTOR_QR ||
+            //    isNgocKhanh.Length != 26 ||
+            //    isNgocKhanh[25].ToUpper() != "NOIBONK".ToUpper())
+            //{
+            //    FrmWaiting.ShowGifAlert("Qr không hợp lệ");
+            //    return;
+            //}
+
+            if (CoreHelper.CatMaBin(maBin).Count() == 5)
             {
                 FrmWaiting.ShowGifAlert("Qr không hợp lệ");
                 return;
@@ -259,6 +263,13 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
 
         private async void btnLuu_Click(object sender, EventArgs e)
         {
+            if (!UserContext.IsAuthenticated
+                || (!UserContext.HasRole(RoleNames.Wh) && !UserContext.HasRole(RoleNames.Admin)))
+            {
+                FrmWaiting.ShowGifAlert($"Bạn cần cấp quyền để thực hiện yêu cầu này.");
+                return;
+            }
+
             dgvDsNhapNVL.EndEdit();
 
             List<DataGridViewRow> dsRow = LayDanhSachDongCoDuLieu();
@@ -360,6 +371,14 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
 
         private async void btnSua_Click(object sender, EventArgs e)
         {
+            if (!UserContext.IsAuthenticated
+                || (!UserContext.HasRole(RoleNames.Wh) && !UserContext.HasRole(RoleNames.Admin)))
+            {
+                FrmWaiting.ShowGifAlert($"Bạn cần cấp quyền để thực hiện yêu cầu này.");
+                return;
+            }
+
+
             dgvDsNhapNVL.EndEdit();
 
             List<DataGridViewRow> dsRow = LayDanhSachDongCoDuLieu();
@@ -845,5 +864,6 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
                 row.Cells[COL_QR].Value = maQr;
             }
         }
+
     }
 }

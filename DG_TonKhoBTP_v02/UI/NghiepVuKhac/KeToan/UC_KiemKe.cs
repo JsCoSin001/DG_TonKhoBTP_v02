@@ -322,6 +322,12 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
                 
         private async void btnLuu_Click(object sender, EventArgs e)
         {
+            if (!UserContext.IsAuthenticated)
+            {
+                FrmWaiting.ShowGifAlert($"Bạn cần cấp quyền để thực hiện yêu cầu này.");
+                return;
+            }
+
             if (_isBusy) return;
 
             string maBin = tbQr.Text.Trim();
@@ -736,6 +742,12 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
 
         private async void btnCapNhatDuLieu_Click(object sender, EventArgs e)
         {
+            if (!UserContext.IsAuthenticated)
+            {
+                FrmWaiting.ShowGifAlert($"Bạn cần cấp quyền để thực hiện yêu cầu này.");
+                return;
+            }
+
             if (_isBusy) return;
 
             dsKiemKe.EndEdit();

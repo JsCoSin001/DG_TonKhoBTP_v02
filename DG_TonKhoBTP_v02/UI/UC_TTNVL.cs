@@ -565,6 +565,10 @@ namespace DG_TonKhoBTP_v02.UI
 
             bool cdHanNoi = _CD.Id == 9 && isEdit.Value == 2;
 
+            // lấy mã nếu Ngọc Khánh gửi 
+            string[] isNgocKhanh = keyword.Split(';');
+            keyword = isNgocKhanh.Count() == 26 ? isNgocKhanh[7] : keyword;
+
             var parameters = new Dictionary<string, object>
             {
                 { "ten", keyword },

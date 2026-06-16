@@ -47,6 +47,9 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
 
         private void btnLayDS_Click(object sender, EventArgs e)
         {
+            grvBangSoSanhBom.DataSource = null;
+            grvBangSoSanhBom.Rows.Clear();
+
             try
             {
                 List<KiemTraDuLieuSXNhap_Model> ds = KiemTraDuLieuSXNhap_DB.LayDanhSachKhacBietBomChuaXacNhan();

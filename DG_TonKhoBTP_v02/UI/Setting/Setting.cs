@@ -39,7 +39,7 @@ namespace DG_TonKhoBTP_v02.UI.Setting
                     {
                         rdoHoatDong.Checked = config.Active;
                         rdoTamDung.Checked = !config.Active;
-                        tbxNguoiThucHien.Text = config.Author.ToString();
+                        tbxNguoiThucHien.Text = UserContext.UserName;
                         rtbMessage.Text = config.Message;
                         lblThongBao.Visible = !config.Active;
                     }

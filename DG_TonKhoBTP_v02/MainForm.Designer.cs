@@ -1119,6 +1119,7 @@ namespace DG_TonKhoBTP_v02
             this.userRegistration.Name = "userRegistration";
             this.userRegistration.Size = new System.Drawing.Size(75, 22);
             this.userRegistration.Text = "Nhân sự";
+            this.userRegistration.Visible = false;
             this.userRegistration.Click += new System.EventHandler(this.đăngKýToolStripMenuItem_Click);
             // 
             // môPhỏngSXToolStripMenuItem
@@ -1126,6 +1127,7 @@ namespace DG_TonKhoBTP_v02
             this.môPhỏngSXToolStripMenuItem.Name = "môPhỏngSXToolStripMenuItem";
             this.môPhỏngSXToolStripMenuItem.Size = new System.Drawing.Size(107, 22);
             this.môPhỏngSXToolStripMenuItem.Text = "Mô Phỏng SX";
+            this.môPhỏngSXToolStripMenuItem.Visible = false;
             this.môPhỏngSXToolStripMenuItem.Click += new System.EventHandler(this.môPhỏngSXToolStripMenuItem_Click);
             // 
             // MainForm

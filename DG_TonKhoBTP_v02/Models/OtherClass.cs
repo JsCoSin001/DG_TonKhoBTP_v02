@@ -90,7 +90,7 @@ namespace DG_TonKhoBTP_v02.Models
         public CongDoan(int id,string tenCongDoan, List<string> danhSachMay, List<ColumnDefinition> columns, List<string> dsAccept, List<string> dsListData, Dictionary<string, decimal> minReset)
         {
             this.Id = id;
-            TenCongDoan = tenCongDoan.ToUpper();
+            TenCongDoan = tenCongDoan;
             DanhSachMay = new List<string>(danhSachMay);
             Columns = new List<ColumnDefinition>(columns);
             ListMa_Accept = dsAccept;

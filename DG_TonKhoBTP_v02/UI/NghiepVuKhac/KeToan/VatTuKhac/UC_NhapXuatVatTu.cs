@@ -593,6 +593,13 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
 
         private async void btnLuu_Click(object sender, EventArgs e)
         {
+
+            if (!UserContext.IsAuthenticated)
+            {
+                FrmWaiting.ShowGifAlert($"Bạn cần cấp quyền để thực hiện yêu cầu này.");
+                return;
+            }
+
             if (dgvChiTietDon.Rows.Count == 0)
             {
                 FrmWaiting.ShowGifAlert("Không có dữ liệu để lưu.");

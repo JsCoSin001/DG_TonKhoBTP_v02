@@ -1,12 +1,13 @@
 ﻿using DG_TonKhoBTP_v02.Database;
+using DG_TonKhoBTP_v02.Database.Authentication;
 using DG_TonKhoBTP_v02.Models;
 using DG_TonKhoBTP_v02.Properties;
+using DG_TonKhoBTP_v02.UI.Helper;
 using DocumentFormat.OpenXml.Office.Word;
 using System;
-using CoreHelper = DG_TonKhoBTP_v02.Helper.Helper;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using DG_TonKhoBTP_v02.UI.Helper;
+using CoreHelper = DG_TonKhoBTP_v02.Helper.Helper;
 
 namespace DG_TonKhoBTP_v02.UI.Authentication
 {
@@ -55,7 +56,7 @@ namespace DG_TonKhoBTP_v02.UI.Authentication
             try
             {
                 var login = await WaitingHelper.RunWithWaiting(
-                    () => Task.Run(() => DatabaseHelper.Login(username, txtPassword.Text)),
+                    () => Task.Run(() => Login_DB.Login(username, txtPassword.Text)),
                     "ĐANG ĐĂNG NHẬP, VUI LÒNG ĐỢI..."
                 );
 

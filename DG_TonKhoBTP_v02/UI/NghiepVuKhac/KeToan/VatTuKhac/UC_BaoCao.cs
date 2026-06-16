@@ -45,6 +45,14 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
 
             // Đăng ký sự kiện một lần duy nhất tại đây
             grvBaoCao.CellContentClick += GrvBaoCao_CellContentClick;
+
+            // Hiển thị các button chỉnh trạng thái
+            bool isAcess = (!UserContext.IsAuthenticated
+                || (!UserContext.HasRole(RoleNames.Acc) && !UserContext.HasRole(RoleNames.Admin)));
+
+            cbxAll.Visible = !isAcess;
+            btnChinhTrangThai.Visible = !isAcess;
+
         }
 
         // ═══════════════════════════════════════════════════════════════════════

@@ -260,6 +260,14 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
 
         private void BtnNhapKho_Click(object sender, EventArgs e)
         {
+
+            if (!UserContext.IsAuthenticated
+                || (!UserContext.HasRole(RoleNames.Wh) && !UserContext.HasRole(RoleNames.Admin)))
+            {
+                FrmWaiting.ShowGifAlert($"Bạn cần cấp quyền để thực hiện yêu cầu này.");
+                return;
+            }
+
             if (!ValidateInputs()) return;
 
             if (thongTinDayNhapKho == null || thongTinDayNhapKho.Count == 0)
@@ -312,6 +320,13 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
 
         private void btnDelete_Click(object sender, EventArgs e)
         {
+            if (!UserContext.IsAuthenticated
+                || (!UserContext.HasRole(RoleNames.Wh) && !UserContext.HasRole(RoleNames.Admin)))
+            {
+                FrmWaiting.ShowGifAlert($"Bạn cần cấp quyền để thực hiện yêu cầu này.");
+                return;
+            }
+
             // Kiểm tra có dòng đang được chọn không
             if (_editingRowIndex < 0 || _editingIdNhapKho <= 0)
             {
@@ -357,6 +372,13 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
 
         private void btnSua_Click(object sender, EventArgs e)
         {
+            if (!UserContext.IsAuthenticated
+                || (!UserContext.HasRole(RoleNames.Wh) && !UserContext.HasRole(RoleNames.Admin)))
+            {
+                FrmWaiting.ShowGifAlert($"Bạn cần cấp quyền để thực hiện yêu cầu này.");
+                return;
+            }
+
             if (_editingRowIndex < 0 || _editingRowIndex >= grvDSNhapKho.Rows.Count)
             {
                 MessageBox.Show("Không có dòng nào được chọn để sửa.",

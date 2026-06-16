@@ -461,6 +461,13 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
 
         private void btnDatHang_Click(object sender, EventArgs e)
         {
+
+            if (!UserContext.IsAuthenticated)
+            {
+                FrmWaiting.ShowGifAlert($"Bạn cần cấp quyền để thực hiện yêu cầu này.");
+                return;
+            }
+
             List<ThongTinDatHang> list = LayDuLieuTuDGV();
             string maDon = CoreHelper.TrimToNull(tbMaDon.Text);
             string nguoiLam = nguoiDat.Text.Trim();

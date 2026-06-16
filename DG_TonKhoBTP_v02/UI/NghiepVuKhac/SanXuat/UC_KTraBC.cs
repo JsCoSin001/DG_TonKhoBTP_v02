@@ -31,6 +31,7 @@ namespace DG_TonKhoBTP_v02.UI.Actions
             cbxDSCongDoan.ValueMember = "Id";             // giá trị
 
             cbxCa.DataSource = new List<string> { "1", "2", "3" };
+            tbNguoiKiemTra.Text = UserContext.Name; // Gán tên người dùng hiện tại vào textbox
         }
 
         private async void btnTimKiem_Click(object sender, EventArgs e)
@@ -94,6 +95,13 @@ namespace DG_TonKhoBTP_v02.UI.Actions
 
         private async void btnChecked_Click(object sender, EventArgs e)
         {
+            if (!UserContext.IsAuthenticated
+                || (!UserContext.HasRole(RoleNames.Pro) && !UserContext.HasRole(RoleNames.Admin)))
+            {
+                FrmWaiting.ShowGifAlert($"Bạn cần cấp quyền để thực hiện yêu cầu này.");
+                return;
+            }
+
             string k = EnumStore.Group["KiemTraBaoCaoSX"];            
 
             //if (!CoreHelper.CheckLoginAndPermission(k)) return;

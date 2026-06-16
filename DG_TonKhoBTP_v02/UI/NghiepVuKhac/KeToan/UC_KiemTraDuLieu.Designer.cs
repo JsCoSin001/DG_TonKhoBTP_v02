@@ -56,7 +56,7 @@
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(1009, 49);
             this.label10.TabIndex = 2;
-            this.label10.Text = "BẢNG SO SÁNH VỚI BOM";
+            this.label10.Text = "DANH SÁCH LỖI NHẬP LIỆU";
             this.label10.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // tableLayoutPanel1

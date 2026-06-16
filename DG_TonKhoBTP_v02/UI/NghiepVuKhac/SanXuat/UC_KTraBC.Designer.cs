@@ -177,7 +177,7 @@
             this.dtNgay.Name = "dtNgay";
             this.dtNgay.Size = new System.Drawing.Size(114, 26);
             this.dtNgay.TabIndex = 4;
-            this.dtNgay.Value = new System.DateTime(2026, 2, 5, 0, 0, 0, 0);
+            this.dtNgay.Value = new System.DateTime(2026, 6, 15, 0, 0, 0, 0);
             // 
             // btnTimKiem
             // 
@@ -194,6 +194,7 @@
             // tbNguoiKiemTra
             // 
             this.tbNguoiKiemTra.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.tbNguoiKiemTra.Enabled = false;
             this.tbNguoiKiemTra.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.tbNguoiKiemTra.Location = new System.Drawing.Point(96, 6);
             this.tbNguoiKiemTra.Name = "tbNguoiKiemTra";

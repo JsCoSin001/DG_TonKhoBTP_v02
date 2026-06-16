@@ -35,7 +35,7 @@ namespace DG_TonKhoBTP_v02
     {
         private string _URL = Properties.Settings.Default.URL;
         private CongDoanUiService _ui;
-        private string _ver = "2.7.0 - Beta";
+        private string _ver = "2.7.0";
         private bool show = false;
         private void InitUiService()
         {
@@ -1049,19 +1049,18 @@ namespace DG_TonKhoBTP_v02
             {
                 menuApp.Visible = false;
 
-                grbChucNang.Visible = true;
-                pnBC_TonKho.Visible = true;
-                pnKiemTraBC.Visible = false;
-                pnTruyVetDL.Visible = true;
-                pnUpdateMaHang.Visible = false;
-                pnTachBin.Visible = true;
-                pnGopBin_HanNoi.Visible = true;
-                pnHaLo_NhapLai.Visible = true;
-                pnVatTuPhu.Visible = false;
-                pnKiemKe.Visible = false;
-                grbKeHoach.Visible = false;
-
-                grbBaoCao.Visible = true;
+                //grbChucNang.Visible = true;
+                //pnBC_TonKho.Visible = true;
+                //pnKiemTraBC.Visible = false;
+                //pnTruyVetDL.Visible = true;
+                //pnUpdateMaHang.Visible = false;
+                //pnTachBin.Visible = true;
+                //pnGopBin_HanNoi.Visible = true;
+                //pnHaLo_NhapLai.Visible = true;
+                //pnVatTuPhu.Visible = false;
+                //pnKiemKe.Visible = false;
+                //grbKeHoach.Visible = false;
+                //grbBaoCao.Visible = true;
 
                 lblUserName.Text = "Đăng nhập";
                 lblChucDanh.Text = "Chưa đăng nhập";
@@ -1297,22 +1296,26 @@ namespace DG_TonKhoBTP_v02
             this.MinimizeBox = UserContext.IsAuthenticated;
             this.MaximizeBox = UserContext.IsAuthenticated;
 
-            // Hiển thị hoặc ẩn menu chức năng theo role
-            menuApp.Visible = UserContext.HasRole("Admin");
+            // User đăng nhập sẽ hiển thị menu
+            menuApp.Visible = UserContext.IsAuthenticated;
+
+            // Hiển thị chức năng đăng ký tài khoản chỉ dành cho Admin
+            menuApp.Items["userRegistration"].Visible = UserContext.HasRole("Admin");
+
 
             // Hiển thị hoặc ẩn chức năng nhập dữ liệu công đoạn
-            grbChucNang.Visible = UserContext.HasPermission(PermissionCodes.NhapDuLieuCongDoan);
-            pnBC_TonKho.Visible = UserContext.HasPermission(PermissionCodes.BaoCaoTonKho);
-            pnKiemTraBC.Visible = UserContext.HasPermission(PermissionCodes.QuanDocKiemTra);
-            pnTruyVetDL.Visible = UserContext.HasPermission(PermissionCodes.TruyVetDuLieu);
-            pnUpdateMaHang.Visible = UserContext.HasPermission(PermissionCodes.UpdateMaHang);
-            pnTachBin.Visible = UserContext.HasPermission(PermissionCodes.TachBin);
-            pnGopBin_HanNoi.Visible = UserContext.HasPermission(PermissionCodes.GopBinHanNoi);
-            pnHaLo_NhapLai.Visible = UserContext.HasPermission(PermissionCodes.HaLoNhapLai);
-            pnVatTuPhu.Visible = UserContext.HasPermission(PermissionCodes.VatTu);
-            pnKiemKe.Visible = UserContext.HasPermission(PermissionCodes.KiemKe);
+            //grbChucNang.Visible = UserContext.HasPermission(PermissionCodes.NhapDuLieuCongDoan);
+            //pnBC_TonKho.Visible = UserContext.HasPermission(PermissionCodes.BaoCaoTonKho);
+            //pnKiemTraBC.Visible = UserContext.HasPermission(PermissionCodes.QuanDocKiemTra);
+            //pnTruyVetDL.Visible = UserContext.HasPermission(PermissionCodes.TruyVetDuLieu);
+            //pnUpdateMaHang.Visible = UserContext.HasPermission(PermissionCodes.UpdateMaHang);
+            //pnTachBin.Visible = UserContext.HasPermission(PermissionCodes.TachBin);
+            //pnGopBin_HanNoi.Visible = UserContext.HasPermission(PermissionCodes.GopBinHanNoi);
+            //pnHaLo_NhapLai.Visible = UserContext.HasPermission(PermissionCodes.HaLoNhapLai);
+            //pnVatTuPhu.Visible = UserContext.HasPermission(PermissionCodes.VatTu);
+            //pnKiemKe.Visible = UserContext.HasPermission(PermissionCodes.KiemKe);
 
-            grbKeHoach.Visible = UserContext.HasPermission(PermissionCodes.LapKeHoach) || UserContext.HasPermission(PermissionCodes.TrienKhaiKeHoach);
+            //grbKeHoach.Visible = UserContext.HasPermission(PermissionCodes.LapKeHoach) || UserContext.HasPermission(PermissionCodes.TrienKhaiKeHoach);
 
 
             // Cấu hình riêng: Bộ phận kế hoạch không có chức năng xem báo cáo => ẩn
@@ -1374,8 +1377,8 @@ namespace DG_TonKhoBTP_v02
 
         private void btnKeHoach_Click(object sender, EventArgs e)
         {
-            //FrmWaiting.ShowGifAlert($"Chức năng này chưa hoàn thiện. \nVui lòng thử lại sau...");
-            //return;
+            FrmWaiting.ShowGifAlert($"Chức năng này chưa hoàn thiện. \nVui lòng thử lại sau...");
+            return;
 
             using (var waiting = new FrmWaiting("ĐANG KHỞI TẠO GIAO DIỆN..."))
             {

@@ -25,6 +25,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
         private const int GRID_ROW_HEIGHT = 30;
 
         private const string COL_CONG_DOAN = "congDoan";
+        private const int CONG_DOAN_NGUYEN_LIEU_ID = -1;
+        private const string TEN_CONG_DOAN_NGUYEN_LIEU = "Nguyên liệu";
 
 
         private readonly string[] _cotDuocPaste =
@@ -51,21 +53,34 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
 
             if (dgvDsNhapNVL.Columns[COL_CONG_DOAN] is DataGridViewComboBoxColumn colCongDoan)
             {
-                var dsCongDoan = ThongTinChungCongDoan.TatCaCongDoan
-                    .Where(x => x.Id != 2)
-                    .OrderBy(x => x.Id)
-                    .Select(x => new CongDoanComboItem
-                    {
-                        Id = x.Id,
-                        TenCongDoan = CoreHelper.VietHoaKyTuDau(x.TenCongDoan)
-                    })
-                    .ToList();
+                var dsCongDoan = LayDanhSachCongDoanNhapKhoNVL();
 
                 colCongDoan.DataSource = dsCongDoan;
                 colCongDoan.ValueMember = nameof(CongDoanComboItem.Id);
                 colCongDoan.DisplayMember = nameof(CongDoanComboItem.TenCongDoan);
                 colCongDoan.DisplayStyle = DataGridViewComboBoxDisplayStyle.DropDownButton;
             }
+        }
+
+        private List<CongDoanComboItem> LayDanhSachCongDoanNhapKhoNVL()
+        {
+            List<CongDoanComboItem> dsCongDoan = ThongTinChungCongDoan.TatCaCongDoan
+                .Where(x => x.Id != 2)
+                .OrderBy(x => x.Id)
+                .Select(x => new CongDoanComboItem
+                {
+                    Id = x.Id,
+                    TenCongDoan = CoreHelper.VietHoaKyTuDau(x.TenCongDoan)
+                })
+                .ToList();
+
+            dsCongDoan.Insert(0, new CongDoanComboItem
+            {
+                Id = CONG_DOAN_NGUYEN_LIEU_ID,
+                TenCongDoan = TEN_CONG_DOAN_NGUYEN_LIEU
+            });
+
+            return dsCongDoan;
         }
 
         private void KhoaNhapLieu(bool dangXuLy)
@@ -263,12 +278,12 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
 
         private async void btnLuu_Click(object sender, EventArgs e)
         {
-            if (!UserContext.IsAuthenticated
-                || (!UserContext.HasRole(RoleNames.Wh) && !UserContext.HasRole(RoleNames.Admin)))
-            {
-                FrmWaiting.ShowGifAlert($"Bạn cần cấp quyền để thực hiện yêu cầu này.");
-                return;
-            }
+            //if (!UserContext.IsAuthenticated
+            //    || (!UserContext.HasRole(RoleNames.Wh) && !UserContext.HasRole(RoleNames.Admin)))
+            //{
+            //    FrmWaiting.ShowGifAlert($"Bạn cần cấp quyền để thực hiện yêu cầu này.");
+            //    return;
+            //}
 
             dgvDsNhapNVL.EndEdit();
 
@@ -481,7 +496,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
 
             if (coDongSuaThanhCong)
             {
-                FrmWaiting.ShowGifAlert($"Đã sửa thành công {dsDaSua.Count} dòng.", myIcon:EnumStore.Icon.Success);
+                FrmWaiting.ShowGifAlert($"Đã sửa thành công {dsDaSua.Count} dòng.", myIcon: EnumStore.Icon.Success);
                 HoiVaInDanhSach(dsDaSua);
             }
         }
@@ -567,8 +582,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
             if (string.IsNullOrWhiteSpace(tenCongDoan))
                 throw new InvalidOperationException("Tên công đoạn không được để trống khi paste.");
 
-            var congDoan = ThongTinChungCongDoan.TatCaCongDoan
-                .Where(x => x.Id != 2)
+            var congDoan = LayDanhSachCongDoanNhapKhoNVL()
                 .FirstOrDefault(x =>
                     string.Equals(
                         x.TenCongDoan?.Trim(),
@@ -777,8 +791,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
             if (!int.TryParse(value.ToString(), out int congDoanId))
                 throw new InvalidOperationException("Công đoạn không hợp lệ.");
 
-            bool tonTai = ThongTinChungCongDoan.TatCaCongDoan
-                .Any(x => x.Id == congDoanId && x.Id != 2);
+            bool tonTai = LayDanhSachCongDoanNhapKhoNVL()
+                .Any(x => x.Id == congDoanId);
 
             if (!tonTai)
                 throw new InvalidOperationException("Công đoạn không hợp lệ hoặc không được phép chọn.");

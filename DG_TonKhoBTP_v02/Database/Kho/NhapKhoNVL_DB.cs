@@ -8,6 +8,8 @@ namespace DG_TonKhoBTP_v02.Database.Kho
 {
     internal static class NhapKhoNVL_DB
     {
+        private const int CONG_DOAN_NGUYEN_LIEU_ID = -1;
+
         internal static NhapKhoNVL_Dong LuuMotDong(NhapKhoNVL_Dong input)
         {
             if (input == null)
@@ -216,6 +218,18 @@ namespace DG_TonKhoBTP_v02.Database.Kho
             if (string.IsNullOrWhiteSpace(tenKhongDau))
                 throw new InvalidOperationException("Tên sản phẩm không được để trống.");
 
+            if (congDoanId == CONG_DOAN_NGUYEN_LIEU_ID)
+                return TimSanPhamNguyenLieuTheoTenKhongDau(conn, tran, tenKhongDau);
+
+            return TimSanPhamTheoTenKhongDauVaCongDoan(conn, tran, tenKhongDau, congDoanId);
+        }
+
+        private static NhapKhoNVL_SanPham TimSanPhamTheoTenKhongDauVaCongDoan(
+            SQLiteConnection conn,
+            SQLiteTransaction tran,
+            string tenKhongDau,
+            int congDoanId)
+        {
             const string sql = @"
                 SELECT  sp.id,
                         sp.Ten,
@@ -244,13 +258,7 @@ namespace DG_TonKhoBTP_v02.Database.Kho
                 using SQLiteDataReader reader = cmd.ExecuteReader();
                 while (reader.Read())
                 {
-                    result.Add(new NhapKhoNVL_SanPham
-                    {
-                        Id = LayLong(reader, "id") ?? 0,
-                        Ten = LayString(reader, "Ten"),
-                        TenKhongDau = LayString(reader, "Ten_KhongDau"),
-                        Ma = LayString(reader, "Ma")
-                    });
+                    result.Add(TaoSanPhamNhapKhoTuReader(reader));
                 }
             }
 
@@ -261,6 +269,55 @@ namespace DG_TonKhoBTP_v02.Database.Kho
                 throw new InvalidOperationException("Tên sản phẩm không phù hợp với công đoạn đã chọn.");
 
             return result[0];
+        }
+
+        private static NhapKhoNVL_SanPham TimSanPhamNguyenLieuTheoTenKhongDau(
+            SQLiteConnection conn,
+            SQLiteTransaction tran,
+            string tenKhongDau)
+        {
+            const string sql = @"
+                SELECT  sp.id,
+                        sp.Ten,
+                        sp.Ten_KhongDau,
+                        sp.Ma
+                FROM    DanhSachMaSP sp
+                WHERE   UPPER(TRIM(IFNULL(sp.Ten_KhongDau, ''))) = UPPER(TRIM(@TenKhongDau))
+                    AND UPPER(TRIM(IFNULL(sp.KieuSP, ''))) = 'NVL'
+                    AND IFNULL(sp.Active, 1) = 1
+                LIMIT   2;";
+
+            List<NhapKhoNVL_SanPham> result = new List<NhapKhoNVL_SanPham>();
+
+            using (var cmd = new SQLiteCommand(sql, conn, tran))
+            {
+                cmd.Parameters.AddWithValue("@TenKhongDau", tenKhongDau);
+
+                using SQLiteDataReader reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    result.Add(TaoSanPhamNhapKhoTuReader(reader));
+                }
+            }
+
+            if (result.Count == 0)
+                throw new InvalidOperationException("Tên nguyên liệu không tồn tại hoặc không hợp lệ.");
+
+            if (result.Count > 1)
+                throw new InvalidOperationException("Tên nguyên liệu không tồn tại hoặc không hợp lệ.");
+
+            return result[0];
+        }
+
+        private static NhapKhoNVL_SanPham TaoSanPhamNhapKhoTuReader(SQLiteDataReader reader)
+        {
+            return new NhapKhoNVL_SanPham
+            {
+                Id = LayLong(reader, "id") ?? 0,
+                Ten = LayString(reader, "Ten"),
+                TenKhongDau = LayString(reader, "Ten_KhongDau"),
+                Ma = LayString(reader, "Ma")
+            };
         }
 
         private static string LayString(SQLiteDataReader reader, string col)
@@ -301,5 +358,5 @@ namespace DG_TonKhoBTP_v02.Database.Kho
         }
     }
 
-    
+
 }

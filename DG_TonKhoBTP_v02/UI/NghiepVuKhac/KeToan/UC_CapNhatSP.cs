@@ -30,6 +30,9 @@ namespace DG_TonKhoBTP_v02.UI
         private static readonly string folderPath = @"\\192.168.4.10\DungChungDG\DanhSach_SP_NCC_Kho";
         private static readonly string filePath = Path.Combine(folderPath, "data.xlsx");
         private int _ruloId = 0;
+        private bool _isLoadingData = false;
+        private bool _isSyncingTenKhongDau = false;
+        private bool _isAutoGeneratingTenKhongDau = true;
 
         public UC_CapNhatSP()
         {
@@ -38,6 +41,7 @@ namespace DG_TonKhoBTP_v02.UI
             cbxLoaiSP.SelectedItem = cbxLoaiSP.Items[1];
 
             this.Disposed += UC_CapNhatSP_Disposed;
+            tbTenKhongDau.TextChanged += tbTenKhongDau_TextChanged;
         }
 
         private async void btnLuu_Click(object sender, EventArgs e)
@@ -61,11 +65,11 @@ namespace DG_TonKhoBTP_v02.UI
                     return;
                 }
 
-                var sp = new DanhSachMaSP
+                var sp = new CapNhatSP_Model
                 {
                     Ma = ma.Text.Trim().ToUpper(),
                     Ten = ten.Text.Trim(),
-                    Ten_KhongDau = CoreHelper.BoDauTiengViet(ten.Text.Trim()),
+                    Ten_KhongDau = ResolveTenKhongDauForSave(ten.Text, tbTenKhongDau.Text),
                     KieuSP = kieuSP.Text.Trim().ToUpper(),
                     DonVi = donVi.Text.Trim().ToUpper(),
                     ChuyenDoi = nbrDM_CU_AL.Value == 0 ? 1 : nbrDM_CU_AL.Value,
@@ -95,11 +99,11 @@ namespace DG_TonKhoBTP_v02.UI
                             if (!int.TryParse(idText, out int parsedId))
                                 throw new Exception("ID KHÔNG HỢP LỆ.");
 
-                            finalId = DatabaseHelper.UpdateDanhSachMaSP(sp, parsedId);
+                            finalId = CapNhatSP_DB.UpdateDanhSachMaSP(sp, parsedId);
                         }
                         else
                         {
-                            finalId = DatabaseHelper.InsertDSMaSP(sp);
+                            finalId = CapNhatSP_DB.InsertDSMaSP(sp);
                         }
                     }
                     catch (Exception ex)
@@ -127,18 +131,30 @@ namespace DG_TonKhoBTP_v02.UI
             {
                 btnLuu.Enabled = true;
                 btnLuu.Text = "LƯU";
+                cbActive.Checked = true;
             }
         }
 
         private void Clear()
         {
-            ma.Text = "";
-            ten.Text = "";
-            kieuSP.SelectedItem = null;
-            donVi.SelectedItem = null;
-            cbxMaSP.Text = "";
-            id.Text = "";
-            btnLuu.Text = "Lưu";
+            _isLoadingData = true;
+
+            try
+            {
+                ma.Text = "";
+                ten.Text = "";
+                SetTenKhongDauText(string.Empty);
+                kieuSP.SelectedItem = null;
+                donVi.SelectedItem = null;
+                cbxMaSP.Text = "";
+                id.Text = "";
+                btnLuu.Text = "Lưu";
+                _isAutoGeneratingTenKhongDau = true;
+            }
+            finally
+            {
+                _isLoadingData = false;
+            }
         }
 
         private void ma_TextChanged(object sender, EventArgs e)
@@ -184,7 +200,7 @@ namespace DG_TonKhoBTP_v02.UI
                 await WaitingHelper.RunWithWaiting(async () =>
                 {
                     dt = await Task.Run(() =>
-                        DatabaseHelper.GetData(query, colValue, colParamName));
+                        CapNhatSP_DB.GetDanhSachMaSP(loaiSP, colValue));
 
                     if (dt == null || dt.Rows.Count == 0)
                     {
@@ -277,63 +293,12 @@ namespace DG_TonKhoBTP_v02.UI
                 return;
             }
 
-            string cot;
-            string table;
-            string tenHT;
-
             int loaiTimKiem = cbxLoaiTimKiem.SelectedIndex;
-
-            switch (loaiTimKiem)
-            {
-                case 0: // Mã SP
-                    table = "DanhSachMaSP";
-                    cot = "Ma";
-                    tenHT = "Ma";
-                    keyword = CoreHelper.BoDauTiengViet(keyword);
-                    break;
-
-                case 1: // Tên SP
-                    table = "DanhSachMaSP";
-                    cot = "Ten_KhongDau";
-                    tenHT = "Ten";
-                    keyword = CoreHelper.BoDauTiengViet(keyword);
-                    break;
-
-                case 2: // Nhà cung cấp
-                    table = "DanhSachNCC";
-                    cot = "TenNCC_KhongDau";
-                    tenHT = "TenNCC";
-                    keyword = CoreHelper.BoDauTiengViet(keyword);
-                    break;
-
-                case 3: // Kho
-                    table = "DanhSachKho";
-                    cot = "TenKho_KhongDau";
-                    tenHT = "TenKho";
-                    keyword = CoreHelper.BoDauTiengViet(keyword);
-                    break;
-
-                case 4: // Rulo
-                    table = "TTLo";
-                    cot = "KichThuoc";
-                    tenHT = "KichThuoc";
-                    break;
-
-                default:
-                    table = "DanhSachMaSP";
-                    cot = "Ma";
-                    tenHT = "Ma";
-                    keyword = CoreHelper.BoDauTiengViet(keyword);
-                    break;
-            }
-
-            string query = "SELECT * FROM " + table +
-                " WHERE " + cot + " LIKE '%' || @Key || '%' COLLATE NOCASE" +
-                " ORDER BY id DESC";
+            string currentText = keyword;
 
             DataTable dt = await Task.Run(() =>
             {
-                return DatabaseHelper.GetData(query, keyword, "Key");
+                return CapNhatSP_DB.TimDanhSachLuaChon(loaiTimKiem, keyword);
             }, ct);
 
             ct.ThrowIfCancellationRequested();
@@ -349,10 +314,8 @@ namespace DG_TonKhoBTP_v02.UI
             }
 
             cbxMaSP.DataSource = dt;
-            cbxMaSP.DisplayMember = tenHT;
+            cbxMaSP.DisplayMember = CapNhatSP_DB.GetDisplayMemberLuaChon(loaiTimKiem);
             cbxMaSP.ValueMember = "id";
-
-            string currentText = keyword;
 
             cbxMaSP.DroppedDown = true;
             cbxMaSP.Text = currentText;
@@ -413,13 +376,31 @@ namespace DG_TonKhoBTP_v02.UI
         }
         private void setValue_DSMaSP(DataRowView row)
         {
-            ten.Text = row["ten"].ToString();
-            ma.Text = row["ma"].ToString();
-            donVi.Text = row["donVi"].ToString();
-            kieuSP.Text = row["kieuSP"].ToString();
-            id.Text = row["id"].ToString();
-            cbActive.Checked = Convert.ToBoolean(row["active"]);
-            btnLuu.Text = "Cập nhật";
+            _isLoadingData = true;
+
+            try
+            {
+                string tenValue = row["ten"].ToString();
+                ten.Text = tenValue;
+                ma.Text = row["ma"].ToString();
+                donVi.Text = row["donVi"].ToString();
+                kieuSP.Text = row["kieuSP"].ToString();
+                id.Text = row["id"].ToString();
+                cbActive.Checked = Convert.ToBoolean(row["active"]);
+
+                string tenKhongDauValue = HasColumn(row, "Ten_KhongDau")
+                    ? row["Ten_KhongDau"]?.ToString()
+                    : null;
+
+                SetTenKhongDauText(ResolveTenKhongDauForDisplay(tenValue, tenKhongDauValue));
+                _isAutoGeneratingTenKhongDau = false;
+
+                btnLuu.Text = "Cập nhật";
+            }
+            finally
+            {
+                _isLoadingData = false;
+            }
         }
 
         private async void tbxLuuNcc_Click(object sender, EventArgs e)
@@ -461,7 +442,7 @@ namespace DG_TonKhoBTP_v02.UI
                 {
                     try
                     {
-                        finalId = DatabaseHelper.UpsertDanhSachNCC(id, ma, tenNcc);
+                        finalId = CapNhatSP_DB.UpsertDanhSachNCC(id, ma, tenNcc);
                         isSuccess = true;
                     }
                     catch (Exception ex)
@@ -527,7 +508,7 @@ namespace DG_TonKhoBTP_v02.UI
                 {
                     try
                     {
-                        int finalId = DatabaseHelper.UpsertDanhSachKho(id, kiHieu, tenKho, ghiChu);
+                        int finalId = CapNhatSP_DB.UpsertDanhSachKho(id, kiHieu, tenKho, ghiChu);
                         if (cbxExKho.Checked) GhiExcelAsync(finalId, kiHieu, tenKho, "DsKho");
                         isSuccess = true;
                     }
@@ -799,7 +780,61 @@ namespace DG_TonKhoBTP_v02.UI
 
         private void ten_TextChanged(object sender, EventArgs e)
         {
-            tbTenKhongDau.Text = CoreHelper.BoDauTiengViet(ten.Text.Trim());
+            if (_isLoadingData) return;
+            if (!_isAutoGeneratingTenKhongDau) return;
+
+            SetTenKhongDauText(CoreHelper.BoDauTiengViet(ten.Text.Trim()));
+        }
+
+        private void tbTenKhongDau_TextChanged(object sender, EventArgs e)
+        {
+            if (_isLoadingData || _isSyncingTenKhongDau) return;
+
+            _isAutoGeneratingTenKhongDau = false;
+        }
+
+        private void SetTenKhongDauText(string value)
+        {
+            _isSyncingTenKhongDau = true;
+
+            try
+            {
+                tbTenKhongDau.Text = value ?? string.Empty;
+            }
+            finally
+            {
+                _isSyncingTenKhongDau = false;
+            }
+        }
+
+        private static string ResolveTenKhongDauForSave(string tenValue, string tenKhongDauInput)
+        {
+            string source = string.IsNullOrWhiteSpace(tenKhongDauInput)
+                ? tenValue
+                : tenKhongDauInput;
+
+            return NormalizeTenKhongDau(source);
+        }
+
+        private static string ResolveTenKhongDauForDisplay(string tenValue, string tenKhongDauValue)
+        {
+            string source = string.IsNullOrWhiteSpace(tenKhongDauValue)
+                ? tenValue
+                : tenKhongDauValue;
+
+            return NormalizeTenKhongDau(source);
+        }
+
+        private static string NormalizeTenKhongDau(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value)) return string.Empty;
+
+            return CoreHelper.BoDauTiengViet(value.Trim())?.Trim() ?? string.Empty;
+        }
+
+        private static bool HasColumn(DataRowView row, string columnName)
+        {
+            return row?.DataView?.Table?.Columns?.Contains(columnName) == true;
         }
     }
 }

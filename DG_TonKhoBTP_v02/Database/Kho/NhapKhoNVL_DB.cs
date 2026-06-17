@@ -23,8 +23,7 @@ namespace DG_TonKhoBTP_v02.Database.Kho
                 NhapKhoNVL_SanPham sp = TimSanPhamNhapKhoTheoTenKhongDauVaCongDoan(
                     conn,
                     tran,
-                    input.TenKhongDau,
-                    input.CongDoanId);
+                    input.TenKhongDau);
 
                 string maBin = input.MaBin.Trim();
 
@@ -98,8 +97,7 @@ namespace DG_TonKhoBTP_v02.Database.Kho
                 NhapKhoNVL_SanPham sp = TimSanPhamNhapKhoTheoTenKhongDauVaCongDoan(
                     conn,
                     tran,
-                    input.TenKhongDau,
-                    input.CongDoanId);
+                    input.TenKhongDau );
 
                 const string sql = @"
                     UPDATE TTThanhPham
@@ -211,57 +209,13 @@ namespace DG_TonKhoBTP_v02.Database.Kho
         private static NhapKhoNVL_SanPham TimSanPhamNhapKhoTheoTenKhongDauVaCongDoan(
             SQLiteConnection conn,
             SQLiteTransaction tran,
-            string tenKhongDau,
-            int congDoanId)
+            string tenKhongDau)
         {
             tenKhongDau = tenKhongDau?.Trim() ?? string.Empty;
             if (string.IsNullOrWhiteSpace(tenKhongDau))
                 throw new InvalidOperationException("Tên sản phẩm không được để trống.");
 
-            if (congDoanId == CONG_DOAN_NGUYEN_LIEU_ID)
-                return TimSanPhamNguyenLieuTheoTenKhongDau(conn, tran, tenKhongDau);
-
-            return TimSanPhamTheoTenKhongDauVaCongDoan(conn, tran, tenKhongDau, congDoanId);
-        }
-
-        private static NhapKhoNVL_SanPham TimSanPhamTheoTenKhongDauVaCongDoan(
-            SQLiteConnection conn,
-            SQLiteTransaction tran,
-            string tenKhongDau,
-            int congDoanId)
-        {
-            const string sql = @"
-                SELECT  sp.id,
-                        sp.Ten,
-                        sp.Ten_KhongDau,
-                        sp.Ma
-                FROM    DanhSachMaSP sp
-                WHERE   UPPER(TRIM(IFNULL(sp.Ten_KhongDau, ''))) = UPPER(TRIM(@TenKhongDau))
-                    AND UPPER(TRIM(sp.KieuSP)) = 'BTP'
-                    AND IFNULL(sp.Active, 1) = 1
-                LIMIT   2;";
-
-            List<NhapKhoNVL_SanPham> result = new List<NhapKhoNVL_SanPham>();
-
-            using (var cmd = new SQLiteCommand(sql, conn, tran))
-            {
-                cmd.Parameters.AddWithValue("@TenKhongDau", tenKhongDau);
-                cmd.Parameters.AddWithValue("@CongDoan", congDoanId);
-
-                using SQLiteDataReader reader = cmd.ExecuteReader();
-                while (reader.Read())
-                {
-                    result.Add(TaoSanPhamNhapKhoTuReader(reader));
-                }
-            }
-
-            if (result.Count == 0)
-                throw new InvalidOperationException("Tên sản phẩm không phù hợp với công đoạn đã chọn.");
-
-            if (result.Count > 1)
-                throw new InvalidOperationException("Tên sản phẩm không phù hợp với công đoạn đã chọn.");
-
-            return result[0];
+            return TimSanPhamNguyenLieuTheoTenKhongDau(conn, tran, tenKhongDau);
         }
 
         private static NhapKhoNVL_SanPham TimSanPhamNguyenLieuTheoTenKhongDau(

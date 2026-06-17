@@ -1,4 +1,5 @@
-﻿using System.Data.SQLite;
+﻿using System.Data;
+using System.Data.SQLite;
 
 namespace DG_TonKhoBTP_v02.Database
 {
@@ -86,5 +87,9 @@ namespace DG_TonKhoBTP_v02.Database
             var result = cmd.ExecuteScalar();
             return result == null ? 0 : System.Convert.ToInt32(result);
         }
+
+
+        
+
     }
 }

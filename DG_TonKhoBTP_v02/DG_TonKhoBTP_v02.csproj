@@ -145,6 +145,7 @@
     <Compile Include="Database\KeToan\CapNhatSP_DB.cs" />
     <Compile Include="Database\KeToan\KiemTraDuLieuSXNhap_DB.cs" />
     <Compile Include="Database\KeToan\TTLo_DB.cs" />
+    <Compile Include="Database\KeToan\VatTuKhac\NhapXuatVatTu_DB.cs" />
     <Compile Include="Database\Kho\BaoCaoTonKhoLo_DB.cs" />
     <Compile Include="Database\Kho\NhapKhoNVL_DB.cs" />
     <Compile Include="Database\Kho\NhapKho_DB.cs" />
@@ -187,6 +188,7 @@
     <Compile Include="Models\KeToan\CapNhatSP_Model.cs" />
     <Compile Include="Models\KeToan\KiemTraDuLieuSXNhap_Model.cs" />
     <Compile Include="Models\KeToan\TTLo_Model.cs" />
+    <Compile Include="Models\KeToan\VatTuKhac\NhapXuatVatTu_Model.cs" />
     <Compile Include="Models\Kho\LotCode.cs" />
     <Compile Include="Models\Kho\TonKhoLoReportModels.cs" />
     <Compile Include="Models\Kho\XuatKho_Model.cs" />
@@ -239,6 +241,18 @@
     </Compile>
     <Compile Include="UI\NghiepVuKhac\KeToan\UC_KiemTraDuLieu.Designer.cs">
       <DependentUpon>UC_KiemTraDuLieu.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\NghiepVuKhac\KeToan\VatTuKhac\UC_MuaVatTu_v2.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\NghiepVuKhac\KeToan\VatTuKhac\UC_MuaVatTu_v2.Designer.cs">
+      <DependentUpon>UC_MuaVatTu_v2.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\NghiepVuKhac\KeToan\VatTuKhac\UC_NhapXuatVatTu_v2.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\NghiepVuKhac\KeToan\VatTuKhac\UC_NhapXuatVatTu_v2.Designer.cs">
+      <DependentUpon>UC_NhapXuatVatTu_v2.cs</DependentUpon>
     </Compile>
     <Compile Include="UI\NghiepVuKhac\KeToan\VatTuKhac\UC_VatTuKhac.cs">
       <SubType>UserControl</SubType>
@@ -531,6 +545,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="UI\NghiepVuKhac\KeToan\UC_KiemTraDuLieu.resx">
       <DependentUpon>UC_KiemTraDuLieu.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\NghiepVuKhac\KeToan\VatTuKhac\UC_MuaVatTu_v2.resx">
+      <DependentUpon>UC_MuaVatTu_v2.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\NghiepVuKhac\KeToan\VatTuKhac\UC_NhapXuatVatTu_v2.resx">
+      <DependentUpon>UC_NhapXuatVatTu_v2.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UI\NghiepVuKhac\KeToan\VatTuKhac\UC_VatTuKhac.resx">
       <DependentUpon>UC_VatTuKhac.cs</DependentUpon>

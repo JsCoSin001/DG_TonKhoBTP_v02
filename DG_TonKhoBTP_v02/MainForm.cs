@@ -1471,6 +1471,12 @@ namespace DG_TonKhoBTP_v02
 
         private void btnVatTuPhu_Click(object sender, EventArgs e)
         {
+            if (!UserContext.IsAuthenticated)
+            {
+                FrmWaiting.ShowGifAlert($"Bạn cần cấp quyền để thực hiện yêu cầu này.");
+                return;
+            }
+
             if (CoreHelper.KiemTraEmpty(_URL))
                 return;
 

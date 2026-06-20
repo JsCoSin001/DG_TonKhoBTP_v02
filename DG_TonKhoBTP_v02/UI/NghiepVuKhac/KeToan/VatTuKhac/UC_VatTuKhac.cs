@@ -42,7 +42,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
 
         private void deNghiDichVuToolStrip_Click(object sender, EventArgs e)
         {
-            ShowMuaVatTu(2);
+            UC_MuaVatTu_v2 uc = new UC_MuaVatTu_v2(2);
+            ShowMediaControls(uc);
         }
 
         private void xacNhanDichVuToolStrip_Click(object sender, EventArgs e)
@@ -52,7 +53,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
 
         private void deNghiVatTuToolStrip_Click(object sender, EventArgs e)
         {
-            ShowMuaVatTu(1);
+            UC_MuaVatTu_v2 uc = new UC_MuaVatTu_v2(1);
+            ShowMediaControls(uc);
         }
 
         private void nhapKhoVatTuToolStrip_Click(object sender, EventArgs e)

@@ -65,6 +65,12 @@ namespace DG_TonKhoBTP_v02.UI
                     return;
                 }
 
+                if (nbrDM_CU_AL.Value == 0)
+                {
+                    FrmWaiting.ShowGifAlert("Định mức chuyển đổi không phù hợp.");
+                    return;
+                }
+
                 var sp = new CapNhatSP_Model
                 {
                     Ma = ma.Text.Trim().ToUpper(),
@@ -72,7 +78,7 @@ namespace DG_TonKhoBTP_v02.UI
                     Ten_KhongDau = ResolveTenKhongDauForSave(ten.Text, tbTenKhongDau.Text),
                     KieuSP = kieuSP.Text.Trim().ToUpper(),
                     DonVi = donVi.Text.Trim().ToUpper(),
-                    ChuyenDoi = nbrDM_CU_AL.Value == 0 ? 1 : nbrDM_CU_AL.Value,
+                    ChuyenDoi = nbrDM_CU_AL.Value,
                     Active = cbActive.Checked,
                     DateInsert = DateTime.Now
                 };

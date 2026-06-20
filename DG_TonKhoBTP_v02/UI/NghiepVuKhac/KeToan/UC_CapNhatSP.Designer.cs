@@ -127,7 +127,7 @@
             this.tableLayoutPanel6.ColumnCount = 3;
             this.tableLayoutPanel6.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 58.49057F));
             this.tableLayoutPanel6.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 41.50943F));
-            this.tableLayoutPanel6.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 127F));
+            this.tableLayoutPanel6.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 128F));
             this.tableLayoutPanel6.Controls.Add(this.btnXoa, 1, 0);
             this.tableLayoutPanel6.Controls.Add(this.btnLuu, 2, 0);
             this.tableLayoutPanel6.Controls.Add(this.cbxExSanPham, 0, 0);
@@ -142,7 +142,7 @@
             // btnXoa
             // 
             this.btnXoa.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnXoa.Location = new System.Drawing.Point(162, 3);
+            this.btnXoa.Location = new System.Drawing.Point(161, 3);
             this.btnXoa.Name = "btnXoa";
             this.btnXoa.Size = new System.Drawing.Size(104, 46);
             this.btnXoa.TabIndex = 6;
@@ -155,7 +155,7 @@
             this.btnLuu.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
             this.btnLuu.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnLuu.ForeColor = System.Drawing.SystemColors.Control;
-            this.btnLuu.Location = new System.Drawing.Point(274, 3);
+            this.btnLuu.Location = new System.Drawing.Point(273, 3);
             this.btnLuu.Name = "btnLuu";
             this.btnLuu.Size = new System.Drawing.Size(114, 46);
             this.btnLuu.TabIndex = 5;
@@ -223,11 +223,6 @@
             this.nbrDM_CU_AL.Name = "nbrDM_CU_AL";
             this.nbrDM_CU_AL.Size = new System.Drawing.Size(94, 28);
             this.nbrDM_CU_AL.TabIndex = 9;
-            this.nbrDM_CU_AL.Value = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
             // 
             // donVi
             // 
@@ -922,7 +917,7 @@
             "Nhà cung cấp",
             "Kho",
             "Rulo"});
-            this.cbxLoaiTimKiem.Location = new System.Drawing.Point(3, 3);
+            this.cbxLoaiTimKiem.Location = new System.Drawing.Point(3, 6);
             this.cbxLoaiTimKiem.Name = "cbxLoaiTimKiem";
             this.cbxLoaiTimKiem.Size = new System.Drawing.Size(153, 28);
             this.cbxLoaiTimKiem.TabIndex = 7;
@@ -931,7 +926,7 @@
             // 
             this.cbxMaSP.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbxMaSP.FormattingEnabled = true;
-            this.cbxMaSP.Location = new System.Drawing.Point(162, 3);
+            this.cbxMaSP.Location = new System.Drawing.Point(162, 6);
             this.cbxMaSP.Name = "cbxMaSP";
             this.cbxMaSP.Size = new System.Drawing.Size(319, 28);
             this.cbxMaSP.TabIndex = 8;

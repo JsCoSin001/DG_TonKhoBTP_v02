@@ -1,12 +1,17 @@
 ﻿using DG_TonKhoBTP_v02.Database.KeToan.VatTuKhac;
 using DG_TonKhoBTP_v02.Models;
 using DG_TonKhoBTP_v02.Models.KeToan.VatTuKhac;
+using DG_TonKhoBTP_v02.Printer;
 using DG_TonKhoBTP_v02.UI.Helper.AutoSearchWithCombobox;
 using System;
+using System.Collections.Generic;
 using System.Data;
+using System.Globalization;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static DG_TonKhoBTP_v02.Printer.A4.PrinterModel;
 using CoreHelper = DG_TonKhoBTP_v02.Helper.Helper;
 
 namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
@@ -18,17 +23,18 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
 
         private const string COL_MA_DON = "colMaDon";
         private const string COL_THONG_TIN_DAT_HANG_ID = "colThongTinDatHangId";
+        private const string COL_DANH_SACH_DAT_HANG_ID = "colDanhSachDatHangId";
+        private const string COL_DANH_SACH_MA_SP_ID = "colDanhSachMaSPId";
+        private const string COL_TEN_VAT_TU_KHONG_DAU = "colTenVatTuKhongDau";
         private const string COL_MA_VAT_TU = "colMaVatTu";
         private const string COL_TEN_VAT_TU = "colTenVatTu";
         private const string COL_DON_VI = "colDonVi";
         private const string COL_SO_LUONG = "colSoLuong";
         private const string COL_MUC_DICH = "colMucDich";
+        private const string COL_NGAY_DE_NGHI = "colNgayDeNghi";
         private const string COL_NGAY_GIAO = "colNgayGiao";
         private const string COL_SL_TON = "colSLTon";
         private const string COL_XOA = "colXoa";
-        private const string COL_DANH_SACH_DAT_HANG_ID = "colDanhSachDatHangId";
-        private const string COL_DANH_SACH_MA_SP_ID = "colDanhSachMaSPId";
-        private const string COL_TEN_VAT_TU_KHONG_DAU = "colTenVatTuKhongDau";
 
         private int _KieuDon = 1; // 1: Đơn mua vật tư, 2: Đơn dịch vụ
         private bool _isEditMode;
@@ -47,14 +53,53 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
 
         private void UC_MuaVatTu_v2_Load(object sender, EventArgs e)
         {
+            InitFormOnce();
+            ResetFormToDefault();
+        }
+
+        private void InitFormOnce()
+        {
             lblTitle.Text = _KieuDon == 1 ? "ĐỀ NGHỊ MUA VẬT TƯ" : "ĐỀ NGHỊ DỊCH VỤ";
 
             ConfigureControlsByKieuDon();
             ConfigureGrid();
             HookEventsOnce();
             InitSearchHelpers();
-            SetNewMaDon(dtNgay.Value);
+        }
+
+        private void ResetFormToDefault()
+        {
+            // Reset biến global liên quan chế độ sửa
             SetEditMode(false);
+
+            // Reset danh sách đang hiển thị
+            dgvDSMua.Rows.Clear();
+            dgvDSMua.ClearSelection();
+
+            // Reset ngày về mặc định
+            dtNgay.Value = DateTime.Today;
+
+            // Reset ô tìm kiếm đơn
+            if (_searchDonHelper != null)
+                _searchDonHelper.Reset();
+            else
+            {
+                comboBox1.SelectedIndex = -1;
+                comboBox1.Text = string.Empty;
+            }
+
+            // Reset input vật tư/dịch vụ
+            ClearInputControls(keepMaDon: false);
+
+            // Nếu muốn ngày giao mặc định là hôm nay
+            cbNgayGiao.Checked = true;
+            dtNgayGiao.Enabled = true;
+            dtNgayGiao.Value = DateTime.Today;
+
+            // Sinh mã đơn mới theo ngày đề nghị hiện tại
+            SetNewMaDon(dtNgay.Value);
+
+            ConfigureControlsByKieuDon();
         }
 
         private void btnLuu_Click(object sender, EventArgs e)
@@ -68,7 +113,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                FrmWaiting.ShowGifAlert("Đã có lỗi xảy ra, vui lòng thử lại.");
             }
         }
 
@@ -158,6 +203,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
 
             MuaVatTuGridRowModel updatedRow = NhapXuatVatTu_DB.GetGridRowByThongTinDatHangId(_editingThongTinDatHangId);
             UpdateGridRow(updatedRow);
+            RefreshNgayDeNghiForMaDon(_editingMaDon, header.NgayThem);
 
             SetEditMode(false);
             ClearInputControls(keepMaDon: true);
@@ -172,14 +218,15 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
             string maDon = TrimToNull(tbMaDon.Text);
             if (maDon == null)
             {
-                MessageBox.Show("Bắt buộc phải có mã đơn.", "Thiếu dữ liệu", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                FrmWaiting.ShowGifAlert("Bắt buộc phải có mã đơn.");
+
                 tbMaDon.Focus();
                 return false;
             }
 
             if (nbrSLMua.Value <= 0)
             {
-                MessageBox.Show("Số lượng mua phải lớn hơn 0.", "Thiếu dữ liệu", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                FrmWaiting.ShowGifAlert("Số lượng mua phải lớn hơn 0.");
                 nbrSLMua.Focus();
                 return false;
             }
@@ -192,7 +239,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
             {
                 if (!int.TryParse(tbID.Text, out int id) || id <= 0)
                 {
-                    MessageBox.Show("Bắt buộc phải chọn vật tư từ combobox tìm kiếm.", "Thiếu dữ liệu", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    FrmWaiting.ShowGifAlert("Thiếu dữ liệu");
                     cbxTimThemTheoTen.Focus();
                     return false;
                 }
@@ -204,7 +251,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
                 tenVatTu = CoreHelper.TrimToNull(tbTen.Text);
                 if (tenVatTu == null)
                 {
-                    MessageBox.Show("Bắt buộc phải nhập tên.", "Thiếu dữ liệu", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    FrmWaiting.ShowGifAlert("Thiếu dữ liệu");
                     tbTen.Focus();
                     return false;
                 }
@@ -258,54 +305,12 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
 
         private void ConfigureGrid()
         {
-            // Các cột đã được đổi tên trực tiếp trong Designer, vì vậy không rename runtime nữa.
-            // Code bên dưới chỉ kiểm tra/tạo thêm các cột ẩn cần dùng cho edit/delete/update.
-            AddHiddenColumnIfMissing(COL_DANH_SACH_DAT_HANG_ID);
-            AddHiddenColumnIfMissing(COL_DANH_SACH_MA_SP_ID);
-            AddHiddenColumnIfMissing(COL_TEN_VAT_TU_KHONG_DAU);
-
-            EnsureGridColumnExists(COL_MA_DON);
-            EnsureGridColumnExists(COL_THONG_TIN_DAT_HANG_ID);
-            EnsureGridColumnExists(COL_MA_VAT_TU);
-            EnsureGridColumnExists(COL_TEN_VAT_TU);
-            EnsureGridColumnExists(COL_DON_VI);
-            EnsureGridColumnExists(COL_SO_LUONG);
-            EnsureGridColumnExists(COL_MUC_DICH);
-            EnsureGridColumnExists(COL_NGAY_GIAO);
-            EnsureGridColumnExists(COL_SL_TON);
-            EnsureGridColumnExists(COL_XOA);
-            EnsureGridColumnExists(COL_DANH_SACH_DAT_HANG_ID);
-            EnsureGridColumnExists(COL_DANH_SACH_MA_SP_ID);
-            EnsureGridColumnExists(COL_TEN_VAT_TU_KHONG_DAU);
-
             foreach (DataGridViewColumn column in dgvDSMua.Columns)
                 column.ReadOnly = true;
 
             dgvDSMua.Columns[COL_XOA].ReadOnly = false;
             dgvDSMua.AllowUserToAddRows = false;
             dgvDSMua.RowHeadersVisible = false;
-        }
-
-        private void EnsureGridColumnExists(string columnName)
-        {
-            if (dgvDSMua.Columns.Contains(columnName))
-                return;
-
-            throw new InvalidOperationException($"Thiếu cột '{columnName}' trong dgvDSMua. Vui lòng kiểm tra lại Name của cột trong Designer.");
-        }
-
-        private void AddHiddenColumnIfMissing(string columnName)
-        {
-            if (dgvDSMua.Columns.Contains(columnName))
-                return;
-
-            var column = new DataGridViewTextBoxColumn
-            {
-                Name = columnName,
-                HeaderText = columnName,
-                Visible = false
-            };
-            dgvDSMua.Columns.Add(column);
         }
 
         private void HookEventsOnce()
@@ -409,8 +414,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
 
             if (NhapXuatVatTu_DB.HasLichSuXuatNhap(thongTinDatHangId))
             {
-                MessageBox.Show("Dòng này đã có dữ liệu trong Lịch sử xuất nhập nên không được xoá.",
-                    "Không thể xoá", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                FrmWaiting.ShowGifAlert("Dòng này đã có dữ liệu trong Lịch sử xuất nhập nên không được xoá.");
                 return;
             }
 
@@ -443,15 +447,15 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
 
             if (NhapXuatVatTu_DB.HasLichSuXuatNhap(thongTinDatHangId))
             {
-                MessageBox.Show("Dòng này đã có dữ liệu trong Lịch sử xuất nhập nên không được sửa.",
-                    "Không thể sửa", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                FrmWaiting.ShowGifAlert("Dòng này đã có dữ liệu trong Lịch sử xuất nhập nên không được sửa.");
                 return;
             }
 
             MuaVatTuGridRowModel row = NhapXuatVatTu_DB.GetGridRowByThongTinDatHangId(thongTinDatHangId);
             if (row == null)
             {
-                MessageBox.Show("Không tìm thấy dữ liệu của dòng đã chọn.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                FrmWaiting.ShowGifAlert("Không tìm thấy dữ liệu của dòng đã chọn.");
+
                 return;
             }
 
@@ -507,7 +511,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
 
             foreach (DataGridViewRow gridRow in dgvDSMua.Rows)
             {
-                if (Convert.ToInt32(gridRow.Cells[COL_THONG_TIN_DAT_HANG_ID].Value) == row.ThongTinDatHangId)
+                if (TryGetCellInt(gridRow, COL_THONG_TIN_DAT_HANG_ID, out int thongTinDatHangId)
+                    && thongTinDatHangId == row.ThongTinDatHangId)
                 {
                     FillGridRow(gridRow, row);
                     return;
@@ -519,16 +524,32 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
         {
             gridRow.Cells[COL_MA_DON].Value = row.MaDon;
             gridRow.Cells[COL_THONG_TIN_DAT_HANG_ID].Value = row.ThongTinDatHangId;
+            gridRow.Cells[COL_DANH_SACH_DAT_HANG_ID].Value = row.DanhSachDatHangId;
+            gridRow.Cells[COL_DANH_SACH_MA_SP_ID].Value = row.DanhSachMaSPId;
+            gridRow.Cells[COL_TEN_VAT_TU_KHONG_DAU].Value = row.TenVatTuKhongDau;
             gridRow.Cells[COL_MA_VAT_TU].Value = row.MaVatTu;
             gridRow.Cells[COL_TEN_VAT_TU].Value = row.TenVatTu;
             gridRow.Cells[COL_DON_VI].Value = row.DonVi;
             gridRow.Cells[COL_SO_LUONG].Value = row.SoLuongMua;
             gridRow.Cells[COL_MUC_DICH].Value = row.MucDichMua;
+            gridRow.Cells[COL_NGAY_DE_NGHI].Value = row.NgayThem?.ToString("dd/MM/yyyy");
             gridRow.Cells[COL_NGAY_GIAO].Value = row.NgayGiao?.ToString("dd/MM/yyyy");
             gridRow.Cells[COL_SL_TON].Value = row.SLTon;
-            gridRow.Cells[COL_DANH_SACH_DAT_HANG_ID].Value = row.DanhSachDatHangId;
-            gridRow.Cells[COL_DANH_SACH_MA_SP_ID].Value = row.DanhSachMaSPId;
-            gridRow.Cells[COL_TEN_VAT_TU_KHONG_DAU].Value = row.TenVatTuKhongDau;
+        }
+
+        private void RefreshNgayDeNghiForMaDon(string maDon, DateTime ngayDeNghi)
+        {
+            string ngayText = ngayDeNghi.ToString("dd/MM/yyyy");
+
+            foreach (DataGridViewRow row in dgvDSMua.Rows)
+            {
+                if (row.IsNewRow)
+                    continue;
+
+                string rowMaDon = GetCellText(row, COL_MA_DON);
+                if (string.Equals(rowMaDon, maDon, StringComparison.OrdinalIgnoreCase))
+                    row.Cells[COL_NGAY_DE_NGHI].Value = ngayText;
+            }
         }
 
         private void ClearInputControls(bool keepMaDon)
@@ -546,7 +567,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
             nbrSLMua.Value = nbrSLMua.Minimum;
             cbNgayGiao.Checked = true;
             dtNgayGiao.Enabled = true;
-            dtNgayGiao.Value = DateTime.Now;
+            dtNgayGiao.Value = DateTime.Today;
             ConfigureControlsByKieuDon();
         }
 
@@ -589,7 +610,16 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
             if (rowIndex < 0 || rowIndex >= dgvDSMua.Rows.Count)
                 return false;
 
-            object cellValue = dgvDSMua.Rows[rowIndex].Cells[columnName].Value;
+            return TryGetCellInt(dgvDSMua.Rows[rowIndex], columnName, out value);
+        }
+
+        private bool TryGetCellInt(DataGridViewRow row, string columnName, out int value)
+        {
+            value = 0;
+            if (row == null)
+                return false;
+
+            object cellValue = row.Cells[columnName].Value;
             return cellValue != null && int.TryParse(cellValue.ToString(), out value);
         }
 
@@ -600,10 +630,174 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
             return value.Trim();
         }
 
+        private void btnInPhieu_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (_isEditMode)
+                {
+                    FrmWaiting.ShowGifAlert("Bạn đang ở chế độ sửa, vui lòng Update hoặc hủy trước khi in.");
+                    return;
+                }
+
+                var printableRows = dgvDSMua.Rows
+                    .Cast<DataGridViewRow>()
+                    .Where(row => !row.IsNewRow)
+                    .Where(row => !string.IsNullOrWhiteSpace(GetCellText(row, COL_MA_DON)))
+                    .ToList();
+
+                if (printableRows.Count == 0)
+                {
+                    FrmWaiting.ShowGifAlert("Không có dữ liệu để in");
+
+                    return;
+                }
+
+                var groups = printableRows
+                    .GroupBy(row => GetCellText(row, COL_MA_DON))
+                    .ToList();
+
+                foreach (var group in groups)
+                {
+                    string maDon = group.Key;
+                    string ngayDeNghi = GetFirstNonEmptyCellText(group, COL_NGAY_DE_NGHI);
+                    List<DataGridViewRow> rows = group.ToList();
+
+                    if (_KieuDon == 1)
+                        ShowMaterialRequestPreview(maDon, ngayDeNghi, rows);
+                    else
+                        ShowPurchaseRequestPreview(maDon, ngayDeNghi, rows);
+                }
+
+                ResetFormToDefault();
+            }
+            catch (Exception ex)
+            {
+                FrmWaiting.ShowGifAlert("Đã có lỗi xảy ra khi in, vui lòng thử lại.");
+            }
+        }
+
+        private void ShowMaterialRequestPreview(string maDon, string ngayDeNghi, List<DataGridViewRow> rows)
+        {
+            var items = rows.Select((row, index) => new MaterialItem
+            {
+                No = index + 1,
+                MaterialCode = GetCellText(row, COL_MA_VAT_TU),
+                MaterialName = GetCellText(row, COL_TEN_VAT_TU),
+                Unit = GetCellText(row, COL_DON_VI),
+                Quantity = GetDecimalCellText(row, COL_SO_LUONG),
+                Purpose = GetCellText(row, COL_MUC_DICH),
+                RequiredDate = GetCellText(row, COL_NGAY_GIAO),
+                CurrentStock = GetDecimalCellText(row, COL_SL_TON)
+            }).ToList();
+
+            var data = new MaterialRequestPrintData
+            {
+                Company = new CompanyInfo(),
+                Document = new DocumentInfo
+                {
+                    Title = "GIẤY ĐỀ NGHỊ MUA VẬT TƯ",
+                    OrderDate = ngayDeNghi,
+                    OrderCode = maDon
+                },
+                Items = items,
+                Signature = new SignatureInfo()
+            };
+
+            new MaterialRequestPrintService(data).ShowPreview(this);
+        }
+
+        private void ShowPurchaseRequestPreview(string maDon, string ngayDeNghi, List<DataGridViewRow> rows)
+        {
+            var items = rows.Select((row, index) => new ServiceItem
+            {
+                No = index + 1,
+                ServiceName = GetCellText(row, COL_TEN_VAT_TU),
+                Purpose = GetCellText(row, COL_MUC_DICH),
+                RequiredDate = GetCellText(row, COL_NGAY_GIAO)
+            }).ToList();
+
+            var data = new PurchaseRequestPrintData
+            {
+                Company = new CompanyInfo
+                {
+                    FormCode = "BM-12-04",
+                    IssueDate = "05/05/2009"
+                },
+                Document = new DocumentInfo
+                {
+                    Title = "GIẤY ĐỀ NGHỊ MUA DỊCH VỤ",
+                    OrderDate = ngayDeNghi,
+                    OrderCode = maDon
+                },
+                Items = items,
+                Signature = new SignatureInfo()
+            };
+
+            new PurchaseRequestPrintService(data).ShowPreview(this);
+        }
+
+        private string GetFirstNonEmptyCellText(IEnumerable<DataGridViewRow> rows, string columnName)
+        {
+            foreach (DataGridViewRow row in rows)
+            {
+                string value = GetCellText(row, columnName);
+                if (!string.IsNullOrWhiteSpace(value))
+                    return value;
+            }
+
+            return string.Empty;
+        }
+
+        private string GetCellText(DataGridViewRow row, string columnName)
+        {
+            object value = row.Cells[columnName].Value;
+            if (value == null || value == DBNull.Value)
+                return string.Empty;
+
+            if (value is DateTime date)
+                return date.ToString("dd/MM/yyyy");
+
+            return value.ToString()?.Trim() ?? string.Empty;
+        }
+
+        private string GetDecimalCellText(DataGridViewRow row, string columnName)
+        {
+            object value = row.Cells[columnName].Value;
+            if (value == null || value == DBNull.Value)
+                return string.Empty;
+
+            if (value is decimal decimalValue)
+                return decimalValue.ToString("0.##");
+
+            if (value is double doubleValue)
+                return Convert.ToDecimal(doubleValue).ToString("0.##");
+
+            if (value is float floatValue)
+                return Convert.ToDecimal(floatValue).ToString("0.##");
+
+            string text = value.ToString()?.Trim();
+            if (string.IsNullOrWhiteSpace(text))
+                return string.Empty;
+
+            if (decimal.TryParse(text, NumberStyles.Number, CultureInfo.CurrentCulture, out decimal currentCultureValue))
+                return currentCultureValue.ToString("0.##");
+
+            if (decimal.TryParse(text, NumberStyles.Number, CultureInfo.InvariantCulture, out decimal invariantCultureValue))
+                return invariantCultureValue.ToString("0.##");
+
+            return text;
+        }
+
         private void UC_MuaVatTu_v2_Disposed(object sender, EventArgs e)
         {
             _searchVatTuHelper?.Dispose();
             _searchDonHelper?.Dispose();
+        }
+
+        private void btnHoanThanh_Click(object sender, EventArgs e)
+        {
+            ResetFormToDefault();
         }
     }
 }

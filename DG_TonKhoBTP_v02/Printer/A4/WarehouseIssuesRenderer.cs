@@ -1,4 +1,4 @@
-﻿// File: WarehouseIssuesRenderer.cs
+// File: WarehouseIssuesRenderer.cs
 // Thư mục: Printer/A4/
 
 using System;
@@ -73,6 +73,7 @@ namespace DG_TonKhoBTP_v02.Printer.A4
             // ── Vẽ từng dòng dữ liệu ────────────────────────────────────────
             var items = data.Items ?? new List<WarehouseIssuesItem>();
             bool hasMore = false;
+            bool printedAnyRow = false;
 
             for (int i = _startItemIndex; i < items.Count; i++)
             {
@@ -80,8 +81,10 @@ namespace DG_TonKhoBTP_v02.Printer.A4
                 int rowH = Math.Max(28,
                     MeasureCellTextHeight(g, item.Ten, FontNormal, colW[1] - 8) + 8);
 
-                // Kiểm tra còn đủ chỗ không (dành chỗ cho Cộng + Tổng + chữ ký)
-                if (y + rowH + BottomReserve > bottom)
+                // Kiểm tra còn đủ chỗ không (dành chỗ cho Cộng + Tổng + chữ ký).
+                // Nếu trang hiện tại đã có ít nhất một dòng thì chuyển sang trang mới.
+                // Nếu chưa có dòng nào mà dòng quá cao, vẫn in dòng đó để tránh lặp trang vô hạn.
+                if (y + rowH + BottomReserve > bottom && printedAnyRow)
                 {
                     _startItemIndex = i;
                     hasMore = true;
@@ -89,6 +92,7 @@ namespace DG_TonKhoBTP_v02.Printer.A4
                 }
 
                 DrawIssuesRow(g, item, colW, colX, ref y, rowH);
+                printedAnyRow = true;
             }
 
             // ── Trang cuối: vẽ dòng Cộng + Tổng tiền + chữ ký ──────────────

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Printing;
@@ -34,12 +34,12 @@ namespace DG_TonKhoBTP_v02.Printer.A4
 
     /// <summary>
     /// Renderer dùng chung: header công ty, tiêu đề, bảng đa cột, chữ ký.
-    /// Lớp con chỉ cần override <see cref="GetCompanyInfo"/>, <see cref="GetDocumentInfo"/>,
-    /// <see cref="GetItems"/>, <see cref="GetSignature"/> và <see cref="BuildColumns"/>.
+    /// Lớp con chỉ cần override GetCompanyInfo, GetDocumentInfo,
+    /// GetItems, GetSignature và BuildColumns.
     /// </summary>
     public abstract class BaseRenderer<TPrintData, TItem> : IPrintRenderer<TPrintData>
     {
-        // ── Fonts (dùng chung) ──────────────────────────────────────────────
+        // ── Fonts dùng chung ──────────────────────────────────────────────
         protected readonly Font FontNormal = new Font("Times New Roman", 10f, FontStyle.Regular);
         protected readonly Font FontBold = new Font("Times New Roman", 10f, FontStyle.Bold);
         protected readonly Font FontTitle = new Font("Times New Roman", 16f, FontStyle.Bold);
@@ -47,6 +47,7 @@ namespace DG_TonKhoBTP_v02.Printer.A4
         protected readonly Font FontSmallBold = new Font("Times New Roman", 9f, FontStyle.Bold);
 
         private int _currentItemIndex;
+        private int _pageIndex;
         private IReadOnlyList<ColumnDef<TItem>> _columns;
 
         // ── Abstract helpers ────────────────────────────────────────────────
@@ -56,23 +57,27 @@ namespace DG_TonKhoBTP_v02.Printer.A4
         protected abstract SignatureInfo GetSignature(TPrintData data);
 
         /// <summary>
-        /// Khai báo danh sách cột. Đúng một cột có Width = 0 (fill).
+        /// Khai báo danh sách cột. Đúng một cột có Width = 0 nếu muốn fill.
         /// </summary>
         protected abstract IReadOnlyList<ColumnDef<TItem>> BuildColumns(int totalWidth);
 
         // ── IPrintRenderer ──────────────────────────────────────────────────
+
         public virtual void Reset()
         {
             _currentItemIndex = 0;
+            _pageIndex = 0;
             _columns = null;
             OnReset();
         }
 
         /// <summary>
-        /// Hook cho lớp con reset thêm state riêng (phân trang tuỳ chỉnh).
-        /// Được gọi tự động bởi Reset() mỗi khi bắt đầu lệnh in mới.
+        /// Hook cho lớp con reset thêm state riêng nếu cần.
+        /// Được gọi tự động mỗi khi bắt đầu lệnh in mới.
         /// </summary>
-        protected virtual void OnReset() { }
+        protected virtual void OnReset()
+        {
+        }
 
         public virtual void Render(Graphics g, Rectangle marginBounds, PrintPageEventArgs e, TPrintData data)
         {
@@ -83,16 +88,36 @@ namespace DG_TonKhoBTP_v02.Printer.A4
             int contentWidth = marginBounds.Width;
             int bottomLimit = marginBounds.Bottom;
 
+            bool isFirstPage = _pageIndex == 0;
+
             // Lazy-build columns once per print job
             _columns ??= ResolveColumnWidths(BuildColumns(contentWidth), contentWidth);
 
-            DrawHeader(g, ref y, x, contentWidth, GetCompanyInfo(data));
-            y += 8;
-            DrawDocumentTitle(g, ref y, x, contentWidth, GetDocumentInfo(data));
-            y += 10;
+            // Trang đầu tiên: vẽ đầu phiếu + tiêu đề + ngày/mã đơn.
+            if (isFirstPage)
+            {
+                DrawHeader(g, ref y, x, contentWidth, GetCompanyInfo(data));
+                y += 8;
 
-            y = DrawTable(g, y, x, contentWidth, bottomLimit, GetItems(data), out bool hasMore);
+                DrawDocumentTitle(g, ref y, x, contentWidth, GetDocumentInfo(data));
+                y += 10;
+            }
 
+            // Trang nào cũng vẽ header bảng.
+            // Trang 1: header bảng nằm sau phần đầu phiếu.
+            // Trang 2 trở đi: header bảng nằm ngay đầu vùng in, rồi viết tiếp nội dung.
+            y = DrawTable(
+                g,
+                y,
+                x,
+                contentWidth,
+                bottomLimit,
+                GetItems(data),
+                drawTableHeader: true,
+                out bool hasMore
+            );
+
+            // Chữ ký chỉ in ở trang cuối.
             if (!hasMore)
             {
                 y += 25;
@@ -100,11 +125,15 @@ namespace DG_TonKhoBTP_v02.Printer.A4
             }
 
             e.HasMorePages = hasMore;
+
+            if (hasMore)
+                _pageIndex++;
         }
 
         // ═══════════════════════════════════════════════════════════════════
         // HEADER
         // ═══════════════════════════════════════════════════════════════════
+
         private void DrawHeader(Graphics g, ref int y, int x, int width, CompanyInfo co)
         {
             int logoW = 70;
@@ -116,8 +145,12 @@ namespace DG_TonKhoBTP_v02.Printer.A4
             var rightRect = new Rectangle(x + logoW + 10 + centerW + 10, y, rightW, 70);
 
             if (!string.IsNullOrWhiteSpace(co.LogoPath) && File.Exists(co.LogoPath))
+            {
                 using (var img = Image.FromFile(co.LogoPath))
+                {
                     g.DrawImage(img, logoRect);
+                }
+            }
 
             g.DrawString(co.CompanyName ?? "", FontBold, Brushes.Black, centerRect.Left, centerRect.Top + 4);
             g.DrawString(co.Address ?? "", FontNormal, Brushes.Black, centerRect.Left, centerRect.Top + 26);
@@ -132,6 +165,7 @@ namespace DG_TonKhoBTP_v02.Printer.A4
         private void DrawLabelValue(Graphics g, string label, string value, int x, int y, int width)
         {
             g.DrawString(label, FontSmall, Brushes.Black, x, y);
+
             float labelW = g.MeasureString(label, FontSmall).Width;
             g.DrawString(value, FontSmall, Brushes.Black, x + labelW + 2, y);
         }
@@ -139,11 +173,19 @@ namespace DG_TonKhoBTP_v02.Printer.A4
         // ═══════════════════════════════════════════════════════════════════
         // DOCUMENT TITLE
         // ═══════════════════════════════════════════════════════════════════
+
         private void DrawDocumentTitle(Graphics g, ref int y, int x, int width, DocumentInfo doc)
         {
             using (var center = new StringFormat { Alignment = StringAlignment.Center })
-                g.DrawString(doc.Title ?? "", FontTitle, Brushes.Black,
-                             new RectangleF(x, y, width, 30), center);
+            {
+                g.DrawString(
+                    doc.Title ?? "",
+                    FontTitle,
+                    Brushes.Black,
+                    new RectangleF(x, y, width, 30),
+                    center
+                );
+            }
 
             y += 40;
 
@@ -153,18 +195,28 @@ namespace DG_TonKhoBTP_v02.Printer.A4
 
             g.DrawString("Ngày đặt hàng:", FontBold, Brushes.Black, startX, y);
             g.DrawString(doc.OrderDate ?? "", FontBold, Brushes.Black, startX + labelW, y);
+
             y += 22;
+
             g.DrawString("Mã đơn hàng đặt:", FontBold, Brushes.Black, startX, y);
             g.DrawString(doc.OrderCode ?? "", FontBold, Brushes.Black, startX + labelW, y);
+
             y += 14;
         }
 
         // ═══════════════════════════════════════════════════════════════════
-        // TABLE  (column-driven)
+        // TABLE
         // ═══════════════════════════════════════════════════════════════════
+
         private int DrawTable(
-            Graphics g, int y, int x, int width, int bottomLimit,
-            IReadOnlyList<TItem> items, out bool hasMore)
+            Graphics g,
+            int y,
+            int x,
+            int width,
+            int bottomLimit,
+            IReadOnlyList<TItem> items,
+            bool drawTableHeader,
+            out bool hasMore)
         {
             hasMore = false;
 
@@ -172,30 +224,43 @@ namespace DG_TonKhoBTP_v02.Printer.A4
             const int rowPad = 5;
             const int signatureReserve = 140;
 
-            // ── Header row ──
-            int cx = x;
-            foreach (var col in _columns)
+            if (drawTableHeader)
             {
-                DrawCell(g, col.Header, FontBold, cx, y, col.Width, headerH,
-                         col.HAlign, col.VAlign);
-                cx += col.Width;
-            }
-            y += headerH;
+                int cx = x;
 
-            // ── Data rows ──
+                foreach (var col in _columns)
+                {
+                    DrawCell(
+                        g,
+                        col.Header,
+                        FontBold,
+                        cx,
+                        y,
+                        col.Width,
+                        headerH,
+                        col.HAlign,
+                        col.VAlign
+                    );
+
+                    cx += col.Width;
+                }
+
+                y += headerH;
+            }
+
             while (_currentItemIndex < items.Count)
             {
                 var item = items[_currentItemIndex];
 
-                // Measure max row height across all columns
                 int rowH = 26;
+
                 foreach (var col in _columns)
                 {
                     int h = MeasureCellTextHeight(g, col.GetValue(item), FontNormal, col.Width - 8);
                     rowH = Math.Max(rowH, h + rowPad * 2);
                 }
 
-                bool isLastItem = (_currentItemIndex == items.Count - 1);
+                bool isLastItem = _currentItemIndex == items.Count - 1;
                 int neededBelow = isLastItem ? signatureReserve : 0;
 
                 if (y + rowH + neededBelow > bottomLimit)
@@ -204,12 +269,22 @@ namespace DG_TonKhoBTP_v02.Printer.A4
                     return y;
                 }
 
-                cx = x;
+                int cx = x;
+
                 foreach (var col in _columns)
                 {
-                    DrawCell(g, col.GetValue(item), FontNormal,
-                             cx, y, col.Width, rowH,
-                             col.DataHAlign, col.DataVAlign);
+                    DrawCell(
+                        g,
+                        col.GetValue(item),
+                        FontNormal,
+                        cx,
+                        y,
+                        col.Width,
+                        rowH,
+                        col.DataHAlign,
+                        col.DataVAlign
+                    );
+
                     cx += col.Width;
                 }
 
@@ -223,9 +298,11 @@ namespace DG_TonKhoBTP_v02.Printer.A4
         // ═══════════════════════════════════════════════════════════════════
         // SIGNATURE
         // ═══════════════════════════════════════════════════════════════════
+
         private void DrawSignature(Graphics g, ref int y, int x, int width, SignatureInfo sign)
         {
             const int boxH = 120;
+
             int colW = width / 4;
             int lastW = width - colW * 3;
 
@@ -243,60 +320,88 @@ namespace DG_TonKhoBTP_v02.Printer.A4
 
             const int titleH = 32;
             var titleRect = new Rectangle(x, y, w, titleH);
+
             g.DrawLine(Pens.Black, x, y + titleH, x + w, y + titleH);
 
             using (var sf = new StringFormat
-            { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center })
+            {
+                Alignment = StringAlignment.Center,
+                LineAlignment = StringAlignment.Center
+            })
+            {
                 g.DrawString(title ?? "", FontSmallBold, Brushes.Black, (RectangleF)titleRect, sf);
+            }
 
             if (!string.IsNullOrWhiteSpace(name))
             {
                 var nameRect = new RectangleF(x + 4, y + titleH + 2, w - 8, h - titleH - 6);
+
                 using (var sf = new StringFormat
-                { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Far })
+                {
+                    Alignment = StringAlignment.Center,
+                    LineAlignment = StringAlignment.Far
+                })
+                {
                     g.DrawString(name, FontNormal, Brushes.Black, nameRect, sf);
+                }
             }
         }
 
         // ═══════════════════════════════════════════════════════════════════
         // HELPERS
         // ═══════════════════════════════════════════════════════════════════
+
         protected void DrawCell(
-            Graphics g, string text, Font font,
-            int x, int y, int w, int h,
-            StringAlignment horizontal, StringAlignment vertical)
+            Graphics g,
+            string text,
+            Font font,
+            int x,
+            int y,
+            int w,
+            int h,
+            StringAlignment horizontal,
+            StringAlignment vertical)
         {
             g.DrawRectangle(Pens.Black, x, y, w, h);
+
             var rect = new RectangleF(x + 4, y + 4, w - 8, h - 8);
+
             using (var sf = new StringFormat())
             {
                 sf.Alignment = horizontal;
                 sf.LineAlignment = vertical;
                 sf.Trimming = StringTrimming.Word;
                 sf.FormatFlags = StringFormatFlags.LineLimit;
+
                 g.DrawString(text ?? "", font, Brushes.Black, rect, sf);
             }
         }
 
         protected int MeasureCellTextHeight(Graphics g, string text, Font font, int availableWidth)
-            => (int)Math.Ceiling(g.MeasureString(text ?? "", font, availableWidth).Height);
+        {
+            return (int)Math.Ceiling(g.MeasureString(text ?? "", font, availableWidth).Height);
+        }
 
         /// <summary>
-        /// Tính Width thực cho cột fill (Width == 0).
+        /// Tính Width thực cho cột fill, tức cột có Width == 0.
         /// </summary>
         private static IReadOnlyList<ColumnDef<TItem>> ResolveColumnWidths(
-            IReadOnlyList<ColumnDef<TItem>> cols, int totalWidth)
+            IReadOnlyList<ColumnDef<TItem>> cols,
+            int totalWidth)
         {
-            int fixed_ = 0;
-            foreach (var c in cols) fixed_ += c.Width;
-            int fill = totalWidth - fixed_;
+            int fixedWidth = 0;
+
+            foreach (var c in cols)
+                fixedWidth += c.Width;
+
+            int fill = totalWidth - fixedWidth;
 
             var result = new List<ColumnDef<TItem>>(cols.Count);
+
             foreach (var c in cols)
             {
                 if (c.Width == 0)
                 {
-                    // clone with resolved width
                     result.Add(new ColumnDef<TItem>
                     {
                         Header = c.Header,
@@ -313,17 +418,20 @@ namespace DG_TonKhoBTP_v02.Printer.A4
                     result.Add(c);
                 }
             }
+
             return result;
         }
     }
 
     // ═══════════════════════════════════════════════════════════════════════════
-    // A4Printer — chứa 2 renderer cụ thể
+    // A4Printer — chứa các renderer cụ thể
     // ═══════════════════════════════════════════════════════════════════════════
 
     public static class A4Printer
     {
-        // ── Mẫu B: Giấy đề nghị MUA DỊCH VỤ ──────────────────────────────
+        // ─────────────────────────────────────────────────────────────────────
+        // Mẫu: Giấy đề nghị MUA DỊCH VỤ
+        // ─────────────────────────────────────────────────────────────────────
 
         public class PurchaseRequestRenderer
             : BaseRenderer<PurchaseRequestPrintData, ServiceItem>
@@ -334,7 +442,8 @@ namespace DG_TonKhoBTP_v02.Printer.A4
             protected override SignatureInfo GetSignature(PurchaseRequestPrintData d) => d.Signature;
 
             protected override IReadOnlyList<ColumnDef<ServiceItem>> BuildColumns(int totalWidth)
-                => new[]
+            {
+                return new[]
                 {
                     new ColumnDef<ServiceItem>
                     {
@@ -344,7 +453,7 @@ namespace DG_TonKhoBTP_v02.Printer.A4
                         DataVAlign = StringAlignment.Center,
                         GetValue   = i => i.No.ToString()
                     },
-                    new ColumnDef<ServiceItem>          // fill
+                    new ColumnDef<ServiceItem>
                     {
                         Header     = "Dịch vụ",
                         Width      = 0,
@@ -369,9 +478,12 @@ namespace DG_TonKhoBTP_v02.Printer.A4
                         GetValue   = i => i.RequiredDate
                     },
                 };
+            }
         }
 
-        // ── Mẫu A: Giấy đề nghị MUA VẬT TƯ ──────────────────────────────
+        // ─────────────────────────────────────────────────────────────────────
+        // Mẫu: Giấy đề nghị MUA VẬT TƯ
+        // ─────────────────────────────────────────────────────────────────────
 
         public class MaterialRequestRenderer
             : BaseRenderer<MaterialRequestPrintData, MaterialItem>
@@ -382,63 +494,83 @@ namespace DG_TonKhoBTP_v02.Printer.A4
             protected override SignatureInfo GetSignature(MaterialRequestPrintData d) => d.Signature;
 
             protected override IReadOnlyList<ColumnDef<MaterialItem>> BuildColumns(int totalWidth)
-                => new[]
+            {
+                return new[]
                 {
                     new ColumnDef<MaterialItem>
                     {
-                        Header = "Stt",          Width = 30,
-                        DataHAlign = StringAlignment.Center, DataVAlign = StringAlignment.Center,
+                        Header = "Stt",
+                        Width = 30,
+                        DataHAlign = StringAlignment.Center,
+                        DataVAlign = StringAlignment.Center,
                         GetValue = i => i.No.ToString()
                     },
                     new ColumnDef<MaterialItem>
                     {
-                        Header = "Mã vật tư",    Width = 75,
-                        DataHAlign = StringAlignment.Center, DataVAlign = StringAlignment.Center,
+                        Header = "Mã vật tư",
+                        Width = 75,
+                        DataHAlign = StringAlignment.Center,
+                        DataVAlign = StringAlignment.Center,
                         GetValue = i => i.MaterialCode
                     },
-                    new ColumnDef<MaterialItem>  // fill
+                    new ColumnDef<MaterialItem>
                     {
-                        Header = "Tên vật tư",   Width = 0,
-                        DataHAlign = StringAlignment.Near, DataVAlign = StringAlignment.Near,
+                        Header = "Tên vật tư",
+                        Width = 0,
+                        DataHAlign = StringAlignment.Near,
+                        DataVAlign = StringAlignment.Near,
                         GetValue = i => i.MaterialName
                     },
                     new ColumnDef<MaterialItem>
                     {
-                        Header = "Đơn\nvị",      Width = 40,
-                        DataHAlign = StringAlignment.Center, DataVAlign = StringAlignment.Center,
+                        Header = "Đơn\nvị",
+                        Width = 40,
+                        DataHAlign = StringAlignment.Center,
+                        DataVAlign = StringAlignment.Center,
                         GetValue = i => i.Unit
                     },
                     new ColumnDef<MaterialItem>
                     {
-                        Header = "Số lượng",     Width = 55,
-                        DataHAlign = StringAlignment.Center, DataVAlign = StringAlignment.Center,
+                        Header = "Số lượng",
+                        Width = 55,
+                        DataHAlign = StringAlignment.Center,
+                        DataVAlign = StringAlignment.Center,
                         GetValue = i => i.Quantity
                     },
                     new ColumnDef<MaterialItem>
                     {
-                        Header = "Đơn giá",      Width = 60,
-                        DataHAlign = StringAlignment.Center, DataVAlign = StringAlignment.Center,
+                        Header = "Đơn giá",
+                        Width = 60,
+                        DataHAlign = StringAlignment.Center,
+                        DataVAlign = StringAlignment.Center,
                         GetValue = i => i.UnitPrice
                     },
                     new ColumnDef<MaterialItem>
                     {
-                        Header = "Mục đích",     Width = 130,
-                        DataHAlign = StringAlignment.Near, DataVAlign = StringAlignment.Near,
+                        Header = "Mục đích",
+                        Width = 130,
+                        DataHAlign = StringAlignment.Near,
+                        DataVAlign = StringAlignment.Near,
                         GetValue = i => i.Purpose
                     },
                     new ColumnDef<MaterialItem>
                     {
-                        Header = "Ngày YC\ngiao hàng", Width = 52,
-                        DataHAlign = StringAlignment.Center, DataVAlign = StringAlignment.Center,
+                        Header = "Ngày YC\ngiao hàng",
+                        Width = 52,
+                        DataHAlign = StringAlignment.Center,
+                        DataVAlign = StringAlignment.Center,
                         GetValue = i => i.RequiredDate
                     },
                     new ColumnDef<MaterialItem>
                     {
-                        Header = "SL tồn\nhiện tại",   Width = 52,
-                        DataHAlign = StringAlignment.Center, DataVAlign = StringAlignment.Center,
+                        Header = "SL tồn\nhiện tại",
+                        Width = 52,
+                        DataHAlign = StringAlignment.Center,
+                        DataVAlign = StringAlignment.Center,
                         GetValue = i => i.CurrentStock
                     },
                 };
+            }
         }
     }
 }

@@ -76,6 +76,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
             dgvDSMua.Rows.Clear();
             dgvDSMua.ClearSelection();
 
+
             // Reset ngày về mặc định
             dtNgay.Value = DateTime.Today;
 
@@ -98,6 +99,9 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
 
             // Sinh mã đơn mới theo ngày đề nghị hiện tại
             SetNewMaDon(dtNgay.Value);
+
+
+            cbxTimThemTheoTen.Focus();
 
             ConfigureControlsByKieuDon();
         }
@@ -127,12 +131,12 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
             if (!TryBuildHeaderAndDetail(out DanhSachDatHangModel header, out ThongTinDatHangModel detail))
                 return;
 
-            int newDetailId = NhapXuatVatTu_DB.InsertThongTinDatHang(header, detail);
-            MuaVatTuGridRowModel gridRow = NhapXuatVatTu_DB.GetGridRowByThongTinDatHangId(newDetailId);
+            int newDetailId = MuaVatTu_DB.InsertThongTinDatHang(header, detail);
+            MuaVatTuGridRowModel gridRow = MuaVatTu_DB.GetGridRowByThongTinDatHangId(newDetailId);
             if (gridRow == null)
                 throw new InvalidOperationException("Đã lưu nhưng không đọc lại được dữ liệu vừa lưu.");
 
-            if (NhapXuatVatTu_DB.ExistsDuplicateDetail(
+            if (MuaVatTu_DB.ExistsDuplicateDetail(
                     gridRow.DanhSachDatHangId,
                     gridRow.ThongTinDatHangId,
                     _KieuDon,
@@ -147,7 +151,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
 
                 if (confirm != DialogResult.Yes)
                 {
-                    NhapXuatVatTu_DB.DeleteThongTinDatHangAndHeaderIfEmpty(newDetailId);
+                    MuaVatTu_DB.DeleteThongTinDatHangAndHeaderIfEmpty(newDetailId);
                     return;
                 }
             }
@@ -161,7 +165,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
             if (_editingThongTinDatHangId <= 0)
                 throw new InvalidOperationException("Không xác định được dòng cần cập nhật.");
 
-            if (NhapXuatVatTu_DB.HasLichSuXuatNhap(_editingThongTinDatHangId))
+            if (MuaVatTu_DB.HasLichSuXuatNhap(_editingThongTinDatHangId))
             {
                 FrmWaiting.ShowGifAlert("Không thể update do đã có dữ liệu trong hệ thông");
                 SetEditMode(false);
@@ -175,13 +179,13 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
 
             detail.Id = _editingThongTinDatHangId;
 
-            MuaVatTuGridRowModel oldRow = NhapXuatVatTu_DB.GetGridRowByThongTinDatHangId(_editingThongTinDatHangId);
+            MuaVatTuGridRowModel oldRow = MuaVatTu_DB.GetGridRowByThongTinDatHangId(_editingThongTinDatHangId);
             if (oldRow == null)
                 throw new InvalidOperationException("Không tìm thấy dòng cần cập nhật.");
 
             detail.DanhSachDatHang_ID = oldRow.DanhSachDatHangId;
 
-            if (NhapXuatVatTu_DB.ExistsDuplicateDetail(
+            if (MuaVatTu_DB.ExistsDuplicateDetail(
                     oldRow.DanhSachDatHangId,
                     _editingThongTinDatHangId,
                     _KieuDon,
@@ -198,10 +202,10 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
                     return;
             }
 
-            NhapXuatVatTu_DB.UpdateDanhSachDatHangNgayThem(_editingMaDon, header.NgayThem);
-            NhapXuatVatTu_DB.UpdateThongTinDatHang(detail);
+            MuaVatTu_DB.UpdateDanhSachDatHangNgayThem(_editingMaDon, header.NgayThem);
+            MuaVatTu_DB.UpdateThongTinDatHang(detail);
 
-            MuaVatTuGridRowModel updatedRow = NhapXuatVatTu_DB.GetGridRowByThongTinDatHangId(_editingThongTinDatHangId);
+            MuaVatTuGridRowModel updatedRow = MuaVatTu_DB.GetGridRowByThongTinDatHangId(_editingThongTinDatHangId);
             UpdateGridRow(updatedRow);
             RefreshNgayDeNghiForMaDon(_editingMaDon, header.NgayThem);
 
@@ -350,14 +354,14 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
         private Task<DataTable> SearchVatTuAsync(string keyword, CancellationToken ct)
         {
             string keywordKhongDau = CoreHelper.BoDauTiengViet(keyword);
-            return Task.Run(() => NhapXuatVatTu_DB.SearchDanhSachMaSP(keyword, keywordKhongDau), ct);
+            return Task.Run(() => MuaVatTu_DB.SearchDanhSachMaSP(keyword, keywordKhongDau), ct);
         }
 
         private Task<DataTable> SearchDonAsync(string keyword, CancellationToken ct)
         {
             string keywordKhongDau = CoreHelper.BoDauTiengViet(keyword);
             string nguoiDat = UserContext.UserName;
-            return Task.Run(() => NhapXuatVatTu_DB.SearchDonDatHang(keyword, keywordKhongDau, _KieuDon, nguoiDat), ct);
+            return Task.Run(() => MuaVatTu_DB.SearchDonDatHang(keyword, keywordKhongDau, _KieuDon, nguoiDat), ct);
         }
 
         private void SearchVatTuHelper_ItemSelected(DataRowView row)
@@ -379,7 +383,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
 
         private void LoadGridByMaDon(string maDon)
         {
-            var rows = NhapXuatVatTu_DB.GetGridRowsByMaDon(maDon, _KieuDon, UserContext.UserName);
+            var rows = MuaVatTu_DB.GetGridRowsByMaDon(maDon, _KieuDon, UserContext.UserName);
 
             dgvDSMua.Rows.Clear();
             foreach (var row in rows)
@@ -412,7 +416,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
             if (!TryGetGridInt(rowIndex, COL_THONG_TIN_DAT_HANG_ID, out int thongTinDatHangId))
                 return;
 
-            if (NhapXuatVatTu_DB.HasLichSuXuatNhap(thongTinDatHangId))
+            if (MuaVatTu_DB.HasLichSuXuatNhap(thongTinDatHangId))
             {
                 FrmWaiting.ShowGifAlert("Dòng này đã có dữ liệu trong Lịch sử xuất nhập nên không được xoá.");
                 return;
@@ -424,7 +428,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
             if (confirm != DialogResult.Yes)
                 return;
 
-            NhapXuatVatTu_DB.DeleteThongTinDatHangAndHeaderIfEmpty(thongTinDatHangId);
+            MuaVatTu_DB.DeleteThongTinDatHangAndHeaderIfEmpty(thongTinDatHangId);
             dgvDSMua.Rows.RemoveAt(rowIndex);
 
             if (_isEditMode && _editingThongTinDatHangId == thongTinDatHangId)
@@ -445,13 +449,13 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
             if (!TryGetGridInt(e.RowIndex, COL_THONG_TIN_DAT_HANG_ID, out int thongTinDatHangId))
                 return;
 
-            if (NhapXuatVatTu_DB.HasLichSuXuatNhap(thongTinDatHangId))
+            if (MuaVatTu_DB.HasLichSuXuatNhap(thongTinDatHangId))
             {
                 FrmWaiting.ShowGifAlert("Dòng này đã có dữ liệu trong Lịch sử xuất nhập nên không được sửa.");
                 return;
             }
 
-            MuaVatTuGridRowModel row = NhapXuatVatTu_DB.GetGridRowByThongTinDatHangId(thongTinDatHangId);
+            MuaVatTuGridRowModel row = MuaVatTu_DB.GetGridRowByThongTinDatHangId(thongTinDatHangId);
             if (row == null)
             {
                 FrmWaiting.ShowGifAlert("Không tìm thấy dữ liệu của dòng đã chọn.");
@@ -589,7 +593,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
 
         private void SetNewMaDon(DateTime now)
         {
-            int soLuongDon = NhapXuatVatTu_DB.CountDanhSachDatHangInMonth(now);
+            int soLuongDon = MuaVatTu_DB.CountDanhSachDatHangInMonth(now);
             tbMaDon.Text = $"{GenerateMaDon(_KieuDon, now)}-{(soLuongDon + 1):0000}";
         }
 

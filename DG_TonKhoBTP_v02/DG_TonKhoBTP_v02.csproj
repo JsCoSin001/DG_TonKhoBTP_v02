@@ -145,6 +145,7 @@
     <Compile Include="Database\KeToan\CapNhatSP_DB.cs" />
     <Compile Include="Database\KeToan\KiemTraDuLieuSXNhap_DB.cs" />
     <Compile Include="Database\KeToan\TTLo_DB.cs" />
+    <Compile Include="Database\KeToan\VatTuKhac\MuaVatTu_DB.cs" />
     <Compile Include="Database\KeToan\VatTuKhac\NhapXuatVatTu_DB.cs" />
     <Compile Include="Database\Kho\BaoCaoTonKhoLo_DB.cs" />
     <Compile Include="Database\Kho\NhapKhoNVL_DB.cs" />
@@ -188,6 +189,7 @@
     <Compile Include="Models\KeToan\CapNhatSP_Model.cs" />
     <Compile Include="Models\KeToan\KiemTraDuLieuSXNhap_Model.cs" />
     <Compile Include="Models\KeToan\TTLo_Model.cs" />
+    <Compile Include="Models\KeToan\VatTuKhac\MuaVatTu_Model.cs" />
     <Compile Include="Models\KeToan\VatTuKhac\NhapXuatVatTu_Model.cs" />
     <Compile Include="Models\Kho\LotCode.cs" />
     <Compile Include="Models\Kho\TonKhoLoReportModels.cs" />

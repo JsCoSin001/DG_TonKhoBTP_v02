@@ -7,6 +7,18 @@ using System.Windows.Forms;
 namespace DG_TonKhoBTP_v02.UI.Helper.AutoSearchWithCombobox
 {
     /// <summary>
+    /// Cách xử lý Text của ComboBox sau khi user chọn một item trong dropdown.
+    /// </summary>
+    public enum ComboBoxSelectedTextBehavior
+    {
+        /// <summary>Giữ behavior cũ: chọn xong xoá trắng ComboBox.</summary>
+        Clear = 0,
+
+        /// <summary>Chọn xong điền lại text theo cột DisplayColumn của item đã chọn.</summary>
+        FillDisplayText = 1
+    }
+
+    /// <summary>
     /// Helper tái sử dụng cho ComboBox tìm kiếm bất đồng bộ (async search-as-you-type).
     /// Xử lý: debounce, cancellation, DroppedDown fix (không dùng DataSource binding),
     /// điều hướng bằng phím ↓ / Enter.
@@ -19,6 +31,12 @@ namespace DG_TonKhoBTP_v02.UI.Helper.AutoSearchWithCombobox
 
         /// <summary>Tên cột dùng để hiển thị trong dropdown. Mặc định "ten".</summary>
         public string DisplayColumn { get; set; } = "ten";
+
+        /// <summary>
+        /// Cách xử lý Text sau khi chọn item.
+        /// Mặc định Clear để giữ nguyên behavior hiện tại của các màn hình đang dùng helper này.
+        /// </summary>
+        public ComboBoxSelectedTextBehavior SelectedTextBehavior { get; set; } = ComboBoxSelectedTextBehavior.Clear;
 
         // ── Events ──────────────────────────────────────────────────────────────
         /// <summary>
@@ -239,11 +257,44 @@ namespace DG_TonKhoBTP_v02.UI.Helper.AutoSearchWithCombobox
         private void FireItemSelected(DataRowView row)
         {
             if (row == null) return;
-            _userNavigatingSuggestions = false;
-            _comboBox.DroppedDown = false;
-            _comboBox.SelectedIndex = -1;
-            _comboBox.Text = string.Empty;
+
+            string selectedText = GetDisplayText(row);
+
+            _suppressTextChange = true;
+            try
+            {
+                _userNavigatingSuggestions = false;
+                _comboBox.DroppedDown = false;
+                _comboBox.SelectedIndex = -1;
+
+                if (SelectedTextBehavior == ComboBoxSelectedTextBehavior.FillDisplayText)
+                {
+                    _comboBox.Text = selectedText;
+                    _comboBox.SelectionStart = _comboBox.Text.Length;
+                    _comboBox.SelectionLength = 0;
+                }
+                else
+                {
+                    _comboBox.Text = string.Empty;
+                }
+            }
+            finally
+            {
+                _suppressTextChange = false;
+            }
+
             ItemSelected?.Invoke(row);
+        }
+
+        private string GetDisplayText(DataRowView row)
+        {
+            if (row == null || string.IsNullOrWhiteSpace(DisplayColumn))
+                return string.Empty;
+
+            if (row.DataView?.Table?.Columns.Contains(DisplayColumn) != true)
+                return string.Empty;
+
+            return row[DisplayColumn]?.ToString() ?? string.Empty;
         }
 
         // ── IDisposable ─────────────────────────────────────────────────────────

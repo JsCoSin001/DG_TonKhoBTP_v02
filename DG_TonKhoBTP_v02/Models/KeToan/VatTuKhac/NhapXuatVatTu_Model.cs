@@ -1,54 +1,23 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace DG_TonKhoBTP_v02.Models.KeToan.VatTuKhac
 {
-    internal class DanhSachDatHangModel
+    public class KieuNhapXuat_Model
     {
         public int Id { get; set; }
-        public string MaDon { get; set; }
-        public int LoaiDon { get; set; }
-        public DateTime DateInsert { get; set; }
-        public string NguoiDat { get; set; }
-        public DateTime NgayThem { get; set; }
+        public string Ten { get; set; }
+        public bool IsNhap { get; set; }
+        public bool IsDichVu { get; set; }
+        public bool IsKhac { get; set; }
     }
 
-    internal class ThongTinDatHangModel
+    public static class TenKieuNhapXuat
     {
-        public int Id { get; set; }
-        public int? DanhSachMaSP_ID { get; set; }
-        public int DanhSachDatHang_ID { get; set; }
-        public string TenVatTu { get; set; }
-        public string TenVatTu_KhongDau { get; set; }
-        public decimal SoLuongMua { get; set; }
-        public string MucDichMua { get; set; }
-        public DateTime? NgayGiao { get; set; }
-        public DateTime Date_Insert { get; set; }
-        public decimal? DonGia { get; set; }
-    }
-
-    internal class MuaVatTuGridRowModel
-    {
-        public int ThongTinDatHangId { get; set; }
-        public int DanhSachDatHangId { get; set; }
-        public string MaDon { get; set; }
-        public DateTime? NgayThem { get; set; }
-        public int? DanhSachMaSPId { get; set; }
-        public string MaVatTu { get; set; }
-        public string TenVatTu { get; set; }
-        public string DonVi { get; set; }
-        public decimal SoLuongMua { get; set; }
-        public string MucDichMua { get; set; }
-        public DateTime? NgayGiao { get; set; }
-        public string TenVatTuKhongDau { get; set; }
-        public decimal? DonGia { get; set; }
-        public decimal? SLTon { get; set; }
-    }
-
-    internal class DeleteDatHangResult
-    {
-        public bool DeletedDetail { get; set; }
-        public bool DeletedHeader { get; set; }
-        public int DanhSachDatHangId { get; set; }
-        public string MaDon { get; set; }
+        public const string NHAP_KHO_THEO_DON = "NHẬP KHO THEO ĐƠN ĐỀ NGHỊ";
+        public const string NHAP_KHO_KHAC = "NHẬP KHÁC";
+        public const string XUAT_THEO_DON = "XUẤT THEO ĐƠN ĐỀ NGHỊ";
+        public const string XUAT_KHAC = "XUẤT KHÁC";
+        public const string DICH_VU = "XÁC NHẬN DỊCH VỤ";
     }
 }

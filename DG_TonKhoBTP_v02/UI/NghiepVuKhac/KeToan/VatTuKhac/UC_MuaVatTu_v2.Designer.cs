@@ -51,6 +51,7 @@
             this.tbMucDichMua = new System.Windows.Forms.TextBox();
             this.cbNgayGiao = new System.Windows.Forms.CheckBox();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.btnHoanThanh = new System.Windows.Forms.Button();
             this.btnLuu = new System.Windows.Forms.Button();
             this.dgvDSMua = new System.Windows.Forms.DataGridView();
             this.colMaDon = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -71,7 +72,6 @@
             this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.label5 = new System.Windows.Forms.Label();
             this.btnInPhieu = new System.Windows.Forms.Button();
-            this.btnHoanThanh = new System.Windows.Forms.Button();
             this.tableLayoutPanel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nbrSLMua)).BeginInit();
             this.panel1.SuspendLayout();
@@ -371,6 +371,20 @@
             this.panel1.Size = new System.Drawing.Size(295, 70);
             this.panel1.TabIndex = 20;
             // 
+            // btnHoanThanh
+            // 
+            this.btnHoanThanh.BackColor = System.Drawing.Color.DarkGreen;
+            this.btnHoanThanh.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnHoanThanh.ForeColor = System.Drawing.SystemColors.ButtonFace;
+            this.btnHoanThanh.Location = new System.Drawing.Point(148, 3);
+            this.btnHoanThanh.Name = "btnHoanThanh";
+            this.btnHoanThanh.Padding = new System.Windows.Forms.Padding(3);
+            this.btnHoanThanh.Size = new System.Drawing.Size(144, 45);
+            this.btnHoanThanh.TabIndex = 8;
+            this.btnHoanThanh.Text = "Hoàn thành đơn";
+            this.btnHoanThanh.UseVisualStyleBackColor = false;
+            this.btnHoanThanh.Click += new System.EventHandler(this.btnHoanThanh_Click);
+            // 
             // btnLuu
             // 
             this.btnLuu.BackColor = System.Drawing.Color.DarkRed;
@@ -522,7 +536,7 @@
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 81.75676F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 484F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 242F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 315F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 316F));
             this.tableLayoutPanel1.Controls.Add(this.comboBox1, 1, 0);
             this.tableLayoutPanel1.Controls.Add(this.label5, 0, 0);
             this.tableLayoutPanel1.Controls.Add(this.btnInPhieu, 4, 0);
@@ -538,9 +552,9 @@
             // 
             this.comboBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Location = new System.Drawing.Point(81, 26);
+            this.comboBox1.Location = new System.Drawing.Point(81, 29);
             this.comboBox1.Name = "comboBox1";
-            this.comboBox1.Size = new System.Drawing.Size(346, 26);
+            this.comboBox1.Size = new System.Drawing.Size(345, 26);
             this.comboBox1.TabIndex = 0;
             // 
             // label5
@@ -556,27 +570,13 @@
             // btnInPhieu
             // 
             this.btnInPhieu.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.btnInPhieu.Location = new System.Drawing.Point(1159, 9);
+            this.btnInPhieu.Location = new System.Drawing.Point(1158, 9);
             this.btnInPhieu.Name = "btnInPhieu";
             this.btnInPhieu.Size = new System.Drawing.Size(142, 60);
             this.btnInPhieu.TabIndex = 3;
             this.btnInPhieu.Text = "In Phiếu";
             this.btnInPhieu.UseVisualStyleBackColor = true;
             this.btnInPhieu.Click += new System.EventHandler(this.btnInPhieu_Click);
-            // 
-            // btnHoanThanh
-            // 
-            this.btnHoanThanh.BackColor = System.Drawing.Color.DarkGreen;
-            this.btnHoanThanh.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnHoanThanh.ForeColor = System.Drawing.SystemColors.ButtonFace;
-            this.btnHoanThanh.Location = new System.Drawing.Point(148, 3);
-            this.btnHoanThanh.Name = "btnHoanThanh";
-            this.btnHoanThanh.Padding = new System.Windows.Forms.Padding(3);
-            this.btnHoanThanh.Size = new System.Drawing.Size(144, 45);
-            this.btnHoanThanh.TabIndex = 8;
-            this.btnHoanThanh.Text = "Hoàn thành đơn";
-            this.btnHoanThanh.UseVisualStyleBackColor = false;
-            this.btnHoanThanh.Click += new System.EventHandler(this.btnHoanThanh_Click);
             // 
             // UC_MuaVatTu_v2
             // 

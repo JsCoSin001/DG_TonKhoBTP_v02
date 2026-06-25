@@ -3,511 +3,394 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
+using System.Threading;
+using CoreHelper = DG_TonKhoBTP_v02.Helper.Helper;
 
-namespace DG_TonKhoBTP_v02.Database.KeToan.VatTuKhac
+namespace DG_TonKhoBTP_v02.Database
 {
     internal static class NhapXuatVatTu_DB
     {
-        private const string DateFormat = "yyyy-MM-dd";
-        private const string DateTimeFormat = "yyyy-MM-dd HH:mm:ss";
+        private const int SearchLimit = 30;
 
-        public static int CountDanhSachDatHangInMonth(DateTime now)
+        public static DataTable TimVatTuDichVu(
+            KieuNhapXuat_Model model,
+            string keyword,
+            int? danhSachKhoId,
+            string nguoiLam,
+            CancellationToken cancellationToken)
         {
-            DateTime start = new DateTime(now.Year, now.Month, 1);
-            DateTime end = start.AddMonths(1);
+            if (model == null)
+                throw new ArgumentNullException(nameof(model));
 
-            const string sql = @"
-                SELECT COUNT(*)
-                FROM DanhSachDatHang
-                WHERE NgayThem >= @start
-                  AND NgayThem < @end";
+            keyword = keyword?.Trim() ?? string.Empty;
 
-            using var conn = DB_Base.OpenConnection();
+            if (string.IsNullOrWhiteSpace(keyword))
+                return CreateEmptySearchTable();
+
+            if (IsDichVu(model))
+                return TimDichVu(keyword, cancellationToken);
+
+            if (IsNhapKhoTheoDon(model))
+                return TimVatTuNhapKhoTheoDon(keyword, cancellationToken);
+
+            if (IsNhapKhoKhac(model))
+                return TimVatTuNhapKhoKhac(keyword, cancellationToken);
+
+            if (IsXuat(model))
+                return TimVatTuXuat(keyword, danhSachKhoId, nguoiLam, cancellationToken);
+
+            return CreateEmptySearchTable();
+        }
+
+        public static DataTable TimKhoHang(
+            string keyword,
+            CancellationToken cancellationToken)
+        {
+            keyword = keyword?.Trim() ?? string.Empty;
+
+            if (string.IsNullOrWhiteSpace(keyword))
+                return CreateEmptyKhoHangSearchTable();
+
+            string sql = @"
+                SELECT
+                    id,
+                    TenKho,
+                    TenKho_KhongDau
+                FROM DanhSachKho
+                WHERE
+                    TenKho LIKE @kw
+                    OR IFNULL(TenKho_KhongDau, '') LIKE @kwNoDau
+                ORDER BY TenKho
+                LIMIT @limit;
+            ";
+
+            return ExecuteSearchQuery(sql, CreateKeywordParameters(keyword), cancellationToken);
+        }
+
+        public static DataTable TimNhaCungCap(
+            string keyword,
+            CancellationToken cancellationToken)
+        {
+            keyword = keyword?.Trim() ?? string.Empty;
+
+            if (string.IsNullOrWhiteSpace(keyword))
+                return CreateEmptyNhaCungCapSearchTable();
+
+            string sql = @"
+                SELECT
+                    id,
+                    TenNCC,
+                    TenNCC_KhongDau
+                FROM DanhSachNCC
+                WHERE
+                    TenNCC LIKE @kw
+                    OR IFNULL(TenNCC_KhongDau, '') LIKE @kwNoDau
+                ORDER BY TenNCC
+                LIMIT @limit;
+            ";
+
+            return ExecuteSearchQuery(sql, CreateKeywordParameters(keyword), cancellationToken);
+        }
+
+
+        public static int GetSoLuongXuatNhapThangHienTai(bool isNhapKho = false, DateTime? currentDate = null)
+        {
+            DateTime now = currentDate ?? DateTime.Now;
+
+            string start = new DateTime(now.Year, now.Month, 1)
+                .ToString("yyyy-MM-dd");
+
+            string end = new DateTime(now.Year, now.Month, 1)
+                .AddMonths(1)
+                .ToString("yyyy-MM-dd");
+
+            string sql = @"
+                SELECT 
+                    IFNULL(MAX(CAST(SUBSTR(TenPhieu, INSTR(TenPhieu, '-') + 1) AS INTEGER)), 0)
+                FROM LichSuXuatNhap
+                WHERE Ngay >= @start 
+                AND Ngay < @end
+            ";
+
+            sql += isNhapKho ? " AND TenPhieu LIKE 'KNK%'" : " AND TenPhieu LIKE 'KXK%'";
+
+            using var conn = new SQLiteConnection(DatabaseHelper.GetStringConnector);
+            conn.Open();
+
             using var cmd = new SQLiteCommand(sql, conn);
-            cmd.Parameters.AddWithValue("@start", start.ToString(DateFormat));
-            cmd.Parameters.AddWithValue("@end", end.ToString(DateFormat));
+
+            cmd.Parameters.AddWithValue("@start", start);
+            cmd.Parameters.AddWithValue("@end", end);
 
             object result = cmd.ExecuteScalar();
-            return result == null || result == DBNull.Value ? 0 : Convert.ToInt32(result);
+
+            return result == null ? 0 : Convert.ToInt32(result);
         }
 
-        public static bool MaDonExists(string maDon)
+        private static DataTable TimVatTuNhapKhoTheoDon(
+            string keyword,
+            CancellationToken cancellationToken)
         {
-            const string sql = @"
-                SELECT COUNT(1)
-                FROM DanhSachDatHang
-                WHERE MaDon = @maDon";
-
-            using var conn = DB_Base.OpenConnection();
-            using var cmd = new SQLiteCommand(sql, conn);
-            cmd.Parameters.AddWithValue("@maDon", maDon);
-            return Convert.ToInt32(cmd.ExecuteScalar()) > 0;
-        }
-
-        public static DataTable SearchDanhSachMaSP(string keyword, string keywordKhongDau)
-        {
-            const string sql = @"
-                SELECT id,
-                       Ten AS ten,
-                       Ten_KhongDau AS ten_khongdau,
-                       Ma AS ma,
-                       DonVi AS donvi
-                FROM DanhSachMaSP
-                WHERE Active = 1
-                  AND KieuSP NOT IN ('NVL', 'TP', 'BTP')
-                  AND (
-                        LOWER(COALESCE(Ten_KhongDau, '')) LIKE @keywordKhongDau
-                        OR LOWER(COALESCE(Ma, '')) LIKE @keyword
-                      )
-                ORDER BY Ten
-                LIMIT 50";
-
-            using var conn = DB_Base.OpenConnection();
-            using var cmd = new SQLiteCommand(sql, conn);
-            cmd.Parameters.AddWithValue("@keyword", Like(keyword));
-            cmd.Parameters.AddWithValue("@keywordKhongDau", Like(keywordKhongDau));
-
-            var dt = new DataTable();
-            using var adapter = new SQLiteDataAdapter(cmd);
-            adapter.Fill(dt);
-            return dt;
-        }
-
-        public static DataTable SearchDonDatHang(string keyword, string keywordKhongDau, int loaiDon, string nguoiDat)
-        {
-            const string sql = @"
-                SELECT DISTINCT
-                       'MADON' AS search_type,
-                       ddh.id AS danh_sach_dat_hang_id,
-                       ddh.MaDon AS ma_don,
-                       ddh.MaDon AS display_text
-                FROM DanhSachDatHang ddh
-                WHERE ddh.LoaiDon = @loaiDon
-                  AND COALESCE(ddh.NguoiDat, '') = COALESCE(@nguoiDat, '')
-                  AND LOWER(COALESCE(ddh.MaDon, '')) LIKE @keyword
-
-                UNION
-
-                SELECT DISTINCT
-                       'TEN_VAT_TU' AS search_type,
-                       ddh.id AS danh_sach_dat_hang_id,
-                       ddh.MaDon AS ma_don,
-                       ddh.MaDon || ' - ' || COALESCE(dsm.Ten, ttdh.TenVatTu, '') AS display_text
-                FROM DanhSachDatHang ddh
-                JOIN ThongTinDatHang ttdh ON ttdh.DanhSachDatHang_ID = ddh.id
-                LEFT JOIN DanhSachMaSP dsm ON dsm.id = ttdh.DanhSachMaSP_ID
-                WHERE ddh.LoaiDon = @loaiDon
-                  AND COALESCE(ddh.NguoiDat, '') = COALESCE(@nguoiDat, '')
-                  AND (
-                        (@loaiDon = 1 AND LOWER(COALESCE(dsm.Ten_KhongDau, '')) LIKE @keywordKhongDau)
-                        OR
-                        (@loaiDon = 2 AND LOWER(COALESCE(ttdh.TenVatTu_KhongDau, '')) LIKE @keywordKhongDau)
-                      )
-                ORDER BY display_text
-                LIMIT 80";
-
-            using var conn = DB_Base.OpenConnection();
-            using var cmd = new SQLiteCommand(sql, conn);
-            cmd.Parameters.AddWithValue("@keyword", Like(keyword));
-            cmd.Parameters.AddWithValue("@keywordKhongDau", Like(keywordKhongDau));
-            cmd.Parameters.AddWithValue("@loaiDon", loaiDon);
-            cmd.Parameters.AddWithValue("@nguoiDat", (object)nguoiDat ?? DBNull.Value);
-
-            var dt = new DataTable();
-            using var adapter = new SQLiteDataAdapter(cmd);
-            adapter.Fill(dt);
-            return dt;
-        }
-
-        public static int InsertThongTinDatHang(DanhSachDatHangModel header, ThongTinDatHangModel detail)
-        {
-            using var conn = DB_Base.OpenConnection();
-            using var tran = conn.BeginTransaction();
-            try
-            {
-                int headerId = EnsureDanhSachDatHang(conn, tran, header);
-                detail.DanhSachDatHang_ID = headerId;
-
-                const string sqlInsertDetail = @"
-                    INSERT INTO ThongTinDatHang
-                    (
-                        DanhSachMaSP_ID,
-                        DanhSachDatHang_ID,
-                        TenVatTu,
-                        TenVatTu_KhongDau,
-                        SoLuongMua,
-                        MucDichMua,
-                        NgayGiao,
-                        Date_Insert,
-                        DonGia
-                    )
-                    VALUES
-                    (
-                        @danhSachMaSPId,
-                        @danhSachDatHangId,
-                        @tenVatTu,
-                        @tenVatTuKhongDau,
-                        @soLuongMua,
-                        @mucDichMua,
-                        @ngayGiao,
-                        @dateInsert,
-                        @donGia
-                    );
-                    SELECT last_insert_rowid();";
-
-                using var cmd = new SQLiteCommand(sqlInsertDetail, conn, tran);
-                AddDetailParameters(cmd, detail, includeId: false);
-
-                int newDetailId = Convert.ToInt32(cmd.ExecuteScalar());
-                tran.Commit();
-                return newDetailId;
-            }
-            catch
-            {
-                tran.Rollback();
-                throw;
-            }
-        }
-
-        public static void UpdateDanhSachDatHangNgayThem(string maDon, DateTime ngayThem)
-        {
-            const string sql = @"
-                UPDATE DanhSachDatHang
-                SET NgayThem = @ngayThem
-                WHERE MaDon = @maDon";
-
-            using var conn = DB_Base.OpenConnection();
-            using var cmd = new SQLiteCommand(sql, conn);
-            cmd.Parameters.AddWithValue("@ngayThem", ngayThem.ToString(DateFormat));
-            cmd.Parameters.AddWithValue("@maDon", maDon);
-            cmd.ExecuteNonQuery();
-        }
-
-        public static void UpdateThongTinDatHang(ThongTinDatHangModel detail)
-        {
-            if (HasLichSuXuatNhap(detail.Id))
-                throw new InvalidOperationException("Dòng này đã có dữ liệu trong Lịch sử xuất nhập nên không được sửa.");
-
-            const string sql = @"
-                UPDATE ThongTinDatHang
-                SET DanhSachMaSP_ID = @danhSachMaSPId,
-                    TenVatTu = @tenVatTu,
-                    TenVatTu_KhongDau = @tenVatTuKhongDau,
-                    SoLuongMua = @soLuongMua,
-                    MucDichMua = @mucDichMua,
-                    NgayGiao = @ngayGiao,
-                    DonGia = @donGia
-                WHERE id = @id";
-
-            using var conn = DB_Base.OpenConnection();
-            using var cmd = new SQLiteCommand(sql, conn);
-            AddDetailParameters(cmd, detail, includeId: true);
-            cmd.ExecuteNonQuery();
-        }
-
-        public static bool ExistsDuplicateDetail(int danhSachDatHangId, int currentThongTinDatHangId, int loaiDon, int? danhSachMaSPId, string tenVatTuKhongDau)
-        {
-            const string sql = @"
-                SELECT COUNT(1)
-                FROM ThongTinDatHang
-                WHERE DanhSachDatHang_ID = @danhSachDatHangId
-                  AND id <> @currentThongTinDatHangId
-                  AND (
-                        (@loaiDon = 1 AND DanhSachMaSP_ID = @danhSachMaSPId)
-                        OR
-                        (@loaiDon = 2 AND LOWER(COALESCE(TenVatTu_KhongDau, '')) = LOWER(COALESCE(@tenVatTuKhongDau, '')))
-                      )";
-
-            using var conn = DB_Base.OpenConnection();
-            using var cmd = new SQLiteCommand(sql, conn);
-            cmd.Parameters.AddWithValue("@danhSachDatHangId", danhSachDatHangId);
-            cmd.Parameters.AddWithValue("@currentThongTinDatHangId", currentThongTinDatHangId);
-            cmd.Parameters.AddWithValue("@loaiDon", loaiDon);
-            cmd.Parameters.AddWithValue("@danhSachMaSPId", (object)danhSachMaSPId ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("@tenVatTuKhongDau", (object)tenVatTuKhongDau ?? DBNull.Value);
-
-            return Convert.ToInt32(cmd.ExecuteScalar()) > 0;
-        }
-
-        public static bool HasLichSuXuatNhap(int thongTinDatHangId)
-        {
-            const string sql = @"
-                SELECT COUNT(1)
-                FROM LichSuXuatNhap
-                WHERE ThongTinDatHang_ID = @thongTinDatHangId";
-
-            using var conn = DB_Base.OpenConnection();
-            using var cmd = new SQLiteCommand(sql, conn);
-            cmd.Parameters.AddWithValue("@thongTinDatHangId", thongTinDatHangId);
-            return Convert.ToInt32(cmd.ExecuteScalar()) > 0;
-        }
-
-        public static DeleteDatHangResult DeleteThongTinDatHangAndHeaderIfEmpty(int thongTinDatHangId)
-        {
-            using var conn = DB_Base.OpenConnection();
-            using var tran = conn.BeginTransaction();
-            try
-            {
-                if (HasLichSuXuatNhap(conn, tran, thongTinDatHangId))
-                    throw new InvalidOperationException("Dòng này đã có dữ liệu trong Lịch sử xuất nhập nên không được xoá.");
-
-                const string sqlHeader = @"
-                    SELECT ddh.id, ddh.MaDon
-                    FROM ThongTinDatHang ttdh
-                    JOIN DanhSachDatHang ddh ON ddh.id = ttdh.DanhSachDatHang_ID
-                    WHERE ttdh.id = @id";
-
-                int headerId;
-                string maDon;
-                using (var cmdHeader = new SQLiteCommand(sqlHeader, conn, tran))
-                {
-                    cmdHeader.Parameters.AddWithValue("@id", thongTinDatHangId);
-                    using var reader = cmdHeader.ExecuteReader();
-                    if (!reader.Read())
-                        throw new InvalidOperationException("Không tìm thấy dòng cần xoá.");
-
-                    headerId = Convert.ToInt32(reader["id"]);
-                    maDon = Convert.ToString(reader["MaDon"]);
-                }
-
-                using (var cmdDeleteDetail = new SQLiteCommand("DELETE FROM ThongTinDatHang WHERE id = @id", conn, tran))
-                {
-                    cmdDeleteDetail.Parameters.AddWithValue("@id", thongTinDatHangId);
-                    cmdDeleteDetail.ExecuteNonQuery();
-                }
-
-                int remaining;
-                using (var cmdCount = new SQLiteCommand("SELECT COUNT(1) FROM ThongTinDatHang WHERE DanhSachDatHang_ID = @headerId", conn, tran))
-                {
-                    cmdCount.Parameters.AddWithValue("@headerId", headerId);
-                    remaining = Convert.ToInt32(cmdCount.ExecuteScalar());
-                }
-
-                bool deletedHeader = false;
-                if (remaining == 0)
-                {
-                    using var cmdDeleteHeader = new SQLiteCommand("DELETE FROM DanhSachDatHang WHERE id = @headerId", conn, tran);
-                    cmdDeleteHeader.Parameters.AddWithValue("@headerId", headerId);
-                    cmdDeleteHeader.ExecuteNonQuery();
-                    deletedHeader = true;
-                }
-
-                tran.Commit();
-                return new DeleteDatHangResult
-                {
-                    DeletedDetail = true,
-                    DeletedHeader = deletedHeader,
-                    DanhSachDatHangId = headerId,
-                    MaDon = maDon
-                };
-            }
-            catch
-            {
-                tran.Rollback();
-                throw;
-            }
-        }
-
-        public static MuaVatTuGridRowModel GetGridRowByThongTinDatHangId(int thongTinDatHangId)
-        {
-            const string sql = @"
-                SELECT ttdh.id AS ThongTinDatHangId,
-                       ddh.id AS DanhSachDatHangId,
-                       ddh.MaDon,
-                       ddh.NgayThem,
-                       ttdh.DanhSachMaSP_ID,
-                       dsm.Ma AS MaVatTu,
-                       COALESCE(dsm.Ten, ttdh.TenVatTu) AS TenVatTu,
-                       dsm.DonVi,
-                       ttdh.SoLuongMua,
-                       ttdh.MucDichMua,
-                       ttdh.NgayGiao,
-                       COALESCE(dsm.Ten_KhongDau, ttdh.TenVatTu_KhongDau) AS TenVatTuKhongDau,
-                       ttdh.DonGia,
-                       NULL AS SLTon
+            string sql = @"
+                SELECT
+                    dms.id AS id,
+                    ttdh.id AS ThongTinDatHang_ID,
+                    dms.id AS DanhSachMaSP_ID,
+                    dms.Ten AS ten,
+                    dms.Ma AS ma,
+                    dms.DonVi AS donvi,
+                    dsdh.MaDon AS MaDon,
+                    (ttdh.SoLuongMua - COALESCE(nhap.TongNhap, 0)) AS SoLuongYeuCau,
+                    0 AS SoLuongTon,
+                    ttdh.DonGia AS DonGia
                 FROM ThongTinDatHang ttdh
-                JOIN DanhSachDatHang ddh ON ddh.id = ttdh.DanhSachDatHang_ID
-                LEFT JOIN DanhSachMaSP dsm ON dsm.id = ttdh.DanhSachMaSP_ID
-                WHERE ttdh.id = @id";
+                INNER JOIN DanhSachMaSP dms
+                    ON dms.id = ttdh.DanhSachMaSP_ID
+                INNER JOIN DanhSachDatHang dsdh
+                    ON dsdh.id = ttdh.DanhSachDatHang_ID
+                LEFT JOIN (
+                    SELECT
+                        ThongTinDatHang_ID,
+                        SUM(SoLuong) AS TongNhap
+                    FROM LichSuXuatNhap
+                    WHERE SoLuong > 0
+                    GROUP BY ThongTinDatHang_ID
+                ) nhap
+                    ON nhap.ThongTinDatHang_ID = ttdh.id
+                WHERE dms.Active = 1
+                  AND (
+                        dms.Ten LIKE @kw
+                        OR IFNULL(dms.Ten_KhongDau, '') LIKE @kwNoDau
+                  )
+                  AND (ttdh.SoLuongMua - COALESCE(nhap.TongNhap, 0)) > 0
+                ORDER BY dms.Ten
+                LIMIT @limit;
+            ";
 
-            using var conn = DB_Base.OpenConnection();
-            using var cmd = new SQLiteCommand(sql, conn);
-            cmd.Parameters.AddWithValue("@id", thongTinDatHangId);
-
-            using var reader = cmd.ExecuteReader();
-            return reader.Read() ? ReadGridRow(reader) : null;
+            return ExecuteSearchQuery(sql, CreateKeywordParameters(keyword), cancellationToken);
         }
 
-        public static List<MuaVatTuGridRowModel> GetGridRowsByMaDon(string maDon, int loaiDon, string nguoiDat)
+        private static DataTable TimVatTuNhapKhoKhac(
+            string keyword,
+            CancellationToken cancellationToken)
         {
-            const string sql = @"
-                SELECT ttdh.id AS ThongTinDatHangId,
-                       ddh.id AS DanhSachDatHangId,
-                       ddh.MaDon,
-                       ddh.NgayThem,
-                       ttdh.DanhSachMaSP_ID,
-                       dsm.Ma AS MaVatTu,
-                       COALESCE(dsm.Ten, ttdh.TenVatTu) AS TenVatTu,
-                       dsm.DonVi,
-                       ttdh.SoLuongMua,
-                       ttdh.MucDichMua,
-                       ttdh.NgayGiao,
-                       COALESCE(dsm.Ten_KhongDau, ttdh.TenVatTu_KhongDau) AS TenVatTuKhongDau,
-                       ttdh.DonGia,
-                       NULL AS SLTon
-                FROM DanhSachDatHang ddh
-                JOIN ThongTinDatHang ttdh ON ttdh.DanhSachDatHang_ID = ddh.id
-                LEFT JOIN DanhSachMaSP dsm ON dsm.id = ttdh.DanhSachMaSP_ID
-                WHERE ddh.MaDon = @maDon
-                  AND ddh.LoaiDon = @loaiDon
-                  AND COALESCE(ddh.NguoiDat, '') = COALESCE(@nguoiDat, '')
-                ORDER BY ttdh.id";
+            string sql = @"
+                SELECT
+                    dms.id AS id,
+                    NULL AS ThongTinDatHang_ID,
+                    dms.id AS DanhSachMaSP_ID,
+                    dms.Ten AS ten,
+                    dms.Ma AS ma,
+                    dms.DonVi AS donvi,
+                    '' AS MaDon,
+                    0 AS SoLuongYeuCau,
+                    0 AS SoLuongTon,
+                    NULL AS DonGia
+                FROM DanhSachMaSP dms
+                WHERE dms.Active = 1
+                  AND (
+                        dms.Ten LIKE @kw
+                        OR IFNULL(dms.Ten_KhongDau, '') LIKE @kwNoDau
+                  )
+                ORDER BY dms.Ten
+                LIMIT @limit;
+            ";
 
-            var result = new List<MuaVatTuGridRowModel>();
-            using var conn = DB_Base.OpenConnection();
-            using var cmd = new SQLiteCommand(sql, conn);
-            cmd.Parameters.AddWithValue("@maDon", maDon);
-            cmd.Parameters.AddWithValue("@loaiDon", loaiDon);
-            cmd.Parameters.AddWithValue("@nguoiDat", (object)nguoiDat ?? DBNull.Value);
-
-            using var reader = cmd.ExecuteReader();
-            while (reader.Read())
-                result.Add(ReadGridRow(reader));
-
-            return result;
+            return ExecuteSearchQuery(sql, CreateKeywordParameters(keyword), cancellationToken);
         }
 
-        private static int EnsureDanhSachDatHang(SQLiteConnection conn, SQLiteTransaction tran, DanhSachDatHangModel header)
+        private static DataTable TimVatTuXuat(
+            string keyword,
+            int? danhSachKhoId,
+            string nguoiLam,
+            CancellationToken cancellationToken)
         {
-            const string sqlFind = "SELECT id FROM DanhSachDatHang WHERE MaDon = @maDon";
-            using (var cmdFind = new SQLiteCommand(sqlFind, conn, tran))
+            if (!danhSachKhoId.HasValue)
+                return CreateEmptySearchTable();
+
+            if (string.IsNullOrWhiteSpace(nguoiLam))
+                return CreateEmptySearchTable();
+
+            string sql = @"
+                SELECT
+                    dms.id AS id,
+                    NULL AS ThongTinDatHang_ID,
+                    dms.id AS DanhSachMaSP_ID,
+                    dms.Ten AS ten,
+                    dms.Ma AS ma,
+                    dms.DonVi AS donvi,
+                    '' AS MaDon,
+                    SUM(lsxn.SoLuong) AS SoLuongYeuCau,
+                    SUM(lsxn.SoLuong) AS SoLuongTon,
+                    NULL AS DonGia
+                FROM LichSuXuatNhap lsxn
+                INNER JOIN ThongTinDatHang ttdh
+                    ON ttdh.id = lsxn.ThongTinDatHang_ID
+                INNER JOIN DanhSachMaSP dms
+                    ON dms.id = ttdh.DanhSachMaSP_ID
+                WHERE dms.Active = 1
+                  AND lsxn.DanhSachKho_ID = @danhSachKhoId
+                  AND IFNULL(lsxn.NguoiLam, '') = @nguoiLam
+                  AND (
+                        dms.Ten LIKE @kw
+                        OR IFNULL(dms.Ten_KhongDau, '') LIKE @kwNoDau
+                  )
+                GROUP BY
+                    dms.id,
+                    dms.Ten,
+                    dms.Ma,
+                    dms.DonVi
+                HAVING SUM(lsxn.SoLuong) > 0
+                ORDER BY dms.Ten
+                LIMIT @limit;
+            ";
+
+            var parameters = CreateKeywordParameters(keyword);
+            parameters["@danhSachKhoId"] = danhSachKhoId.Value;
+            parameters["@nguoiLam"] = nguoiLam;
+
+            return ExecuteSearchQuery(sql, parameters, cancellationToken);
+        }
+
+        private static DataTable TimDichVu(
+            string keyword,
+            CancellationToken cancellationToken)
+        {
+            string sql = @"
+                SELECT
+                    NULL AS id,
+                    ttdh.id AS ThongTinDatHang_ID,
+                    NULL AS DanhSachMaSP_ID,
+                    ttdh.TenVatTu AS ten,
+                    '' AS ma,
+                    '' AS donvi,
+                    dsdh.MaDon AS MaDon,
+                    0 AS SoLuongYeuCau,
+                    0 AS SoLuongTon,
+                    ttdh.DonGia AS DonGia
+                FROM ThongTinDatHang ttdh
+                INNER JOIN DanhSachDatHang dsdh
+                    ON dsdh.id = ttdh.DanhSachDatHang_ID
+                LEFT JOIN LichSuXuatNhap lsxn
+                    ON lsxn.ThongTinDatHang_ID = ttdh.id
+                WHERE lsxn.id IS NULL
+                  AND (
+                        ttdh.DanhSachMaSP_ID IS NULL
+                        OR ttdh.DanhSachMaSP_ID = 0
+                  )
+                  AND (
+                        ttdh.TenVatTu LIKE @kw
+                        OR IFNULL(ttdh.TenVatTu_KhongDau, '') LIKE @kwNoDau
+                  )
+                ORDER BY ttdh.TenVatTu
+                LIMIT @limit;
+            ";
+
+            return ExecuteSearchQuery(sql, CreateKeywordParameters(keyword), cancellationToken);
+        }
+
+        private static Dictionary<string, object> CreateKeywordParameters(string keyword)
+        {
+            string keywordKhongDau = CoreHelper.BoDauTiengViet(keyword) ?? keyword;
+
+            return new Dictionary<string, object>
             {
-                cmdFind.Parameters.AddWithValue("@maDon", header.MaDon);
-                object found = cmdFind.ExecuteScalar();
-                if (found != null && found != DBNull.Value)
-                    return Convert.ToInt32(found);
-            }
-
-            const string sqlInsert = @"
-                INSERT INTO DanhSachDatHang
-                (
-                    MaDon,
-                    LoaiDon,
-                    DateInsert,
-                    NguoiDat,
-                    NgayThem
-                )
-                VALUES
-                (
-                    @maDon,
-                    @loaiDon,
-                    @dateInsert,
-                    @nguoiDat,
-                    @ngayThem
-                );
-                SELECT last_insert_rowid();";
-
-            using var cmdInsert = new SQLiteCommand(sqlInsert, conn, tran);
-            cmdInsert.Parameters.AddWithValue("@maDon", header.MaDon);
-            cmdInsert.Parameters.AddWithValue("@loaiDon", header.LoaiDon);
-            cmdInsert.Parameters.AddWithValue("@dateInsert", header.DateInsert.ToString(DateTimeFormat));
-            cmdInsert.Parameters.AddWithValue("@nguoiDat", (object)header.NguoiDat ?? DBNull.Value);
-            cmdInsert.Parameters.AddWithValue("@ngayThem", header.NgayThem.ToString(DateFormat));
-
-            return Convert.ToInt32(cmdInsert.ExecuteScalar());
-        }
-
-        private static void AddDetailParameters(SQLiteCommand cmd, ThongTinDatHangModel detail, bool includeId)
-        {
-            if (includeId)
-                cmd.Parameters.AddWithValue("@id", detail.Id);
-
-            cmd.Parameters.AddWithValue("@danhSachMaSPId", (object)detail.DanhSachMaSP_ID ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("@danhSachDatHangId", detail.DanhSachDatHang_ID);
-            cmd.Parameters.AddWithValue("@tenVatTu", (object)detail.TenVatTu ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("@tenVatTuKhongDau", (object)detail.TenVatTu_KhongDau ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("@soLuongMua", detail.SoLuongMua);
-            cmd.Parameters.AddWithValue("@mucDichMua", (object)detail.MucDichMua ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("@ngayGiao", detail.NgayGiao.HasValue ? (object)detail.NgayGiao.Value.ToString(DateFormat) : DBNull.Value);
-            cmd.Parameters.AddWithValue("@dateInsert", detail.Date_Insert.ToString(DateTimeFormat));
-            cmd.Parameters.AddWithValue("@donGia", detail.DonGia.HasValue ? (object)detail.DonGia.Value : DBNull.Value);
-        }
-
-        private static bool HasLichSuXuatNhap(SQLiteConnection conn, SQLiteTransaction tran, int thongTinDatHangId)
-        {
-            const string sql = @"
-                SELECT COUNT(1)
-                FROM LichSuXuatNhap
-                WHERE ThongTinDatHang_ID = @thongTinDatHangId";
-
-            using var cmd = new SQLiteCommand(sql, conn, tran);
-            cmd.Parameters.AddWithValue("@thongTinDatHangId", thongTinDatHangId);
-            return Convert.ToInt32(cmd.ExecuteScalar()) > 0;
-        }
-
-        private static MuaVatTuGridRowModel ReadGridRow(SQLiteDataReader reader)
-        {
-            return new MuaVatTuGridRowModel
-            {
-                ThongTinDatHangId = ReadInt(reader, "ThongTinDatHangId"),
-                DanhSachDatHangId = ReadInt(reader, "DanhSachDatHangId"),
-                MaDon = ReadString(reader, "MaDon"),
-                NgayThem = ReadNullableDate(reader, "NgayThem"),
-                DanhSachMaSPId = ReadNullableInt(reader, "DanhSachMaSP_ID"),
-                MaVatTu = ReadString(reader, "MaVatTu"),
-                TenVatTu = ReadString(reader, "TenVatTu"),
-                DonVi = ReadString(reader, "DonVi"),
-                SoLuongMua = ReadDecimal(reader, "SoLuongMua"),
-                MucDichMua = ReadString(reader, "MucDichMua"),
-                NgayGiao = ReadNullableDate(reader, "NgayGiao"),
-                TenVatTuKhongDau = ReadString(reader, "TenVatTuKhongDau"),
-                DonGia = ReadNullableDecimal(reader, "DonGia"),
-                SLTon = ReadNullableDecimal(reader, "SLTon")
+                ["@kw"] = "%" + keyword + "%",
+                ["@kwNoDau"] = "%" + keywordKhongDau + "%",
+                ["@limit"] = SearchLimit
             };
         }
 
-        private static string Like(string value)
+        private static DataTable ExecuteSearchQuery(
+            string sql,
+            Dictionary<string, object> parameters,
+            CancellationToken cancellationToken)
         {
-            return "%" + (value ?? string.Empty).Trim().ToLowerInvariant() + "%";
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var dt = new DataTable();
+
+            using (var conn = DB_Base.OpenConnection())
+            using (var cmd = new SQLiteCommand(sql, conn))
+            {
+                foreach (var p in parameters)
+                    cmd.Parameters.AddWithValue(p.Key, p.Value ?? DBNull.Value);
+
+                using (var adapter = new SQLiteDataAdapter(cmd))
+                {
+                    adapter.Fill(dt);
+                }
+            }
+
+            cancellationToken.ThrowIfCancellationRequested();
+
+            return dt;
         }
 
-        private static int ReadInt(SQLiteDataReader reader, string columnName)
+        private static DataTable CreateEmptySearchTable()
         {
-            int ordinal = reader.GetOrdinal(columnName);
-            return reader.IsDBNull(ordinal) ? 0 : Convert.ToInt32(reader.GetValue(ordinal));
+            var dt = new DataTable();
+
+            dt.Columns.Add("id", typeof(object));
+            dt.Columns.Add("ThongTinDatHang_ID", typeof(object));
+            dt.Columns.Add("DanhSachMaSP_ID", typeof(object));
+            dt.Columns.Add("ten", typeof(string));
+            dt.Columns.Add("ma", typeof(string));
+            dt.Columns.Add("donvi", typeof(string));
+            dt.Columns.Add("MaDon", typeof(string));
+            dt.Columns.Add("SoLuongYeuCau", typeof(decimal));
+            dt.Columns.Add("SoLuongTon", typeof(decimal));
+            dt.Columns.Add("DonGia", typeof(decimal));
+
+            return dt;
         }
 
-        private static int? ReadNullableInt(SQLiteDataReader reader, string columnName)
+        private static DataTable CreateEmptyKhoHangSearchTable()
         {
-            int ordinal = reader.GetOrdinal(columnName);
-            return reader.IsDBNull(ordinal) ? (int?)null : Convert.ToInt32(reader.GetValue(ordinal));
+            var dt = new DataTable();
+
+            dt.Columns.Add("id", typeof(object));
+            dt.Columns.Add("TenKho", typeof(string));
+            dt.Columns.Add("TenKho_KhongDau", typeof(string));
+
+            return dt;
         }
 
-        private static decimal ReadDecimal(SQLiteDataReader reader, string columnName)
+        private static DataTable CreateEmptyNhaCungCapSearchTable()
         {
-            int ordinal = reader.GetOrdinal(columnName);
-            return reader.IsDBNull(ordinal) ? 0m : Convert.ToDecimal(reader.GetValue(ordinal));
+            var dt = new DataTable();
+
+            dt.Columns.Add("id", typeof(object));
+            dt.Columns.Add("TenNCC", typeof(string));
+            dt.Columns.Add("TenNCC_KhongDau", typeof(string));
+
+            return dt;
         }
 
-        private static decimal? ReadNullableDecimal(SQLiteDataReader reader, string columnName)
+        private static bool IsDichVu(KieuNhapXuat_Model model)
         {
-            int ordinal = reader.GetOrdinal(columnName);
-            return reader.IsDBNull(ordinal) ? (decimal?)null : Convert.ToDecimal(reader.GetValue(ordinal));
+            return model.IsDichVu
+                   || string.Equals(model.Ten, TenKieuNhapXuat.DICH_VU, StringComparison.OrdinalIgnoreCase);
         }
 
-        private static string ReadString(SQLiteDataReader reader, string columnName)
+        private static bool IsNhapKhoTheoDon(KieuNhapXuat_Model model)
         {
-            int ordinal = reader.GetOrdinal(columnName);
-            return reader.IsDBNull(ordinal) ? null : Convert.ToString(reader.GetValue(ordinal));
+            return model.IsNhap
+                   && !model.IsDichVu
+                   && !model.IsKhac;
         }
 
-        private static DateTime? ReadNullableDate(SQLiteDataReader reader, string columnName)
+        private static bool IsNhapKhoKhac(KieuNhapXuat_Model model)
         {
-            string value = ReadString(reader, columnName);
-            if (string.IsNullOrWhiteSpace(value))
-                return null;
+            return model.IsNhap
+                   && !model.IsDichVu
+                   && model.IsKhac;
+        }
 
-            return DateTime.TryParse(value, out DateTime date) ? date : (DateTime?)null;
+        private static bool IsXuat(KieuNhapXuat_Model model)
+        {
+            return !model.IsNhap
+                   && !model.IsDichVu;
         }
     }
 }

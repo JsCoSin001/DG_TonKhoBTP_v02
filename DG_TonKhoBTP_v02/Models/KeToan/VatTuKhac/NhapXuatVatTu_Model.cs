@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace DG_TonKhoBTP_v02.Models.KeToan.VatTuKhac
 {
@@ -20,4 +19,56 @@ namespace DG_TonKhoBTP_v02.Models.KeToan.VatTuKhac
         public const string XUAT_KHAC = "XUẤT KHÁC";
         public const string DICH_VU = "XÁC NHẬN DỊCH VỤ";
     }
+
+    public class NhapXuatVatTu_SaveModel
+    {
+        public KieuNhapXuat_Model Mode { get; set; }
+
+        public int? LichSuXuatNhapId { get; set; }
+        public string OldTenPhieu { get; set; }
+        public int? OldDanhSachMaSPId { get; set; }
+        public int? OldDanhSachKhoId { get; set; }
+
+        public int? ThongTinDatHangId { get; set; }
+        public int? DanhSachDatHangId { get; set; }
+        public int? DanhSachMaSPId { get; set; }
+        public int? DanhSachKhoId { get; set; }
+        public int? DanhSachNCCId { get; set; }
+
+        public DateTime Ngay { get; set; }
+        public string NguoiGiaoNhan { get; set; }
+        public string LyDo { get; set; }
+        public decimal SoLuongNguoiNhap { get; set; }
+        public string TenPhieu { get; set; }
+        public string GhiChu { get; set; }
+        public string NhaCC { get; set; }
+        public decimal DonGia { get; set; }
+        public string NguoiLam { get; set; }
+    }
+
+    public class NhapXuatVatTu_SaveResult
+    {
+        public string TenPhieu { get; set; }
+        public decimal TongSoLuong { get; set; }
+    }
+
+    public class NhapXuatVatTu_DeleteModel
+    {
+        public KieuNhapXuat_Model Mode { get; set; }
+
+        public int? LichSuXuatNhapId { get; set; }
+        public string TenPhieu { get; set; }
+        public int? DanhSachMaSPId { get; set; }
+        public int? DanhSachKhoId { get; set; }
+        public int? ThongTinDatHangId { get; set; }
+        public int? DanhSachDatHangId { get; set; }
+        public string NguoiLam { get; set; }
+    }
+
+    public class NhapXuatVatTu_DeleteResult
+    {
+        public int DeletedRows { get; set; }
+        public string TenPhieu { get; set; }
+    }
+
 }

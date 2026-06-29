@@ -38,6 +38,14 @@ namespace DG_TonKhoBTP_v02.UI.Helper.AutoSearchWithCombobox
         /// </summary>
         public ComboBoxSelectedTextBehavior SelectedTextBehavior { get; set; } = ComboBoxSelectedTextBehavior.Clear;
 
+        /// <summary>
+        /// Callback kiểm tra điều kiện trước khi bắt đầu search.
+        /// Trả về false để helper dừng search, không gọi DB và không mở dropdown.
+        /// Mặc định null để giữ nguyên hành vi cũ cho các nơi đang dùng helper.
+        /// Callback này chạy trên UI thread, nên caller có thể hiện thông báo/focus control nếu cần.
+        /// </summary>
+        public Func<string, bool> CanSearch { get; set; }
+
         // ── Events ──────────────────────────────────────────────────────────────
         /// <summary>
         /// Fired khi user chọn một item (click chuột hoặc Enter sau khi điều hướng bằng ↓).
@@ -91,7 +99,7 @@ namespace DG_TonKhoBTP_v02.UI.Helper.AutoSearchWithCombobox
         /// </summary>
         public void Reset()
         {
-            _cts?.Cancel();
+            CancelPendingSearch();
 
             _suppressTextChange = true;
             try
@@ -120,6 +128,7 @@ namespace DG_TonKhoBTP_v02.UI.Helper.AutoSearchWithCombobox
 
             if (string.IsNullOrWhiteSpace(keyword))
             {
+                CancelPendingSearch();
                 _userNavigatingSuggestions = false;
                 _comboBox.DroppedDown = false;
                 _comboBox.DataSource = null;
@@ -128,8 +137,17 @@ namespace DG_TonKhoBTP_v02.UI.Helper.AutoSearchWithCombobox
                 return;
             }
 
-            _cts?.Cancel();
-            _cts?.Dispose();
+            CancelPendingSearch();
+
+            if (CanSearch != null && !CanSearch(keyword))
+            {
+                _userNavigatingSuggestions = false;
+                _comboBox.DroppedDown = false;
+                _comboBox.DataSource = null;
+                _comboBox.Items.Clear();
+                return;
+            }
+
             _cts = new CancellationTokenSource();
             var token = _cts.Token;
 
@@ -181,6 +199,16 @@ namespace DG_TonKhoBTP_v02.UI.Helper.AutoSearchWithCombobox
         }
 
         // ── Core logic ──────────────────────────────────────────────────────────
+
+        private void CancelPendingSearch()
+        {
+            if (_cts == null)
+                return;
+
+            _cts.Cancel();
+            _cts.Dispose();
+            _cts = null;
+        }
 
         private async Task ShowSuggestions(string keyword, CancellationToken ct)
         {

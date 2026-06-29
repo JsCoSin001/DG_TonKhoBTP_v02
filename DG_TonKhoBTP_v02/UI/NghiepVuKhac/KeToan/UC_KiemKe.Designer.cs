@@ -189,7 +189,7 @@
             this.dtThangKiemKe.Name = "dtThangKiemKe";
             this.dtThangKiemKe.Size = new System.Drawing.Size(108, 26);
             this.dtThangKiemKe.TabIndex = 2;
-            this.dtThangKiemKe.Value = new System.DateTime(2026, 3, 19, 14, 13, 5, 0);
+            this.dtThangKiemKe.Value = new System.DateTime(2026, 6, 29, 0, 0, 0, 0);
             this.dtThangKiemKe.ValueChanged += new System.EventHandler(this.dtThangKiemKe_ValueChanged);
             // 
             // btnCapNhatDuLieu
@@ -616,6 +616,7 @@
             // 
             // btnLuu
             // 
+            this.btnLuu.Enabled = false;
             this.btnLuu.Location = new System.Drawing.Point(352, 13);
             this.btnLuu.Name = "btnLuu";
             this.btnLuu.Size = new System.Drawing.Size(129, 49);

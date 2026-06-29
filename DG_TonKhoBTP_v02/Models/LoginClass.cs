@@ -97,6 +97,7 @@ namespace DG_TonKhoBTP_v02.Models
             IsAuthenticated = false;
             UserId = 0;
             Name = null;
+            UserName = null;
 
             RolesDict = null;
             PermissionsDict = null;

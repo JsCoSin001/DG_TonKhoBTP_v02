@@ -52,24 +52,6 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
             //ShowMuaVatTu(2);
         }
 
-        private void xacNhanDichVuToolStrip_Click(object sender, EventArgs e)
-        {
-            //ShowMediaControls(new UC_NhapXuatVatTu(true, 2, _dsKho));
-
-            KieuNhapXuat_Model md = new KieuNhapXuat_Model
-            {
-                Id = 5,
-                Ten = TenKieuNhapXuat.DICH_VU,
-                IsNhap = false,
-                IsDichVu = true,
-                IsKhac = true
-            };
-
-            UC_NhapXuatVatTu_v2 uc = new UC_NhapXuatVatTu_v2(md);
-
-            ShowMediaControls(uc);
-
-        }
 
         private void deNghiVatTuToolStrip_Click(object sender, EventArgs e)
         {
@@ -98,6 +80,26 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
         private void timKiemToolStrip_Click(object sender, EventArgs e)
         {
             ShowMediaControls(new UC_BaoCao(_dsKho));
+        }
+
+
+        private void xacNhanDichVuToolStrip_Click(object sender, EventArgs e)
+        {
+            //ShowMediaControls(new UC_NhapXuatVatTu(true, 2, _dsKho));
+
+            KieuNhapXuat_Model md = new KieuNhapXuat_Model
+            {
+                Id = 5,
+                Ten = TenKieuNhapXuat.DICH_VU,
+                IsNhap = false,
+                IsDichVu = true,
+                IsKhac = true
+            };
+
+            UC_NhapXuatVatTu_v2 uc = new UC_NhapXuatVatTu_v2(md);
+
+            ShowMediaControls(uc);
+
         }
 
         private void ShowMediaControls(Control uc)

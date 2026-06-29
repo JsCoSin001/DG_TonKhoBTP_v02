@@ -50,9 +50,9 @@
             this.label7 = new System.Windows.Forms.Label();
             this.tbMucDichMua = new System.Windows.Forms.TextBox();
             this.cbNgayGiao = new System.Windows.Forms.CheckBox();
-            this.panel1 = new System.Windows.Forms.Panel();
-            this.btnHoanThanh = new System.Windows.Forms.Button();
+            this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.btnLuu = new System.Windows.Forms.Button();
+            this.btnHoanThanh = new System.Windows.Forms.Button();
             this.dgvDSMua = new System.Windows.Forms.DataGridView();
             this.colMaDon = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colThongTinDatHangId = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -74,7 +74,7 @@
             this.btnInPhieu = new System.Windows.Forms.Button();
             this.tableLayoutPanel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nbrSLMua)).BeginInit();
-            this.panel1.SuspendLayout();
+            this.flowLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvDSMua)).BeginInit();
             this.tableLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
@@ -251,7 +251,7 @@
             this.tableLayoutPanel2.Controls.Add(this.label7, 2, 2);
             this.tableLayoutPanel2.Controls.Add(this.tbMucDichMua, 2, 3);
             this.tableLayoutPanel2.Controls.Add(this.cbNgayGiao, 0, 2);
-            this.tableLayoutPanel2.Controls.Add(this.panel1, 5, 2);
+            this.tableLayoutPanel2.Controls.Add(this.flowLayoutPanel1, 5, 2);
             this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Top;
             this.tableLayoutPanel2.Location = new System.Drawing.Point(0, 46);
             this.tableLayoutPanel2.Name = "tableLayoutPanel2";
@@ -359,45 +359,45 @@
             this.cbNgayGiao.UseVisualStyleBackColor = true;
             this.cbNgayGiao.CheckedChanged += new System.EventHandler(this.cbNgayGiao_CheckedChanged);
             // 
-            // panel1
+            // flowLayoutPanel1
             // 
-            this.tableLayoutPanel2.SetColumnSpan(this.panel1, 2);
-            this.panel1.Controls.Add(this.btnHoanThanh);
-            this.panel1.Controls.Add(this.btnLuu);
-            this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel1.Location = new System.Drawing.Point(1174, 53);
-            this.panel1.Name = "panel1";
-            this.tableLayoutPanel2.SetRowSpan(this.panel1, 2);
-            this.panel1.Size = new System.Drawing.Size(295, 70);
-            this.panel1.TabIndex = 20;
-            // 
-            // btnHoanThanh
-            // 
-            this.btnHoanThanh.BackColor = System.Drawing.Color.DarkGreen;
-            this.btnHoanThanh.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnHoanThanh.ForeColor = System.Drawing.SystemColors.ButtonFace;
-            this.btnHoanThanh.Location = new System.Drawing.Point(148, 3);
-            this.btnHoanThanh.Name = "btnHoanThanh";
-            this.btnHoanThanh.Padding = new System.Windows.Forms.Padding(3);
-            this.btnHoanThanh.Size = new System.Drawing.Size(144, 45);
-            this.btnHoanThanh.TabIndex = 8;
-            this.btnHoanThanh.Text = "Hoàn thành đơn";
-            this.btnHoanThanh.UseVisualStyleBackColor = false;
-            this.btnHoanThanh.Click += new System.EventHandler(this.btnHoanThanh_Click);
+            this.tableLayoutPanel2.SetColumnSpan(this.flowLayoutPanel1, 2);
+            this.flowLayoutPanel1.Controls.Add(this.btnLuu);
+            this.flowLayoutPanel1.Controls.Add(this.btnHoanThanh);
+            this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.flowLayoutPanel1.Location = new System.Drawing.Point(1174, 53);
+            this.flowLayoutPanel1.Name = "flowLayoutPanel1";
+            this.tableLayoutPanel2.SetRowSpan(this.flowLayoutPanel1, 2);
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(295, 70);
+            this.flowLayoutPanel1.TabIndex = 15;
             // 
             // btnLuu
             // 
             this.btnLuu.BackColor = System.Drawing.Color.DarkRed;
             this.btnLuu.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnLuu.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
-            this.btnLuu.Location = new System.Drawing.Point(26, 3);
+            this.btnLuu.Location = new System.Drawing.Point(3, 3);
             this.btnLuu.Name = "btnLuu";
             this.btnLuu.Padding = new System.Windows.Forms.Padding(3);
-            this.btnLuu.Size = new System.Drawing.Size(107, 45);
+            this.btnLuu.Size = new System.Drawing.Size(130, 60);
             this.btnLuu.TabIndex = 8;
             this.btnLuu.Text = "Lưu";
             this.btnLuu.UseVisualStyleBackColor = false;
             this.btnLuu.Click += new System.EventHandler(this.btnLuu_Click);
+            // 
+            // btnHoanThanh
+            // 
+            this.btnHoanThanh.BackColor = System.Drawing.Color.DarkGreen;
+            this.btnHoanThanh.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnHoanThanh.ForeColor = System.Drawing.SystemColors.ButtonFace;
+            this.btnHoanThanh.Location = new System.Drawing.Point(139, 3);
+            this.btnHoanThanh.Name = "btnHoanThanh";
+            this.btnHoanThanh.Padding = new System.Windows.Forms.Padding(3);
+            this.btnHoanThanh.Size = new System.Drawing.Size(144, 60);
+            this.btnHoanThanh.TabIndex = 8;
+            this.btnHoanThanh.Text = "Hoàn thành đơn";
+            this.btnHoanThanh.UseVisualStyleBackColor = false;
+            this.btnHoanThanh.Click += new System.EventHandler(this.btnHoanThanh_Click);
             // 
             // dgvDSMua
             // 
@@ -536,7 +536,7 @@
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 81.75676F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 484F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 242F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 316F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 318F));
             this.tableLayoutPanel1.Controls.Add(this.comboBox1, 1, 0);
             this.tableLayoutPanel1.Controls.Add(this.label5, 0, 0);
             this.tableLayoutPanel1.Controls.Add(this.btnInPhieu, 4, 0);
@@ -554,7 +554,7 @@
             this.comboBox1.FormattingEnabled = true;
             this.comboBox1.Location = new System.Drawing.Point(81, 29);
             this.comboBox1.Name = "comboBox1";
-            this.comboBox1.Size = new System.Drawing.Size(345, 26);
+            this.comboBox1.Size = new System.Drawing.Size(343, 26);
             this.comboBox1.TabIndex = 0;
             // 
             // label5
@@ -570,7 +570,7 @@
             // btnInPhieu
             // 
             this.btnInPhieu.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.btnInPhieu.Location = new System.Drawing.Point(1158, 9);
+            this.btnInPhieu.Location = new System.Drawing.Point(1156, 9);
             this.btnInPhieu.Name = "btnInPhieu";
             this.btnInPhieu.Size = new System.Drawing.Size(142, 60);
             this.btnInPhieu.TabIndex = 3;
@@ -594,7 +594,7 @@
             this.tableLayoutPanel2.ResumeLayout(false);
             this.tableLayoutPanel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nbrSLMua)).EndInit();
-            this.panel1.ResumeLayout(false);
+            this.flowLayoutPanel1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dgvDSMua)).EndInit();
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
@@ -626,7 +626,6 @@
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.TextBox tbMucDichMua;
         private System.Windows.Forms.CheckBox cbNgayGiao;
-        private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Button btnLuu;
         private System.Windows.Forms.DataGridView dgvDSMua;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
@@ -648,5 +647,6 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn colSLTon;
         private System.Windows.Forms.DataGridViewButtonColumn colXoa;
         private System.Windows.Forms.Button btnHoanThanh;
+        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
     }
 }

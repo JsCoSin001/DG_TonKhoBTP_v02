@@ -1,7 +1,10 @@
 ﻿using DG_TonKhoBTP_v02.Database;
+using DG_TonKhoBTP_v02.Database.KeToan;
 using DG_TonKhoBTP_v02.Helper;
 using DG_TonKhoBTP_v02.Helper.Reuseable;
 using DG_TonKhoBTP_v02.Models;
+using KiemKeModel = DG_TonKhoBTP_v02.Models.KeToan.KiemKe;
+using DanhSachBinModel = DG_TonKhoBTP_v02.Models.KeToan.DanhSachBin;
 using DG_TonKhoBTP_v02.Printer;
 using DG_TonKhoBTP_v02.UI.Authentication;
 using DG_TonKhoBTP_v02.UI.Helper;
@@ -140,20 +143,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
 
             try
             {
-                string sql = @"
-                    SELECT id, Ten, Ma
-                    FROM DanhSachMaSP
-                    WHERE Ten LIKE @kw
-                      AND (
-                            Ma LIKE 'NVL.%' COLLATE NOCASE
-                             OR Ma LIKE 'TP.%'  COLLATE NOCASE
-                             OR Ma LIKE 'BTP.%'  COLLATE NOCASE
-                      )
-                    ORDER BY Ten
-                    LIMIT 30";
-
                 var dt = await Task.Run(() =>
-                    DatabaseHelper.GetData(sql, $"%{keyword}%", "kw"));
+                    KiemKe_DB.TimKiemSanPhamKiemKe(keyword));
 
                 if (token.IsCancellationRequested) return;
 
@@ -206,9 +197,9 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
                     await WaitingHelper.RunWithWaiting(
                         async () =>
                         {
-                            var t1 = DatabaseHelper.LayDanhSachBin_KhoiLuong();
+                            var t1 = KiemKe_DB.LayDanhSachBin_KhoiLuong();
                             var t2 = System.Threading.Tasks.Task.Run(
-                                         () => DatabaseHelper.Load_TTKiemKeThang());
+                                         () => KiemKe_DB.Load_TTKiemKeThang());
                             await System.Threading.Tasks.Task.WhenAll(t1, t2);
                             return (t1.Result, t2.Result);
                         },
@@ -246,7 +237,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
             {
                 // ── Phần DB: chạy trong WaitingHelper, không động đến control ──
                 DataRow row = await WaitingHelper.RunWithWaiting(
-                    () => DatabaseHelper.LayThongTinTheoMaBin(keyword),
+                    () => KiemKe_DB.LayThongTinTheoMaBin(keyword),
                     "ĐANG TÌM KIẾM...");
 
                 if (row == null)
@@ -366,8 +357,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
             }
 
             // ── Thu thập dữ liệu trên UI thread TRƯỚC khi chạy nền ──────────────
-            KiemKe kiemKeModel = BuildKiemKeModelFromForm();
-            DanhSachBin binModel = new DanhSachBin
+            KiemKeModel kiemKeModel = BuildKiemKeModelFromForm();
+            DanhSachBinModel binModel = new DanhSachBinModel
             {
                 KhoiLuongBin = nbrKLBi_KK.Value,
                 TenBin = tbTenBin.Text.Trim()
@@ -385,13 +376,13 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
                     {
                         if (QrIsKiemKe(tbQr.Text.Trim()))
                         {
-                            long TTThanhPham_id = DatabaseHelper.InsertTTThanhPham_FromKiemKe(kiemKeModel);
+                            long TTThanhPham_id = KiemKe_DB.InsertTTThanhPham_FromKiemKe(kiemKeModel);
                             kiemKeModel.TTThanhPham_ID = TTThanhPham_id;
                         }
 
-                        long id = DatabaseHelper.Insert_TTKiemKeThang(kiemKeModel);
+                        long id = KiemKe_DB.Insert_TTKiemKeThang(kiemKeModel);
 
-                        if (tbTenBin.Text.Trim() != "00") DatabaseHelper.UpsertDanhSachBin(binModel);
+                        if (tbTenBin.Text.Trim() != "00") KiemKe_DB.UpsertDanhSachBin(binModel);
                         return id;
                     }),
                     "ĐANG LƯU...");
@@ -399,21 +390,6 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
                 // ── Phần UI: sau await, chắc chắn ở UI thread ────────────────────
                 kiemKeModel.id = newId;
                 InsertRowToGridTop(kiemKeModel);
-
-                // PrintDocument dùng GDI+ → phải chạy trên UI thread
-                //if (printerModel != null && shouldPrint)
-                //{
-                //    try
-                //    {
-                //        PrintHelper.PrintLabel(printerModel);
-                //    }
-                //    catch (Exception printEx)
-                //    {
-                //        FrmWaiting.ShowGifAlert(
-                //            $"Lưu thành công nhưng in thất bại:\n{printEx.Message}",
-                //            "CẢNH BÁO IN");
-                //    }
-                //}
 
                 FrmWaiting.ShowGifAlert("Lưu kiểm kê thành công.", "THÀNH CÔNG", EnumStore.Icon.Success);
 
@@ -495,7 +471,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
                 {
                     bool ok = await WaitingHelper.RunWithWaiting(
                         () => System.Threading.Tasks.Task.Run(
-                            () => DatabaseHelper.Update_TTKiemKeThang(id, chieuDai, khoiLuong, ghiChu)),
+                            () => KiemKe_DB.Update_TTKiemKeThang(id, chieuDai, khoiLuong, ghiChu)),
                         "ĐANG CẬP NHẬT...");
 
                     FrmWaiting.ShowGifAlert(ok ? "Cập nhật thành công." : "Không có dòng nào được cập nhật.");
@@ -530,7 +506,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
 
                     bool ok = await WaitingHelper.RunWithWaiting(
                         () => System.Threading.Tasks.Task.Run(
-                            () => DatabaseHelper.Delete_TTKiemKeThang(id)),
+                            () => KiemKe_DB.Delete_TTKiemKeThang(id)),
                         "ĐANG XÓA...");
 
                     // Cập nhật DataTable trên UI thread
@@ -565,7 +541,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
             return decimal.TryParse(s, out decimal v) ? v : (decimal?)null;
         }
 
-        private KiemKe BuildKiemKeModelFromForm()
+        private KiemKeModel BuildKiemKeModelFromForm()
         {
             long? parsedId = null;
             if (!string.IsNullOrWhiteSpace(tbMa_KK.Text) &&
@@ -577,7 +553,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
             long ttThanhPhamId = 0;
             long.TryParse(tbTTThanhPhamID.Text, out ttThanhPhamId);
 
-            return new KiemKe
+            return new KiemKeModel
             {
                 TTThanhPham_ID = ttThanhPhamId,
                 DanhSachSP_ID = parsedId,
@@ -644,7 +620,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
             };
         }
 
-        private void InsertRowToGridTop(KiemKe model)
+        private void InsertRowToGridTop(KiemKeModel model)
         {
             if (model == null) return;
 
@@ -752,7 +728,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
 
             dsKiemKe.EndEdit();
 
-            var items = new List<KiemKe>();
+            var items = new List<KiemKeModel>();
 
             foreach (DataGridViewRow row in dsKiemKe.Rows)
             {
@@ -775,7 +751,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
                 decimal? khoiLuong = TryGetDecimalFromCell(row.Cells["KhoiLuong"]);
                 string ghiChu = row.Cells["GhiChu"]?.Value?.ToString();
 
-                items.Add(new KiemKe
+                items.Add(new KiemKeModel
                 {
                     id = row.Cells["id"]?.Value != null && row.Cells["id"].Value != DBNull.Value
                             ? (long?)Convert.ToInt64(row.Cells["id"].Value)
@@ -800,7 +776,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
             {
                 int affected = await WaitingHelper.RunWithWaiting(
                     () => System.Threading.Tasks.Task.Run(() =>
-                        DatabaseHelper.UpsertTTThanhPhamByMaBin(items)),
+                        KiemKe_DB.UpsertTTThanhPhamByMaBin(items)),
                     "ĐANG CẬP NHẬT DỮ LIỆU...");
 
                 FrmWaiting.ShowGifAlert(
@@ -861,7 +837,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
 
                 DataTable dt = await WaitingHelper.RunWithWaiting(
                     () => Task.Run(() =>
-                        DatabaseHelper.Load_TTKiemKeThang(namThang, nguoiKK)),
+                        KiemKe_DB.Load_TTKiemKeThang(namThang, nguoiKK)),
                     "ĐANG TẢI DỮ LIỆU KIỂM KÊ...");
 
                 _dtKiemKe = dt ?? new DataTable();

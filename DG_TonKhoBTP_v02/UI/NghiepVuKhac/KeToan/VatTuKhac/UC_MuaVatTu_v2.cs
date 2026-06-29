@@ -44,6 +44,10 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
 
         private ComboBoxSearchHelper _searchVatTuHelper;
         private ComboBoxSearchHelper _searchDonHelper;
+        private bool _searchVatTuLoginWarningShown;
+        private bool _searchDonLoginWarningShown;
+
+        private const string MSG_LOGIN_REQUIRED_FOR_SEARCH = "Vui lòng đăng nhập trước khi sử dụng chức năng tìm kiếm.";
 
         public UC_MuaVatTu_v2(int kieuDon = 1)
         {
@@ -212,6 +216,9 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
             SetEditMode(false);
             ClearInputControls(keepMaDon: true);
             SetNewMaDon(dtNgay.Value);
+
+            FrmWaiting.ShowGifAlert("Cập nhật thành công", myIcon:EnumStore.Icon.Success);
+
         }
 
         private bool TryBuildHeaderAndDetail(out DanhSachDatHangModel header, out ThongTinDatHangModel detail)
@@ -335,7 +342,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
             {
                 _searchVatTuHelper = new ComboBoxSearchHelper(cbxTimThemTheoTen, SearchVatTuAsync)
                 {
-                    DisplayColumn = "ten"
+                    DisplayColumn = "ten",
+                    CanSearch = CanSearchVatTu
                 };
                 _searchVatTuHelper.ItemSelected += SearchVatTuHelper_ItemSelected;
                 _searchVatTuHelper.Cleared += ClearVatTuInfoControls;
@@ -345,7 +353,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
             {
                 _searchDonHelper = new ComboBoxSearchHelper(comboBox1, SearchDonAsync)
                 {
-                    DisplayColumn = "display_text"
+                    DisplayColumn = "display_text",
+                    CanSearch = CanSearchDon
                 };
                 _searchDonHelper.ItemSelected += SearchDonHelper_ItemSelected;
             }
@@ -362,6 +371,64 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
             string keywordKhongDau = CoreHelper.BoDauTiengViet(keyword);
             string nguoiDat = UserContext.UserName;
             return Task.Run(() => MuaVatTu_DB.SearchDonDatHang(keyword, keywordKhongDau, _KieuDon, nguoiDat), ct);
+        }
+
+        private bool CanSearchVatTu(string keyword)
+        {
+            if (HasValidLoginForSearch())
+            {
+                _searchVatTuLoginWarningShown = false;
+                return true;
+            }
+
+            ShowLoginRequiredOnce(cbxTimThemTheoTen, ref _searchVatTuLoginWarningShown);
+            return false;
+        }
+
+        private bool CanSearchDon(string keyword)
+        {
+            if (HasValidLoginForSearch())
+            {
+                _searchDonLoginWarningShown = false;
+                return true;
+            }
+
+            ShowLoginRequiredOnce(comboBox1, ref _searchDonLoginWarningShown);
+            return false;
+        }
+
+        private bool HasValidLoginForSearch()
+        {
+            return UserContext.IsAuthenticated
+                   && UserContext.UserId > 0
+                   && !string.IsNullOrWhiteSpace(UserContext.UserName);
+        }
+
+        private void ShowLoginRequiredOnce(ComboBox comboBox, ref bool warningShown)
+        {
+            if (!warningShown)
+            {
+                warningShown = true;
+                FrmWaiting.ShowGifAlert(MSG_LOGIN_REQUIRED_FOR_SEARCH);
+            }
+
+            FocusAndSelectSearchText(comboBox);
+        }
+
+        private void FocusAndSelectSearchText(ComboBox comboBox)
+        {
+            if (comboBox == null || comboBox.IsDisposed)
+                return;
+
+            if (comboBox.InvokeRequired)
+            {
+                comboBox.BeginInvoke((MethodInvoker)(() => FocusAndSelectSearchText(comboBox)));
+                return;
+            }
+
+            comboBox.Focus();
+            comboBox.SelectionStart = 0;
+            comboBox.SelectionLength = comboBox.Text?.Length ?? 0;
         }
 
         private void SearchVatTuHelper_ItemSelected(DataRowView row)

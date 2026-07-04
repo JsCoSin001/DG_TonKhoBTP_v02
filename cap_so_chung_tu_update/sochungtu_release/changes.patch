@@ -1,0 +1,1001 @@
+--- /mnt/data/MuaVatTu_Model.cs	2026-07-04 08:20:32.372583784 +0000
++++ /mnt/data/sochungtu_update/MuaVatTu_Model.cs	2026-07-04 08:18:15.345230566 +0000
+@@ -44,6 +44,14 @@
+         public decimal? SLTon { get; set; }
+     }
+ 
++
++    internal class MuaVatTu_SaveResult
++    {
++        public string MaDon { get; set; }
++        public int DanhSachDatHangId { get; set; }
++        public int ThongTinDatHangId { get; set; }
++    }
++
+     internal class DeleteDatHangResult
+     {
+         public bool DeletedDetail { get; set; }
+--- /mnt/data/NhapXuatVatTu_Model.cs	2026-07-04 08:20:32.344184719 +0000
++++ /mnt/data/sochungtu_update/NhapXuatVatTu_Model.cs	2026-07-04 08:18:20.316361813 +0000
+@@ -23,6 +23,7 @@
+     public class NhapXuatVatTu_SaveModel
+     {
+         public KieuNhapXuat_Model Mode { get; set; }
++        public bool TaoPhieuMoi { get; set; }
+ 
+         public int? LichSuXuatNhapId { get; set; }
+         public string OldTenPhieu { get; set; }
+@@ -51,6 +52,8 @@
+     {
+         public string TenPhieu { get; set; }
+         public decimal TongSoLuong { get; set; }
++        public int? DanhSachDatHangId { get; set; }
++        public int? ThongTinDatHangId { get; set; }
+     }
+ 
+     public class NhapXuatVatTu_DeleteModel
+--- /mnt/data/MuaVatTu_DB.cs	2026-07-04 08:16:52.744144920 +0000
++++ /mnt/data/sochungtu_update/MuaVatTu_DB.cs	2026-07-04 08:18:39.149179374 +0000
+@@ -1,3 +1,4 @@
++﻿using DG_TonKhoBTP_v02.Database;
+ using DG_TonKhoBTP_v02.Models.KeToan.VatTuKhac;
+ using System;
+ using System.Collections.Generic;
+@@ -118,48 +119,104 @@
+             return dt;
+         }
+ 
+-        public static int InsertThongTinDatHang(DanhSachDatHangModel header, ThongTinDatHangModel detail)
+-        {
++        public static MuaVatTu_SaveResult TaoDonVaLuuDongDauTien(
++            string tienTo,
++            DanhSachDatHangModel header,
++            ThongTinDatHangModel detail)
++        {
++            if (header == null)
++                throw new ArgumentNullException(nameof(header));
++            if (detail == null)
++                throw new ArgumentNullException(nameof(detail));
++
+             using var conn = DB_Base.OpenConnection();
++            SoChungTu_DB.ConfigureBusyTimeout(conn);
+             using var tran = conn.BeginTransaction();
+             try
+             {
+-                int headerId = EnsureDanhSachDatHang(conn, tran, header);
++                string maDonThucTe = SoChungTu_DB.CapMaChungTu(
++                    conn,
++                    tran,
++                    tienTo,
++                    header.NgayThem);
++
++                header.MaDon = maDonThucTe;
++                int headerId = InsertDanhSachDatHang(conn, tran, header);
++
+                 detail.DanhSachDatHang_ID = headerId;
++                int detailId = InsertThongTinDatHangInternal(conn, tran, detail);
+ 
+-                const string sqlInsertDetail = @"
+-                    INSERT INTO ThongTinDatHang
+-                    (
+-                        DanhSachMaSP_ID,
+-                        DanhSachDatHang_ID,
+-                        TenVatTu,
+-                        TenVatTu_KhongDau,
+-                        SoLuongMua,
+-                        MucDichMua,
+-                        NgayGiao,
+-                        Date_Insert,
+-                        DonGia
+-                    )
+-                    VALUES
+-                    (
+-                        @danhSachMaSPId,
+-                        @danhSachDatHangId,
+-                        @tenVatTu,
+-                        @tenVatTuKhongDau,
+-                        @soLuongMua,
+-                        @mucDichMua,
+-                        @ngayGiao,
+-                        @dateInsert,
+-                        @donGia
+-                    );
+-                    SELECT last_insert_rowid();";
++                tran.Commit();
++                return new MuaVatTu_SaveResult
++                {
++                    MaDon = maDonThucTe,
++                    DanhSachDatHangId = headerId,
++                    ThongTinDatHangId = detailId
++                };
++            }
++            catch
++            {
++                tran.Rollback();
++                throw;
++            }
++        }
+ 
+-                using var cmd = new SQLiteCommand(sqlInsertDetail, conn, tran);
+-                AddDetailParameters(cmd, detail, includeId: false);
++        public static MuaVatTu_SaveResult ThemDongVaoDon(
++            int danhSachDatHangId,
++            ThongTinDatHangModel detail)
++        {
++            if (danhSachDatHangId <= 0)
++                throw new ArgumentOutOfRangeException(nameof(danhSachDatHangId));
++            if (detail == null)
++                throw new ArgumentNullException(nameof(detail));
++
++            using var conn = DB_Base.OpenConnection();
++            SoChungTu_DB.ConfigureBusyTimeout(conn);
++            using var tran = conn.BeginTransaction();
++            try
++            {
++                string maDon = GetMaDonById(conn, tran, danhSachDatHangId);
++                if (string.IsNullOrWhiteSpace(maDon))
++                    throw new InvalidOperationException("Không tìm thấy đơn hiện tại để thêm dòng.");
++
++                detail.DanhSachDatHang_ID = danhSachDatHangId;
++                int detailId = InsertThongTinDatHangInternal(conn, tran, detail);
+ 
+-                int newDetailId = Convert.ToInt32(cmd.ExecuteScalar());
+                 tran.Commit();
+-                return newDetailId;
++                return new MuaVatTu_SaveResult
++                {
++                    MaDon = maDon,
++                    DanhSachDatHangId = danhSachDatHangId,
++                    ThongTinDatHangId = detailId
++                };
++            }
++            catch
++            {
++                tran.Rollback();
++                throw;
++            }
++        }
++
++        // Giữ lại để tương thích với mã cũ. Method này chỉ tạo một đơn mới
++        // bằng đúng MaDon được truyền vào và không bao giờ dùng lại header đã tồn tại.
++        public static int InsertThongTinDatHang(DanhSachDatHangModel header, ThongTinDatHangModel detail)
++        {
++            if (header == null)
++                throw new ArgumentNullException(nameof(header));
++            if (detail == null)
++                throw new ArgumentNullException(nameof(detail));
++
++            using var conn = DB_Base.OpenConnection();
++            SoChungTu_DB.ConfigureBusyTimeout(conn);
++            using var tran = conn.BeginTransaction();
++            try
++            {
++                int headerId = InsertDanhSachDatHang(conn, tran, header);
++                detail.DanhSachDatHang_ID = headerId;
++                int detailId = InsertThongTinDatHangInternal(conn, tran, detail);
++
++                tran.Commit();
++                return detailId;
+             }
+             catch
+             {
+@@ -376,18 +433,12 @@
+             return result;
+         }
+ 
+-        private static int EnsureDanhSachDatHang(SQLiteConnection conn, SQLiteTransaction tran, DanhSachDatHangModel header)
++        private static int InsertDanhSachDatHang(
++            SQLiteConnection conn,
++            SQLiteTransaction tran,
++            DanhSachDatHangModel header)
+         {
+-            const string sqlFind = "SELECT id FROM DanhSachDatHang WHERE MaDon = @maDon";
+-            using (var cmdFind = new SQLiteCommand(sqlFind, conn, tran))
+-            {
+-                cmdFind.Parameters.AddWithValue("@maDon", header.MaDon);
+-                object found = cmdFind.ExecuteScalar();
+-                if (found != null && found != DBNull.Value)
+-                    return Convert.ToInt32(found);
+-            }
+-
+-            const string sqlInsert = @"
++            const string sql = @"
+                 INSERT INTO DanhSachDatHang
+                 (
+                     MaDon,
+@@ -406,14 +457,69 @@
+                 );
+                 SELECT last_insert_rowid();";
+ 
+-            using var cmdInsert = new SQLiteCommand(sqlInsert, conn, tran);
+-            cmdInsert.Parameters.AddWithValue("@maDon", header.MaDon);
+-            cmdInsert.Parameters.AddWithValue("@loaiDon", header.LoaiDon);
+-            cmdInsert.Parameters.AddWithValue("@dateInsert", header.DateInsert.ToString(DateTimeFormat));
+-            cmdInsert.Parameters.AddWithValue("@nguoiDat", (object)header.NguoiDat ?? DBNull.Value);
+-            cmdInsert.Parameters.AddWithValue("@ngayThem", header.NgayThem.ToString(DateFormat));
++            using var cmd = new SQLiteCommand(sql, conn, tran);
++            cmd.Parameters.AddWithValue("@maDon", header.MaDon?.Trim());
++            cmd.Parameters.AddWithValue("@loaiDon", header.LoaiDon);
++            cmd.Parameters.AddWithValue("@dateInsert", header.DateInsert.ToString(DateTimeFormat));
++            cmd.Parameters.AddWithValue("@nguoiDat", (object)header.NguoiDat ?? DBNull.Value);
++            cmd.Parameters.AddWithValue("@ngayThem", header.NgayThem.ToString(DateFormat));
++            return Convert.ToInt32(cmd.ExecuteScalar());
++        }
++
++        private static int InsertThongTinDatHangInternal(
++            SQLiteConnection conn,
++            SQLiteTransaction tran,
++            ThongTinDatHangModel detail)
++        {
++            const string sql = @"
++                INSERT INTO ThongTinDatHang
++                (
++                    DanhSachMaSP_ID,
++                    DanhSachDatHang_ID,
++                    TenVatTu,
++                    TenVatTu_KhongDau,
++                    SoLuongMua,
++                    MucDichMua,
++                    NgayGiao,
++                    Date_Insert,
++                    DonGia
++                )
++                VALUES
++                (
++                    @danhSachMaSPId,
++                    @danhSachDatHangId,
++                    @tenVatTu,
++                    @tenVatTuKhongDau,
++                    @soLuongMua,
++                    @mucDichMua,
++                    @ngayGiao,
++                    @dateInsert,
++                    @donGia
++                );
++                SELECT last_insert_rowid();";
++
++            using var cmd = new SQLiteCommand(sql, conn, tran);
++            AddDetailParameters(cmd, detail, includeId: false);
++            return Convert.ToInt32(cmd.ExecuteScalar());
++        }
++
++        private static string GetMaDonById(
++            SQLiteConnection conn,
++            SQLiteTransaction tran,
++            int danhSachDatHangId)
++        {
++            const string sql = @"
++                SELECT MaDon
++                FROM DanhSachDatHang
++                WHERE id = @id
++                LIMIT 1;";
+ 
+-            return Convert.ToInt32(cmdInsert.ExecuteScalar());
++            using var cmd = new SQLiteCommand(sql, conn, tran);
++            cmd.Parameters.AddWithValue("@id", danhSachDatHangId);
++            object result = cmd.ExecuteScalar();
++            return result == null || result == DBNull.Value
++                ? null
++                : Convert.ToString(result);
+         }
+ 
+         private static void AddDetailParameters(SQLiteCommand cmd, ThongTinDatHangModel detail, bool includeId)
+--- /mnt/data/NhapXuatVatTu_DB.cs	2026-07-04 08:20:32.417669063 +0000
++++ /mnt/data/sochungtu_update/NhapXuatVatTu_DB.cs	2026-07-04 08:22:26.342592849 +0000
+@@ -91,80 +91,98 @@
+         public static int GetSoLuongXuatNhapThangHienTai(bool isNhapKho = false, DateTime? currentDate = null)
+         {
+             DateTime now = currentDate ?? DateTime.Now;
+-
+-            string start = new DateTime(now.Year, now.Month, 1).ToString("yyyy-MM-dd");
+-            string end = new DateTime(now.Year, now.Month, 1).AddMonths(1).ToString("yyyy-MM-dd");
+-
+-            string sql = @"
+-                SELECT 
+-                    IFNULL(MAX(CAST(SUBSTR(TenPhieu, INSTR(TenPhieu, '-') + 1) AS INTEGER)), 0)
+-                FROM LichSuXuatNhap
+-                WHERE Ngay >= @start 
+-                  AND Ngay < @end
+-            ";
+-
+-            sql += isNhapKho ? " AND TenPhieu LIKE 'KNK%'" : " AND TenPhieu LIKE 'KXK%'";
+-
+-            using (var conn = DB_Base.OpenConnection())
+-            using (var cmd = new SQLiteCommand(sql, conn))
+-            {
+-                cmd.Parameters.AddWithValue("@start", start);
+-                cmd.Parameters.AddWithValue("@end", end);
+-
+-                object result = cmd.ExecuteScalar();
+-                return result == null || result == DBNull.Value ? 0 : Convert.ToInt32(result);
+-            }
++            string tienTo = isNhapKho ? "KNK" : "KXK";
++            return SoChungTu_DB.GetSoCuoi(tienTo, now);
+         }
+ 
+         public static NhapXuatVatTu_SaveResult LuuMoi(NhapXuatVatTu_SaveModel model)
+         {
+             if (model == null)
+                 throw new ArgumentNullException(nameof(model));
++            if (model.Mode == null)
++                throw new InvalidOperationException("Không xác định được kiểu nhập/xuất.");
+ 
+             using (var conn = DB_Base.OpenConnection())
+-            using (var tran = conn.BeginTransaction())
+             {
+-                try
++                SoChungTu_DB.ConfigureBusyTimeout(conn);
++
++                using (var tran = conn.BeginTransaction())
+                 {
+-                    if (IsNhapKhoKhac(model.Mode))
++                    try
+                     {
+-                        int thongTinDatHangId = TaoDonVaThongTinDatHangChoNhapKhac(conn, tran, model);
+-                        InsertLichSuXuatNhap(conn, tran, model, thongTinDatHangId, Math.Abs(model.SoLuongNguoiNhap));
+-                    }
+-                    else if (IsXuat(model.Mode))
+-                    {
+-                        InsertPhanBoXuat(conn, tran, model);
+-                    }
+-                    else
+-                    {
+-                        if (!model.ThongTinDatHangId.HasValue)
+-                            throw new InvalidOperationException("Chưa chọn dữ liệu đơn/vật tư để lưu.");
++                        if (model.TaoPhieuMoi)
++                        {
++                            string tienTo = model.Mode.IsNhap ? "KNK" : "KXK";
++                            model.TenPhieu = SoChungTu_DB.CapMaChungTu(
++                                conn,
++                                tran,
++                                tienTo,
++                                model.Ngay);
++                        }
++                        else if (string.IsNullOrWhiteSpace(model.TenPhieu))
++                        {
++                            throw new InvalidOperationException("Không xác định được mã phiếu hiện tại.");
++                        }
+ 
+-                        decimal soLuong = Math.Abs(model.SoLuongNguoiNhap);
++                        int? savedDanhSachDatHangId = null;
++                        int? savedThongTinDatHangId = model.ThongTinDatHangId;
++
++                        if (IsNhapKhoKhac(model.Mode))
++                        {
++                            int danhSachDatHangId;
++                            int thongTinDatHangId = TaoThongTinDatHangChoNhapKhac(
++                                conn,
++                                tran,
++                                model,
++                                out danhSachDatHangId);
++
++                            InsertLichSuXuatNhap(
++                                conn,
++                                tran,
++                                model,
++                                thongTinDatHangId,
++                                Math.Abs(model.SoLuongNguoiNhap));
+ 
+-                        if (IsDichVu(model.Mode))
++                            savedDanhSachDatHangId = danhSachDatHangId;
++                            savedThongTinDatHangId = thongTinDatHangId;
++                        }
++                        else if (IsXuat(model.Mode))
+                         {
+-                            InsertLichSuXuatNhap(conn, tran, model, model.ThongTinDatHangId.Value, soLuong);
+-                            InsertLichSuXuatNhap(conn, tran, model, model.ThongTinDatHangId.Value, -soLuong);
++                            InsertPhanBoXuat(conn, tran, model);
+                         }
+                         else
+                         {
+-                            InsertLichSuXuatNhap(conn, tran, model, model.ThongTinDatHangId.Value, soLuong);
++                            if (!model.ThongTinDatHangId.HasValue)
++                                throw new InvalidOperationException("Chưa chọn dữ liệu đơn/vật tư để lưu.");
++
++                            decimal soLuong = Math.Abs(model.SoLuongNguoiNhap);
++
++                            if (IsDichVu(model.Mode))
++                            {
++                                InsertLichSuXuatNhap(conn, tran, model, model.ThongTinDatHangId.Value, soLuong);
++                                InsertLichSuXuatNhap(conn, tran, model, model.ThongTinDatHangId.Value, -soLuong);
++                            }
++                            else
++                            {
++                                InsertLichSuXuatNhap(conn, tran, model, model.ThongTinDatHangId.Value, soLuong);
++                            }
+                         }
+-                    }
+ 
+-                    tran.Commit();
++                        tran.Commit();
+ 
+-                    return new NhapXuatVatTu_SaveResult
++                        return new NhapXuatVatTu_SaveResult
++                        {
++                            TenPhieu = model.TenPhieu,
++                            TongSoLuong = model.SoLuongNguoiNhap,
++                            DanhSachDatHangId = savedDanhSachDatHangId,
++                            ThongTinDatHangId = savedThongTinDatHangId
++                        };
++                    }
++                    catch
+                     {
+-                        TenPhieu = model.TenPhieu,
+-                        TongSoLuong = model.SoLuongNguoiNhap
+-                    };
+-                }
+-                catch
+-                {
+-                    tran.Rollback();
+-                    throw;
++                        tran.Rollback();
++                        throw;
++                    }
+                 }
+             }
+         }
+@@ -177,33 +195,39 @@
+             KiemTraNgayCapNhatTrongCungThang(model);
+ 
+             using (var conn = DB_Base.OpenConnection())
+-            using (var tran = conn.BeginTransaction())
+             {
+-                try
++                SoChungTu_DB.ConfigureBusyTimeout(conn);
++
++                using (var tran = conn.BeginTransaction())
+                 {
+-                    if (IsXuat(model.Mode))
++                    try
+                     {
+-                        CapNhatPhieuXuatGop(conn, tran, model);
+-                    }
+-                    else
+-                    {
+-                        CapNhatDongNhapHoacDichVu(conn, tran, model);
+-                    }
++                        if (IsXuat(model.Mode))
++                        {
++                            CapNhatPhieuXuatGop(conn, tran, model);
++                        }
++                        else
++                        {
++                            CapNhatDongNhapHoacDichVu(conn, tran, model);
++                        }
+ 
+-                    CapNhatNgayToanPhieuNeuCan(conn, tran, model);
++                        CapNhatNgayToanPhieuNeuCan(conn, tran, model);
+ 
+-                    tran.Commit();
++                        tran.Commit();
+ 
+-                    return new NhapXuatVatTu_SaveResult
++                        return new NhapXuatVatTu_SaveResult
++                        {
++                            TenPhieu = model.TenPhieu,
++                            TongSoLuong = model.SoLuongNguoiNhap,
++                            DanhSachDatHangId = model.DanhSachDatHangId,
++                            ThongTinDatHangId = model.ThongTinDatHangId
++                        };
++                    }
++                    catch
+                     {
+-                        TenPhieu = model.TenPhieu,
+-                        TongSoLuong = model.SoLuongNguoiNhap
+-                    };
+-                }
+-                catch
+-                {
+-                    tran.Rollback();
+-                    throw;
++                        tran.Rollback();
++                        throw;
++                    }
+                 }
+             }
+         }
+@@ -220,59 +244,63 @@
+                 throw new InvalidOperationException("Không xác định được người làm.");
+ 
+             using (var conn = DB_Base.OpenConnection())
+-            using (var tran = conn.BeginTransaction())
+             {
+-                try
+-                {
+-                    int deletedRows;
+-
+-                    if (IsXuat(model.Mode))
+-                    {
+-                        if (string.IsNullOrWhiteSpace(model.TenPhieu) || !model.DanhSachMaSPId.HasValue)
+-                            throw new InvalidOperationException("Không xác định được nhóm phiếu xuất cần xoá.");
+-
+-                        if (NhomXuatCoDongKhongChoSua(conn, tran, model.TenPhieu, model.DanhSachMaSPId.Value, model.NguoiLam))
+-                            throw new InvalidOperationException("Phiếu này không được phép xoá vì CanEdit = 0.");
++                SoChungTu_DB.ConfigureBusyTimeout(conn);
+ 
+-                        deletedRows = XoaNhomXuat(conn, tran, model.TenPhieu, model.DanhSachMaSPId.Value, model.NguoiLam);
+-                    }
+-                    else
++                using (var tran = conn.BeginTransaction())
++                {
++                    try
+                     {
+-                        if (!model.LichSuXuatNhapId.HasValue)
+-                            throw new InvalidOperationException("Không xác định được dòng cần xoá.");
++                        int deletedRows;
+ 
+-                        LichSuXuatNhapDeleteInfo info = GetDeleteInfo(conn, tran, model.LichSuXuatNhapId.Value, model.NguoiLam);
+-                        if (info == null)
+-                            throw new InvalidOperationException("Không tìm thấy dòng cần xoá hoặc dòng không thuộc người làm hiện tại.");
++                        if (IsXuat(model.Mode))
++                        {
++                            if (string.IsNullOrWhiteSpace(model.TenPhieu) || !model.DanhSachMaSPId.HasValue)
++                                throw new InvalidOperationException("Không xác định được nhóm phiếu xuất cần xoá.");
+ 
+-                        if (info.CanEdit != 1)
+-                            throw new InvalidOperationException("Phiếu này không được phép xoá vì CanEdit = 0.");
++                            if (NhomXuatCoDongKhongChoSua(conn, tran, model.TenPhieu, model.DanhSachMaSPId.Value, model.NguoiLam))
++                                throw new InvalidOperationException("Phiếu này không được phép xoá vì CanEdit = 0.");
+ 
+-                        if (IsDichVu(model.Mode))
+-                        {
+-                            deletedRows = XoaCapDichVu(conn, tran, model, info);
++                            deletedRows = XoaNhomXuat(conn, tran, model.TenPhieu, model.DanhSachMaSPId.Value, model.NguoiLam);
+                         }
+                         else
+                         {
+-                            deletedRows = XoaDongLichSu(conn, tran, model.LichSuXuatNhapId.Value, model.NguoiLam);
++                            if (!model.LichSuXuatNhapId.HasValue)
++                                throw new InvalidOperationException("Không xác định được dòng cần xoá.");
+ 
+-                            if (deletedRows > 0 && IsNhapKhoKhac(model.Mode))
+-                                XoaThongTinDatHangNhapKhacNeuKhongConDung(conn, tran, info.ThongTinDatHangId, info.DanhSachDatHangId, model.Mode.Id);
++                            LichSuXuatNhapDeleteInfo info = GetDeleteInfo(conn, tran, model.LichSuXuatNhapId.Value, model.NguoiLam);
++                            if (info == null)
++                                throw new InvalidOperationException("Không tìm thấy dòng cần xoá hoặc dòng không thuộc người làm hiện tại.");
++
++                            if (info.CanEdit != 1)
++                                throw new InvalidOperationException("Phiếu này không được phép xoá vì CanEdit = 0.");
++
++                            if (IsDichVu(model.Mode))
++                            {
++                                deletedRows = XoaCapDichVu(conn, tran, model, info);
++                            }
++                            else
++                            {
++                                deletedRows = XoaDongLichSu(conn, tran, model.LichSuXuatNhapId.Value, model.NguoiLam);
++
++                                if (deletedRows > 0 && IsNhapKhoKhac(model.Mode))
++                                    XoaThongTinDatHangNhapKhacNeuKhongConDung(conn, tran, info.ThongTinDatHangId, info.DanhSachDatHangId, model.Mode.Id);
++                            }
+                         }
+-                    }
+ 
+-                    tran.Commit();
++                        tran.Commit();
+ 
+-                    return new NhapXuatVatTu_DeleteResult
++                        return new NhapXuatVatTu_DeleteResult
++                        {
++                            DeletedRows = deletedRows,
++                            TenPhieu = model.TenPhieu
++                        };
++                    }
++                    catch
+                     {
+-                        DeletedRows = deletedRows,
+-                        TenPhieu = model.TenPhieu
+-                    };
+-                }
+-                catch
+-                {
+-                    tran.Rollback();
+-                    throw;
++                        tran.Rollback();
++                        throw;
++                    }
+                 }
+             }
+         }
+@@ -816,41 +844,52 @@
+             InsertPhanBoXuat(conn, tran, model);
+         }
+ 
+-        private static int TaoDonVaThongTinDatHangChoNhapKhac(SQLiteConnection conn, SQLiteTransaction tran, NhapXuatVatTu_SaveModel model)
++        private static int TaoThongTinDatHangChoNhapKhac(
++            SQLiteConnection conn,
++            SQLiteTransaction tran,
++            NhapXuatVatTu_SaveModel model,
++            out int danhSachDatHangId)
+         {
+-            int danhSachDatHangId = GetOrCreateDanhSachDatHangNhapKhac(conn, tran, model);
+-            return InsertThongTinDatHangNhapKhac(conn, tran, model, danhSachDatHangId);
+-        }
++            if (model.TaoPhieuMoi)
++            {
++                danhSachDatHangId = InsertDanhSachDatHangNhapKhac(conn, tran, model);
++            }
++            else
++            {
++                if (!model.DanhSachDatHangId.HasValue)
++                    throw new InvalidOperationException("Không xác định được đơn Nhập khác hiện tại.");
+ 
+-        private static int GetOrCreateDanhSachDatHangNhapKhac(SQLiteConnection conn, SQLiteTransaction tran, NhapXuatVatTu_SaveModel model)
+-        {
+-            int? existingId = TimDanhSachDatHangNhapKhacTheoMaDon(conn, tran, model.TenPhieu, model.Mode.Id);
+-            if (existingId.HasValue)
+-                return existingId.Value;
++                danhSachDatHangId = model.DanhSachDatHangId.Value;
++                KiemTraDanhSachDatHangNhapKhacHienTai(conn, tran, model, danhSachDatHangId);
++            }
+ 
+-            return InsertDanhSachDatHangNhapKhac(conn, tran, model);
++            return InsertThongTinDatHangNhapKhac(conn, tran, model, danhSachDatHangId);
+         }
+ 
+-        private static int? TimDanhSachDatHangNhapKhacTheoMaDon(SQLiteConnection conn, SQLiteTransaction tran, string maDon, int loaiDon)
++        private static void KiemTraDanhSachDatHangNhapKhacHienTai(
++            SQLiteConnection conn,
++            SQLiteTransaction tran,
++            NhapXuatVatTu_SaveModel model,
++            int danhSachDatHangId)
+         {
+-            string sql = @"
+-                SELECT id
++            const string sql = @"
++                SELECT COUNT(1)
+                 FROM DanhSachDatHang
+-                WHERE MaDon = @maDon
++                WHERE id = @id
++                  AND MaDon = @maDon
+                   AND IFNULL(LoaiDon, 0) = @loaiDon
+-                LIMIT 1;
++                  AND IFNULL(NguoiDat, '') = IFNULL(@nguoiDat, '');
+             ";
+ 
+             using (var cmd = new SQLiteCommand(sql, conn, tran))
+             {
+-                cmd.Parameters.AddWithValue("@maDon", maDon?.Trim());
+-                cmd.Parameters.AddWithValue("@loaiDon", loaiDon);
+-
+-                object result = cmd.ExecuteScalar();
+-                if (result == null || result == DBNull.Value)
+-                    return null;
++                cmd.Parameters.AddWithValue("@id", danhSachDatHangId);
++                cmd.Parameters.AddWithValue("@maDon", model.TenPhieu?.Trim());
++                cmd.Parameters.AddWithValue("@loaiDon", model.Mode.Id);
++                cmd.Parameters.AddWithValue("@nguoiDat", NullIfWhiteSpace(model.NguoiLam));
+ 
+-                return Convert.ToInt32(result);
++                if (Convert.ToInt32(cmd.ExecuteScalar()) != 1)
++                    throw new InvalidOperationException("Đơn Nhập khác hiện tại không còn hợp lệ hoặc không thuộc người dùng hiện tại.");
+             }
+         }
+ 
+--- /mnt/data/UC_MuaVatTu_v2.cs	2026-07-04 08:20:31.948612740 +0000
++++ /mnt/data/sochungtu_update/UC_MuaVatTu_v2.cs	2026-07-04 08:18:56.861852457 +0000
+@@ -1,4 +1,5 @@
+-﻿using DG_TonKhoBTP_v02.Database.KeToan.VatTuKhac;
++﻿using DG_TonKhoBTP_v02.Database;
++using DG_TonKhoBTP_v02.Database.KeToan.VatTuKhac;
+ using DG_TonKhoBTP_v02.Models;
+ using DG_TonKhoBTP_v02.Models.KeToan.VatTuKhac;
+ using DG_TonKhoBTP_v02.Printer;
+@@ -41,6 +42,8 @@
+         private int _editingThongTinDatHangId;
+         private string _editingMaDon;
+         private bool _eventsHooked;
++        private int? _currentDanhSachDatHangId;
++        private string _currentMaDon;
+ 
+         private ComboBoxSearchHelper _searchVatTuHelper;
+         private ComboBoxSearchHelper _searchDonHelper;
+@@ -73,6 +76,9 @@
+ 
+         private void ResetFormToDefault()
+         {
++            _currentDanhSachDatHangId = null;
++            _currentMaDon = null;
++
+             // Reset biến global liên quan chế độ sửa
+             SetEditMode(false);
+ 
+@@ -135,8 +141,28 @@
+             if (!TryBuildHeaderAndDetail(out DanhSachDatHangModel header, out ThongTinDatHangModel detail))
+                 return;
+ 
+-            int newDetailId = MuaVatTu_DB.InsertThongTinDatHang(header, detail);
+-            MuaVatTuGridRowModel gridRow = MuaVatTu_DB.GetGridRowByThongTinDatHangId(newDetailId);
++            MuaVatTu_SaveResult saveResult;
++            if (_currentDanhSachDatHangId.HasValue)
++            {
++                saveResult = MuaVatTu_DB.ThemDongVaoDon(
++                    _currentDanhSachDatHangId.Value,
++                    detail);
++            }
++            else
++            {
++                saveResult = MuaVatTu_DB.TaoDonVaLuuDongDauTien(
++                    GetMaDonPrefix(),
++                    header,
++                    detail);
++            }
++
++            _currentDanhSachDatHangId = saveResult.DanhSachDatHangId;
++            _currentMaDon = saveResult.MaDon;
++            tbMaDon.Text = saveResult.MaDon;
++            dtNgay.Enabled = false;
++
++            MuaVatTuGridRowModel gridRow = MuaVatTu_DB.GetGridRowByThongTinDatHangId(
++                saveResult.ThongTinDatHangId);
+             if (gridRow == null)
+                 throw new InvalidOperationException("Đã lưu nhưng không đọc lại được dữ liệu vừa lưu.");
+ 
+@@ -155,7 +181,15 @@
+ 
+                 if (confirm != DialogResult.Yes)
+                 {
+-                    MuaVatTu_DB.DeleteThongTinDatHangAndHeaderIfEmpty(newDetailId);
++                    DeleteDatHangResult deleteResult =
++                        MuaVatTu_DB.DeleteThongTinDatHangAndHeaderIfEmpty(saveResult.ThongTinDatHangId);
++
++                    if (deleteResult.DeletedHeader
++                        && _currentDanhSachDatHangId == deleteResult.DanhSachDatHangId)
++                    {
++                        ResetCurrentOrder();
++                    }
++
+                     return;
+                 }
+             }
+@@ -331,6 +365,7 @@
+ 
+             dgvDSMua.CellContentClick += dgvDSMua_CellContentClick;
+             dgvDSMua.CellDoubleClick += dgvDSMua_CellDoubleClick;
++            dtNgay.ValueChanged += dtNgay_ValueChanged;
+             Disposed += UC_MuaVatTu_v2_Disposed;
+ 
+             _eventsHooked = true;
+@@ -458,9 +493,12 @@
+ 
+             if (rows.Count > 0)
+             {
++                _currentDanhSachDatHangId = rows[0].DanhSachDatHangId;
++                _currentMaDon = rows[0].MaDon;
+                 tbMaDon.Text = rows[0].MaDon;
+                 if (rows[0].NgayThem.HasValue)
+                     dtNgay.Value = rows[0].NgayThem.Value;
++                dtNgay.Enabled = false;
+             }
+ 
+             SetEditMode(false);
+@@ -495,9 +533,16 @@
+             if (confirm != DialogResult.Yes)
+                 return;
+ 
+-            MuaVatTu_DB.DeleteThongTinDatHangAndHeaderIfEmpty(thongTinDatHangId);
++            DeleteDatHangResult deleteResult =
++                MuaVatTu_DB.DeleteThongTinDatHangAndHeaderIfEmpty(thongTinDatHangId);
+             dgvDSMua.Rows.RemoveAt(rowIndex);
+ 
++            if (deleteResult.DeletedHeader
++                && _currentDanhSachDatHangId == deleteResult.DanhSachDatHangId)
++            {
++                ResetCurrentOrder();
++            }
++
+             if (_isEditMode && _editingThongTinDatHangId == thongTinDatHangId)
+             {
+                 SetEditMode(false);
+@@ -656,23 +701,47 @@
+             _editingThongTinDatHangId = isEditMode ? thongTinDatHangId : 0;
+             _editingMaDon = isEditMode ? maDon : null;
+             btnLuu.Text = isEditMode ? "Update" : "Lưu";
++            dtNgay.Enabled = isEditMode || !_currentDanhSachDatHangId.HasValue;
+         }
+ 
+         private void SetNewMaDon(DateTime now)
+         {
+-            int soLuongDon = MuaVatTu_DB.CountDanhSachDatHangInMonth(now);
+-            tbMaDon.Text = $"{GenerateMaDon(_KieuDon, now)}-{(soLuongDon + 1):0000}";
++            if (_currentDanhSachDatHangId.HasValue
++                && !string.IsNullOrWhiteSpace(_currentMaDon))
++            {
++                tbMaDon.Text = _currentMaDon;
++                return;
++            }
++
++            tbMaDon.Text = SoChungTu_DB.GetMaDuKien(GetMaDonPrefix(), now);
++        }
++
++        private string GetMaDonPrefix()
++        {
++            return _KieuDon == 1 ? _MaDonMuaVatTu : _MaDonMuaDichVu;
+         }
+ 
+         private string GenerateMaDon(int kieuDon = 1, DateTime? nowValue = null)
+         {
+             DateTime now = nowValue ?? DateTime.Now;
+-            string don = kieuDon == 1 ? _MaDonMuaVatTu : _MaDonMuaDichVu;
+-            string y = now.Year.ToString();
+-            y = y.Substring(y.Length - 2);
+-            string m = now.Month.ToString("D2");
+-            don += y + "/" + m;
+-            return don;
++            string prefix = kieuDon == 1 ? _MaDonMuaVatTu : _MaDonMuaDichVu;
++            return $"{prefix}{now:yy/MM}";
++        }
++
++        private void dtNgay_ValueChanged(object sender, EventArgs e)
++        {
++            if (_isEditMode || _currentDanhSachDatHangId.HasValue)
++                return;
++
++            SetNewMaDon(dtNgay.Value.Date);
++        }
++
++        private void ResetCurrentOrder()
++        {
++            _currentDanhSachDatHangId = null;
++            _currentMaDon = null;
++            dtNgay.Enabled = true;
++            SetNewMaDon(dtNgay.Value.Date);
+         }
+ 
+         private bool TryGetGridInt(int rowIndex, string columnName, out int value)
+--- /mnt/data/UC_NhapXuatVatTu_v2.cs	2026-07-04 08:20:32.346474435 +0000
++++ /mnt/data/sochungtu_update/UC_NhapXuatVatTu_v2.cs	2026-07-04 08:20:03.307487541 +0000
+@@ -38,6 +38,9 @@
+         private decimal _selectedSoLuongYeuCau;
+         private decimal _selectedSoLuongTon;
+ 
++        private string _currentTenPhieu;
++        private int? _currentDanhSachDatHangId;
++
+         private bool _isEditMode;
+         private string _lastEditSearchValidationKey;
+         private string _lastTimVatTuSearchValidationKey;
+@@ -120,23 +123,25 @@
+                 return;
+             }
+ 
++            if (!string.IsNullOrWhiteSpace(_currentTenPhieu))
++                return;
++
+             CapNhatTenPhieu();
+         }
+ 
+         private void CapNhatTenPhieu()
+         {
+-            if (_isEditMode)
++            if (_isEditMode || !string.IsNullOrWhiteSpace(_currentTenPhieu))
+                 return;
+ 
+             DateTime parsedNgay = ngayNhap_Xuat.Value.Date;
+-            bool isNhapKho = _model.IsNhap;
+-
+-            int soThuTu = NhapXuatVatTu_DB.GetSoLuongXuatNhapThangHienTai(isNhapKho, parsedNgay) + 1;
+-
+-            string prefix = _model.IsNhap ? "KNK" : "KXK";
+-            string tenPhieu = $"{prefix}{parsedNgay:yy/MM}-{soThuTu:D4}";
++            string prefix = GetTienToPhieu();
++            tbMaPhieu.Text = SoChungTu_DB.GetMaDuKien(prefix, parsedNgay);
++        }
+ 
+-            tbMaPhieu.Text = tenPhieu;
++        private string GetTienToPhieu()
++        {
++            return _model.IsNhap ? "KNK" : "KXK";
+         }
+ 
+         private void InitUITheoKieuNhapXuat()
+@@ -535,21 +540,26 @@
+                     return;
+ 
+                 bool wasEditMode = _isEditMode;
++                NhapXuatVatTu_SaveResult saveResult;
+ 
+                 if (wasEditMode)
+                 {
+-                    NhapXuatVatTu_DB.CapNhat(saveModel);
++                    saveResult = NhapXuatVatTu_DB.CapNhat(saveModel);
+                     FrmWaiting.ShowGifAlert("Cập nhật thành công", myIcon: EnumStore.Icon.Success);
+                 }
+-                    
+                 else
+-                    NhapXuatVatTu_DB.LuuMoi(saveModel);
++                {
++                    saveResult = NhapXuatVatTu_DB.LuuMoi(saveModel);
++                    _currentTenPhieu = saveResult.TenPhieu;
+ 
+-                LoadChiTietPhieu(saveModel.TenPhieu);
+-                ResetFormSauKhiLuu();
++                    if (saveResult.DanhSachDatHangId.HasValue)
++                        _currentDanhSachDatHangId = saveResult.DanhSachDatHangId;
+ 
+-                
++                    tbMaPhieu.Text = saveResult.TenPhieu;
++                }
+ 
++                LoadChiTietPhieu(saveResult.TenPhieu);
++                ResetFormSauKhiLuu();
+             }
+             catch (Exception ex)
+             {
+@@ -557,7 +567,6 @@
+             }
+         }
+ 
+-
+         private void btnHoanThanh_Click(object sender, EventArgs e)
+         {
+             if (!CoChiTietTrongGrid())
+@@ -573,9 +582,13 @@
+         {
+             saveModel = null;
+ 
++            bool taoPhieuMoi = !_isEditMode && string.IsNullOrWhiteSpace(_currentTenPhieu);
++
+             string tenPhieu = _isEditMode && !string.IsNullOrWhiteSpace(_editingTenPhieu)
+-            ? _editingTenPhieu
+-            : tbMaPhieu.Text?.Trim();
++                ? _editingTenPhieu
++                : taoPhieuMoi
++                    ? tbMaPhieu.Text?.Trim()
++                    : _currentTenPhieu;
+ 
+             if (string.IsNullOrWhiteSpace(tenPhieu))
+             {
+@@ -616,16 +629,23 @@
+                 return false;
+             }
+ 
++            int? danhSachDatHangId = IsNhapKhoKhac
++                && !_isEditMode
++                && _currentDanhSachDatHangId.HasValue
++                    ? _currentDanhSachDatHangId
++                    : _selectedDanhSachDatHangId;
++
+             saveModel = new NhapXuatVatTu_SaveModel
+             {
+                 Mode = _model,
++                TaoPhieuMoi = taoPhieuMoi,
+                 LichSuXuatNhapId = _editingLichSuXuatNhapId,
+                 OldTenPhieu = _editingTenPhieu,
+                 OldDanhSachMaSPId = _editingOldDanhSachMaSPId,
+                 OldDanhSachKhoId = _editingOldDanhSachKhoId,
+                 OldNgay = _editingOldNgay,
+                 ThongTinDatHangId = _selectedThongTinDatHangId,
+-                DanhSachDatHangId = _selectedDanhSachDatHangId,
++                DanhSachDatHangId = danhSachDatHangId,
+                 DanhSachMaSPId = _selectedDanhSachMaSPId,
+                 DanhSachKhoId = danhSachKhoId,
+                 DanhSachNCCId = _selectedDanhSachNccId,
+@@ -807,8 +827,18 @@
+             table.AcceptChanges();
+ 
+             if (table.Rows.Count == 0)
++            {
+                 dgvChiTietDon.DataSource = table.Clone();
+ 
++                if (string.Equals(_currentTenPhieu, tenPhieu, StringComparison.OrdinalIgnoreCase))
++                {
++                    _currentTenPhieu = null;
++                    _currentDanhSachDatHangId = null;
++                    tbMaPhieu.Clear();
++                    CapNhatTenPhieu();
++                }
++            }
++
+             CapNhatTrangThaiNgayTheoChiTietPhieu();
+         }
+ 
+@@ -918,6 +948,8 @@
+ 
+         private void ResetFormKhiHoanThanh()
+         {
++            _currentTenPhieu = null;
++            _currentDanhSachDatHangId = null;
+             ResetEditState();
+ 
+             tbNguoiGiao.Clear();

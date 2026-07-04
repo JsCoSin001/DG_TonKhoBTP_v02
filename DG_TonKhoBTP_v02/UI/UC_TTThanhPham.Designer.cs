@@ -319,8 +319,8 @@
             this.khoiLuong.DecimalPlaces = 1;
             this.khoiLuong.Location = new System.Drawing.Point(467, 24);
             this.khoiLuong.Maximum = new decimal(new int[] {
-            1569325055,
-            23283064,
+            5000,
+            0,
             0,
             0});
             this.khoiLuong.Name = "khoiLuong";
@@ -334,8 +334,8 @@
             this.chieuDai.DecimalPlaces = 1;
             this.chieuDai.Location = new System.Drawing.Point(534, 24);
             this.chieuDai.Maximum = new decimal(new int[] {
-            1569325055,
-            23283064,
+            170000,
+            0,
             0,
             0});
             this.chieuDai.Name = "chieuDai";
@@ -348,11 +348,6 @@
             this.phe.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.phe.DecimalPlaces = 1;
             this.phe.Location = new System.Drawing.Point(601, 24);
-            this.phe.Maximum = new decimal(new int[] {
-            1569325055,
-            23283064,
-            0,
-            0});
             this.phe.Name = "phe";
             this.phe.Size = new System.Drawing.Size(52, 26);
             this.phe.TabIndex = 9;

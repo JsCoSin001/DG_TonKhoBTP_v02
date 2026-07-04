@@ -66,7 +66,7 @@
             this.label3 = new System.Windows.Forms.Label();
             this.tbTTThanhPhamID = new System.Windows.Forms.TextBox();
             this.label16 = new System.Windows.Forms.Label();
-            this.cbxNguoiKK = new System.Windows.Forms.ComboBox();
+            this.cbxNguoiKK = new System.Windows.Forms.TextBox();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.btnLuu = new System.Windows.Forms.Button();
             this.cbInTem = new System.Windows.Forms.CheckBox();
@@ -218,7 +218,7 @@
             // 
             this.cbxNguoiKK_CauHinh.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbxNguoiKK_CauHinh.FormattingEnabled = true;
-            this.cbxNguoiKK_CauHinh.Location = new System.Drawing.Point(351, 14);
+            this.cbxNguoiKK_CauHinh.Location = new System.Drawing.Point(351, 16);
             this.cbxNguoiKK_CauHinh.Name = "cbxNguoiKK_CauHinh";
             this.cbxNguoiKK_CauHinh.Size = new System.Drawing.Size(144, 26);
             this.cbxNguoiKK_CauHinh.TabIndex = 3;
@@ -313,7 +313,7 @@
             // 
             this.tbTenSanPham_KK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.tbTenSanPham_KK.FormattingEnabled = true;
-            this.tbTenSanPham_KK.Location = new System.Drawing.Point(306, 114);
+            this.tbTenSanPham_KK.Location = new System.Drawing.Point(306, 112);
             this.tbTenSanPham_KK.Name = "tbTenSanPham_KK";
             this.tbTenSanPham_KK.Size = new System.Drawing.Size(175, 26);
             this.tbTenSanPham_KK.TabIndex = 5;
@@ -584,20 +584,9 @@
             // 
             this.cbxNguoiKK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.tableLayoutPanel2.SetColumnSpan(this.cbxNguoiKK, 2);
-            this.cbxNguoiKK.FormattingEnabled = true;
-            this.cbxNguoiKK.Items.AddRange(new object[] {
-            "Người 1",
-            "Người 2",
-            "Người 3",
-            "Người 4",
-            "Người 5",
-            "Người 6",
-            "Người 7",
-            "Người 8",
-            "Người 9",
-            "Người 10"});
             this.cbxNguoiKK.Location = new System.Drawing.Point(126, 362);
             this.cbxNguoiKK.Name = "cbxNguoiKK";
+            this.cbxNguoiKK.ReadOnly = true;
             this.cbxNguoiKK.Size = new System.Drawing.Size(355, 26);
             this.cbxNguoiKK.TabIndex = 7;
             // 
@@ -729,6 +718,7 @@
             // btnTaoQr
             // 
             this.tableLayoutPanel1.SetColumnSpan(this.btnTaoQr, 2);
+            this.btnTaoQr.Enabled = false;
             this.btnTaoQr.Location = new System.Drawing.Point(339, 46);
             this.btnTaoQr.Name = "btnTaoQr";
             this.btnTaoQr.Size = new System.Drawing.Size(116, 42);
@@ -860,7 +850,7 @@
         private System.Windows.Forms.Label label15;
         private System.Windows.Forms.ComboBox cbxNguoiKK_CauHinh;
         private System.Windows.Forms.Label label16;
-        private System.Windows.Forms.ComboBox cbxNguoiKK;
+        private System.Windows.Forms.TextBox cbxNguoiKK;
         private System.Windows.Forms.Button btnXuatExcel;
         private System.Windows.Forms.Button btnInTem;
     }

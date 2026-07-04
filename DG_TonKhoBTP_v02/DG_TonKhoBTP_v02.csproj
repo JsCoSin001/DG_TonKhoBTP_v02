@@ -148,6 +148,7 @@
     <Compile Include="Database\KeToan\TTLo_DB.cs" />
     <Compile Include="Database\KeToan\VatTuKhac\MuaVatTu_DB.cs" />
     <Compile Include="Database\KeToan\VatTuKhac\NhapXuatVatTu_DB.cs" />
+    <Compile Include="Database\KeToan\VatTuKhac\SoChungTu_DB.cs" />
     <Compile Include="Database\Kho\BaoCaoTonKhoLo_DB.cs" />
     <Compile Include="Database\Kho\NhapKhoNVL_DB.cs" />
     <Compile Include="Database\Kho\NhapKho_DB.cs" />

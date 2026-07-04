@@ -146,7 +146,7 @@ namespace DG_TonKhoBTP_v02.UI.Setting
             {
                 ms =  "THAO TÁC THÀNH CÔNG";
                 icon = EnumStore.Icon.Success;
-                tbxNguoiThucHien.Text = "";
+                //tbxNguoiThucHien.Text = "";
             }
 
             FrmWaiting.ShowGifAlert(ms,"THÔNG BÁO", icon);
@@ -155,7 +155,7 @@ namespace DG_TonKhoBTP_v02.UI.Setting
         private void rdoHoatDong_CheckedChanged(object sender, EventArgs e)
         {
             lblThongBao.Visible = rdoTamDung.Checked;
-            tbxNguoiThucHien.Text = "";
+            //tbxNguoiThucHien.Text = "";
         }
 
         private void cbxMayIn_CheckedChanged(object sender, EventArgs e)

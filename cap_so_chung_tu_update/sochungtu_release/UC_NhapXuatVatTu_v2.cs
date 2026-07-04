@@ -248,7 +248,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
             string nguoiLam = NguoiLam;
 
             return Task.Run(() =>
-                NhapXuatVatTu_DB.TimVatTu(
+                NhapXuatVatTu_DB.TimVatTuDichVu(
                     _model,
                     keyword,
                     danhSachKhoId,
@@ -717,6 +717,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
 
             decimal tonKhaDung = NhapXuatVatTu_DB.TinhTongTonVatTu(
                 _selectedDanhSachMaSPId.Value,
+                NguoiLam,
                 excludeTenPhieu,
                 _editingOldDanhSachMaSPId);
 
@@ -919,6 +920,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
             {
                 decimal tonKhaDung = NhapXuatVatTu_DB.TinhTongTonVatTu(
                     _selectedDanhSachMaSPId.Value,
+                    NguoiLam,
                     _editingTenPhieu,
                     _editingOldDanhSachMaSPId);
 

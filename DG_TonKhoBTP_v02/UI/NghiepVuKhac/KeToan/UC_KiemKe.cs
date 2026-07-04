@@ -30,6 +30,9 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
         private PrinterModel _currentPrinterModel = null;
 
         private bool _isBusy = false;
+        private bool _isInitializing = true;
+        private bool _isLoadingKiemKe = false;
+        private const string FILTER_ALL_NGUOI_KK = "Tất cả";
 
         private AutoCompleteDropDown _dropDownSP;
         private CancellationTokenSource _ctsSP;
@@ -37,30 +40,58 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
         public UC_KiemKe()
         {
             InitializeComponent();
+
+            _isInitializing = true;
             InitAutoCompleteSanPham();
             InitComboBox();
+            _isInitializing = false;
         }
 
         private void InitComboBox()
         {
-            List<string> data1 = new List<string>();
-            List<string> data2 = new List<string>();
+            string currentUserName = GetCurrentUserName();
 
-            for (int i = 1; i <= 10; i++)
-            {
-                string text = "Người " + i;
-                data1.Add(text);
-                data2.Add(text);
-            }
+            cbxNguoiKK.Text = currentUserName;
+            cbxNguoiKK.ReadOnly = true;
+            cbxNguoiKK.TabStop = false;
 
-            cbxNguoiKK_CauHinh.DataSource = data1;
-            cbxNguoiKK.DataSource = data2;
+            List<string> usernames = KiemKe_DB.LoadActiveUsernames() ?? new List<string>();
+            List<string> filterData = new List<string> { FILTER_ALL_NGUOI_KK };
+            filterData.AddRange(usernames);
 
+            cbxNguoiKK_CauHinh.DataSource = filterData;
             cbxNguoiKK_CauHinh.DropDownStyle = ComboBoxStyle.DropDownList;
-            cbxNguoiKK.DropDownStyle = ComboBoxStyle.DropDownList;
 
-            cbxNguoiKK_CauHinh.SelectedIndex = 0;
-            cbxNguoiKK.SelectedIndex = 0;
+            string selectedUserName = filterData
+                .FirstOrDefault(x => string.Equals(x, currentUserName, StringComparison.OrdinalIgnoreCase));
+
+            if (!string.IsNullOrWhiteSpace(selectedUserName))
+                cbxNguoiKK_CauHinh.SelectedItem = selectedUserName;
+            else if (filterData.Count > 0)
+                cbxNguoiKK_CauHinh.SelectedIndex = 0;
+        }
+
+        private string GetCurrentUserName()
+        {
+            return (UserContext.UserName ?? string.Empty).Trim();
+        }
+
+        private string GetSelectedNguoiKKFilter()
+        {
+            string nguoiKK = cbxNguoiKK_CauHinh.SelectedItem?.ToString()?.Trim();
+
+            if (string.Equals(nguoiKK, FILTER_ALL_NGUOI_KK, StringComparison.OrdinalIgnoreCase))
+                return null;
+
+            return nguoiKK;
+        }
+
+        private bool IsVisibleInCurrentNguoiKKFilter(string nguoiKK)
+        {
+            string selectedFilter = GetSelectedNguoiKKFilter();
+
+            return string.IsNullOrWhiteSpace(selectedFilter)
+                || string.Equals(selectedFilter, nguoiKK, StringComparison.OrdinalIgnoreCase);
         }
 
         private void InitAutoCompleteSanPham()
@@ -193,13 +224,16 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
         {
             try
             {
+                string namThang = dtThangKiemKe.Value.ToString("yyyy-MM");
+                string nguoiKK = GetSelectedNguoiKKFilter();
+
                 (Dictionary<string, decimal> bins, DataTable dt) result =
                     await WaitingHelper.RunWithWaiting(
                         async () =>
                         {
                             var t1 = KiemKe_DB.LayDanhSachBin_KhoiLuong();
                             var t2 = System.Threading.Tasks.Task.Run(
-                                         () => KiemKe_DB.Load_TTKiemKeThang());
+                                         () => KiemKe_DB.Load_TTKiemKeThang(namThang, nguoiKK));
                             await System.Threading.Tasks.Task.WhenAll(t1, t2);
                             return (t1.Result, t2.Result);
                         },
@@ -328,10 +362,10 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
                 return;
             }
 
-            string nguoiKK = cbxNguoiKK.SelectedItem?.ToString() ?? ""; 
+            string nguoiKK = (cbxNguoiKK.Text ?? string.Empty).Trim();
             if (string.IsNullOrWhiteSpace(nguoiKK))
             {
-                FrmWaiting.ShowGifAlert("Chọn người Kiểm kê.");
+                FrmWaiting.ShowGifAlert("Không xác định được username đăng nhập.");
                 return;
             }
 
@@ -389,7 +423,9 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
 
                 // ── Phần UI: sau await, chắc chắn ở UI thread ────────────────────
                 kiemKeModel.id = newId;
-                InsertRowToGridTop(kiemKeModel);
+
+                if (IsVisibleInCurrentNguoiKKFilter(kiemKeModel.NguoiKK))
+                    InsertRowToGridTop(kiemKeModel);
 
                 FrmWaiting.ShowGifAlert("Lưu kiểm kê thành công.", "THÀNH CÔNG", EnumStore.Icon.Success);
 
@@ -566,7 +602,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
                 ApprovedDate = null,
                 DateInsert = now.ToString("yyyy-MM-dd HH:mm:ss"),
                 Ten = tbTenSanPham_KK.Text.Trim(),
-                NguoiKK = cbxNguoiKK.SelectedItem?.ToString() ?? ""
+                NguoiKK = (cbxNguoiKK.Text ?? string.Empty).Trim()
             };
         }
 
@@ -820,19 +856,18 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
 
         private async void dtThangKiemKe_ValueChanged(object sender, EventArgs e)
         {
-            string nguoiKK = cbxNguoiKK.SelectedItem?.ToString();
+            if (_isInitializing) return;
 
-            await LoadDataKiemKeAsync( nguoiKK);
+            await LoadDataKiemKeAsync(GetSelectedNguoiKKFilter());
         }
 
         private async Task LoadDataKiemKeAsync(string nguoiKK)
         {
-            if (_isBusy) return;
+            if (_isLoadingKiemKe) return;
 
-            _isBusy = true;
+            _isLoadingKiemKe = true;
             try
             {
-
                 string namThang = dtThangKiemKe.Value.ToString("yyyy-MM");
 
                 DataTable dt = await WaitingHelper.RunWithWaiting(
@@ -850,7 +885,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
             }
             finally
             {
-                _isBusy = false;
+                _isLoadingKiemKe = false;
             }
         }
 
@@ -869,10 +904,9 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
 
         private async void cbxNguoiKK_CauHinh_SelectedIndexChanged(object sender, EventArgs e)
         {
+            if (_isInitializing) return;
 
-            string nguoiKK = cbxNguoiKK_CauHinh.SelectedItem?.ToString().Replace("Người", "Nguoi"); ;
-
-            await LoadDataKiemKeAsync(nguoiKK);
+            await LoadDataKiemKeAsync(GetSelectedNguoiKKFilter());
         }
 
         private void btnXuatExcel_Click(object sender, EventArgs e)

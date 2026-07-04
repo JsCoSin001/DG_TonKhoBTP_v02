@@ -128,7 +128,7 @@
             this.cbxdsKho.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbxdsKho.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbxdsKho.FormattingEnabled = true;
-            this.cbxdsKho.Location = new System.Drawing.Point(764, 9);
+            this.cbxdsKho.Location = new System.Drawing.Point(764, 11);
             this.cbxdsKho.Name = "cbxdsKho";
             this.cbxdsKho.Size = new System.Drawing.Size(61, 26);
             this.cbxdsKho.TabIndex = 6;
@@ -166,7 +166,7 @@
             "Chưa về",
             "Chưa hoàn thành",
             "Đã hoàn thành"});
-            this.cbxLoaiYC.Location = new System.Drawing.Point(912, 9);
+            this.cbxLoaiYC.Location = new System.Drawing.Point(912, 11);
             this.cbxLoaiYC.Name = "cbxLoaiYC";
             this.cbxLoaiYC.Size = new System.Drawing.Size(61, 26);
             this.cbxLoaiYC.TabIndex = 6;
@@ -341,7 +341,7 @@
             this.cbxNguoiThucHien.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbxNguoiThucHien.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbxNguoiThucHien.FormattingEnabled = true;
-            this.cbxNguoiThucHien.Location = new System.Drawing.Point(1095, 9);
+            this.cbxNguoiThucHien.Location = new System.Drawing.Point(1095, 11);
             this.cbxNguoiThucHien.Name = "cbxNguoiThucHien";
             this.cbxNguoiThucHien.Size = new System.Drawing.Size(64, 26);
             this.cbxNguoiThucHien.TabIndex = 6;
@@ -354,7 +354,7 @@
             this.cbxThoiGian.Items.AddRange(new object[] {
             "Không",
             "Theo khoảng thời gian"});
-            this.cbxThoiGian.Location = new System.Drawing.Point(223, 9);
+            this.cbxThoiGian.Location = new System.Drawing.Point(223, 11);
             this.cbxThoiGian.Name = "cbxThoiGian";
             this.cbxThoiGian.Size = new System.Drawing.Size(61, 26);
             this.cbxThoiGian.TabIndex = 6;
@@ -380,7 +380,7 @@
             "Đề Nghị",
             "Nhập Hàng",
             "Xuất Hàng"});
-            this.cbxKieu.Location = new System.Drawing.Point(3, 9);
+            this.cbxKieu.Location = new System.Drawing.Point(3, 11);
             this.cbxKieu.Name = "cbxKieu";
             this.cbxKieu.Size = new System.Drawing.Size(178, 26);
             this.cbxKieu.TabIndex = 7;

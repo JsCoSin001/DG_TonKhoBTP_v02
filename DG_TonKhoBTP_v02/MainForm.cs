@@ -35,7 +35,7 @@ namespace DG_TonKhoBTP_v02
     {
         private string _URL = Properties.Settings.Default.URL;
         private CongDoanUiService _ui;
-        private string _ver = "2.7.0";
+        private string _ver = "2.7.2";
         private bool show = false;
         private void InitUiService()
         {
@@ -1531,7 +1531,12 @@ namespace DG_TonKhoBTP_v02
         }
 
         private void btnKiemKe_Click(object sender, EventArgs e)
-        {           
+        {
+            if (!UserContext.IsAuthenticated)
+            {
+                FrmWaiting.ShowGifAlert($"Bạn cần đăng nhập trước.");
+                return;
+            }
 
             using (var waiting = new FrmWaiting("ĐANG KHỞI TẠO GIAO DIỆN..."))
             {

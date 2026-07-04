@@ -12,7 +12,7 @@ namespace DG_TonKhoBTP_v02.Database
     {
         private const int SearchLimit = 30;
 
-        public static DataTable TimVatTu(
+        public static DataTable TimVatTuDichVu(
             KieuNhapXuat_Model model,
             string keyword,
             int? danhSachKhoId,
@@ -37,7 +37,7 @@ namespace DG_TonKhoBTP_v02.Database
                 return TimVatTuNhapKhoKhac(keyword, cancellationToken);
 
             if (IsXuat(model))
-                return TimVatTuXuat(keyword, danhSachKhoId, cancellationToken);
+                return TimVatTuXuat(keyword, danhSachKhoId, nguoiLam, cancellationToken);
 
             return CreateEmptySearchTable();
         }
@@ -396,56 +396,25 @@ namespace DG_TonKhoBTP_v02.Database
             }
         }
 
-        //public static decimal TinhTongTonVatTu(
-        //int danhSachMaSPId,
-        //string nguoiLam,
-        //string excludeTenPhieu = null,
-        //int? excludeDanhSachMaSPId = null)
-        //{
-        //    if (string.IsNullOrWhiteSpace(nguoiLam))
-        //        return 0;
-
-        //    using (var conn = DB_Base.OpenConnection())
-        //    using (var cmd = new SQLiteCommand(BuildSqlTinhTon(excludeTenPhieu, excludeDanhSachMaSPId), conn))
-        //    {
-        //        cmd.Parameters.AddWithValue("@danhSachMaSPId", danhSachMaSPId);
-        //        cmd.Parameters.AddWithValue("@nguoiLam", nguoiLam);
-
-        //        if (!string.IsNullOrWhiteSpace(excludeTenPhieu) && excludeDanhSachMaSPId.HasValue)
-        //        {
-        //            cmd.Parameters.AddWithValue("@excludeTenPhieu", excludeTenPhieu);
-        //            cmd.Parameters.AddWithValue("@excludeDanhSachMaSPId", excludeDanhSachMaSPId.Value);
-        //        }
-
-        //        object result = cmd.ExecuteScalar();
-        //        return ToDecimal(result);
-        //    }
-        //}
-
         public static decimal TinhTongTonVatTu(
-            int danhSachMaSPId,
-            string excludeTenPhieu = null,
-            int? excludeDanhSachMaSPId = null)
+        int danhSachMaSPId,
+        string nguoiLam,
+        string excludeTenPhieu = null,
+        int? excludeDanhSachMaSPId = null)
         {
+            if (string.IsNullOrWhiteSpace(nguoiLam))
+                return 0;
+
             using (var conn = DB_Base.OpenConnection())
-            using (var cmd = new SQLiteCommand(
-                BuildSqlTinhTon(excludeTenPhieu, excludeDanhSachMaSPId),
-                conn))
+            using (var cmd = new SQLiteCommand(BuildSqlTinhTon(excludeTenPhieu, excludeDanhSachMaSPId), conn))
             {
-                cmd.Parameters.AddWithValue(
-                    "@danhSachMaSPId",
-                    danhSachMaSPId);
+                cmd.Parameters.AddWithValue("@danhSachMaSPId", danhSachMaSPId);
+                cmd.Parameters.AddWithValue("@nguoiLam", nguoiLam);
 
-                if (!string.IsNullOrWhiteSpace(excludeTenPhieu)
-                    && excludeDanhSachMaSPId.HasValue)
+                if (!string.IsNullOrWhiteSpace(excludeTenPhieu) && excludeDanhSachMaSPId.HasValue)
                 {
-                    cmd.Parameters.AddWithValue(
-                        "@excludeTenPhieu",
-                        excludeTenPhieu);
-
-                    cmd.Parameters.AddWithValue(
-                        "@excludeDanhSachMaSPId",
-                        excludeDanhSachMaSPId.Value);
+                    cmd.Parameters.AddWithValue("@excludeTenPhieu", excludeTenPhieu);
+                    cmd.Parameters.AddWithValue("@excludeDanhSachMaSPId", excludeDanhSachMaSPId.Value);
                 }
 
                 object result = cmd.ExecuteScalar();
@@ -461,6 +430,7 @@ namespace DG_TonKhoBTP_v02.Database
                 INNER JOIN ThongTinDatHang ttdh
                     ON ttdh.id = lsxn.ThongTinDatHang_ID
                 WHERE ttdh.DanhSachMaSP_ID = @danhSachMaSPId
+                  AND IFNULL(lsxn.NguoiLam, '') = @nguoiLam
             ";
 
             if (!string.IsNullOrWhiteSpace(excludeTenPhieu) && excludeDanhSachMaSPId.HasValue)
@@ -590,49 +560,6 @@ namespace DG_TonKhoBTP_v02.Database
             parameters["@nguoiLam"] = nguoiLam;
 
             return ExecuteSearchQuery(sql, parameters, cancellationToken);
-        }
-
-        private static DataTable TimVatTuXuat(
-            string keyword,
-            int? danhSachKhoId,
-            CancellationToken cancellationToken)
-        {
-            string sql = @"
-        SELECT
-            dms.id AS id,
-            NULL AS ThongTinDatHang_ID,
-            dms.id AS DanhSachMaSP_ID,
-            dms.Ten AS ten,
-            dms.Ma AS ma,
-            dms.DonVi AS donvi,
-            '' AS MaDon,
-            SUM(lsxn.SoLuong) AS SoLuongYeuCau,
-            SUM(lsxn.SoLuong) AS SoLuongTon,
-            NULL AS DonGia
-        FROM LichSuXuatNhap lsxn
-        INNER JOIN ThongTinDatHang ttdh
-            ON ttdh.id = lsxn.ThongTinDatHang_ID
-        INNER JOIN DanhSachMaSP dms
-            ON dms.id = ttdh.DanhSachMaSP_ID
-        WHERE dms.Active = 1
-          AND (
-                dms.Ten LIKE @kw
-                OR IFNULL(dms.Ten_KhongDau, '') LIKE @kwNoDau
-          )
-        GROUP BY
-            dms.id,
-            dms.Ten,
-            dms.Ma,
-            dms.DonVi
-        HAVING SUM(lsxn.SoLuong) > 0
-        ORDER BY dms.Ten
-        LIMIT @limit;
-    ";
-
-            return ExecuteSearchQuery(
-                sql,
-                CreateKeywordParameters(keyword),
-                cancellationToken);
         }
 
         private static DataTable TimDichVu(string keyword, CancellationToken cancellationToken)

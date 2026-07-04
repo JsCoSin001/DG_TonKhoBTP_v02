@@ -128,7 +128,7 @@
             this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 81.75676F));
             this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 484F));
             this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 242F));
-            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 327F));
+            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 331F));
             this.tableLayoutPanel3.Controls.Add(this.cbxTimKiem_Edit, 1, 0);
             this.tableLayoutPanel3.Controls.Add(this.label14, 0, 0);
             this.tableLayoutPanel3.Controls.Add(this.btnInPhieu, 4, 0);
@@ -145,9 +145,9 @@
             // 
             this.cbxTimKiem_Edit.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbxTimKiem_Edit.FormattingEnabled = true;
-            this.cbxTimKiem_Edit.Location = new System.Drawing.Point(93, 28);
+            this.cbxTimKiem_Edit.Location = new System.Drawing.Point(92, 28);
             this.cbxTimKiem_Edit.Name = "cbxTimKiem_Edit";
-            this.cbxTimKiem_Edit.Size = new System.Drawing.Size(397, 26);
+            this.cbxTimKiem_Edit.Size = new System.Drawing.Size(394, 26);
             this.cbxTimKiem_Edit.TabIndex = 0;
             // 
             // label14
@@ -156,19 +156,20 @@
             this.label14.AutoSize = true;
             this.label14.Location = new System.Drawing.Point(3, 30);
             this.label14.Name = "label14";
-            this.label14.Size = new System.Drawing.Size(84, 18);
+            this.label14.Size = new System.Drawing.Size(83, 18);
             this.label14.TabIndex = 1;
             this.label14.Text = "Tìm kiếm";
             // 
             // btnInPhieu
             // 
             this.btnInPhieu.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.btnInPhieu.Location = new System.Drawing.Point(1222, 9);
+            this.btnInPhieu.Location = new System.Drawing.Point(1218, 9);
             this.btnInPhieu.Name = "btnInPhieu";
             this.btnInPhieu.Size = new System.Drawing.Size(142, 60);
             this.btnInPhieu.TabIndex = 3;
             this.btnInPhieu.Text = "In Phiếu";
             this.btnInPhieu.UseVisualStyleBackColor = true;
+            this.btnInPhieu.Click += new System.EventHandler(this.btnInPhieu_Click);
             // 
             // panel2
             // 
@@ -451,7 +452,7 @@
             this.ngayNhap_Xuat.Name = "ngayNhap_Xuat";
             this.ngayNhap_Xuat.Size = new System.Drawing.Size(102, 24);
             this.ngayNhap_Xuat.TabIndex = 15;
-            this.ngayNhap_Xuat.Value = new System.DateTime(2026, 6, 23, 7, 55, 19, 0);
+            this.ngayNhap_Xuat.Value = new System.DateTime(2026, 7, 4, 0, 0, 0, 0);
             // 
             // label6
             // 

@@ -56,7 +56,33 @@ namespace DG_TonKhoBTP_v02.Database.KeToan
             return result;
         }
 
-        public static DataTable Load_TTKiemKeThang(string namThang = null, string nguoiKK = "Người 1")
+        public static List<string> LoadActiveUsernames()
+        {
+            var result = new List<string>();
+
+            const string sql = @"
+            SELECT username
+            FROM users
+            WHERE is_active = 1
+            ORDER BY username COLLATE NOCASE ASC;";
+
+            using (var conn = DB_Base.OpenConnection())
+            using (var cmd = new SQLiteCommand(sql, conn))
+            using (var reader = cmd.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    string username = reader["username"]?.ToString()?.Trim();
+
+                    if (!string.IsNullOrWhiteSpace(username))
+                        result.Add(username);
+                }
+            }
+
+            return result;
+        }
+
+        public static DataTable Load_TTKiemKeThang(string namThang = null, string nguoiKK = null)
         {
             if (string.IsNullOrWhiteSpace(namThang))
             {
@@ -81,7 +107,11 @@ namespace DG_TonKhoBTP_v02.Database.KeToan
             LEFT JOIN TTThanhPham tp ON tp.id = kk.TTThanhPham_ID
             LEFT JOIN DanhSachMaSP sp ON sp.id = tp.DanhSachSP_ID
             WHERE kk.ThoiGianKiemKe = @namThang
-              AND kk.NguoiKK COLLATE NOCASE = @nguoiKK COLLATE NOCASE
+              AND (
+                    @nguoiKK IS NULL
+                    OR TRIM(@nguoiKK) = ''
+                    OR kk.NguoiKK COLLATE NOCASE = @nguoiKK COLLATE NOCASE
+                  )
             ORDER BY kk.DateInsert DESC, kk.id DESC;";
 
             using (var conn = DB_Base.OpenConnection())
@@ -89,26 +119,13 @@ namespace DG_TonKhoBTP_v02.Database.KeToan
             using (var da = new SQLiteDataAdapter(cmd))
             {
                 cmd.Parameters.AddWithValue("@namThang", namThang.Trim());
-                cmd.Parameters.AddWithValue("@nguoiKK", (nguoiKK ?? string.Empty).Trim());
+                cmd.Parameters.AddWithValue("@nguoiKK",
+                    string.IsNullOrWhiteSpace(nguoiKK)
+                        ? (object)DBNull.Value
+                        : nguoiKK.Trim());
 
                 var dt = new DataTable();
                 da.Fill(dt);
-
-                if (!dt.Columns.Contains("Confirmed"))
-                    dt.Columns.Add("Confirmed", typeof(int));
-
-                if (!dt.Columns.Contains("TrangThaiLuu"))
-                    dt.Columns.Add("TrangThaiLuu", typeof(string));
-
-                foreach (DataRow row in dt.Rows)
-                {
-                    int confirmed = 0;
-                    if (row["Confirmed"] != DBNull.Value)
-                        int.TryParse(row["Confirmed"].ToString(), out confirmed);
-
-                    row["Confirmed"] = confirmed;
-                    row["TrangThaiLuu"] = confirmed == 1 ? "Đã lưu" : "Chưa lưu";
-                }
 
                 return dt;
             }

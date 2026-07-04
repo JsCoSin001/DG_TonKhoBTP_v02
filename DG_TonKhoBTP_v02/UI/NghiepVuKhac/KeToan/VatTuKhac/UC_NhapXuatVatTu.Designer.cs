@@ -163,7 +163,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
             // 
             this.txtNguoiGiaoNhan.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.txtNguoiGiaoNhan.FormattingEnabled = true;
-            this.txtNguoiGiaoNhan.Location = new System.Drawing.Point(153, 17);
+            this.txtNguoiGiaoNhan.Location = new System.Drawing.Point(153, 20);
             this.txtNguoiGiaoNhan.Name = "txtNguoiGiaoNhan";
             this.txtNguoiGiaoNhan.Size = new System.Drawing.Size(190, 27);
             this.txtNguoiGiaoNhan.TabIndex = 3;
@@ -199,7 +199,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
             this.cbxKhoHang.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.ListItems;
             this.cbxKhoHang.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbxKhoHang.FormattingEnabled = true;
-            this.cbxKhoHang.Location = new System.Drawing.Point(680, 17);
+            this.cbxKhoHang.Location = new System.Drawing.Point(680, 20);
             this.cbxKhoHang.Name = "cbxKhoHang";
             this.cbxKhoHang.Size = new System.Drawing.Size(241, 27);
             this.cbxKhoHang.TabIndex = 5;
@@ -219,7 +219,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
             // 
             this.cbxDoiTuongCongNo.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbxDoiTuongCongNo.FormattingEnabled = true;
-            this.cbxDoiTuongCongNo.Location = new System.Drawing.Point(1069, 17);
+            this.cbxDoiTuongCongNo.Location = new System.Drawing.Point(1069, 20);
             this.cbxDoiTuongCongNo.Name = "cbxDoiTuongCongNo";
             this.cbxDoiTuongCongNo.Size = new System.Drawing.Size(241, 27);
             this.cbxDoiTuongCongNo.TabIndex = 4;
@@ -312,7 +312,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
             // 
             this.cbxTimDon.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbxTimDon.FormattingEnabled = true;
-            this.cbxTimDon.Location = new System.Drawing.Point(892, 14);
+            this.cbxTimDon.Location = new System.Drawing.Point(892, 17);
             this.cbxTimDon.Name = "cbxTimDon";
             this.cbxTimDon.Size = new System.Drawing.Size(164, 27);
             this.cbxTimDon.TabIndex = 7;
@@ -332,7 +332,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
             // 
             this.cbxTimTen.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbxTimTen.FormattingEnabled = true;
-            this.cbxTimTen.Location = new System.Drawing.Point(552, 17);
+            this.cbxTimTen.Location = new System.Drawing.Point(552, 14);
             this.cbxTimTen.Name = "cbxTimTen";
             this.cbxTimTen.Size = new System.Drawing.Size(164, 27);
             this.cbxTimTen.TabIndex = 1;
@@ -377,7 +377,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
             this.cbxKieu.Items.AddRange(new object[] {
             "Tạo mới",
             "Chỉnh sửa"});
-            this.cbxKieu.Location = new System.Drawing.Point(3, 17);
+            this.cbxKieu.Location = new System.Drawing.Point(3, 14);
             this.cbxKieu.Name = "cbxKieu";
             this.cbxKieu.Size = new System.Drawing.Size(114, 27);
             this.cbxKieu.TabIndex = 9;

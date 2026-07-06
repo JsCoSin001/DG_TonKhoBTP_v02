@@ -1,6 +1,7 @@
 ﻿using DG_TonKhoBTP_v02.Core;
 using DG_TonKhoBTP_v02.Database;
 using DG_TonKhoBTP_v02.Dictionary;
+using DG_TonKhoBTP_v02.Helper;
 using DG_TonKhoBTP_v02.Helper.Reuseable;
 using DG_TonKhoBTP_v02.Models;
 using DG_TonKhoBTP_v02.UI.Helper;
@@ -39,6 +40,11 @@ namespace DG_TonKhoBTP_v02.UI
 
         private CongDoan _CD;
 
+        // Lưu quyền ReadOnly ban đầu để chỉ mở 2 ô còn lại cho đúng dòng nhập tay.
+        private bool _daLuuQuyenCotConLai;
+        private bool _klConLaiReadOnlyMacDinh = true;
+        private bool _cdConLaiReadOnlyMacDinh = true;
+
         public bool RawMaterial { get; set; } = false;
         public void SetStatusRawMaterial(bool value) => RawMaterial = value;
 
@@ -57,15 +63,22 @@ namespace DG_TonKhoBTP_v02.UI
             dtgTTNVL.DataBindingComplete += (s, e) =>
             {
                 EnsureColumnOrderAndDeleteLast();
+
+                if (_daLuuQuyenCotConLai)
+                    ApDungQuyenNhapTayChoTatCaDong();
             };
 
             TaoBang(columns);
+            LuuQuyenMacDinhCuaCotConLai();
 
             // Bắt lỗi nhập sai định dạng
             dtgTTNVL.DataError += dtgTTNVL_DataError;
 
             // Hạn chế nhập ký tự không hợp lệ cho các cột số
             dtgTTNVL.EditingControlShowing += dtgTTNVL_EditingControlShowing;
+
+            // Ô trống phải được ghi nhận là null, không được tự đổi thành 0.
+            dtgTTNVL.CellParsing += dtgTTNVL_CellParsing;
 
             dtgTTNVL.CellFormatting += dtgTTNVL_CellFormatting;
 
@@ -199,6 +212,7 @@ namespace DG_TonKhoBTP_v02.UI
                     dtgTTNVL.EndEdit();
                     _nvlSource.EndEdit();
                     _nvlSource.RemoveAt(e.RowIndex);
+                    ApDungQuyenNhapTayChoTatCaDong();
                 }
             }
         }
@@ -346,6 +360,24 @@ namespace DG_TonKhoBTP_v02.UI
             }
         }
 
+        private void dtgTTNVL_CellParsing(object sender, DataGridViewCellParsingEventArgs e)
+        {
+            if (e.RowIndex < 0 || e.ColumnIndex < 0) return;
+
+            string propertyName = dtgTTNVL.Columns[e.ColumnIndex].DataPropertyName;
+            bool laCotConLai =
+                propertyName == nameof(TTNVLRow.KlConLai) ||
+                propertyName == nameof(TTNVLRow.CdConLai);
+
+            if (!laCotConLai) return;
+
+            if (string.IsNullOrWhiteSpace(Convert.ToString(e.Value)))
+            {
+                e.Value = null;
+                e.ParsingApplied = true;
+            }
+        }
+
         private void OnlyNumber_KeyPress(object sender, KeyPressEventArgs e)
         {
             char dec = CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator[0];
@@ -416,6 +448,7 @@ namespace DG_TonKhoBTP_v02.UI
                     _nvlSource.ResetBindings(false);
                     SetColumnHeaders(dtgTTNVL, _columns);
                     EnsureColumnOrderAndDeleteLast();
+                    ApDungQuyenNhapTayChoTatCaDong();
                     dtgTTNVL.Refresh();
                 }
                 finally
@@ -640,37 +673,9 @@ namespace DG_TonKhoBTP_v02.UI
                 if (dotIndex > 0)
                     maSP = maSP.Substring(0, dotIndex);
 
-                bool shouldMarkRequiredCells = false;
+                bool shouldMarkRequiredCells = true;
 
-                
-                decimal klBatDau = Convert.ToDecimal(newItem.KlBatDau ?? 0);
-                decimal cdBatDau = Convert.ToDecimal(newItem.CdBatDau ?? 0);
-                string dvNVL = newItem.DonVi ?? string.Empty;
-
-                decimal kl;
-                if (dvNVL != thanhPham.DonVi)
-                {
-                    decimal tyLe = thanhPham.ChuyenDoi;
-
-                    kl = klBatDau - tyLe * thanhPham.ChieuDai < 0
-                        ? 0
-                        : klBatDau - tyLe * thanhPham.ChieuDai;
-                }
-                else
-                {
-                    kl = klBatDau - thanhPham.KhoiLuong < 0
-                        ? 0
-                        : klBatDau - thanhPham.KhoiLuong;
-                }
-
-                decimal cd = cdBatDau - thanhPham.ChieuDai < 0
-                    ? 0
-                    : cdBatDau - thanhPham.ChieuDai;
-
-                newItem.KlConLai = _CD.Id == 9 ? 0 : Convert.ToDouble(kl);
-                newItem.CdConLai = _CD.Id == 9 ? 0 : Convert.ToDouble(cd);
-
-                shouldMarkRequiredCells = true;
+                GanGiaTriConLaiKhiQuetMoi(newItem, thanhPham);
                
 
                 _nvlRows.Add(newItem);
@@ -713,7 +718,136 @@ namespace DG_TonKhoBTP_v02.UI
             }
 
             EnsureColumnOrderAndDeleteLast();
+            ApDungQuyenNhapTayChoTatCaDong();
             dtgTTNVL.Refresh();
+        }
+
+        /// <summary>
+        /// Chỉ dùng khi quét NVL/BTP mới. Khi edit, dữ liệu đã lưu được giữ nguyên.
+        /// </summary>
+        private void GanGiaTriConLaiKhiQuetMoi(
+            TTNVLRow nvl,
+            ThanhPhamData thanhPham)
+        {
+            if (LaCongDoanHanNoi())
+            {
+                nvl.KlConLai = 0d;
+                nvl.CdConLai = 0d;
+                return;
+            }
+
+            if (NvlNhapTayPolicy.ApDung(_CD, nvl))
+            {
+                DatGiaTriConLaiVeTrangThaiChuaNhap(nvl);
+                return;
+            }
+
+            var (klConLai, cdConLai) = TinhGiaTriConLai(nvl, thanhPham);
+            nvl.KlConLai = klConLai;
+            nvl.CdConLai = cdConLai;
+        }
+
+        private bool LaCongDoanHanNoi()
+        {
+            return _CD != null && _CD.Id == 9;
+        }
+
+        private static void DatGiaTriConLaiVeTrangThaiChuaNhap(TTNVLRow nvl)
+        {
+            nvl.KlConLai = null;
+            nvl.CdConLai = null;
+        }
+
+        private static (double KlConLai, double CdConLai) TinhGiaTriConLai(
+            TTNVLRow nvl,
+            ThanhPhamData thanhPham)
+        {
+            decimal klBatDau = Convert.ToDecimal(nvl.KlBatDau ?? 0);
+            decimal cdBatDau = Convert.ToDecimal(nvl.CdBatDau ?? 0);
+
+            string donViNVL = (nvl.DonVi ?? string.Empty).Trim();
+            string donViThanhPham = (thanhPham.DonVi ?? string.Empty).Trim();
+
+            bool cungDonVi = string.Equals(
+                donViNVL,
+                donViThanhPham,
+                StringComparison.OrdinalIgnoreCase);
+
+            decimal khoiLuongSuDung = cungDonVi
+                ? thanhPham.KhoiLuong
+                : thanhPham.ChuyenDoi * thanhPham.ChieuDai;
+
+            decimal klConLai = Math.Max(0m, klBatDau - khoiLuongSuDung);
+            decimal cdConLai = Math.Max(0m, cdBatDau - thanhPham.ChieuDai);
+
+            return (
+                Convert.ToDouble(klConLai),
+                Convert.ToDouble(cdConLai));
+        }
+
+        private void LuuQuyenMacDinhCuaCotConLai()
+        {
+            if (_daLuuQuyenCotConLai) return;
+
+            if (dtgTTNVL.Columns.Contains(nameof(TTNVLRow.KlConLai)))
+            {
+                _klConLaiReadOnlyMacDinh =
+                    dtgTTNVL.Columns[nameof(TTNVLRow.KlConLai)].ReadOnly;
+            }
+
+            if (dtgTTNVL.Columns.Contains(nameof(TTNVLRow.CdConLai)))
+            {
+                _cdConLaiReadOnlyMacDinh =
+                    dtgTTNVL.Columns[nameof(TTNVLRow.CdConLai)].ReadOnly;
+            }
+
+            _daLuuQuyenCotConLai = true;
+        }
+
+        private void ApDungQuyenNhapTayChoTatCaDong()
+        {
+            if (!_daLuuQuyenCotConLai) return;
+
+            DataGridViewColumn cotKL = dtgTTNVL.Columns.Contains(nameof(TTNVLRow.KlConLai))
+                ? dtgTTNVL.Columns[nameof(TTNVLRow.KlConLai)]
+                : null;
+
+            DataGridViewColumn cotCD = dtgTTNVL.Columns.Contains(nameof(TTNVLRow.CdConLai))
+                ? dtgTTNVL.Columns[nameof(TTNVLRow.CdConLai)]
+                : null;
+
+            bool coDongNhapTay = _nvlRows.Any(nvl => NvlNhapTayPolicy.ApDung(_CD, nvl));
+
+            if (!coDongNhapTay)
+            {
+                if (cotKL != null) cotKL.ReadOnly = _klConLaiReadOnlyMacDinh;
+                if (cotCD != null) cotCD.ReadOnly = _cdConLaiReadOnlyMacDinh;
+                return;
+            }
+
+            // Cột phải mở ở cấp column thì mới có thể mở riêng từng cell.
+            if (cotKL != null) cotKL.ReadOnly = false;
+            if (cotCD != null) cotCD.ReadOnly = false;
+
+            foreach (DataGridViewRow dgvRow in dtgTTNVL.Rows)
+            {
+                if (!(dgvRow.DataBoundItem is TTNVLRow nvl))
+                    continue;
+
+                bool duocNhapTay = NvlNhapTayPolicy.ApDung(_CD, nvl);
+
+                if (cotKL != null)
+                {
+                    dgvRow.Cells[nameof(TTNVLRow.KlConLai)].ReadOnly =
+                        duocNhapTay ? false : _klConLaiReadOnlyMacDinh;
+                }
+
+                if (cotCD != null)
+                {
+                    dgvRow.Cells[nameof(TTNVLRow.CdConLai)].ReadOnly =
+                        duocNhapTay ? false : _cdConLaiReadOnlyMacDinh;
+                }
+            }
         }
 
         private TTNVLRow MapDataRowToNvlRow(DataRow src)
@@ -728,8 +862,8 @@ namespace DG_TonKhoBTP_v02.UI
                 CongDoan = GetInt(src, "CongDoan") ?? -1,
                 KlBatDau = GetDouble(src, "KlBatDau") ?? -1,
                 CdBatDau = GetDouble(src, "CdBatDau") ?? -1,
-                KlConLai = GetDouble(src, "KlConLai") ?? -1,
-                CdConLai = GetDouble(src, "CdConLai") ?? -1,
+                KlConLai = GetDouble(src, "KlConLai"),
+                CdConLai = GetDouble(src, "CdConLai"),
                 DuongKinhSoiDong = GetDouble(src, "DuongKinhSoiDong") ?? -1,
                 SoSoi = GetInt(src, "SoSoi") ?? -1,
                 KetCauLoi = GetDouble(src, "KetCauLoi") ?? -1,
@@ -863,6 +997,7 @@ namespace DG_TonKhoBTP_v02.UI
             ResetNvlState();
             _nvlRows.Clear();
             _nvlSource.ResetBindings(false);
+            ApDungQuyenNhapTayChoTatCaDong();
         }
 
         private void ResetNvlState()

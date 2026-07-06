@@ -70,7 +70,7 @@ namespace DG_TonKhoBTP_v02.UI
             SetTenCongDoan(cd.TenCongDoan);
             congDoan = cd;
 
-            timNVL.KeyDown += timNVL_KeyDown;
+            timTenTPCongDoan.KeyDown += timNVL_KeyDown;
         }
 
         public void FocusKhoiLuong()
@@ -142,10 +142,10 @@ namespace DG_TonKhoBTP_v02.UI
         {
             _searchCts?.Cancel();
 
-            timNVL.DataSource = null;
-            timNVL.Items.Clear();
-            timNVL.Text = string.Empty;
-            timNVL.DroppedDown = false;
+            timTenTPCongDoan.DataSource = null;
+            timTenTPCongDoan.Items.Clear();
+            timTenTPCongDoan.Text = string.Empty;
+            timTenTPCongDoan.DroppedDown = false;
 
             ResetController_TimTenSP();
 
@@ -168,12 +168,12 @@ namespace DG_TonKhoBTP_v02.UI
             if (_suppressTextChange) return;
             ResetController_TimTenSP();
 
-            string tenTP = timNVL.Text?.Trim() ?? string.Empty;
+            string tenTP = timTenTPCongDoan.Text?.Trim() ?? string.Empty;
             if (string.IsNullOrWhiteSpace(tenTP))
             {
                 _userNavigatingSuggestions = false;
-                timNVL.DroppedDown = false;
-                timNVL.DataSource = null;
+                timTenTPCongDoan.DroppedDown = false;
+                timTenTPCongDoan.DataSource = null;
                 return;
             }
 
@@ -192,7 +192,7 @@ namespace DG_TonKhoBTP_v02.UI
             }
             catch
             {
-                timNVL.DroppedDown = false;
+                timTenTPCongDoan.DroppedDown = false;
             }
         }
 
@@ -200,7 +200,7 @@ namespace DG_TonKhoBTP_v02.UI
         {
             if (string.IsNullOrWhiteSpace(keyword))
             {
-                timNVL.DroppedDown = false;
+                timTenTPCongDoan.DroppedDown = false;
                 return;
             }
 
@@ -226,24 +226,24 @@ namespace DG_TonKhoBTP_v02.UI
             // Snapshot text tại thời điểm query xong —
             // dùng timNVL.Text thay vì keyword để bắt kịp ký tự user gõ thêm
             // trong lúc DB đang chạy.
-            string currentText = timNVL.Text;
+            string currentText = timTenTPCongDoan.Text;
 
             // Gỡ event trước khi thay đổi DataSource
-            timNVL.SelectionChangeCommitted -= timNVL_SelectionChangeCommitted;
-            timNVL.TextUpdate -= timNVL_TextUpdate;
+            timTenTPCongDoan.SelectionChangeCommitted -= timNVL_SelectionChangeCommitted;
+            timTenTPCongDoan.TextUpdate -= timNVL_TextUpdate;
 
             _suppressTextChange = true;
             try
             {
-                timNVL.DroppedDown = false;
-                timNVL.DataSource = null;
+                timTenTPCongDoan.DroppedDown = false;
+                timTenTPCongDoan.DataSource = null;
 
                 if (sp == null || sp.Rows.Count == 0)
                 {
                     _userNavigatingSuggestions = false;
-                    timNVL.Text = currentText;
-                    timNVL.SelectionStart = timNVL.Text.Length;
-                    timNVL.SelectionLength = 0;
+                    timTenTPCongDoan.Text = currentText;
+                    timTenTPCongDoan.SelectionStart = timTenTPCongDoan.Text.Length;
+                    timTenTPCongDoan.SelectionLength = 0;
                     return;
                 }
 
@@ -257,15 +257,15 @@ namespace DG_TonKhoBTP_v02.UI
                 // lưu DataRowView gốc trong Tag của một wrapper object.
                 // Cách này ComboBox không có DisplayMember → không tự sync Text.
                 // ───────────────────────────────────────────────────────────────
-                timNVL.DisplayMember = "";
-                timNVL.ValueMember = "";
-                timNVL.DataSource = null;
+                timTenTPCongDoan.DisplayMember = "";
+                timTenTPCongDoan.ValueMember = "";
+                timTenTPCongDoan.DataSource = null;
 
-                timNVL.Items.Clear();
+                timTenTPCongDoan.Items.Clear();
                 foreach (DataRow row in sp.Rows)
                 {
                     var drv = sp.DefaultView[sp.Rows.IndexOf(row)];
-                    timNVL.Items.Add(new DataRowViewWrapper(drv));
+                    timTenTPCongDoan.Items.Add(new DataRowViewWrapper(drv));
                 }
 
                 _userNavigatingSuggestions = false;
@@ -281,13 +281,13 @@ namespace DG_TonKhoBTP_v02.UI
                     _suppressTextChange = true;
                     try
                     {
-                        timNVL.SelectedIndex = -1;
-                        timNVL.DroppedDown = true;
+                        timTenTPCongDoan.SelectedIndex = -1;
+                        timTenTPCongDoan.DroppedDown = true;
                         // Set Text SAU DroppedDown — lúc này không còn DisplayMember
                         // nên WinForms không thể overwrite Text theo item nào.
-                        timNVL.Text = textToRestore;
-                        timNVL.SelectionStart = textToRestore.Length;
-                        timNVL.SelectionLength = 0;
+                        timTenTPCongDoan.Text = textToRestore;
+                        timTenTPCongDoan.SelectionStart = textToRestore.Length;
+                        timTenTPCongDoan.SelectionLength = 0;
                     }
                     finally
                     {
@@ -301,8 +301,8 @@ namespace DG_TonKhoBTP_v02.UI
             finally
             {
                 _suppressTextChange = false;
-                timNVL.TextUpdate += timNVL_TextUpdate;
-                timNVL.SelectionChangeCommitted += timNVL_SelectionChangeCommitted;
+                timTenTPCongDoan.TextUpdate += timNVL_TextUpdate;
+                timTenTPCongDoan.SelectionChangeCommitted += timNVL_SelectionChangeCommitted;
             }
         }
 
@@ -327,9 +327,9 @@ namespace DG_TonKhoBTP_v02.UI
             nbrChuyenDoi.Value = Convert.ToDecimal(row["chuyenDoi"] ?? 1);
 
             _userNavigatingSuggestions = false;
-            timNVL.DroppedDown = false;
-            timNVL.SelectedIndex = -1;
-            timNVL.Text = string.Empty;
+            timTenTPCongDoan.DroppedDown = false;
+            timTenTPCongDoan.SelectedIndex = -1;
+            timTenTPCongDoan.Text = string.Empty;
 
             if (oldId != id.Text || oldMa != ma.Text || oldTen != ten.Text)
             {
@@ -394,11 +394,11 @@ namespace DG_TonKhoBTP_v02.UI
             try
             {
                 _userNavigatingSuggestions = false;
-                timNVL.DroppedDown = false;
-                timNVL.SelectedIndex = -1;
-                timNVL.DataSource = null;
-                timNVL.Items.Clear();
-                timNVL.Text = string.Empty;
+                timTenTPCongDoan.DroppedDown = false;
+                timTenTPCongDoan.SelectedIndex = -1;
+                timTenTPCongDoan.DataSource = null;
+                timTenTPCongDoan.Items.Clear();
+                timTenTPCongDoan.Text = string.Empty;
 
                 ResetController_TimTenSP();
             }
@@ -408,13 +408,13 @@ namespace DG_TonKhoBTP_v02.UI
             }
 
             RaiseThanhPhamChanged();
-            timNVL.Focus();
+            timTenTPCongDoan.Focus();
         }
 
         private void timNVL_SelectionChangeCommitted(object sender, EventArgs e)
         {
             // Items được nạp bằng DataRowViewWrapper (không dùng DataSource binding)
-            if (timNVL.SelectedItem is DataRowViewWrapper wrapper)
+            if (timTenTPCongDoan.SelectedItem is DataRowViewWrapper wrapper)
                 FillSelectedThanhPham(wrapper.Row);
         }
 
@@ -422,17 +422,17 @@ namespace DG_TonKhoBTP_v02.UI
         {
             if (e.KeyCode == Keys.Down)
             {
-                if (!timNVL.DroppedDown && timNVL.DataSource != null)
+                if (!timTenTPCongDoan.DroppedDown && timTenTPCongDoan.DataSource != null)
                 {
-                    timNVL.DroppedDown = true;
+                    timTenTPCongDoan.DroppedDown = true;
                 }
 
-                if (timNVL.Items.Count > 0)
+                if (timTenTPCongDoan.Items.Count > 0)
                 {
                     _userNavigatingSuggestions = true;
 
-                    if (timNVL.SelectedIndex < 0)
-                        timNVL.SelectedIndex = 0;
+                    if (timTenTPCongDoan.SelectedIndex < 0)
+                        timTenTPCongDoan.SelectedIndex = 0;
                 }
 
                 e.Handled = true;
@@ -441,7 +441,7 @@ namespace DG_TonKhoBTP_v02.UI
 
             if (e.KeyCode == Keys.Enter)
             {
-                if (_userNavigatingSuggestions && timNVL.SelectedItem is DataRowViewWrapper wrapper)
+                if (_userNavigatingSuggestions && timTenTPCongDoan.SelectedItem is DataRowViewWrapper wrapper)
                 {
                     FillSelectedThanhPham(wrapper.Row);
                     e.Handled = true;

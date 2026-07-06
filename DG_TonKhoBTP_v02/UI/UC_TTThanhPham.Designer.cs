@@ -59,7 +59,7 @@
             this.label19 = new System.Windows.Forms.Label();
             this.label17 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
-            this.timNVL = new System.Windows.Forms.ComboBox();
+            this.timTenTPCongDoan = new System.Windows.Forms.ComboBox();
             this.label3 = new System.Windows.Forms.Label();
             this.id = new System.Windows.Forms.TextBox();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
@@ -425,7 +425,7 @@
             this.tableLayoutPanel4.Controls.Add(this.label19, 6, 0);
             this.tableLayoutPanel4.Controls.Add(this.label17, 4, 0);
             this.tableLayoutPanel4.Controls.Add(this.label5, 2, 0);
-            this.tableLayoutPanel4.Controls.Add(this.timNVL, 1, 0);
+            this.tableLayoutPanel4.Controls.Add(this.timTenTPCongDoan, 1, 0);
             this.tableLayoutPanel4.Controls.Add(this.label3, 0, 0);
             this.tableLayoutPanel4.Controls.Add(this.id, 3, 0);
             this.tableLayoutPanel4.Controls.Add(this.flowLayoutPanel1, 8, 0);
@@ -493,16 +493,16 @@
             this.label5.Text = "ID";
             this.label5.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
-            // timNVL
+            // timTenTPCongDoan
             // 
-            this.timNVL.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.timNVL.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.timNVL.FormattingEnabled = true;
-            this.timNVL.Location = new System.Drawing.Point(73, 3);
-            this.timNVL.Name = "timNVL";
-            this.timNVL.Size = new System.Drawing.Size(374, 28);
-            this.timNVL.TabIndex = 1;
-            this.timNVL.TextUpdate += new System.EventHandler(this.timNVL_TextUpdate);
+            this.timTenTPCongDoan.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.timTenTPCongDoan.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.timTenTPCongDoan.FormattingEnabled = true;
+            this.timTenTPCongDoan.Location = new System.Drawing.Point(73, 3);
+            this.timTenTPCongDoan.Name = "timTenTPCongDoan";
+            this.timTenTPCongDoan.Size = new System.Drawing.Size(374, 28);
+            this.timTenTPCongDoan.TabIndex = 1;
+            this.timTenTPCongDoan.TextUpdate += new System.EventHandler(this.timNVL_TextUpdate);
             // 
             // label3
             // 
@@ -595,7 +595,7 @@
         private System.Windows.Forms.Label label19;
         private System.Windows.Forms.Label label17;
         private System.Windows.Forms.Label label5;
-        private System.Windows.Forms.ComboBox timNVL;
+        private System.Windows.Forms.ComboBox timTenTPCongDoan;
         private System.Windows.Forms.TextBox ten;
         private System.Windows.Forms.TextBox ma;
         private System.Windows.Forms.TextBox id;

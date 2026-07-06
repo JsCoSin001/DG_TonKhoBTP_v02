@@ -58,8 +58,9 @@ namespace DG_TonKhoBTP_v02.Core
         public int? CongDoan { get; set; } = -1;
         public double? KlBatDau { get; set; } = -1;
         public double? CdBatDau { get; set; } = -1;
-        public double? KlConLai { get; set; } = -1;
-        public double? CdConLai { get; set; } = -1;
+        // null = người dùng chưa nhập; 0 = giá trị đã nhập hợp lệ.
+        public double? KlConLai { get; set; } = null;
+        public double? CdConLai { get; set; } = null;
         public double? DuongKinhSoiDong { get; set; } = -1;
         public int? SoSoi { get; set; } = -1;
         public double? KetCauLoi { get; set; } = -1;

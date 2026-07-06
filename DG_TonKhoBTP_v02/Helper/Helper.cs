@@ -230,6 +230,7 @@ namespace DG_TonKhoBTP_v02.Helper
                     t.ChieuDaiSau   AS CDBatDau,
                     t.id            AS id,
                     d.Ma            AS MaNVL,
+                    d.Ten           AS TenNVL,
                     d.DonVi         AS DonVi,
                     d.id            AS DanhSachMaSP_ID,
                     d.ChuyenDoi     AS ChuyenDoi,

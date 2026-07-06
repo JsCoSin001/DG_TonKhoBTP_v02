@@ -209,7 +209,10 @@ namespace DG_TonKhoBTP_v02.UI
                 #region Validate NVL
                 swStep.Restart();
                 List<TTNVLRow> list_TTNVLRows = snap.Sections["UC_TTNVL"] as List<TTNVLRow>;
-                string loiNVL = Validator.TTNVL(list_TTNVLRows, thongTinCaLamViec.May);
+                string loiNVL = Validator.TTNVL(
+                    list_TTNVLRows,
+                    thongTinCaLamViec.May,
+                    _Cd);
                 Debug.WriteLine($"Validator.TTNVL: {swStep.ElapsedMilliseconds} ms (tổng: {swTotal.ElapsedMilliseconds} ms)");
 
                 if (!string.IsNullOrEmpty(loiNVL))

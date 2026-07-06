@@ -3838,8 +3838,8 @@ namespace DG_TonKhoBTP_v02.Database
         {
             const string sql = @"
                 UPDATE TTThanhPham
-                SET KhoiLuongSau = @KhoiLuongSau,
-                    ChieuDaiSau = @ChieuDaiSau,
+                SET KhoiLuongSau = COALESCE(@KhoiLuongSau, KhoiLuongSau),
+                    ChieuDaiSau = COALESCE(@ChieuDaiSau, ChieuDaiSau),
                     QC = @QC,
                     LastEdit_ID = @LastEdit_ID
                 WHERE MaBin = @MaBin;";
@@ -3853,8 +3853,8 @@ namespace DG_TonKhoBTP_v02.Database
 
             foreach (var nvl in nvlList)
             {
-                cmd.Parameters["@KhoiLuongSau"].Value = nvl.KlConLai;
-                cmd.Parameters["@ChieuDaiSau"].Value = nvl.CdConLai;
+                cmd.Parameters["@KhoiLuongSau"].Value = DbValueOrNull(nvl.KlConLai);
+                cmd.Parameters["@ChieuDaiSau"].Value = DbValueOrNull(nvl.CdConLai);
                 cmd.Parameters["@LastEdit_ID"].Value = thongTinSpId;
                 cmd.Parameters["@QC"].Value = nvl.QC;
                 cmd.Parameters["@MaBin"].Value = nvl.BinNVL;
@@ -4160,9 +4160,9 @@ namespace DG_TonKhoBTP_v02.Database
 
             using var cmd = new SQLiteCommand(@"
             UPDATE TTThanhPham
-               SET  KhoiLuongSau = @kl,
+               SET  KhoiLuongSau = COALESCE(@kl, KhoiLuongSau),
                     QC = @QC,
-                    ChieuDaiSau  = @cd,
+                    ChieuDaiSau  = COALESCE(@cd, ChieuDaiSau),
                     LastEdit_id = @lastEditId
              WHERE MaBin       = @mabin ;", conn, tx);
 
@@ -4179,9 +4179,9 @@ namespace DG_TonKhoBTP_v02.Database
                 if (nvl == null || string.IsNullOrWhiteSpace(nvl.BinNVL))
                     continue;
 
-                pKL.Value = nvl.KlConLai;
+                pKL.Value = DbValueOrNull(nvl.KlConLai);
                 QC.Value = nvl.QC;
-                pCD.Value = nvl.CdConLai;
+                pCD.Value = DbValueOrNull(nvl.CdConLai);
                 pBin.Value = nvl.BinNVL.Trim();
 
                 cmd.ExecuteNonQuery();
@@ -4989,8 +4989,8 @@ namespace DG_TonKhoBTP_v02.Database
                 DanhSachMaSP_ID.Value = m.DanhSachMaSP_ID;
                 KlBatDau.Value = m.KlBatDau;
                 CdBatDau.Value = m.CdBatDau;
-                KlConLai.Value = m.KlConLai;
-                CdConLai.Value = m.CdConLai;
+                KlConLai.Value = DbValueOrNull(m.KlConLai);
+                CdConLai.Value = DbValueOrNull(m.CdConLai);
                 QC.Value = m.QC;
                 pDuongKinhSoiDong.Value = (object)m.DuongKinhSoiDong ?? DBNull.Value;
                 pSoSoi.Value = (object)m.SoSoi ?? DBNull.Value;

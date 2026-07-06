@@ -1,4 +1,5 @@
 ﻿using DG_TonKhoBTP_v02.Core;
+using DG_TonKhoBTP_v02.Models;
 using DocumentFormat.OpenXml.VariantTypes;
 using System;
 using System.Collections.Generic;
@@ -20,94 +21,169 @@ namespace DG_TonKhoBTP_v02.Helper
             return 0;
         }
 
-        public static string TTNVL(List<TTNVLRow> data, string tenMay)
+        public static string TTNVL(
+            List<TTNVLRow> data,
+            string tenMay,
+            CongDoan congDoan)
         {
-            string errorMessage = "";
+            if (data == null || data.Count == 0)
+                return EnumStore.ErrorNVL[1];
 
-            (int Id, string Lot)? tupleError = null;
-
-            if (data == null || data.Count == 0) return EnumStore.ErrorNVL[1];
-
-            foreach (TTNVLRow t in data)
+            foreach (TTNVLRow nvl in data)
             {
-                #region B1) Kiểm tra việc nhập hay không nhập dữ liệu
-                string lot = t.BinNVL;
+                string lot = nvl.BinNVL ?? string.Empty;
 
+                // Dòng nhập tay phải được kiểm tra trước điều kiện bỏ qua NVL cũ.
+                if (NvlNhapTayPolicy.ApDung(congDoan, nvl))
+                {
+                    string loiNhapTay = KiemTraDongNhapTay(nvl);
+                    if (!string.IsNullOrEmpty(loiNhapTay))
+                        return TaoThongBaoTheoLot(lot, loiNhapTay);
+                }
+
+                // Giữ nguyên hoạt động hiện tại đối với dòng không có cả hai giá trị bắt đầu.
+                if (nvl.CdBatDau < 0 && nvl.KlBatDau < 0)
+                    continue;
 
                 // IsCorrect == false không chặn lưu tại Validator.TTNVL.
-                // Dòng khác BOM đã được cảnh báo ở lúc quét và sẽ được đồng bộ vào bảng KhacBietBOM khi lưu/update.
+                // Dòng khác BOM đã được cảnh báo khi quét.
 
-                // B1.1) Nếu là nguyên vật liệu thì bỏ qua để kiểm tra dòng khác
-                if (t.CdBatDau < 0 && t.KlBatDau < 0) continue;
-
-
-                // B1.2) Nếu BTP, nếu đơn vị là kg thì phải nhập khối lượng còn lại
-                // Nếu đơn vị là m thì phải nhập chiều dài còn lại
-                //if (t.DonVi == "KG" && t.KlConLai == null)
-                //{
-                //    tupleError = (Id: 2, Lot: lot);
-                //    break;
-                //}
-
-                //if (t.DonVi == "M" && t.CdConLai == null)
-                //{
-                //    tupleError = (Id: 3, Lot: lot);
-                //    break;
-                //}
-
-
-                // B1.3) Các dữ liệu yêu cầu phải được nhập
-                if ( t.KetCauLoi == null || t.DanhSachMaSP_ID == 0 || t.BinNVL == "")
+                if (nvl.KetCauLoi == null ||
+                    nvl.DanhSachMaSP_ID == 0 ||
+                    string.IsNullOrEmpty(nvl.BinNVL))
                 {
-                    tupleError = (Id: 4, Lot: lot);
-                    break;
+                    return TaoThongBaoTheoLot(lot, EnumStore.ErrorNVL[4]);
                 }
 
-
-                // B1.3) Tên QC phải nhập
-                if (t.QC == "")
+                if (string.IsNullOrEmpty(nvl.QC))
                 {
-                    tupleError = (Id: 7, Lot: lot);
-                    break;
+                    return TaoThongBaoTheoLot(lot, EnumStore.ErrorNVL[7]);
                 }
-
-                #endregion
-
-
-                #region B2) Kiểm tra logic khi nhập dữ liệu
-
-                // B2.1) Kiểm tra logic trong các dữ liệu nhập
-
-
-                //if (t.CdBatDau <= t.CdConLai)
-                //{
-                //    tupleError = (Id: 6, Lot: lot);
-                //    break;
-                //}
-
-                //string tenMayNVL = CoreHelper.CatMaBin(t.BinNVL)[0];
-
-                //if (EnumStore.dsTenMayBoQuaKiemTraKhoiLuongConLai.Contains(tenMay) || EnumStore.dsTenMayBoQuaKiemTraKhoiLuongConLai.Contains(tenMayNVL)) continue;
-
-                //if (t.KlBatDau <= t.KlConLai)
-                //{
-                //    tupleError = (Id: 5, Lot: lot);
-                //    break;
-                //}
-
-
-                #endregion
-
             }
 
-            if (tupleError.HasValue)
+            return string.Empty;
+        }
+
+        // Giữ overload cũ để các vị trí khác trong dự án không bị lỗi biên dịch.
+        public static string TTNVL(List<TTNVLRow> data, string tenMay)
+        {
+            return TTNVL(data, tenMay, null);
+        }
+
+        private static string KiemTraDongNhapTay(TTNVLRow nvl)
+        {
+            string donVi = (nvl.DonVi ?? string.Empty)
+                .Trim()
+                .ToUpperInvariant();
+
+            switch (donVi)
             {
-                string errorName = EnumStore.ErrorNVL[tupleError.Value.Id];
-                errorMessage = $"Lot {tupleError.Value.Lot}: {errorName}";
+                case "KG":
+                    return KiemTraDongNhapTayDonViKg(nvl);
+
+                case "M":
+                    return KiemTraDongNhapTayDonViMet(nvl);
+
+                default:
+                    return $"Đơn vị NVL/BTP '{nvl.DonVi}' chưa được hỗ trợ cho chế độ nhập tay.";
+            }
+        }
+
+        private static string KiemTraDongNhapTayDonViKg(TTNVLRow nvl)
+        {
+            if (!CoGiaTriBatDauBatBuoc(nvl.KlBatDau))
+                return "Không có KL bắt đầu hợp lệ.";
+
+            if (!nvl.KlConLai.HasValue)
+                return "Vui lòng nhập KL còn lại.";
+
+            string loi = KiemTraGiaTriConLai(
+                tenCotConLai: "KL còn lại",
+                tenCotBatDau: "KL bắt đầu",
+                giaTriConLai: nvl.KlConLai,
+                giaTriBatDau: nvl.KlBatDau,
+                batBuoc: true);
+
+            if (!string.IsNullOrEmpty(loi))
+                return loi;
+
+            return KiemTraGiaTriConLai(
+                tenCotConLai: "CD còn lại",
+                tenCotBatDau: "CD bắt đầu",
+                giaTriConLai: nvl.CdConLai,
+                giaTriBatDau: nvl.CdBatDau,
+                batBuoc: false);
+        }
+
+        private static string KiemTraDongNhapTayDonViMet(TTNVLRow nvl)
+        {
+            if (!CoGiaTriBatDauBatBuoc(nvl.CdBatDau))
+                return "Không có CD bắt đầu hợp lệ.";
+
+            if (!nvl.CdConLai.HasValue)
+                return "Vui lòng nhập CD còn lại.";
+
+            string loi = KiemTraGiaTriConLai(
+                tenCotConLai: "CD còn lại",
+                tenCotBatDau: "CD bắt đầu",
+                giaTriConLai: nvl.CdConLai,
+                giaTriBatDau: nvl.CdBatDau,
+                batBuoc: true);
+
+            if (!string.IsNullOrEmpty(loi))
+                return loi;
+
+            return KiemTraGiaTriConLai(
+                tenCotConLai: "KL còn lại",
+                tenCotBatDau: "KL bắt đầu",
+                giaTriConLai: nvl.KlConLai,
+                giaTriBatDau: nvl.KlBatDau,
+                batBuoc: false);
+        }
+
+        private static string KiemTraGiaTriConLai(
+            string tenCotConLai,
+            string tenCotBatDau,
+            double? giaTriConLai,
+            double? giaTriBatDau,
+            bool batBuoc)
+        {
+            if (!giaTriConLai.HasValue)
+            {
+                return batBuoc
+                    ? $"Vui lòng nhập {tenCotConLai}."
+                    : string.Empty;
             }
 
-            return errorMessage;
+            if (giaTriConLai.Value < 0)
+                return $"{tenCotConLai} không được âm.";
 
+            // Cột không bắt buộc: nếu không có giá trị bắt đầu theo quy ước hiện tại
+            // (null hoặc < 0) thì chỉ kiểm tra số âm và ghi nhận giá trị người dùng nhập.
+            if (!CoGiaTriBatDauDeSoSanh(giaTriBatDau))
+                return string.Empty;
+
+            if (giaTriConLai.Value >= giaTriBatDau.Value)
+                return $"{tenCotConLai} phải nhỏ hơn {tenCotBatDau}.";
+
+            return string.Empty;
+        }
+
+        private static bool CoGiaTriBatDauBatBuoc(double? value)
+        {
+            return value.HasValue && value.Value > 0;
+        }
+
+        private static bool CoGiaTriBatDauDeSoSanh(double? value)
+        {
+            return value.HasValue && value.Value >= 0;
+        }
+
+        private static string TaoThongBaoTheoLot(string lot, string noiDung)
+        {
+            return string.IsNullOrWhiteSpace(lot)
+                ? noiDung
+                : $"Lot {lot}: {noiDung}";
         }
 
         public static int TTThanhPham(TTThanhPham data)

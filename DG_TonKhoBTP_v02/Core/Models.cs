@@ -156,8 +156,8 @@ namespace DG_TonKhoBTP_v02.Core
         public string May { get; set; }
         public string Ca { get; set; }
         public string NguoiLam { get; set; }
-        public string ToTruong { get; set; }
-        public string QuanDoc { get; set; }
+        public string? ToTruong { get; set; }
+        public string? QuanDoc { get; set; }
     }
 
     public class TTThanhPham

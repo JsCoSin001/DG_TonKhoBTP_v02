@@ -1,72 +1,53 @@
 using DG_TonKhoBTP_v02.Core;
 using DG_TonKhoBTP_v02.Models;
 using System;
-using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace DG_TonKhoBTP_v02.Helper
 {
     /// <summary>
-    /// Chứa duy nhất quy tắc nhận diện dòng NVL/BTP phải nhập tay
-    /// KL còn lại và CD còn lại.
-    ///
-    /// Muốn mở rộng, chỉ cần bổ sung RegexTheoCongDoan bên dưới.
-    /// UC_TTNVL và Validator đều dùng chung class này.
+    /// Nhận diện dòng NVL/BTP phải nhập tay KL còn lại và CD còn lại,
+    /// chỉ dựa trên TenNVL.
     /// </summary>
     public static class NvlNhapTayPolicy
     {
-        private static readonly Dictionary<int, string[]> RegexTheoCongDoan
-            = new Dictionary<int, string[]>
-            {
-                // Bổ sung quy tắc tại đây.
-                // Ví dụ:
-                // {
-                //     11,
-                //     new[]
-                //     {
-                //         @"^C\s+123.*$",
-                //         @"^C\s+dfsf.*$"
-                //     }
-                // }
-            };
-
-        public static bool ApDung(CongDoan congDoan, TTNVLRow nvl)
+        // Nhóm điều kiện dương: chỉ cần khớp ít nhất một biểu thức (OR).
+        private static readonly string[] RegexNhapTay =
         {
-            return ApDung(congDoan, nvl?.TenNVL);
+            @"^C .*R.*$",
+            @"^C-AWG .*$",
+            @"^C 1\.02$",
+            @"^C 1\.20$",
+            @"^A .*R.*$"
+        };
+
+        // Điều kiện loại trừ: TenNVL kết thúc bằng /T.
+        private static readonly string RegexLoaiTru = @"/T$";
+
+        public static bool ApDung(TTNVLRow nvl)
+        {
+            return ApDung(nvl?.TenNVL);
         }
 
-        public static bool ApDung(CongDoan congDoan, string tenNVL)
+        public static bool ApDung(string tenNVL)
         {
-            if (congDoan == null || string.IsNullOrWhiteSpace(tenNVL))
-                return false;
 
-            // Công đoạn hàn nối luôn giữ quy tắc hiện tại: KL/CD còn lại bằng 0.
-            if (congDoan.Id == 9)
+            if (string.IsNullOrWhiteSpace(tenNVL))
                 return false;
-
-            if (!RegexTheoCongDoan.TryGetValue(congDoan.Id, out string[] patterns) ||
-                patterns == null || patterns.Length == 0)
-            {
-                return false;
-            }
 
             string value = tenNVL.Trim();
+            const RegexOptions options =
+                RegexOptions.IgnoreCase | RegexOptions.CultureInvariant;
 
-            foreach (string pattern in patterns)
-            {
-                if (string.IsNullOrWhiteSpace(pattern))
-                    continue;
+            // AND NOT: nếu khớp điều kiện loại trừ thì không áp dụng nhập tay.
+            if (Regex.IsMatch(value, RegexLoaiTru, options))
+                return false;
 
-                if (Regex.IsMatch(
-                    value,
-                    pattern,
-                    RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
-                {
-                    return true;
-                }
-            }
-
-            return false;
+            // OR: chỉ cần khớp ít nhất một điều kiện dương.
+            return RegexNhapTay.Any(pattern =>
+                !string.IsNullOrWhiteSpace(pattern) &&
+                Regex.IsMatch(value, pattern, options));
         }
     }
 }

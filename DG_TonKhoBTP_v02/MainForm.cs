@@ -28,6 +28,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using CoreHelper = DG_TonKhoBTP_v02.Helper.Helper;
+using DG_TonKhoBTP_v02.UI.NghiepVuKhac.SanXuat;
 
 namespace DG_TonKhoBTP_v02
 {
@@ -1519,14 +1520,45 @@ namespace DG_TonKhoBTP_v02
 
         private void btnGopBin_Click(object sender, EventArgs e)
         {
+            // Kiểm tra cấu hình database trước khi yêu cầu xác nhận.
+            if (CoreHelper.KiemTraEmpty(_URL))
+                return;
+
+            string confirmedUsername;
+
+            using (var frmXacNhan = new Frm_ToTruongXacNhan())
+            {
+                DialogResult result = frmXacNhan.ShowDialog(this);
+
+                // Người dùng nhấn nút X hoặc form không xác nhận thành công:
+                // dừng toàn bộ sự kiện, không thay đổi giao diện hiện tại.
+                if (result != DialogResult.OK)
+                    return;
+
+                confirmedUsername = frmXacNhan.ConfirmedUsername;
+            }
 
             _ui.InitCongDoanUI(
                 clickedButton: (Button)sender,
                 thongTinCD: ThongTinChungCongDoan.HanNoi,
-                createSanPham: () => new UC_TTSanPham(new UC_CDBenRuot(false)),
+                createSanPham: () =>
+                    new UC_TTSanPham(new UC_CDBenRuot(false)),
                 rawMaterial: false,
-                errorMessagePrefix: "bện ruột",
-                afterShowUI: root => _ui.HookNvlThanhPham(root)
+                errorMessagePrefix: "hàn nối / ghép bin",
+                afterShowUI: root =>
+                {
+                    UC_TTCaLamViec ucCaLamViec =
+                        FindChild<UC_TTCaLamViec>(root);
+
+                    ucCaLamViec?.SetNguoiLam(confirmedUsername);
+
+                    UC_TTNVL ucNvl =
+                        FindChild<UC_TTNVL>(root);
+
+                    ucNvl?.DisableSearchForCongDoan9();
+
+                    // Công đoạn 9 không dùng NVL nên không HookNvlThanhPham.
+                }
             );
         }
 

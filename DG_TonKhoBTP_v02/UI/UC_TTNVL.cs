@@ -467,8 +467,14 @@ namespace DG_TonKhoBTP_v02.UI
             dtgTTNVL.EndEdit();
             _nvlSource.EndEdit();
 
+            // Công đoạn 9 không sử dụng NVL trong cả tạo mới và chỉnh sửa.
+            // Trả danh sách rỗng trước khi chạy bất kỳ kiểm tra NVL nào.
+            if (_CD?.Id == 9)
+                return new List<TTNVLRow>();
+
             if (!ValidateRequiredVisibleInputColumns())
-                throw new InvalidOperationException("Thông tin nguyên vật liệu chưa hợp lệ.");
+                throw new InvalidOperationException(
+                    "Thông tin nguyên vật liệu chưa hợp lệ.");
 
             return _nvlRows.ToList();
         }
@@ -556,11 +562,32 @@ namespace DG_TonKhoBTP_v02.UI
             _nvlRows.Clear();
             _nvlSource.ResetBindings(false);
         }
+
+        public void DisableSearchForCongDoan9()
+        {
+            cbxTimKiem.Text = string.Empty;
+            cbxTimKiem.Enabled = false;
+            cbxTimKiem.TabStop = false;
+            dtgTTNVL.Enabled = false;
+
+            _nvlRows.Clear();
+            _nvlSource.ResetBindings(false);
+        }
         #endregion
 
         private async void cbxTimKiem_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode != Keys.Enter) return;
+            // Phòng vệ bổ sung: công đoạn 9 không được nhập hoặc quét NVL.
+            if (_CD?.Id == 9)
+            {
+                e.Handled = true;
+                e.SuppressKeyPress = true;
+                return;
+            }
+
+            if (e.KeyCode != Keys.Enter)
+                return;
+
             e.Handled = true;
             e.SuppressKeyPress = true;
 
@@ -736,7 +763,7 @@ namespace DG_TonKhoBTP_v02.UI
                 return;
             }
 
-            if (NvlNhapTayPolicy.ApDung(_CD, nvl))
+            if (NvlNhapTayPolicy.ApDung( nvl))
             {
                 DatGiaTriConLaiVeTrangThaiChuaNhap(nvl);
                 return;
@@ -816,7 +843,7 @@ namespace DG_TonKhoBTP_v02.UI
                 ? dtgTTNVL.Columns[nameof(TTNVLRow.CdConLai)]
                 : null;
 
-            bool coDongNhapTay = _nvlRows.Any(nvl => NvlNhapTayPolicy.ApDung(_CD, nvl));
+            bool coDongNhapTay = _nvlRows.Any(nvl => NvlNhapTayPolicy.ApDung(nvl));
 
             if (!coDongNhapTay)
             {
@@ -834,7 +861,7 @@ namespace DG_TonKhoBTP_v02.UI
                 if (!(dgvRow.DataBoundItem is TTNVLRow nvl))
                     continue;
 
-                bool duocNhapTay = NvlNhapTayPolicy.ApDung(_CD, nvl);
+                bool duocNhapTay = NvlNhapTayPolicy.ApDung(nvl);
 
                 if (cotKL != null)
                 {

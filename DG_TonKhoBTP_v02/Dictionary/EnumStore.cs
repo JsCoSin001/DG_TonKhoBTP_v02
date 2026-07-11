@@ -88,7 +88,8 @@ public static class EnumStore
     public static Dictionary<int, string> ErrorCaLamViec = new Dictionary<int, string>()
     {
         { 1, "Máy chưa được chọn" },
-        { 2, "Người thực hiện đang bị trống" }
+        { 2, "Người thực hiện đang bị trống" },
+        { 3, "Người thực hiện phải là tổ trưởng" }
     };
 
     public static readonly Dictionary<string, List<string>> MayTheoCongDoan =

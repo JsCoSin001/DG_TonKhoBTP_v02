@@ -1,7 +1,10 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data.SQLite;
 using System.Globalization;
+using DG_TonKhoBTP_v02.Core;
+using DG_TonKhoBTP_v02.Database.SanXuat;
+using DG_TonKhoBTP_v02.Dictionary;
 using DG_TonKhoBTP_v02.Models;
 
 namespace DG_TonKhoBTP_v02.Database.Kho
@@ -26,6 +29,7 @@ namespace DG_TonKhoBTP_v02.Database.Kho
                     input.TenKhongDau);
 
                 string maBin = input.MaBin.Trim();
+                DateTime now = DateTime.Now;
 
                 const string sql = @"
                     INSERT INTO TTThanhPham
@@ -49,11 +53,23 @@ namespace DG_TonKhoBTP_v02.Database.Kho
                     cmd.Parameters.AddWithValue("@ChieuDai", input.ChieuDai);
                     cmd.Parameters.AddWithValue("@CongDoan", input.CongDoanId);
                     cmd.Parameters.AddWithValue("@GhiChu", string.IsNullOrWhiteSpace(input.GhiChu) ? (object)DBNull.Value : input.GhiChu.Trim());
-                    cmd.Parameters.AddWithValue("@DateInsert", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture));
+                    cmd.Parameters.AddWithValue("@DateInsert", now.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture));
                     cmd.Parameters.AddWithValue("@NhapKho", 0);
 
                     newId = Convert.ToInt64(cmd.ExecuteScalar(), CultureInfo.InvariantCulture);
                 }
+
+                var caLam = new ThongTinCaLamViec
+                {
+                    Ngay = now.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
+                    May = "NVL",
+                    Ca = "HC",
+                    NguoiLam = UserContext.UserName,
+                    ToTruong = null,
+                    QuanDoc = null
+                };
+
+                SubmitForm_DB.InsertThongTinCaLamViec(conn, tran, caLam, newId);
 
                 tran.Commit();
 

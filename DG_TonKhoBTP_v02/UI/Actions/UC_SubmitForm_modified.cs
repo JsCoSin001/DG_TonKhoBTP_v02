@@ -684,7 +684,7 @@ namespace DG_TonKhoBTP_v02.UI
 
             if (laCongDoan9 && data.IdEdit == 0)
             {
-                result.SaveSuccess = SubmitForm_DB.SaveDataCongDoan9(data.ThongTinCaLamViec, data.ThongTinThanhPham, out error);
+                result.SaveSuccess = SubmitForm_DB.SaveDataCongDoan9( data.ThongTinCaLamViec, data.ThongTinThanhPham,  out error);
 
                 Debug.WriteLine(
                     $"SaveDataCongDoan9: {swDb.ElapsedMilliseconds} ms");
@@ -738,7 +738,7 @@ namespace DG_TonKhoBTP_v02.UI
             }
         }
 
-
+        
         private void PrintLabels(SubmitFormData data)
         {
             if (data.ShouldPrintThanhPham)

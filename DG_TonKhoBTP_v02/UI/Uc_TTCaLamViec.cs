@@ -21,6 +21,11 @@ namespace DG_TonKhoBTP_v02.UI
         public string MayText => cbMay?.Text?.Trim() ?? "";
         public event Action<string> Event_ChonMay;
 
+        public void SetNguoiLam(string username)
+        {
+            nguoiLam.Text = username ?? string.Empty;
+        }
+
         public UC_TTCaLamViec()
         {
             InitializeComponent();
@@ -38,6 +43,8 @@ namespace DG_TonKhoBTP_v02.UI
             _URL = url;
 
             lblTieuDe.Text = ("báo cáo công đoạn " + tieuDe).ToUpper();
+
+            nguoiLam.ReadOnly = _CD.Id == 9;
 
             cbMay.Items.Clear();
             cbMay.Items.AddRange(dsMay.ToArray());

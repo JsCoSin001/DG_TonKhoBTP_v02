@@ -159,6 +159,7 @@
     <Compile Include="Database\DB_XuatNhapKho.cs" />
     <Compile Include="Database\Kho\TonKhoExcelReport_DB.cs" />
     <Compile Include="Database\Kho\XuatKho_DB.cs" />
+    <Compile Include="Database\SanXuat\SubmitForm_DB.cs" />
     <Compile Include="Database\User\PermissionDbHelper.cs" />
     <Compile Include="Database\User_DatabaseHelper.cs" />
     <Compile Include="Dictionary\AppContext.cs" />
@@ -202,6 +203,7 @@
     <Compile Include="Models\LoginClass.cs" />
     <Compile Include="Models\Kho\NhapKho_Model.cs" />
     <Compile Include="Models\OtherClass.cs" />
+    <Compile Include="Models\SanXuat\SubmitForm_Model.cs" />
     <Compile Include="Models\ThanhPhamData.cs" />
     <Compile Include="Models\ThongTinDatHangUpdateModel.cs" />
     <Compile Include="Printer\A4\A4Config.cs" />
@@ -328,6 +330,12 @@
     </Compile>
     <Compile Include="UI\NghiepVuKhac\Kho\XuatKho\UC_XuatKho.Designer.cs">
       <DependentUpon>UC_XuatKho.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\NghiepVuKhac\SanXuat\Frm_ToTruongXacNhan.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\NghiepVuKhac\SanXuat\Frm_ToTruongXacNhan.Designer.cs">
+      <DependentUpon>Frm_ToTruongXacNhan.cs</DependentUpon>
     </Compile>
     <Compile Include="UI\NghiepVuKhac\SanXuat\UC_HaLo.cs">
       <SubType>Form</SubType>
@@ -590,6 +598,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="UI\NghiepVuKhac\Kho\XuatKho\UC_XuatKho.resx">
       <DependentUpon>UC_XuatKho.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\NghiepVuKhac\SanXuat\Frm_ToTruongXacNhan.resx">
+      <DependentUpon>Frm_ToTruongXacNhan.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UI\NghiepVuKhac\SanXuat\UC_HaLo.resx">
       <DependentUpon>UC_HaLo.cs</DependentUpon>

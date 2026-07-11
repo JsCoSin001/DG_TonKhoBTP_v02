@@ -18,6 +18,7 @@ namespace DG_TonKhoBTP_v02.Helper
             if (string.IsNullOrWhiteSpace(data.NguoiLam))
                 return 2;
 
+
             return 0;
         }
 
@@ -34,7 +35,7 @@ namespace DG_TonKhoBTP_v02.Helper
                 string lot = nvl.BinNVL ?? string.Empty;
 
                 // Dòng nhập tay phải được kiểm tra trước điều kiện bỏ qua NVL cũ.
-                if (NvlNhapTayPolicy.ApDung(congDoan, nvl))
+                if (NvlNhapTayPolicy.ApDung(nvl))
                 {
                     string loiNhapTay = KiemTraDongNhapTay(nvl);
                     if (!string.IsNullOrEmpty(loiNhapTay))

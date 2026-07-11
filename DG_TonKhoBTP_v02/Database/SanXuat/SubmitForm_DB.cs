@@ -1274,8 +1274,10 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
             if (conn == null) throw new ArgumentNullException(nameof(conn));
 
             // Chưa chọn thành phẩm hoặc chưa có công đoạn hợp lệ thì không ghi khác biệt BOM.
-            if (selectedProductId <= 0 || currentCongDoanId <= 0)
+            if (selectedProductId <= 0 || currentCongDoanId <= 0 || currentCongDoanId == 9)
+            {
                 return null;
+            }
 
             const string sql = @"
                 SELECT

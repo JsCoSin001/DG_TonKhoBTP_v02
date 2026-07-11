@@ -345,7 +345,7 @@ namespace DG_TonKhoBTP_v02.UI
                 return true;
 
             int currentCongDoanId = congDoan?.Id ?? 0;
-            if (currentCongDoanId <= 0)
+            if (currentCongDoanId <= 0 || currentCongDoanId == 9)
                 return true;
 
             int? congDoanThucTe;

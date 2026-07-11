@@ -170,6 +170,7 @@
     <Compile Include="Helper\ChiTietCongDoan.cs" />
     <Compile Include="Helper\DataGridViewUtils.cs" />
     <Compile Include="Helper\NvlNhapTayPolicy.cs" />
+    <Compile Include="Helper\PhanTachCauTrucDay.cs" />
     <Compile Include="Helper\Reuseable\AutoCompleteDropDown.cs">
       <SubType>Form</SubType>
     </Compile>

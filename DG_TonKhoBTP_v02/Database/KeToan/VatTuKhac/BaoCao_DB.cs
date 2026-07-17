@@ -130,8 +130,13 @@ namespace DG_TonKhoBTP_v02.Database.KeToan.VatTuKhac
                         tt.id AS ThongTinDatHang_ID,
                         dh.MaDon AS MaDon,
                         dh.NguoiDat AS NguoiDat,
-                        tt.TenVatTu AS TenVatTu,
+                        CASE
+                            WHEN tt.TenVatTu IS NULL OR TRIM(tt.TenVatTu) = ''
+                                THEN sp.Ten
+                            ELSE tt.TenVatTu
+                        END AS TenVatTu,
                         tt.SoLuongMua AS SoLuongMua,
+                        COALESCE(hv.TongHangVe, 0) AS TongHangVe,
                         tt.MucDichMua AS MucDichMua,
                         strftime('%d/%m/%Y', tt.NgayGiao) AS NgayGiao,
                         strftime('%d/%m/%Y', tt.Date_Insert) AS Date_Insert,
@@ -141,6 +146,15 @@ namespace DG_TonKhoBTP_v02.Database.KeToan.VatTuKhac
                         ON tt.DanhSachDatHang_ID = dh.id
                     LEFT JOIN DanhSachMaSP sp
                         ON tt.DanhSachMaSP_ID = sp.id
+                    LEFT JOIN (
+                        SELECT
+                            ThongTinDatHang_ID,
+                            SUM(SoLuong) AS TongHangVe
+                        FROM LichSuXuatNhap
+                        WHERE SoLuong > 0
+                        GROUP BY ThongTinDatHang_ID
+                    ) hv
+                        ON hv.ThongTinDatHang_ID = tt.id
                     WHERE 1 = 1
                 ");
                 var parameters = new List<SQLiteParameter>();

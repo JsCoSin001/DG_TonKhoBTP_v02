@@ -345,6 +345,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
                 queryFunc: async (keyword, ct) =>
                 {
                     List<string> list;
+
+                    Console.WriteLine(_isNhapKho);
                     if (_isNhapKho)
                         list = await DatabaseHelper.TimKiemTheoTenVatTu(keyword, _kieu, IsEdit, IsKhac);
                     else

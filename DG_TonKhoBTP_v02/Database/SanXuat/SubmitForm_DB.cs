@@ -1,4 +1,4 @@
-using DG_TonKhoBTP_v02.Core;
+﻿using DG_TonKhoBTP_v02.Core;
 using DG_TonKhoBTP_v02.Models;
 using DG_TonKhoBTP_v02.Models.SanXuat;
 using System;
@@ -1275,9 +1275,7 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
 
             // Chưa chọn thành phẩm hoặc chưa có công đoạn hợp lệ thì không ghi khác biệt BOM.
             if (selectedProductId <= 0 || currentCongDoanId <= 0 || currentCongDoanId == 9)
-            {
                 return null;
-            }
 
             const string sql = @"
                 SELECT

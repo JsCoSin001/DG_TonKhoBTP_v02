@@ -113,6 +113,7 @@ namespace DG_TonKhoBTP_v02.Printer.A4
         public class WarehouseIssuesPrintData
         {
             public CompanyInfo Company { get; set; } = new CompanyInfo();
+            public string TieuDe { get; set; } = "PHIẾU XUẤT KHO";
             public string NgayIn { get; set; }
             public string So { get; set; }       // Số phiếu (Nợ:)
             public string Co { get; set; }       // Có: (mặc định "N156" hoặc để trống)

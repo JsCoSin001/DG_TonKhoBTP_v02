@@ -1312,7 +1312,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
                 }
 
                 DateTime ngayPhieu = GetNgayPhieu(firstRow);
-                string lyDo = GetLyDoInPhieu();
+                string lyDo = GetLyDoInPhieu(firstRow);
 
                 if (_model.IsNhap)
                     InPhieuNhapKhoV2(firstRow, ngayPhieu, lyDo);
@@ -1404,6 +1404,9 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
 
             var data = new WarehouseIssuesPrintData
             {
+                TieuDe = _model.IsDichVu
+                    ? "XÁC NHẬN DỊCH VỤ"
+                    : "PHIẾU XUẤT KHO",
                 NgayIn = ngayPhieu.ToString("'Ngày' dd 'tháng' MM 'năm' yyyy"),
                 So = "",
                 Co = "",
@@ -1415,7 +1418,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
                 Signature = new SignatureInfo
                 {
                     CheckerTitle = "Kế toán",
-                    RequesterTitle = "Người nhận hàng",
+                    RequesterTitle = "Người giao hàng",
                     FactoryDirectorTitle = "Thủ kho",
                     DirectorTitle = "Giám đốc"
                 }
@@ -1515,6 +1518,22 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
                 return lyDo;
 
             return _model.IsKhac ? "Khác" : "Theo đề nghị";
+        }
+
+        private string GetLyDoInPhieu(DataGridViewRow firstRow)
+        {
+            if (string.Equals(
+                _model.Ten,
+                TenKieuNhapXuat.DICH_VU,
+                StringComparison.OrdinalIgnoreCase))
+            {
+                return FirstNotEmpty(
+                    GetGridString(firstRow, "NhaCungCap"),
+                    cbxNcc.Text?.Trim()
+                );
+            }
+
+            return GetLyDoInPhieu();
         }
 
         private bool IsValidDataRow(DataGridViewRow row)

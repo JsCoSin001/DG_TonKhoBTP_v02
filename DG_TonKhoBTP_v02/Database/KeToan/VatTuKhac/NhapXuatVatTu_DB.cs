@@ -598,36 +598,36 @@ namespace DG_TonKhoBTP_v02.Database
             CancellationToken cancellationToken)
         {
             string sql = @"
-        SELECT
-            dms.id AS id,
-            NULL AS ThongTinDatHang_ID,
-            dms.id AS DanhSachMaSP_ID,
-            dms.Ten AS ten,
-            dms.Ma AS ma,
-            dms.DonVi AS donvi,
-            '' AS MaDon,
-            SUM(lsxn.SoLuong) AS SoLuongYeuCau,
-            SUM(lsxn.SoLuong) AS SoLuongTon,
-            NULL AS DonGia
-        FROM LichSuXuatNhap lsxn
-        INNER JOIN ThongTinDatHang ttdh
-            ON ttdh.id = lsxn.ThongTinDatHang_ID
-        INNER JOIN DanhSachMaSP dms
-            ON dms.id = ttdh.DanhSachMaSP_ID
-        WHERE dms.Active = 1
-          AND (
-                dms.Ten LIKE @kw
-                OR IFNULL(dms.Ten_KhongDau, '') LIKE @kwNoDau
-          )
-        GROUP BY
-            dms.id,
-            dms.Ten,
-            dms.Ma,
-            dms.DonVi
-        HAVING SUM(lsxn.SoLuong) > 0
-        ORDER BY dms.Ten
-        LIMIT @limit;
-    ";
+                SELECT
+                    dms.id AS id,
+                    NULL AS ThongTinDatHang_ID,
+                    dms.id AS DanhSachMaSP_ID,
+                    dms.Ten AS ten,
+                    dms.Ma AS ma,
+                    dms.DonVi AS donvi,
+                    '' AS MaDon,
+                    SUM(lsxn.SoLuong) AS SoLuongYeuCau,
+                    SUM(lsxn.SoLuong) AS SoLuongTon,
+                    NULL AS DonGia
+                FROM LichSuXuatNhap lsxn
+                INNER JOIN ThongTinDatHang ttdh
+                    ON ttdh.id = lsxn.ThongTinDatHang_ID
+                INNER JOIN DanhSachMaSP dms
+                    ON dms.id = ttdh.DanhSachMaSP_ID
+                WHERE dms.Active = 1
+                  AND (
+                        dms.Ten LIKE @kw
+                        OR IFNULL(dms.Ten_KhongDau, '') LIKE @kwNoDau
+                  )
+                GROUP BY
+                    dms.id,
+                    dms.Ten,
+                    dms.Ma,
+                    dms.DonVi
+                HAVING SUM(lsxn.SoLuong) > 0
+                ORDER BY dms.Ten
+                LIMIT @limit;
+            ";
 
             return ExecuteSearchQuery(
                 sql,
@@ -1116,8 +1116,7 @@ namespace DG_TonKhoBTP_v02.Database
             var rows = GetTonTheoThongTinDatHang(
                 conn,
                 tran,
-                model.DanhSachMaSPId.Value,
-                model.NguoiLam);
+                model.DanhSachMaSPId.Value);
 
             foreach (DataRow row in rows.Rows)
                 tongTon += ToDecimal(row["SoLuongTon"]);
@@ -1439,20 +1438,16 @@ namespace DG_TonKhoBTP_v02.Database
         private static DataTable GetTonTheoThongTinDatHang(
             SQLiteConnection conn,
             SQLiteTransaction tran,
-            int danhSachMaSPId,
-            string nguoiLam)
+            int danhSachMaSPId)
                 {
-                    string sql = @"
+                    const string sql = @"
                 SELECT
                     ttdh.id AS ThongTinDatHang_ID,
                     SUM(lsxn.SoLuong) AS SoLuongTon
                 FROM LichSuXuatNhap lsxn
                 INNER JOIN ThongTinDatHang ttdh
                     ON ttdh.id = lsxn.ThongTinDatHang_ID
-                INNER JOIN DanhSachMaSP dms
-                    ON dms.id = ttdh.DanhSachMaSP_ID
-                WHERE dms.id = @danhSachMaSPId
-                  AND IFNULL(lsxn.NguoiLam, '') = @nguoiLam
+                WHERE ttdh.DanhSachMaSP_ID = @danhSachMaSPId
                 GROUP BY ttdh.id
                 HAVING SUM(lsxn.SoLuong) > 0
                 ORDER BY ttdh.id ASC;
@@ -1462,8 +1457,9 @@ namespace DG_TonKhoBTP_v02.Database
 
             using (var cmd = new SQLiteCommand(sql, conn, tran))
             {
-                cmd.Parameters.AddWithValue("@danhSachMaSPId", danhSachMaSPId);
-                cmd.Parameters.AddWithValue("@nguoiLam", nguoiLam ?? string.Empty);
+                cmd.Parameters.AddWithValue(
+                    "@danhSachMaSPId",
+                    danhSachMaSPId);
 
                 using (var adapter = new SQLiteDataAdapter(cmd))
                 {
@@ -1474,7 +1470,7 @@ namespace DG_TonKhoBTP_v02.Database
             return dt;
         }
 
-        
+
         private static DataTable LoadChiTietNhapHoacDichVu(
             SQLiteConnection conn,
             KieuNhapXuat_Model model,

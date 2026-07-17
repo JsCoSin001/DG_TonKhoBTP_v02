@@ -1,6 +1,8 @@
 ﻿using DG_TonKhoBTP_v02.Database;
+using DG_TonKhoBTP_v02.Database.KeToan.VatTuKhac;
 using DG_TonKhoBTP_v02.Helper;
 using DG_TonKhoBTP_v02.Models;
+using DG_TonKhoBTP_v02.Models.KeToan.VatTuKhac;
 using DG_TonKhoBTP_v02.UI.Helper;          // WaitingHelper (có sẵn)
 using System;
 using System.Collections.Generic;
@@ -85,9 +87,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
 
         private void LoadNguoiThucHien()
         {
-            string sql = "SELECT username FROM users";
-
-            DataTable dt = DatabaseHelper.GetData(sql);
+            DataTable dt = BaoCao_DB.GetNguoiThucHien();
 
             // Tạo dòng mới và chèn vào vị trí 0
             DataRow row = dt.NewRow();
@@ -122,7 +122,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
                 await WaitingHelper.RunWithWaiting(async () =>
                 {
 
-                    dt = await Task.Run(() => DatabaseHelper.TinhTonKho(ngayBatDau, ngayKetThuc, khoId));
+                    dt = await Task.Run(() => BaoCao_DB.TinhTonKho(ngayBatDau, ngayKetThuc, khoId));
                 }, "ĐANG TẢI LỊCH SỬ XUẤT NHẬP...");
 
                 if (cbxExportExcel.Checked)
@@ -207,10 +207,10 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
                     {
                         switch (kieu)
                         {
-                            case 1: return DatabaseHelper.GetBaoCaoDatHang_v2(nguoiThucHien, ngayBatDau, ngayKetThuc);
-                            case 2: return DatabaseHelper.GetBaoCaoLichSuXuatNhap_v2(kho, nguoiThucHien, true, ngayBatDau, ngayKetThuc);
-                            case 3: return DatabaseHelper.GetBaoCaoLichSuXuatNhap_v2(kho, nguoiThucHien, false, ngayBatDau, ngayKetThuc);
-                            default: return DatabaseHelper.GetBaoCaoDatHang_v2(nguoiThucHien, ngayBatDau, ngayKetThuc);
+                            case 1: return BaoCao_DB.GetBaoCaoDatHang(nguoiThucHien, ngayBatDau, ngayKetThuc);
+                            case 2: return BaoCao_DB.GetBaoCaoLichSuXuatNhap(kho, nguoiThucHien, true, ngayBatDau, ngayKetThuc);
+                            case 3: return BaoCao_DB.GetBaoCaoLichSuXuatNhap(kho, nguoiThucHien, false, ngayBatDau, ngayKetThuc);
+                            default: return BaoCao_DB.GetBaoCaoDatHang(nguoiThucHien, ngayBatDau, ngayKetThuc);
                         }
                     });
                 }, "ĐANG TẢI DỮ LIỆU BÁO CÁO...");
@@ -240,9 +240,10 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
                     }
 
 
+                    DataTable exportTable = CreateExportTable(dt);
                     await WaitingHelper.RunWithWaiting(
                         () => ExcelExporter.ExportToPath(
-                            dt, 
+                            exportTable,
                             filePath,
                             cbxXuatTCVN.Checked ? ExcelExportTextFormat.TCVN : ExcelExportTextFormat.Unicode
                         ),
@@ -285,15 +286,11 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
 
             try
             {
-                await WaitingHelper.RunWithWaiting(async () =>
-                {
-                    // UpdateCanEdit đọc DataGridView (UI object) → PHẢI chạy trên UI thread.
-                    // Dùng Invoke để đảm bảo khi WaitingHelper wrap trong Task.Run.
-                    await Task.Run(() => { });   // yield để waiting form có thể render
+                List<BaoCao_Model.CanEdit> items = GetCanEditItems(grvBaoCao, COL_CHECK);
 
-                    // Gọi thẳng trên UI thread sau khi yield
-                    DatabaseHelper.UpdateCanEdit(grvBaoCao, COL_CHECK);
-                }, "ĐANG CẬP NHẬT TRẠNG THÁI...");
+                await WaitingHelper.RunWithWaiting(
+                    () => BaoCao_DB.UpdateCanEdit(items),
+                    "ĐANG CẬP NHẬT TRẠNG THÁI...");
 
                 FrmWaiting.ShowGifAlert("Cập nhật thành công!", "THÔNG BÁO", EnumStore.Icon.Success);
             }
@@ -794,10 +791,10 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
                 // ── Xác nhận TRÊN UI THREAD (trước await) ──
                 if (kieu == 1)
                 {
-                    if (!dgr.Columns.Contains("DanhSachDatHang_ID"))
-                        throw new Exception("Không tìm thấy cột DanhSachDatHang_ID.");
+                    if (!dgr.Columns.Contains("dh_id"))
+                        throw new Exception("Không tìm thấy cột dh_id.");
 
-                    int id = Convert.ToInt32(row.Cells["DanhSachDatHang_ID"].Value);
+                    int id = Convert.ToInt32(row.Cells["dh_id"].Value);
                     string tenHien = string.IsNullOrWhiteSpace(ten) ? $"ID {id}" : ten;
 
                     var confirm = MessageBox.Show(
@@ -811,15 +808,15 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
 
                     SetToolbarEnabled(false);
                     await WaitingHelper.RunWithWaiting(
-                        () => DatabaseHelper.DeleteDanhSachDatHang(id),
+                        () => BaoCao_DB.DeleteDanhSachDatHang(id),
                         "ĐANG XÓA...");
                 }
                 else if (kieu == 2 || kieu == 3)
                 {
-                    if (!dgr.Columns.Contains("LichSu_ID"))
-                        throw new Exception("Không tìm thấy cột LichSu_ID.");
+                    if (!dgr.Columns.Contains("lsxn_id"))
+                        throw new Exception("Không tìm thấy cột lsxn_id.");
 
-                    int id = Convert.ToInt32(row.Cells["LichSu_ID"].Value);
+                    int id = Convert.ToInt32(row.Cells["lsxn_id"].Value);
                     string tenHien = string.IsNullOrWhiteSpace(ten) ? $"ID {id}" : ten;
 
                     var confirm = MessageBox.Show(
@@ -833,7 +830,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
 
                     SetToolbarEnabled(false);
                     await WaitingHelper.RunWithWaiting(
-                        () => DatabaseHelper.DeleteLichSuXuatNhap(id),
+                        () => BaoCao_DB.DeleteLichSuXuatNhap(id),
                         "ĐANG XÓA...");
                 }
                 else
@@ -886,7 +883,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
 
                     SetToolbarEnabled(false);
                     await WaitingHelper.RunWithWaiting(
-                        () => DatabaseHelper.UpdateThongTinDatHang(model),
+                        () => BaoCao_DB.UpdateThongTinDatHang(model),
                         "ĐANG CẬP NHẬT...");
 
                     FrmWaiting.ShowGifAlert(
@@ -899,7 +896,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
 
                     SetToolbarEnabled(false);
                     await WaitingHelper.RunWithWaiting(
-                        () => DatabaseHelper.UpdateLichSuXuatNhap(model),
+                        () => BaoCao_DB.UpdateLichSuXuatNhap(model),
                         "ĐANG CẬP NHẬT...");
 
                     FrmWaiting.ShowGifAlert(
@@ -975,21 +972,26 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
         //  ĐỌC MODEL TỪ ROW  (không thay đổi logic)
         // ═══════════════════════════════════════════════════════════════════════
 
-        private LichSuXuatNhapUpdateModel GetLichSuXuatNhapUpdateModel(DataGridViewRow row)
+        private BaoCao_Model.LichSuXuatNhapUpdate GetLichSuXuatNhapUpdateModel(DataGridViewRow row)
         {
             decimal soLuong = 0;
             if (row.DataGridView.Columns.Contains("SoLuong") &&
                 row.Cells["SoLuong"].Value != DBNull.Value)
                 soLuong = Convert.ToDecimal(row.Cells["SoLuong"].Value);
 
-            return new LichSuXuatNhapUpdateModel
+            int? danhSachKhoId = null;
+            if (row.DataGridView.Columns.Contains("DanhSachKho_ID") &&
+                row.Cells["DanhSachKho_ID"].Value != null &&
+                row.Cells["DanhSachKho_ID"].Value != DBNull.Value)
+                danhSachKhoId = Convert.ToInt32(row.Cells["DanhSachKho_ID"].Value);
+
+            return new BaoCao_Model.LichSuXuatNhapUpdate
             {
-                Id = Convert.ToInt32(row.Cells["LichSu_ID"].Value),
+                Id = Convert.ToInt32(row.Cells["lsxn_id"].Value),
                 SoLuong = soLuong,
-                NguoiGiaoNhan = row.DataGridView.Columns.Contains("NguoiGiao_Nhan")
-                                    ? row.Cells["NguoiGiao_Nhan"].Value?.ToString()?.Trim() ?? "" : "",
-                Kho = row.DataGridView.Columns.Contains("Kho")
-                                    ? row.Cells["Kho"].Value?.ToString()?.Trim() ?? "" : "",
+                NguoiGiaoNhan = row.DataGridView.Columns.Contains("NguoiGiaoNhan")
+                                    ? row.Cells["NguoiGiaoNhan"].Value?.ToString()?.Trim() ?? "" : "",
+                DanhSachKhoId = danhSachKhoId,
                 LyDo = row.DataGridView.Columns.Contains("LyDo")
                                     ? row.Cells["LyDo"].Value?.ToString()?.Trim() ?? "" : "",
                 Ngay = row.DataGridView.Columns.Contains("NgayXuatNhap")
@@ -1001,7 +1003,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
             };
         }
 
-        private ThongTinDatHangUpdateModel GetThongTinDatHangUpdateModel(DataGridViewRow row)
+        private BaoCao_Model.ThongTinDatHangUpdate GetThongTinDatHangUpdateModel(DataGridViewRow row)
         {
             decimal soLuongMua = 0;
             if (row.DataGridView.Columns.Contains("SoLuongMua") &&
@@ -1012,11 +1014,14 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
                 soLuongMua = Convert.ToDecimal(row.Cells["SL_YeuCau"].Value);
 
             decimal donGia = 0;
-            if (row.DataGridView.Columns.Contains("DonGia") &&
-                row.Cells["DonGia"].Value != DBNull.Value)
+            if (row.DataGridView.Columns.Contains("tt_DonGia") &&
+                row.Cells["tt_DonGia"].Value != DBNull.Value)
+                donGia = Convert.ToDecimal(row.Cells["tt_DonGia"].Value);
+            else if (row.DataGridView.Columns.Contains("DonGia") &&
+                     row.Cells["DonGia"].Value != DBNull.Value)
                 donGia = Convert.ToDecimal(row.Cells["DonGia"].Value);
 
-            return new ThongTinDatHangUpdateModel
+            return new BaoCao_Model.ThongTinDatHangUpdate
             {
                 Id = Convert.ToInt32(row.Cells["ThongTinDatHang_ID"].Value),
                 TenVatTu = row.DataGridView.Columns.Contains("TenVatTu")
@@ -1030,6 +1035,51 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
                 GhiChu = row.DataGridView.Columns.Contains("GhiChu")
                                 ? row.Cells["GhiChu"].Value?.ToString()?.Trim() ?? "" : ""
             };
+        }
+
+        private static List<BaoCao_Model.CanEdit> GetCanEditItems(DataGridView dgr, string checkColumnName)
+        {
+            var items = new List<BaoCao_Model.CanEdit>();
+
+            if (dgr == null ||
+                !dgr.Columns.Contains(checkColumnName) ||
+                !dgr.Columns.Contains("lsxn_id"))
+                return items;
+
+            foreach (DataGridViewRow row in dgr.Rows)
+            {
+                if (row.IsNewRow) continue;
+
+                var idValue = row.Cells["lsxn_id"].Value;
+                if (idValue == null || idValue == DBNull.Value) continue;
+
+                bool isChecked = row.Cells[checkColumnName].Value != null &&
+                                 Convert.ToBoolean(row.Cells[checkColumnName].Value);
+
+                items.Add(new BaoCao_Model.CanEdit
+                {
+                    Id = Convert.ToInt32(idValue),
+                    Value = isChecked ? 0 : 1
+                });
+            }
+
+            return items;
+        }
+
+        private static DataTable CreateExportTable(DataTable source)
+        {
+            if (source == null) return null;
+
+            DataTable result = source.Copy();
+            string[] internalColumns = { "ThongTinDatHang_ID", "DanhSachKho_ID" };
+
+            foreach (string columnName in internalColumns)
+            {
+                if (result.Columns.Contains(columnName))
+                    result.Columns.Remove(columnName);
+            }
+
+            return result;
         }
 
         // ═══════════════════════════════════════════════════════════════════════

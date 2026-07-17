@@ -256,8 +256,12 @@ namespace DG_TonKhoBTP_v02.Printer.A4
         private void DrawTitleBlock(Graphics g, ref int y, int x, int width,
             WarehouseIssuesPrintData data)
         {
+            string tieuDe = string.IsNullOrWhiteSpace(data.TieuDe)
+                ? "PHIẾU XUẤT KHO"
+                : data.TieuDe;
+
             using (var sf = new StringFormat { Alignment = StringAlignment.Center })
-                g.DrawString("PHIẾU XUẤT KHO",
+                g.DrawString(tieuDe,
                     new Font("Times New Roman", 18f, FontStyle.Bold),
                     Brushes.Black, new RectangleF(x, y, width, 28), sf);
             y += 30;

@@ -32,7 +32,9 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
 
             if (cbxdsKho.SelectedValue == null ||
                 cbxdsKho.SelectedValue == DBNull.Value)
+            {
                 return null;
+            }
 
             return Convert.ToInt32(cbxdsKho.SelectedValue);
         }
@@ -155,7 +157,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
                         return;
                     }
 
-                    string filePath = null;
+                    string filePath;
 
                     using (var sfd = new SaveFileDialog
                     {
@@ -320,7 +322,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
                         return;
                     }
 
-                    string filePath = null;
+                    string filePath;
 
                     using (var sfd = new SaveFileDialog
                     {
@@ -342,7 +344,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
                         filePath = sfd.FileName;
                     }
 
-                    DataTable exportTable = CreateExportTable(dt, kieu);
+                    DataTable exportTable =
+                        CreateExportTable(dt, kieu);
 
                     await WaitingHelper.RunWithWaiting(
                         () => ExcelExporter.ExportToPath(
@@ -389,7 +392,9 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
             catch (Exception ex)
             {
                 FrmWaiting.ShowGifAlert(
-                    CoreHelper.ShowErrorDatabase(ex, "BÁO CÁO"),
+                    CoreHelper.ShowErrorDatabase(
+                        ex,
+                        "BÁO CÁO"),
                     "LỖI TẢI DỮ LIỆU");
             }
             finally
@@ -409,8 +414,10 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
 
             try
             {
+                CommitPendingGridEdits(grvBaoCao);
+
                 List<BaoCao_Model.CanEdit> items =
-                    GetCanEditItems(grvBaoCao, COL_CHECK);
+                    GetCanEditItems(grvBaoCao);
 
                 await WaitingHelper.RunWithWaiting(
                     () => BaoCao_DB.UpdateCanEdit(items),
@@ -439,11 +446,6 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
         //  LOAD & HIỂN THỊ DỮ LIỆU
         // ═══════════════════════════════════════════════════════════════════════
 
-        /// <summary>
-        /// Gán DataTable vào lưới rồi định dạng cột.
-        /// applyFormatTimDL = false → ApplyFormatInOut
-        /// applyFormatTimDL = true  → ApplyFormatTimDL
-        /// </summary>
         private void HienThiLenLuoi(
             DataTable dt,
             bool applyFormatTimDL,
@@ -451,7 +453,6 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
         {
             pnBaoCao.Controls.Clear();
 
-            // ── Tạo filterPanel ──
             _filterPanel = new Panel
             {
                 Dock = DockStyle.Top,
@@ -470,16 +471,19 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
 
             if (dt == null || dt.Rows.Count == 0)
             {
-                FrmWaiting.ShowGifAlert("Không tìm thấy dữ liệu");
+                FrmWaiting.ShowGifAlert(
+                    "Không tìm thấy dữ liệu");
+
                 return;
             }
+
+            NormalizeCanEditColumn(dt, kieu);
 
             _dataView = dt.DefaultView;
 
             grvBaoCao.AutoGenerateColumns = true;
             grvBaoCao.DataSource = _dataView;
 
-            // Đồng bộ filterBox khi scroll hoặc thay đổi độ rộng cột
             grvBaoCao.Scroll -= GrvBaoCao_Scroll;
             grvBaoCao.Scroll += GrvBaoCao_Scroll;
 
@@ -491,7 +495,9 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
 
             if (applyFormatTimDL)
             {
-                ApplyFormatTimDL(grvBaoCao, kieu);
+                ApplyFormatTimDL(
+                    grvBaoCao,
+                    kieu);
             }
             else
             {
@@ -538,24 +544,25 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
                     BorderStyle = BorderStyle.FixedSingle
                 };
 
-                tb.TextChanged += (s, e) => ApplyFilter();
+                tb.TextChanged +=
+                    (s, e) => ApplyFilter();
 
                 _filterPanel.Controls.Add(tb);
                 _filterBoxes[i] = tb;
             }
 
-            // Căn vị trí sau khi grid đã render
-            grvBaoCao.ColumnAdded -= GrvBaoCao_ColumnAdded;
-            grvBaoCao.ColumnAdded += GrvBaoCao_ColumnAdded;
+            grvBaoCao.ColumnAdded -=
+                GrvBaoCao_ColumnAdded;
 
-            // Căn ngay sau khi form/control hiển thị
+            grvBaoCao.ColumnAdded +=
+                GrvBaoCao_ColumnAdded;
+
             if (ParentForm != null)
             {
                 ParentForm.Shown -= ParentForm_Shown;
                 ParentForm.Shown += ParentForm_Shown;
             }
 
-            // Căn ngay lập tức nếu đã visible
             if (IsHandleCreated)
             {
                 BeginInvoke(
@@ -592,15 +599,19 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
             Panel filterPanel,
             TextBox[] filterBoxes)
         {
-            if (filterBoxes == null || filterPanel == null)
+            if (filterBoxes == null ||
+                filterPanel == null)
+            {
                 return;
+            }
 
             for (int i = 0; i < filterBoxes.Length; i++)
             {
                 if (filterBoxes[i] == null)
                     continue;
 
-                string colName = filterBoxes[i].Tag?.ToString();
+                string colName =
+                    filterBoxes[i].Tag?.ToString();
 
                 if (colName == null ||
                     !dgr.Columns.Contains(colName))
@@ -609,7 +620,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
                     continue;
                 }
 
-                DataGridViewColumn col = dgr.Columns[colName];
+                DataGridViewColumn col =
+                    dgr.Columns[colName];
 
                 Rectangle rect =
                     dgr.GetColumnDisplayRectangle(
@@ -622,16 +634,21 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
                     rect.Width,
                     filterPanel.Height - 4);
 
-                filterBoxes[i].Visible = rect.Width > 0;
+                filterBoxes[i].Visible =
+                    rect.Width > 0;
             }
         }
 
         private void ApplyFilter()
         {
-            if (_dataView == null || _filterBoxes == null)
+            if (_dataView == null ||
+                _filterBoxes == null)
+            {
                 return;
+            }
 
-            var conditions = new List<string>();
+            var conditions =
+                new List<string>();
 
             foreach (TextBox tb in _filterBoxes)
             {
@@ -641,8 +658,11 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
                     continue;
                 }
 
-                string colName = tb.Tag.ToString();
-                string value = tb.Text.Replace("'", "''");
+                string colName =
+                    tb.Tag.ToString();
+
+                string value =
+                    tb.Text.Replace("'", "''");
 
                 conditions.Add(
                     $"CONVERT([{colName}], System.String) LIKE '%{value}%'");
@@ -664,17 +684,21 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
         {
             if (dt == null || dt.Rows.Count == 0)
             {
-                FrmWaiting.ShowGifAlert("Không tìm thấy dữ liệu");
+                FrmWaiting.ShowGifAlert(
+                    "Không tìm thấy dữ liệu");
+
                 return;
             }
 
             var frm = new Form
             {
                 Text = tieuDe,
-                StartPosition = FormStartPosition.CenterScreen,
+                StartPosition =
+                    FormStartPosition.CenterScreen,
                 Width = 1200,
                 Height = 700,
-                MinimumSize = new Size(800, 400),
+                MinimumSize =
+                    new Size(800, 400),
                 Font = Font
             };
 
@@ -692,12 +716,12 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
                     "Tahoma",
                     12.75f,
                     FontStyle.Bold),
-                TextAlign = ContentAlignment.BottomCenter
+                TextAlign =
+                    ContentAlignment.BottomCenter
             };
 
             pnTitle.Controls.Add(lblTitle);
 
-            // ── Filter panel cho cửa sổ mới ──
             var localFilterPanel = new Panel
             {
                 Dock = DockStyle.Top,
@@ -718,14 +742,13 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
                 Dock = DockStyle.Fill
             };
 
-            // Fill trước
             pnGrid.Controls.Add(dgr);
-
-            // Top sau
             pnGrid.Controls.Add(localFilterPanel);
 
             frm.Controls.Add(pnGrid);
             frm.Controls.Add(pnTitle);
+
+            NormalizeCanEditColumn(dt, kieu);
 
             var localDataView =
                 dt.DefaultView.Table.Copy().DefaultView;
@@ -742,7 +765,6 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
                 ApplyFormatInOut(dgr);
             }
 
-            // Xây dựng filter boxes cho cửa sổ mới
             TextBox[] localFilterBoxes =
                 new TextBox[dt.Columns.Count];
 
@@ -752,16 +774,19 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
                 {
                     Tag = dt.Columns[i].ColumnName,
                     Font = new Font("Segoe UI", 9F),
-                    BorderStyle = BorderStyle.FixedSingle
+                    BorderStyle =
+                        BorderStyle.FixedSingle
                 };
 
                 var capturedDv = localDataView;
-                var capturedBoxes = localFilterBoxes;
+                var capturedBoxes =
+                    localFilterBoxes;
 
                 tb.TextChanged +=
                     (s, e) =>
                     {
-                        var conditions = new List<string>();
+                        var conditions =
+                            new List<string>();
 
                         foreach (TextBox box in capturedBoxes)
                         {
@@ -771,7 +796,9 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
                                 continue;
                             }
 
-                            string col = box.Tag.ToString();
+                            string col =
+                                box.Tag.ToString();
+
                             string val =
                                 box.Text.Replace("'", "''");
 
@@ -780,7 +807,9 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
                         }
 
                         capturedDv.RowFilter =
-                            string.Join(" AND ", conditions);
+                            string.Join(
+                                " AND ",
+                                conditions);
                     };
 
                 localFilterPanel.Controls.Add(tb);
@@ -812,17 +841,27 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
         //  ĐỊNH DẠNG LƯỚI — btnIn_Out
         // ═══════════════════════════════════════════════════════════════════════
 
-        private void ApplyFormatInOut(DataGridView dgr)
+        private void ApplyFormatInOut(
+            DataGridView dgr)
         {
             dgr.Tag = null;
 
-            dgr.CellFormatting -= DgrBaoCao_CellFormatting;
-            dgr.CellFormatting -= DgrXuatNhapTon_CellFormatting;
-            dgr.CellFormatting += DgrXuatNhapTon_CellFormatting;
+            dgr.CellFormatting -=
+                DgrBaoCao_CellFormatting;
+
+            dgr.CellFormatting -=
+                DgrXuatNhapTon_CellFormatting;
+
+            dgr.CellFormatting +=
+                DgrXuatNhapTon_CellFormatting;
+
+            dgr.CurrentCellDirtyStateChanged -=
+                DgrBaoCao_CurrentCellDirtyStateChanged;
 
             dgr.AllowUserToAddRows = false;
             dgr.RowHeadersVisible = false;
             dgr.AutoGenerateColumns = true;
+
             dgr.AutoSizeRowsMode =
                 DataGridViewAutoSizeRowsMode.None;
 
@@ -875,7 +914,9 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
                     case "Tổng Xuất":
                     case "Tồn Cuối Kỳ":
                         col.Width = 120;
-                        col.DefaultCellStyle.Format = "N2";
+
+                        col.DefaultCellStyle.Format =
+                            "N2";
 
                         col.DefaultCellStyle.Alignment =
                             DataGridViewContentAlignment.MiddleRight;
@@ -910,13 +951,24 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
         {
             const string COL_CAN_EDIT = "canEdit";
 
-            // Lưu loại báo cáo trên grid để CellFormatting
-            // biết khi nào cần hiển thị số lượng xuất dưới dạng số dương.
+            // Lưu loại báo cáo để xử lý định dạng Xuất Hàng
             dgr.Tag = kieu;
 
-            dgr.CellFormatting -= DgrXuatNhapTon_CellFormatting;
-            dgr.CellFormatting -= DgrBaoCao_CellFormatting;
-            dgr.CellFormatting += DgrBaoCao_CellFormatting;
+            dgr.CellFormatting -=
+                DgrXuatNhapTon_CellFormatting;
+
+            dgr.CellFormatting -=
+                DgrBaoCao_CellFormatting;
+
+            dgr.CellFormatting +=
+                DgrBaoCao_CellFormatting;
+
+            // Commit checkbox ngay khi click để DataTable nhận giá trị mới
+            dgr.CurrentCellDirtyStateChanged -=
+                DgrBaoCao_CurrentCellDirtyStateChanged;
+
+            dgr.CurrentCellDirtyStateChanged +=
+                DgrBaoCao_CurrentCellDirtyStateChanged;
 
             NativeMethods.SendMessage(
                 dgr.Handle,
@@ -937,34 +989,83 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
 
                 dgr.ColumnHeadersHeight = 30;
                 dgr.RowTemplate.Height = 30;
-
-                // Cho phép người dùng resize cột
                 dgr.AllowUserToResizeColumns = true;
 
-                // Thêm cột checkbox nếu chưa có
-                if (!dgr.Columns.Contains(COL_CHECK) &&
-                    kieu > 1)
+                // Chỉ báo cáo Nhập/Xuất mới có canEdit
+                if (kieu > 1 &&
+                    dgr.Columns.Contains(COL_CAN_EDIT))
                 {
-                    dgr.Columns.Insert(
-                        0,
-                        new DataGridViewCheckBoxColumn
-                        {
-                            Name = COL_CHECK,
-                            HeaderText = "Khóa",
-                            Width = 50,
-                            Frozen = true,
-                            ReadOnly = false,
-                            FalseValue = false,
-                            TrueValue = true,
-                            IndeterminateValue = false,
-                            AutoSizeMode =
-                                DataGridViewAutoSizeColumnMode.None,
-                            Resizable =
-                                DataGridViewTriState.True
-                        });
+                    Type canEditType =
+                        GetCanEditDataType(dgr);
+
+                    object checkedValue =
+                        ConvertCanEditValue(
+                            0,
+                            canEditType);
+
+                    object uncheckedValue =
+                        ConvertCanEditValue(
+                            1,
+                            canEditType);
+
+                    if (!dgr.Columns.Contains(COL_CHECK))
+                    {
+                        dgr.Columns.Insert(
+                            0,
+                            new DataGridViewCheckBoxColumn
+                            {
+                                Name = COL_CHECK,
+                                HeaderText = "Khóa",
+
+                                // Bind trực tiếp với cột dữ liệu
+                                DataPropertyName =
+                                    COL_CAN_EDIT,
+
+                                Width = 50,
+                                Frozen = true,
+                                ReadOnly = false,
+                                ThreeState = false,
+
+                                // canEdit = 0 => tick
+                                TrueValue = checkedValue,
+
+                                // canEdit = 1 => không tick
+                                FalseValue = uncheckedValue,
+
+                                // NULL được chuẩn hóa thành 0 trước khi bind
+                                IndeterminateValue =
+                                    checkedValue,
+
+                                ValueType = canEditType,
+
+                                AutoSizeMode =
+                                    DataGridViewAutoSizeColumnMode.None,
+
+                                Resizable =
+                                    DataGridViewTriState.True
+                            });
+                    }
+                    else if (
+                        dgr.Columns[COL_CHECK]
+                            is DataGridViewCheckBoxColumn checkColumn)
+                    {
+                        checkColumn.DataPropertyName =
+                            COL_CAN_EDIT;
+
+                        checkColumn.TrueValue =
+                            checkedValue;
+
+                        checkColumn.FalseValue =
+                            uncheckedValue;
+
+                        checkColumn.IndeterminateValue =
+                            checkedValue;
+
+                        checkColumn.ValueType =
+                            canEditType;
+                    }
                 }
 
-                // Format cột
                 foreach (DataGridViewColumn col in dgr.Columns)
                 {
                     if (col.Name == COL_CHECK)
@@ -1007,45 +1108,17 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
                         col.Resizable =
                             DataGridViewTriState.True;
 
-                        // Chỉ set width mặc định nếu quá nhỏ
                         if (col.Width < 80)
                             col.Width = 120;
                     }
                 }
 
-                bool hasCanEdit =
-                    dgr.Columns.Contains(COL_CAN_EDIT);
-
-                bool hasCheck =
-                    dgr.Columns.Contains(COL_CHECK);
-
-                // Set row height + giá trị checkbox
+                // Không gán checkbox thủ công theo row.
+                // DataGridView tự đọc canEdit khi lọc hoặc sắp xếp.
                 foreach (DataGridViewRow row in dgr.Rows)
                 {
-                    if (row.IsNewRow)
-                        continue;
-
-                    row.Height = 30;
-
-                    if (!hasCanEdit || !hasCheck)
-                        continue;
-
-                    int canEdit = 0;
-                    object val =
-                        row.Cells[COL_CAN_EDIT].Value;
-
-                    if (val != null &&
-                        val != DBNull.Value)
-                    {
-                        int.TryParse(
-                            val.ToString(),
-                            out canEdit);
-                    }
-
-                    // canEdit = 0 => checked
-                    // canEdit = 1 => unchecked
-                    row.Cells[COL_CHECK].Value =
-                        canEdit == 0;
+                    if (!row.IsNewRow)
+                        row.Height = 30;
                 }
 
                 AddActionColumns(dgr);
@@ -1083,7 +1156,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
         }
 
         // ═══════════════════════════════════════════════════════════════════════
-        //  XỬ LÝ CLICK NÚT SỬA / XÓA TRÊN LƯỚI
+        //  XỬ LÝ CLICK NÚT SỬA / XÓA
         // ═══════════════════════════════════════════════════════════════════════
 
         private void GrvBaoCao_CellContentClick(
@@ -1185,7 +1258,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
                         () => BaoCao_DB.DeleteDanhSachDatHang(id),
                         "ĐANG XÓA...");
                 }
-                else if (kieu == 2 || kieu == 3)
+                else if (kieu == 2 ||
+                         kieu == 3)
                 {
                     if (!dgr.Columns.Contains("lsxn_id"))
                     {
@@ -1239,7 +1313,9 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
             catch (Exception ex)
             {
                 FrmWaiting.ShowGifAlert(
-                    CoreHelper.ShowErrorDatabase(ex, "XÓA"),
+                    CoreHelper.ShowErrorDatabase(
+                        ex,
+                        "XÓA"),
                     "LỖI XÓA");
             }
             finally
@@ -1286,7 +1362,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
                         "THÀNH CÔNG",
                         EnumStore.Icon.Success);
                 }
-                else if (kieu == 2 || kieu == 3)
+                else if (kieu == 2 ||
+                         kieu == 3)
                 {
                     BaoCao_Model.LichSuXuatNhapUpdate model =
                         GetLichSuXuatNhapUpdateModel(row);
@@ -1410,7 +1487,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
                             .Value?.ToString()?.Trim() ?? ""
                         : "",
 
-                DanhSachKhoId = danhSachKhoId,
+                DanhSachKhoId =
+                    danhSachKhoId,
 
                 LyDo =
                     row.DataGridView.Columns.Contains("LyDo")
@@ -1489,8 +1567,11 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
                             .Value?.ToString()?.Trim() ?? ""
                         : "",
 
-                SoLuongMua = soLuongMua,
-                DonGia = donGia,
+                SoLuongMua =
+                    soLuongMua,
+
+                DonGia =
+                    donGia,
 
                 MucDichMua =
                     row.DataGridView.Columns.Contains("MucDichMua")
@@ -1512,28 +1593,145 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
             };
         }
 
+        // ═══════════════════════════════════════════════════════════════════════
+        //  CHECKBOX BIND canEdit
+        // ═══════════════════════════════════════════════════════════════════════
+
+        private static void NormalizeCanEditColumn(
+            DataTable table,
+            int kieu)
+        {
+            if (kieu <= 1 ||
+                table == null ||
+                !table.Columns.Contains("canEdit"))
+            {
+                return;
+            }
+
+            DataColumn column =
+                table.Columns["canEdit"];
+
+            object checkedValue =
+                ConvertCanEditValue(
+                    0,
+                    column.DataType);
+
+            foreach (DataRow row in table.Rows)
+            {
+                if (row.IsNull(column))
+                {
+                    // Giữ hành vi cũ:
+                    // NULL được xem như canEdit = 0, tức đang khóa.
+                    row[column] = checkedValue;
+                }
+            }
+        }
+
+        private static Type GetCanEditDataType(
+            DataGridView dgr)
+        {
+            DataTable table =
+                GetBoundDataTable(dgr);
+
+            if (table != null &&
+                table.Columns.Contains("canEdit"))
+            {
+                return table.Columns["canEdit"].DataType;
+            }
+
+            return typeof(int);
+        }
+
+        private static object ConvertCanEditValue(
+            int value,
+            Type targetType)
+        {
+            Type actualType =
+                Nullable.GetUnderlyingType(targetType)
+                ?? targetType;
+
+            if (actualType == typeof(object))
+                return value;
+
+            return Convert.ChangeType(
+                value,
+                actualType);
+        }
+
+        private static DataTable GetBoundDataTable(
+            DataGridView dgr)
+        {
+            if (dgr == null)
+                return null;
+
+            if (dgr.DataSource is DataView dataView)
+                return dataView.Table;
+
+            if (dgr.DataSource is DataTable dataTable)
+                return dataTable;
+
+            if (dgr.DataSource is BindingSource bindingSource)
+            {
+                if (bindingSource.DataSource is DataView sourceView)
+                    return sourceView.Table;
+
+                if (bindingSource.DataSource is DataTable sourceTable)
+                    return sourceTable;
+            }
+
+            return null;
+        }
+
+        private static void CommitPendingGridEdits(
+            DataGridView dgr)
+        {
+            if (dgr == null)
+                return;
+
+            if (dgr.IsCurrentCellDirty)
+            {
+                dgr.CommitEdit(
+                    DataGridViewDataErrorContexts.Commit);
+            }
+
+            dgr.EndEdit();
+
+            if (dgr.DataSource != null)
+            {
+                CurrencyManager manager =
+                    dgr.BindingContext[dgr.DataSource]
+                        as CurrencyManager;
+
+                manager?.EndCurrentEdit();
+            }
+        }
+
         private static List<BaoCao_Model.CanEdit>
             GetCanEditItems(
-                DataGridView dgr,
-                string checkColumnName)
+                DataGridView dgr)
         {
             var items =
                 new List<BaoCao_Model.CanEdit>();
 
-            if (dgr == null ||
-                !dgr.Columns.Contains(checkColumnName) ||
-                !dgr.Columns.Contains("lsxn_id"))
+            DataTable table =
+                GetBoundDataTable(dgr);
+
+            if (table == null ||
+                !table.Columns.Contains("lsxn_id") ||
+                !table.Columns.Contains("canEdit"))
             {
                 return items;
             }
 
-            foreach (DataGridViewRow row in dgr.Rows)
+            // Đọc toàn bộ DataTable, không chỉ các dòng
+            // đang còn hiển thị sau khi lọc.
+            foreach (DataRow row in table.Rows)
             {
-                if (row.IsNewRow)
+                if (row.RowState == DataRowState.Deleted)
                     continue;
 
                 object idValue =
-                    row.Cells["lsxn_id"].Value;
+                    row["lsxn_id"];
 
                 if (idValue == null ||
                     idValue == DBNull.Value)
@@ -1541,21 +1739,33 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
                     continue;
                 }
 
-                bool isChecked =
-                    row.Cells[checkColumnName].Value != null &&
-                    Convert.ToBoolean(
-                        row.Cells[checkColumnName].Value);
+                int canEdit = 0;
+
+                object canEditValue =
+                    row["canEdit"];
+
+                if (canEditValue != null &&
+                    canEditValue != DBNull.Value)
+                {
+                    int.TryParse(
+                        canEditValue.ToString(),
+                        out canEdit);
+                }
 
                 items.Add(
                     new BaoCao_Model.CanEdit
                     {
                         Id = Convert.ToInt32(idValue),
-                        Value = isChecked ? 0 : 1
+                        Value = canEdit == 0 ? 0 : 1
                     });
             }
 
             return items;
         }
+
+        // ═══════════════════════════════════════════════════════════════════════
+        //  XUẤT EXCEL
+        // ═══════════════════════════════════════════════════════════════════════
 
         private static DataTable CreateExportTable(
             DataTable source,
@@ -1564,7 +1774,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
             if (source == null)
                 return null;
 
-            DataTable result = source.Copy();
+            DataTable result =
+                source.Copy();
 
             string[] internalColumns =
             {
@@ -1670,16 +1881,59 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
             object sender,
             EventArgs e)
         {
+            if (!grvBaoCao.Columns.Contains(COL_CHECK) ||
+                !(grvBaoCao.Columns[COL_CHECK]
+                    is DataGridViewCheckBoxColumn checkColumn))
+            {
+                return;
+            }
+
+            CommitPendingGridEdits(grvBaoCao);
+
+            object value =
+                cbxAll.Checked
+                    ? checkColumn.TrueValue
+                    : checkColumn.FalseValue;
+
+            // Giữ nguyên hành vi hiện tại:
+            // chỉ tác động các dòng đang hiển thị.
             foreach (DataGridViewRow row in grvBaoCao.Rows)
             {
-                row.Cells[COL_CHECK].Value =
-                    cbxAll.Checked;
+                if (row.IsNewRow)
+                    continue;
+
+                if (row.DataBoundItem is DataRowView rowView &&
+                    rowView.DataView.Table.Columns.Contains("canEdit"))
+                {
+                    rowView["canEdit"] = value;
+                }
             }
+
+            grvBaoCao.RefreshEdit();
+            grvBaoCao.Refresh();
         }
 
         // ═══════════════════════════════════════════════════════════════════════
         //  CELL FORMATTING
         // ═══════════════════════════════════════════════════════════════════════
+
+        private void DgrBaoCao_CurrentCellDirtyStateChanged(
+            object sender,
+            EventArgs e)
+        {
+            if (!(sender is DataGridView dgr) ||
+                !dgr.IsCurrentCellDirty ||
+                dgr.CurrentCell == null ||
+                dgr.CurrentCell.OwningColumn == null ||
+                dgr.CurrentCell.OwningColumn.Name != COL_CHECK)
+            {
+                return;
+            }
+
+            // Ghi giá trị 0/1 xuống DataRow ngay khi click.
+            dgr.CommitEdit(
+                DataGridViewDataErrorContexts.Commit);
+        }
 
         private void DgrBaoCao_CellFormatting(
             object sender,
@@ -1723,8 +1977,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
                 if (soLuong >= 0)
                     return;
 
-                // DataGridViewTextBoxCell yêu cầu formatted value
-                // là chuỗi khi FormattingApplied = true.
+                // Trả về chuỗi đã format để tránh lỗi sai kiểu cell.
                 e.Value =
                     Math.Abs(soLuong).ToString();
 
@@ -1732,15 +1985,15 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
             }
             catch (FormatException)
             {
-                // Giữ nguyên nếu không phải số
+                // Giữ nguyên nếu không phải số.
             }
             catch (InvalidCastException)
             {
-                // Giữ nguyên nếu không chuyển được sang số
+                // Giữ nguyên nếu không chuyển được.
             }
             catch (OverflowException)
             {
-                // Giữ nguyên nếu vượt phạm vi decimal
+                // Giữ nguyên nếu vượt phạm vi decimal.
             }
         }
 

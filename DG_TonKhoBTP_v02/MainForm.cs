@@ -36,7 +36,7 @@ namespace DG_TonKhoBTP_v02
     {
         private string _URL = Properties.Settings.Default.URL;
         private CongDoanUiService _ui;
-        private string _ver = "2.7.2";
+        private string _ver = "2.7.3";
         private bool show = false;
         private void InitUiService()
         {
@@ -838,6 +838,8 @@ namespace DG_TonKhoBTP_v02
                     // Nếu cần dùng thêm kieuEdit
                     int kieuEdit = e.KieuEdit;
 
+                    // Chỉ thay dữ liệu hiện tại sau khi bản ghi và BOM đã tải thành công.
+                    ClearSectionsRecursive(pnShow, ucEdit);
                     BroadcastToReceivers(pnShow, dt, kieuEdit);
                 };
             }
@@ -923,7 +925,16 @@ namespace DG_TonKhoBTP_v02
         {
             if (root == null || dt == null) return;
 
-            foreach (var receiver in FindAll<IDataReceiver>(root))
+            // Thành phẩm phải nhận BOM trước khi UC_TTNVL tải và tính IsCorrect.
+            var receivers = FindAll<IDataReceiver>(root)
+                .OrderBy(receiver => receiver is UC_TTThanhPham
+                    ? 0
+                    : receiver is UC_TTNVL
+                        ? 2
+                        : 1)
+                .ToList();
+
+            foreach (var receiver in receivers)
             {
                 try
                 {

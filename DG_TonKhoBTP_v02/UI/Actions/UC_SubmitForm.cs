@@ -175,6 +175,12 @@ namespace DG_TonKhoBTP_v02.UI
                 if (submitData == null)
                     return;
 
+                // Nếu phát hiện bất thường trong mối quan hệ giữa nguyên vật liệu
+                // và thành phẩm, đóng form chờ trước khi hiển thị hộp thoại xác nhận
+                // để bảo đảm thông báo không bị che.
+                if (!ConfirmLoiNhapLieu(host, submitData, ref waiting))
+                    return;
+
                 // Cập nhật nội dung form chờ theo tác vụ sắp thực hiện.
                 // Nếu có in tem thành phẩm, thông báo sẽ thể hiện cả quá trình lưu và in.
                 UpdateWaitingMessage(
@@ -420,7 +426,17 @@ namespace DG_TonKhoBTP_v02.UI
             }
 
             // =========================================================
-            // 4. LẤY CHI TIẾT CÔNG ĐOẠN
+            // 4. KIỂM TRA QUAN HỆ NGUYÊN VẬT LIỆU - THÀNH PHẨM
+            // =========================================================
+
+            // Công đoạn 9 không sử dụng NVL nên không áp dụng kiểm tra này.
+            // Các hàm kiểm tra con hiện chỉ là phần khung và mặc định không báo lỗi.
+            List<string> danhSachLoiNhapLieu = laCongDoan9
+                ? new List<string>()
+                : KiemTraMoiQuanHeNguyenLieuThanhPham(thanhPham, nvlRows);
+
+            // =========================================================
+            // 5. LẤY CHI TIẾT CÔNG ĐOẠN
             // =========================================================
 
             SubmitCongDoanData congDoan = null;
@@ -449,7 +465,7 @@ namespace DG_TonKhoBTP_v02.UI
             }
 
             // =========================================================
-            // 5. ĐÓNG GÓI DỮ LIỆU SUBMIT
+            // 6. ĐÓNG GÓI DỮ LIỆU SUBMIT
             // =========================================================
 
             return new SubmitFormData
@@ -469,6 +485,10 @@ namespace DG_TonKhoBTP_v02.UI
 
                 // Công đoạn 9 sẽ nhận danh sách rỗng.
                 NguyenVatLieu = nguyenVatLieu,
+
+                // Danh sách constant mô tả các bất thường giữa NVL và thành phẩm.
+                // Công đoạn 9 luôn nhận danh sách rỗng.
+                DanhSachLoiNhapLieu = danhSachLoiNhapLieu,
 
                 // Công đoạn 9 sẽ nhận null.
                 CongDoan = congDoan,
@@ -545,6 +565,134 @@ namespace DG_TonKhoBTP_v02.UI
             return false;
         }
 
+        /// <summary>
+        /// Kiểm tra các mối quan hệ nghiệp vụ giữa thành phẩm và danh sách NVL.
+        /// Hàm chỉ tổng hợp lỗi, không hiển thị giao diện và không truy cập database.
+        /// </summary>
+        private static List<string> KiemTraMoiQuanHeNguyenLieuThanhPham(
+            TTThanhPham thanhPham,
+            List<TTNVLRow> nguyenVatLieu)
+        {
+            var danhSachLoi = new List<string>();
+
+            // B1. Kiểm tra nguyên liệu có khớp với BOM của thành phẩm hay không.
+            // B1.1: Kiểm tra xem nguyên liệu có khớp với BOM của thành phẩm hay không.
+            var loiKhongKhop = KiemTraThanhPhamNguyenLieuKhongKhopBOM(nguyenVatLieu);
+            // B1.2: Thêm lỗi nếu xuất hiện
+            ThemLoiNeuCo(danhSachLoi, loiKhongKhop);
+
+            // B2. Nếu phát hiện NVL không thuộc bom của TP thì dừng kiểm tra
+            if (loiKhongKhop != null) return danhSachLoi;
+
+            // B3. Kiểm tra khác
+            ThemLoiNeuCo(
+                danhSachLoi,
+                KiemTraSoLuongNguyenVatLieu(thanhPham, nguyenVatLieu));
+
+            ThemLoiNeuCo(
+                danhSachLoi,
+                KiemTraSoLuongBin(thanhPham, nguyenVatLieu));
+
+            ThemLoiNeuCo(
+                danhSachLoi,
+                KiemTraKhoiLuongChieuDai(thanhPham, nguyenVatLieu));
+
+            return danhSachLoi;
+        }
+
+        private static void ThemLoiNeuCo(
+            List<string> danhSachLoi,
+            string noiDungLoi)
+        {
+            if (danhSachLoi == null || string.IsNullOrWhiteSpace(noiDungLoi))
+                return;
+
+            if (!danhSachLoi.Contains(noiDungLoi))
+                danhSachLoi.Add(noiDungLoi);
+        }
+
+        /// <summary>
+        /// Kiểm tra danh sách NVL có dòng nào không thuộc BOM
+        /// của thành phẩm đang chọn hay không.
+        /// </summary>
+        private static string KiemTraThanhPhamNguyenLieuKhongKhopBOM(List<TTNVLRow> nguyenVatLieu)
+        {
+            if (nguyenVatLieu == null || nguyenVatLieu.Count == 0)
+                return null;
+
+            bool coNguyenVatLieuKhongKhop = nguyenVatLieu.Any(
+                nvl => nvl != null && nvl.IsCorrect == false);
+
+            return coNguyenVatLieuKhongKhop
+                ? DanhSachLoiNhapLieuSX.Loi_TP_Nl_KhongKhop
+                : null;
+        }
+
+        /// <summary>
+        /// Khung kiểm tra số lượng nguyên vật liệu.
+        /// Mặc định không báo lỗi cho tới khi bổ sung quy tắc nghiệp vụ.
+        /// </summary>
+        private static string KiemTraSoLuongNguyenVatLieu(
+            TTThanhPham thanhPham,
+            List<TTNVLRow> nguyenVatLieu)
+        {
+            bool coLoi = false;
+
+            string tenTP = thanhPham.TenTP;
+            List<CumCauTruc> danhSachCum_TP = PhanTachCauTrucDay.LayDanhSachCum(tenTP);
+
+
+
+
+            foreach (var nvl in nguyenVatLieu)
+            {
+                string tenNVL = nvl.TenNVL;
+                List<CumCauTruc> danhSachCum_NVL = PhanTachCauTrucDay.LayDanhSachCum(tenNVL);
+                
+                // 
+            
+            
+            }
+
+
+            if (coLoi)
+            return DanhSachLoiNhapLieuSX.Loi_SoLuongNVL;
+
+            return null;
+        }
+
+        /// <summary>
+        /// Khung kiểm tra số lượng Bin.
+        /// Mặc định không báo lỗi cho tới khi bổ sung quy tắc nghiệp vụ.
+        /// </summary>
+        private static string KiemTraSoLuongBin(
+            TTThanhPham thanhPham,
+            List<TTNVLRow> nguyenVatLieu)
+        {
+            bool coLoi = false;
+
+            if (coLoi)
+                return DanhSachLoiNhapLieuSX.Loi_SoLuongBin;
+
+            return null;
+        }
+
+        /// <summary>
+        /// Khung kiểm tra khối lượng/chiều dài giữa thành phẩm và NVL.
+        /// Mặc định không báo lỗi cho tới khi bổ sung quy tắc nghiệp vụ.
+        /// </summary>
+        private static string KiemTraKhoiLuongChieuDai(
+            TTThanhPham thanhPham,
+            List<TTNVLRow> nguyenVatLieu)
+        {
+            bool coLoi = false;
+
+            if (coLoi)
+                return DanhSachLoiNhapLieuSX.Loi_KhoiLuong;
+
+            return null;
+        }
+
         private SubmitCongDoanData ValidateAndBuildCongDoanData(
             FormSnapshot snapshot,
             FrmWaiting waiting,
@@ -610,6 +758,56 @@ namespace DG_TonKhoBTP_v02.UI
         {
             CloseWaitingSafe(waiting);
             FrmWaiting.ShowGifAlert(message, "LỖI");
+        }
+
+        /// <summary>
+        /// Hiển thị danh sách bất thường để người dùng quyết định có tiếp tục lưu hay không.
+        /// Form chờ được đóng trước khi hiển thị và chỉ mở lại khi người dùng chọn Yes.
+        /// </summary>
+        private bool ConfirmLoiNhapLieu(
+            Form host,
+            SubmitFormData submitData,
+            ref FrmWaiting waiting)
+        {
+            if (submitData == null || submitData.CongDoanId == 9)
+                return true;
+
+            List<string> danhSachLoi = submitData.DanhSachLoiNhapLieu?
+                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .Distinct()
+                .ToList()
+                ?? new List<string>();
+
+            if (danhSachLoi.Count == 0)
+                return true;
+
+            CloseWaitingSafe(waiting);
+            waiting = null;
+
+            string noiDungLoi = string.Join(
+                Environment.NewLine,
+                danhSachLoi.Select(x => "• " + x));
+
+            string message =
+                "Phát hiện các bất thường giữa nguyên vật liệu và thành phẩm:" +
+                Environment.NewLine + Environment.NewLine +
+                noiDungLoi +
+                Environment.NewLine + Environment.NewLine +
+                "Bạn có muốn tiếp tục lưu dữ liệu không?";
+
+            DialogResult result = MessageBox.Show(
+                host,
+                message,
+                "XÁC NHẬN LƯU DỮ LIỆU",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Warning,
+                MessageBoxDefaultButton.Button2);
+
+            if (result != DialogResult.Yes)
+                return false;
+
+            waiting = ShowWaiting();
+            return true;
         }
 
         private static void UpdateWaitingMessage(FrmWaiting waiting, bool shouldPrint)
@@ -703,31 +901,31 @@ namespace DG_TonKhoBTP_v02.UI
             }
             else if (data.IdEdit == 0)
             {
-                result.SaveSuccess = SubmitForm_DB.SaveDataSanPham(
+                result.SaveSuccess = SubmitForm_DB.SaveDataSanPhamVoiDanhSachLoiNhapLieu(
                     data.ThongTinCaLamViec,
                     data.ThongTinThanhPham,
                     data.NguyenVatLieu,
                     data.CongDoan,
-                    data.NguyenVatLieuRows,
+                    data.DanhSachLoiNhapLieu,
                     out error);
 
                 Debug.WriteLine(
-                    $"SaveDataSanPham: {swDb.ElapsedMilliseconds} ms");
+                    $"SaveDataSanPhamVoiDanhSachLoiNhapLieu: {swDb.ElapsedMilliseconds} ms");
             }
             else
             {
-                result.SaveSuccess = SubmitForm_DB.UpdateDataSanPham(
+                result.SaveSuccess = SubmitForm_DB.UpdateDataSanPhamVoiDanhSachLoiNhapLieu(
                     data.IdEdit,
                     data.ThongTinCaLamViec,
                     data.ThongTinThanhPham,
                     data.NguyenVatLieu,
                     data.CongDoan,
-                    data.NguyenVatLieuRows,
+                    data.DanhSachLoiNhapLieu,
                     data.ConfirmedUsername,
                     out error);
 
                 Debug.WriteLine(
-                    $"UpdateDataSanPham: {swDb.ElapsedMilliseconds} ms");
+                    $"UpdateDataSanPhamVoiDanhSachLoiNhapLieu: {swDb.ElapsedMilliseconds} ms");
             }
 
             if (!result.SaveSuccess)

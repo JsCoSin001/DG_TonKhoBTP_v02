@@ -21,7 +21,7 @@ namespace DG_TonKhoBTP_v02.UI.Helper
                 try
                 {
                     await action();
-                }
+                } 
                 catch (Exception ex)
                 {
                     MessageBox.Show("Lỗi: " + ex.Message, "Lỗi",

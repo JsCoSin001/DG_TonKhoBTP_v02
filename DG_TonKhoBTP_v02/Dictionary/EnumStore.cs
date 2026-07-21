@@ -30,6 +30,15 @@ public static class PermissionCodes
     public const string UserPermission = "USER_PERMISSION";
 }
 
+public static class DanhSachLoiNhapLieuSX
+{
+
+    public const string Loi_TP_Nl_KhongKhop = "Mã/Tên nguyên liệu và thành phẩm không phù hợp với nhau";
+    public const string Loi_SoLuongNVL = "Số lượng nguyên vật liệu không đủ";
+    public const string Loi_SoLuongBin = "Số lượng Bin không đủ";
+    public const string Loi_KhoiLuong = "Khối lượng/Chiều dài thành thành phẩm và nguyên liệu đang bất thường";
+}
+
 public static class LotCodeDocxConfig
 {
     // ─── Font ───────────────────────────────────────────────────────
@@ -148,6 +157,19 @@ public static class EnumStore
         { "CAN_STOP_SOFTWARE", "Dừng chương trình" },
         { "CAN_SET_PRINTER", "Cài đặt máy in" },
     };
+
+    private static readonly HashSet<string> MayChoPhepTaiSuDungNVL =
+    new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+    {
+        "B10", "B13", "B14", "B15",
+        "B16", "MD16A4", "R10", "R12"
+    };
+
+    public static bool LaMayChoPhepTaiSuDungNVL(string may)
+    {
+        return !string.IsNullOrWhiteSpace(may)
+            && MayChoPhepTaiSuDungNVL.Contains(may.Trim());
+    }
 
     public static Dictionary<string, string> Group = new Dictionary<string, string>
     {

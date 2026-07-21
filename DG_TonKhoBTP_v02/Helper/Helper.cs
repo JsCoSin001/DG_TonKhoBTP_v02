@@ -241,25 +241,14 @@ namespace DG_TonKhoBTP_v02.Helper
                     v.NguoiLam      AS NguoiLam,
                     t.GhiChu        AS GhiChu,
 
-                    COALESCE(bom.TyLe, 1) AS TyLe,
-                    COALESCE(bom.TyLeHoanDoi, 1) AS TyLeHoanDoi,
-                    CASE
-                        WHEN bom.id IS NULL THEN 0
-                        ELSE 1
-                    END AS IsCorrect
+                    1 AS TyLe,
+                    1 AS TyLeHoanDoi,
+                    0 AS IsCorrect
 
                 FROM TTThanhPham AS t
 
                 JOIN DanhSachMaSP AS d
                     ON d.id = t.DanhSachSP_ID
-
-                JOIN DanhSachMaSP AS parent
-                    ON parent.id = @ParentProductId
-                   AND parent.Active = 1
-
-                LEFT JOIN BOMStructure AS bom
-                    ON bom.ParentProduct = parent.id
-                   AND bom.Component = d.id
 
                 LEFT JOIN ThongTinCaLamViec AS v
                     ON t.id = v.TTThanhPham_id
@@ -322,19 +311,17 @@ namespace DG_TonKhoBTP_v02.Helper
             return @"
             SELECT
               ttp.id AS STT,
-              ttp_bin.id AS id, 
+              ttp_bin.id AS id,
+              nvl.DanhSachMaSP_ID AS NVL_DanhSachMaSP_ID,
               tclv.Ngay, tclv.Ca, tclv.May,nvl.QC,
               ttp.MaBin as MaBin, ds.Ten AS Ten, ds.Ma AS Ma,ds.DonVi,ds.ChuyenDoi, ds.id AS DanhSachMaSP_ID,
               tclv.NguoiLam, tclv.ToTruong, tclv.QuanDoc,
               ttp.KhoiLuongTruoc AS KhoiLuongTruoc, ttp.KhoiLuongSau as KhoiLuongSau,
               ttp.ChieuDaiTruoc as ChieuDaiTruoc, ttp.ChieuDaiSau as ChieuDaiSau,
               ttp.Phe as Phe, ttp.HanNoi as HanNoi, ttp.GhiChu as GhiChu,
-              COALESCE(bom_edit.TyLe, 1) AS TyLe,
-              COALESCE(bom_edit.TyLeHoanDoi, 1) AS TyLeHoanDoi,
-              CASE
-                  WHEN bom_edit.id IS NULL THEN 0
-                  ELSE 1
-              END AS IsCorrect ";
+              1 AS TyLe,
+              1 AS TyLeHoanDoi,
+              0 AS IsCorrect ";
         }
 
         public static string TaoSQL_LayDLTruyVet(bool col, string key, out string selectedCol)

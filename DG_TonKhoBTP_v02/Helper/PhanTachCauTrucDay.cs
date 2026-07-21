@@ -165,6 +165,14 @@ namespace DG_TonKhoBTP_v02.Helper
             };
         }
 
+        /// <summary>
+        /// Phân tích tên sản phẩm và chỉ trả về danh sách các cụm cấu trúc.
+        /// </summary>
+        public static List<CumCauTruc> LayDanhSachCum(string ten)
+        {
+            return PhanTich(ten).DanhSachCum;
+        }
+
         private static CumCauTruc PhanTichCum(
             string noiDungCum)
         {

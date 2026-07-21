@@ -644,6 +644,108 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
             }
         }
 
+        /// <summary>
+        /// Lưu sản phẩm theo luồng mới của UC_SubmitForm.
+        /// Không gọi LuuKhacBietBOM; thay vào đó ghi từng nội dung lỗi
+        /// vào bảng DanhSachLoiNhapLieuSX trong cùng transaction.
+        /// </summary>
+        public static bool SaveDataSanPhamVoiDanhSachLoiNhapLieu(
+            ThongTinCaLamViec caLam,
+            TTThanhPham tp,
+            List<TTNVL> nvl,
+            SubmitCongDoanData chiTietCD,
+            List<string> danhSachLoiNhapLieu,
+            out string errorMsg)
+        {
+            errorMsg = string.Empty;
+
+            if (tp == null)
+            {
+                errorMsg = "Thiếu thông tin thành phẩm.";
+                return false;
+            }
+
+            if (chiTietCD == null || chiTietCD.ChiTietCongDoan == null)
+            {
+                errorMsg = "Thiếu chi tiết công đoạn.";
+                return false;
+            }
+
+            long idCaiDatCDBoc = 0;
+            SQLiteConnection conn = null;
+            SQLiteTransaction tx = null;
+
+            try
+            {
+                conn = DB_Base.OpenConnection();
+                tx = conn.BeginTransaction();
+
+                long tpId = InsertTTThanhPham(conn, tx, tp, nvl);
+                InsertThongTinCaLamViec(conn, tx, caLam, tpId);
+                InsertTTNVL(conn, tx, tpId, nvl);
+                UpdateKL_CD_TTThanhPham(conn, tx, nvl, tpId);
+
+                object congDoan = chiTietCD.ChiTietCongDoan;
+
+                if (congDoan is CD_BocLot || congDoan is CD_BocVo || congDoan is CD_BocMach)
+                {
+                    if (chiTietCD.CaiDatCDBoc != null)
+                        idCaiDatCDBoc = InsertCaiDatCDBoc(conn, tx, tpId, chiTietCD.CaiDatCDBoc);
+                }
+
+                switch (congDoan)
+                {
+                    case CD_KeoRut keo:
+                        InsertCDKeoRut(conn, tx, tpId, keo);
+                        break;
+
+                    case CD_BenRuot ben:
+                        InsertCDBenRuot(conn, tx, tpId, ben);
+                        break;
+
+                    case CD_GhepLoiQB qb:
+                        InsertCDGhepLoiQB(conn, tx, tpId, qb);
+                        break;
+
+                    case CD_BocLot bocLot:
+                        InsertCDBocLot(conn, tx, idCaiDatCDBoc, bocLot);
+                        break;
+
+                    case CD_BocMach mach:
+                        InsertCDBocMach(conn, tx, idCaiDatCDBoc, mach);
+                        break;
+
+                    case CD_BocVo vo:
+                        InsertCDBocVo(conn, tx, idCaiDatCDBoc, vo);
+                        break;
+
+                    default:
+                        throw new ArgumentException("Lỗi bất thường: Công đoạn không hợp lệ.");
+                }
+
+                LuuDanhSachLoiNhapLieuSX(
+                    conn,
+                    tx,
+                    tpId,
+                    danhSachLoiNhapLieu);
+
+                tx.Commit();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                try { tx?.Rollback(); } catch { }
+
+                errorMsg = CoreHelper.ShowErrorDatabase(ex, tp.MaBin);
+                return false;
+            }
+            finally
+            {
+                tx?.Dispose();
+                conn?.Dispose();
+            }
+        }
+
         public static bool UpdateDataSanPham(
             int tpId,
             ThongTinCaLamViec caLam,
@@ -725,6 +827,120 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
                 }
 
                 LuuKhacBietBOM(conn, tx, tpId, nvlRowsForBomDiff, tp);
+
+                InsertChapNhanSuaDLByToTruong(
+                    conn,
+                    tx,
+                    tpId,
+                    confirmedUsername);
+
+                tx.Commit();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                try { tx?.Rollback(); } catch { }
+
+                errorMsg = CoreHelper.ShowErrorDatabase(ex, tp.MaBin);
+                return false;
+            }
+            finally
+            {
+                tx?.Dispose();
+                conn?.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// Cập nhật sản phẩm theo luồng mới của UC_SubmitForm.
+        /// Danh sách lỗi cũ được xóa và thay bằng kết quả kiểm tra mới.
+        /// Không gọi LuuKhacBietBOM.
+        /// </summary>
+        public static bool UpdateDataSanPhamVoiDanhSachLoiNhapLieu(
+            int tpId,
+            ThongTinCaLamViec caLam,
+            TTThanhPham tp,
+            List<TTNVL> nvl,
+            SubmitCongDoanData chiTietCD,
+            List<string> danhSachLoiNhapLieu,
+            string confirmedUsername,
+            out string errorMsg)
+        {
+            errorMsg = string.Empty;
+
+            if (tp == null)
+            {
+                errorMsg = "Thiếu thông tin thành phẩm.";
+                return false;
+            }
+
+            if (chiTietCD == null || chiTietCD.ChiTietCongDoan == null)
+            {
+                errorMsg = "Thiếu chi tiết công đoạn.";
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(confirmedUsername))
+            {
+                errorMsg = "Username của tổ trưởng xác nhận không hợp lệ.";
+                return false;
+            }
+
+            confirmedUsername = confirmedUsername.Trim();
+
+            SQLiteConnection conn = null;
+            SQLiteTransaction tx = null;
+
+            try
+            {
+                conn = DB_Base.OpenConnection();
+                tx = conn.BeginTransaction();
+
+                BackupThongTinTruocKhiSua(conn, tx, tpId, tp, caLam.NguoiLam);
+                UpdateThongTinCaLamViec(conn, tx, caLam, tpId);
+                UpdateTTThanhPham(conn, tx, tp, tpId, nvl);
+                RestoreFromNVL(conn, tx, tpId);
+                UpdateKhoiLuongConLai_TTThanhPham(conn, tx, nvl, tpId);
+                Del_InsertTTNVL(conn, tx, tpId, nvl);
+
+                if (chiTietCD.CaiDatCDBoc != null)
+                    UpdateCaiDatCDBoc(conn, tx, tpId, chiTietCD.CaiDatCDBoc);
+
+                switch (chiTietCD.ChiTietCongDoan)
+                {
+                    case CD_BenRuot ben:
+                        UpdateCDBenRuot(conn, tx, tpId, ben);
+                        break;
+
+                    case CD_KeoRut keo:
+                        UpdateCDKeoRut(conn, tx, tpId, keo);
+                        break;
+
+                    case CD_GhepLoiQB qb:
+                        UpdateCDGhepLoiQB(conn, tx, tpId, qb);
+                        break;
+
+                    case CD_BocMach mach:
+                        UpdateCDBocMach(conn, tx, tpId, mach);
+                        break;
+
+                    case CD_BocLot lotBL:
+                        UpdateCDBocLot(conn, tx, tpId, lotBL);
+                        break;
+
+                    case CD_BocVo vo:
+                        UpdateCDBocVo(conn, tx, tpId, vo);
+                        break;
+
+                    default:
+                        throw new ArgumentException("Lỗi bất thường.");
+                }
+
+                LuuDanhSachLoiNhapLieuSX(
+                    conn,
+                    tx,
+                    tpId,
+                    danhSachLoiNhapLieu);
 
                 InsertChapNhanSuaDLByToTruong(
                     conn,
@@ -1303,6 +1519,61 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
                 return null;
 
             return currentCongDoanId;
+        }
+
+        /// <summary>
+        /// Xóa danh sách lỗi cũ của thành phẩm và insert lại từng lỗi hiện tại.
+        /// Cột Confirmed không được truyền vào để database sử dụng giá trị mặc định.
+        /// </summary>
+        private static void LuuDanhSachLoiNhapLieuSX(
+            SQLiteConnection conn,
+            SQLiteTransaction tx,
+            long ttThanhPhamId,
+            List<string> danhSachLoiNhapLieu)
+        {
+            if (conn == null)
+                throw new ArgumentNullException(nameof(conn));
+
+            if (tx == null)
+                throw new ArgumentNullException(nameof(tx));
+
+            using (var deleteCommand = new SQLiteCommand(@"
+                DELETE FROM ""DanhSachLoiNhapLieuSX""
+                WHERE ""TTThanhpham_id"" = @TTThanhpham_id;", conn, tx))
+            {
+                deleteCommand.Parameters.Add("@TTThanhpham_id", DbType.Int64).Value = ttThanhPhamId;
+                deleteCommand.ExecuteNonQuery();
+            }
+
+            List<string> noiDungLoiHopLe = (danhSachLoiNhapLieu ?? new List<string>())
+                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .Select(x => x.Trim())
+                .Distinct()
+                .ToList();
+
+            if (noiDungLoiHopLe.Count == 0)
+                return;
+
+            using var insertCommand = new SQLiteCommand(@"
+                INSERT INTO ""DanhSachLoiNhapLieuSX""
+                (
+                    ""TTThanhpham_id"",
+                    ""NoiDungLoi""
+                )
+                VALUES
+                (
+                    @TTThanhpham_id,
+                    @NoiDungLoi
+                );", conn, tx);
+
+            insertCommand.Parameters.Add("@TTThanhpham_id", DbType.Int64).Value = ttThanhPhamId;
+            SQLiteParameter noiDungLoiParameter = insertCommand.Parameters.Add("@NoiDungLoi", DbType.String);
+
+            foreach (string noiDungLoi in noiDungLoiHopLe)
+            {
+                noiDungLoiParameter.Value = noiDungLoi;
+                insertCommand.ExecuteNonQuery();
+            }
         }
 
         private static void LuuKhacBietBOM(SQLiteConnection conn, SQLiteTransaction tx, long ttThanhPhamId, List<TTNVLRow> nvlRows, TTThanhPham tp)

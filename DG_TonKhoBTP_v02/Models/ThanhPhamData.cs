@@ -1,5 +1,22 @@
-﻿namespace DG_TonKhoBTP_v02.Models
+﻿using System.Collections.Generic;
+
+namespace DG_TonKhoBTP_v02.Models
 {
+    public class BomComponentData
+    {
+        public int ComponentId { get; set; }
+
+        public decimal TyLe { get; set; } = 1m;
+
+        public decimal TyLeHoanDoi { get; set; } = 1m;
+    }
+
+    public static class BomDataTableProperties
+    {
+        public const string Loaded = "BomComponentsLoaded";
+        public const string Components = "BomComponents";
+    }
+
     public class ThanhPhamData
     {
         public int DanhSachSPId { get; set; }
@@ -23,5 +40,8 @@
         public string SoLOT { get; set; } = string.Empty;
 
         public string TenMay { get; set; } = string.Empty;
+
+        // null = thành phẩm đã tải thành công nhưng không có BOM active.
+        public List<BomComponentData> BomComponents { get; set; }
     }
 }

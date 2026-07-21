@@ -217,15 +217,74 @@ namespace DG_TonKhoBTP_v02.UI
             }
         }
 
-        public void OnSoLOTChanged(string soLot)
+        public void OnSoLOTChanged(string soLot, string may)
         {
+            if (EnumStore.LaMayChoPhepTaiSuDungNVL(may))
+                return;
+
             ClearGridKeepHeader();
-            string may = soLot?.Split('-')[0] ?? "";
         }
 
         public void OnThanhPhamChanged(ThanhPhamData data)
         {
+            if (EnumStore.LaMayChoPhepTaiSuDungNVL(data.TenMay))
+            {
+                RecalculateBomForExistingRows(data);
+                return;
+            }
+
             ClearGridKeepHeader();
+        }
+
+        private static void ApplyBomToRow(TTNVLRow row, ThanhPhamData thanhPham)
+        {
+            if (row == null) return;
+
+            BomComponentData matched = null;
+            if (row.DanhSachMaSP_ID.HasValue && thanhPham?.BomComponents != null)
+            {
+                matched = thanhPham.BomComponents.FirstOrDefault(x =>
+                    x.ComponentId == row.DanhSachMaSP_ID.Value);
+            }
+
+            if (matched == null)
+            {
+                row.IsCorrect = false;
+                row.TyLe = 1d;
+                row.TyLeHoanDoi = 1d;
+                return;
+            }
+
+            row.IsCorrect = true;
+            row.TyLe = Convert.ToDouble(matched.TyLe);
+            row.TyLeHoanDoi = Convert.ToDouble(matched.TyLeHoanDoi);
+        }
+
+        private void RecalculateBomForExistingRows(ThanhPhamData thanhPham)
+        {
+            foreach (TTNVLRow row in _nvlRows)
+            {
+                ApplyBomToRow(row, thanhPham);
+            }
+
+            _nvlSource.ResetBindings(false);
+            RefreshBomRowStyles();
+            dtgTTNVL.Refresh();
+        }
+
+        private void RefreshBomRowStyles()
+        {
+            Color normalColor = dtgTTNVL.DefaultCellStyle.ForeColor;
+
+            foreach (DataGridViewRow dgvRow in dtgTTNVL.Rows)
+            {
+                if (!(dgvRow.DataBoundItem is TTNVLRow row))
+                    continue;
+
+                dgvRow.DefaultCellStyle.ForeColor = row.IsCorrect
+                    ? normalColor
+                    : Color.Red;
+            }
         }
 
         private void SetColumnHeaders(DataGridView dgv, List<ColumnDefinition> columns)
@@ -431,24 +490,29 @@ namespace DG_TonKhoBTP_v02.UI
                     may = maBinParts[0];
                 }
 
-                string[] arr = { "B10", "B13", "B14", "B15", "B16", "MD16A4", "R10", "R12" };
-
-                if (kieuDL == 1 && !arr.Contains(may)) return;
+                if (kieuDL == 1 && !EnumStore.LaMayChoPhepTaiSuDungNVL(may))
+                    return;
 
                 dtgTTNVL.SuspendLayout();
                 try
                 {
                     _nvlRows.Clear();
 
+                    ThanhPhamData thanhPham = GetThanhPhamData?.Invoke()
+                        ?? new ThanhPhamData();
+
                     foreach (DataRow src in dt.Rows)
                     {
-                        _nvlRows.Add(MapDataRowToNvlRow(src));
+                        TTNVLRow row = MapDataRowToNvlRow(src);
+                        ApplyBomToRow(row, thanhPham);
+                        _nvlRows.Add(row);
                     }
 
                     _nvlSource.ResetBindings(false);
                     SetColumnHeaders(dtgTTNVL, _columns);
                     EnsureColumnOrderAndDeleteLast();
                     ApDungQuyenNhapTayChoTatCaDong();
+                    RefreshBomRowStyles();
                     dtgTTNVL.Refresh();
                 }
                 finally
@@ -631,8 +695,7 @@ namespace DG_TonKhoBTP_v02.UI
 
             var parameters = new Dictionary<string, object>
             {
-                { "ten", keyword },
-                { "ParentProductId", thanhPham.DanhSachSPId }
+                { "ten", keyword }
             };
 
             string query =  CoreHelper.TaoSQL_LayDLTTThanhPham(cdHanNoi);
@@ -663,6 +726,7 @@ namespace DG_TonKhoBTP_v02.UI
             foreach (DataRow src in source.Rows)
             {
                 TTNVLRow newItem = MapDataRowToNvlRow(src);
+                ApplyBomToRow(newItem, thanhPham);
                 string key = newItem.Id?.ToString() ?? string.Empty;
 
                 bool exists = _nvlRows.Any(r =>
@@ -883,7 +947,8 @@ namespace DG_TonKhoBTP_v02.UI
             {
                 Id = GetInt(src, "id"),
                 TTThanhPhan_ID = GetInt(src, "TTThanhPhan_ID"),
-                DanhSachMaSP_ID = GetInt(src, "DanhSachMaSP_ID"),
+                DanhSachMaSP_ID = GetInt(src, "NVL_DanhSachMaSP_ID")
+                    ?? GetInt(src, "DanhSachMaSP_ID"),
 
                 BinNVL = GetString(src, "BinNVL"),
                 CongDoan = GetInt(src, "CongDoan") ?? -1,

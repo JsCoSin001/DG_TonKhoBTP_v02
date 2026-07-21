@@ -4,6 +4,7 @@ using DG_TonKhoBTP_v02.Dictionary;
 using DG_TonKhoBTP_v02.Helper;
 using DG_TonKhoBTP_v02.Models;
 using System;
+using System.Collections.Generic;
 using CoreHelper = DG_TonKhoBTP_v02.Helper.Helper;
 using System.Data;
 using System.Linq;
@@ -21,11 +22,13 @@ namespace DG_TonKhoBTP_v02.UI
         private bool _suppressTextChange = false;
         public string tenCongDoan { get; set; }
         public CongDoan congDoan;
+        private List<BomComponentData> _bomComponents;
+        private int _bomLoadVersion;
 
         public void SetTenCongDoan(string value) => tenCongDoan = value;
 
 
-        public event Action<string> SoLOTChanged;
+        public event Action<string, string> SoLOTChanged;
         public string SoLOTValue => soLOT.Text;
 
 
@@ -48,8 +51,38 @@ namespace DG_TonKhoBTP_v02.UI
                 Phe = phe.Value,
                 GhiChu = GhiChu?.Text ?? string.Empty,
                 SoLOT = soLOT?.Text ?? string.Empty,
-                TenMay = LayTenMayTuSoLOT()
+                TenMay = LayTenMayTuSoLOT(),
+                BomComponents = CloneBomComponents(_bomComponents)
             };
+        }
+
+        private static List<BomComponentData> CloneBomComponents(
+            IEnumerable<BomComponentData> source)
+        {
+            if (source == null) return null;
+
+            return source.Select(x => new BomComponentData
+            {
+                ComponentId = x.ComponentId,
+                TyLe = x.TyLe,
+                TyLeHoanDoi = x.TyLeHoanDoi
+            }).ToList();
+        }
+
+        private static bool BomComponentsEqual(
+            IReadOnlyCollection<BomComponentData> left,
+            IReadOnlyCollection<BomComponentData> right)
+        {
+            if (ReferenceEquals(left, right)) return true;
+            if (left == null || right == null) return left == null && right == null;
+            if (left.Count != right.Count) return false;
+
+            return left.OrderBy(x => x.ComponentId)
+                .Zip(right.OrderBy(x => x.ComponentId), (a, b) =>
+                    a.ComponentId == b.ComponentId &&
+                    a.TyLe == b.TyLe &&
+                    a.TyLeHoanDoi == b.TyLeHoanDoi)
+                .All(x => x);
         }
 
         private string LayTenMayTuSoLOT()
@@ -88,8 +121,7 @@ namespace DG_TonKhoBTP_v02.UI
         {
             soLOT.Text = CoreHelper.LOTGenerated(may, maHanhTrinh, sttCongDoan, sttLo, soBin);
 
-            SoLOTChanged?.Invoke(SoLOTValue);
-            RaiseThanhPhamChanged();
+            SoLOTChanged?.Invoke(SoLOTValue, may.Text);
         }
 
         private void maHanhTrinh_ValueChanged(object sender, EventArgs e)
@@ -166,7 +198,6 @@ namespace DG_TonKhoBTP_v02.UI
         private async void timNVL_TextUpdate(object sender, EventArgs e)
         {
             if (_suppressTextChange) return;
-            ResetController_TimTenSP();
 
             string tenTP = timTenTPCongDoan.Text?.Trim() ?? string.Empty;
             if (string.IsNullOrWhiteSpace(tenTP))
@@ -211,7 +242,6 @@ namespace DG_TonKhoBTP_v02.UI
                 SELECT id, ten, ma, donvi, chuyenDoi
                 FROM DanhSachMaSP
                 WHERE ten LIKE '%' || @{para} || '%'
-                  AND Ma NOT LIKE 'NVL.%' 
                   AND Active = 1 
                   AND ({likeConditions});
             ";
@@ -306,35 +336,76 @@ namespace DG_TonKhoBTP_v02.UI
             }
         }
 
-        private void FillSelectedThanhPham(DataRowView row)
+        private async Task FillSelectedThanhPhamAsync(DataRowView row)
         {
             if (row == null) return;
 
-            if (!XacNhanTiepTucNeuKhacCongDoanBOM(row))
+            if (!int.TryParse(row["id"]?.ToString(), out int selectedProductId) ||
+                selectedProductId <= 0)
             {
-                ClearThanhPhamSelectionForRetry();
                 return;
             }
+
+            int loadVersion = Interlocked.Increment(ref _bomLoadVersion);
+            List<BomComponentData> candidateBom;
+            try
+            {
+                candidateBom = await Task.Run(() =>
+                    DatabaseHelper.GetActiveBomComponents(selectedProductId));
+            }
+            catch
+            {
+                if (loadVersion != _bomLoadVersion)
+                    return;
+
+                FrmWaiting.ShowGifAlert(
+                    "Cơ sở dữ liệu đang bận, thử lại sau ít phút");
+                ResetSearchSelectionForRetry();
+                return;
+            }
+
+            if (loadVersion != _bomLoadVersion)
+                return;
 
             string oldId = id.Text;
             string oldMa = ma.Text;
             string oldTen = ten.Text;
+            List<BomComponentData> oldBom = _bomComponents;
 
             ten.Text = row["ten"]?.ToString() ?? string.Empty;
             ma.Text = row["ma"]?.ToString() ?? string.Empty;
             id.Text = row["id"]?.ToString() ?? string.Empty;
             donVi.Text = row["donvi"]?.ToString() ?? string.Empty;
             nbrChuyenDoi.Value = Convert.ToDecimal(row["chuyenDoi"] ?? 1);
+            _bomComponents = candidateBom;
 
-            _userNavigatingSuggestions = false;
-            timTenTPCongDoan.DroppedDown = false;
-            timTenTPCongDoan.SelectedIndex = -1;
-            timTenTPCongDoan.Text = string.Empty;
+            ResetSearchSelectionForRetry();
 
-            if (oldId != id.Text || oldMa != ma.Text || oldTen != ten.Text)
+            if (oldId != id.Text || oldMa != ma.Text || oldTen != ten.Text ||
+                !BomComponentsEqual(oldBom, _bomComponents))
             {
                 RaiseThanhPhamChanged();
             }
+        }
+
+        private void ResetSearchSelectionForRetry()
+        {
+            _suppressTextChange = true;
+            try
+            {
+                _userNavigatingSuggestions = false;
+                timTenTPCongDoan.DroppedDown = false;
+                timTenTPCongDoan.SelectedIndex = -1;
+                timTenTPCongDoan.DataSource = null;
+                timTenTPCongDoan.Items.Clear();
+                timTenTPCongDoan.Text = string.Empty;
+            }
+            finally
+            {
+                _suppressTextChange = false;
+            }
+
+            timTenTPCongDoan.Focus();
         }
 
         private bool XacNhanTiepTucNeuKhacCongDoanBOM(DataRowView row)
@@ -411,14 +482,14 @@ namespace DG_TonKhoBTP_v02.UI
             timTenTPCongDoan.Focus();
         }
 
-        private void timNVL_SelectionChangeCommitted(object sender, EventArgs e)
+        private async void timNVL_SelectionChangeCommitted(object sender, EventArgs e)
         {
             // Items được nạp bằng DataRowViewWrapper (không dùng DataSource binding)
             if (timTenTPCongDoan.SelectedItem is DataRowViewWrapper wrapper)
-                FillSelectedThanhPham(wrapper.Row);
+                await FillSelectedThanhPhamAsync(wrapper.Row);
         }
 
-        private void timNVL_KeyDown(object sender, KeyEventArgs e)
+        private async void timNVL_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Down)
             {
@@ -443,7 +514,7 @@ namespace DG_TonKhoBTP_v02.UI
             {
                 if (_userNavigatingSuggestions && timTenTPCongDoan.SelectedItem is DataRowViewWrapper wrapper)
                 {
-                    FillSelectedThanhPham(wrapper.Row);
+                    await FillSelectedThanhPhamAsync(wrapper.Row);
                     e.Handled = true;
                     e.SuppressKeyPress = true;
                 }
@@ -452,6 +523,8 @@ namespace DG_TonKhoBTP_v02.UI
 
         private void ResetController_TimTenSP()
         {
+            Interlocked.Increment(ref _bomLoadVersion);
+            _bomComponents = null;
             id.Text = string.Empty;
             ma.Text = string.Empty;
             ten.Text = string.Empty;
@@ -467,6 +540,15 @@ namespace DG_TonKhoBTP_v02.UI
 
             var row = dt.Rows[0];
             string bin = row["MaBin"]?.ToString() ?? string.Empty;
+
+            _bomComponents = null;
+            if (dt.ExtendedProperties.ContainsKey(BomDataTableProperties.Loaded) &&
+                Convert.ToBoolean(dt.ExtendedProperties[BomDataTableProperties.Loaded]))
+            {
+                _bomComponents = CloneBomComponents(
+                    dt.ExtendedProperties[BomDataTableProperties.Components]
+                        as IEnumerable<BomComponentData>);
+            }
 
             CoreHelper.SetIfPresent(row, "DanhSachMaSP_ID", val => id.Text = Convert.ToString(val));
             CoreHelper.SetIfPresent(row, "Ma", val => ma.Text = Convert.ToString(val));

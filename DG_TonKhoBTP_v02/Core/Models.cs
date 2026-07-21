@@ -78,8 +78,8 @@ namespace DG_TonKhoBTP_v02.Core
         public double? TyLe { get; set; } = 1;
         public double? TyLeHoanDoi { get; set; } = 1;
 
-        // Mặc định true để dữ liệu cũ/LoadData không có cột IsCorrect không bị chặn nhầm.
-        // Khi quét mới, SQL trả về IsCorrect = 0/1 sẽ ghi đè giá trị này.
+        // Giá trị cuối cùng được UC_TTNVL tính bằng cách đối chiếu
+        // DanhSachMaSP_ID với BOM được truyền từ UC_TTThanhPham.
         public bool IsCorrect { get; set; } = true;
 
         public TTNVL ToTTNVL()

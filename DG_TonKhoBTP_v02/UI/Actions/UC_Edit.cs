@@ -70,28 +70,71 @@ namespace DG_TonKhoBTP_v02.UI
 
             try
             {
-                await WaitingHelper.RunWithWaiting(async () =>
-                {
-                    DataTable dt = await Task.Run(() =>
-                        Database.DatabaseHelper.GetDataByID(stt.ToString(), _cd, kieuEdit));
-
-                    if (dt == null || dt.Rows.Count == 0)
+                DataTable dt = await WaitingHelper.RunWithWaiting(
+                    () => Task.Run(() =>
                     {
-                        FrmWaiting.ShowGifAlert("STT KHÔNG TỒN TẠI!");
-                        return;
-                    }
+                        DataTable loaded = Database.DatabaseHelper.GetDataByID(
+                            stt.ToString(), _cd, kieuEdit);
 
-                    DataTableSubmitted?.Invoke(this, new DataTableEventArgs(dt, kieuEdit));
-                }, "ĐANG TÌM KIẾM, VUI LÒNG ĐỢI...");
+                        if (loaded == null || loaded.Rows.Count == 0)
+                            return loaded;
+
+                        int productId = ReadProductId(loaded.Rows[0]);
+                        List<BomComponentData> bomComponents =
+                            Database.DatabaseHelper.GetActiveBomComponents(productId);
+
+                        loaded.ExtendedProperties[BomDataTableProperties.Loaded] = true;
+                        if (bomComponents != null)
+                        {
+                            loaded.ExtendedProperties[BomDataTableProperties.Components] =
+                                bomComponents;
+                        }
+
+                        return loaded;
+                    }),
+                    "ĐANG TÌM KIẾM, VUI LÒNG ĐỢI...");
+
+                if (dt == null || dt.Rows.Count == 0)
+                {
+                    FrmWaiting.ShowGifAlert("STT KHÔNG TỒN TẠI!");
+                    return;
+                }
+
+                DataTableSubmitted?.Invoke(this, new DataTableEventArgs(dt, kieuEdit));
             }
-            catch (Exception ex)
+            catch
             {
-                FrmWaiting.ShowGifAlert($"Có lỗi xảy ra: {ex.Message}", "LỖI", EnumStore.Icon.Warning);
+                FrmWaiting.ShowGifAlert(
+                    "Cơ sở dữ liệu đang bận, thử lại sau ít phút",
+                    "LỖI",
+                    EnumStore.Icon.Warning);
             }
             finally
             {
                 btnTim.Enabled = true;
             }
+        }
+
+
+        private static int ReadProductId(DataRow row)
+        {
+            if (row?.Table == null)
+                throw new InvalidOperationException("Không xác định được thành phẩm.");
+
+            DataColumn column = row.Table.Columns.Cast<DataColumn>()
+                .FirstOrDefault(x => string.Equals(
+                    x.ColumnName,
+                    "DanhSachMaSP_ID",
+                    StringComparison.OrdinalIgnoreCase));
+
+            if (column == null || row[column] == DBNull.Value)
+                throw new InvalidOperationException("Không xác định được thành phẩm.");
+
+            int productId = Convert.ToInt32(row[column]);
+            if (productId <= 0)
+                throw new InvalidOperationException("Không xác định được thành phẩm.");
+
+            return productId;
         }
 
         public string SectionName => nameof(UC_Edit);
@@ -138,12 +181,10 @@ namespace DG_TonKhoBTP_v02.UI
 
         private void nbrSua_Click(object sender, EventArgs e)
         {
-            RequestClearOtherSections?.Invoke();
         }
 
         private void nbrSaoChep_Click(object sender, EventArgs e)
         {
-            RequestClearOtherSections?.Invoke();
         }
     }
 }

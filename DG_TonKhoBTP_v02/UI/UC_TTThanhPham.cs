@@ -64,6 +64,8 @@ namespace DG_TonKhoBTP_v02.UI
             return source.Select(x => new BomComponentData
             {
                 ComponentId = x.ComponentId,
+                ComponentMa = x.ComponentMa,
+                ComponentKieuSP = x.ComponentKieuSP,
                 TyLe = x.TyLe,
                 TyLeHoanDoi = x.TyLeHoanDoi
             }).ToList();
@@ -80,6 +82,8 @@ namespace DG_TonKhoBTP_v02.UI
             return left.OrderBy(x => x.ComponentId)
                 .Zip(right.OrderBy(x => x.ComponentId), (a, b) =>
                     a.ComponentId == b.ComponentId &&
+                    string.Equals(a.ComponentMa, b.ComponentMa, StringComparison.Ordinal) &&
+                    string.Equals(a.ComponentKieuSP, b.ComponentKieuSP, StringComparison.Ordinal) &&
                     a.TyLe == b.TyLe &&
                     a.TyLeHoanDoi == b.TyLeHoanDoi)
                 .All(x => x);
@@ -166,7 +170,8 @@ namespace DG_TonKhoBTP_v02.UI
                 ChieuDaiSau = (double)chieuDai.Value,
                 Phe = (double)phe.Value,
                 GhiChu = GhiChu?.Text ?? string.Empty,
-                DateInsert = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+                DateInsert = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+                BomComponents = CloneBomComponents(_bomComponents)
             };
         }
 
@@ -242,6 +247,7 @@ namespace DG_TonKhoBTP_v02.UI
                 SELECT id, ten, ma, donvi, chuyenDoi
                 FROM DanhSachMaSP
                 WHERE ten LIKE '%' || @{para} || '%'
+                  AND Ma NOT LIKE 'NVL.%' 
                   AND Active = 1 
                   AND ({likeConditions});
             ";

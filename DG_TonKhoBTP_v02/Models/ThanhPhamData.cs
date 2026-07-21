@@ -6,6 +6,12 @@ namespace DG_TonKhoBTP_v02.Models
     {
         public int ComponentId { get; set; }
 
+        // Mã và kiểu sản phẩm của component trong DanhSachMaSP.
+        // Hai giá trị này chỉ dùng để xác định component bắt buộc khi lưu.
+        public string ComponentMa { get; set; } = string.Empty;
+
+        public string ComponentKieuSP { get; set; } = string.Empty;
+
         public decimal TyLe { get; set; } = 1m;
 
         public decimal TyLeHoanDoi { get; set; } = 1m;

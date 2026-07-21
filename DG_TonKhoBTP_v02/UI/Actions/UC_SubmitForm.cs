@@ -29,6 +29,15 @@ namespace DG_TonKhoBTP_v02.UI
         private readonly Action _onSaveSuccess;
         private static readonly string _printer = Properties.Settings.Default.PrinterName;
 
+        // Chỉ cần thêm constant lỗi vào danh sách này nếu lỗi đó không cần
+        // hiển thị hộp thoại xác nhận. Lỗi vẫn được lưu xuống database.
+        private static readonly HashSet<string> DanhSachLoiKhongCanXacNhan =
+            new HashSet<string>
+            {
+                // Ví dụ:
+                // DanhSachLoiNhapLieuSX.Loi_BomNull,
+            };
+
         private CongDoan _Cd;
 
         public UC_SubmitForm(CongDoan cd, Action onSaveSuccess = null)
@@ -575,16 +584,24 @@ namespace DG_TonKhoBTP_v02.UI
         {
             var danhSachLoi = new List<string>();
 
-            // B1. Kiểm tra nguyên liệu có khớp với BOM của thành phẩm hay không.
-            // B1.1: Kiểm tra xem nguyên liệu có khớp với BOM của thành phẩm hay không.
-            var loiKhongKhop = KiemTraThanhPhamNguyenLieuKhongKhopBOM(nguyenVatLieu);
-            // B1.2: Thêm lỗi nếu xuất hiện
+            // B1. BOM null hoặc rỗng được ưu tiên trả lỗi trước các kiểm tra khác.
+            var loiBomNull = KiemTraBomNull(thanhPham);
+            ThemLoiNeuCo(danhSachLoi, loiBomNull);
+
+            if (loiBomNull != null)
+                return danhSachLoi;
+
+            // B2. Kiểm tra nguyên liệu có khớp với BOM của thành phẩm hay không.
+            var loiKhongKhop =
+                KiemTraThanhPhamNguyenLieuKhongKhopBOM(nguyenVatLieu);
+
             ThemLoiNeuCo(danhSachLoi, loiKhongKhop);
 
-            // B2. Nếu phát hiện NVL không thuộc bom của TP thì dừng kiểm tra
-            if (loiKhongKhop != null) return danhSachLoi;
+            // Nếu phát hiện NVL không thuộc BOM thì dừng kiểm tra quan hệ.
+            if (loiKhongKhop != null)
+                return danhSachLoi;
 
-            // B3. Kiểm tra khác
+            // B3. Kiểm tra BOM có đủ các loại nguyên vật liệu bắt buộc hay không.
             ThemLoiNeuCo(
                 danhSachLoi,
                 KiemTraSoLuongNguyenVatLieu(thanhPham, nguyenVatLieu));
@@ -612,6 +629,18 @@ namespace DG_TonKhoBTP_v02.UI
         }
 
         /// <summary>
+        /// Kiểm tra thành phẩm có danh sách BOM để thực hiện các kiểm tra
+        /// quan hệ nguyên vật liệu hay không.
+        /// </summary>
+        private static string KiemTraBomNull(TTThanhPham thanhPham)
+        {
+            return thanhPham?.BomComponents == null ||
+                   thanhPham.BomComponents.Count == 0
+                ? DanhSachLoiNhapLieuSX.Loi_BomNull
+                : null;
+        }
+
+        /// <summary>
         /// Kiểm tra danh sách NVL có dòng nào không thuộc BOM
         /// của thành phẩm đang chọn hay không.
         /// </summary>
@@ -629,36 +658,72 @@ namespace DG_TonKhoBTP_v02.UI
         }
 
         /// <summary>
-        /// Khung kiểm tra số lượng nguyên vật liệu.
-        /// Mặc định không báo lỗi cho tới khi bổ sung quy tắc nghiệp vụ.
+        /// Danh sách mã sản phẩm có KieuSP = "NVL" nhưng vẫn bắt buộc
+        /// phải xuất hiện trong danh sách nguyên vật liệu khi lưu.
+        /// Chỉ cần điền DanhSachMaSP.Ma vào danh sách bên dưới.
+        /// </summary>
+        private static HashSet<string> LayDanhSachMaNVLBatBuoc()
+        {
+            string[] danhSachMa =
+            {
+                // Ví dụ:
+                // "MA_NVL_BAT_BUOC",
+            };
+
+            return new HashSet<string>(
+                danhSachMa
+                    .Where(ma => !string.IsNullOrWhiteSpace(ma))
+                    .Select(ma => ma.Trim()),
+                StringComparer.OrdinalIgnoreCase);
+        }
+
+        /// <summary>
+        /// Xác định component BOM có bắt buộc xuất hiện hay không.
+        /// Component khác KieuSP = "NVL" luôn bắt buộc. Component NVL chỉ
+        /// bắt buộc khi mã nằm trong danh sách cấu hình.
+        /// </summary>
+        private static bool LaComponentBatBuoc(
+            BomComponentData component,
+            HashSet<string> danhSachMaNVLBatBuoc)
+        {
+            if (component == null)
+                return true;
+
+            string kieuSP = (component.ComponentKieuSP ?? string.Empty).Trim();
+            if (!string.Equals(kieuSP, "NVL", StringComparison.OrdinalIgnoreCase))
+                return true;
+
+            string maComponent = (component.ComponentMa ?? string.Empty).Trim();
+            return danhSachMaNVLBatBuoc.Contains(maComponent);
+        }
+
+        /// <summary>
+        /// Kiểm tra mỗi component bắt buộc trong BOM có xuất hiện ít nhất
+        /// một lần trong danh sách nguyên vật liệu thực tế hay không.
         /// </summary>
         private static string KiemTraSoLuongNguyenVatLieu(
             TTThanhPham thanhPham,
             List<TTNVLRow> nguyenVatLieu)
         {
-            bool coLoi = false;
+            // BOM null/rỗng đã được kiểm tra trước khi gọi hàm này.
+            var componentIdsThucTe = new HashSet<int>(
+                nguyenVatLieu
+                    .Where(nvl => nvl?.DanhSachMaSP_ID != null)
+                    .Select(nvl => nvl.DanhSachMaSP_ID.Value));
 
-            string tenTP = thanhPham.TenTP;
-            List<CumCauTruc> danhSachCum_TP = PhanTachCauTrucDay.LayDanhSachCum(tenTP);
+            HashSet<string> danhSachMaNVLBatBuoc =
+                LayDanhSachMaNVLBatBuoc();
 
+            bool thieuComponentBatBuoc = thanhPham.BomComponents
+                .Where(component =>
+                    LaComponentBatBuoc(component, danhSachMaNVLBatBuoc))
+                .Any(component =>
+                    component == null ||
+                    !componentIdsThucTe.Contains(component.ComponentId));
 
-
-
-            foreach (var nvl in nguyenVatLieu)
-            {
-                string tenNVL = nvl.TenNVL;
-                List<CumCauTruc> danhSachCum_NVL = PhanTachCauTrucDay.LayDanhSachCum(tenNVL);
-                
-                // 
-            
-            
-            }
-
-
-            if (coLoi)
-            return DanhSachLoiNhapLieuSX.Loi_SoLuongNVL;
-
-            return null;
+            return thieuComponentBatBuoc
+                ? DanhSachLoiNhapLieuSX.Loi_SoLuongNVL
+                : null;
         }
 
         /// <summary>
@@ -761,6 +826,17 @@ namespace DG_TonKhoBTP_v02.UI
         }
 
         /// <summary>
+        /// Xác định lỗi có cần hiển thị để người dùng xác nhận hay không.
+        /// Chỉ cần thêm tên lỗi vào DanhSachLoiKhongCanXacNhan để ẩn lỗi đó
+        /// khỏi popup; lỗi vẫn được giữ nguyên trong dữ liệu lưu database.
+        /// </summary>
+        private static bool LoiNhapLieuCanXacNhan(string loi)
+        {
+            return !string.IsNullOrWhiteSpace(loi) &&
+                   !DanhSachLoiKhongCanXacNhan.Contains(loi);
+        }
+
+        /// <summary>
         /// Hiển thị danh sách bất thường để người dùng quyết định có tiếp tục lưu hay không.
         /// Form chờ được đóng trước khi hiển thị và chỉ mở lại khi người dùng chọn Yes.
         /// </summary>
@@ -773,7 +849,7 @@ namespace DG_TonKhoBTP_v02.UI
                 return true;
 
             List<string> danhSachLoi = submitData.DanhSachLoiNhapLieu?
-                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .Where(LoiNhapLieuCanXacNhan)
                 .Distinct()
                 .ToList()
                 ?? new List<string>();

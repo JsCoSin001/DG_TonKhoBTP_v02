@@ -180,6 +180,11 @@ namespace DG_TonKhoBTP_v02.Core
         public double HanNoi { get; set; } = 0;
         public int? LastEdit_id { get; set; }
         public string? DateInsert { get; set; }     // NULL
+
+        // Chỉ dùng trong bộ nhớ để kiểm tra quan hệ BOM khi lưu.
+        // Không ánh xạ vào bảng TTThanhPham.
+        [NotMapped]
+        public List<BomComponentData>? BomComponents { get; set; }
     }
 
     // --------------------------- Công đoạn: Bóc Vỏ ---------------------------

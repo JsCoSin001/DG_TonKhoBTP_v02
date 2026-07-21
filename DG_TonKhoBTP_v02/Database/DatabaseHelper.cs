@@ -2578,6 +2578,8 @@ namespace DG_TonKhoBTP_v02.Database
             const string sql = @"
                 SELECT
                     bom.Component AS ComponentId,
+                    component.Ma AS ComponentMa,
+                    component.KieuSP AS ComponentKieuSP,
                     COALESCE(bom.TyLe, 1) AS TyLe,
                     COALESCE(bom.TyLeHoanDoi, 1) AS TyLeHoanDoi
                 FROM BOMStructure AS bom
@@ -2605,6 +2607,12 @@ namespace DG_TonKhoBTP_v02.Database
                             result.Add(new BomComponentData
                             {
                                 ComponentId = Convert.ToInt32(reader["ComponentId"]),
+                                ComponentMa = reader["ComponentMa"] == DBNull.Value
+                                    ? string.Empty
+                                    : Convert.ToString(reader["ComponentMa"]) ?? string.Empty,
+                                ComponentKieuSP = reader["ComponentKieuSP"] == DBNull.Value
+                                    ? string.Empty
+                                    : Convert.ToString(reader["ComponentKieuSP"]) ?? string.Empty,
                                 TyLe = reader["TyLe"] == DBNull.Value
                                     ? 1m
                                     : Convert.ToDecimal(reader["TyLe"]),

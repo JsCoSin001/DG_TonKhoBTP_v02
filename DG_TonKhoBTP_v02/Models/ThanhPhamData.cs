@@ -12,6 +12,10 @@ namespace DG_TonKhoBTP_v02.Models
 
         public string ComponentKieuSP { get; set; } = string.Empty;
 
+        // true khi component KieuSP = "NVL" được cấu hình bắt buộc
+        // trong bảng DanhSachNVLBatBuoc.
+        public bool LaNVLBatBuoc { get; set; }
+
         public decimal TyLe { get; set; } = 1m;
 
         public decimal TyLeHoanDoi { get; set; } = 1m;

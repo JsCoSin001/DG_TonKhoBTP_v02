@@ -2566,6 +2566,7 @@ namespace DG_TonKhoBTP_v02.Database
             }
         }
 
+
         /// <summary>
         /// Lấy BOM trực tiếp đang active của một thành phẩm.
         /// Trả về null khi truy vấn thành công nhưng không có component active.
@@ -2580,12 +2581,19 @@ namespace DG_TonKhoBTP_v02.Database
                     bom.Component AS ComponentId,
                     component.Ma AS ComponentMa,
                     component.KieuSP AS ComponentKieuSP,
+                    CASE
+                        WHEN nvlBatBuoc.id IS NULL THEN 0
+                        ELSE 1
+                    END AS LaNVLBatBuoc,
                     COALESCE(bom.TyLe, 1) AS TyLe,
                     COALESCE(bom.TyLeHoanDoi, 1) AS TyLeHoanDoi
                 FROM BOMStructure AS bom
                 INNER JOIN DanhSachMaSP AS component
                     ON component.id = bom.Component
                    AND component.Active = 1
+                LEFT JOIN DanhSachNVLBatBuoc AS nvlBatBuoc
+                    ON nvlBatBuoc.DanhSachMaSP_ID = component.id
+                   AND nvlBatBuoc.Active = 1
                 WHERE bom.ParentProduct = @ParentProductId
                   AND bom.Active = 1
                 ORDER BY bom.id;";
@@ -2613,6 +2621,8 @@ namespace DG_TonKhoBTP_v02.Database
                                 ComponentKieuSP = reader["ComponentKieuSP"] == DBNull.Value
                                     ? string.Empty
                                     : Convert.ToString(reader["ComponentKieuSP"]) ?? string.Empty,
+                                LaNVLBatBuoc = reader["LaNVLBatBuoc"] != DBNull.Value &&
+                                    Convert.ToInt32(reader["LaNVLBatBuoc"]) == 1,
                                 TyLe = reader["TyLe"] == DBNull.Value
                                     ? 1m
                                     : Convert.ToDecimal(reader["TyLe"]),

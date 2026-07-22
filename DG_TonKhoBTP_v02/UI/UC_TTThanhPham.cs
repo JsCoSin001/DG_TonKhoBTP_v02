@@ -66,6 +66,7 @@ namespace DG_TonKhoBTP_v02.UI
                 ComponentId = x.ComponentId,
                 ComponentMa = x.ComponentMa,
                 ComponentKieuSP = x.ComponentKieuSP,
+                LaNVLBatBuoc = x.LaNVLBatBuoc,
                 TyLe = x.TyLe,
                 TyLeHoanDoi = x.TyLeHoanDoi
             }).ToList();
@@ -84,6 +85,7 @@ namespace DG_TonKhoBTP_v02.UI
                     a.ComponentId == b.ComponentId &&
                     string.Equals(a.ComponentMa, b.ComponentMa, StringComparison.Ordinal) &&
                     string.Equals(a.ComponentKieuSP, b.ComponentKieuSP, StringComparison.Ordinal) &&
+                    a.LaNVLBatBuoc == b.LaNVLBatBuoc &&
                     a.TyLe == b.TyLe &&
                     a.TyLeHoanDoi == b.TyLeHoanDoi)
                 .All(x => x);
@@ -247,7 +249,6 @@ namespace DG_TonKhoBTP_v02.UI
                 SELECT id, ten, ma, donvi, chuyenDoi
                 FROM DanhSachMaSP
                 WHERE ten LIKE '%' || @{para} || '%'
-                  AND Ma NOT LIKE 'NVL.%' 
                   AND Active = 1 
                   AND ({likeConditions});
             ";

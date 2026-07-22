@@ -658,33 +658,11 @@ namespace DG_TonKhoBTP_v02.UI
         }
 
         /// <summary>
-        /// Danh sách mã sản phẩm có KieuSP = "NVL" nhưng vẫn bắt buộc
-        /// phải xuất hiện trong danh sách nguyên vật liệu khi lưu.
-        /// Chỉ cần điền DanhSachMaSP.Ma vào danh sách bên dưới.
-        /// </summary>
-        private static HashSet<string> LayDanhSachMaNVLBatBuoc()
-        {
-            string[] danhSachMa =
-            {
-                // Ví dụ:
-                // "MA_NVL_BAT_BUOC",
-            };
-
-            return new HashSet<string>(
-                danhSachMa
-                    .Where(ma => !string.IsNullOrWhiteSpace(ma))
-                    .Select(ma => ma.Trim()),
-                StringComparer.OrdinalIgnoreCase);
-        }
-
-        /// <summary>
         /// Xác định component BOM có bắt buộc xuất hiện hay không.
         /// Component khác KieuSP = "NVL" luôn bắt buộc. Component NVL chỉ
-        /// bắt buộc khi mã nằm trong danh sách cấu hình.
+        /// bắt buộc khi được bật Active trong bảng DanhSachNVLBatBuoc.
         /// </summary>
-        private static bool LaComponentBatBuoc(
-            BomComponentData component,
-            HashSet<string> danhSachMaNVLBatBuoc)
+        private static bool LaComponentBatBuoc(BomComponentData component)
         {
             if (component == null)
                 return true;
@@ -693,8 +671,7 @@ namespace DG_TonKhoBTP_v02.UI
             if (!string.Equals(kieuSP, "NVL", StringComparison.OrdinalIgnoreCase))
                 return true;
 
-            string maComponent = (component.ComponentMa ?? string.Empty).Trim();
-            return danhSachMaNVLBatBuoc.Contains(maComponent);
+            return component.LaNVLBatBuoc;
         }
 
         /// <summary>
@@ -711,12 +688,8 @@ namespace DG_TonKhoBTP_v02.UI
                     .Where(nvl => nvl?.DanhSachMaSP_ID != null)
                     .Select(nvl => nvl.DanhSachMaSP_ID.Value));
 
-            HashSet<string> danhSachMaNVLBatBuoc =
-                LayDanhSachMaNVLBatBuoc();
-
             bool thieuComponentBatBuoc = thanhPham.BomComponents
-                .Where(component =>
-                    LaComponentBatBuoc(component, danhSachMaNVLBatBuoc))
+                .Where(LaComponentBatBuoc)
                 .Any(component =>
                     component == null ||
                     !componentIdsThucTe.Contains(component.ComponentId));

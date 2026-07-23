@@ -604,15 +604,14 @@ namespace DG_TonKhoBTP_v02.UI
             // B3. Kiểm tra BOM có đủ các loại nguyên vật liệu bắt buộc hay không.
             ThemLoiNeuCo(
                 danhSachLoi,
-                KiemTraSoLuongNguyenVatLieu(thanhPham, nguyenVatLieu));
+                KTraSoLuongLoaiNguyenVatLieu(thanhPham, nguyenVatLieu));
 
+            // B4. Kiểm tra số lượng Bin giữa thành phẩm và NVL.
             ThemLoiNeuCo(
                 danhSachLoi,
                 KiemTraSoLuongBin(thanhPham, nguyenVatLieu));
 
-            ThemLoiNeuCo(
-                danhSachLoi,
-                KiemTraKhoiLuongChieuDai(thanhPham, nguyenVatLieu));
+            
 
             return danhSachLoi;
         }
@@ -678,7 +677,7 @@ namespace DG_TonKhoBTP_v02.UI
         /// Kiểm tra mỗi component bắt buộc trong BOM có xuất hiện ít nhất
         /// một lần trong danh sách nguyên vật liệu thực tế hay không.
         /// </summary>
-        private static string KiemTraSoLuongNguyenVatLieu(
+        private static string KTraSoLuongLoaiNguyenVatLieu(
             TTThanhPham thanhPham,
             List<TTNVLRow> nguyenVatLieu)
         {
@@ -707,12 +706,9 @@ namespace DG_TonKhoBTP_v02.UI
             TTThanhPham thanhPham,
             List<TTNVLRow> nguyenVatLieu)
         {
-            bool coLoi = false;
-
-            if (coLoi)
-                return DanhSachLoiNhapLieuSX.Loi_SoLuongBin;
-
-            return null;
+            return KiemTraSoLuongBinHelper.KiemTra(
+                thanhPham,
+                nguyenVatLieu);
         }
 
         /// <summary>

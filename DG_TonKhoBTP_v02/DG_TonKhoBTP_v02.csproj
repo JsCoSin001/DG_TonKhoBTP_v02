@@ -143,6 +143,7 @@
     <Compile Include="Database\KeToan\BOMStructure_DB.cs" />
     <Compile Include="Database\KeToan\BoSungThongTinSP_DB.cs" />
     <Compile Include="Database\KeToan\CapNhatSP_DB.cs" />
+    <Compile Include="Database\KeToan\DanhSachLoiNhapLieuSX_DB.cs" />
     <Compile Include="Database\KeToan\KiemKe_DB.cs" />
     <Compile Include="Database\KeToan\KiemTraDuLieuSXNhap_DB.cs" />
     <Compile Include="Database\KeToan\TTLo_DB.cs" />
@@ -171,7 +172,6 @@
     <Compile Include="Helper\ChiTietCongDoan.cs" />
     <Compile Include="Helper\DataGridViewUtils.cs" />
     <Compile Include="Helper\NvlNhapTayPolicy.cs" />
-    <Compile Include="Helper\PhanTachCauTrucDay.cs" />
     <Compile Include="Helper\Reuseable\AutoCompleteDropDown.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -193,6 +193,7 @@
     <Compile Include="Models\KeToan\BOMStructure_Model.cs" />
     <Compile Include="Models\KeToan\BoSungThongTinSP_Model.cs" />
     <Compile Include="Models\KeToan\CapNhatSP_Model.cs" />
+    <Compile Include="Models\KeToan\DanhSachLoiNhapLieuSX_Model.cs" />
     <Compile Include="Models\KeToan\KiemKe_Model.cs" />
     <Compile Include="Models\KeToan\KiemTraDuLieuSXNhap_Model.cs" />
     <Compile Include="Models\KeToan\TTLo_Model.cs" />
@@ -241,11 +242,19 @@
     </Compile>
     <Compile Include="UI\Helper\AutoSearchWithCombobox\ComboBoxSearchHelper.cs" />
     <Compile Include="UI\Helper\AutoSearchWithCombobox\VatTuPhu.cs" />
+    <Compile Include="UI\Helper\KiemTraSoLuongBinHelper.cs" />
+    <Compile Include="UI\Helper\PhanTachCauTrucDay.cs" />
     <Compile Include="UI\NghiepVuKhac\KeToan\Frm_BoSungThemDuLieu.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="UI\NghiepVuKhac\KeToan\Frm_BoSungThemDuLieu.Designer.cs">
       <DependentUpon>Frm_BoSungThemDuLieu.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\NghiepVuKhac\KeToan\Frm_ChiTietLoiNhapLieuSX.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\NghiepVuKhac\KeToan\Frm_ChiTietLoiNhapLieuSX.Designer.cs">
+      <DependentUpon>Frm_ChiTietLoiNhapLieuSX.cs</DependentUpon>
     </Compile>
     <Compile Include="UI\NghiepVuKhac\KeToan\UC_KiemTraDuLieu.cs">
       <SubType>UserControl</SubType>

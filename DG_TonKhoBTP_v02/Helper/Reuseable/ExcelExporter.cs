@@ -67,10 +67,22 @@ namespace DG_TonKhoBTP_v02.Helper
             string defaultFileName = "Report",
             ExcelExportTextFormat textFormat = ExcelExportTextFormat.Unicode)
         {
+            TryExport(table, defaultFileName, textFormat);
+        }
+
+        /// <summary>
+        /// Xuất dữ liệu và trả về true chỉ khi file đã được lưu thành công.
+        /// Các nơi đang gọi Export() cũ không bị ảnh hưởng.
+        /// </summary>
+        public static bool TryExport(
+            DataTable table,
+            string defaultFileName = "Report",
+            ExcelExportTextFormat textFormat = ExcelExportTextFormat.Unicode)
+        {
             if (table == null || table.Rows.Count == 0)
             {
                 FrmWaiting.ShowGifAlert("Không có dữ liệu để xuất.", "Export", EnumStore.Icon.Warning);
-                return;
+                return false;
             }
 
             using var sfd = new SaveFileDialog
@@ -83,17 +95,19 @@ namespace DG_TonKhoBTP_v02.Helper
             if (sfd.ShowDialog() != DialogResult.OK)
             {
                 FrmWaiting.ShowGifAlert("Huỷ quá trình xuất Excel", "Export", EnumStore.Icon.Warning);
-                return;
+                return false;
             }
+
             try
             {
-                // CHẠY TRÊN UI THREAD — OK
                 ExportToPath(table, sfd.FileName, textFormat);
                 FrmWaiting.ShowGifAlert("Đã xuất Excel thành công!", "Export", EnumStore.Icon.Success);
+                return true;
             }
             catch (Exception ex)
             {
                 FrmWaiting.ShowGifAlert($"Lỗi khi xuất Excel: {ex.Message}", "Export Error", EnumStore.Icon.Warning);
+                return false;
             }
         }
 

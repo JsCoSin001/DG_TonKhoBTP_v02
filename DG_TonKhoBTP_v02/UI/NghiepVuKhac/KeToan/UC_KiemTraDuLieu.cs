@@ -1,194 +1,527 @@
 ﻿using DG_TonKhoBTP_v02.Database.KeToan;
-using DG_TonKhoBTP_v02.Dictionary;
+using DG_TonKhoBTP_v02.Helper;
 using DG_TonKhoBTP_v02.Models.KeToan;
+using DG_TonKhoBTP_v02.UI.Helper;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
+using System.Data;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
 {
     public partial class UC_KiemTraDuLieu : UserControl
     {
-        private const string TEXT_XAC_NHAN = "Xác nhận";
-        private const string TEXT_OK = "OK";
-        private const string TEXT_NA = "";
+        private const string ColChon = "colChon";
+        private const string ColIdLoi = "colIdLoi";
+        private const string ColTTThanhPhamId = "colTTThanhPhamId";
+        private const string ColLotThanhPham = "colLotThanhPham";
+        private const string ColTenCongDoan = "colTenCongDoan";
+        private const string ColTenThanhPham = "colTenThanhPham";
+        private const string ColNoiDungLoi = "colNoiDungLoi";
+        private const string ColConfirmed = "colConfirmed";
+        private const string ColXacNhan = "colXacNhan";
+        private const string ColDetail = "colDetail";
 
         public UC_KiemTraDuLieu()
         {
             InitializeComponent();
-            CauHinhGridBangSoSanhBom();
+            KhoiTaoBangDanhSachLoi();
+            grvDsLoiNhapLieu.CellContentClick += grvDsLoiNhapLieu_CellContentClick;
+            grvDsLoiNhapLieu.CurrentCellDirtyStateChanged += grvDsLoiNhapLieu_CurrentCellDirtyStateChanged;
         }
 
-        private void CauHinhGridBangSoSanhBom()
+        private void KhoiTaoBangDanhSachLoi()
         {
-            grvBangSoSanhBom.AutoGenerateColumns = false;
-            grvBangSoSanhBom.AllowUserToAddRows = false;
-            grvBangSoSanhBom.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            grvBangSoSanhBom.MultiSelect = false;
+            grvDsLoiNhapLieu.AutoGenerateColumns = false;
+            grvDsLoiNhapLieu.AllowUserToAddRows = false;
+            grvDsLoiNhapLieu.AllowUserToDeleteRows = false;
+            grvDsLoiNhapLieu.AllowUserToOrderColumns = false;
+            grvDsLoiNhapLieu.MultiSelect = false;
+            grvDsLoiNhapLieu.ReadOnly = false;
+            grvDsLoiNhapLieu.RowHeadersVisible = false;
+            grvDsLoiNhapLieu.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            grvDsLoiNhapLieu.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
+            grvDsLoiNhapLieu.Columns.Clear();
 
-            // Tăng chiều cao dòng
-            grvBangSoSanhBom.RowTemplate.Height = 35;
-            grvBangSoSanhBom.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.None;
+            grvDsLoiNhapLieu.Columns.Add(new DataGridViewCheckBoxColumn
+            {
+                Name = ColChon,
+                HeaderText = string.Empty,
+                Width = 45,
+                ReadOnly = false,
+                TrueValue = true,
+                FalseValue = false,
+                IndeterminateValue = false,
+                SortMode = DataGridViewColumnSortMode.NotSortable
+            });
 
-            if (grvBangSoSanhBom.Columns.Contains("id_KhacBietBom"))
-                grvBangSoSanhBom.Columns["id_KhacBietBom"].Visible = false;
+            grvDsLoiNhapLieu.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                Name = ColIdLoi,
+                Visible = false,
+                ReadOnly = true
+            });
 
-            foreach (DataGridViewColumn col in grvBangSoSanhBom.Columns)
-                col.ReadOnly = col.Name != "confirm";
+            grvDsLoiNhapLieu.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                Name = ColTTThanhPhamId,
+                HeaderText = "STT",
+                Width = 90,
+                ReadOnly = true,
+                SortMode = DataGridViewColumnSortMode.NotSortable
+            });
 
-            if (grvBangSoSanhBom.Columns["confirm"] is DataGridViewButtonColumn btnCol)
-                btnCol.UseColumnTextForButtonValue = false;
+            grvDsLoiNhapLieu.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                Name = ColLotThanhPham,
+                HeaderText = "LOT_TP",
+                Width = 145,
+                ReadOnly = true,
+                SortMode = DataGridViewColumnSortMode.NotSortable
+            });
 
-            grvBangSoSanhBom.CellContentClick -= grvBangSoSanhBom_CellContentClick;
-            grvBangSoSanhBom.CellContentClick += grvBangSoSanhBom_CellContentClick;
+            grvDsLoiNhapLieu.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                Name = ColTenCongDoan,
+                HeaderText = "Công đoạn",
+                Width = 190,
+                ReadOnly = true,
+                DefaultCellStyle = new DataGridViewCellStyle
+                {
+                    WrapMode = DataGridViewTriState.True
+                },
+                SortMode = DataGridViewColumnSortMode.NotSortable
+            });
+
+            grvDsLoiNhapLieu.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                Name = ColTenThanhPham,
+                HeaderText = "Tên thành phẩm",
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
+                FillWeight = 30,
+                ReadOnly = true,
+                DefaultCellStyle = new DataGridViewCellStyle
+                {
+                    WrapMode = DataGridViewTriState.True
+                },
+                SortMode = DataGridViewColumnSortMode.NotSortable
+            });
+
+            grvDsLoiNhapLieu.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                Name = ColNoiDungLoi,
+                HeaderText = "Nội dung lỗi",
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
+                FillWeight = 50,
+                ReadOnly = true,
+                DefaultCellStyle = new DataGridViewCellStyle
+                {
+                    WrapMode = DataGridViewTriState.True
+                },
+                SortMode = DataGridViewColumnSortMode.NotSortable
+            });
+
+            grvDsLoiNhapLieu.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                Name = ColConfirmed,
+                Visible = false,
+                ReadOnly = true
+            });
+
+            grvDsLoiNhapLieu.Columns.Add(new DataGridViewButtonColumn
+            {
+                Name = ColXacNhan,
+                HeaderText = "Xác nhận",
+                Width = 110,
+                ReadOnly = true,
+                UseColumnTextForButtonValue = false,
+                SortMode = DataGridViewColumnSortMode.NotSortable
+            });
+
+            grvDsLoiNhapLieu.Columns.Add(new DataGridViewButtonColumn
+            {
+                Name = ColDetail,
+                HeaderText = "Chi tiết",
+                Text = "Detail",
+                Width = 90,
+                ReadOnly = true,
+                UseColumnTextForButtonValue = true,
+                SortMode = DataGridViewColumnSortMode.NotSortable
+            });
         }
 
-        private void btnLayDS_Click(object sender, EventArgs e)
+        private async void btnLayDS_Click(object sender, EventArgs e)
         {
-            grvBangSoSanhBom.DataSource = null;
-            grvBangSoSanhBom.Rows.Clear();
+            await TaiDanhSachLoiAsync();
+        }
+
+        private async void btnXuatExcel_Click(object sender, EventArgs e)
+        {
+            await XuatCacDongDuocChonAsync();
+        }
+
+        private async Task TaiDanhSachLoiAsync()
+        {
+            DatTrangThaiThaoTac(false);
 
             try
             {
-                List<KiemTraDuLieuSXNhap_Model> ds = KiemTraDuLieuSXNhap_DB.LayDanhSachKhacBietBomChuaXacNhan();
+                List<DanhSachLoiNhapLieuSX_Model> danhSach =
+                    await WaitingHelper.RunWithWaiting<List<DanhSachLoiNhapLieuSX_Model>>(
+                        () => Task.Run(DanhSachLoiNhapLieuSX_DB.LayDanhSachChuaXacNhan),
+                        "ĐANG LẤY DANH SÁCH LỖI NHẬP LIỆU...");
 
-                if (ds.Count == 0)
+                grvDsLoiNhapLieu.Rows.Clear();
+
+                foreach (DanhSachLoiNhapLieuSX_Model item in danhSach)
                 {
-                    FrmWaiting.ShowGifAlert("Không có dữ liệu phù hợp");
+                    int rowIndex = grvDsLoiNhapLieu.Rows.Add();
+                    DataGridViewRow row = grvDsLoiNhapLieu.Rows[rowIndex];
+
+                    row.Cells[ColChon].Value = false;
+                    row.Cells[ColIdLoi].Value = item.IdLoi;
+                    row.Cells[ColTTThanhPhamId].Value = item.TTThanhPhamId;
+                    row.Cells[ColLotThanhPham].Value = item.LotThanhPham;
+                    row.Cells[ColTenCongDoan].Value = item.TenCongDoan;
+                    row.Cells[ColTenThanhPham].Value = item.TenThanhPham;
+                    row.Cells[ColNoiDungLoi].Value = item.NoiDungLoi;
+                    row.Cells[ColConfirmed].Value = item.Confirmed;
+                    row.Cells[ColXacNhan].Value = item.Confirmed ? "OK" : "Xác nhận";
+                }
+
+                if (danhSach.Count == 0)
+                {
+                    HienThiThongBaoGif(
+                        "Không có lỗi nhập liệu chưa xác nhận.",
+                        "THÔNG BÁO",
+                        "warning");
+                }
+            }
+            catch (Exception ex)
+            {
+                HienThiThongBaoGif(
+                    "Không thể lấy danh sách lỗi nhập liệu.\n" + ex.Message,
+                    "LỖI",
+                    "warning");
+            }
+            finally
+            {
+                DatTrangThaiThaoTac(true);
+            }
+        }
+
+        private async Task XuatCacDongDuocChonAsync()
+        {
+            grvDsLoiNhapLieu.EndEdit();
+
+            DataTable table = TaoBangDuLieuXuatExcel();
+            if (table.Rows.Count == 0)
+            {
+                HienThiThongBaoGif(
+                    "Vui lòng chọn ít nhất một dòng để xuất Excel.",
+                    "XUẤT EXCEL",
+                    "warning");
+                return;
+            }
+
+            string filePath;
+            using (var saveDialog = new SaveFileDialog
+            {
+                Title = "Xuất báo cáo Excel",
+                Filter = "Excel Workbook (*.xlsx)|*.xlsx",
+                DefaultExt = "xlsx",
+                AddExtension = true,
+                FileName = $"DanhSachLoiNhapLieuSX_{DateTime.Now:yyyyMMdd_HHmm}"
+            })
+            {
+                Form owner = FindForm();
+                DialogResult result = owner == null
+                    ? saveDialog.ShowDialog()
+                    : saveDialog.ShowDialog(owner);
+
+                if (result != DialogResult.OK)
+                {
+                    HienThiThongBaoGif(
+                        "Đã hủy quá trình xuất Excel.",
+                        "XUẤT EXCEL",
+                        "warning");
                     return;
                 }
 
-                foreach (var item in ds)
-                    GanTenCongDoanHienThi(item);
-
-                grvBangSoSanhBom.DataSource = null;
-                grvBangSoSanhBom.DataSource = ds;
-
-                //ToMauCongDoanNA();
+                filePath = saveDialog.FileName;
             }
-            catch (Exception ex)
-            {
-                FrmWaiting.ShowGifAlert("Lỗi khi lấy danh sách khác biệt BOM");
-            }
-        }
 
-        private void grvBangSoSanhBom_CellContentClick(object sender, DataGridViewCellEventArgs e)
-        {
-            if (e.RowIndex < 0 || e.ColumnIndex < 0)
-                return;
-
-            if (grvBangSoSanhBom.Columns[e.ColumnIndex].Name != "confirm")
-                return;
-
-            var row = grvBangSoSanhBom.Rows[e.RowIndex];
-            if (row.IsNewRow)
-                return;
-
-            int idKhacBietBom = Convert.ToInt32(row.Cells["id_KhacBietBom"].Value);
-            string currentText = Convert.ToString(row.Cells["confirm"].Value);
+            DatTrangThaiThaoTac(false);
 
             try
             {
-                if (currentText == TEXT_OK)
-                {
-                    var confirmResult = MessageBox.Show(
-                        "Bạn đang đổi trạng thái xác nhận",
-                        "Xác nhận",
-                        MessageBoxButtons.YesNo,
-                        MessageBoxIcon.Question);
-
-                    if (confirmResult != DialogResult.Yes)
-                        return;
-
-                    if (!KiemTraDuLieuSXNhap_DB.CapNhatConfirmedKhacBietBom(idKhacBietBom, false))
+                await WaitingHelper.RunWithWaiting<bool>(
+                    () => Task.Run(() =>
                     {
-                        FrmWaiting.ShowGifAlert("Cập nhật trạng thái thất bại.");
+                        ExcelExporter.ExportToPath(
+                            table,
+                            filePath,
+                            ExcelExportTextFormat.Unicode);
 
-                        return;
-                    }
+                        return true;
+                    }),
+                    "ĐANG XUẤT DỮ LIỆU RA EXCEL...");
 
-                    DoiTextNutConfirm(row, TEXT_XAC_NHAN);
-                }
-                else
-                {
-                    if (!KiemTraDuLieuSXNhap_DB.CapNhatConfirmedKhacBietBom(idKhacBietBom, true))
-                    {
-                        FrmWaiting.ShowGifAlert("Cập nhật trạng thái thất bại.");
-                        return;
-                    }
+                BoChonCacDongDaXuat();
 
-                    DoiTextNutConfirm(row, TEXT_OK);
-                }
+                HienThiThongBaoGif(
+                    "Đã xuất Excel thành công!",
+                    "XUẤT EXCEL",
+                    "success");
             }
             catch (Exception ex)
             {
-                FrmWaiting.ShowGifAlert("Lỗi cập nhật trạng thái.");
+                HienThiThongBaoGif(
+                    "Không thể xuất Excel.\n" + ex.Message,
+                    "LỖI XUẤT EXCEL",
+                    "warning");
+            }
+            finally
+            {
+                DatTrangThaiThaoTac(true);
             }
         }
 
-        private void DoiTextNutConfirm(DataGridViewRow row, string text)
+        private DataTable TaoBangDuLieuXuatExcel()
         {
-            row.Cells["confirm"].Value = text;
+            var table = new DataTable("DanhSachLoiNhapLieuSX");
+            table.Columns.Add("STT", typeof(string));
+            table.Columns.Add("LOT_TP", typeof(string));
+            table.Columns.Add("Công đoạn", typeof(string));
+            table.Columns.Add("Tên thành phẩm", typeof(string));
+            table.Columns.Add("Nội dung lỗi", typeof(string));
 
-            if (row.DataBoundItem is KiemTraDuLieuSXNhap_Model item)
-                item.confirm = text;
-        }
-
-        private void GanTenCongDoanHienThi(KiemTraDuLieuSXNhap_Model item)
-        {
-            item.congDoanTP = LayTenCongDoanOrNA(item.CongDoanTP_ID, true, out bool tpNA);
-            item.IsCongDoanTP_NA = tpNA;
-
-            item.congDoanTTe = LayTenCongDoanOrNA(
-                item.CongDoanTTe_ID,
-                !item.IsCongDoanTTe_NullFromDB,
-                out bool tteNA);
-
-            item.IsCongDoanTTe_NA = tteNA;
-        }
-
-        private string LayTenCongDoanOrNA(int? idCongDoan, bool toMauKhiNA, out bool isNA)
-        {
-            if (!idCongDoan.HasValue)
+            foreach (DataGridViewRow row in grvDsLoiNhapLieu.Rows)
             {
-                isNA = false;
-                return TEXT_NA;
-            }
-
-            var congDoan = ThongTinChungCongDoan.TatCaCongDoan.FirstOrDefault(x => x.Id == idCongDoan.Value);
-            if (congDoan == null)
-            {
-                isNA = toMauKhiNA;
-                return TEXT_NA;
-            }
-
-            isNA = false;
-            return congDoan.TenCongDoan;
-        }
-
-        private void ToMauCongDoanNA()
-        {
-            foreach (DataGridViewRow row in grvBangSoSanhBom.Rows)
-            {
-                if (row.IsNewRow)
-                    continue;
-
-                if (row.DataBoundItem is KiemTraDuLieuSXNhap_Model item)
+                if (row.IsNewRow || !GetBool(row.Cells[ColChon].Value))
                 {
-                    ToMauOTheoTrangThai(row, "congDoanTP", item.IsCongDoanTP_NA);
-                    ToMauOTheoTrangThai(row, "congDoanTTe", item.IsCongDoanTTe_NA);
+                    continue;
+                }
+
+                table.Rows.Add(
+                    GetCellString(row, ColTTThanhPhamId),
+                    GetCellString(row, ColLotThanhPham),
+                    GetCellString(row, ColTenCongDoan),
+                    GetCellString(row, ColTenThanhPham),
+                    GetCellString(row, ColNoiDungLoi));
+            }
+
+            return table;
+        }
+
+        private void BoChonCacDongDaXuat()
+        {
+            foreach (DataGridViewRow row in grvDsLoiNhapLieu.Rows)
+            {
+                if (!row.IsNewRow && GetBool(row.Cells[ColChon].Value))
+                {
+                    row.Cells[ColChon].Value = false;
                 }
             }
         }
 
-        private void ToMauOTheoTrangThai(DataGridViewRow row, string columnName, bool isNA)
+        private void grvDsLoiNhapLieu_CurrentCellDirtyStateChanged(object sender, EventArgs e)
         {
-            if (!grvBangSoSanhBom.Columns.Contains(columnName))
+            if (!grvDsLoiNhapLieu.IsCurrentCellDirty || grvDsLoiNhapLieu.CurrentCell == null)
+            {
                 return;
+            }
 
-            row.Cells[columnName].Style.BackColor = isNA ? Color.Yellow : Color.Empty;
+            if (grvDsLoiNhapLieu.CurrentCell.OwningColumn.Name == ColChon)
+            {
+                grvDsLoiNhapLieu.CommitEdit(DataGridViewDataErrorContexts.Commit);
+            }
+        }
+
+        private async void grvDsLoiNhapLieu_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0 || e.ColumnIndex < 0)
+            {
+                return;
+            }
+
+            string columnName = grvDsLoiNhapLieu.Columns[e.ColumnIndex].Name;
+            DataGridViewRow row = grvDsLoiNhapLieu.Rows[e.RowIndex];
+
+            if (columnName == ColXacNhan)
+            {
+                await XuLyXacNhanAsync(row);
+                return;
+            }
+
+            if (columnName == ColDetail)
+            {
+                MoChiTiet(row);
+            }
+        }
+
+        private async Task XuLyXacNhanAsync(DataGridViewRow row)
+        {
+            int idLoi;
+            if (!TryGetInt(row.Cells[ColIdLoi].Value, out idLoi) || idLoi <= 0)
+            {
+                HienThiThongBaoGif(
+                    "Không xác định được ID của lỗi cần cập nhật.",
+                    "LỖI DỮ LIỆU",
+                    "warning");
+                return;
+            }
+
+            bool confirmed = GetBool(row.Cells[ColConfirmed].Value);
+            bool trangThaiMoi = !confirmed;
+
+            if (confirmed)
+            {
+                DialogResult answer = HienThiXacNhan(
+                    "Bạn có chắc chắn muốn chuyển trạng thái về chưa xác nhận?",
+                    "XÁC NHẬN HOÀN TÁC");
+
+                if (answer != DialogResult.Yes)
+                {
+                    return;
+                }
+            }
+
+            DatTrangThaiThaoTac(false);
+
+            try
+            {
+                bool updated = await WaitingHelper.RunWithWaiting<bool>(
+                    () => Task.Run(() =>
+                        DanhSachLoiNhapLieuSX_DB.CapNhatConfirmed(idLoi, trangThaiMoi)),
+                    trangThaiMoi
+                        ? "ĐANG XÁC NHẬN DỮ LIỆU..."
+                        : "ĐANG HOÀN TÁC XÁC NHẬN...");
+
+                if (!updated)
+                {
+                    HienThiThongBaoGif(
+                        "Database không cập nhật được bản ghi. Trạng thái trên lưới được giữ nguyên.",
+                        "KHÔNG THỂ CẬP NHẬT",
+                        "warning");
+                    return;
+                }
+
+                row.Cells[ColConfirmed].Value = trangThaiMoi;
+                row.Cells[ColXacNhan].Value = trangThaiMoi ? "OK" : "Xác nhận";
+
+                HienThiThongBaoGif(
+                    trangThaiMoi
+                        ? "Đã xác nhận dữ liệu thành công."
+                        : "Đã chuyển dữ liệu về trạng thái chưa xác nhận.",
+                    "CẬP NHẬT THÀNH CÔNG",
+                    "success");
+            }
+            catch (Exception ex)
+            {
+                HienThiThongBaoGif(
+                    "Không thể cập nhật trạng thái xác nhận.\n" + ex.Message,
+                    "LỖI",
+                    "warning");
+            }
+            finally
+            {
+                DatTrangThaiThaoTac(true);
+            }
+        }
+
+        private void MoChiTiet(DataGridViewRow row)
+        {
+            int ttThanhPhamId;
+            if (!TryGetInt(row.Cells[ColTTThanhPhamId].Value, out ttThanhPhamId) ||
+                ttThanhPhamId <= 0)
+            {
+                HienThiThongBaoGif(
+                    "Không xác định được TTThanhPham_ID của dòng đang chọn.",
+                    "LỖI DỮ LIỆU",
+                    "warning");
+                return;
+            }
+
+            string tenThanhPham = GetCellString(row, ColTenThanhPham);
+
+            using (var form = new Frm_ChiTietLoiNhapLieuSX(ttThanhPhamId, tenThanhPham))
+            {
+                Form owner = FindForm();
+                if (owner == null)
+                {
+                    form.ShowDialog();
+                }
+                else
+                {
+                    form.ShowDialog(owner);
+                }
+            }
+        }
+
+        private void DatTrangThaiThaoTac(bool enabled)
+        {
+            btnLayDS.Enabled = enabled;
+            btnXuatExcel.Enabled = enabled;
+            grvDsLoiNhapLieu.Enabled = enabled;
+        }
+
+        private static void HienThiThongBaoGif(string message, string title, string iconName)
+        {
+            FrmWaiting.ShowGifAlert(message, title, iconName);
+        }
+
+        private DialogResult HienThiXacNhan(string message, string title)
+        {
+            Form owner = FindForm();
+            return owner == null
+                ? MessageBox.Show(
+                    message,
+                    title,
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Question)
+                : MessageBox.Show(
+                    owner,
+                    message,
+                    title,
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Question);
+        }
+
+        private static string GetCellString(DataGridViewRow row, string columnName)
+        {
+            object value = row.Cells[columnName].Value;
+            return value == null || value == DBNull.Value
+                ? string.Empty
+                : Convert.ToString(value);
+        }
+
+        private static bool TryGetInt(object value, out int result)
+        {
+            if (value == null || value == DBNull.Value)
+            {
+                result = 0;
+                return false;
+            }
+
+            return int.TryParse(Convert.ToString(value), out result);
+        }
+
+        private static bool GetBool(object value)
+        {
+            if (value == null || value == DBNull.Value)
+            {
+                return false;
+            }
+
+            if (value is bool)
+            {
+                return (bool)value;
+            }
+
+            int number;
+            return int.TryParse(Convert.ToString(value), out number) && number == 1;
         }
     }
 }

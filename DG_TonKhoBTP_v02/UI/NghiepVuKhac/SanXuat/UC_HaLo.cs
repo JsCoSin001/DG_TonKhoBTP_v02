@@ -112,12 +112,12 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho
                 string maBin = mabin.Text?.Trim();
 
 
-                if ((chieuDaiHT > 0 && chieuDaiCL > chieuDaiHT) ||
-                    (khoiLuongHT > 0 && khoiLuongCL > khoiLuongHT))
-                {
-                    FrmWaiting.ShowGifAlert("Dữ liệu nhập không hợp lệ");
-                    return;
-                }
+                //if ((chieuDaiHT > 0 && chieuDaiCL > chieuDaiHT) ||
+                //    (khoiLuongHT > 0 && khoiLuongCL > khoiLuongHT))
+                //{
+                //    FrmWaiting.ShowGifAlert("Dữ liệu nhập không hợp lệ");
+                //    return;
+                //}
 
                 DatabaseHelper.Update_KhoiLuongSau_ChieuDaiSau(maBin, khoiLuongCL, chieuDaiCL, ghiChu);
 

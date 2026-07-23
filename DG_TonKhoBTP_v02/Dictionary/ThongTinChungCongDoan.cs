@@ -193,7 +193,8 @@ namespace DG_TonKhoBTP_v02.Dictionary
             BocVo,
             GhepLoi,
             QuanBang,
-            Mica
+            Mica,
+            HanNoi
         };
 
         public static string GetTenCongDoanById(int id)

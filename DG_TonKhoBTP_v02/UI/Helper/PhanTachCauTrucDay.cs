@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
-namespace DG_TonKhoBTP_v02.Helper
+namespace DG_TonKhoBTP_v02.UI.Helper
 {
+
     internal class PhanTachCauTrucDay
     {
         /// <summary>

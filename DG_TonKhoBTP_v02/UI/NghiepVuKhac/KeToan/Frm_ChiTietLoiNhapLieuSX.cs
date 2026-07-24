@@ -1,9 +1,12 @@
 ﻿using DG_TonKhoBTP_v02.Database.KeToan;
+using DG_TonKhoBTP_v02.Helper;
 using DG_TonKhoBTP_v02.Models.KeToan;
 using DG_TonKhoBTP_v02.UI.Helper;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -41,14 +44,18 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
 
             KhoiTaoBangChiTiet();
             CapNhatTrangThaiNutXacNhan();
+
             Load += Frm_ChiTietLoiNhapLieuSX_Load;
         }
 
-        private async void Frm_ChiTietLoiNhapLieuSX_Load(object sender, EventArgs e)
+        private async void Frm_ChiTietLoiNhapLieuSX_Load(
+            object sender,
+            EventArgs e)
         {
             lblTieuDe.Text = string.IsNullOrWhiteSpace(_tenThanhPham)
                 ? "CHI TIẾT BOM VÀ NGUYÊN LIỆU THỰC TẾ"
-                : "CHI TIẾT BOM VÀ NGUYÊN LIỆU THỰC TẾ - " + _tenThanhPham;
+                : "CHI TIẾT BOM VÀ NGUYÊN LIỆU THỰC TẾ - "
+                    + _tenThanhPham;
 
             await TaiChiTietAsync();
         }
@@ -62,56 +69,75 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
             grvChiTiet.MultiSelect = false;
             grvChiTiet.ReadOnly = true;
             grvChiTiet.RowHeadersVisible = false;
-            grvChiTiet.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            grvChiTiet.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
+            grvChiTiet.SelectionMode =
+                DataGridViewSelectionMode.FullRowSelect;
+            grvChiTiet.AutoSizeRowsMode =
+                DataGridViewAutoSizeRowsMode.AllCells;
             grvChiTiet.Columns.Clear();
 
-            grvChiTiet.Columns.Add(new DataGridViewTextBoxColumn
-            {
-                Name = ColComponentId,
-                HeaderText = "STT_BOM",
-                Width = 110,
-                SortMode = DataGridViewColumnSortMode.NotSortable
-            });
-
-            grvChiTiet.Columns.Add(new DataGridViewTextBoxColumn
-            {
-                Name = ColTenNLBom,
-                HeaderText = "Tên NL BOM",
-                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
-                FillWeight = 35,
-                DefaultCellStyle = new DataGridViewCellStyle
+            grvChiTiet.Columns.Add(
+                new DataGridViewTextBoxColumn
                 {
-                    WrapMode = DataGridViewTriState.True
-                },
-                SortMode = DataGridViewColumnSortMode.NotSortable
-            });
+                    Name = ColComponentId,
+                    HeaderText = "STT_BOM",
+                    Width = 110,
+                    SortMode =
+                        DataGridViewColumnSortMode.NotSortable
+                });
 
-            grvChiTiet.Columns.Add(new DataGridViewTextBoxColumn
-            {
-                Name = ColTenNLThucTe,
-                HeaderText = "Tên NL thực tế",
-                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
-                FillWeight = 35,
-                DefaultCellStyle = new DataGridViewCellStyle
+            grvChiTiet.Columns.Add(
+                new DataGridViewTextBoxColumn
                 {
-                    WrapMode = DataGridViewTriState.True
-                },
-                SortMode = DataGridViewColumnSortMode.NotSortable
-            });
+                    Name = ColTenNLBom,
+                    HeaderText = "Tên NL BOM",
+                    AutoSizeMode =
+                        DataGridViewAutoSizeColumnMode.Fill,
+                    FillWeight = 35,
+                    DefaultCellStyle =
+                        new DataGridViewCellStyle
+                        {
+                            WrapMode =
+                                DataGridViewTriState.True
+                        },
+                    SortMode =
+                        DataGridViewColumnSortMode.NotSortable
+                });
 
-            grvChiTiet.Columns.Add(new DataGridViewTextBoxColumn
-            {
-                Name = ColLotThucTe,
-                HeaderText = "LOT thực tế",
-                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
-                FillWeight = 30,
-                DefaultCellStyle = new DataGridViewCellStyle
+            grvChiTiet.Columns.Add(
+                new DataGridViewTextBoxColumn
                 {
-                    WrapMode = DataGridViewTriState.True
-                },
-                SortMode = DataGridViewColumnSortMode.NotSortable
-            });
+                    Name = ColTenNLThucTe,
+                    HeaderText = "Tên NL thực tế",
+                    AutoSizeMode =
+                        DataGridViewAutoSizeColumnMode.Fill,
+                    FillWeight = 35,
+                    DefaultCellStyle =
+                        new DataGridViewCellStyle
+                        {
+                            WrapMode =
+                                DataGridViewTriState.True
+                        },
+                    SortMode =
+                        DataGridViewColumnSortMode.NotSortable
+                });
+
+            grvChiTiet.Columns.Add(
+                new DataGridViewTextBoxColumn
+                {
+                    Name = ColLotThucTe,
+                    HeaderText = "LOT thực tế",
+                    AutoSizeMode =
+                        DataGridViewAutoSizeColumnMode.Fill,
+                    FillWeight = 30,
+                    DefaultCellStyle =
+                        new DataGridViewCellStyle
+                        {
+                            WrapMode =
+                                DataGridViewTriState.True
+                        },
+                    SortMode =
+                        DataGridViewColumnSortMode.NotSortable
+                });
         }
 
         private async Task TaiChiTietAsync()
@@ -121,25 +147,41 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
             try
             {
                 List<ChiTietLoiNhapLieuSX_Model> danhSach =
-                    await WaitingHelper.RunWithWaiting<List<ChiTietLoiNhapLieuSX_Model>>(
-                        () => Task.Run(() =>
-                            DanhSachLoiNhapLieuSX_DB.LayChiTietBomVaNguyenLieuThucTe(
-                                _ttThanhPhamId)),
-                        "ĐANG LẤY CHI TIẾT BOM VÀ NGUYÊN LIỆU THỰC TẾ...");
+                    await WaitingHelper.RunWithWaiting<
+                        List<ChiTietLoiNhapLieuSX_Model>>(
+                        () => Task.Run(
+                            () =>
+                                DanhSachLoiNhapLieuSX_DB
+                                    .LayChiTietBomVaNguyenLieuThucTe(
+                                        _ttThanhPhamId)),
+                        "ĐANG LẤY CHI TIẾT BOM VÀ "
+                        + "NGUYÊN LIỆU THỰC TẾ...");
 
                 grvChiTiet.Rows.Clear();
 
-                foreach (ChiTietLoiNhapLieuSX_Model item in danhSach)
+                foreach (
+                    ChiTietLoiNhapLieuSX_Model item
+                    in danhSach)
                 {
-                    int rowIndex = grvChiTiet.Rows.Add();
-                    DataGridViewRow row = grvChiTiet.Rows[rowIndex];
+                    int rowIndex =
+                        grvChiTiet.Rows.Add();
 
-                    row.Cells[ColComponentId].Value = item.ComponentId.HasValue
-                        ? item.ComponentId.Value.ToString()
-                        : string.Empty;
-                    row.Cells[ColTenNLBom].Value = item.TenNLBom;
-                    row.Cells[ColTenNLThucTe].Value = item.TenNLThucTe;
-                    row.Cells[ColLotThucTe].Value = item.LotThucTe;
+                    DataGridViewRow row =
+                        grvChiTiet.Rows[rowIndex];
+
+                    row.Cells[ColComponentId].Value =
+                        item.ComponentId.HasValue
+                            ? item.ComponentId.Value.ToString()
+                            : string.Empty;
+
+                    row.Cells[ColTenNLBom].Value =
+                        item.TenNLBom;
+
+                    row.Cells[ColTenNLThucTe].Value =
+                        item.TenNLThucTe;
+
+                    row.Cells[ColLotThucTe].Value =
+                        item.LotThucTe;
 
                     DinhDangDongKhacBiet(row, item);
                 }
@@ -147,7 +189,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
                 if (danhSach.Count == 0)
                 {
                     FrmWaiting.ShowGifAlert(
-                        "Không tìm thấy dữ liệu BOM hoặc nguyên liệu thực tế cho thành phẩm này.",
+                        "Không tìm thấy dữ liệu BOM hoặc "
+                        + "nguyên liệu thực tế cho thành phẩm này.",
                         "THÔNG BÁO",
                         "warning");
                 }
@@ -155,7 +198,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
             catch (Exception ex)
             {
                 FrmWaiting.ShowGifAlert(
-                    "Không thể lấy dữ liệu chi tiết.\n" + ex.Message,
+                    "Không thể lấy dữ liệu chi tiết.\n"
+                    + ex.Message,
                     "LỖI",
                     "warning");
             }
@@ -176,10 +220,13 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
 
         private void CapNhatTrangThaiNutXacNhan()
         {
-            btnXacNhan.Text = _confirmed ? "OK" : "Xác nhận";
+            btnXacNhan.Text =
+                _confirmed ? "OK" : "Xác nhận";
         }
 
-        private async void btnXacNhan_Click(object sender, EventArgs e)
+        private async void btnXacNhan_Click(
+            object sender,
+            EventArgs e)
         {
             bool trangThaiMoi = !_confirmed;
 
@@ -187,7 +234,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
             {
                 DialogResult answer = MessageBox.Show(
                     this,
-                    "Bạn có chắc chắn muốn chuyển trạng thái về chưa xác nhận?",
+                    "Bạn có chắc chắn muốn chuyển trạng thái "
+                    + "về chưa xác nhận?",
                     "XÁC NHẬN HOÀN TÁC",
                     MessageBoxButtons.YesNo,
                     MessageBoxIcon.Question);
@@ -202,31 +250,37 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
 
             try
             {
-                bool updated = await WaitingHelper.RunWithWaiting<bool>(
-                    () => Task.Run(() =>
-                        DanhSachLoiNhapLieuSX_DB.CapNhatConfirmed(_idLoi, trangThaiMoi)),
-                    trangThaiMoi
-                        ? "ĐANG XÁC NHẬN DỮ LIỆU..."
-                        : "ĐANG HOÀN TÁC XÁC NHẬN...");
+                bool updated =
+                    await WaitingHelper.RunWithWaiting<bool>(
+                        () => Task.Run(
+                            () =>
+                                DanhSachLoiNhapLieuSX_DB
+                                    .CapNhatConfirmed(
+                                        _idLoi,
+                                        trangThaiMoi)),
+                        trangThaiMoi
+                            ? "ĐANG XÁC NHẬN DỮ LIỆU..."
+                            : "ĐANG HOÀN TÁC XÁC NHẬN...");
 
                 if (!updated)
                 {
                     FrmWaiting.ShowGifAlert(
-                        "Database không cập nhật được bản ghi. Trạng thái hiện tại được giữ nguyên.",
+                        "Database không cập nhật được bản ghi. "
+                        + "Trạng thái hiện tại được giữ nguyên.",
                         "KHÔNG THỂ CẬP NHẬT",
                         "warning");
+
                     return;
                 }
 
                 _confirmed = trangThaiMoi;
                 CapNhatTrangThaiNutXacNhan();
-
-                
             }
             catch (Exception ex)
             {
                 FrmWaiting.ShowGifAlert(
-                    "Không thể cập nhật trạng thái xác nhận.\n" + ex.Message,
+                    "Không thể cập nhật trạng thái xác nhận.\n"
+                    + ex.Message,
                     "LỖI",
                     "warning");
             }
@@ -240,18 +294,222 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
             DataGridViewRow row,
             ChiTietLoiNhapLieuSX_Model item)
         {
-            if (item.CoTrongBom && item.CoTrongThucTe)
+            if (item.CoTrongBom &&
+                item.CoTrongThucTe)
             {
                 return;
             }
 
-            // Một phía bị thiếu sẽ được để trống và tô nền để người dùng dễ nhận biết.
-            row.DefaultCellStyle.BackColor = item.CoTrongBom
-                ? Color.LightYellow
-                : Color.MistyRose;
+            // Một phía bị thiếu sẽ được để trống
+            // và tô nền để người dùng dễ nhận biết.
+            row.DefaultCellStyle.BackColor =
+                item.CoTrongBom
+                    ? Color.LightYellow
+                    : Color.MistyRose;
         }
 
-        private void btnDong_Click(object sender, EventArgs e)
+        private async void btnXuatExcel_Click(
+            object sender,
+            EventArgs e)
+        {
+            await XuatExcelAsync();
+        }
+
+        private async Task XuatExcelAsync()
+        {
+            DataTable table =
+                TaoBangDuLieuXuatExcel();
+
+            if (table.Rows.Count == 0)
+            {
+                FrmWaiting.ShowGifAlert(
+                    "Không có dữ liệu để xuất Excel.",
+                    "XUẤT EXCEL",
+                    "warning");
+
+                return;
+            }
+
+            string filePath;
+
+            using (var saveDialog =
+                new SaveFileDialog
+                {
+                    Title =
+                        "Xuất chi tiết lỗi nhập liệu",
+                    Filter =
+                        "Excel Workbook (*.xlsx)|*.xlsx",
+                    DefaultExt = "xlsx",
+                    AddExtension = true,
+                    FileName =
+                        TaoTenFileXuatExcel()
+                })
+            {
+                DialogResult result =
+                    saveDialog.ShowDialog(this);
+
+                if (result != DialogResult.OK)
+                {
+                    FrmWaiting.ShowGifAlert(
+                        "Đã hủy quá trình xuất Excel.",
+                        "XUẤT EXCEL",
+                        "warning");
+
+                    return;
+                }
+
+                filePath = saveDialog.FileName;
+            }
+
+            DatTrangThaiThaoTac(false);
+
+            try
+            {
+                await WaitingHelper.RunWithWaiting<bool>(
+                    () => Task.Run(
+                        () =>
+                        {
+                            ExcelExporter.ExportToPath(
+                                table,
+                                filePath,
+                                ExcelExportTextFormat.Unicode);
+
+                            return true;
+                        }),
+                    "ĐANG XUẤT DỮ LIỆU RA EXCEL...");
+
+                FrmWaiting.ShowGifAlert(
+                    "Đã xuất Excel thành công!",
+                    "XUẤT EXCEL",
+                    "success");
+            }
+            catch (Exception ex)
+            {
+                FrmWaiting.ShowGifAlert(
+                    "Không thể xuất Excel.\n"
+                    + ex.Message,
+                    "LỖI XUẤT EXCEL",
+                    "warning");
+            }
+            finally
+            {
+                DatTrangThaiThaoTac(true);
+            }
+        }
+
+        private DataTable TaoBangDuLieuXuatExcel()
+        {
+            var table =
+                new DataTable(
+                    "ChiTietLoiNhapLieuSX");
+
+            table.Columns.Add(
+                grvChiTiet
+                    .Columns[ColComponentId]
+                    .HeaderText,
+                typeof(string));
+
+            table.Columns.Add(
+                grvChiTiet
+                    .Columns[ColTenNLBom]
+                    .HeaderText,
+                typeof(string));
+
+            table.Columns.Add(
+                grvChiTiet
+                    .Columns[ColTenNLThucTe]
+                    .HeaderText,
+                typeof(string));
+
+            table.Columns.Add(
+                grvChiTiet
+                    .Columns[ColLotThucTe]
+                    .HeaderText,
+                typeof(string));
+
+            foreach (
+                DataGridViewRow gridRow
+                in grvChiTiet.Rows)
+            {
+                if (gridRow.IsNewRow)
+                {
+                    continue;
+                }
+
+                table.Rows.Add(
+                    GetCellText(
+                        gridRow,
+                        ColComponentId),
+                    GetCellText(
+                        gridRow,
+                        ColTenNLBom),
+                    GetCellText(
+                        gridRow,
+                        ColTenNLThucTe),
+                    GetCellText(
+                        gridRow,
+                        ColLotThucTe));
+            }
+
+            return table;
+        }
+
+        private static string GetCellText(
+            DataGridViewRow row,
+            string columnName)
+        {
+            object value =
+                row.Cells[columnName].Value;
+
+            if (value == null ||
+                value == DBNull.Value)
+            {
+                return string.Empty;
+            }
+
+            return Convert.ToString(value)
+                ?? string.Empty;
+        }
+
+        private string TaoTenFileXuatExcel()
+        {
+            string tenFile =
+                "ChiTietLoiNhapLieuSX";
+
+            if (!string.IsNullOrWhiteSpace(
+                    _tenThanhPham))
+            {
+                string tenThanhPhamHopLe =
+                    _tenThanhPham.Trim();
+
+                foreach (
+                    char invalidChar
+                    in Path.GetInvalidFileNameChars())
+                {
+                    tenThanhPhamHopLe =
+                        tenThanhPhamHopLe.Replace(
+                            invalidChar,
+                            '_');
+                }
+
+                if (!string.IsNullOrWhiteSpace(
+                        tenThanhPhamHopLe))
+                {
+                    tenFile += "_"
+                        + tenThanhPhamHopLe;
+                }
+            }
+
+            tenFile += "_"
+                + DateTime.Now.ToString(
+                    "yyyyMMdd_HHmm");
+
+            return tenFile;
+        }
+
+        private void btnDong_Click(
+            object sender,
+            EventArgs e)
         {
             Close();
         }

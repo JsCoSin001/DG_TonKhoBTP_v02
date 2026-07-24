@@ -1,4 +1,5 @@
 ﻿using DG_TonKhoBTP_v02.Core;
+using DG_TonKhoBTP_v02.Models;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -13,7 +14,7 @@ namespace DG_TonKhoBTP_v02.UI.Helper
     {
         internal static string KiemTra(
             TTThanhPham thanhPham,
-            List<TTNVLRow> nguyenVatLieu)
+            List<TTNVLRow> nguyenVatLieu, CongDoan congDoan)
         {
             var nhatKy = new StringBuilder();
 
@@ -48,6 +49,7 @@ namespace DG_TonKhoBTP_v02.UI.Helper
                         return KiemTraSoLuongBinDuPhong(
                             thanhPham,
                             nguyenVatLieu,
+                            congDoan,
                             $"Không quy đổi được cụm TP '{cum.NoiDungGoc}': " +
                             loiQuyDoi,
                             nhatKy);
@@ -82,6 +84,7 @@ namespace DG_TonKhoBTP_v02.UI.Helper
                             return KiemTraSoLuongBinDuPhong(
                                 thanhPham,
                                 nguyenVatLieu,
+                                congDoan,
                                 $"Không quy đổi được cụm BTP '{cum.NoiDungGoc}' " +
                                 $"tại dòng {i + 1}: {loiQuyDoi}",
                                 nhatKy);
@@ -153,6 +156,7 @@ namespace DG_TonKhoBTP_v02.UI.Helper
                         return KiemTraSoLuongBinDuPhong(
                             thanhPham,
                             nguyenVatLieu,
+                            congDoan,
                             lyDo,
                             nhatKy);
                     }
@@ -183,6 +187,7 @@ namespace DG_TonKhoBTP_v02.UI.Helper
                     return KiemTraSoLuongBinDuPhong(
                         thanhPham,
                         nguyenVatLieu,
+                        congDoan,
                         "Có cấu trúc BTP không tương ứng với TP: " +
                         string.Join(", ", cauTrucBTPKhongDuocDoiChieu) + ".",
                         nhatKy);
@@ -240,6 +245,7 @@ namespace DG_TonKhoBTP_v02.UI.Helper
                 return KiemTraSoLuongBinDuPhong(
                     thanhPham,
                     nguyenVatLieu,
+                    congDoan,
                     "Không phân tích được tên TP/BTP: " + ex.Message,
                     nhatKy);
             }
@@ -248,6 +254,7 @@ namespace DG_TonKhoBTP_v02.UI.Helper
                 return KiemTraSoLuongBinDuPhong(
                     thanhPham,
                     nguyenVatLieu,
+                    congDoan,
                     "Hệ số hoặc tổng số lượng vượt giới hạn: " + ex.Message,
                     nhatKy);
             }
@@ -261,6 +268,7 @@ namespace DG_TonKhoBTP_v02.UI.Helper
         private static string KiemTraSoLuongBinDuPhong(
             TTThanhPham thanhPham,
             List<TTNVLRow> nguyenVatLieu,
+            CongDoan congDoan,
             string lyDo,
             StringBuilder nhatKy)
         {

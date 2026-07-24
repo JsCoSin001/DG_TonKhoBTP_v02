@@ -27,16 +27,18 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
         private const string ColXacNhan = "colXacNhan";
         private const string ColDetail = "colDetail";
 
-        private DataGridViewCell _cellDangChinhSua;
+        //private DataGridViewCell _cellDangChinhSua;
 
         public UC_KiemTraDuLieu()
         {
             InitializeComponent();
             KhoiTaoBangDanhSachLoi();
-            grvDsLoiNhapLieu.CellContentClick += grvDsLoiNhapLieu_CellContentClick;
-            grvDsLoiNhapLieu.CellDoubleClick += grvDsLoiNhapLieu_CellDoubleClick;
-            grvDsLoiNhapLieu.CellEndEdit += grvDsLoiNhapLieu_CellEndEdit;
-            grvDsLoiNhapLieu.CurrentCellDirtyStateChanged += grvDsLoiNhapLieu_CurrentCellDirtyStateChanged;
+
+            grvDsLoiNhapLieu.CellContentClick +=
+                grvDsLoiNhapLieu_CellContentClick;
+
+            grvDsLoiNhapLieu.CurrentCellDirtyStateChanged +=
+                grvDsLoiNhapLieu_CurrentCellDirtyStateChanged;
         }
 
         private void KhoiTaoBangDanhSachLoi()
@@ -48,13 +50,16 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
             grvDsLoiNhapLieu.MultiSelect = false;
             grvDsLoiNhapLieu.ReadOnly = false;
             grvDsLoiNhapLieu.RowHeadersVisible = false;
-            grvDsLoiNhapLieu.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            grvDsLoiNhapLieu.EditMode = DataGridViewEditMode.EditProgrammatically;
-            grvDsLoiNhapLieu.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
+            grvDsLoiNhapLieu.SelectionMode =
+                DataGridViewSelectionMode.CellSelect;
+            grvDsLoiNhapLieu.EditMode =
+                DataGridViewEditMode.EditOnEnter;
+            grvDsLoiNhapLieu.AutoSizeRowsMode =
+                DataGridViewAutoSizeRowsMode.AllCells;
             grvDsLoiNhapLieu.RowTemplate.MinimumHeight = 42;
             grvDsLoiNhapLieu.Columns.Clear();
 
-            grvDsLoiNhapLieu.Columns.Add(new DataGridViewCheckBoxColumn
+            grvDsLoiNhapLieu.Columns.Add( new DataGridViewCheckBoxColumn
             {
                 Name = ColChon,
                 HeaderText = string.Empty,
@@ -332,7 +337,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
                 HienThiThongBaoGif(
                     "Đã xuất Excel thành công!",
                     "XUẤT EXCEL",
-                    "success");
+                    EnumStore.Icon.Success);
             }
             catch (Exception ex)
             {
@@ -393,66 +398,37 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
             }
         }
 
-        private void grvDsLoiNhapLieu_CurrentCellDirtyStateChanged(object sender, EventArgs e)
+        //private void grvDsLoiNhapLieu_CurrentCellDirtyStateChanged(object sender, EventArgs e)
+        //{
+        //    if (!grvDsLoiNhapLieu.IsCurrentCellDirty || grvDsLoiNhapLieu.CurrentCell == null)
+        //    {
+        //        return;
+        //    }
+
+        //    if (grvDsLoiNhapLieu.CurrentCell.OwningColumn.Name == ColChon)
+        //    {
+        //        grvDsLoiNhapLieu.CommitEdit(DataGridViewDataErrorContexts.Commit);
+        //    }
+        //}
+
+        private void grvDsLoiNhapLieu_CurrentCellDirtyStateChanged(
+            object sender,
+            EventArgs e)
         {
-            if (!grvDsLoiNhapLieu.IsCurrentCellDirty || grvDsLoiNhapLieu.CurrentCell == null)
+            if (!grvDsLoiNhapLieu.IsCurrentCellDirty ||
+                grvDsLoiNhapLieu.CurrentCell == null)
             {
                 return;
             }
 
             if (grvDsLoiNhapLieu.CurrentCell.OwningColumn.Name == ColChon)
             {
-                grvDsLoiNhapLieu.CommitEdit(DataGridViewDataErrorContexts.Commit);
+                grvDsLoiNhapLieu.CommitEdit(
+                    DataGridViewDataErrorContexts.Commit);
             }
         }
 
-        private void grvDsLoiNhapLieu_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
-        {
-            if (e.RowIndex < 0 || e.ColumnIndex < 0)
-            {
-                return;
-            }
 
-            DataGridViewCell cell = grvDsLoiNhapLieu.Rows[e.RowIndex].Cells[e.ColumnIndex];
-            if (!(cell is DataGridViewTextBoxCell) || !LaCotChoPhepChinhSuaTamThoi(cell.OwningColumn.Name))
-            {
-                return;
-            }
-
-            // Chỉ mở chế độ edit trên lưới. Giá trị chỉnh sửa không được ghi xuống database.
-            _cellDangChinhSua = cell;
-            cell.ReadOnly = false;
-            grvDsLoiNhapLieu.CurrentCell = cell;
-
-            if (grvDsLoiNhapLieu.BeginEdit(true))
-            {
-                TextBox textBox = grvDsLoiNhapLieu.EditingControl as TextBox;
-                if (textBox != null)
-                {
-                    textBox.SelectAll();
-                }
-            }
-        }
-
-        private void grvDsLoiNhapLieu_CellEndEdit(object sender, DataGridViewCellEventArgs e)
-        {
-            if (_cellDangChinhSua == null)
-            {
-                return;
-            }
-
-            // Khóa lại ô sau khi edit; nội dung mới chỉ tồn tại trên DataGridView hiện tại.
-            _cellDangChinhSua.ReadOnly = true;
-            _cellDangChinhSua = null;
-        }
-
-        private static bool LaCotChoPhepChinhSuaTamThoi(string columnName)
-        {
-            return columnName == ColLotThanhPham ||
-                   columnName == ColTenCongDoan ||
-                   columnName == ColTenThanhPham ||
-                   columnName == ColNoiDungLoi;
-        }
 
         private async void grvDsLoiNhapLieu_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {

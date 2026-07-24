@@ -442,7 +442,7 @@ namespace DG_TonKhoBTP_v02.UI
             // Các hàm kiểm tra con hiện chỉ là phần khung và mặc định không báo lỗi.
             List<string> danhSachLoiNhapLieu = laCongDoan9
                 ? new List<string>()
-                : KiemTraMoiQuanHeNguyenLieuThanhPham(thanhPham, nvlRows);
+                : KiemTraMoiQuanHeNguyenLieuThanhPham(thanhPham, nvlRows, _Cd);
 
             // =========================================================
             // 5. LẤY CHI TIẾT CÔNG ĐOẠN
@@ -580,7 +580,8 @@ namespace DG_TonKhoBTP_v02.UI
         /// </summary>
         private static List<string> KiemTraMoiQuanHeNguyenLieuThanhPham(
             TTThanhPham thanhPham,
-            List<TTNVLRow> nguyenVatLieu)
+            List<TTNVLRow> nguyenVatLieu,
+            CongDoan congDoan)
         {
             var danhSachLoi = new List<string>();
 
@@ -592,8 +593,9 @@ namespace DG_TonKhoBTP_v02.UI
                 return danhSachLoi;
 
             // B2. Kiểm tra nguyên liệu có khớp với BOM của thành phẩm hay không.
+            // Không kiểm tra bom với công đoạn là bện rút (id = 1)
             var loiKhongKhop =
-                KiemTraThanhPhamNguyenLieuKhongKhopBOM(nguyenVatLieu);
+                KiemTraThanhPhamNguyenLieuKhongKhopBOM(nguyenVatLieu,congDoan);
 
             ThemLoiNeuCo(danhSachLoi, loiKhongKhop);
 
@@ -609,9 +611,9 @@ namespace DG_TonKhoBTP_v02.UI
             // B4. Kiểm tra số lượng Bin giữa thành phẩm và NVL.
             ThemLoiNeuCo(
                 danhSachLoi,
-                KiemTraSoLuongBin(thanhPham, nguyenVatLieu));
+                KiemTraSoLuongBin(thanhPham, nguyenVatLieu, congDoan));
 
-            
+
 
             return danhSachLoi;
         }
@@ -643,9 +645,9 @@ namespace DG_TonKhoBTP_v02.UI
         /// Kiểm tra danh sách NVL có dòng nào không thuộc BOM
         /// của thành phẩm đang chọn hay không.
         /// </summary>
-        private static string KiemTraThanhPhamNguyenLieuKhongKhopBOM(List<TTNVLRow> nguyenVatLieu)
+        private static string KiemTraThanhPhamNguyenLieuKhongKhopBOM(List<TTNVLRow> nguyenVatLieu, CongDoan congDoan)
         {
-            if (nguyenVatLieu == null || nguyenVatLieu.Count == 0)
+            if (nguyenVatLieu == null || nguyenVatLieu.Count == 0 || congDoan?.Id == 1)
                 return null;
 
             bool coNguyenVatLieuKhongKhop = nguyenVatLieu.Any(
@@ -704,11 +706,11 @@ namespace DG_TonKhoBTP_v02.UI
         /// </summary>
         private static string KiemTraSoLuongBin(
             TTThanhPham thanhPham,
-            List<TTNVLRow> nguyenVatLieu)
+            List<TTNVLRow> nguyenVatLieu, CongDoan congDoan)
         {
             return KiemTraSoLuongBinHelper.KiemTra(
                 thanhPham,
-                nguyenVatLieu);
+                nguyenVatLieu, congDoan);
         }
 
         /// <summary>

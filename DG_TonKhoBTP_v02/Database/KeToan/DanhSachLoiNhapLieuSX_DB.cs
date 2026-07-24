@@ -3,6 +3,7 @@ using DG_TonKhoBTP_v02.Models.KeToan;
 using System;
 using System.Collections.Generic;
 using System.Data.SQLite;
+using System.Globalization;
 using System.Linq;
 
 namespace DG_TonKhoBTP_v02.Database.KeToan
@@ -19,6 +20,10 @@ namespace DG_TonKhoBTP_v02.Database.KeToan
                     loi.TTThanhpham_id                          AS TTThanhPhamId,
                     tp.CongDoan                                 AS CongDoanId,
                     IFNULL(tp.MaBin, '')                         AS LotThanhPham,
+                    IFNULL(ca.Ngay, '')                         AS Ngay,
+                    IFNULL(ca.May, '')                          AS May,
+                    IFNULL(ca.Ca, '')                           AS Ca,
+                    IFNULL(ca.NguoiLam, '')                     AS NguoiLam,
                     IFNULL(dsp.Ten, '')                         AS TenThanhPham,
                     IFNULL(loi.NoiDungLoi, '')                  AS NoiDungLoi,
                     IFNULL(loi.Confirmed, 0)                    AS Confirmed
@@ -27,6 +32,14 @@ namespace DG_TonKhoBTP_v02.Database.KeToan
                        ON loi.TTThanhpham_id = tp.id
                 LEFT JOIN DanhSachMaSP dsp
                        ON tp.DanhSachSP_ID = dsp.id
+                LEFT JOIN ThongTinCaLamViec ca
+                       ON ca.id = (
+                           SELECT caMoiNhat.id
+                           FROM ThongTinCaLamViec caMoiNhat
+                           WHERE caMoiNhat.TTThanhPham_id = loi.TTThanhpham_id
+                           ORDER BY caMoiNhat.id DESC
+                           LIMIT 1
+                       )
                 WHERE IFNULL(loi.Confirmed, 0) = 0
                 ORDER BY IFNULL(dsp.Ten, '') COLLATE NOCASE ASC,
                          loi.id ASC;";
@@ -44,6 +57,10 @@ namespace DG_TonKhoBTP_v02.Database.KeToan
                         IdLoi = GetInt(reader, "IdLoi"),
                         TTThanhPhamId = GetInt(reader, "TTThanhPhamId"),
                         LotThanhPham = GetString(reader, "LotThanhPham"),
+                        Ngay = DinhDangNgay(GetString(reader, "Ngay")),
+                        May = GetString(reader, "May"),
+                        Ca = GetString(reader, "Ca"),
+                        NguoiLam = GetString(reader, "NguoiLam"),
                         CongDoanId = congDoanId,
                         TenCongDoan = congDoanId.HasValue
                             ? ThongTinChungCongDoan.GetTenCongDoanById(congDoanId.Value)
@@ -253,6 +270,24 @@ namespace DG_TonKhoBTP_v02.Database.KeToan
                 .ThenBy(x => x.TenNLThucTe, StringComparer.CurrentCultureIgnoreCase)
                 .ThenBy(x => x.LotThucTe, StringComparer.CurrentCultureIgnoreCase)
                 .ToList();
+        }
+
+        private static string DinhDangNgay(string ngay)
+        {
+            if (string.IsNullOrWhiteSpace(ngay))
+            {
+                return string.Empty;
+            }
+
+            DateTime ngayLamViec;
+            return DateTime.TryParseExact(
+                ngay.Trim(),
+                "yyyy-MM-dd",
+                CultureInfo.InvariantCulture,
+                DateTimeStyles.None,
+                out ngayLamViec)
+                ? ngayLamViec.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)
+                : ngay;
         }
 
         private static string GetString(SQLiteDataReader reader, string columnName)

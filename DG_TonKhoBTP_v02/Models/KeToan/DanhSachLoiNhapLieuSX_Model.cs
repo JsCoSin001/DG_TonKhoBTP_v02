@@ -7,6 +7,10 @@ namespace DG_TonKhoBTP_v02.Models.KeToan
         public int IdLoi { get; set; }
         public int TTThanhPhamId { get; set; }
         public string LotThanhPham { get; set; }
+        public string Ngay { get; set; }
+        public string May { get; set; }
+        public string Ca { get; set; }
+        public string NguoiLam { get; set; }
         public int? CongDoanId { get; set; }
         public string TenCongDoan { get; set; }
         public string TenThanhPham { get; set; }

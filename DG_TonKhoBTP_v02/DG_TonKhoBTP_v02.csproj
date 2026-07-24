@@ -569,6 +569,9 @@
     <EmbeddedResource Include="UI\NghiepVuKhac\KeToan\Frm_BoSungThemDuLieu.resx">
       <DependentUpon>Frm_BoSungThemDuLieu.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="UI\NghiepVuKhac\KeToan\Frm_ChiTietLoiNhapLieuSX.resx">
+      <DependentUpon>Frm_ChiTietLoiNhapLieuSX.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="UI\NghiepVuKhac\KeToan\UC_KiemTraDuLieu.resx">
       <DependentUpon>UC_KiemTraDuLieu.cs</DependentUpon>
     </EmbeddedResource>

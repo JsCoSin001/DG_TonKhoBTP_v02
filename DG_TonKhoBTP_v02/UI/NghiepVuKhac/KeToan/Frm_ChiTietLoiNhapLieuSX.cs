@@ -11,22 +11,36 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
 {
     public partial class Frm_ChiTietLoiNhapLieuSX : Form
     {
+        private readonly int _idLoi;
         private readonly int _ttThanhPhamId;
         private readonly string _tenThanhPham;
+        private bool _confirmed;
+
+        public bool Confirmed
+        {
+            get { return _confirmed; }
+        }
 
         private const string ColComponentId = "colComponentId";
         private const string ColTenNLBom = "colTenNLBom";
         private const string ColTenNLThucTe = "colTenNLThucTe";
         private const string ColLotThucTe = "colLotThucTe";
 
-        public Frm_ChiTietLoiNhapLieuSX(int ttThanhPhamId, string tenThanhPham)
+        public Frm_ChiTietLoiNhapLieuSX(
+            int idLoi,
+            int ttThanhPhamId,
+            string tenThanhPham,
+            bool confirmed)
         {
             InitializeComponent();
 
+            _idLoi = idLoi;
             _ttThanhPhamId = ttThanhPhamId;
             _tenThanhPham = tenThanhPham ?? string.Empty;
+            _confirmed = confirmed;
 
             KhoiTaoBangChiTiet();
+            CapNhatTrangThaiNutXacNhan();
             Load += Frm_ChiTietLoiNhapLieuSX_Load;
         }
 
@@ -154,7 +168,72 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
         private void DatTrangThaiThaoTac(bool enabled)
         {
             grvChiTiet.Enabled = enabled;
+            btnXuatExcel.Enabled = enabled;
+            btnXacNhan.Enabled = enabled;
             btnDong.Enabled = enabled;
+            UseWaitCursor = !enabled;
+        }
+
+        private void CapNhatTrangThaiNutXacNhan()
+        {
+            btnXacNhan.Text = _confirmed ? "OK" : "Xác nhận";
+        }
+
+        private async void btnXacNhan_Click(object sender, EventArgs e)
+        {
+            bool trangThaiMoi = !_confirmed;
+
+            if (_confirmed)
+            {
+                DialogResult answer = MessageBox.Show(
+                    this,
+                    "Bạn có chắc chắn muốn chuyển trạng thái về chưa xác nhận?",
+                    "XÁC NHẬN HOÀN TÁC",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Question);
+
+                if (answer != DialogResult.Yes)
+                {
+                    return;
+                }
+            }
+
+            DatTrangThaiThaoTac(false);
+
+            try
+            {
+                bool updated = await WaitingHelper.RunWithWaiting<bool>(
+                    () => Task.Run(() =>
+                        DanhSachLoiNhapLieuSX_DB.CapNhatConfirmed(_idLoi, trangThaiMoi)),
+                    trangThaiMoi
+                        ? "ĐANG XÁC NHẬN DỮ LIỆU..."
+                        : "ĐANG HOÀN TÁC XÁC NHẬN...");
+
+                if (!updated)
+                {
+                    FrmWaiting.ShowGifAlert(
+                        "Database không cập nhật được bản ghi. Trạng thái hiện tại được giữ nguyên.",
+                        "KHÔNG THỂ CẬP NHẬT",
+                        "warning");
+                    return;
+                }
+
+                _confirmed = trangThaiMoi;
+                CapNhatTrangThaiNutXacNhan();
+
+                
+            }
+            catch (Exception ex)
+            {
+                FrmWaiting.ShowGifAlert(
+                    "Không thể cập nhật trạng thái xác nhận.\n" + ex.Message,
+                    "LỖI",
+                    "warning");
+            }
+            finally
+            {
+                DatTrangThaiThaoTac(true);
+            }
         }
 
         private static void DinhDangDongKhacBiet(

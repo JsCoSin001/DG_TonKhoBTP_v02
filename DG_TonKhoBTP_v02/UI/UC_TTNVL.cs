@@ -219,6 +219,10 @@ namespace DG_TonKhoBTP_v02.UI
 
         public void OnSoLOTChanged(string soLot, string may)
         {
+            // Khi sửa, NVL cũ được phép đi cùng số LOT hoặc máy mới.
+            if (isEdit.Value == 2)
+                return;
+
             if (EnumStore.LaMayChoPhepTaiSuDungNVL(may))
                 return;
 
@@ -227,6 +231,13 @@ namespace DG_TonKhoBTP_v02.UI
 
         public void OnThanhPhamChanged(ThanhPhamData data)
         {
+            // Khi sửa, luôn giữ các dòng NVL nhưng vẫn kiểm tra lại theo BOM mới.
+            if (isEdit.Value == 2)
+            {
+                RecalculateBomForExistingRows(data);
+                return;
+            }
+
             if (EnumStore.LaMayChoPhepTaiSuDungNVL(data.TenMay))
             {
                 RecalculateBomForExistingRows(data);
@@ -698,8 +709,8 @@ namespace DG_TonKhoBTP_v02.UI
                 { "ten", keyword }
             };
 
-            string query =  CoreHelper.TaoSQL_LayDLTTThanhPham(cdHanNoi);
-             
+            string query = CoreHelper.TaoSQL_LayDLTTThanhPham(cdHanNoi);
+
             try
             {
                 result = await Task.Run(() => DatabaseHelper.GetNVL(query, parameters));
@@ -767,7 +778,7 @@ namespace DG_TonKhoBTP_v02.UI
                 bool shouldMarkRequiredCells = true;
 
                 GanGiaTriConLaiKhiQuetMoi(newItem, thanhPham);
-               
+
 
                 _nvlRows.Add(newItem);
 
@@ -827,7 +838,7 @@ namespace DG_TonKhoBTP_v02.UI
                 return;
             }
 
-            if (NvlNhapTayPolicy.ApDung( nvl))
+            if (NvlNhapTayPolicy.ApDung(nvl))
             {
                 DatGiaTriConLaiVeTrangThaiChuaNhap(nvl);
                 return;
@@ -1081,6 +1092,10 @@ namespace DG_TonKhoBTP_v02.UI
 
         public void OnKhoiLuongChanged(decimal newValue)
         {
+            // Phòng vệ nếu sự kiện khối lượng riêng được nối lại trong tương lai.
+            if (isEdit.Value == 2)
+                return;
+
             ClearGridKeepHeader();
         }
 

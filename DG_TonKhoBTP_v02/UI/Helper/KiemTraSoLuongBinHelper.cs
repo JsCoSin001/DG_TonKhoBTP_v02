@@ -14,12 +14,28 @@ namespace DG_TonKhoBTP_v02.UI.Helper
     {
         internal static string KiemTra(
             TTThanhPham thanhPham,
-            List<TTNVLRow> nguyenVatLieu, CongDoan congDoan)
+            List<TTNVLRow> nguyenVatLieu,
+            CongDoan congDoan)
         {
             var nhatKy = new StringBuilder();
 
             nhatKy.AppendLine("===== KIỂM TRA SỐ LƯỢNG BIN =====");
-            nhatKy.AppendLine($"TP: {thanhPham.TenTP}");
+            nhatKy.AppendLine($"TP: {thanhPham?.TenTP ?? "null"}");
+
+            if (thanhPham == null ||
+                nguyenVatLieu == null ||
+                string.IsNullOrEmpty(thanhPham.TenTP) ||
+                nguyenVatLieu.Any(
+                    item => item == null ||
+                            string.IsNullOrEmpty(item.TenNVL)))
+            {
+                return KiemTraSoLuongBinDuPhong(
+                    thanhPham,
+                    nguyenVatLieu,
+                    congDoan,
+                    "Dữ liệu TP/BTP bị null hoặc tên bị rỗng.",
+                    nhatKy);
+            }
 
             if (nguyenVatLieu.Count == 0)
             {
@@ -45,7 +61,8 @@ namespace DG_TonKhoBTP_v02.UI.Helper
                     string loiQuyDoi;
 
                     if (!ThuQuyDoiCum(cum, out cumQuyDoi, out loiQuyDoi))
-                    {
+                    {                       
+
                         return KiemTraSoLuongBinDuPhong(
                             thanhPham,
                             nguyenVatLieu,
@@ -163,17 +180,17 @@ namespace DG_TonKhoBTP_v02.UI.Helper
 
                     string tenBTPPhuHop = cacCauTrucBTPPhuHop[0];
 
-                    // Ở dạng hậu tố do BTP quy định, mỗi cụm TP ứng với
-                    // đúng 1 BTP. Hệ số trước x trong TP không được nhân.
+                    // BTP có thể bổ sung hậu tố cho cấu trúc TP.
+                    // Khi ánh xạ sang tên BTP, giữ nguyên hệ số của cụm TP.
                     CongDonSoLuong(
                         soLuongTPYeuCau,
                         tenBTPPhuHop,
-                        1);
+                        cumTP.HeSo);
 
                     nhatKy.AppendLine(
-                        $"Đối chiếu theo hậu tố BTP: TP " +
-                        $"'{cumTP.NoiDungGoc}' => cần 1 đơn vị " +
-                        $"'{tenBTPPhuHop}'.");
+                    $"Đối chiếu theo hậu tố BTP: TP " +
+                    $"'{cumTP.NoiDungGoc}' => cần {cumTP.HeSo} đơn vị " +
+                    $"'{tenBTPPhuHop}'.");
                 }
 
                 // Nếu BTP có cấu trúc không được cụm TP nào sử dụng thì đây là
@@ -261,9 +278,9 @@ namespace DG_TonKhoBTP_v02.UI.Helper
         }
 
         /// <summary>
-        /// Nhánh dự phòng cho trường hợp TP và BTP không thể ánh xạ bằng các
-        /// cấu trúc đã xác định. Hiện tại kết luận là tên TP và nguyên liệu
-        /// không phù hợp. Có thể bổ sung quy tắc nghiệp vụ khác tại đây sau này.
+        /// Nhánh dự phòng khi logic đối chiếu cấu trúc chính không thể ánh xạ
+        /// TP và BTP. Công đoạn 1 dùng quy tắc tính tiết diện; các công đoạn
+        /// khác trả về lỗi không xác định.
         /// </summary>
         private static string KiemTraSoLuongBinDuPhong(
             TTThanhPham thanhPham,
@@ -272,21 +289,356 @@ namespace DG_TonKhoBTP_v02.UI.Helper
             string lyDo,
             StringBuilder nhatKy)
         {
-            nhatKy.AppendLine("Chuyển sang kiểm tra dự phòng.");
+            nhatKy.AppendLine("Chuyển sang kiểm tra ngoại lệ.");
             nhatKy.AppendLine("Lý do: " + lyDo);
             nhatKy.AppendLine(
-                $"TP dự phòng: {thanhPham.TenTP}");
+                $"Công đoạn: {congDoan?.Id.ToString() ?? "null"}");
+            nhatKy.AppendLine(
+                $"TP dự phòng: {thanhPham?.TenTP ?? "null"}");
             nhatKy.AppendLine(
                 "BTP dự phòng: " +
                 string.Join(
                     " | ",
-                    nguyenVatLieu.Select(item => item.TenNVL)));
+                    nguyenVatLieu == null
+                        ? Enumerable.Empty<string>()
+                        : nguyenVatLieu.Select(
+                            item => item?.TenNVL ?? "null")));
+
+            // Nếu là công đoạn 0 - Kéo rút thì không cần kiểm tra số lượng bin
+            if (congDoan.Id == 0)
+            {
+                nhatKy.AppendLine(
+                $"Công đoạn Kéo rút không cần kiểm trả số lượng bin");
+                return GhiLogVaTraKetQua(nhatKy, null);
+            } 
+                
+            
+            // Nếu công đoạn != bện rút trả về lỗi không xác định.
+            if (congDoan == null || congDoan.Id != 1)
+            {
+                return GhiLogVaTraKetQua(
+                    nhatKy,
+                    DanhSachLoiNhapLieuSX.Loi_KhongXacDinh);
+            }
+
+
+            // Xử lý các trường hợp công đoạn là Bện rút (id = 1)
+            try
+            {
+                if (thanhPham == null ||
+                    string.IsNullOrEmpty(thanhPham.TenTP) ||
+                    nguyenVatLieu == null ||
+                    nguyenVatLieu.Count == 0 ||
+                    nguyenVatLieu.Any(
+                        item => item == null ||
+                                string.IsNullOrEmpty(item.TenNVL)))
+                {
+                    nhatKy.AppendLine(
+                        "Dữ liệu TP/BTP bị null hoặc tên bị rỗng.");
+
+                    return GhiLogVaTraKetQua(
+                        nhatKy,
+                        DanhSachLoiNhapLieuSX.Loi_BatThuongKhiXuLyTen);
+                }
+
+                // So sánh toàn bộ TenNVL, không phân biệt hoa/thường và
+                // không trim/chuẩn hóa chuỗi.
+                string tenBTPDauTien = nguyenVatLieu[0].TenNVL;                
+
+                double tietDienTP;
+                string loiXuLyTP;
+
+                if (!ThuTinhTongTietDienTheoTen(
+                        thanhPham.TenTP,
+                        out tietDienTP,
+                        out loiXuLyTP,
+                        nhatKy,
+                        "TP"))
+                {
+                    nhatKy.AppendLine("Lỗi xử lý TP: " + loiXuLyTP);
+
+                    return GhiLogVaTraKetQua(
+                        nhatKy,
+                        DanhSachLoiNhapLieuSX.Loi_BatThuongKhiXuLyTen);
+                }
+
+                double tietDienBTP;
+                string loiXuLyBTP;
+
+                if (!ThuTinhTongTietDienTheoTen(
+                        tenBTPDauTien,
+                        out tietDienBTP,
+                        out loiXuLyBTP,
+                        nhatKy,
+                        "BTP"))
+                {
+                    nhatKy.AppendLine("Lỗi xử lý BTP: " + loiXuLyBTP);
+
+                    return GhiLogVaTraKetQua(
+                        nhatKy,
+                        DanhSachLoiNhapLieuSX.Loi_BatThuongKhiXuLyTen);
+                }
+
+                if (!LaSoDuongHopLe(tietDienTP) ||
+                    !LaSoDuongHopLe(tietDienBTP))
+                {
+                    nhatKy.AppendLine(
+                        "Tổng tiết diện TP hoặc BTP không phải số dương hợp lệ.");
+
+                    return GhiLogVaTraKetQua(
+                        nhatKy,
+                        DanhSachLoiNhapLieuSX.Loi_BatThuongKhiXuLyTen);
+                }
+
+                double tiLeSoBin = tietDienTP / tietDienBTP;
+
+                if (!LaSoDuongHopLe(tiLeSoBin))
+                {
+                    nhatKy.AppendLine(
+                        "Tỷ lệ tiết diện TP/BTP không hợp lệ.");
+
+                    return GhiLogVaTraKetQua(
+                        nhatKy,
+                        DanhSachLoiNhapLieuSX.Loi_BatThuongKhiXuLyTen);
+                }
+
+                double soBinLamTronXuong = Math.Floor(tiLeSoBin);
+
+                if (soBinLamTronXuong > long.MaxValue)
+                {
+                    nhatKy.AppendLine(
+                        "Số Bin tính toán vượt giới hạn kiểu long.");
+
+                    return GhiLogVaTraKetQua(
+                        nhatKy,
+                        DanhSachLoiNhapLieuSX.Loi_BatThuongKhiXuLyTen);
+                }
+
+                long soBinTinhToan = Math.Max(
+                    1L,
+                    (long)soBinLamTronXuong);
+
+                int soBinThucTe = nguyenVatLieu.Count;
+
+                nhatKy.AppendLine(
+                    $"Tổng tiết diện TP: {DinhDangSoChoLog(tietDienTP)}");
+                nhatKy.AppendLine(
+                    $"Tổng tiết diện BTP: {DinhDangSoChoLog(tietDienBTP)}");
+                nhatKy.AppendLine(
+                    $"Tỷ lệ TP/BTP: {DinhDangSoChoLog(tiLeSoBin)}");
+                nhatKy.AppendLine(
+                    $"Số Bin tính toán (làm tròn xuống, tối thiểu 1): " +
+                    soBinTinhToan);
+                nhatKy.AppendLine(
+                    $"Số Bin thực tế: {soBinThucTe}");
+
+                if (soBinThucTe < soBinTinhToan)
+                {
+                    return GhiLogVaTraKetQua(
+                        nhatKy,
+                        DanhSachLoiNhapLieuSX.Loi_SoLuongBin);
+                }
+
+                return GhiLogVaTraKetQua(nhatKy, null);
+            }
+            catch (ArgumentException ex)
+            {
+                nhatKy.AppendLine(
+                    "Bất thường khi phân tích tên: " + ex.Message);
+
+                return GhiLogVaTraKetQua(
+                    nhatKy,
+                    DanhSachLoiNhapLieuSX.Loi_BatThuongKhiXuLyTen);
+            }
+            catch (OverflowException ex)
+            {
+                nhatKy.AppendLine(
+                    "Bất thường do tràn số: " + ex.Message);
+
+                return GhiLogVaTraKetQua(
+                    nhatKy,
+                    DanhSachLoiNhapLieuSX.Loi_BatThuongKhiXuLyTen);
+            }
+
+
+        }
+
+
+
+        /// <summary>
+        /// Phân tích tên sản phẩm bằng PhanTachCauTrucDay và tính tổng tiết
+        /// diện của tất cả cụm trong phần cấu trúc.
+        /// </summary>
+        private static bool ThuTinhTongTietDienTheoTen(
+            string tenSanPham,
+            out double tongTietDien,
+            out string noiDungLoi,
+            StringBuilder nhatKy,
+            string nhanDoiTuong)
+        {
+            tongTietDien = 0d;
+            noiDungLoi = null;
+
+            if (string.IsNullOrEmpty(tenSanPham))
+            {
+                noiDungLoi = "Tên sản phẩm bị null hoặc rỗng.";
+                return false;
+            }
+
+            KetQuaPhanTich ketQua = PhanTachCauTrucDay.PhanTich(
+                ChuanHoaTenTruocKhiPhanTich(tenSanPham));
+
+            if (ketQua.DanhSachCum == null ||
+                ketQua.DanhSachCum.Count == 0)
+            {
+                noiDungLoi = "Tên không tạo được cụm cấu trúc nào.";
+                return false;
+            }
+
+            foreach (CumCauTruc cum in ketQua.DanhSachCum)
+            {
+                CumQuyDoi cumQuyDoi;
+                string loiQuyDoi;
+
+                if (!ThuQuyDoiCum(
+                        cum,
+                        out cumQuyDoi,
+                        out loiQuyDoi))
+                {
+                    noiDungLoi =
+                        $"Không quy đổi được cụm '{cum.NoiDungGoc}': " +
+                        loiQuyDoi;
+                    return false;
+                }
+
+                double tietDienCum;
+                string loiTietDien;
+
+                if (!ThuTinhTietDienCum(
+                        cumQuyDoi,
+                        out tietDienCum,
+                        out loiTietDien))
+                {
+                    noiDungLoi =
+                        $"Không tính được cụm '{cum.NoiDungGoc}': " +
+                        loiTietDien;
+                    return false;
+                }
+
+                tongTietDien += tietDienCum;
+
+                if (!LaSoDuongHopLe(tongTietDien))
+                {
+                    noiDungLoi =
+                        "Tổng tiết diện không phải số dương hợp lệ.";
+                    return false;
+                }
+
+                nhatKy.AppendLine(
+                    $"{nhanDoiTuong} - Cụm '{cumQuyDoi.NoiDungGoc}': " +
+                    $"hệ số {cumQuyDoi.HeSo}, " +
+                    $"cấu trúc '{cumQuyDoi.TenCauTruc}', " +
+                    $"tiết diện {DinhDangSoChoLog(tietDienCum)}");
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Tính tiết diện một cụm đã quy đổi.
+        /// - Có R/r: lấy phần số trước R và không dùng công thức hình tròn.
+        /// - Không có R/r: cấu trúc phải là số thực thuần túy và dùng
+        ///   PI * d * d / 4.
+        /// - Có dấu / nhưng không có R/r: dữ liệu bất thường.
+        /// </summary>
+        private static bool ThuTinhTietDienCum(
+            CumQuyDoi cum,
+            out double tietDien,
+            out string noiDungLoi)
+        {
+            tietDien = 0d;
+            noiDungLoi = null;
+
+            if (cum == null ||
+                string.IsNullOrEmpty(cum.TenCauTruc) ||
+                cum.HeSo <= 0)
+            {
+                noiDungLoi = "Cụm, tên cấu trúc hoặc hệ số không hợp lệ.";
+                return false;
+            }
+
+            string tenCauTruc = cum.TenCauTruc;
+            int viTriR = tenCauTruc.IndexOf(
+                "R",
+                StringComparison.OrdinalIgnoreCase);
+
+            bool coR = viTriR >= 0;
+
+            if (!coR && tenCauTruc.Contains("/"))
+            {
+                noiDungLoi = "Cấu trúc có dấu / nhưng không có R.";
+                return false;
+            }
+
+            string chuoiGiaTri = coR
+                ? tenCauTruc.Substring(0, viTriR)
+                : tenCauTruc;
+
+            double giaTriCauTruc;
+
+            if (string.IsNullOrEmpty(chuoiGiaTri) ||
+                !double.TryParse(
+                    chuoiGiaTri,
+                    NumberStyles.Float,
+                    CultureInfo.InvariantCulture,
+                    out giaTriCauTruc) ||
+                !LaSoDuongHopLe(giaTriCauTruc))
+            {
+                noiDungLoi =
+                    $"Không chuyển được '{chuoiGiaTri}' thành số thực dương.";
+                return false;
+            }
+
+            double tietDienCoSo = coR
+                ? giaTriCauTruc
+                : Math.PI * giaTriCauTruc * giaTriCauTruc / 4d;
+
+            tietDien = cum.HeSo * tietDienCoSo;
+
+            if (!LaSoDuongHopLe(tietDien))
+            {
+                noiDungLoi = "Tiết diện tính được không hợp lệ.";
+                return false;
+            }
+
+            return true;
+        }
+
+        private static bool LaSoDuongHopLe(double giaTri)
+        {
+            return giaTri > 0d &&
+                   !double.IsNaN(giaTri) &&
+                   !double.IsInfinity(giaTri);
+        }
+
+        private static string DinhDangSoChoLog(double giaTri)
+        {
+            return giaTri.ToString(
+                "0.######",
+                CultureInfo.InvariantCulture);
+        }
+
+        private static string GhiLogVaTraKetQua(
+            StringBuilder nhatKy,
+            string ketQua)
+        {
             nhatKy.AppendLine(
-                $"Kết quả: {DanhSachLoiNhapLieuSX.Loi_TP_Nl_KhongKhop}");
+                string.IsNullOrEmpty(ketQua)
+                    ? "Kết quả: Hợp lệ."
+                    : "Kết quả: " + ketQua);
 
             GhiLogKiemTraSoLuongBin(nhatKy.ToString());
-
-            return DanhSachLoiNhapLieuSX.Loi_TP_Nl_KhongKhop;
+            return ketQua;
         }
 
         /// <summary>

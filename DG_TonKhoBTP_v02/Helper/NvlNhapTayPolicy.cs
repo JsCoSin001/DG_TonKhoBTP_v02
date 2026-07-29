@@ -15,11 +15,11 @@ namespace DG_TonKhoBTP_v02.Helper
         // Nhóm điều kiện dương: chỉ cần khớp ít nhất một biểu thức (OR).
         private static readonly string[] RegexNhapTay =
         {
-            @"^C .*R.*$",
-            @"^C-AWG .*$",
-            @"^C 1\.02$",
-            @"^C 1\.20$",
-            @"^A .*R.*$"
+            //@"^C .*R.*$",
+            //@"^C-AWG .*$",
+            //@"^C 1\.02$",
+            //@"^C 1\.20$",
+            //@"^A .*R.*$"
         };
 
         // Điều kiện loại trừ: TenNVL kết thúc bằng /T.

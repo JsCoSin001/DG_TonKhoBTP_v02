@@ -9,10 +9,11 @@ using DG_TonKhoBTP_v02.UI.Helper;
 using DG_TonKhoBTP_v02.UI.NghiepVuKhac.SanXuat;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Data.SQLite;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using CoreHelper = DG_TonKhoBTP_v02.Helper.Helper;
@@ -35,7 +36,10 @@ namespace DG_TonKhoBTP_v02.UI
             new HashSet<string>
             {
                 // Ví dụ:
-                // DanhSachLoiNhapLieuSX.Loi_BomNull,
+                 DanhSachLoiNhapLieuSX.Loi_BomNull,
+                 DanhSachLoiNhapLieuSX.Loi_KhongXacDinh,
+                 DanhSachLoiNhapLieuSX.Loi_BatThuongKhiXuLyTen,
+                 DanhSachLoiNhapLieuSX.Loi_KhongDongBoTen,
             };
 
         private CongDoan _Cd;
@@ -442,7 +446,7 @@ namespace DG_TonKhoBTP_v02.UI
             // Các hàm kiểm tra con hiện chỉ là phần khung và mặc định không báo lỗi.
             List<string> danhSachLoiNhapLieu = laCongDoan9
                 ? new List<string>()
-                : KiemTraMoiQuanHeNguyenLieuThanhPham(thanhPham, nvlRows, _Cd);
+                : KiemTraMoiQuanHeNguyenLieuThanhPham( thanhPham, nvlRows, _Cd);
 
             // =========================================================
             // 5. LẤY CHI TIẾT CÔNG ĐOẠN
@@ -454,10 +458,7 @@ namespace DG_TonKhoBTP_v02.UI
             {
                 // Công đoạn khác 9 giữ nguyên việc kiểm tra
                 // và tạo dữ liệu chi tiết công đoạn.
-                congDoan = ValidateAndBuildCongDoanData(
-                    snapshot,
-                    waiting,
-                    swTotal);
+                congDoan = ValidateAndBuildCongDoanData( snapshot, waiting, swTotal);
 
                 if (congDoan == null)
                     return null;
@@ -584,36 +585,18 @@ namespace DG_TonKhoBTP_v02.UI
             CongDoan congDoan)
         {
             var danhSachLoi = new List<string>();
+            string loi;
 
-            // B1. BOM null hoặc rỗng được ưu tiên trả lỗi trước các kiểm tra khác.
-            var loiBomNull = KiemTraBomNull(thanhPham);
-            ThemLoiNeuCo(danhSachLoi, loiBomNull);
-
-            if (loiBomNull != null)
-                return danhSachLoi;
-
-            // B2. Kiểm tra nguyên liệu có khớp với BOM của thành phẩm hay không.
-            // Không kiểm tra bom với công đoạn là bện rút (id = 1)
-            var loiKhongKhop =
-                KiemTraThanhPhamNguyenLieuKhongKhopBOM(nguyenVatLieu,congDoan);
-
-            ThemLoiNeuCo(danhSachLoi, loiKhongKhop);
-
-            // Nếu phát hiện NVL không thuộc BOM thì dừng kiểm tra quan hệ.
-            if (loiKhongKhop != null)
-                return danhSachLoi;
-
-            // B3. Kiểm tra BOM có đủ các loại nguyên vật liệu bắt buộc hay không.
-            ThemLoiNeuCo(
-                danhSachLoi,
-                KTraSoLuongLoaiNguyenVatLieu(thanhPham, nguyenVatLieu));
-
-            // B4. Kiểm tra số lượng Bin giữa thành phẩm và NVL.
-            ThemLoiNeuCo(
-                danhSachLoi,
-                KiemTraSoLuongBin(thanhPham, nguyenVatLieu, congDoan));
-
-
+            if (
+                    (loi = KiemTraBomNull(thanhPham)) != null 
+                        ||
+                    (loi = KTraSoLuongLoaiNguyenVatLieu( thanhPham, nguyenVatLieu, congDoan)) != null 
+                        ||
+                    (loi = KiemTraSoLuongBin( thanhPham, nguyenVatLieu, congDoan)) != null
+                )
+            {
+                ThemLoiNeuCo(danhSachLoi, loi);
+            }
 
             return danhSachLoi;
         }
@@ -641,22 +624,35 @@ namespace DG_TonKhoBTP_v02.UI
                 : null;
         }
 
-        /// <summary>
-        /// Kiểm tra danh sách NVL có dòng nào không thuộc BOM
-        /// của thành phẩm đang chọn hay không.
-        /// </summary>
-        private static string KiemTraThanhPhamNguyenLieuKhongKhopBOM(List<TTNVLRow> nguyenVatLieu, CongDoan congDoan)
+        private static string KiemTraThanhPhamNguyenLieuKhongKhopBOM(
+            List<TTNVLRow> nguyenVatLieu,
+            CongDoan congDoan)
         {
-            if (nguyenVatLieu == null || nguyenVatLieu.Count == 0 || congDoan?.Id == 1)
+            if (nguyenVatLieu == null || nguyenVatLieu.Count == 0)
                 return null;
 
-            bool coNguyenVatLieuKhongKhop = nguyenVatLieu.Any(
-                nvl => nvl != null && nvl.IsCorrect == false);
+            bool coNguyenVatLieuKhongKhop;
+
+            if (congDoan?.Id == 0)
+            {
+                // Mỗi NVL đều phải chứa chính xác cụm " 8mm ".
+                coNguyenVatLieuKhongKhop = nguyenVatLieu.Any(nvl =>
+                    string.IsNullOrEmpty(nvl?.TenNVL) ||
+                    nvl.TenNVL.IndexOf(
+                        " 8.0mm ",
+                        StringComparison.OrdinalIgnoreCase) < 0);
+            }
+            else
+            {
+                coNguyenVatLieuKhongKhop = nguyenVatLieu.Any(
+                    nvl => nvl != null && nvl.IsCorrect == false);
+            }
 
             return coNguyenVatLieuKhongKhop
                 ? DanhSachLoiNhapLieuSX.Loi_TP_Nl_KhongKhop
                 : null;
         }
+
 
         /// <summary>
         /// Xác định component BOM có bắt buộc xuất hiện hay không.
@@ -681,23 +677,50 @@ namespace DG_TonKhoBTP_v02.UI
         /// </summary>
         private static string KTraSoLuongLoaiNguyenVatLieu(
             TTThanhPham thanhPham,
-            List<TTNVLRow> nguyenVatLieu)
+            List<TTNVLRow> nguyenVatLieu,
+            CongDoan congDoan)
         {
-            // BOM null/rỗng đã được kiểm tra trước khi gọi hàm này.
-            var componentIdsThucTe = new HashSet<int>(
-                nguyenVatLieu
-                    .Where(nvl => nvl?.DanhSachMaSP_ID != null)
-                    .Select(nvl => nvl.DanhSachMaSP_ID.Value));
+            if (nguyenVatLieu == null || nguyenVatLieu.Count == 0)
+                return DanhSachLoiNhapLieuSX.Loi_SoLuongNVL;
 
-            bool thieuComponentBatBuoc = thanhPham.BomComponents
-                .Where(LaComponentBatBuoc)
-                .Any(component =>
-                    component == null ||
-                    !componentIdsThucTe.Contains(component.ComponentId));
+            // Công đoạn kéo rút:
+            // Mỗi NVL đều phải chứa chính xác cụm " 8mm ".
+            if (congDoan?.Id == 0)
+            {
+                bool coNguyenVatLieuKhongHopLe = nguyenVatLieu.Any(nvl =>
+                    string.IsNullOrEmpty(nvl?.TenNVL) ||
+                    nvl.TenNVL.IndexOf(
+                        " 8mm ",
+                        StringComparison.OrdinalIgnoreCase) < 0);
 
-            return thieuComponentBatBuoc
-                ? DanhSachLoiNhapLieuSX.Loi_SoLuongNVL
-                : null;
+                return coNguyenVatLieuKhongHopLe
+                    ? DanhSachLoiNhapLieuSX.Loi_TP_Nl_KhongKhop
+                    : null;
+            }
+
+            // Công đoạn 1 bỏ qua kiểm tra tên nguyên liệu so với bom.
+            // Các công đoạn khác kiểm tra NVL có thuộc BOM hay không.
+            if (congDoan?.Id != 1)
+            {
+                // Kiểm tra theo mã:
+                // Các component bắt buộc trong BOM phải xuất hiện trong NVL thực tế.
+                var componentIdsThucTe = new HashSet<int>(
+                    nguyenVatLieu
+                        .Where(nvl => nvl?.DanhSachMaSP_ID != null)
+                        .Select(nvl => nvl.DanhSachMaSP_ID.Value));
+
+                bool thieuComponentBatBuoc = thanhPham.BomComponents
+                    .Where(LaComponentBatBuoc)
+                    .Any(component =>
+                        component == null ||
+                        !componentIdsThucTe.Contains(component.ComponentId));
+
+                return thieuComponentBatBuoc
+                    ? DanhSachLoiNhapLieuSX.Loi_SoLuongNVL
+                    : null;
+            }
+
+            return null;
         }
 
         /// <summary>
@@ -706,11 +729,13 @@ namespace DG_TonKhoBTP_v02.UI
         /// </summary>
         private static string KiemTraSoLuongBin(
             TTThanhPham thanhPham,
-            List<TTNVLRow> nguyenVatLieu, CongDoan congDoan)
+            List<TTNVLRow> nguyenVatLieu,
+            CongDoan congDoan)
         {
             return KiemTraSoLuongBinHelper.KiemTra(
                 thanhPham,
-                nguyenVatLieu, congDoan);
+                nguyenVatLieu,
+                congDoan);
         }
 
         /// <summary>

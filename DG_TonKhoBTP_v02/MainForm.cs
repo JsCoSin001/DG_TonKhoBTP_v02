@@ -36,7 +36,7 @@ namespace DG_TonKhoBTP_v02
     {
         private string _URL = Properties.Settings.Default.URL;
         private CongDoanUiService _ui;
-        private string _ver = "2.7.5";
+        private string _ver = "2.7.6";
         private bool show = false;
         private void InitUiService()
         {
@@ -1060,19 +1060,6 @@ namespace DG_TonKhoBTP_v02
             else
             {
                 menuApp.Visible = false;
-
-                //grbChucNang.Visible = true;
-                //pnBC_TonKho.Visible = true;
-                //pnKiemTraBC.Visible = false;
-                //pnTruyVetDL.Visible = true;
-                //pnUpdateMaHang.Visible = false;
-                //pnTachBin.Visible = true;
-                //pnGopBin_HanNoi.Visible = true;
-                //pnHaLo_NhapLai.Visible = true;
-                //pnVatTuPhu.Visible = false;
-                //pnKiemKe.Visible = false;
-                //grbKeHoach.Visible = false;
-                //grbBaoCao.Visible = true;
 
                 lblUserName.Text = "Đăng nhập";
                 lblChucDanh.Text = "Chưa đăng nhập";

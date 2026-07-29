@@ -756,7 +756,7 @@
             // 
             this.cbxTimTen.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbxTimTen.FormattingEnabled = true;
-            this.cbxTimTen.Location = new System.Drawing.Point(83, 14);
+            this.cbxTimTen.Location = new System.Drawing.Point(83, 12);
             this.cbxTimTen.Name = "cbxTimTen";
             this.cbxTimTen.Size = new System.Drawing.Size(360, 26);
             this.cbxTimTen.TabIndex = 1;
@@ -1006,7 +1006,7 @@
             this.cbxCongDoan.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbxCongDoan.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbxCongDoan.FormattingEnabled = true;
-            this.cbxCongDoan.Location = new System.Drawing.Point(422, 14);
+            this.cbxCongDoan.Location = new System.Drawing.Point(422, 12);
             this.cbxCongDoan.Name = "cbxCongDoan";
             this.cbxCongDoan.Size = new System.Drawing.Size(391, 26);
             this.cbxCongDoan.TabIndex = 1;
@@ -1087,7 +1087,7 @@
             this.cbxActive.Items.AddRange(new object[] {
             "Không",
             "Có"});
-            this.cbxActive.Location = new System.Drawing.Point(893, 14);
+            this.cbxActive.Location = new System.Drawing.Point(893, 12);
             this.cbxActive.Name = "cbxActive";
             this.cbxActive.Size = new System.Drawing.Size(94, 26);
             this.cbxActive.TabIndex = 1;
@@ -1144,7 +1144,7 @@
             // 
             this.cbxTen_ThanhPham.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbxTen_ThanhPham.FormattingEnabled = true;
-            this.cbxTen_ThanhPham.Location = new System.Drawing.Point(131, 12);
+            this.cbxTen_ThanhPham.Location = new System.Drawing.Point(131, 14);
             this.cbxTen_ThanhPham.Name = "cbxTen_ThanhPham";
             this.cbxTen_ThanhPham.Size = new System.Drawing.Size(194, 26);
             this.cbxTen_ThanhPham.TabIndex = 1;
@@ -1220,7 +1220,7 @@
             // 
             this.cbxTen_NL.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbxTen_NL.FormattingEnabled = true;
-            this.cbxTen_NL.Location = new System.Drawing.Point(131, 64);
+            this.cbxTen_NL.Location = new System.Drawing.Point(131, 62);
             this.cbxTen_NL.Name = "cbxTen_NL";
             this.cbxTen_NL.Size = new System.Drawing.Size(194, 26);
             this.cbxTen_NL.TabIndex = 1;

@@ -378,10 +378,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
                         }),
                     "ĐANG XUẤT DỮ LIỆU RA EXCEL...");
 
-                FrmWaiting.ShowGifAlert(
-                    "Đã xuất Excel thành công!",
-                    "XUẤT EXCEL",
-                    "success");
+                FrmWaiting.ShowGifAlert( "Đã xuất Excel thành công!", "XUẤT EXCEL", EnumStore.Icon.Success);
             }
             catch (Exception ex)
             {

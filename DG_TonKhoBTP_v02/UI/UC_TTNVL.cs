@@ -974,7 +974,7 @@ namespace DG_TonKhoBTP_v02.UI
                 QC = GetString(src, "QC"),
 
                 MaNVL = GetString(src, "MaNVL"),
-                DonVi = GetString(src, "DonVi"),
+                DonVi = GetString(src, "DonViNVL"),
                 Ngay = GetString(src, "Ngay"),
                 Ca = GetString(src, "Ca"),
                 NguoiLam = GetString(src, "NguoiLam"),

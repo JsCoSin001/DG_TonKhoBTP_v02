@@ -317,7 +317,7 @@ namespace DG_TonKhoBTP_v02.Helper
               ttp.MaBin as MaBin, ds.Ten AS Ten, ds.Ma AS Ma,ds.DonVi,ds.ChuyenDoi, ds.id AS DanhSachMaSP_ID,
               tclv.NguoiLam, tclv.ToTruong, tclv.QuanDoc,
               ttp.KhoiLuongTruoc AS KhoiLuongTruoc, ttp.KhoiLuongSau as KhoiLuongSau,
-              ttp.ChieuDaiTruoc as ChieuDaiTruoc, ttp.ChieuDaiSau as ChieuDaiSau,
+              ttp.ChieuDaiTruoc as ChieuDaiTruoc, ttp.ChieuDaiSau as ChieuDaiSau,ds_nvl.DonVi AS DonViNVL,
               ttp.Phe as Phe, ttp.HanNoi as HanNoi, ttp.GhiChu as GhiChu,
               1 AS TyLe,
               1 AS TyLeHoanDoi,

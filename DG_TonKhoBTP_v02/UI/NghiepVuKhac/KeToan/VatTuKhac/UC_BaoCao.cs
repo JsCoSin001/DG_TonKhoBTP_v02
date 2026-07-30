@@ -292,10 +292,9 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
                                             ngayKetThuc);
 
                                     case 3:
-                                        return BaoCao_DB.GetBaoCaoLichSuXuatNhap(
+                                        return BaoCao_DB.GetBaoCaoXuatHang(
                                             kho,
                                             nguoiThucHien,
-                                            false,
                                             ngayBatDau,
                                             ngayKetThuc);
 
@@ -416,12 +415,19 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
             {
                 CommitPendingGridEdits(grvBaoCao);
 
+                DataTable boundTable =
+                    GetBoundDataTable(grvBaoCao);
+
                 List<BaoCao_Model.CanEdit> items =
                     GetCanEditItems(grvBaoCao);
 
                 await WaitingHelper.RunWithWaiting(
                     () => BaoCao_DB.UpdateCanEdit(items),
                     "ĐANG CẬP NHẬT TRẠNG THÁI...");
+
+                // DB đã commit đúng trạng thái hiện có trên lưới.
+                // Chấp nhận phiên bản mới mà không tải lại báo cáo.
+                boundTable?.AcceptChanges();
 
                 FrmWaiting.ShowGifAlert(
                     "Cập nhật thành công!",
@@ -430,6 +436,11 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
             }
             catch (Exception ex)
             {
+                // Transaction đã rollback. Khôi phục checkbox/canEdit
+                // từ DataRowVersion.Original, không query lại báo cáo.
+                GetBoundDataTable(grvBaoCao)?.RejectChanges();
+                grvBaoCao.Refresh();
+
                 FrmWaiting.ShowGifAlert(
                     CoreHelper.ShowErrorDatabase(
                         ex,
@@ -1094,6 +1105,12 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
                         col.Name == "LoaiDon" ||
                         col.Name.Equals(
                             COL_CAN_EDIT,
+                            StringComparison.OrdinalIgnoreCase) ||
+                        col.Name.Equals(
+                            "DanhSachLichSuID",
+                            StringComparison.OrdinalIgnoreCase) ||
+                        col.Name.Equals(
+                            "TenVatTu_KhongDau",
                             StringComparison.OrdinalIgnoreCase))
                     {
                         col.Visible = false;
@@ -1710,57 +1727,108 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
             GetCanEditItems(
                 DataGridView dgr)
         {
-            var items =
-                new List<BaoCao_Model.CanEdit>();
-
-            DataTable table =
-                GetBoundDataTable(dgr);
+            DataTable table = GetBoundDataTable(dgr);
 
             if (table == null ||
-                !table.Columns.Contains("lsxn_id") ||
                 !table.Columns.Contains("canEdit"))
             {
-                return items;
+                return new List<BaoCao_Model.CanEdit>();
             }
 
-            // Đọc toàn bộ DataTable, không chỉ các dòng
-            // đang còn hiển thị sau khi lọc.
+            bool hasSingleId = table.Columns.Contains("lsxn_id");
+            bool hasGroupedIds = table.Columns.Contains("DanhSachLichSuID");
+
+            if (!hasSingleId && !hasGroupedIds)
+                return new List<BaoCao_Model.CanEdit>();
+
+            var valuesById = new Dictionary<int, int>();
+
+            // Đọc toàn bộ DataTable, kể cả các dòng đang bị ẩn bởi bộ lọc.
             foreach (DataRow row in table.Rows)
             {
                 if (row.RowState == DataRowState.Deleted)
                     continue;
 
-                object idValue =
-                    row["lsxn_id"];
-
-                if (idValue == null ||
-                    idValue == DBNull.Value)
-                {
-                    continue;
-                }
-
                 int canEdit = 0;
-
-                object canEditValue =
-                    row["canEdit"];
+                object canEditValue = row["canEdit"];
 
                 if (canEditValue != null &&
                     canEditValue != DBNull.Value)
                 {
-                    int.TryParse(
-                        canEditValue.ToString(),
-                        out canEdit);
+                    int.TryParse(canEditValue.ToString(), out canEdit);
                 }
 
-                items.Add(
-                    new BaoCao_Model.CanEdit
+                canEdit = canEdit == 0 ? 0 : 1;
+
+                IEnumerable<int> rowIds;
+
+                if (hasGroupedIds &&
+                    row["DanhSachLichSuID"] != null &&
+                    row["DanhSachLichSuID"] != DBNull.Value)
+                {
+                    rowIds = ParseLichSuIds(
+                        row["DanhSachLichSuID"].ToString());
+                }
+                else if (hasSingleId &&
+                         row["lsxn_id"] != null &&
+                         row["lsxn_id"] != DBNull.Value)
+                {
+                    rowIds = new[]
                     {
-                        Id = Convert.ToInt32(idValue),
-                        Value = canEdit == 0 ? 0 : 1
-                    });
+                        Convert.ToInt32(row["lsxn_id"])
+                    };
+                }
+                else
+                {
+                    continue;
+                }
+
+                foreach (int id in rowIds)
+                {
+                    if (valuesById.TryGetValue(id, out int existingValue) &&
+                        existingValue != canEdit)
+                    {
+                        throw new InvalidOperationException(
+                            $"Lịch sử xuất nhập ID {id} đang nhận hai trạng thái khác nhau.");
+                    }
+
+                    valuesById[id] = canEdit;
+                }
+            }
+
+            var items = new List<BaoCao_Model.CanEdit>();
+
+            foreach (KeyValuePair<int, int> pair in valuesById)
+            {
+                items.Add(new BaoCao_Model.CanEdit
+                {
+                    Id = pair.Key,
+                    Value = pair.Value
+                });
             }
 
             return items;
+        }
+
+        private static IEnumerable<int> ParseLichSuIds(
+            string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                yield break;
+
+            var uniqueIds = new HashSet<int>();
+
+            foreach (string part in value.Split(';'))
+            {
+                if (!int.TryParse(part.Trim(), out int id) || id <= 0)
+                {
+                    throw new FormatException(
+                        $"DanhSachLichSuID chứa giá trị không hợp lệ: '{part}'.");
+                }
+
+                if (uniqueIds.Add(id))
+                    yield return id;
+            }
         }
 
         // ═══════════════════════════════════════════════════════════════════════
@@ -1780,7 +1848,11 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
             string[] internalColumns =
             {
                 "ThongTinDatHang_ID",
-                "DanhSachKho_ID"
+                "DanhSachKho_ID",
+                "DanhSachMaSP_ID",
+                "TenVatTu_KhongDau",
+                "DanhSachLichSuID",
+                "canEdit"
             };
 
             foreach (string columnName in internalColumns)

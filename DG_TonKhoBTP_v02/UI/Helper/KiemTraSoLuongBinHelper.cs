@@ -341,105 +341,21 @@ namespace DG_TonKhoBTP_v02.UI.Helper
                         DanhSachLoiNhapLieuSX.Loi_BatThuongKhiXuLyTen);
                 }
 
-                // So sánh toàn bộ TenNVL, không phân biệt hoa/thường và
-                // không trim/chuẩn hóa chuỗi.
-                string tenBTPDauTien = nguyenVatLieu[0].TenNVL;                
+                double nguongTyLeTietDienToiThieu = 0.90d;
 
-                double tietDienTP;
-                string loiXuLyTP;
+                bool tyLeTietDienHopLe = KiemTraTyLeTietDien(
+                    thanhPham.TenTP,
+                    nguyenVatLieu,
+                    nguongTyLeTietDienToiThieu,
+                    nhatKy);
 
-                if (!ThuTinhTongTietDienTheoTen(
-                        thanhPham.TenTP,
-                        out tietDienTP,
-                        out loiXuLyTP,
-                        nhatKy,
-                        "TP"))
-                {
-                    nhatKy.AppendLine("Lỗi xử lý TP: " + loiXuLyTP);
 
-                    return GhiLogVaTraKetQua(
-                        nhatKy,
-                        DanhSachLoiNhapLieuSX.Loi_BatThuongKhiXuLyTen);
-                }
 
-                double tietDienBTP;
-                string loiXuLyBTP;
-
-                if (!ThuTinhTongTietDienTheoTen(
-                        tenBTPDauTien,
-                        out tietDienBTP,
-                        out loiXuLyBTP,
-                        nhatKy,
-                        "BTP"))
-                {
-                    nhatKy.AppendLine("Lỗi xử lý BTP: " + loiXuLyBTP);
-
-                    return GhiLogVaTraKetQua(
-                        nhatKy,
-                        DanhSachLoiNhapLieuSX.Loi_BatThuongKhiXuLyTen);
-                }
-
-                if (!LaSoDuongHopLe(tietDienTP) ||
-                    !LaSoDuongHopLe(tietDienBTP))
-                {
-                    nhatKy.AppendLine(
-                        "Tổng tiết diện TP hoặc BTP không phải số dương hợp lệ.");
-
-                    return GhiLogVaTraKetQua(
-                        nhatKy,
-                        DanhSachLoiNhapLieuSX.Loi_BatThuongKhiXuLyTen);
-                }
-
-                double tiLeSoBin = tietDienTP / tietDienBTP;
-
-                if (!LaSoDuongHopLe(tiLeSoBin))
-                {
-                    nhatKy.AppendLine(
-                        "Tỷ lệ tiết diện TP/BTP không hợp lệ.");
-
-                    return GhiLogVaTraKetQua(
-                        nhatKy,
-                        DanhSachLoiNhapLieuSX.Loi_BatThuongKhiXuLyTen);
-                }
-
-                double soBinLamTronXuong = Math.Floor(tiLeSoBin);
-
-                if (soBinLamTronXuong > long.MaxValue)
-                {
-                    nhatKy.AppendLine(
-                        "Số Bin tính toán vượt giới hạn kiểu long.");
-
-                    return GhiLogVaTraKetQua(
-                        nhatKy,
-                        DanhSachLoiNhapLieuSX.Loi_BatThuongKhiXuLyTen);
-                }
-
-                long soBinTinhToan = Math.Max(
-                    1L,
-                    (long)soBinLamTronXuong);
-
-                int soBinThucTe = nguyenVatLieu.Count;
-
-                nhatKy.AppendLine(
-                    $"Tổng tiết diện TP: {DinhDangSoChoLog(tietDienTP)}");
-                nhatKy.AppendLine(
-                    $"Tổng tiết diện BTP: {DinhDangSoChoLog(tietDienBTP)}");
-                nhatKy.AppendLine(
-                    $"Tỷ lệ TP/BTP: {DinhDangSoChoLog(tiLeSoBin)}");
-                nhatKy.AppendLine(
-                    $"Số Bin tính toán (làm tròn xuống, tối thiểu 1): " +
-                    soBinTinhToan);
-                nhatKy.AppendLine(
-                    $"Số Bin thực tế: {soBinThucTe}");
-
-                if (soBinThucTe < soBinTinhToan)
-                {
-                    return GhiLogVaTraKetQua(
-                        nhatKy,
-                        DanhSachLoiNhapLieuSX.Loi_SoLuongBin);
-                }
-
-                return GhiLogVaTraKetQua(nhatKy, null);
+                return GhiLogVaTraKetQua(
+                    nhatKy,
+                    tyLeTietDienHopLe
+                        ? null
+                        : DanhSachLoiNhapLieuSX.Loi_SoLuongBin);
             }
             catch (ArgumentException ex)
             {
@@ -464,6 +380,142 @@ namespace DG_TonKhoBTP_v02.UI.Helper
         }
 
 
+
+        /// <summary>
+        /// So sánh tổng tiết diện của thành phẩm với tổng tiết diện của toàn bộ
+        /// nguyên vật liệu. Tổng NVL phải lớn hơn hoặc bằng tổng TP và tỷ lệ
+        /// TP/NVL sau khi làm tròn hai chữ số phải đạt ngưỡng tối thiểu.
+        /// </summary>
+        private static bool KiemTraTyLeTietDien(
+            string tenThanhPham,
+            List<TTNVLRow> nguyenVatLieu,
+            double nguongTyLeToiThieu,
+            StringBuilder nhatKy)
+        {
+            if (string.IsNullOrEmpty(tenThanhPham) ||
+                nguyenVatLieu == null ||
+                nguyenVatLieu.Count == 0 ||
+                nguyenVatLieu.Any(
+                    item => item == null ||
+                            string.IsNullOrEmpty(item.TenNVL)) ||
+                !LaSoDuongHopLe(nguongTyLeToiThieu) ||
+                nguongTyLeToiThieu > 1d)
+            {
+                nhatKy.AppendLine(
+                    "Dữ liệu đầu vào hoặc ngưỡng tỷ lệ tiết diện không hợp lệ.");
+                return false;
+            }
+
+            try
+            {
+                double tongTietDienTP;
+                string loiXuLyTP;
+
+                if (!ThuTinhTongTietDienTheoTen(
+                        tenThanhPham,
+                        out tongTietDienTP,
+                        out loiXuLyTP,
+                        nhatKy,
+                        "TP"))
+                {
+                    nhatKy.AppendLine("Lỗi xử lý TP: " + loiXuLyTP);
+                    return false;
+                }
+
+                double tongTietDienNVL = 0d;
+
+                for (int i = 0; i < nguyenVatLieu.Count; i++)
+                {
+                    double tietDienNVL;
+                    string loiXuLyNVL;
+
+                    if (!ThuTinhTongTietDienTheoTen(
+                            nguyenVatLieu[i].TenNVL,
+                            out tietDienNVL,
+                            out loiXuLyNVL,
+                            nhatKy,
+                            $"NVL {i + 1}"))
+                    {
+                        nhatKy.AppendLine(
+                            $"Lỗi xử lý NVL dòng {i + 1}: {loiXuLyNVL}");
+                        return false;
+                    }
+
+                    tongTietDienNVL += tietDienNVL;
+
+                    if (!LaSoDuongHopLe(tongTietDienNVL))
+                    {
+                        nhatKy.AppendLine(
+                            "Tổng tiết diện NVL không phải số dương hợp lệ.");
+                        return false;
+                    }
+                }
+
+                if (!LaSoDuongHopLe(tongTietDienTP) ||
+                    !LaSoDuongHopLe(tongTietDienNVL))
+                {
+                    nhatKy.AppendLine(
+                        "Tổng tiết diện TP hoặc NVL không phải số dương hợp lệ.");
+                    return false;
+                }
+
+                double tiLeTietDien = tongTietDienTP / tongTietDienNVL;
+
+                if (!LaSoDuongHopLe(tiLeTietDien))
+                {
+                    nhatKy.AppendLine("Tỷ lệ tiết diện TP/NVL không hợp lệ.");
+                    return false;
+                }
+
+                double tiLeDaLamTron = Math.Round(tiLeTietDien, 2);
+
+                nhatKy.AppendLine(
+                    $"Tổng tiết diện TP: " +
+                    DinhDangSoChoLog(tongTietDienTP));
+                nhatKy.AppendLine(
+                    $"Tổng tiết diện NVL: " +
+                    DinhDangSoChoLog(tongTietDienNVL));
+                nhatKy.AppendLine(
+                    $"Tỷ lệ TP/NVL trước khi làm tròn: " +
+                    DinhDangSoChoLog(tiLeTietDien));
+                nhatKy.AppendLine(
+                    $"Tỷ lệ TP/NVL sau khi làm tròn 2 chữ số: " +
+                    DinhDangSoChoLog(tiLeDaLamTron));
+                nhatKy.AppendLine(
+                    $"Ngưỡng tỷ lệ tối thiểu: " +
+                    DinhDangSoChoLog(nguongTyLeToiThieu));
+
+                if (tongTietDienNVL < tongTietDienTP)
+                {
+                    nhatKy.AppendLine(
+                        "Không hợp lệ: tổng tiết diện NVL nhỏ hơn tổng tiết diện TP.");
+                    return false;
+                }
+
+                bool hopLe = tiLeDaLamTron >= nguongTyLeToiThieu;
+
+                nhatKy.AppendLine(
+                    hopLe
+                        ? "Tỷ lệ tiết diện hợp lệ."
+                        : "Không hợp lệ: tổng tiết diện NVL lớn hơn TP quá mức cho phép.");
+
+                return hopLe;
+            }
+            catch (ArgumentException ex)
+            {
+                nhatKy.AppendLine(
+                    "Bất thường khi phân tích tên để tính tiết diện: " +
+                    ex.Message);
+                return false;
+            }
+            catch (OverflowException ex)
+            {
+                nhatKy.AppendLine(
+                    "Bất thường do tràn số khi tính tiết diện: " +
+                    ex.Message);
+                return false;
+            }
+        }
 
         /// <summary>
         /// Phân tích tên sản phẩm bằng PhanTachCauTrucDay và tính tổng tiết

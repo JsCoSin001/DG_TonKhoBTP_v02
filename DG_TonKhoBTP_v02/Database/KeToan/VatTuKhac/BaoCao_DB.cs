@@ -193,6 +193,151 @@ namespace DG_TonKhoBTP_v02.Database.KeToan.VatTuKhac
             return dt;
         }
 
+        public static DataTable GetBaoCaoXuatHang(
+            int kho,
+            string nguoiThucHien,
+            DateTime? ngayBatDau = null,
+            DateTime? ngayKetThuc = null)
+        {
+            var dt = new DataTable();
+
+            try
+            {
+                var sql = new StringBuilder(@"
+                    WITH DuLieuXuat AS (
+                        SELECT
+                            lsxn.id AS lsxn_id,
+                            lsxn.DanhSachKho_ID,
+                            lsxn.Ngay,
+                            lsxn.TenPhieu,
+                            lsxn.LyDo,
+                            lsxn.SoLuong,
+                            CASE
+                                WHEN lsxn.DonGia IS NULL
+                                     OR TRIM(CAST(lsxn.DonGia AS TEXT)) = ''
+                                    THEN NULL
+                                ELSE CAST(lsxn.DonGia AS REAL)
+                            END AS DonGiaXuat,
+                            lsxn.DanhSachNcc_ID,
+                            lsxn.GhiChu,
+                            lsxn.NguoiGiao_Nhan,
+                            lsxn.NguoiLam,
+                            COALESCE(lsxn.canEdit, 0) AS canEdit,
+                            ttdh.DanhSachMaSP_ID,
+                            ttdh.TenVatTu,
+                            ttdh.TenVatTu_KhongDau,
+                            dssp.Ma,
+                            dssp.Ten AS TenVatTuDanhMuc,
+                            dssp.DonVi,
+                            dsk.TenKho,
+                            ncc.TenNcc AS DoiTuongCongNo
+                        FROM LichSuXuatNhap lsxn
+                        INNER JOIN ThongTinDatHang ttdh
+                            ON lsxn.ThongTinDatHang_ID = ttdh.id
+                        LEFT JOIN DanhSachMaSP dssp
+                            ON ttdh.DanhSachMaSP_ID = dssp.id
+                        LEFT JOIN DanhSachKho dsk
+                            ON lsxn.DanhSachKho_ID = dsk.id
+                        LEFT JOIN DanhSachNcc ncc
+                            ON lsxn.DanhSachNcc_ID = ncc.id
+                        WHERE lsxn.SoLuong < 0
+                ");
+
+                var parameters = new List<SQLiteParameter>();
+
+                if (kho > 0)
+                {
+                    sql.AppendLine(" AND lsxn.DanhSachKho_ID = @DanhSachKho_ID ");
+                    parameters.Add(new SQLiteParameter("@DanhSachKho_ID", kho));
+                }
+
+                if (!string.IsNullOrWhiteSpace(nguoiThucHien))
+                {
+                    sql.AppendLine(" AND lsxn.NguoiLam = @NguoiLam ");
+                    parameters.Add(new SQLiteParameter("@NguoiLam", nguoiThucHien.Trim()));
+                }
+
+                if (ngayBatDau.HasValue)
+                {
+                    sql.AppendLine(" AND DATE(lsxn.Ngay) >= DATE(@NgayBatDau) ");
+                    parameters.Add(new SQLiteParameter("@NgayBatDau", ngayBatDau.Value.ToString("yyyy-MM-dd")));
+                }
+
+                if (ngayKetThuc.HasValue)
+                {
+                    sql.AppendLine(" AND DATE(lsxn.Ngay) <= DATE(@NgayKetThuc) ");
+                    parameters.Add(new SQLiteParameter("@NgayKetThuc", ngayKetThuc.Value.ToString("yyyy-MM-dd")));
+                }
+
+                sql.AppendLine(@"
+                    )
+                    SELECT
+                        DanhSachKho_ID,
+                        MAX(TenKho) AS TenKho,
+                        TenPhieu,
+                        REPLACE(
+                            GROUP_CONCAT(DISTINCT strftime('%d/%m/%Y', Ngay)),
+                            ',',
+                            '; '
+                        ) AS NgayXuatNhap,
+                        MAX(LyDo) AS LyDo,
+                        MAX(Ma) AS Ma,
+                        MAX(
+                            CASE
+                                WHEN DanhSachMaSP_ID IS NULL THEN TenVatTu
+                                ELSE TenVatTuDanhMuc
+                            END
+                        ) AS TenVatTu,
+                        MAX(CASE WHEN DanhSachMaSP_ID IS NULL THEN '' ELSE DonVi END) AS DonVi,
+                        ABS(SUM(SoLuong)) AS SoLuong,
+                        MAX(DonGiaXuat) AS DonGiaXuat,
+                        MAX(DoiTuongCongNo) AS DoiTuongCongNo,
+                        MAX(NguoiGiao_Nhan) AS NguoiGiaoNhan,
+                        MAX(NguoiLam) AS NguoiLam,
+                        REPLACE(
+                            GROUP_CONCAT(
+                                DISTINCT CASE
+                                    WHEN GhiChu IS NULL OR TRIM(GhiChu) = '' THEN NULL
+                                    ELSE TRIM(GhiChu)
+                                END
+                            ),
+                            ',',
+                            '; '
+                        ) AS GhiChu,
+                        DanhSachMaSP_ID,
+                        CASE
+                            WHEN DanhSachMaSP_ID IS NULL THEN TenVatTu_KhongDau
+                            ELSE NULL
+                        END AS TenVatTu_KhongDau,
+                        GROUP_CONCAT(lsxn_id, ';') AS DanhSachLichSuID,
+                        MIN(canEdit) AS canEdit
+                    FROM DuLieuXuat
+                    GROUP BY
+                        DanhSachKho_ID,
+                        TenPhieu,
+                        CASE WHEN DanhSachMaSP_ID IS NULL THEN 0 ELSE 1 END,
+                        DanhSachMaSP_ID,
+                        CASE
+                            WHEN DanhSachMaSP_ID IS NULL THEN TenVatTu_KhongDau
+                            ELSE NULL
+                        END
+                    ORDER BY MAX(Ngay) DESC, MAX(lsxn_id) DESC;
+                ");
+
+                using var conn = DB_Base.OpenConnection();
+                using var cmd = new SQLiteCommand(sql.ToString(), conn);
+                cmd.Parameters.AddRange(parameters.ToArray());
+                using var adapter = new SQLiteDataAdapter(cmd);
+                adapter.Fill(dt);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"GetBaoCaoXuatHang lỗi: {ex.Message}", ex);
+            }
+
+            return dt;
+        }
+
         public static DataTable GetBaoCaoLichSuXuatNhap(
             int kho,
             string nguoiThucHien,

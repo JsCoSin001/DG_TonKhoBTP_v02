@@ -318,7 +318,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
         {
             long parentProduct = long.TryParse(tbID_TP.Text, out long parsedParent) ? parsedParent : 0;
             long component = long.TryParse(tbID_NL.Text, out long parsedComponent) ? parsedComponent : 0;
-            int congDoanId = GetSelectedCongDoanId();
+            int? congDoanId = GetSelectedCongDoanId();
             int active = cbxActive.SelectedIndex;
 
             return new BOMStructure_Model
@@ -349,13 +349,6 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
             {
                 FrmWaiting.ShowGifAlert("Vui lòng chọn Nguyên liệu.");
                 cbxTen_NL.Focus();
-                return false;
-            }
-
-            if (cbxCongDoan.SelectedIndex < 0 || GetSelectedCongDoanId() < 0)
-            {
-                FrmWaiting.ShowGifAlert("Vui lòng chọn Công đoạn.");
-                cbxCongDoan.Focus();
                 return false;
             }
 
@@ -396,8 +389,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
             if (bomId <= 0) return;
 
             var confirm = MessageBox.Show(
-                "Bạn có chắc chắn muốn chuyển BOM này sang trạng thái Không hoạt động?",
-                "Xác nhận xoá BOM",
+                "Bạn có chắc chắn muốn xóa vĩnh viễn BOM này không?",
+                "Xác nhận xóa BOM",
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Warning);
 
@@ -405,10 +398,9 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
 
             try
             {
-                BOMStructure_DB.SoftDelete(bomId);
+                BOMStructure_DB.Delete(bomId);
 
-                view.Row["activeValue"] = 0;
-                view.Row["active"] = "Không";
+                view.Row.Delete();
 
                 if (_currentBomId == bomId)
                 {
@@ -418,7 +410,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
                     nbrTLeHoanDoi.Value = 1;
                 }
 
-                FrmWaiting.ShowGifAlert("Đã chuyển BOM sang trạng thái Không hoạt động!", myIcon: EnumStore.Icon.Success);
+                FrmWaiting.ShowGifAlert("Xóa BOM thành công!", myIcon: EnumStore.Icon.Success);
             }
             catch (Exception ex)
             {
@@ -442,7 +434,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
             SetNumericValue(nbrTLeHoanDoi, GetDecimal(row, "tyLeHoanDoi"));
 
             string tenCongDoan = GetString(row, "congDoan");
-            cbxCongDoan.SelectedItem = tenCongDoan;
+            cbxCongDoan.SelectedItem = string.IsNullOrWhiteSpace(tenCongDoan) ? null : tenCongDoan;
 
             int activeValue = GetInt(row, "activeValue");
             cbxActive.SelectedIndex = activeValue == 1 ? 1 : 0;
@@ -494,13 +486,15 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
             _currentBomGridRow = null;
         }
 
-        private int GetSelectedCongDoanId()
+        private int? GetSelectedCongDoanId()
         {
-            string tenCongDoan = cbxCongDoan.Text;
+            string tenCongDoan = cbxCongDoan.Text?.Trim();
+            if (string.IsNullOrWhiteSpace(tenCongDoan)) return null;
+
             var congDoan = ThongTinChungCongDoan.TatCaCongDoan
                 .FirstOrDefault(x => x.Id != 2 && x.TenCongDoan == tenCongDoan);
 
-            return congDoan?.Id ?? -1;
+            return congDoan?.Id;
         }
 
         private static string GetString(DataRow row, string columnName)

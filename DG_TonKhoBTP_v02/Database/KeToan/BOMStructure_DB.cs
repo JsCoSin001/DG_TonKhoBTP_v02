@@ -72,7 +72,7 @@ namespace DG_TonKhoBTP_v02.Database.KeToan
         }
 
         // ════════════════════════════════════════════════════════════════════════
-        // LOAD / INSERT / UPDATE / SOFT DELETE
+        // LOAD / INSERT / UPDATE / DELETE
         // ════════════════════════════════════════════════════════════════════════
 
         public static DataTable GetByParentProduct(long parentProduct)
@@ -165,12 +165,12 @@ namespace DG_TonKhoBTP_v02.Database.KeToan
             }
         }
 
-        /// <summary>Không xóa vật lý. Chỉ set Active = 0.</summary>
-        public static void SoftDelete(long id)
+        /// <summary>Xóa vật lý bản ghi BOM khỏi database.</summary>
+        public static void Delete(long id)
         {
             if (id <= 0) throw new ArgumentException("Id không hợp lệ.", nameof(id));
 
-            const string sql = "UPDATE BOMStructure SET Active = 0 WHERE id = @id";
+            const string sql = "DELETE FROM BOMStructure WHERE id = @id";
 
             using (var conn = DB_Base.OpenConnection())
             using (var cmd = new SQLiteCommand(sql, conn))
@@ -183,14 +183,15 @@ namespace DG_TonKhoBTP_v02.Database.KeToan
             }
         }
 
-        public static bool ExistsDuplicate(long parentProduct, long component, int congDoan, long excludeId = 0)
+        public static bool ExistsDuplicate(long parentProduct, long component, int? congDoan, long excludeId = 0)
         {
             const string sql = @"
                 SELECT COUNT(1)
                 FROM   BOMStructure
                 WHERE  ParentProduct = @ParentProduct
                   AND  Component     = @Component
-                  AND  CongDoan      = @CongDoan
+                  AND  ((@CongDoan IS NULL AND CongDoan IS NULL)
+                        OR CongDoan = @CongDoan)
                   AND  id           <> @ExcludeId";
 
             using (var conn = DB_Base.OpenConnection())
@@ -198,7 +199,7 @@ namespace DG_TonKhoBTP_v02.Database.KeToan
             {
                 cmd.Parameters.AddWithValue("@ParentProduct", parentProduct);
                 cmd.Parameters.AddWithValue("@Component", component);
-                cmd.Parameters.AddWithValue("@CongDoan", congDoan);
+                cmd.Parameters.AddWithValue("@CongDoan", (object)congDoan ?? DBNull.Value);
                 cmd.Parameters.AddWithValue("@ExcludeId", excludeId);
 
                 object result = cmd.ExecuteScalar();
@@ -230,9 +231,11 @@ namespace DG_TonKhoBTP_v02.Database.KeToan
             row["ten"] = model.Ten ?? string.Empty;
             row["tyLe"] = Convert.ToDouble(model.TyLe);
             row["tyLeHoanDoi"] = Convert.ToDouble(model.TyLeHoanDoi);
-            row["congDoanId"] = model.CongDoan;
+            row["congDoanId"] = (object)model.CongDoan ?? DBNull.Value;
             row["activeValue"] = model.Active;
-            row["congDoan"] = model.TenCongDoan ?? ThongTinChungCongDoan.GetTenCongDoanById(model.CongDoan);
+            row["congDoan"] = model.CongDoan.HasValue
+                ? (model.TenCongDoan ?? ThongTinChungCongDoan.GetTenCongDoanById(model.CongDoan.Value))
+                : string.Empty;
             row["active"] = model.ActiveText ?? ActiveText(model.Active);
             row["colDelete"] = "Xóa";
         }
@@ -243,7 +246,7 @@ namespace DG_TonKhoBTP_v02.Database.KeToan
             cmd.Parameters.AddWithValue("@Component", m.Component);
             cmd.Parameters.AddWithValue("@TyLe", m.TyLe);
             cmd.Parameters.AddWithValue("@TyLeHoanDoi", m.TyLeHoanDoi);
-            cmd.Parameters.AddWithValue("@CongDoan", m.CongDoan);
+            cmd.Parameters.AddWithValue("@CongDoan", (object)m.CongDoan ?? DBNull.Value);
             cmd.Parameters.AddWithValue("@Active", m.Active);
         }
 

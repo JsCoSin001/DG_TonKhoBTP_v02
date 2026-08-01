@@ -175,7 +175,7 @@ namespace DG_TonKhoBTP_v02.Dictionary
         public static readonly CongDoan HanNoi = new CongDoan(
             9,
             "Hàn Nối / Ghép bin",
-            EnumStore.MayTheoCongDoan["Ben_CU_AL"],
+            EnumStore.MayTheoCongDoan["Machine_All"],
             BaseColumns(),
             new List<string> { "BTP.20102%", "BTP.20202%" },
             Select_TP_CoKhoiLuong(),

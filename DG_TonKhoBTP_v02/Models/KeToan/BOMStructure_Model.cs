@@ -10,7 +10,7 @@ namespace DG_TonKhoBTP_v02.Models.KeToan
         public long Component { get; set; }
         public decimal TyLe { get; set; }
         public decimal TyLeHoanDoi { get; set; }
-        public int CongDoan { get; set; }
+        public int? CongDoan { get; set; }
         public int Active { get; set; }
 
         /// <summary>Lấy từ DanhSachMaSP.Ma của Component — chỉ dùng để hiển thị.</summary>

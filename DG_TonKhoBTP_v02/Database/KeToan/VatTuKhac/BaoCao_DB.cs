@@ -57,25 +57,44 @@ namespace DG_TonKhoBTP_v02.Database.KeToan.VatTuKhac
                     SELECT DanhSachKho_ID, DanhSachMaSP_ID FROM TonDauKy
                     UNION
                     SELECT DanhSachKho_ID, DanhSachMaSP_ID FROM PhatSinhKy
+                ),
+                KetQua AS (
+                    SELECT
+                        sp.Ten                                              AS TenVatTu,
+                        sp.Ma                                               AS MaVatTu,
+                        sp.DonVi                                            AS DonVi,
+                        kho.TenKho                                          AS TenKho,
+                        ROUND(COALESCE(tdk.TonDau, 0), 2)                   AS TonDauKy,
+                        ROUND(COALESCE(psk.TongNhap, 0), 2)                 AS TongNhap,
+                        ROUND(COALESCE(psk.TongXuat, 0), 2)                 AS TongXuat,
+                        ROUND(
+                            COALESCE(tdk.TonDau, 0)
+                            + COALESCE(psk.TongNhap, 0)
+                            - COALESCE(psk.TongXuat, 0),
+                            2)                                               AS TonCuoiKy
+                    FROM AllKeys ak
+                    INNER JOIN DanhSachMaSP sp  ON sp.id  = ak.DanhSachMaSP_ID
+                    INNER JOIN DanhSachKho  kho ON kho.id = ak.DanhSachKho_ID
+                    LEFT  JOIN TonDauKy    tdk  ON tdk.DanhSachMaSP_ID = ak.DanhSachMaSP_ID
+                                               AND tdk.DanhSachKho_ID  = ak.DanhSachKho_ID
+                    LEFT  JOIN PhatSinhKy  psk  ON psk.DanhSachMaSP_ID = ak.DanhSachMaSP_ID
+                                               AND psk.DanhSachKho_ID  = ak.DanhSachKho_ID
                 )
                 SELECT
-                    sp.Ten                                                AS TenVatTu,
-                    sp.Ma                                                 AS MaVatTu,
-                    sp.DonVi                                              AS DonVi,
-                    kho.TenKho                                            AS TenKho,
-                    COALESCE(tdk.TonDau,   0)                             AS TonDauKy,
-                    COALESCE(psk.TongNhap, 0)                             AS TongNhap,
-                    COALESCE(psk.TongXuat, 0)                             AS TongXuat,
-                    COALESCE(tdk.TonDau, 0) + COALESCE(psk.TongNhap, 0)
-                                            - COALESCE(psk.TongXuat, 0)   AS TonCuoiKy
-                FROM AllKeys ak
-                INNER JOIN DanhSachMaSP sp  ON sp.id  = ak.DanhSachMaSP_ID
-                INNER JOIN DanhSachKho  kho ON kho.id = ak.DanhSachKho_ID
-                LEFT  JOIN TonDauKy    tdk  ON tdk.DanhSachMaSP_ID = ak.DanhSachMaSP_ID
-                                           AND tdk.DanhSachKho_ID  = ak.DanhSachKho_ID
-                LEFT  JOIN PhatSinhKy  psk  ON psk.DanhSachMaSP_ID = ak.DanhSachMaSP_ID
-                                           AND psk.DanhSachKho_ID  = ak.DanhSachKho_ID
-                ORDER BY sp.Ma;
+                    TenVatTu,
+                    MaVatTu,
+                    DonVi,
+                    TenKho,
+                    TonDauKy,
+                    TongNhap,
+                    TongXuat,
+                    TonCuoiKy
+                FROM KetQua
+                WHERE TonDauKy <> 0
+                   OR TongNhap <> 0
+                   OR TongXuat <> 0
+                   OR TonCuoiKy <> 0
+                ORDER BY MaVatTu;
             ";
 
             var dt = new DataTable();
@@ -95,7 +114,7 @@ namespace DG_TonKhoBTP_v02.Database.KeToan.VatTuKhac
             if (coLocNgay)
             {
                 command.Parameters.AddWithValue("@NgayBatDau", ngayBatDau.Value.ToString("yyyy-MM-dd"));
-                command.Parameters.AddWithValue("@NgayKetThuc", ngayKetThuc.Value.ToString("yyyy-MM-dd 23:59:59"));
+                command.Parameters.AddWithValue("@NgayKetThuc", ngayKetThuc.Value.ToString("yyyy-MM-dd"));
             }
 
             if (idKho.HasValue && idKho.Value > 0)

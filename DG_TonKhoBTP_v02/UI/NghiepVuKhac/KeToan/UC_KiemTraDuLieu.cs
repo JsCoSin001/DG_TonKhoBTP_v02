@@ -229,7 +229,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
             {
                 List<DanhSachLoiNhapLieuSX_Model> danhSach =
                     await WaitingHelper.RunWithWaiting<List<DanhSachLoiNhapLieuSX_Model>>(
-                        () => Task.Run(DanhSachLoiNhapLieuSX_DB.LayDanhSachChuaXacNhan),
+                        () => Task.Run(KiemTraDuLieuSXNhap_DB.LayDanhSachChuaXacNhan),
                         "ĐANG LẤY DANH SÁCH LỖI NHẬP LIỆU...");
 
                 grvDsLoiNhapLieu.Rows.Clear();
@@ -485,7 +485,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
             {
                 bool updated = await WaitingHelper.RunWithWaiting<bool>(
                     () => Task.Run(() =>
-                        DanhSachLoiNhapLieuSX_DB.CapNhatConfirmed(idLoi, trangThaiMoi)),
+                        KiemTraDuLieuSXNhap_DB.CapNhatConfirmed(idLoi, trangThaiMoi)),
                     trangThaiMoi
                         ? "ĐANG XÁC NHẬN DỮ LIỆU..."
                         : "ĐANG HOÀN TÁC XÁC NHẬN...");

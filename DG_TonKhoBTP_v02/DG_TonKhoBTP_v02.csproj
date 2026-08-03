@@ -143,9 +143,8 @@
     <Compile Include="Database\KeToan\BOMStructure_DB.cs" />
     <Compile Include="Database\KeToan\BoSungThongTinSP_DB.cs" />
     <Compile Include="Database\KeToan\CapNhatSP_DB.cs" />
-    <Compile Include="Database\KeToan\DanhSachLoiNhapLieuSX_DB.cs" />
-    <Compile Include="Database\KeToan\KiemKe_DB.cs" />
     <Compile Include="Database\KeToan\KiemTraDuLieuSXNhap_DB.cs" />
+    <Compile Include="Database\KeToan\KiemKe_DB.cs" />
     <Compile Include="Database\KeToan\TTLo_DB.cs" />
     <Compile Include="Database\KeToan\VatTuKhac\BaoCao_DB.cs" />
     <Compile Include="Database\KeToan\VatTuKhac\MuaVatTu_DB.cs" />

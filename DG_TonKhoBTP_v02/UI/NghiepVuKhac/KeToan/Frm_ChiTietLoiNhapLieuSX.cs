@@ -151,7 +151,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
                         List<ChiTietLoiNhapLieuSX_Model>>(
                         () => Task.Run(
                             () =>
-                                DanhSachLoiNhapLieuSX_DB
+                                KiemTraDuLieuSXNhap_DB
                                     .LayChiTietBomVaNguyenLieuThucTe(
                                         _ttThanhPhamId)),
                         "ĐANG LẤY CHI TIẾT BOM VÀ "
@@ -254,7 +254,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
                     await WaitingHelper.RunWithWaiting<bool>(
                         () => Task.Run(
                             () =>
-                                DanhSachLoiNhapLieuSX_DB
+                                KiemTraDuLieuSXNhap_DB
                                     .CapNhatConfirmed(
                                         _idLoi,
                                         trangThaiMoi)),

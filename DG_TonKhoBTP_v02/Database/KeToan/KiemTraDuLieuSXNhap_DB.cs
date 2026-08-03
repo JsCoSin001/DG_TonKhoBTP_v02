@@ -32,6 +32,7 @@ namespace DG_TonKhoBTP_v02.Database.KeToan
                    ON kb.DanhSachMaSP_ID = dspNVL.id
             WHERE IFNULL(kb.Confirmed, 0) = 0
             ORDER BY kb.id;";
+                IFNULL(dsp.Ten, '') COLLATE NOCASE ASC,
 
             using (var conn = DB_Base.OpenConnection())
             using (var cmd = new SQLiteCommand(sql, conn))

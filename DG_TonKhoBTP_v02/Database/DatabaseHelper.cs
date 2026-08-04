@@ -2580,6 +2580,7 @@ namespace DG_TonKhoBTP_v02.Database
                 SELECT
                     bom.Component AS ComponentId,
                     component.Ma AS ComponentMa,
+                    component.Ten AS ComponentTen,
                     component.KieuSP AS ComponentKieuSP,
                     CASE
                         WHEN nvlBatBuoc.id IS NULL THEN 0
@@ -2618,6 +2619,9 @@ namespace DG_TonKhoBTP_v02.Database
                                 ComponentMa = reader["ComponentMa"] == DBNull.Value
                                     ? string.Empty
                                     : Convert.ToString(reader["ComponentMa"]) ?? string.Empty,
+                                ComponentTen = reader["ComponentTen"] == DBNull.Value
+                                    ? string.Empty
+                                    : Convert.ToString(reader["ComponentTen"]) ?? string.Empty,
                                 ComponentKieuSP = reader["ComponentKieuSP"] == DBNull.Value
                                     ? string.Empty
                                     : Convert.ToString(reader["ComponentKieuSP"]) ?? string.Empty,

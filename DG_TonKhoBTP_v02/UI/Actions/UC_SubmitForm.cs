@@ -448,6 +448,8 @@ namespace DG_TonKhoBTP_v02.UI
                 ? new List<string>()
                 : KiemTraMoiQuanHeNguyenLieuThanhPham( thanhPham, nvlRows, _Cd);
 
+
+
             // =========================================================
             // 5. LẤY CHI TIẾT CÔNG ĐOẠN
             // =========================================================
@@ -684,14 +686,21 @@ namespace DG_TonKhoBTP_v02.UI
                 return DanhSachLoiNhapLieuSX.Loi_SoLuongNVL;
 
             // Công đoạn kéo rút:
-            // Mỗi NVL đều phải chứa chính xác cụm " 8mm ".
+            // Loại NVL phải tương ứng với loại được xác định từ tên component BOM.
             if (congDoan?.Id == 0)
             {
+                LoaiBomCongDoan0 loaiBom =
+                    KiemTraBomCongDoan0Helper.XacDinhLoaiBom(
+                        thanhPham.BomComponents);
+
+                if (loaiBom == LoaiBomCongDoan0.KhongXacDinh)
+                    return DanhSachLoiNhapLieuSX.Loi_KhongXacDinh;
+
                 bool coNguyenVatLieuKhongHopLe = nguyenVatLieu.Any(nvl =>
-                    string.IsNullOrEmpty(nvl?.TenNVL) ||
-                    nvl.TenNVL.IndexOf(
-                        " 8mm ",
-                        StringComparison.OrdinalIgnoreCase) < 0);
+                    nvl == null ||
+                    !KiemTraBomCongDoan0Helper.TenNguyenVatLieuPhuHop(
+                        loaiBom,
+                        nvl.TenNVL));
 
                 return coNguyenVatLieuKhongHopLe
                     ? DanhSachLoiNhapLieuSX.Loi_TP_Nl_KhongKhop
@@ -722,6 +731,7 @@ namespace DG_TonKhoBTP_v02.UI
 
             return null;
         }
+
 
         /// <summary>
         /// Khung kiểm tra số lượng Bin.

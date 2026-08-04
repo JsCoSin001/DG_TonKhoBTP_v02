@@ -334,7 +334,7 @@
             this.chieuDai.DecimalPlaces = 1;
             this.chieuDai.Location = new System.Drawing.Point(534, 24);
             this.chieuDai.Maximum = new decimal(new int[] {
-            170000,
+            210000,
             0,
             0,
             0});

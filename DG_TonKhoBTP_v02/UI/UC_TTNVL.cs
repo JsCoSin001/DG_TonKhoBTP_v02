@@ -247,7 +247,7 @@ namespace DG_TonKhoBTP_v02.UI
             ClearGridKeepHeader();
         }
 
-        private static void ApplyBomToRow(TTNVLRow row, ThanhPhamData thanhPham)
+        private void ApplyBomToRow(TTNVLRow row, ThanhPhamData thanhPham)
         {
             if (row == null) return;
 
@@ -255,20 +255,25 @@ namespace DG_TonKhoBTP_v02.UI
             if (row.DanhSachMaSP_ID.HasValue && thanhPham?.BomComponents != null)
             {
                 matched = thanhPham.BomComponents.FirstOrDefault(x =>
-                    x.ComponentId == row.DanhSachMaSP_ID.Value);
+                    x != null && x.ComponentId == row.DanhSachMaSP_ID.Value);
             }
 
-            if (matched == null)
+            row.TyLe = matched == null
+                ? 1d
+                : Convert.ToDouble(matched.TyLe);
+            row.TyLeHoanDoi = matched == null
+                ? 1d
+                : Convert.ToDouble(matched.TyLeHoanDoi);
+
+            if (_CD?.Id == 0)
             {
-                row.IsCorrect = false;
-                row.TyLe = 1d;
-                row.TyLeHoanDoi = 1d;
+                row.IsCorrect = KiemTraBomCongDoan0Helper.NguyenVatLieuPhuHop(
+                    thanhPham?.BomComponents,
+                    row.TenNVL);
                 return;
             }
 
-            row.IsCorrect = true;
-            row.TyLe = Convert.ToDouble(matched.TyLe);
-            row.TyLeHoanDoi = Convert.ToDouble(matched.TyLeHoanDoi);
+            row.IsCorrect = matched != null;
         }
 
         private void RecalculateBomForExistingRows(ThanhPhamData thanhPham)

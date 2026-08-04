@@ -65,6 +65,7 @@ namespace DG_TonKhoBTP_v02.UI
             {
                 ComponentId = x.ComponentId,
                 ComponentMa = x.ComponentMa,
+                ComponentTen = x.ComponentTen,
                 ComponentKieuSP = x.ComponentKieuSP,
                 LaNVLBatBuoc = x.LaNVLBatBuoc,
                 TyLe = x.TyLe,
@@ -84,6 +85,7 @@ namespace DG_TonKhoBTP_v02.UI
                 .Zip(right.OrderBy(x => x.ComponentId), (a, b) =>
                     a.ComponentId == b.ComponentId &&
                     string.Equals(a.ComponentMa, b.ComponentMa, StringComparison.Ordinal) &&
+                    string.Equals(a.ComponentTen, b.ComponentTen, StringComparison.Ordinal) &&
                     string.Equals(a.ComponentKieuSP, b.ComponentKieuSP, StringComparison.Ordinal) &&
                     a.LaNVLBatBuoc == b.LaNVLBatBuoc &&
                     a.TyLe == b.TyLe &&

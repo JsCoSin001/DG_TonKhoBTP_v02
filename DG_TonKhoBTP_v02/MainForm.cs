@@ -36,7 +36,7 @@ namespace DG_TonKhoBTP_v02
     {
         private string _URL = Properties.Settings.Default.URL;
         private CongDoanUiService _ui;
-        private string _ver = "2.7.7";
+        private string _ver = "2.7.8";
         private bool show = false;
         private void InitUiService()
         {

@@ -40,7 +40,22 @@ namespace DG_TonKhoBTP_v02.UI
 
         private CongDoan _CD;
 
-        // Lưu quyền ReadOnly ban đầu để chỉ mở 2 ô còn lại cho đúng dòng nhập tay.
+        private const double HE_SO_CHUYEN_DOI_MAC_DINH = 1.01;
+
+        // Trạng thái điều phối cập nhật KL/CD còn lại.
+        private bool _dangLoadDuLieuBanDau;
+        private bool _dangXuLyQuet;
+        private bool _dangCapNhatGiaTriConLai;
+        private bool _dangNhapTayToanBang;
+
+        private enum LyDoCapNhatGiaTriConLai
+        {
+            ThanhPhamThayDoi,
+            SoLieuThanhPhamThayDoi,
+            ThemHoacXoaDong
+        }
+
+        // Lưu quyền ReadOnly ban đầu để mở 2 cột còn lại khi toàn bảng nhập tay.
         private bool _daLuuQuyenCotConLai;
         private bool _klConLaiReadOnlyMacDinh = true;
         private bool _cdConLaiReadOnlyMacDinh = true;
@@ -212,7 +227,12 @@ namespace DG_TonKhoBTP_v02.UI
                     dtgTTNVL.EndEdit();
                     _nvlSource.EndEdit();
                     _nvlSource.RemoveAt(e.RowIndex);
-                    ApDungQuyenNhapTayChoTatCaDong();
+
+                    ThanhPhamData thanhPham = GetThanhPhamData?.Invoke()
+                        ?? new ThanhPhamData();
+                    CapNhatGiaTriConLaiToanBang(
+                        thanhPham,
+                        LyDoCapNhatGiaTriConLai.ThemHoacXoaDong);
                 }
             }
         }
@@ -231,20 +251,44 @@ namespace DG_TonKhoBTP_v02.UI
 
         public void OnThanhPhamChanged(ThanhPhamData data)
         {
+            if (_dangLoadDuLieuBanDau)
+                return;
+
             // Khi sửa, luôn giữ các dòng NVL nhưng vẫn kiểm tra lại theo BOM mới.
             if (isEdit.Value == 2)
             {
                 RecalculateBomForExistingRows(data);
+                CapNhatGiaTriConLaiToanBang(
+                    data,
+                    LyDoCapNhatGiaTriConLai.ThanhPhamThayDoi);
                 return;
             }
 
             if (EnumStore.LaMayChoPhepTaiSuDungNVL(data.TenMay))
             {
                 RecalculateBomForExistingRows(data);
+                CapNhatGiaTriConLaiToanBang(
+                    data,
+                    LyDoCapNhatGiaTriConLai.ThanhPhamThayDoi);
                 return;
             }
 
+            // Giữ nguyên hành vi cũ: trường hợp không được tái sử dụng NVL thì xóa bảng.
             ClearGridKeepHeader();
+        }
+
+        /// <summary>
+        /// Chỉ dùng cho thay đổi Khối lượng/Chiều dài thành phẩm.
+        /// Không áp dụng quy tắc xóa NVL khi đổi thành phẩm.
+        /// </summary>
+        public void OnThanhPhamSoLieuChanged(ThanhPhamData data)
+        {
+            if (_dangLoadDuLieuBanDau)
+                return;
+
+            CapNhatGiaTriConLaiToanBang(
+                data,
+                LyDoCapNhatGiaTriConLai.SoLieuThanhPhamThayDoi);
         }
 
         private void ApplyBomToRow(TTNVLRow row, ThanhPhamData thanhPham)
@@ -488,54 +532,74 @@ namespace DG_TonKhoBTP_v02.UI
             }
 
             isEdit.Value = kieuDL;
+            _dangLoadDuLieuBanDau = true;
 
-            dtgTTNVL.BeginInvoke(new Action(() =>
+            try
             {
-                string bin = string.Empty;
-
-                if (dt.Rows.Count > 0 && HasColumn(dt, "MaBin"))
+                dtgTTNVL.BeginInvoke(new Action(() =>
                 {
-                    bin = GetString(dt.Rows[0], "MaBin");
-                }
-
-                string may = string.Empty;
-                string[] maBinParts = CoreHelper.CatMaBin(bin);
-
-                if (maBinParts.Length > 0)
-                {
-                    may = maBinParts[0];
-                }
-
-                if (kieuDL == 1 && !EnumStore.LaMayChoPhepTaiSuDungNVL(may))
-                    return;
-
-                dtgTTNVL.SuspendLayout();
-                try
-                {
-                    _nvlRows.Clear();
-
-                    ThanhPhamData thanhPham = GetThanhPhamData?.Invoke()
-                        ?? new ThanhPhamData();
-
-                    foreach (DataRow src in dt.Rows)
+                    try
                     {
-                        TTNVLRow row = MapDataRowToNvlRow(src);
-                        ApplyBomToRow(row, thanhPham);
-                        _nvlRows.Add(row);
-                    }
+                        string bin = string.Empty;
 
-                    _nvlSource.ResetBindings(false);
-                    SetColumnHeaders(dtgTTNVL, _columns);
-                    EnsureColumnOrderAndDeleteLast();
-                    ApDungQuyenNhapTayChoTatCaDong();
-                    RefreshBomRowStyles();
-                    dtgTTNVL.Refresh();
-                }
-                finally
-                {
-                    dtgTTNVL.ResumeLayout();
-                }
-            }));
+                        if (dt.Rows.Count > 0 && HasColumn(dt, "MaBin"))
+                        {
+                            bin = GetString(dt.Rows[0], "MaBin");
+                        }
+
+                        string may = string.Empty;
+                        string[] maBinParts = CoreHelper.CatMaBin(bin);
+
+                        if (maBinParts.Length > 0)
+                        {
+                            may = maBinParts[0];
+                        }
+
+                        if (kieuDL == 1 && !EnumStore.LaMayChoPhepTaiSuDungNVL(may))
+                            return;
+
+                        dtgTTNVL.SuspendLayout();
+                        try
+                        {
+                            _nvlRows.Clear();
+
+                            ThanhPhamData thanhPham = GetThanhPhamData?.Invoke()
+                                ?? new ThanhPhamData();
+
+                            foreach (DataRow src in dt.Rows)
+                            {
+                                TTNVLRow row = MapDataRowToNvlRow(src);
+                                ApplyBomToRow(row, thanhPham);
+                                _nvlRows.Add(row);
+                            }
+
+                            // Lần load đầu của edit/tái sử dụng phải giữ nguyên KL/CD đã lưu.
+                            // Chỉ xác định trạng thái nhập tay để các trigger sau xử lý đúng.
+                            _dangNhapTayToanBang = CoNguyenVatLieuNhapTay();
+
+                            _nvlSource.ResetBindings(false);
+                            SetColumnHeaders(dtgTTNVL, _columns);
+                            EnsureColumnOrderAndDeleteLast();
+                            ApDungQuyenNhapTayChoTatCaDong();
+                            RefreshBomRowStyles();
+                            dtgTTNVL.Refresh();
+                        }
+                        finally
+                        {
+                            dtgTTNVL.ResumeLayout();
+                        }
+                    }
+                    finally
+                    {
+                        _dangLoadDuLieuBanDau = false;
+                    }
+                }));
+            }
+            catch
+            {
+                _dangLoadDuLieuBanDau = false;
+                throw;
+            }
         }
         #endregion
 
@@ -639,6 +703,7 @@ namespace DG_TonKhoBTP_v02.UI
         public void ClearInputs()
         {
             ResetNvlState();
+            _dangNhapTayToanBang = false;
             _nvlRows.Clear();
             _nvlSource.ResetBindings(false);
         }
@@ -650,6 +715,7 @@ namespace DG_TonKhoBTP_v02.UI
             cbxTimKiem.TabStop = false;
             dtgTTNVL.Enabled = false;
 
+            _dangNhapTayToanBang = false;
             _nvlRows.Clear();
             _nvlSource.ResetBindings(false);
         }
@@ -671,73 +737,97 @@ namespace DG_TonKhoBTP_v02.UI
             e.Handled = true;
             e.SuppressKeyPress = true;
 
-            EnsureColumnOrderAndDeleteLast();
-
-            var thanhPham = GetThanhPhamData?.Invoke() ?? new ThanhPhamData();
-
-            if (string.IsNullOrWhiteSpace(thanhPham.DonVi))
-            {
-                FrmWaiting.ShowGifAlert("Thông tin thành phẩm công đoạn cần hoàn thiện trước.");
+            if (_dangXuLyQuet)
                 return;
-            }
 
-            if (thanhPham.DonVi == "M" && thanhPham.ChieuDai == 0m)
-            {
-                FrmWaiting.ShowGifAlert("Vui lòng nhập Chiều dài trước khi quét mã QR.");
-                return;
-            }
-
-            if (thanhPham.DonVi == "KG" && thanhPham.KhoiLuong == 0m)
-            {
-                FrmWaiting.ShowGifAlert("Vui lòng nhập Khối lượng trước khi quét mã QR.");
-                return;
-            }
-
-            string keyword = cbxTimKiem.Text?.Trim();
-
-            if (string.IsNullOrWhiteSpace(keyword)) return;
-
-            DataTable result = new DataTable();
-
-            cbxTimKiem.Text = string.Empty;
-
-            if (!TenMayDaNhap()) return;
-
-            bool cdHanNoi = _CD.Id == 9 && isEdit.Value == 2;
-
-            // lấy mã nếu Ngọc Khánh gửi 
-            string[] isNgocKhanh = keyword.Split(';');
-            keyword = isNgocKhanh.Count() == 26 ? isNgocKhanh[7] : keyword;
-
-            var parameters = new Dictionary<string, object>
-            {
-                { "ten", keyword }
-            };
-
-            string query = CoreHelper.TaoSQL_LayDLTTThanhPham(cdHanNoi);
+            _dangXuLyQuet = true;
+            cbxTimKiem.Enabled = false;
 
             try
             {
-                result = await Task.Run(() => DatabaseHelper.GetNVL(query, parameters));
-            }
-            catch (Exception ex)
-            {
-                FrmWaiting.ShowGifAlert("Lỗi truy vấn dữ liệu: " + ex.Message);
-                return;
-            }
+                EnsureColumnOrderAndDeleteLast();
 
-            if (result == null || result.Rows.Count == 0)
-            {
-                FrmWaiting.ShowGifAlert("Không tìm thấy dữ liệu cho mã QR vừa quét.");
-                return;
-            }
+                ThanhPhamData thanhPham = GetThanhPhamData?.Invoke()
+                    ?? new ThanhPhamData();
 
-            AddRowsToGrid(result, thanhPham);
+                if (string.IsNullOrWhiteSpace(thanhPham.DonVi))
+                {
+                    FrmWaiting.ShowGifAlert("Thông tin thành phẩm công đoạn cần hoàn thiện trước.");
+                    return;
+                }
+
+                if (thanhPham.DonVi == "M" && thanhPham.ChieuDai == 0m)
+                {
+                    FrmWaiting.ShowGifAlert("Vui lòng nhập Chiều dài trước khi quét mã QR.");
+                    return;
+                }
+
+                if (thanhPham.DonVi == "KG" && thanhPham.KhoiLuong == 0m)
+                {
+                    FrmWaiting.ShowGifAlert("Vui lòng nhập Khối lượng trước khi quét mã QR.");
+                    return;
+                }
+
+                string keyword = cbxTimKiem.Text?.Trim();
+                if (string.IsNullOrWhiteSpace(keyword))
+                    return;
+
+                cbxTimKiem.Text = string.Empty;
+
+                if (!TenMayDaNhap())
+                    return;
+
+                bool cdHanNoi = _CD.Id == 9 && isEdit.Value == 2;
+
+                // Lấy mã nếu Ngọc Khánh gửi.
+                string[] isNgocKhanh = keyword.Split(';');
+                keyword = isNgocKhanh.Count() == 26 ? isNgocKhanh[7] : keyword;
+
+                var parameters = new Dictionary<string, object>
+                {
+                    { "ten", keyword }
+                };
+
+                string query = CoreHelper.TaoSQL_LayDLTTThanhPham(cdHanNoi);
+                DataTable result;
+
+                try
+                {
+                    result = await WaitingHelper.RunWithWaiting(
+                        () => Task.Run(() => DatabaseHelper.GetNVL(query, parameters)),
+                        "ĐANG TÌM VÀ XỬ LÝ NGUYÊN VẬT LIỆU...");
+                }
+                catch (Exception ex)
+                {
+                    FrmWaiting.ShowGifAlert("Lỗi truy vấn dữ liệu: " + ex.Message);
+                    return;
+                }
+
+                if (result == null || result.Rows.Count == 0)
+                {
+                    FrmWaiting.ShowGifAlert("Không tìm thấy dữ liệu cho mã QR vừa quét.");
+                    return;
+                }
+
+                AddRowsToGrid(result, thanhPham);
+            }
+            finally
+            {
+                _dangXuLyQuet = false;
+
+                if (_CD?.Id != 9)
+                {
+                    cbxTimKiem.Enabled = true;
+                    cbxTimKiem.Focus();
+                }
+            }
         }
 
         private void AddRowsToGrid(DataTable source, ThanhPhamData thanhPham)
         {
             if (source == null || source.Rows.Count == 0) return;
+
+            bool coThemDong = false;
 
             foreach (DataRow src in source.Rows)
             {
@@ -782,10 +872,8 @@ namespace DG_TonKhoBTP_v02.UI
 
                 bool shouldMarkRequiredCells = true;
 
-                GanGiaTriConLaiKhiQuetMoi(newItem, thanhPham);
-
-
                 _nvlRows.Add(newItem);
+                coThemDong = true;
 
                 int addedIndex = _nvlRows.IndexOf(newItem);
                 if (addedIndex >= 0 && addedIndex < dtgTTNVL.Rows.Count)
@@ -824,34 +912,16 @@ namespace DG_TonKhoBTP_v02.UI
                 }
             }
 
+            if (coThemDong)
+            {
+                CapNhatGiaTriConLaiToanBang(
+                    thanhPham,
+                    LyDoCapNhatGiaTriConLai.ThemHoacXoaDong);
+            }
+
             EnsureColumnOrderAndDeleteLast();
             ApDungQuyenNhapTayChoTatCaDong();
             dtgTTNVL.Refresh();
-        }
-
-        /// <summary>
-        /// Chỉ dùng khi quét NVL/BTP mới. Khi edit, dữ liệu đã lưu được giữ nguyên.
-        /// </summary>
-        private void GanGiaTriConLaiKhiQuetMoi(
-            TTNVLRow nvl,
-            ThanhPhamData thanhPham)
-        {
-            if (LaCongDoanHanNoi())
-            {
-                nvl.KlConLai = 0d;
-                nvl.CdConLai = 0d;
-                return;
-            }
-
-            if (NvlNhapTayPolicy.ApDung(nvl))
-            {
-                DatGiaTriConLaiVeTrangThaiChuaNhap(nvl);
-                return;
-            }
-
-            var (klConLai, cdConLai) = TinhGiaTriConLai(nvl, thanhPham);
-            nvl.KlConLai = klConLai;
-            nvl.CdConLai = cdConLai;
         }
 
         private bool LaCongDoanHanNoi()
@@ -859,37 +929,218 @@ namespace DG_TonKhoBTP_v02.UI
             return _CD != null && _CD.Id == 9;
         }
 
-        private static void DatGiaTriConLaiVeTrangThaiChuaNhap(TTNVLRow nvl)
+        private bool CoNguyenVatLieuNhapTay()
         {
-            nvl.KlConLai = null;
-            nvl.CdConLai = null;
+            return _nvlRows.Any(nvl => NvlNhapTayPolicy.ApDung(nvl));
         }
 
-        private static (double KlConLai, double CdConLai) TinhGiaTriConLai(
-            TTNVLRow nvl,
-            ThanhPhamData thanhPham)
+        private void CapNhatGiaTriConLaiToanBang(
+            ThanhPhamData thanhPham,
+            LyDoCapNhatGiaTriConLai lyDo)
         {
-            decimal klBatDau = Convert.ToDecimal(nvl.KlBatDau ?? 0);
-            decimal cdBatDau = Convert.ToDecimal(nvl.CdBatDau ?? 0);
+            if (_dangLoadDuLieuBanDau || _dangCapNhatGiaTriConLai)
+                return;
 
-            string donViNVL = (nvl.DonVi ?? string.Empty).Trim();
-            string donViThanhPham = (thanhPham.DonVi ?? string.Empty).Trim();
+            _dangCapNhatGiaTriConLai = true;
+            try
+            {
+                if (_nvlRows.Count == 0)
+                {
+                    _dangNhapTayToanBang = false;
+                    ApDungQuyenNhapTayChoTatCaDong();
+                    return;
+                }
 
-            bool cungDonVi = string.Equals(
-                donViNVL,
-                donViThanhPham,
-                StringComparison.OrdinalIgnoreCase);
+                if (LaCongDoanHanNoi())
+                {
+                    _dangNhapTayToanBang = false;
+                    DatGiaTriConLaiChoToanBang(0d, 0d);
+                    LamMoiSauKhiCapNhatGiaTriConLai();
+                    return;
+                }
 
-            decimal khoiLuongSuDung = cungDonVi
-                ? thanhPham.KhoiLuong
-                : thanhPham.ChuyenDoi * thanhPham.ChieuDai;
+                // Khi bảng đã nhập tay, thay đổi thành phẩm/KL/CD không được ghi đè dữ liệu.
+                // Riêng thêm hoặc xóa dòng phải đánh giá lại toàn bộ bảng.
+                if (_dangNhapTayToanBang &&
+                    lyDo != LyDoCapNhatGiaTriConLai.ThemHoacXoaDong)
+                {
+                    ApDungQuyenNhapTayChoTatCaDong();
+                    return;
+                }
 
-            decimal klConLai = Math.Max(0m, klBatDau - khoiLuongSuDung);
-            decimal cdConLai = Math.Max(0m, cdBatDau - thanhPham.ChieuDai);
+                if (CoNguyenVatLieuNhapTay())
+                {
+                    _dangNhapTayToanBang = true;
+                    DatGiaTriConLaiChoToanBang(null, null);
+                    LamMoiSauKhiCapNhatGiaTriConLai();
+                    return;
+                }
 
-            return (
-                Convert.ToDouble(klConLai),
-                Convert.ToDouble(cdConLai));
+                _dangNhapTayToanBang = false;
+                TinhGiaTriConLaiTheoCongDoan(thanhPham);
+                LamMoiSauKhiCapNhatGiaTriConLai();
+            }
+            finally
+            {
+                _dangCapNhatGiaTriConLai = false;
+            }
+        }
+
+
+        private void TinhGiaTriConLaiTheoCongDoan(ThanhPhamData thanhPham)
+        {
+            if (_CD == null)
+                return;
+
+            if (_CD.Id == 0)
+            {
+                TinhGiaTriConLai_CD_KeoRut(_nvlRows, thanhPham);
+                return;
+            }
+
+            if (_CD.Id == 1)
+            {
+                TinhGiaTriConLai_CD_Ben(_nvlRows);
+                return;
+            }
+
+            if (_CD.Id > 1 && _CD.Id != 9)
+            {
+                TinhGiaTriConLai_CD_Khac(_nvlRows, thanhPham);
+            }
+        }
+
+        /// <summary>
+        /// TODO: Điền công thức tính KL/CD còn lại cho công đoạn 0 ở giai đoạn sau.
+        /// </summary>
+        private static void TinhGiaTriConLai_CD_KeoRut( IList<TTNVLRow> nvlRows, ThanhPhamData thanhPham)
+        {
+
+            if (thanhPham == null)
+                throw new ArgumentNullException(nameof(thanhPham));
+
+            // Tính dựa vào tỷ lệ giữa diện tích tiết diện của NVL và diện tích tiết diện của thành phẩm.
+            IList<KetQuaGiaTriConLai> ketQuaDaTinh =
+                new List<KetQuaGiaTriConLai>
+                {
+                    new KetQuaGiaTriConLai
+                    {
+                        KlConLai = 12.5,
+                        CdConLai = 100
+                    },
+                    new KetQuaGiaTriConLai
+                    {
+                        KlConLai = 8.2,
+                        CdConLai = 75
+                    },
+                    new KetQuaGiaTriConLai
+                    {
+                        KlConLai = 0,
+                        CdConLai = 20
+                    }
+                };            
+
+            GanKetQuaGiaTriConLai(nvlRows, ketQuaDaTinh);
+
+        }
+
+        /// <summary>
+        /// TODO: Điền công thức tính KL/CD còn lại cho công đoạn 1 ở giai đoạn sau.
+        /// Đặt hết về 0 vì công đoạn 1 không cần tính KL/CD còn lại.
+        /// </summary>
+        private static void TinhGiaTriConLai_CD_Ben( IList<TTNVLRow> nvlRows)
+        {
+            GanKetQuaGiaTriConLai(nvlRows);
+        }
+
+        /// <summary>
+        /// TODO: Điền công thức tính KL/CD còn lại cho công đoạn > 1, khác 9.
+        /// </summary>
+        private static void TinhGiaTriConLai_CD_Khac( IList<TTNVLRow> nvlRows, ThanhPhamData thanhPham)
+        {
+
+            string donViThanhPham = ChuanHoaDonVi(thanhPham.DonVi);
+
+            var ketQuaDaTinh =
+                new List<KetQuaGiaTriConLai>(nvlRows.Count);
+
+            foreach (TTNVLRow nvl in nvlRows)
+            {
+                // Giá trị mặc định khi chưa có công thức phù hợp.
+                var ketQua = new KetQuaGiaTriConLai
+                {
+                    KlConLai = 0,
+                    CdConLai = 0
+                };
+
+                ketQuaDaTinh.Add(ketQua);
+
+                if (nvl == null)
+                    continue;
+
+                string donViNvl = ChuanHoaDonVi(nvl.DonVi);
+
+                bool cungDonVi = string.Equals( donViNvl, donViThanhPham, StringComparison.OrdinalIgnoreCase);
+
+
+                // Cùng đơn vị M.
+                if (donViThanhPham == "M" && cungDonVi)
+                {
+                    TinhGiaTriConLai_CungDonViM( nvl, thanhPham, ketQua);
+                    continue;
+                }
+
+                // Đơn vị khác nhau: Kg =>m
+                if (!cungDonVi)
+                {
+                    TinhGiaTriConLai_CD_Khac_KhacDonVi(nvl, thanhPham, ketQua);
+                    continue;
+                }
+
+            }
+
+            GanKetQuaGiaTriConLai(nvlRows, ketQuaDaTinh);
+        }
+
+        private static void TinhGiaTriConLai_CD_Khac_KhacDonVi( TTNVLRow nvl, ThanhPhamData thanhPham, KetQuaGiaTriConLai ketQua)
+        {
+            
+        }
+
+
+        private static void TinhGiaTriConLai_CungDonViM( TTNVLRow nvl,  ThanhPhamData thanhPham, KetQuaGiaTriConLai ketQua)
+        {
+            double chieuDaiNvl = nvl.CdBatDau ?? 0;
+            double chieuDaiThanhPham = Convert.ToDouble(thanhPham.ChieuDai);
+
+            double chieuDaiConLai = chieuDaiNvl - HE_SO_CHUYEN_DOI_MAC_DINH * chieuDaiThanhPham;
+
+            ketQua.CdConLai = Math.Max(0, chieuDaiConLai);
+            ketQua.KlConLai = null;
+        }
+
+        private static string ChuanHoaDonVi(string donVi)
+        {
+            return (donVi ?? string.Empty)
+                .Trim()
+                .ToUpperInvariant();
+        }
+
+        private void DatGiaTriConLaiChoToanBang(double? klConLai, double? cdConLai)
+        {
+            foreach (TTNVLRow nvl in _nvlRows)
+            {
+                nvl.KlConLai = klConLai;
+                nvl.CdConLai = cdConLai;
+            }
+        }
+
+        private void LamMoiSauKhiCapNhatGiaTriConLai()
+        {
+            _nvlSource.ResetBindings(false);
+            ApDungQuyenNhapTayChoTatCaDong();
+            RefreshBomRowStyles();
+            dtgTTNVL.Refresh();
         }
 
         private void LuuQuyenMacDinhCuaCotConLai()
@@ -923,36 +1174,29 @@ namespace DG_TonKhoBTP_v02.UI
                 ? dtgTTNVL.Columns[nameof(TTNVLRow.CdConLai)]
                 : null;
 
-            bool coDongNhapTay = _nvlRows.Any(nvl => NvlNhapTayPolicy.ApDung(nvl));
+            bool choPhepNhapTay = _dangNhapTayToanBang && !LaCongDoanHanNoi();
 
-            if (!coDongNhapTay)
-            {
-                if (cotKL != null) cotKL.ReadOnly = _klConLaiReadOnlyMacDinh;
-                if (cotCD != null) cotCD.ReadOnly = _cdConLaiReadOnlyMacDinh;
-                return;
-            }
+            if (cotKL != null)
+                cotKL.ReadOnly = choPhepNhapTay ? false : _klConLaiReadOnlyMacDinh;
 
-            // Cột phải mở ở cấp column thì mới có thể mở riêng từng cell.
-            if (cotKL != null) cotKL.ReadOnly = false;
-            if (cotCD != null) cotCD.ReadOnly = false;
+            if (cotCD != null)
+                cotCD.ReadOnly = choPhepNhapTay ? false : _cdConLaiReadOnlyMacDinh;
 
             foreach (DataGridViewRow dgvRow in dtgTTNVL.Rows)
             {
-                if (!(dgvRow.DataBoundItem is TTNVLRow nvl))
+                if (!(dgvRow.DataBoundItem is TTNVLRow))
                     continue;
-
-                bool duocNhapTay = NvlNhapTayPolicy.ApDung(nvl);
 
                 if (cotKL != null)
                 {
                     dgvRow.Cells[nameof(TTNVLRow.KlConLai)].ReadOnly =
-                        duocNhapTay ? false : _klConLaiReadOnlyMacDinh;
+                        choPhepNhapTay ? false : _klConLaiReadOnlyMacDinh;
                 }
 
                 if (cotCD != null)
                 {
                     dgvRow.Cells[nameof(TTNVLRow.CdConLai)].ReadOnly =
-                        duocNhapTay ? false : _cdConLaiReadOnlyMacDinh;
+                        choPhepNhapTay ? false : _cdConLaiReadOnlyMacDinh;
                 }
             }
         }
@@ -1098,15 +1342,15 @@ namespace DG_TonKhoBTP_v02.UI
         public void OnKhoiLuongChanged(decimal newValue)
         {
             // Phòng vệ nếu sự kiện khối lượng riêng được nối lại trong tương lai.
-            if (isEdit.Value == 2)
-                return;
-
-            ClearGridKeepHeader();
+            ThanhPhamData thanhPham = GetThanhPhamData?.Invoke()
+                ?? new ThanhPhamData();
+            OnThanhPhamSoLieuChanged(thanhPham);
         }
 
         private void ClearGridKeepHeader()
         {
             ResetNvlState();
+            _dangNhapTayToanBang = false;
             _nvlRows.Clear();
             _nvlSource.ResetBindings(false);
             ApDungQuyenNhapTayChoTatCaDong();
@@ -1162,5 +1406,72 @@ namespace DG_TonKhoBTP_v02.UI
                 useDBNullForEmpty: true
             );
         }
+
+        private static void GanKetQuaGiaTriConLai(
+            IList<TTNVLRow> nvlRows,
+            IList<KetQuaGiaTriConLai> ketQuaDaTinh = null)
+        {
+            if (nvlRows == null)
+                throw new ArgumentNullException(nameof(nvlRows));
+
+            if (nvlRows.Count == 0)
+                return;
+
+            // Không truyền kết quả hoặc danh sách kết quả rỗng:
+            // đặt toàn bộ giá trị còn lại bằng 0.
+            if (ketQuaDaTinh == null || ketQuaDaTinh.Count == 0)
+            {
+                foreach (TTNVLRow nvl in nvlRows)
+                {
+                    if (nvl == null)
+                        continue;
+
+                    nvl.KlConLai = 0;
+                    nvl.CdConLai = 0;
+                }
+
+                return;
+            }
+
+            // Có truyền kết quả thì số kết quả phải khớp số dòng.
+            if (ketQuaDaTinh.Count != nvlRows.Count)
+            {
+                throw new InvalidOperationException(
+                    $"Không thể gán kết quả. Số dòng NVL là {nvlRows.Count}, " +
+                    $"nhưng số kết quả là {ketQuaDaTinh.Count}.");
+            }
+
+            for (int i = 0; i < nvlRows.Count; i++)
+            {
+                TTNVLRow nvl = nvlRows[i];
+
+                if (nvl == null)
+                    continue;
+
+                KetQuaGiaTriConLai ketQua = ketQuaDaTinh[i];
+
+                // Dòng không có kết quả thì gán cả hai trường bằng 0.
+                if (ketQua == null)
+                {
+                    nvl.KlConLai = 0;
+                    nvl.CdConLai = 0;
+                    continue;
+                }
+
+                // Giá trị nào không có thì riêng giá trị đó bằng 0.
+                nvl.KlConLai = ketQua.KlConLai ?? 0;
+                nvl.CdConLai = ketQua.CdConLai ?? 0;
+            }
+        }
+
+
+        private sealed class KetQuaGiaTriConLai
+        {
+            public double? KlConLai { get; set; }
+            public double? CdConLai { get; set; }
+        }
+
     }
+
 }
+

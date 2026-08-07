@@ -153,6 +153,9 @@ namespace DG_TonKhoBTP_v02.UI.Helper
 
             ucTP.ThanhPhamChanged -= ucNVL.OnThanhPhamChanged;
             ucTP.ThanhPhamChanged += ucNVL.OnThanhPhamChanged;
+
+            ucTP.ThanhPhamSoLieuChanged -= ucNVL.OnThanhPhamSoLieuChanged;
+            ucTP.ThanhPhamSoLieuChanged += ucNVL.OnThanhPhamSoLieuChanged;
         }
     }
 }

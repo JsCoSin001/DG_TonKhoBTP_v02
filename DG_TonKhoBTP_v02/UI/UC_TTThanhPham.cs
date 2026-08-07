@@ -3,6 +3,7 @@ using DG_TonKhoBTP_v02.Database;
 using DG_TonKhoBTP_v02.Dictionary;
 using DG_TonKhoBTP_v02.Helper;
 using DG_TonKhoBTP_v02.Models;
+using DG_TonKhoBTP_v02.UI.Helper;
 using System;
 using System.Collections.Generic;
 using CoreHelper = DG_TonKhoBTP_v02.Helper.Helper;
@@ -20,6 +21,8 @@ namespace DG_TonKhoBTP_v02.UI
 
         private bool _userNavigatingSuggestions = false;
         private bool _suppressTextChange = false;
+        private bool _dangLoadDuLieuBanDau;
+        private bool _dangTaiThanhPham;
         public string tenCongDoan { get; set; }
         public CongDoan congDoan;
         private List<BomComponentData> _bomComponents;
@@ -32,7 +35,15 @@ namespace DG_TonKhoBTP_v02.UI
         public string SoLOTValue => soLOT.Text;
 
 
+        /// <summary>
+        /// Phát khi người dùng chọn một thành phẩm từ danh sách gợi ý.
+        /// </summary>
         public event Action<ThanhPhamData> ThanhPhamChanged;
+
+        /// <summary>
+        /// Phát khi người dùng thay đổi Khối lượng hoặc Chiều dài.
+        /// </summary>
+        public event Action<ThanhPhamData> ThanhPhamSoLieuChanged;
 
 
         public ThanhPhamData GetThanhPhamData()
@@ -100,7 +111,18 @@ namespace DG_TonKhoBTP_v02.UI
 
         private void RaiseThanhPhamChanged()
         {
+            if (_dangLoadDuLieuBanDau)
+                return;
+
             ThanhPhamChanged?.Invoke(GetThanhPhamData());
+        }
+
+        private void RaiseThanhPhamSoLieuChanged()
+        {
+            if (_dangLoadDuLieuBanDau)
+                return;
+
+            ThanhPhamSoLieuChanged?.Invoke(GetThanhPhamData());
         }
 
 
@@ -181,25 +203,34 @@ namespace DG_TonKhoBTP_v02.UI
 
         public void ClearInputs()
         {
-            _searchCts?.Cancel();
+            bool trangThaiLoadTruocDo = _dangLoadDuLieuBanDau;
+            _dangLoadDuLieuBanDau = true;
+            try
+            {
+                _searchCts?.Cancel();
 
-            timTenTPCongDoan.DataSource = null;
-            timTenTPCongDoan.Items.Clear();
-            timTenTPCongDoan.Text = string.Empty;
-            timTenTPCongDoan.DroppedDown = false;
+                timTenTPCongDoan.DataSource = null;
+                timTenTPCongDoan.Items.Clear();
+                timTenTPCongDoan.Text = string.Empty;
+                timTenTPCongDoan.DroppedDown = false;
 
-            ResetController_TimTenSP();
+                ResetController_TimTenSP();
 
-            may.SelectedIndex = -1;
-            maHanhTrinh.Value = maHanhTrinh.Minimum;
-            sttCongDoan.SelectedIndex = -1;
-            sttLo.Value = sttLo.Minimum;
-            soBin.Value = soBin.Minimum;
-            soLOT.Text = string.Empty;
-            khoiLuong.Value = khoiLuong.Minimum;
-            chieuDai.Value = chieuDai.Minimum;
-            phe.Value = phe.Minimum;
-            GhiChu.Text = string.Empty;
+                may.SelectedIndex = -1;
+                maHanhTrinh.Value = maHanhTrinh.Minimum;
+                sttCongDoan.SelectedIndex = -1;
+                sttLo.Value = sttLo.Minimum;
+                soBin.Value = soBin.Minimum;
+                soLOT.Text = string.Empty;
+                khoiLuong.Value = khoiLuong.Minimum;
+                chieuDai.Value = chieuDai.Minimum;
+                phe.Value = phe.Minimum;
+                GhiChu.Text = string.Empty;
+            }
+            finally
+            {
+                _dangLoadDuLieuBanDau = trangThaiLoadTruocDo;
+            }
         }
 
         #endregion
@@ -347,7 +378,8 @@ namespace DG_TonKhoBTP_v02.UI
 
         private async Task FillSelectedThanhPhamAsync(DataRowView row)
         {
-            if (row == null) return;
+            if (row == null || _dangTaiThanhPham)
+                return;
 
             if (!int.TryParse(row["id"]?.ToString(), out int selectedProductId) ||
                 selectedProductId <= 0)
@@ -355,45 +387,54 @@ namespace DG_TonKhoBTP_v02.UI
                 return;
             }
 
-            int loadVersion = Interlocked.Increment(ref _bomLoadVersion);
-            List<BomComponentData> candidateBom;
+            _dangTaiThanhPham = true;
             try
             {
-                candidateBom = await Task.Run(() =>
-                    DatabaseHelper.GetActiveBomComponents(selectedProductId));
-            }
-            catch
-            {
+                int loadVersion = Interlocked.Increment(ref _bomLoadVersion);
+                List<BomComponentData> candidateBom;
+                try
+                {
+                    candidateBom = await WaitingHelper.RunWithWaiting(
+                        () => Task.Run(() =>
+                            DatabaseHelper.GetActiveBomComponents(selectedProductId)),
+                        "ĐANG TẢI THÔNG TIN THÀNH PHẨM...");
+                }
+                catch
+                {
+                    if (loadVersion != _bomLoadVersion)
+                        return;
+
+                    FrmWaiting.ShowGifAlert(
+                        "Cơ sở dữ liệu đang bận, thử lại sau ít phút");
+                    ResetSearchSelectionForRetry();
+                    return;
+                }
+
                 if (loadVersion != _bomLoadVersion)
                     return;
 
-                FrmWaiting.ShowGifAlert(
-                    "Cơ sở dữ liệu đang bận, thử lại sau ít phút");
+                string oldId = id.Text;
+                string oldMa = ma.Text;
+                string oldTen = ten.Text;
+
+                ten.Text = row["ten"]?.ToString() ?? string.Empty;
+                ma.Text = row["ma"]?.ToString() ?? string.Empty;
+                id.Text = row["id"]?.ToString() ?? string.Empty;
+                donVi.Text = row["donvi"]?.ToString() ?? string.Empty;
+                nbrChuyenDoi.Value = Convert.ToDecimal(row["chuyenDoi"] ?? 1);
+                _bomComponents = candidateBom;
+
                 ResetSearchSelectionForRetry();
-                return;
+
+                // Chỉ phát trigger khi sản phẩm được chọn thực sự khác ID, mã hoặc tên.
+                if (oldId != id.Text || oldMa != ma.Text || oldTen != ten.Text)
+                {
+                    RaiseThanhPhamChanged();
+                }
             }
-
-            if (loadVersion != _bomLoadVersion)
-                return;
-
-            string oldId = id.Text;
-            string oldMa = ma.Text;
-            string oldTen = ten.Text;
-            List<BomComponentData> oldBom = _bomComponents;
-
-            ten.Text = row["ten"]?.ToString() ?? string.Empty;
-            ma.Text = row["ma"]?.ToString() ?? string.Empty;
-            id.Text = row["id"]?.ToString() ?? string.Empty;
-            donVi.Text = row["donvi"]?.ToString() ?? string.Empty;
-            nbrChuyenDoi.Value = Convert.ToDecimal(row["chuyenDoi"] ?? 1);
-            _bomComponents = candidateBom;
-
-            ResetSearchSelectionForRetry();
-
-            if (oldId != id.Text || oldMa != ma.Text || oldTen != ten.Text ||
-                !BomComponentsEqual(oldBom, _bomComponents))
+            finally
             {
-                RaiseThanhPhamChanged();
+                _dangTaiThanhPham = false;
             }
         }
 
@@ -543,48 +584,56 @@ namespace DG_TonKhoBTP_v02.UI
 
         public void LoadData(DataTable dt, int kieuDL)
         {
-            ResetController_TimTenSP();
-
-            if (dt == null || dt.Rows.Count == 0) return;
-
-            var row = dt.Rows[0];
-            string bin = row["MaBin"]?.ToString() ?? string.Empty;
-
-            _bomComponents = null;
-            if (dt.ExtendedProperties.ContainsKey(BomDataTableProperties.Loaded) &&
-                Convert.ToBoolean(dt.ExtendedProperties[BomDataTableProperties.Loaded]))
+            _dangLoadDuLieuBanDau = true;
+            try
             {
-                _bomComponents = CloneBomComponents(
-                    dt.ExtendedProperties[BomDataTableProperties.Components]
-                        as IEnumerable<BomComponentData>);
+                ResetController_TimTenSP();
+
+                if (dt == null || dt.Rows.Count == 0) return;
+
+                var row = dt.Rows[0];
+                string bin = row["MaBin"]?.ToString() ?? string.Empty;
+
+                _bomComponents = null;
+                if (dt.ExtendedProperties.ContainsKey(BomDataTableProperties.Loaded) &&
+                    Convert.ToBoolean(dt.ExtendedProperties[BomDataTableProperties.Loaded]))
+                {
+                    _bomComponents = CloneBomComponents(
+                        dt.ExtendedProperties[BomDataTableProperties.Components]
+                            as IEnumerable<BomComponentData>);
+                }
+
+                CoreHelper.SetIfPresent(row, "DanhSachMaSP_ID", val => id.Text = Convert.ToString(val));
+                CoreHelper.SetIfPresent(row, "Ma", val => ma.Text = Convert.ToString(val));
+                CoreHelper.SetIfPresent(row, "Ten", val => ten.Text = Convert.ToString(val));
+                CoreHelper.SetIfPresent(row, "donvi", val => donVi.Text = Convert.ToString(val));
+                CoreHelper.SetIfPresent(row, "KhoiLuongTruoc", val => khoiLuong.Value = Convert.ToDecimal(val));
+                CoreHelper.SetIfPresent(row, "ChieuDaiTruoc", val => chieuDai.Value = Convert.ToDecimal(val));
+                CoreHelper.SetIfPresent(row, "Phe", val => phe.Value = Convert.ToDecimal(val));
+                CoreHelper.SetIfPresent(row, "GhiChu", val => GhiChu.Text = Convert.ToString(val));
+                CoreHelper.SetIfPresent(row, "ChuyenDoi", val => nbrChuyenDoi.Value = Convert.ToDecimal(val));
+
+                string[] mabin = CoreHelper.CatMaBin(bin);
+
+                if (mabin.Length == 5)
+                {
+                    maHanhTrinh.Value = Convert.ToDecimal(mabin[1]);
+                    sttCongDoan.Text = mabin[2];
+                    sttLo.Value = Convert.ToDecimal(mabin[3]);
+                    soBin.Value = Convert.ToDecimal(mabin[4]);
+                }
+
+                soLOT.Text = bin;
             }
-
-            CoreHelper.SetIfPresent(row, "DanhSachMaSP_ID", val => id.Text = Convert.ToString(val));
-            CoreHelper.SetIfPresent(row, "Ma", val => ma.Text = Convert.ToString(val));
-            CoreHelper.SetIfPresent(row, "Ten", val => ten.Text = Convert.ToString(val));
-            CoreHelper.SetIfPresent(row, "donvi", val => donVi.Text = Convert.ToString(val));
-            CoreHelper.SetIfPresent(row, "KhoiLuongTruoc", val => khoiLuong.Value = Convert.ToDecimal(val));
-            CoreHelper.SetIfPresent(row, "ChieuDaiTruoc", val => chieuDai.Value = Convert.ToDecimal(val));
-            CoreHelper.SetIfPresent(row, "Phe", val => phe.Value = Convert.ToDecimal(val));
-            CoreHelper.SetIfPresent(row, "GhiChu", val => GhiChu.Text = Convert.ToString(val));
-            CoreHelper.SetIfPresent(row, "ChuyenDoi", val => nbrChuyenDoi.Value = Convert.ToDecimal(val));
-
-            string[] mabin = CoreHelper.CatMaBin(bin);
-
-            if (mabin.Length == 5)
+            finally
             {
-                maHanhTrinh.Value = Convert.ToDecimal(mabin[1]);
-                sttCongDoan.Text = mabin[2];
-                sttLo.Value = Convert.ToDecimal(mabin[3]);
-                soBin.Value = Convert.ToDecimal(mabin[4]);
+                _dangLoadDuLieuBanDau = false;
             }
-
-            soLOT.Text = bin;
         }
 
         private void khoiLuong_ValueChanged(object sender, EventArgs e)
         {
-            RaiseThanhPhamChanged();
+            RaiseThanhPhamSoLieuChanged();
         }
 
         private void may_TextChanged(object sender, EventArgs e)
@@ -594,7 +643,7 @@ namespace DG_TonKhoBTP_v02.UI
 
         private void chieuDai_ValueChanged(object sender, EventArgs e)
         {
-            RaiseThanhPhamChanged();
+            RaiseThanhPhamSoLieuChanged();
         }
     }
 

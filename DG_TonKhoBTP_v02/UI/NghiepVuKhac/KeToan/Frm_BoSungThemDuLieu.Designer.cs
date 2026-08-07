@@ -93,14 +93,6 @@
             this.panel1 = new System.Windows.Forms.Panel();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.grv = new System.Windows.Forms.DataGridView();
-            this.id = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.ma = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.ten = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.tyLe = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.tyLeHoanDoi = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.congDoan = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.active = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colDelete = new System.Windows.Forms.DataGridViewButtonColumn();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.tableLayoutPanel5 = new System.Windows.Forms.TableLayoutPanel();
             this.label35 = new System.Windows.Forms.Label();
@@ -131,6 +123,14 @@
             this.label34 = new System.Windows.Forms.Label();
             this.label9 = new System.Windows.Forms.Label();
             this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.id = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ma = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ten = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.tyLe = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.tyLeHoanDoi = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.congDoan = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.active = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colDelete = new System.Windows.Forms.DataGridViewButtonColumn();
             this.groupBox1.SuspendLayout();
             this.tableLayoutPanel3.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
@@ -756,7 +756,7 @@
             // 
             this.cbxTimTen.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbxTimTen.FormattingEnabled = true;
-            this.cbxTimTen.Location = new System.Drawing.Point(83, 14);
+            this.cbxTimTen.Location = new System.Drawing.Point(83, 12);
             this.cbxTimTen.Name = "cbxTimTen";
             this.cbxTimTen.Size = new System.Drawing.Size(360, 26);
             this.cbxTimTen.TabIndex = 1;
@@ -888,62 +888,6 @@
             this.grv.Size = new System.Drawing.Size(1114, 366);
             this.grv.TabIndex = 0;
             // 
-            // id
-            // 
-            this.id.DataPropertyName = "id";
-            this.id.HeaderText = "STT";
-            this.id.Name = "id";
-            this.id.Width = 60;
-            // 
-            // ma
-            // 
-            this.ma.DataPropertyName = "ma";
-            this.ma.HeaderText = "Mã";
-            this.ma.Name = "ma";
-            this.ma.Width = 120;
-            // 
-            // ten
-            // 
-            this.ten.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.ten.DataPropertyName = "ten";
-            this.ten.HeaderText = "Tên Nguyên Liệu";
-            this.ten.Name = "ten";
-            // 
-            // tyLe
-            // 
-            this.tyLe.DataPropertyName = "tyLe";
-            this.tyLe.HeaderText = "Tỷ lệ";
-            this.tyLe.Name = "tyLe";
-            this.tyLe.Width = 150;
-            // 
-            // tyLeHoanDoi
-            // 
-            this.tyLeHoanDoi.DataPropertyName = "tyLeHoanDoi";
-            this.tyLeHoanDoi.HeaderText = "T.Lệ Hoán đổi";
-            this.tyLeHoanDoi.Name = "tyLeHoanDoi";
-            this.tyLeHoanDoi.Width = 150;
-            // 
-            // congDoan
-            // 
-            this.congDoan.DataPropertyName = "congDoan";
-            this.congDoan.HeaderText = "Tên Công Đoạn";
-            this.congDoan.Name = "congDoan";
-            this.congDoan.Width = 200;
-            // 
-            // active
-            // 
-            this.active.DataPropertyName = "active";
-            this.active.HeaderText = "Kích hoạt";
-            this.active.Name = "active";
-            this.active.Width = 93;
-            // 
-            // colDelete
-            // 
-            this.colDelete.DataPropertyName = "colDelete";
-            this.colDelete.HeaderText = "";
-            this.colDelete.Name = "colDelete";
-            this.colDelete.Width = 70;
-            // 
             // groupBox2
             // 
             this.groupBox2.AutoSize = true;
@@ -1006,7 +950,7 @@
             this.cbxCongDoan.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbxCongDoan.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbxCongDoan.FormattingEnabled = true;
-            this.cbxCongDoan.Location = new System.Drawing.Point(422, 14);
+            this.cbxCongDoan.Location = new System.Drawing.Point(422, 12);
             this.cbxCongDoan.Name = "cbxCongDoan";
             this.cbxCongDoan.Size = new System.Drawing.Size(391, 26);
             this.cbxCongDoan.TabIndex = 1;
@@ -1087,7 +1031,7 @@
             this.cbxActive.Items.AddRange(new object[] {
             "Không",
             "Có"});
-            this.cbxActive.Location = new System.Drawing.Point(893, 14);
+            this.cbxActive.Location = new System.Drawing.Point(893, 12);
             this.cbxActive.Name = "cbxActive";
             this.cbxActive.Size = new System.Drawing.Size(94, 26);
             this.cbxActive.TabIndex = 1;
@@ -1144,7 +1088,7 @@
             // 
             this.cbxTen_ThanhPham.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbxTen_ThanhPham.FormattingEnabled = true;
-            this.cbxTen_ThanhPham.Location = new System.Drawing.Point(131, 12);
+            this.cbxTen_ThanhPham.Location = new System.Drawing.Point(131, 14);
             this.cbxTen_ThanhPham.Name = "cbxTen_ThanhPham";
             this.cbxTen_ThanhPham.Size = new System.Drawing.Size(194, 26);
             this.cbxTen_ThanhPham.TabIndex = 1;
@@ -1220,7 +1164,7 @@
             // 
             this.cbxTen_NL.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbxTen_NL.FormattingEnabled = true;
-            this.cbxTen_NL.Location = new System.Drawing.Point(131, 64);
+            this.cbxTen_NL.Location = new System.Drawing.Point(131, 62);
             this.cbxTen_NL.Name = "cbxTen_NL";
             this.cbxTen_NL.Size = new System.Drawing.Size(194, 26);
             this.cbxTen_NL.TabIndex = 1;
@@ -1305,6 +1249,63 @@
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Thông tin khác";
             this.tabPage1.UseVisualStyleBackColor = true;
+            // 
+            // id
+            // 
+            this.id.DataPropertyName = "id";
+            this.id.HeaderText = "STT";
+            this.id.Name = "id";
+            this.id.Width = 60;
+            // 
+            // ma
+            // 
+            this.ma.DataPropertyName = "ma";
+            this.ma.HeaderText = "Mã";
+            this.ma.Name = "ma";
+            this.ma.Width = 120;
+            // 
+            // ten
+            // 
+            this.ten.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.ten.DataPropertyName = "ten";
+            this.ten.HeaderText = "Tên Nguyên Liệu";
+            this.ten.Name = "ten";
+            // 
+            // tyLe
+            // 
+            this.tyLe.DataPropertyName = "tyLe";
+            this.tyLe.HeaderText = "Tỷ lệ";
+            this.tyLe.Name = "tyLe";
+            this.tyLe.Width = 150;
+            // 
+            // tyLeHoanDoi
+            // 
+            this.tyLeHoanDoi.DataPropertyName = "tyLeHoanDoi";
+            this.tyLeHoanDoi.HeaderText = "T.Lệ Hoán đổi";
+            this.tyLeHoanDoi.Name = "tyLeHoanDoi";
+            this.tyLeHoanDoi.Width = 150;
+            // 
+            // congDoan
+            // 
+            this.congDoan.DataPropertyName = "congDoan";
+            this.congDoan.HeaderText = "Tên Công Đoạn";
+            this.congDoan.Name = "congDoan";
+            this.congDoan.Visible = false;
+            this.congDoan.Width = 200;
+            // 
+            // active
+            // 
+            this.active.DataPropertyName = "active";
+            this.active.HeaderText = "Kích hoạt";
+            this.active.Name = "active";
+            this.active.Width = 93;
+            // 
+            // colDelete
+            // 
+            this.colDelete.DataPropertyName = "colDelete";
+            this.colDelete.HeaderText = "";
+            this.colDelete.Name = "colDelete";
+            this.colDelete.Width = 70;
             // 
             // Frm_BoSungThemDuLieu
             // 

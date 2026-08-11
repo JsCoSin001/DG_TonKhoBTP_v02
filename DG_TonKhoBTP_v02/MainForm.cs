@@ -238,7 +238,11 @@ namespace DG_TonKhoBTP_v02
                 ),
                 rawMaterial: false,
                 errorMessagePrefix: "bọc vỏ",
-                afterShowUI: root => _ui.HookNvlThanhPham(root)
+                afterShowUI: root =>
+                {
+                    _ui.HookNvlThanhPham(root);
+                    _ui.HookDongGoiThanhPham(root);
+                }
             );
 
             HienThiCauTruc();

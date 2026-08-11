@@ -18,6 +18,8 @@ namespace DG_TonKhoBTP_v02.UI
         // vì ControlCleaner chỉ clear control UI, không clear được biến private.
         private List<ThongTinCuonDay> _thongTinCuonDay = new List<ThongTinCuonDay>();
 
+        public event Action<string> DongGoiGhiChuChanged;
+
         public UC_CDBocVo()
         {
             InitializeComponent();
@@ -41,7 +43,7 @@ namespace DG_TonKhoBTP_v02.UI
         public void LoadData(DataTable dt, int kieuEdit)
         {
             // Mỗi lần tìm kiếm dữ liệu mới cần clear trước để tránh giữ lại dữ liệu đóng gói của lần trước.
-            ClearInputs();
+            ClearInputsCore(false);
 
             if (dt == null || dt.Rows.Count == 0) return;
             var row = dt.Rows[0];
@@ -81,6 +83,11 @@ namespace DG_TonKhoBTP_v02.UI
 
         public void ClearInputs()
         {
+            ClearInputsCore(true);
+        }
+
+        private void ClearInputsCore(bool capNhatGhiChu)
+        {
             if (dayVoTB != null)
             {
                 decimal value = 0m;
@@ -96,6 +103,9 @@ namespace DG_TonKhoBTP_v02.UI
             }
 
             ClearThongTinCuonDay();
+
+            if (capNhatGhiChu)
+                DongGoiGhiChuChanged?.Invoke(string.Empty);
         }
 
         private void ClearThongTinCuonDay()
@@ -119,7 +129,49 @@ namespace DG_TonKhoBTP_v02.UI
 
                 _thongTinCuonDay = CloneThongTinCuonDay(frm.ThongTinCuon);
                 UpdateDongGoiButtonText();
+                DongGoiGhiChuChanged?.Invoke(TaoGhiChuDongGoi());
             }
+        }
+
+        private string TaoGhiChuDongGoi()
+        {
+            if (_thongTinCuonDay == null || _thongTinCuonDay.Count == 0)
+                return string.Empty;
+
+            DataTable dtTTLo = DatabaseHelper.LayDanhSachTTLoActive();
+            var lines = new List<string>();
+
+            foreach (ThongTinCuonDay item in _thongTinCuonDay)
+            {
+                if (!item.TTLo_ID.HasValue)
+                {
+                    lines.Add($"{item.SoCuon}C x {item.TongChieuDai}");
+                    continue;
+                }
+
+                string kichThuoc = string.Empty;
+                if (dtTTLo != null)
+                {
+                    foreach (DataRow row in dtTTLo.Rows)
+                    {
+                        if (row["id"] == DBNull.Value)
+                            continue;
+
+                        if (Convert.ToInt64(row["id"]) != Convert.ToInt64(item.TTLo_ID.Value))
+                            continue;
+
+                        kichThuoc = row["KichThuoc"] == DBNull.Value
+                            ? string.Empty
+                            : Convert.ToString(row["KichThuoc"])?.Trim() ?? string.Empty;
+                        break;
+                    }
+                }
+
+                string prefix = string.IsNullOrEmpty(kichThuoc) ? "L" : $"L{kichThuoc}";
+                lines.Add($"{prefix} {item.soCuoi} - {item.SoDau}");
+            }
+
+            return string.Join(Environment.NewLine, lines);
         }
 
         private void UpdateDongGoiButtonText()

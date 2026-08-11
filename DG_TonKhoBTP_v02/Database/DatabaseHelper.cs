@@ -2854,11 +2854,11 @@ namespace DG_TonKhoBTP_v02.Database
         public static DataTable LayDanhSachTTLoActive()
         {
             const string sql = @"
-        SELECT id, KichThuoc
-        FROM TTLo
-        WHERE Active = 1
-          AND TRIM(IFNULL(KichThuoc, '')) <> ''
-        ORDER BY CAST(KichThuoc AS REAL), KichThuoc;";
+            SELECT id, KichThuoc
+            FROM TTLo
+            WHERE Active = 1
+              AND TRIM(IFNULL(KichThuoc, '')) <> ''
+            ORDER BY CAST(KichThuoc AS REAL), KichThuoc;";
 
             return GetData(sql);
         }

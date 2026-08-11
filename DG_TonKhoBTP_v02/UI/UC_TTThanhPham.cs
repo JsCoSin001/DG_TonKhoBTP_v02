@@ -136,6 +136,12 @@ namespace DG_TonKhoBTP_v02.UI
             timTenTPCongDoan.KeyDown += timNVL_KeyDown;
         }
 
+        public void CapNhatGhiChuDongGoi(string ghiChu)
+        {
+            if (GhiChu == null) return;
+            GhiChu.Text = ghiChu ?? string.Empty;
+        }
+
         public void FocusKhoiLuong()
         {
             khoiLuong.Focus();

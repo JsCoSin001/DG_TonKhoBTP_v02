@@ -1086,14 +1086,35 @@ namespace DG_TonKhoBTP_v02.UI
                 // Cùng đơn vị M.
                 if (donViThanhPham == "M" && cungDonVi)
                 {
-                    TinhGiaTriConLai_CungDonViM( nvl, thanhPham, ketQua);
+                    TinhGiaTriConLai_CungDonViM(nvl, thanhPham, ketQua);
                     continue;
                 }
 
-                // Đơn vị khác nhau: Kg =>m
+                // Đơn vị khác nhau: KG => M.
                 if (!cungDonVi)
                 {
-                    TinhGiaTriConLai_CD_Khac_KhacDonVi(nvl, thanhPham, ketQua);
+                    try
+                    {
+                        KetQuaPhanTich ketQuaPhanTichNvl =
+                            PhanTachCauTrucDay.PhanTich(nvl.TenNVL);
+
+                        string tenThanhPham = LayTenThanhPham(thanhPham);
+                        KetQuaPhanTich ketQuaPhanTichThanhPham =
+                            PhanTachCauTrucDay.PhanTich(tenThanhPham);
+
+                        TinhGiaTriConLai_CD_Khac_KhacDonVi(
+                            nvl,
+                            thanhPham,
+                            ketQua,
+                            ketQuaPhanTichNvl,
+                            ketQuaPhanTichThanhPham);
+                    }
+                    catch
+                    {
+                        ketQua.KlConLai = 0;
+                        ketQua.CdConLai = 0;
+                    }
+
                     continue;
                 }
 
@@ -1102,9 +1123,46 @@ namespace DG_TonKhoBTP_v02.UI
             GanKetQuaGiaTriConLai(nvlRows, ketQuaDaTinh);
         }
 
-        private static void TinhGiaTriConLai_CD_Khac_KhacDonVi( TTNVLRow nvl, ThanhPhamData thanhPham, KetQuaGiaTriConLai ketQua)
+        private static void TinhGiaTriConLai_CD_Khac_KhacDonVi(
+            TTNVLRow nvl,
+            ThanhPhamData thanhPham,
+            KetQuaGiaTriConLai ketQua,
+            KetQuaPhanTich ketQuaPhanTichNvl,
+            KetQuaPhanTich ketQuaPhanTichThanhPham)
         {
-            
+            // Chưa áp dụng công thức ở bước này.
+            // ketQuaPhanTichNvl và ketQuaPhanTichThanhPham đã sẵn sàng
+            // để dùng khi bổ sung công thức chuyển đổi KG => M.
+        }
+
+        private static string LayTenThanhPham(ThanhPhamData thanhPham)
+        {
+            if (thanhPham == null)
+                throw new ArgumentNullException(nameof(thanhPham));
+
+            string[] cacTenThuocTinh =
+            {
+                "TenThanhPham",
+                "TenSP",
+                "TenSanPham",
+                "Ten"
+            };
+
+            Type kieuThanhPham = thanhPham.GetType();
+
+            foreach (string tenThuocTinh in cacTenThuocTinh)
+            {
+                var thuocTinh = kieuThanhPham.GetProperty(tenThuocTinh);
+                if (thuocTinh == null || thuocTinh.PropertyType != typeof(string))
+                    continue;
+
+                string giaTri = thuocTinh.GetValue(thanhPham) as string;
+                if (!string.IsNullOrWhiteSpace(giaTri))
+                    return giaTri;
+            }
+
+            throw new InvalidOperationException(
+                "Không tìm thấy tên thành phẩm trong ThanhPhamData.");
         }
 
 

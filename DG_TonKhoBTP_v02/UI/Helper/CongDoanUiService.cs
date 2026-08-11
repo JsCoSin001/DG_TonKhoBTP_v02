@@ -157,5 +157,38 @@ namespace DG_TonKhoBTP_v02.UI.Helper
             ucTP.ThanhPhamSoLieuChanged -= ucNVL.OnThanhPhamSoLieuChanged;
             ucTP.ThanhPhamSoLieuChanged += ucNVL.OnThanhPhamSoLieuChanged;
         }
+
+        /// <summary>
+        /// Hook dữ liệu đóng gói của công đoạn Bọc Vỏ sang GhiChu của Thành phẩm.
+        /// Chỉ cập nhật khi UC_CDBocVo chủ động phát sự kiện; load dữ liệu ban đầu không phát sự kiện này.
+        /// </summary>
+        public void HookDongGoiThanhPham(Control root)
+        {
+            var ucBocVo = FindChild<UC_CDBocVo>(root);
+            var ucTP = _findTP(root);
+
+            if (ucBocVo == null || ucTP == null)
+                return;
+
+            ucBocVo.DongGoiGhiChuChanged -= ucTP.CapNhatGhiChuDongGoi;
+            ucBocVo.DongGoiGhiChuChanged += ucTP.CapNhatGhiChuDongGoi;
+        }
+
+        private static TControl FindChild<TControl>(Control parent) where TControl : Control
+        {
+            if (parent == null) return null;
+
+            foreach (Control child in parent.Controls)
+            {
+                if (child is TControl found)
+                    return found;
+
+                var nested = FindChild<TControl>(child);
+                if (nested != null)
+                    return nested;
+            }
+
+            return null;
+        }
     }
 }

@@ -1,4 +1,5 @@
-﻿using DG_TonKhoBTP_v02.Core;
+﻿using ClosedXML.Excel;
+using DG_TonKhoBTP_v02.Core;
 using DG_TonKhoBTP_v02.Database;
 using DG_TonKhoBTP_v02.Dictionary;
 using DG_TonKhoBTP_v02.Helper;
@@ -13,8 +14,10 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Windows.Media;
 using Color = System.Drawing.Color;
 using CoreHelper = DG_TonKhoBTP_v02.Helper.Helper;
 
@@ -40,7 +43,7 @@ namespace DG_TonKhoBTP_v02.UI
 
         private CongDoan _CD;
 
-        private const double HE_SO_CHUYEN_DOI_MAC_DINH = 1.01;
+        private const double HE_SO_CHUYEN_DOI_CD = 1.01;
 
         // Trạng thái điều phối cập nhật KL/CD còn lại.
         private bool _dangLoadDuLieuBanDau;
@@ -96,6 +99,7 @@ namespace DG_TonKhoBTP_v02.UI
             dtgTTNVL.CellParsing += dtgTTNVL_CellParsing;
 
             dtgTTNVL.CellFormatting += dtgTTNVL_CellFormatting;
+            dtgTTNVL.CellValueChanged += dtgTTNVL_CellValueChanged;
 
             DebugPrintColumnsByDefinitions();
         }
@@ -435,9 +439,12 @@ namespace DG_TonKhoBTP_v02.UI
         private void dtgTTNVL_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
         {
             if (e.RowIndex < 0 || e.ColumnIndex < 0) return;
-            if (e.Value == null) return;
 
             string colName = dtgTTNVL.Columns[e.ColumnIndex].DataPropertyName;
+
+            ApDungMauGiaTriConLai(e.RowIndex, colName, e.CellStyle);
+
+            if (e.Value == null) return;
 
             switch (colName)
             {
@@ -456,6 +463,66 @@ namespace DG_TonKhoBTP_v02.UI
                         e.FormattingApplied = true;
                     }
                     break;
+            }
+        }
+
+        private void dtgTTNVL_CellValueChanged(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0 || e.ColumnIndex < 0) return;
+
+            string propertyName = dtgTTNVL.Columns[e.ColumnIndex].DataPropertyName;
+            if (propertyName != nameof(TTNVLRow.KlConLai) &&
+                propertyName != nameof(TTNVLRow.CdConLai) &&
+                propertyName != nameof(TTNVLRow.DonVi))
+            {
+                return;
+            }
+
+            InvalidateGiaTriConLaiCells(e.RowIndex);
+        }
+
+        private void InvalidateGiaTriConLaiCells(int rowIndex)
+        {
+            if (rowIndex < 0 || rowIndex >= dtgTTNVL.Rows.Count) return;
+
+            if (dtgTTNVL.Columns.Contains(nameof(TTNVLRow.KlConLai)))
+            {
+                dtgTTNVL.InvalidateCell(
+                    dtgTTNVL.Columns[nameof(TTNVLRow.KlConLai)].Index,
+                    rowIndex);
+            }
+
+            if (dtgTTNVL.Columns.Contains(nameof(TTNVLRow.CdConLai)))
+            {
+                dtgTTNVL.InvalidateCell(
+                    dtgTTNVL.Columns[nameof(TTNVLRow.CdConLai)].Index,
+                    rowIndex);
+            }
+        }
+
+        private void ApDungMauGiaTriConLai(
+            int rowIndex,
+            string propertyName,
+            DataGridViewCellStyle cellStyle)
+        {
+            if (rowIndex < 0 || rowIndex >= dtgTTNVL.Rows.Count) return;
+            if (!(dtgTTNVL.Rows[rowIndex].DataBoundItem is TTNVLRow row)) return;
+
+            string donVi = ChuanHoaDonVi(row.DonVi);
+
+            bool canhBaoKl =
+                propertyName == nameof(TTNVLRow.KlConLai) &&
+                donVi == "KG" &&
+                row.KlConLai == 0;
+
+            bool canhBaoCd =
+                propertyName == nameof(TTNVLRow.CdConLai) &&
+                donVi == "M" &&
+                row.CdConLai == 0;
+
+            if (canhBaoKl || canhBaoCd)
+            {
+                cellStyle.BackColor = Color.Red;
             }
         }
 
@@ -1020,28 +1087,55 @@ namespace DG_TonKhoBTP_v02.UI
                 throw new ArgumentNullException(nameof(thanhPham));
 
             // Tính dựa vào tỷ lệ giữa diện tích tiết diện của NVL và diện tích tiết diện của thành phẩm.
-            IList<KetQuaGiaTriConLai> ketQuaDaTinh =
-                new List<KetQuaGiaTriConLai>
-                {
-                    new KetQuaGiaTriConLai
-                    {
-                        KlConLai = 12.5,
-                        CdConLai = 100
-                    },
-                    new KetQuaGiaTriConLai
-                    {
-                        KlConLai = 8.2,
-                        CdConLai = 75
-                    },
-                    new KetQuaGiaTriConLai
-                    {
-                        KlConLai = 0,
-                        CdConLai = 20
-                    }
-                };            
+            IList<KetQuaGiaTriConLai> ketQuaDaTinh = new List<KetQuaGiaTriConLai>();
+
+            string tenTP = PhanTachCauTrucDay.PhanTich(thanhPham.TenTP).PhanChinh;
+            double tietDienTP = LayGiaTriSo_CD_Rut(tenTP);
+
+            foreach (TTNVLRow item in nvlRows)
+            {
+                KetQuaGiaTriConLai kq = new KetQuaGiaTriConLai();
+
+                string tenNVL = item.TenNVL;
+
+                KetQuaPhanTich ketQua = PhanTachCauTrucDay.PhanTich(tenNVL);
+                double dkNVL  = LayGiaTriSo_CD_Rut(ketQua.PhanChinh);
+
+                double tietDienNVL = Math.Pow(dkNVL / 2, 2) * Math.PI;
+
+                kq.KlConLai = Math.Max(0, (item.KlConLai ?? 0) - (double)thanhPham.KhoiLuong);
+
+                kq.CdConLai = tietDienNVL > 0 ? kq.KlConLai * 1000 / (8.96 * tietDienNVL) : null;
+
+                ketQuaDaTinh.Add(kq);
+            }
 
             GanKetQuaGiaTriConLai(nvlRows, ketQuaDaTinh);
+        }
 
+
+        private static double LayGiaTriSo_CD_Rut(string input)
+        {
+            if (string.IsNullOrWhiteSpace(input))
+                return 0;
+
+            Match match = Regex.Match(input, @"[-+]?\d+(?:[.,]\d+)?");
+
+            if (!match.Success)
+                return 0;
+
+            string giaTri = match.Value.Replace(',', '.');
+
+            if (double.TryParse(
+                giaTri,
+                NumberStyles.Any,
+                CultureInfo.InvariantCulture,
+                out double result))
+            {
+                return result;
+            }
+
+            return 0;
         }
 
         /// <summary>
@@ -1069,8 +1163,8 @@ namespace DG_TonKhoBTP_v02.UI
                 // Giá trị mặc định khi chưa có công thức phù hợp.
                 var ketQua = new KetQuaGiaTriConLai
                 {
-                    KlConLai = 0,
-                    CdConLai = 0
+                    KlConLai = null,
+                    CdConLai = null
                 };
 
                 ketQuaDaTinh.Add(ketQua);
@@ -1095,83 +1189,41 @@ namespace DG_TonKhoBTP_v02.UI
                 {
                     try
                     {
-                        KetQuaPhanTich ketQuaPhanTichNvl =
-                            PhanTachCauTrucDay.PhanTich(nvl.TenNVL);
-
-                        string tenThanhPham = LayTenThanhPham(thanhPham);
-                        KetQuaPhanTich ketQuaPhanTichThanhPham =
-                            PhanTachCauTrucDay.PhanTich(tenThanhPham);
-
-                        TinhGiaTriConLai_CD_Khac_KhacDonVi(
-                            nvl,
-                            thanhPham,
-                            ketQua,
-                            ketQuaPhanTichNvl,
-                            ketQuaPhanTichThanhPham);
+                        TinhGiaTriConLai_CD_Khac_KhacDonVi( nvl, thanhPham, ketQua);
                     }
                     catch
                     {
-                        ketQua.KlConLai = 0;
-                        ketQua.CdConLai = 0;
+                        ketQua.KlConLai = null;
+                        ketQua.CdConLai = null;
                     }
 
                     continue;
                 }
-
             }
 
             GanKetQuaGiaTriConLai(nvlRows, ketQuaDaTinh);
         }
 
-        private static void TinhGiaTriConLai_CD_Khac_KhacDonVi(
-            TTNVLRow nvl,
-            ThanhPhamData thanhPham,
-            KetQuaGiaTriConLai ketQua,
-            KetQuaPhanTich ketQuaPhanTichNvl,
-            KetQuaPhanTich ketQuaPhanTichThanhPham)
+        private static void TinhGiaTriConLai_CD_Khac_KhacDonVi( TTNVLRow nvl, ThanhPhamData thanhPham, KetQuaGiaTriConLai ketQua)
         {
-            // Chưa áp dụng công thức ở bước này.
-            // ketQuaPhanTichNvl và ketQuaPhanTichThanhPham đã sẵn sàng
-            // để dùng khi bổ sung công thức chuyển đổi KG => M.
+            double chieuDaiNvl = nvl.CdConLai ?? 0;
+            double khoiLuongNVL = nvl.KlConLai ?? 0;
+
+            // Chuyển đổi từ m sang kg
+            double khoiLuongTP = Convert.ToDouble(thanhPham.ChieuDai * thanhPham.ChuyenDoi);
+
+            ketQua.KlConLai = Math.Max(0, khoiLuongNVL - khoiLuongTP);
+
+            ketQua.CdConLai = chieuDaiNvl == 0 ? 0 : Convert.ToDouble(thanhPham.ChieuDai) - chieuDaiNvl;
+
         }
-
-        private static string LayTenThanhPham(ThanhPhamData thanhPham)
-        {
-            if (thanhPham == null)
-                throw new ArgumentNullException(nameof(thanhPham));
-
-            string[] cacTenThuocTinh =
-            {
-                "TenThanhPham",
-                "TenSP",
-                "TenSanPham",
-                "Ten"
-            };
-
-            Type kieuThanhPham = thanhPham.GetType();
-
-            foreach (string tenThuocTinh in cacTenThuocTinh)
-            {
-                var thuocTinh = kieuThanhPham.GetProperty(tenThuocTinh);
-                if (thuocTinh == null || thuocTinh.PropertyType != typeof(string))
-                    continue;
-
-                string giaTri = thuocTinh.GetValue(thanhPham) as string;
-                if (!string.IsNullOrWhiteSpace(giaTri))
-                    return giaTri;
-            }
-
-            throw new InvalidOperationException(
-                "Không tìm thấy tên thành phẩm trong ThanhPhamData.");
-        }
-
 
         private static void TinhGiaTriConLai_CungDonViM( TTNVLRow nvl,  ThanhPhamData thanhPham, KetQuaGiaTriConLai ketQua)
         {
-            double chieuDaiNvl = nvl.CdBatDau ?? 0;
+            double chieuDaiNvl = nvl.CdConLai ?? 0;
             double chieuDaiThanhPham = Convert.ToDouble(thanhPham.ChieuDai);
 
-            double chieuDaiConLai = chieuDaiNvl - HE_SO_CHUYEN_DOI_MAC_DINH * chieuDaiThanhPham;
+            double chieuDaiConLai = chieuDaiNvl - HE_SO_CHUYEN_DOI_CD * chieuDaiThanhPham;
 
             ketQua.CdConLai = Math.Max(0, chieuDaiConLai);
             ketQua.KlConLai = null;
@@ -1465,9 +1517,7 @@ namespace DG_TonKhoBTP_v02.UI
             );
         }
 
-        private static void GanKetQuaGiaTriConLai(
-            IList<TTNVLRow> nvlRows,
-            IList<KetQuaGiaTriConLai> ketQuaDaTinh = null)
+        private static void GanKetQuaGiaTriConLai( IList<TTNVLRow> nvlRows, IList<KetQuaGiaTriConLai> ketQuaDaTinh = null)
         {
             if (nvlRows == null)
                 throw new ArgumentNullException(nameof(nvlRows));

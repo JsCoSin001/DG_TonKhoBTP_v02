@@ -26,6 +26,7 @@ namespace DG_TonKhoBTP_v02.Database.KeToan
                 IFNULL(ca.NguoiLam, '')                     AS NguoiLam,
                 IFNULL(dsp.Ten, '')                         AS TenThanhPham,
                 IFNULL(loi.NoiDungLoi, '')                  AS NoiDungLoi,
+                IFNULL(loi.LyDoLoi, '')                     AS LyDoLoi,
                 IFNULL(loi.Confirmed, 0)                    AS Confirmed
             FROM DanhSachLoiNhapLieuSX loi
             LEFT JOIN TTThanhPham tp

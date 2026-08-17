@@ -14,6 +14,8 @@ namespace DG_TonKhoBTP_v02.Database.KeToan
         {
             var result = new List<DanhSachLoiNhapLieuSX_Model>();
 
+            DamBaoCotLyDoLoiTonTai();
+
             const string sql = @"
             SELECT
                 loi.id                                      AS IdLoi,
@@ -74,6 +76,7 @@ namespace DG_TonKhoBTP_v02.Database.KeToan
                             : string.Empty,
                         TenThanhPham = GetString(reader, "TenThanhPham"),
                         NoiDungLoi = GetString(reader, "NoiDungLoi"),
+                        LyDoLoi = GetString(reader, "LyDoLoi"),
                         Confirmed = GetInt(reader, "Confirmed") == 1
                     });
                 }
@@ -274,6 +277,44 @@ namespace DG_TonKhoBTP_v02.Database.KeToan
                 .ThenBy(x => x.TenNLThucTe, StringComparer.CurrentCultureIgnoreCase)
                 .ThenBy(x => x.LotThucTe, StringComparer.CurrentCultureIgnoreCase)
                 .ToList();
+        }
+
+        private static void DamBaoCotLyDoLoiTonTai()
+        {
+            using (var conn = DB_Base.OpenConnection())
+            {
+                bool daTonTai = false;
+
+                using (var pragma = new SQLiteCommand(
+                    "PRAGMA table_info(\"DanhSachLoiNhapLieuSX\");",
+                    conn))
+                using (SQLiteDataReader reader = pragma.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        string tenCot = Convert.ToString(reader["name"]);
+                        if (string.Equals(
+                                tenCot,
+                                "LyDoLoi",
+                                StringComparison.OrdinalIgnoreCase))
+                        {
+                            daTonTai = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (daTonTai)
+                    return;
+
+                using (var alter = new SQLiteCommand(
+                    "ALTER TABLE \"DanhSachLoiNhapLieuSX\" " +
+                    "ADD COLUMN \"LyDoLoi\" TEXT;",
+                    conn))
+                {
+                    alter.ExecuteNonQuery();
+                }
+            }
         }
 
         private static string DinhDangNgay(string ngay)

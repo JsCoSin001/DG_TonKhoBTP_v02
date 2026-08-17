@@ -18,6 +18,7 @@
         private void InitializeComponent()
         {
             this.lblTieuDe = new System.Windows.Forms.Label();
+            this.lblLyDoLoi = new System.Windows.Forms.Label();
             this.grvChiTiet = new System.Windows.Forms.DataGridView();
             this.pnlBottom = new System.Windows.Forms.Panel();
             this.lblChuThich = new System.Windows.Forms.Label();
@@ -40,13 +41,24 @@
             this.lblTieuDe.Text = "CHI TIẾT BOM VÀ NGUYÊN LIỆU THỰC TẾ";
             this.lblTieuDe.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
+            // lblLyDoLoi
+            // 
+            this.lblLyDoLoi.Dock = System.Windows.Forms.DockStyle.Top;
+            this.lblLyDoLoi.Location = new System.Drawing.Point(10, 52);
+            this.lblLyDoLoi.Name = "lblLyDoLoi";
+            this.lblLyDoLoi.Padding = new System.Windows.Forms.Padding(8, 4, 8, 4);
+            this.lblLyDoLoi.Size = new System.Drawing.Size(964, 52);
+            this.lblLyDoLoi.TabIndex = 1;
+            this.lblLyDoLoi.Text = "Lý do lỗi:";
+            this.lblLyDoLoi.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
             // grvChiTiet
             // 
             this.grvChiTiet.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.grvChiTiet.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.grvChiTiet.Location = new System.Drawing.Point(10, 52);
+            this.grvChiTiet.Location = new System.Drawing.Point(10, 104);
             this.grvChiTiet.Name = "grvChiTiet";
-            this.grvChiTiet.Size = new System.Drawing.Size(964, 500);
+            this.grvChiTiet.Size = new System.Drawing.Size(964, 448);
             this.grvChiTiet.TabIndex = 1;
             // 
             // pnlBottom
@@ -116,6 +128,7 @@
             this.ClientSize = new System.Drawing.Size(984, 621);
             this.Controls.Add(this.grvChiTiet);
             this.Controls.Add(this.pnlBottom);
+            this.Controls.Add(this.lblLyDoLoi);
             this.Controls.Add(this.lblTieuDe);
             this.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.MinimizeBox = false;
@@ -133,6 +146,7 @@
         #endregion
 
         private System.Windows.Forms.Label lblTieuDe;
+        private System.Windows.Forms.Label lblLyDoLoi;
         private System.Windows.Forms.DataGridView grvChiTiet;
         private System.Windows.Forms.Panel pnlBottom;
         private System.Windows.Forms.Button btnDong;

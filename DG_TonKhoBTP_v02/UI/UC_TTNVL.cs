@@ -915,7 +915,7 @@ namespace DG_TonKhoBTP_v02.UI
                 if (newItem.IsCorrect == false && _CD.Id != 1)
                 {
                     DialogResult confirm = MessageBox.Show(
-                        $"Sản phẩm này không phù hợp với thành phẩm: {thanhPham.SoLOT}\nNếu tiếp tục chọn Yes, hoặc quét lại chọn No",
+                        $"Mã bin này không phù hợp với {thanhPham.SoLOT}\nNếu tiếp tục chọn Yes, hoặc quét lại chọn No",
                         "Xác nhận NVL/BTP khác BOM",
                         MessageBoxButtons.YesNo,
                         MessageBoxIcon.Warning,

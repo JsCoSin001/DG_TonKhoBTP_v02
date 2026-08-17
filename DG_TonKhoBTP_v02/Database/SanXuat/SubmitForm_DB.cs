@@ -654,7 +654,7 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
             TTThanhPham tp,
             List<TTNVL> nvl,
             SubmitCongDoanData chiTietCD,
-            List<string> danhSachLoiNhapLieu,
+            List<LoiNhapLieuData> danhSachLoiNhapLieu,
             out string errorMsg)
         {
             errorMsg = string.Empty;
@@ -862,7 +862,7 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
             TTThanhPham tp,
             List<TTNVL> nvl,
             SubmitCongDoanData chiTietCD,
-            List<string> danhSachLoiNhapLieu,
+            List<LoiNhapLieuData> danhSachLoiNhapLieu,
             string confirmedUsername,
             out string errorMsg)
         {
@@ -1529,13 +1529,15 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
             SQLiteConnection conn,
             SQLiteTransaction tx,
             long ttThanhPhamId,
-            List<string> danhSachLoiNhapLieu)
+            List<LoiNhapLieuData> danhSachLoiNhapLieu)
         {
             if (conn == null)
                 throw new ArgumentNullException(nameof(conn));
 
             if (tx == null)
                 throw new ArgumentNullException(nameof(tx));
+
+            DamBaoCotLyDoLoiTonTai(conn, tx);
 
             using (var deleteCommand = new SQLiteCommand(@"
                 DELETE FROM ""DanhSachLoiNhapLieuSX""
@@ -1545,34 +1547,82 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
                 deleteCommand.ExecuteNonQuery();
             }
 
-            List<string> noiDungLoiHopLe = (danhSachLoiNhapLieu ?? new List<string>())
-                .Where(x => !string.IsNullOrWhiteSpace(x))
-                .Select(x => x.Trim())
-                .Distinct()
+            List<LoiNhapLieuData> danhSachHopLe = (danhSachLoiNhapLieu ??
+                    new List<LoiNhapLieuData>())
+                .Where(x => x != null && !string.IsNullOrWhiteSpace(x.NoiDungLoi))
+                .GroupBy(x => x.NoiDungLoi.Trim(), StringComparer.Ordinal)
+                .Select(g => g.First())
                 .ToList();
 
-            if (noiDungLoiHopLe.Count == 0)
+            if (danhSachHopLe.Count == 0)
                 return;
 
             using var insertCommand = new SQLiteCommand(@"
                 INSERT INTO ""DanhSachLoiNhapLieuSX""
                 (
                     ""TTThanhpham_id"",
-                    ""NoiDungLoi""
+                    ""NoiDungLoi"",
+                    ""LyDoLoi""
                 )
                 VALUES
                 (
                     @TTThanhpham_id,
-                    @NoiDungLoi
+                    @NoiDungLoi,
+                    @LyDoLoi
                 );", conn, tx);
 
             insertCommand.Parameters.Add("@TTThanhpham_id", DbType.Int64).Value = ttThanhPhamId;
-            SQLiteParameter noiDungLoiParameter = insertCommand.Parameters.Add("@NoiDungLoi", DbType.String);
+            SQLiteParameter noiDungLoiParameter =
+                insertCommand.Parameters.Add("@NoiDungLoi", DbType.String);
+            SQLiteParameter lyDoLoiParameter =
+                insertCommand.Parameters.Add("@LyDoLoi", DbType.String);
 
-            foreach (string noiDungLoi in noiDungLoiHopLe)
+            foreach (LoiNhapLieuData loi in danhSachHopLe)
             {
-                noiDungLoiParameter.Value = noiDungLoi;
+                noiDungLoiParameter.Value = loi.NoiDungLoi.Trim();
+                lyDoLoiParameter.Value = string.IsNullOrWhiteSpace(loi.LyDoLoi)
+                    ? string.Empty
+                    : loi.LyDoLoi.Trim();
                 insertCommand.ExecuteNonQuery();
+            }
+        }
+
+        private static void DamBaoCotLyDoLoiTonTai(
+            SQLiteConnection conn,
+            SQLiteTransaction tx)
+        {
+            bool daTonTai = false;
+
+            using (var pragma = new SQLiteCommand(
+                "PRAGMA table_info(\"DanhSachLoiNhapLieuSX\");",
+                conn,
+                tx))
+            using (SQLiteDataReader reader = pragma.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    string tenCot = Convert.ToString(reader["name"]);
+                    if (string.Equals(
+                            tenCot,
+                            "LyDoLoi",
+                            StringComparison.OrdinalIgnoreCase))
+                    {
+                        daTonTai = true;
+                        break;
+                    }
+                }
+            }
+
+            if (daTonTai)
+                return;
+
+            using (var alter = new SQLiteCommand(
+                "ALTER TABLE \"DanhSachLoiNhapLieuSX\" " +
+                "ADD COLUMN \"LyDoLoi\" TEXT;",
+                conn,
+                tx))
+            {
+                alter.ExecuteNonQuery();
             }
         }
 

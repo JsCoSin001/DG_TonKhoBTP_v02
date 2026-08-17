@@ -167,8 +167,8 @@ namespace DG_TonKhoBTP_v02.UI
                     }
                 }
 
-                string prefix = string.IsNullOrEmpty(kichThuoc) ? "L" : $"L{kichThuoc}";
-                lines.Add($"{prefix} {item.soCuoi} - {item.SoDau}");
+                string prefix = string.IsNullOrEmpty(kichThuoc) ? "L: " : $"L{kichThuoc}: ";
+                lines.Add($"{prefix} {item.SoDau} -> {item.soCuoi}");
             }
 
             return string.Join(Environment.NewLine, lines);

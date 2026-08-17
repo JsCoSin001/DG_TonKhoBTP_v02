@@ -15,6 +15,7 @@ namespace DG_TonKhoBTP_v02.Models.KeToan
         public string TenCongDoan { get; set; }
         public string TenThanhPham { get; set; }
         public string NoiDungLoi { get; set; }
+        public string LyDoLoi { get; set; }
         public bool Confirmed { get; set; }
     }
 

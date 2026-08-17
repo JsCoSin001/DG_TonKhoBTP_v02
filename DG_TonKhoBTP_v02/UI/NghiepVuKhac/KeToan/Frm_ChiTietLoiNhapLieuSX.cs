@@ -17,6 +17,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
         private readonly int _idLoi;
         private readonly int _ttThanhPhamId;
         private readonly string _tenThanhPham;
+        private readonly string _lyDoLoi;
         private bool _confirmed;
 
         public bool Confirmed
@@ -24,6 +25,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
             get { return _confirmed; }
         }
 
+        private const string ColSTT = "colSTT";
         private const string ColComponentId = "colComponentId";
         private const string ColTenNLBom = "colTenNLBom";
         private const string ColTenNLThucTe = "colTenNLThucTe";
@@ -33,6 +35,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
             int idLoi,
             int ttThanhPhamId,
             string tenThanhPham,
+            string lyDoLoi,
             bool confirmed)
         {
             InitializeComponent();
@@ -40,6 +43,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
             _idLoi = idLoi;
             _ttThanhPhamId = ttThanhPhamId;
             _tenThanhPham = tenThanhPham ?? string.Empty;
+            _lyDoLoi = lyDoLoi ?? string.Empty;
             _confirmed = confirmed;
 
             KhoiTaoBangChiTiet();
@@ -56,6 +60,11 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
                 ? "CHI TIẾT BOM VÀ NGUYÊN LIỆU THỰC TẾ"
                 : "CHI TIẾT BOM VÀ NGUYÊN LIỆU THỰC TẾ - "
                     + _tenThanhPham;
+
+            lblLyDoLoi.Text = string.IsNullOrWhiteSpace(_lyDoLoi)
+                ? string.Empty
+                : "Lý do lỗi: " + _lyDoLoi;
+            lblLyDoLoi.Visible = !string.IsNullOrWhiteSpace(_lyDoLoi);
 
             await TaiChiTietAsync();
         }
@@ -78,8 +87,18 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
             grvChiTiet.Columns.Add(
                 new DataGridViewTextBoxColumn
                 {
+                    Name = ColSTT,
+                    HeaderText = "STT",
+                    Width = 60,
+                    SortMode =
+                        DataGridViewColumnSortMode.NotSortable
+                });
+
+            grvChiTiet.Columns.Add(
+                new DataGridViewTextBoxColumn
+                {
                     Name = ColComponentId,
-                    HeaderText = "STT_BOM",
+                    HeaderText = "ComponentId",
                     Width = 110,
                     SortMode =
                         DataGridViewColumnSortMode.NotSortable
@@ -168,6 +187,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
 
                     DataGridViewRow row =
                         grvChiTiet.Rows[rowIndex];
+
+                    row.Cells[ColSTT].Value = rowIndex + 1;
 
                     row.Cells[ColComponentId].Value =
                         item.ComponentId.HasValue
@@ -402,6 +423,12 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
 
             table.Columns.Add(
                 grvChiTiet
+                    .Columns[ColSTT]
+                    .HeaderText,
+                typeof(string));
+
+            table.Columns.Add(
+                grvChiTiet
                     .Columns[ColComponentId]
                     .HeaderText,
                 typeof(string));
@@ -434,6 +461,9 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
                 }
 
                 table.Rows.Add(
+                    GetCellText(
+                        gridRow,
+                        ColSTT),
                     GetCellText(
                         gridRow,
                         ColComponentId),

@@ -13,6 +13,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
     public partial class UC_KiemTraDuLieu : UserControl
     {
         private const string ColChon = "colChon";
+        private const string ColSTT = "colSTT";
         private const string ColIdLoi = "colIdLoi";
         private const string ColTTThanhPhamId = "colTTThanhPhamId";
         private const string ColLotThanhPham = "colLotThanhPham";
@@ -23,6 +24,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
         private const string ColTenCongDoan = "colTenCongDoan";
         private const string ColTenThanhPham = "colTenThanhPham";
         private const string ColNoiDungLoi = "colNoiDungLoi";
+        private const string ColLyDoLoi = "colLyDoLoi";
         private const string ColConfirmed = "colConfirmed";
         private const string ColXacNhan = "colXacNhan";
         private const string ColDetail = "colDetail";
@@ -73,6 +75,15 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
 
             grvDsLoiNhapLieu.Columns.Add(new DataGridViewTextBoxColumn
             {
+                Name = ColSTT,
+                HeaderText = "STT",
+                Width = 60,
+                ReadOnly = true,
+                SortMode = DataGridViewColumnSortMode.NotSortable
+            });
+
+            grvDsLoiNhapLieu.Columns.Add(new DataGridViewTextBoxColumn
+            {
                 Name = ColIdLoi,
                 Visible = false,
                 ReadOnly = true
@@ -81,8 +92,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
             grvDsLoiNhapLieu.Columns.Add(new DataGridViewTextBoxColumn
             {
                 Name = ColTTThanhPhamId,
-                HeaderText = "STT",
-                Width = 90,
+                Visible = false,
                 ReadOnly = true,
                 SortMode = DataGridViewColumnSortMode.NotSortable
             });
@@ -159,7 +169,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
                 Name = ColTenThanhPham,
                 HeaderText = "Tên thành phẩm",
                 AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
-                FillWeight = 30,
+                FillWeight = 20,
                 ReadOnly = true,
                 DefaultCellStyle = new DataGridViewCellStyle
                 {
@@ -172,6 +182,20 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
             {
                 Name = ColNoiDungLoi,
                 HeaderText = "Nội dung lỗi",
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
+                FillWeight = 30,
+                ReadOnly = true,
+                DefaultCellStyle = new DataGridViewCellStyle
+                {
+                    WrapMode = DataGridViewTriState.True
+                },
+                SortMode = DataGridViewColumnSortMode.NotSortable
+            });
+
+            grvDsLoiNhapLieu.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                Name = ColLyDoLoi,
+                HeaderText = "Lý do lỗi",
                 AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
                 FillWeight = 50,
                 ReadOnly = true,
@@ -240,6 +264,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
                     DataGridViewRow row = grvDsLoiNhapLieu.Rows[rowIndex];
 
                     row.Cells[ColChon].Value = false;
+                    row.Cells[ColSTT].Value = rowIndex + 1;
                     row.Cells[ColIdLoi].Value = item.IdLoi;
                     row.Cells[ColTTThanhPhamId].Value = item.TTThanhPhamId;
                     row.Cells[ColLotThanhPham].Value = item.LotThanhPham;
@@ -250,6 +275,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
                     row.Cells[ColTenCongDoan].Value = item.TenCongDoan;
                     row.Cells[ColTenThanhPham].Value = item.TenThanhPham;
                     row.Cells[ColNoiDungLoi].Value = item.NoiDungLoi;
+                    row.Cells[ColLyDoLoi].Value = item.LyDoLoi;
                     row.Cells[ColConfirmed].Value = item.Confirmed;
                     row.Cells[ColXacNhan].Value = item.Confirmed ? "OK" : "Xác nhận";
                 }
@@ -364,6 +390,9 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
             table.Columns.Add("Công đoạn", typeof(string));
             table.Columns.Add("Tên thành phẩm", typeof(string));
             table.Columns.Add("Nội dung lỗi", typeof(string));
+            table.Columns.Add("Lý do lỗi", typeof(string));
+
+            int sttXuat = 0;
 
             foreach (DataGridViewRow row in grvDsLoiNhapLieu.Rows)
             {
@@ -372,8 +401,10 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
                     continue;
                 }
 
+                sttXuat++;
+
                 table.Rows.Add(
-                    GetCellString(row, ColTTThanhPhamId),
+                    sttXuat.ToString(),
                     GetCellString(row, ColNgay),
                     GetCellString(row, ColMay),
                     GetCellString(row, ColCa),
@@ -381,7 +412,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
                     GetCellString(row, ColLotThanhPham),
                     GetCellString(row, ColTenCongDoan),
                     GetCellString(row, ColTenThanhPham),
-                    GetCellString(row, ColNoiDungLoi));
+                    GetCellString(row, ColNoiDungLoi),
+                    GetCellString(row, ColLyDoLoi));
             }
 
             return table;
@@ -539,12 +571,14 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
             }
 
             string tenThanhPham = GetCellString(row, ColTenThanhPham);
+            string lyDoLoi = GetCellString(row, ColLyDoLoi);
             bool confirmed = GetBool(row.Cells[ColConfirmed].Value);
 
             using (var form = new Frm_ChiTietLoiNhapLieuSX(
                 idLoi,
                 ttThanhPhamId,
                 tenThanhPham,
+                lyDoLoi,
                 confirmed))
             {
                 Form owner = FindForm();

@@ -444,8 +444,8 @@ namespace DG_TonKhoBTP_v02.UI
 
             // Công đoạn 9 không sử dụng NVL nên không áp dụng kiểm tra này.
             // Các hàm kiểm tra con hiện chỉ là phần khung và mặc định không báo lỗi.
-            List<string> danhSachLoiNhapLieu = laCongDoan9
-                ? new List<string>()
+            List<LoiNhapLieuData> danhSachLoiNhapLieu = laCongDoan9
+                ? new List<LoiNhapLieuData>()
                 : KiemTraMoiQuanHeNguyenLieuThanhPham( thanhPham, nvlRows, _Cd);
 
 
@@ -581,20 +581,20 @@ namespace DG_TonKhoBTP_v02.UI
         /// Kiểm tra các mối quan hệ nghiệp vụ giữa thành phẩm và danh sách NVL.
         /// Hàm chỉ tổng hợp lỗi, không hiển thị giao diện và không truy cập database.
         /// </summary>
-        private static List<string> KiemTraMoiQuanHeNguyenLieuThanhPham(
+        private static List<LoiNhapLieuData> KiemTraMoiQuanHeNguyenLieuThanhPham(
             TTThanhPham thanhPham,
             List<TTNVLRow> nguyenVatLieu,
             CongDoan congDoan)
         {
-            var danhSachLoi = new List<string>();
-            string loi;
+            var danhSachLoi = new List<LoiNhapLieuData>();
+            LoiNhapLieuData loi;
 
             if (
-                    (loi = KiemTraBomNull(thanhPham)) != null 
+                    (loi = KiemTraBomNull(thanhPham)) != null
                         ||
-                    (loi = KTraSoLuongLoaiNguyenVatLieu( thanhPham, nguyenVatLieu, congDoan)) != null 
+                    (loi = KTraSoLuongLoaiNguyenVatLieu(thanhPham, nguyenVatLieu, congDoan)) != null
                         ||
-                    (loi = KiemTraSoLuongBin( thanhPham, nguyenVatLieu, congDoan)) != null
+                    (loi = KiemTraSoLuongBin(thanhPham, nguyenVatLieu, congDoan)) != null
                 )
             {
                 ThemLoiNeuCo(danhSachLoi, loi);
@@ -604,26 +604,65 @@ namespace DG_TonKhoBTP_v02.UI
         }
 
         private static void ThemLoiNeuCo(
-            List<string> danhSachLoi,
-            string noiDungLoi)
+            List<LoiNhapLieuData> danhSachLoi,
+            LoiNhapLieuData loi)
         {
-            if (danhSachLoi == null || string.IsNullOrWhiteSpace(noiDungLoi))
+            if (danhSachLoi == null ||
+                loi == null ||
+                string.IsNullOrWhiteSpace(loi.NoiDungLoi))
+            {
                 return;
+            }
 
-            if (!danhSachLoi.Contains(noiDungLoi))
-                danhSachLoi.Add(noiDungLoi);
+            if (!danhSachLoi.Any(x =>
+                    x != null &&
+                    string.Equals(
+                        x.NoiDungLoi,
+                        loi.NoiDungLoi,
+                        StringComparison.Ordinal)))
+            {
+                danhSachLoi.Add(loi);
+            }
+        }
+
+        private static LoiNhapLieuData TaoLoiNhapLieu(
+            string noiDungLoi,
+            string lyDoLoi)
+        {
+            if (string.IsNullOrWhiteSpace(noiDungLoi))
+                return null;
+
+            return new LoiNhapLieuData
+            {
+                NoiDungLoi = noiDungLoi.Trim(),
+                LyDoLoi = string.IsNullOrWhiteSpace(lyDoLoi)
+                    ? string.Empty
+                    : lyDoLoi.Trim()
+            };
         }
 
         /// <summary>
         /// Kiểm tra thành phẩm có danh sách BOM để thực hiện các kiểm tra
         /// quan hệ nguyên vật liệu hay không.
         /// </summary>
-        private static string KiemTraBomNull(TTThanhPham thanhPham)
+        private static LoiNhapLieuData KiemTraBomNull(TTThanhPham thanhPham)
         {
-            return thanhPham?.BomComponents == null ||
-                   thanhPham.BomComponents.Count == 0
-                ? DanhSachLoiNhapLieuSX.Loi_BomNull
-                : null;
+            if (thanhPham?.BomComponents != null &&
+                thanhPham.BomComponents.Count > 0)
+            {
+                return null;
+            }
+
+            string tenThanhPham = thanhPham?.TenTP ?? string.Empty;
+            int danhSachMaSpId = thanhPham?.DanhSachSP_ID ?? 0;
+
+            string lyDo =
+                $"Thành phẩm {tenThanhPham} " +
+                $"(DanhSachMaSP_ID = {danhSachMaSpId}) không có BOM.";
+
+            return TaoLoiNhapLieu(
+                DanhSachLoiNhapLieuSX.Loi_BomNull,
+                lyDo);
         }
 
         private static string KiemTraThanhPhamNguyenLieuKhongKhopBOM(
@@ -655,7 +694,6 @@ namespace DG_TonKhoBTP_v02.UI
                 : null;
         }
 
-
         /// <summary>
         /// Xác định component BOM có bắt buộc xuất hiện hay không.
         /// Component khác KieuSP = "NVL" luôn bắt buộc. Component NVL chỉ
@@ -673,17 +711,41 @@ namespace DG_TonKhoBTP_v02.UI
             return component.LaNVLBatBuoc;
         }
 
+        private static string TaoLyDoBomYeuCau(
+            IEnumerable<BomComponentData> components)
+        {
+            List<BomComponentData> danhSach = (components ??
+                    Enumerable.Empty<BomComponentData>())
+                .Where(x => x != null)
+                .GroupBy(x => x.ComponentId)
+                .Select(g => g.First())
+                .ToList();
+
+            if (danhSach.Count == 0)
+                return string.Empty;
+
+            return "BOM yêu cầu " + string.Join(
+                "; ",
+                danhSach.Select(x =>
+                    $"{x.ComponentTen ?? string.Empty} " +
+                    $"(ComponentId = {x.ComponentId})")) + ".";
+        }
+
         /// <summary>
         /// Kiểm tra mỗi component bắt buộc trong BOM có xuất hiện ít nhất
         /// một lần trong danh sách nguyên vật liệu thực tế hay không.
         /// </summary>
-        private static string KTraSoLuongLoaiNguyenVatLieu(
+        private static LoiNhapLieuData KTraSoLuongLoaiNguyenVatLieu(
             TTThanhPham thanhPham,
             List<TTNVLRow> nguyenVatLieu,
             CongDoan congDoan)
         {
             if (nguyenVatLieu == null || nguyenVatLieu.Count == 0)
-                return DanhSachLoiNhapLieuSX.Loi_SoLuongNVL;
+            {
+                return TaoLoiNhapLieu(
+                    DanhSachLoiNhapLieuSX.Loi_SoLuongNVL,
+                    TaoLyDoBomYeuCau(thanhPham?.BomComponents));
+            }
 
             // Công đoạn kéo rút:
             // Loại NVL phải tương ứng với loại được xác định từ tên component BOM.
@@ -694,7 +756,11 @@ namespace DG_TonKhoBTP_v02.UI
                         thanhPham.BomComponents);
 
                 if (loaiBom == LoaiBomCongDoan0.KhongXacDinh)
-                    return DanhSachLoiNhapLieuSX.Loi_KhongXacDinh;
+                {
+                    return TaoLoiNhapLieu(
+                        DanhSachLoiNhapLieuSX.Loi_KhongXacDinh,
+                        "Không xác định được loại BOM.");
+                }
 
                 bool coNguyenVatLieuKhongHopLe = nguyenVatLieu.Any(nvl =>
                     nvl == null ||
@@ -703,7 +769,9 @@ namespace DG_TonKhoBTP_v02.UI
                         nvl.TenNVL));
 
                 return coNguyenVatLieuKhongHopLe
-                    ? DanhSachLoiNhapLieuSX.Loi_TP_Nl_KhongKhop
+                    ? TaoLoiNhapLieu(
+                        DanhSachLoiNhapLieuSX.Loi_TP_Nl_KhongKhop,
+                        TaoLyDoBomYeuCau(thanhPham.BomComponents))
                     : null;
             }
 
@@ -711,41 +779,44 @@ namespace DG_TonKhoBTP_v02.UI
             // Các công đoạn khác kiểm tra NVL có thuộc BOM hay không.
             if (congDoan?.Id != 1)
             {
-                // Kiểm tra theo mã:
-                // Các component bắt buộc trong BOM phải xuất hiện trong NVL thực tế.
                 var componentIdsThucTe = new HashSet<int>(
                     nguyenVatLieu
                         .Where(nvl => nvl?.DanhSachMaSP_ID != null)
                         .Select(nvl => nvl.DanhSachMaSP_ID.Value));
 
-                bool thieuComponentBatBuoc = thanhPham.BomComponents
+                List<BomComponentData> componentBiThieu = thanhPham.BomComponents
                     .Where(LaComponentBatBuoc)
-                    .Any(component =>
+                    .Where(component =>
                         component == null ||
-                        !componentIdsThucTe.Contains(component.ComponentId));
+                        !componentIdsThucTe.Contains(component.ComponentId))
+                    .ToList();
 
-                return thieuComponentBatBuoc
-                    ? DanhSachLoiNhapLieuSX.Loi_SoLuongNVL
+                return componentBiThieu.Count > 0
+                    ? TaoLoiNhapLieu(
+                        DanhSachLoiNhapLieuSX.Loi_SoLuongNVL,
+                        TaoLyDoBomYeuCau(componentBiThieu))
                     : null;
             }
 
             return null;
         }
 
-
         /// <summary>
-        /// Khung kiểm tra số lượng Bin.
-        /// Mặc định không báo lỗi cho tới khi bổ sung quy tắc nghiệp vụ.
+        /// Kiểm tra số lượng Bin theo cấu trúc tên và các quy tắc dự phòng.
         /// </summary>
-        private static string KiemTraSoLuongBin(
+        private static LoiNhapLieuData KiemTraSoLuongBin(
             TTThanhPham thanhPham,
             List<TTNVLRow> nguyenVatLieu,
             CongDoan congDoan)
         {
-            return KiemTraSoLuongBinHelper.KiemTra(
+            string lyDoLoi;
+            string noiDungLoi = KiemTraSoLuongBinHelper.KiemTra(
                 thanhPham,
                 nguyenVatLieu,
-                congDoan);
+                congDoan,
+                out lyDoLoi);
+
+            return TaoLoiNhapLieu(noiDungLoi, lyDoLoi);
         }
 
         /// <summary>
@@ -855,7 +926,9 @@ namespace DG_TonKhoBTP_v02.UI
                 return true;
 
             List<string> danhSachLoi = submitData.DanhSachLoiNhapLieu?
-                .Where(LoiNhapLieuCanXacNhan)
+                .Where(x => x != null && LoiNhapLieuCanXacNhan(x.NoiDungLoi))
+                .Select(x => x.NoiDungLoi)
+                .Where(x => !string.IsNullOrWhiteSpace(x))
                 .Distinct()
                 .ToList()
                 ?? new List<string>();

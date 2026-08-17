@@ -15,7 +15,7 @@ namespace DG_TonKhoBTP_v02.Models.SanXuat
         public TTThanhPham ThongTinThanhPham { get; set; }
         public List<TTNVLRow> NguyenVatLieuRows { get; set; }
         public List<TTNVL> NguyenVatLieu { get; set; }
-        public List<string> DanhSachLoiNhapLieu { get; set; } = new List<string>();
+        public List<LoiNhapLieuData> DanhSachLoiNhapLieu { get; set; } = new List<LoiNhapLieuData>();
         public SubmitCongDoanData CongDoan { get; set; }
         public bool ShouldPrintThanhPham { get; set; }
         public bool ShouldPrintNguyenVatLieu { get; set; }
@@ -40,4 +40,13 @@ namespace DG_TonKhoBTP_v02.Models.SanXuat
         public string SaveError { get; set; }
         public string PrintError { get; set; }
     }
+    /// <summary>
+    /// Một lỗi nhập liệu cùng lý do snapshot tại thời điểm kiểm tra.
+    /// </summary>
+    internal sealed class LoiNhapLieuData
+    {
+        public string NoiDungLoi { get; set; }
+        public string LyDoLoi { get; set; }
+    }
+
 }

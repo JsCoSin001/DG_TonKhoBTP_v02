@@ -717,7 +717,7 @@ namespace DG_TonKhoBTP_v02.UI.Helper
                     viTriA + 1,
                     StringComparison.OrdinalIgnoreCase);
 
-                if (viTriA <= 0 || viTriX <= viTriA + 1 || viTriX >= tenCauTruc.Length - 1)
+                if (viTriA <= 0 || viTriX != viTriA + 1 || viTriX >= tenCauTruc.Length - 1)
                 {
                     noiDungLoi =
                         $"Cấu trúc A không đúng định dạng '<đường kính>Ax<số sợi>': '{tenCauTruc}'.";

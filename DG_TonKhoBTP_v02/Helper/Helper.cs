@@ -226,8 +226,8 @@ namespace DG_TonKhoBTP_v02.Helper
             string sql = @"
                 SELECT
                     t.CongDoan      AS CongDoan,
-                    t.KhoiLuongSau  AS KlBatDau,
-                    t.ChieuDaiSau   AS CDBatDau,
+                    t.KhoiLuongSau  AS KlConLai,
+                    t.ChieuDaiSau   AS CdConLai,
                     t.id            AS id,
                     d.Ma            AS MaNVL,
                     d.Ten           AS TenNVL,

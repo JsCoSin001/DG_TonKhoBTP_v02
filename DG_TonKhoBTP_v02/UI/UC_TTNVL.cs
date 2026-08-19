@@ -1214,7 +1214,7 @@ namespace DG_TonKhoBTP_v02.UI
 
             ketQua.KlConLai = Math.Max(0, khoiLuongNVL - khoiLuongTP);
 
-            ketQua.CdConLai = chieuDaiNvl == 0 ? 0 : Convert.ToDouble(thanhPham.ChieuDai) - chieuDaiNvl;
+            ketQua.CdConLai = Math.Max(0, Convert.ToDouble(thanhPham.ChieuDai) - chieuDaiNvl);
 
         }
 

@@ -249,7 +249,14 @@ namespace DG_TonKhoBTP_v02.Database.KeToan.VatTuKhac
                             dssp.Ten AS TenVatTuDanhMuc,
                             dssp.DonVi,
                             dsk.TenKho,
-                            ncc.TenNcc AS DoiTuongCongNo
+                            ncc.TenNcc AS DoiTuongCongNo,
+
+                        CASE
+                            WHEN lsxn.canEdit = 0 THEN 'Đã khoá'
+                            WHEN lsxn.canEdit = 1 THEN ''
+                            ELSE ''
+                        END AS TinhTrang
+
                         FROM LichSuXuatNhap lsxn
                         INNER JOIN ThongTinDatHang ttdh
                             ON lsxn.ThongTinDatHang_ID = ttdh.id
@@ -395,7 +402,14 @@ namespace DG_TonKhoBTP_v02.Database.KeToan.VatTuKhac
                         strftime('%d/%m/%Y', ttdh.NgayGiao) AS NgayGiao,
                         strftime('%d/%m/%Y', ttdh.Date_Insert) AS Date_Insert,
                         lsxn.canEdit AS canEdit,
-                        ttdh.DonGia AS DonGia
+                        ttdh.DonGia AS DonGia,
+
+                        CASE
+                            WHEN lsxn.canEdit = 0 THEN 'Đã khoá'
+                            WHEN lsxn.canEdit = 1 THEN ''
+                            ELSE ''
+                        END AS TinhTrang
+
                     FROM LichSuXuatNhap lsxn
                     INNER JOIN ThongTinDatHang ttdh
                         ON lsxn.ThongTinDatHang_ID = ttdh.id

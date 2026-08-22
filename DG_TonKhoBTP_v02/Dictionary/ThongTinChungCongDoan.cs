@@ -177,7 +177,7 @@ namespace DG_TonKhoBTP_v02.Dictionary
             "Hàn Nối / Ghép bin",
             EnumStore.MayTheoCongDoan["Machine_All"],
             BaseColumns(),
-            new List<string> { "BTP.20102%", "BTP.20202%" },
+            new List<string> { "BTP.20102%", "BTP.20202%" , "BTP.20101%", "BTP.20201%" },
             Select_TP_CoKhoiLuong(),
             new Dictionary<string, decimal> { { "klConLai", 0.0m }, { "cdConLai", 0.0m } }
         );

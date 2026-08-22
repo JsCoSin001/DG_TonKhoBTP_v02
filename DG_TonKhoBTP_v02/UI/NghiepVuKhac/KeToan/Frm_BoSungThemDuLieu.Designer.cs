@@ -93,6 +93,14 @@
             this.panel1 = new System.Windows.Forms.Panel();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.grv = new System.Windows.Forms.DataGridView();
+            this.id = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ma = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ten = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.tyLe = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.tyLeHoanDoi = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.congDoan = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.active = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colDelete = new System.Windows.Forms.DataGridViewButtonColumn();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.tableLayoutPanel5 = new System.Windows.Forms.TableLayoutPanel();
             this.label35 = new System.Windows.Forms.Label();
@@ -123,14 +131,6 @@
             this.label34 = new System.Windows.Forms.Label();
             this.label9 = new System.Windows.Forms.Label();
             this.tabPage1 = new System.Windows.Forms.TabPage();
-            this.id = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.ma = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.ten = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.tyLe = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.tyLeHoanDoi = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.congDoan = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.active = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colDelete = new System.Windows.Forms.DataGridViewButtonColumn();
             this.groupBox1.SuspendLayout();
             this.tableLayoutPanel3.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
@@ -888,6 +888,63 @@
             this.grv.Size = new System.Drawing.Size(1114, 366);
             this.grv.TabIndex = 0;
             // 
+            // id
+            // 
+            this.id.DataPropertyName = "id";
+            this.id.HeaderText = "STT";
+            this.id.Name = "id";
+            this.id.Width = 60;
+            // 
+            // ma
+            // 
+            this.ma.DataPropertyName = "ma";
+            this.ma.HeaderText = "Mã";
+            this.ma.Name = "ma";
+            this.ma.Width = 120;
+            // 
+            // ten
+            // 
+            this.ten.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.ten.DataPropertyName = "ten";
+            this.ten.HeaderText = "Tên Nguyên Liệu";
+            this.ten.Name = "ten";
+            // 
+            // tyLe
+            // 
+            this.tyLe.DataPropertyName = "tyLe";
+            this.tyLe.HeaderText = "Tỷ lệ";
+            this.tyLe.Name = "tyLe";
+            this.tyLe.Width = 150;
+            // 
+            // tyLeHoanDoi
+            // 
+            this.tyLeHoanDoi.DataPropertyName = "tyLeHoanDoi";
+            this.tyLeHoanDoi.HeaderText = "T.Lệ Hoán đổi";
+            this.tyLeHoanDoi.Name = "tyLeHoanDoi";
+            this.tyLeHoanDoi.Width = 150;
+            // 
+            // congDoan
+            // 
+            this.congDoan.DataPropertyName = "congDoan";
+            this.congDoan.HeaderText = "Tên Công Đoạn";
+            this.congDoan.Name = "congDoan";
+            this.congDoan.Visible = false;
+            this.congDoan.Width = 200;
+            // 
+            // active
+            // 
+            this.active.DataPropertyName = "active";
+            this.active.HeaderText = "Kích hoạt";
+            this.active.Name = "active";
+            this.active.Width = 93;
+            // 
+            // colDelete
+            // 
+            this.colDelete.DataPropertyName = "colDelete";
+            this.colDelete.HeaderText = "";
+            this.colDelete.Name = "colDelete";
+            this.colDelete.Width = 70;
+            // 
             // groupBox2
             // 
             this.groupBox2.AutoSize = true;
@@ -954,6 +1011,7 @@
             this.cbxCongDoan.Name = "cbxCongDoan";
             this.cbxCongDoan.Size = new System.Drawing.Size(391, 26);
             this.cbxCongDoan.TabIndex = 1;
+            this.cbxCongDoan.Visible = false;
             // 
             // label36
             // 
@@ -974,6 +1032,7 @@
             this.label37.Size = new System.Drawing.Size(79, 18);
             this.label37.TabIndex = 0;
             this.label37.Text = "Công đoạn";
+            this.label37.Visible = false;
             // 
             // label38
             // 
@@ -1249,63 +1308,6 @@
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Thông tin khác";
             this.tabPage1.UseVisualStyleBackColor = true;
-            // 
-            // id
-            // 
-            this.id.DataPropertyName = "id";
-            this.id.HeaderText = "STT";
-            this.id.Name = "id";
-            this.id.Width = 60;
-            // 
-            // ma
-            // 
-            this.ma.DataPropertyName = "ma";
-            this.ma.HeaderText = "Mã";
-            this.ma.Name = "ma";
-            this.ma.Width = 120;
-            // 
-            // ten
-            // 
-            this.ten.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.ten.DataPropertyName = "ten";
-            this.ten.HeaderText = "Tên Nguyên Liệu";
-            this.ten.Name = "ten";
-            // 
-            // tyLe
-            // 
-            this.tyLe.DataPropertyName = "tyLe";
-            this.tyLe.HeaderText = "Tỷ lệ";
-            this.tyLe.Name = "tyLe";
-            this.tyLe.Width = 150;
-            // 
-            // tyLeHoanDoi
-            // 
-            this.tyLeHoanDoi.DataPropertyName = "tyLeHoanDoi";
-            this.tyLeHoanDoi.HeaderText = "T.Lệ Hoán đổi";
-            this.tyLeHoanDoi.Name = "tyLeHoanDoi";
-            this.tyLeHoanDoi.Width = 150;
-            // 
-            // congDoan
-            // 
-            this.congDoan.DataPropertyName = "congDoan";
-            this.congDoan.HeaderText = "Tên Công Đoạn";
-            this.congDoan.Name = "congDoan";
-            this.congDoan.Visible = false;
-            this.congDoan.Width = 200;
-            // 
-            // active
-            // 
-            this.active.DataPropertyName = "active";
-            this.active.HeaderText = "Kích hoạt";
-            this.active.Name = "active";
-            this.active.Width = 93;
-            // 
-            // colDelete
-            // 
-            this.colDelete.DataPropertyName = "colDelete";
-            this.colDelete.HeaderText = "";
-            this.colDelete.Name = "colDelete";
-            this.colDelete.Width = 70;
             // 
             // Frm_BoSungThemDuLieu
             // 

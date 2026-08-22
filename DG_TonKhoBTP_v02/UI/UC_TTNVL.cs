@@ -1090,7 +1090,9 @@ namespace DG_TonKhoBTP_v02.UI
             IList<KetQuaGiaTriConLai> ketQuaDaTinh = new List<KetQuaGiaTriConLai>();
 
             string tenTP = PhanTachCauTrucDay.PhanTich(thanhPham.TenTP).PhanChinh;
-            double tietDienTP = LayGiaTriSo_CD_Rut(tenTP);
+            //double tietDienTP = LayGiaTriSo_CD_Rut(tenTP);
+
+            int soLuong = LaySoLuongSauX(tenTP);
 
             foreach (TTNVLRow item in nvlRows)
             {
@@ -1103,7 +1105,7 @@ namespace DG_TonKhoBTP_v02.UI
 
                 double tietDienNVL = Math.Pow(dkNVL / 2, 2) * Math.PI;
 
-                kq.KlConLai = Math.Max(0, (item.KlConLai ?? 0) - (double)thanhPham.KhoiLuong);
+                kq.KlConLai = Math.Max(0, (item.KlConLai ?? 0) - (double)thanhPham.KhoiLuong/soLuong);
 
                 kq.CdConLai = tietDienNVL > 0 ? kq.KlConLai * 1000 / (8.96 * tietDienNVL) : null;
 
@@ -1111,6 +1113,23 @@ namespace DG_TonKhoBTP_v02.UI
             }
 
             GanKetQuaGiaTriConLai(nvlRows, ketQuaDaTinh);
+        }
+
+        private static int LaySoLuongSauX(string ten)
+        {
+            if (string.IsNullOrWhiteSpace(ten))
+                return 1;
+
+            int viTriX = ten.LastIndexOfAny(new[] { 'x', 'X' });
+
+            if (viTriX < 0 || viTriX >= ten.Length - 1)
+                return 1;
+
+            string phanSauX = ten.Substring(viTriX + 1).Trim();
+
+            return int.TryParse(phanSauX, out int soLuong) && soLuong > 0
+                ? soLuong
+                : 1;
         }
 
 

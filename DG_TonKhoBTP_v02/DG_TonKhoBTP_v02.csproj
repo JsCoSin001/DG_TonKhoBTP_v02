@@ -733,9 +733,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Assets\logo.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+    <Content Include="Assets\logo.png" />
     <Content Include="Assets\loginSuccess.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

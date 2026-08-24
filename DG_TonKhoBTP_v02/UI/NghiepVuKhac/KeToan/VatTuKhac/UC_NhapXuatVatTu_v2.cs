@@ -72,6 +72,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
 
             _model = model ?? throw new ArgumentNullException(nameof(model));
 
+            ngayNhap_Xuat.Value = DateTime.Today;
+
             InitUITheoKieuNhapXuat();
             InitNumericControls();
             InitGrid();

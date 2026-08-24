@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             this.lblTitle = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
             this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
@@ -128,7 +128,7 @@
             this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 81.75676F));
             this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 484F));
             this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 242F));
-            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 331F));
+            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 332F));
             this.tableLayoutPanel3.Controls.Add(this.cbxTimKiem_Edit, 1, 0);
             this.tableLayoutPanel3.Controls.Add(this.label14, 0, 0);
             this.tableLayoutPanel3.Controls.Add(this.btnInPhieu, 4, 0);
@@ -145,9 +145,9 @@
             // 
             this.cbxTimKiem_Edit.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbxTimKiem_Edit.FormattingEnabled = true;
-            this.cbxTimKiem_Edit.Location = new System.Drawing.Point(92, 28);
+            this.cbxTimKiem_Edit.Location = new System.Drawing.Point(92, 26);
             this.cbxTimKiem_Edit.Name = "cbxTimKiem_Edit";
-            this.cbxTimKiem_Edit.Size = new System.Drawing.Size(394, 26);
+            this.cbxTimKiem_Edit.Size = new System.Drawing.Size(393, 26);
             this.cbxTimKiem_Edit.TabIndex = 0;
             // 
             // label14
@@ -163,7 +163,7 @@
             // btnInPhieu
             // 
             this.btnInPhieu.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.btnInPhieu.Location = new System.Drawing.Point(1218, 9);
+            this.btnInPhieu.Location = new System.Drawing.Point(1217, 9);
             this.btnInPhieu.Name = "btnInPhieu";
             this.btnInPhieu.Size = new System.Drawing.Size(142, 60);
             this.btnInPhieu.TabIndex = 3;
@@ -277,7 +277,7 @@
             // 
             this.cbxNcc.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbxNcc.FormattingEnabled = true;
-            this.cbxNcc.Location = new System.Drawing.Point(453, 31);
+            this.cbxNcc.Location = new System.Drawing.Point(453, 28);
             this.cbxNcc.Name = "cbxNcc";
             this.cbxNcc.Size = new System.Drawing.Size(294, 26);
             this.cbxNcc.TabIndex = 17;
@@ -294,7 +294,7 @@
             // 
             this.cbxKhoHang.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbxKhoHang.FormattingEnabled = true;
-            this.cbxKhoHang.Location = new System.Drawing.Point(153, 31);
+            this.cbxKhoHang.Location = new System.Drawing.Point(153, 28);
             this.cbxKhoHang.Name = "cbxKhoHang";
             this.cbxKhoHang.Size = new System.Drawing.Size(294, 26);
             this.cbxKhoHang.TabIndex = 17;
@@ -452,7 +452,7 @@
             this.ngayNhap_Xuat.Name = "ngayNhap_Xuat";
             this.ngayNhap_Xuat.Size = new System.Drawing.Size(102, 24);
             this.ngayNhap_Xuat.TabIndex = 15;
-            this.ngayNhap_Xuat.Value = new System.DateTime(2026, 7, 4, 0, 0, 0, 0);
+            this.ngayNhap_Xuat.Value = new System.DateTime(2026, 8, 24, 11, 2, 56, 0);
             // 
             // label6
             // 
@@ -503,7 +503,7 @@
             // 
             this.cbxTim.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbxTim.FormattingEnabled = true;
-            this.cbxTim.Location = new System.Drawing.Point(303, 31);
+            this.cbxTim.Location = new System.Drawing.Point(303, 28);
             this.cbxTim.Name = "cbxTim";
             this.cbxTim.Size = new System.Drawing.Size(312, 26);
             this.cbxTim.TabIndex = 17;
@@ -621,14 +621,14 @@
             // dgvChiTietDon
             // 
             this.dgvChiTietDon.AllowUserToAddRows = false;
-            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Control;
-            dataGridViewCellStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.WindowText;
-            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dgvChiTietDon.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dgvChiTietDon.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle2;
             this.dgvChiTietDon.ColumnHeadersHeight = 35;
             this.dgvChiTietDon.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
             this.dgvChiTietDon.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {

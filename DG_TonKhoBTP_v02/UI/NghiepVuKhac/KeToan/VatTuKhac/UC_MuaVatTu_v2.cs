@@ -681,8 +681,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
             ClearVatTuInfoControls();
             tbMucDichMua.Clear();
             nbrSLMua.Value = nbrSLMua.Minimum;
-            cbNgayGiao.Checked = true;
-            dtNgayGiao.Enabled = true;
+            //cbNgayGiao.Checked = true;
+            //dtNgayGiao.Enabled = true;
             dtNgayGiao.Value = DateTime.Today;
             ConfigureControlsByKieuDon();
         }

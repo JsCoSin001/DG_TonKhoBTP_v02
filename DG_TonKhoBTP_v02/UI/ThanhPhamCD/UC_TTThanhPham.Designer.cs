@@ -47,11 +47,11 @@
             this.label1 = new System.Windows.Forms.Label();
             this.khoiLuong = new System.Windows.Forms.NumericUpDown();
             this.chieuDai = new System.Windows.Forms.NumericUpDown();
-            this.phe = new System.Windows.Forms.NumericUpDown();
             this.GhiChu = new System.Windows.Forms.RichTextBox();
             this.label6 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
+            this.btnNhapPhe = new System.Windows.Forms.Button();
             this.panel3 = new System.Windows.Forms.Panel();
             this.tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
             this.ten = new System.Windows.Forms.TextBox();
@@ -74,7 +74,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.soBin)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.khoiLuong)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.chieuDai)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.phe)).BeginInit();
             this.panel3.SuspendLayout();
             this.tableLayoutPanel4.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
@@ -135,11 +134,11 @@
             this.tableLayoutPanel1.Controls.Add(this.label1, 5, 0);
             this.tableLayoutPanel1.Controls.Add(this.khoiLuong, 7, 1);
             this.tableLayoutPanel1.Controls.Add(this.chieuDai, 8, 1);
-            this.tableLayoutPanel1.Controls.Add(this.phe, 9, 1);
             this.tableLayoutPanel1.Controls.Add(this.GhiChu, 11, 0);
             this.tableLayoutPanel1.Controls.Add(this.label6, 7, 0);
             this.tableLayoutPanel1.Controls.Add(this.label7, 8, 0);
             this.tableLayoutPanel1.Controls.Add(this.label8, 9, 0);
+            this.tableLayoutPanel1.Controls.Add(this.btnNhapPhe, 9, 1);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
@@ -330,9 +329,9 @@
             // 
             // chieuDai
             // 
-            this.chieuDai.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.chieuDai.DecimalPlaces = 1;
-            this.chieuDai.Location = new System.Drawing.Point(534, 24);
+            this.chieuDai.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.chieuDai.Location = new System.Drawing.Point(534, 22);
             this.chieuDai.Maximum = new decimal(new int[] {
             210000,
             0,
@@ -342,15 +341,6 @@
             this.chieuDai.Size = new System.Drawing.Size(61, 26);
             this.chieuDai.TabIndex = 8;
             this.chieuDai.ValueChanged += new System.EventHandler(this.chieuDai_ValueChanged);
-            // 
-            // phe
-            // 
-            this.phe.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.phe.DecimalPlaces = 1;
-            this.phe.Location = new System.Drawing.Point(601, 24);
-            this.phe.Name = "phe";
-            this.phe.Size = new System.Drawing.Size(52, 26);
-            this.phe.TabIndex = 9;
             // 
             // GhiChu
             // 
@@ -398,6 +388,16 @@
             this.label8.TabIndex = 38;
             this.label8.Text = "Phế";
             this.label8.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
+            // 
+            // btnNhapPhe
+            // 
+            this.btnNhapPhe.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnNhapPhe.Location = new System.Drawing.Point(601, 22);
+            this.btnNhapPhe.Name = "btnNhapPhe";
+            this.btnNhapPhe.Size = new System.Drawing.Size(52, 23);
+            this.btnNhapPhe.TabIndex = 39;
+            this.btnNhapPhe.Text = "Nhập";
+            this.btnNhapPhe.UseVisualStyleBackColor = true;
             // 
             // panel3
             // 
@@ -568,7 +568,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.soBin)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.khoiLuong)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.chieuDai)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.phe)).EndInit();
             this.panel3.ResumeLayout(false);
             this.tableLayoutPanel4.ResumeLayout(false);
             this.tableLayoutPanel4.PerformLayout();
@@ -613,10 +612,10 @@
         private System.Windows.Forms.TextBox soLOT;
         private System.Windows.Forms.NumericUpDown khoiLuong;
         private System.Windows.Forms.NumericUpDown chieuDai;
-        private System.Windows.Forms.NumericUpDown phe;
         private System.Windows.Forms.RichTextBox GhiChu;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.Button btnNhapPhe;
     }
 }

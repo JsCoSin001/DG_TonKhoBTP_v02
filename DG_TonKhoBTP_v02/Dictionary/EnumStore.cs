@@ -115,6 +115,7 @@ public static class EnumStore
             { "GhepLoi", May("P1", "P2", "P3", "P4", "P5", "P6", "B1","B2","B5","B6", "B10", "B13", "B14", "B15", "B16") },
             { "QB_AL_Cu", May("T1", "T2", "T5","B10", "B13", "B14", "B15", "B16", "B17","P6") },
             { "QB_Mica", May("T3", "T4", "T5", "T6") },
+            { "Chieu_Xa", May("CX_1") },
             { "Machine_All", May(
                 "R6", "R10", "R12", "MD16A4",
                 "B1", "B2", "B3", "B4", "B5", "B6", "B7", "B8", "B9", "B10", "B13", "B14", "B15", "B16", "B17",
@@ -224,8 +225,6 @@ public static class EnumStore
         { 1, "Đúng kế hoạch"},
         { 2, "Bình thường" }
     };
-
-
 
     public static Dictionary<int, string> Get(StoreKeyKeHoach key)
     {

@@ -240,6 +240,12 @@
     <Compile Include="UI\Authentication\FrmChangePassword.Designer.cs">
       <DependentUpon>FrmChangePassword.cs</DependentUpon>
     </Compile>
+    <Compile Include="UI\CD_ChieuXa\UC_ChieuXa.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\CD_ChieuXa\UC_ChieuXa.Designer.cs">
+      <DependentUpon>UC_ChieuXa.cs</DependentUpon>
+    </Compile>
     <Compile Include="UI\Helper\AutoSearchWithCombobox\ComboBoxSearchHelper.cs" />
     <Compile Include="UI\Helper\AutoSearchWithCombobox\VatTuPhu.cs" />
     <Compile Include="UI\Helper\KiemTraSoLuongBinHelper.cs" />
@@ -565,6 +571,9 @@
     </Compile>
     <EmbeddedResource Include="UI\Authentication\FrmChangePassword.resx">
       <DependentUpon>FrmChangePassword.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\CD_ChieuXa\UC_ChieuXa.resx">
+      <DependentUpon>UC_ChieuXa.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UI\NghiepVuKhac\KeToan\Frm_BoSungThemDuLieu.resx">
       <DependentUpon>Frm_BoSungThemDuLieu.cs</DependentUpon>

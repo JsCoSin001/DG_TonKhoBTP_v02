@@ -182,6 +182,16 @@ namespace DG_TonKhoBTP_v02.Dictionary
             new Dictionary<string, decimal> { { "klConLai", 0.0m }, { "cdConLai", 0.0m } }
         );
 
+        public static readonly CongDoan ChieuXa = new CongDoan(
+           10,
+           "Chiếu Xạ",
+           EnumStore.MayTheoCongDoan["Chieu_Xa"],
+            BaseColumns(),
+           new List<string> { "TP.356%", "GCCX.101" },
+           Select_TP_CoKhoiLuong(),
+           new Dictionary<string, decimal> { { "klConLai", 5.0m }, { "cdConLai", 5.0m } }
+       );
+
 
         public static readonly List<CongDoan> TatCaCongDoan = new List<CongDoan>
         {

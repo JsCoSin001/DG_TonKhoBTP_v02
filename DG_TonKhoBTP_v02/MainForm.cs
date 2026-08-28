@@ -24,6 +24,7 @@ using System.Linq;
 using System.Windows.Forms;
 using CoreHelper = DG_TonKhoBTP_v02.Helper.Helper;
 using DG_TonKhoBTP_v02.UI.NghiepVuKhac.SanXuat;
+using DG_TonKhoBTP_v02.UI.CD_ChieuXa;
 
 namespace DG_TonKhoBTP_v02
 {
@@ -31,7 +32,7 @@ namespace DG_TonKhoBTP_v02
     {
         private string _URL = Properties.Settings.Default.URL;
         private CongDoanUiService _ui;
-        private string _ver = "2.7.12";
+        private string _ver = "2.8.0";
         private bool show = false;
         private void InitUiService()
         {
@@ -132,8 +133,6 @@ namespace DG_TonKhoBTP_v02
                 afterShowUI: root => _ui.HookNvlThanhPham(root)
             );
             //HienThiCauTruc();
-
-
         }
 
         private void btnGhepLoi_Click(object sender, EventArgs e)
@@ -241,6 +240,19 @@ namespace DG_TonKhoBTP_v02
             );
 
             HienThiCauTruc();
+        }
+
+
+        private void btnChieuXa_Click(object sender, EventArgs e)
+        {
+            _ui.InitCongDoanUI(
+                clickedButton: (Button)sender,
+                thongTinCD: ThongTinChungCongDoan.ChieuXa,
+                createSanPham: () => new UC_TTSanPham(new UC_ChieuXa()),
+                rawMaterial: true,
+                errorMessagePrefix: "chiếu xạ",
+                afterShowUI: root => _ui.HookNvlThanhPham(root)
+            );
         }
 
         private void btnCapNhatMaHang_Click(object sender, EventArgs e)
@@ -1559,6 +1571,7 @@ namespace DG_TonKhoBTP_v02
             );
         }
 
+
         private void btnKiemKe_Click(object sender, EventArgs e)
         {
             if (!UserContext.IsAuthenticated)
@@ -1695,5 +1708,6 @@ namespace DG_TonKhoBTP_v02
                 }
             }
         }
+
     }
 }

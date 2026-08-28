@@ -218,7 +218,7 @@
             // 
             this.cbxNguoiKK_CauHinh.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbxNguoiKK_CauHinh.FormattingEnabled = true;
-            this.cbxNguoiKK_CauHinh.Location = new System.Drawing.Point(351, 16);
+            this.cbxNguoiKK_CauHinh.Location = new System.Drawing.Point(351, 14);
             this.cbxNguoiKK_CauHinh.Name = "cbxNguoiKK_CauHinh";
             this.cbxNguoiKK_CauHinh.Size = new System.Drawing.Size(144, 26);
             this.cbxNguoiKK_CauHinh.TabIndex = 3;
@@ -313,7 +313,7 @@
             // 
             this.tbTenSanPham_KK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.tbTenSanPham_KK.FormattingEnabled = true;
-            this.tbTenSanPham_KK.Location = new System.Drawing.Point(306, 112);
+            this.tbTenSanPham_KK.Location = new System.Drawing.Point(306, 114);
             this.tbTenSanPham_KK.Name = "tbTenSanPham_KK";
             this.tbTenSanPham_KK.Size = new System.Drawing.Size(175, 26);
             this.tbTenSanPham_KK.TabIndex = 5;

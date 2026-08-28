@@ -471,7 +471,7 @@ namespace DG_TonKhoBTP_v02.Printer.TemXuatHang
                 + Mm2Px(LabelConstants.PaddingMm)
                 - Mm2Px(FooterMm);
 
-            float madeInGapToFooter = Mm2Px(0f);
+            float madeInGapToFooter = Mm2Px(1f);
             float madeInY = footerTopY - madeInGapToFooter - rowH;
 
             using (GdiFont f = MakeFont(LabelConstants.FontSizeSubTitle, italic: true))

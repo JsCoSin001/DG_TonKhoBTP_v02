@@ -3204,9 +3204,9 @@ namespace DG_TonKhoBTP_v02.Database
 
             const string sql = @"
             INSERT INTO TTThanhPham
-                (DanhSachSP_ID,QC ,  MaBin, KhoiLuongTruoc, KhoiLuongSau, ChieuDaiTruoc, ChieuDaiSau, Phe, CongDoan, GhiChu,HanNoi, DateInsert)
+                (DanhSachSP_ID,QC ,  MaBin, KhoiLuongTruoc, KhoiLuongSau, ChieuDaiTruoc, ChieuDaiSau, CongDoan, GhiChu,HanNoi, DateInsert)
             VALUES
-                (@DanhSachSP_ID,@QC,  @MaBin, @KhoiLuongTruoc, @KhoiLuongSau, @ChieuDaiTruoc, @ChieuDaiSau, @Phe, @CongDoan, @GhiChu, @HanNoi, @DateInsert);
+                (@DanhSachSP_ID,@QC,  @MaBin, @KhoiLuongTruoc, @KhoiLuongSau, @ChieuDaiTruoc, @ChieuDaiSau, @CongDoan, @GhiChu, @HanNoi, @DateInsert);
             SELECT last_insert_rowid();";
 
 
@@ -3218,7 +3218,6 @@ namespace DG_TonKhoBTP_v02.Database
             cmd.Parameters.AddWithValue("@KhoiLuongSau", m.KhoiLuongSau);
             cmd.Parameters.AddWithValue("@ChieuDaiTruoc", m.ChieuDaiTruoc);
             cmd.Parameters.AddWithValue("@ChieuDaiSau", m.ChieuDaiSau);
-            cmd.Parameters.AddWithValue("@Phe", m.Phe);
             cmd.Parameters.AddWithValue("@CongDoan", m.CongDoan.Id);
             cmd.Parameters.AddWithValue("@GhiChu", (object?)m.GhiChu ?? DBNull.Value);
             cmd.Parameters.AddWithValue("@HanNoi", m.HanNoi);

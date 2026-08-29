@@ -45,8 +45,6 @@ namespace DG_TonKhoBTP_v02.Models
 
         public decimal ChuyenDoi { get; set; } = 1m;
 
-        public decimal Phe { get; set; }
-
         public string GhiChu { get; set; } = string.Empty;
 
         public string SoLOT { get; set; } = string.Empty;

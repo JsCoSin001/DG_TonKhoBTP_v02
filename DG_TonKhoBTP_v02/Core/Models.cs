@@ -136,15 +136,47 @@ namespace DG_TonKhoBTP_v02.Core
         public double? DKKhuon1 { get; set; }
         public double? DKKhuon2 { get; set; }
         public string? TTNhua { get; set; }
-        public double? NhuaPhe { get; set; }
-        public string GhiChuNhuaPhe { get; set; } = "";
-        public double? DayPhe { get; set; }
-        public string GhiChuDayPhe { get; set; } = "";
         public double? KTDKLan1 { get; set; }
         public double? KTDKLan2 { get; set; }
         public double? KTDKLan3 { get; set; }
         public double? DiemMongLan1 { get; set; }
         public double? DiemMongLan2 { get; set; }
+    }
+
+
+    /// <summary>
+    /// Dữ liệu phế gắn 1-1 với một TTThanhPham.
+    /// Giá trị số mặc định 0; ghi chú mặc định rỗng.
+    /// </summary>
+    public class PheLieuData
+    {
+        public double DayPhe_NL { get; set; } = 0;
+        public double NhuaPhe_NL { get; set; } = 0;
+        public double DongPhe_NL { get; set; } = 0;
+        public string GhiChuDayPhe_NL { get; set; } = "";
+        public string GhiChuNhuaPhe_NL { get; set; } = "";
+        public string GhiChuDongPhe_NL { get; set; } = "";
+
+        public double DayPhe_TP { get; set; } = 0;
+        public double NhuaPhe_TP { get; set; } = 0;
+        public double DongPhe_TP { get; set; } = 0;
+        public string GhiChuDayPhe_TP { get; set; } = "";
+        public string GhiChuNhuaPhe_TP { get; set; } = "";
+        public string GhiChuDongPhe_TP { get; set; } = "";
+
+        /// <summary>
+        /// Chỉ xem là đã nhập phế khi ít nhất một trong 6 giá trị số khác 0.
+        /// Ghi chú không làm thay đổi trạng thái này.
+        /// </summary>
+        public bool HasData()
+        {
+            return DayPhe_NL != 0d
+                || NhuaPhe_NL != 0d
+                || DongPhe_NL != 0d
+                || DayPhe_TP != 0d
+                || NhuaPhe_TP != 0d
+                || DongPhe_TP != 0d;
+        }
     }
 
     // Ca làm việc (tối thiểu cho UC_TTCaLamViec)
@@ -172,7 +204,6 @@ namespace DG_TonKhoBTP_v02.Core
         public double KhoiLuongSau { get; set; }      // NOT NULL DEFAULT 0
         public double ChieuDaiTruoc { get; set; }     // NOT NULL
         public double ChieuDaiSau { get; set; }       // NOT NULL
-        public double Phe { get; set; }               // NOT NULL DEFAULT 0
         public CongDoan CongDoan { get; set; }               // NOT NULL DEFAULT 0
         public string GhiChu { get; set; } = "";            // NULL
         public string QC { get; set; } = "";    // NULL
@@ -185,6 +216,10 @@ namespace DG_TonKhoBTP_v02.Core
         // Không ánh xạ vào bảng TTThanhPham.
         [NotMapped]
         public List<BomComponentData>? BomComponents { get; set; }
+
+        // Dữ liệu phế được giữ trong snapshot và lưu xuống bảng PheLieu cùng transaction.
+        [NotMapped]
+        public PheLieuData PheLieu { get; set; } = new PheLieuData();
     }
 
     // --------------------------- Công đoạn: Bóc Vỏ ---------------------------

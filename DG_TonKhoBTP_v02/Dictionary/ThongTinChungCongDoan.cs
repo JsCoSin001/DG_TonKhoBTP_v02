@@ -47,7 +47,12 @@ namespace DG_TonKhoBTP_v02.Dictionary
             "TTThanhPham.ChieuDaiSau",
             "TTThanhPham.KhoiLuongTruoc",
             "TTThanhPham.KhoiLuongSau",
-            "TTThanhPham.Phe",
+            "PheLieu.DayPhe_NL",
+            "PheLieu.NhuaPhe_NL",
+            "PheLieu.DongPhe_NL",
+            "PheLieu.DayPhe_TP",
+            "PheLieu.NhuaPhe_TP",
+            "PheLieu.DongPhe_TP",
             "TTNVL.BinNVL",
             "DSNVL.Ten  as Ten_NVL"
             };
@@ -58,11 +63,12 @@ namespace DG_TonKhoBTP_v02.Dictionary
             "TTThanhPham.MaBin",
             "TTThanhPham.ChieuDaiTruoc",
             "TTThanhPham.ChieuDaiSau",
-            "CaiDatCDBoc.NhuaPhe",
-            "CaiDatCDBoc.DayPhe",
-            "CaiDatCDBoc.GhiChuNhuaPhe",
-            "CaiDatCDBoc.GhiChuDayPhe",
-            "TTThanhPham.Phe",
+            "PheLieu.DayPhe_NL",
+            "PheLieu.NhuaPhe_NL",
+            "PheLieu.DongPhe_NL",
+            "PheLieu.DayPhe_TP",
+            "PheLieu.NhuaPhe_TP",
+            "PheLieu.DongPhe_TP",
             "TTNVL.BinNVL",
             "DSNVL.Ten  as Ten_NVL"
             };
@@ -73,7 +79,12 @@ namespace DG_TonKhoBTP_v02.Dictionary
             "TTThanhPham.MaBin",
             "TTThanhPham.ChieuDaiTruoc",
             "TTThanhPham.ChieuDaiSau",
-            "TTThanhPham.Phe",
+            "PheLieu.DayPhe_NL",
+            "PheLieu.NhuaPhe_NL",
+            "PheLieu.DongPhe_NL",
+            "PheLieu.DayPhe_TP",
+            "PheLieu.NhuaPhe_TP",
+            "PheLieu.DongPhe_TP",
             "TTNVL.BinNVL",
             "DSNVL.Ten as Ten_NVL"
             };

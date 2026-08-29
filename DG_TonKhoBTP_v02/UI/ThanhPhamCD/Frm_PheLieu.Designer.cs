@@ -1,6 +1,6 @@
 ﻿namespace DG_TonKhoBTP_v02.UI.ThanhPhamCD
 {
-    partial class Frm_Phe
+    partial class Frm_PheLieu
     {
         /// <summary>
         /// Required designer variable.
@@ -510,7 +510,7 @@
             this.btnXoa.UseVisualStyleBackColor = true;
             this.btnXoa.Click += new System.EventHandler(this.btnXoa_Click);
             // 
-            // Frm_Phe
+            // Frm_PheLieu
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -521,7 +521,7 @@
             this.Controls.Add(this.label1);
             this.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Margin = new System.Windows.Forms.Padding(4);
-            this.Name = "Frm_Phe";
+            this.Name = "Frm_PheLieu";
             this.Padding = new System.Windows.Forms.Padding(10);
             this.Text = "Khai báo Phế";
             this.panel2.ResumeLayout(false);

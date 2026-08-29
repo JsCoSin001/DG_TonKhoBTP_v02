@@ -101,7 +101,7 @@
             this.panel1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.panel1.Location = new System.Drawing.Point(10, 59);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(1008, 55);
+            this.panel1.Size = new System.Drawing.Size(1008, 57);
             this.panel1.TabIndex = 0;
             // 
             // tableLayoutPanel1
@@ -145,7 +145,7 @@
             this.tableLayoutPanel1.RowCount = 2;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 19F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(1008, 55);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(1008, 57);
             this.tableLayoutPanel1.TabIndex = 0;
             // 
             // label2
@@ -186,7 +186,7 @@
             // 
             this.maHanhTrinh.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.maHanhTrinh.Font = new System.Drawing.Font("Microsoft Sans Serif", 12.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.maHanhTrinh.Location = new System.Drawing.Point(61, 23);
+            this.maHanhTrinh.Location = new System.Drawing.Point(61, 24);
             this.maHanhTrinh.Maximum = new decimal(new int[] {
             1661992959,
             1808227885,
@@ -212,7 +212,7 @@
             "6",
             "7",
             "8"});
-            this.sttCongDoan.Location = new System.Drawing.Point(148, 23);
+            this.sttCongDoan.Location = new System.Drawing.Point(148, 24);
             this.sttCongDoan.Name = "sttCongDoan";
             this.sttCongDoan.Size = new System.Drawing.Size(52, 28);
             this.sttCongDoan.TabIndex = 4;
@@ -222,7 +222,7 @@
             // 
             this.sttLo.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.sttLo.Font = new System.Drawing.Font("Microsoft Sans Serif", 12.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.sttLo.Location = new System.Drawing.Point(206, 23);
+            this.sttLo.Location = new System.Drawing.Point(206, 24);
             this.sttLo.Maximum = new decimal(new int[] {
             1661992959,
             1808227885,
@@ -237,7 +237,7 @@
             // 
             this.soBin.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.soBin.Font = new System.Drawing.Font("Microsoft Sans Serif", 12.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.soBin.Location = new System.Drawing.Point(264, 23);
+            this.soBin.Location = new System.Drawing.Point(264, 24);
             this.soBin.Maximum = new decimal(new int[] {
             1661992959,
             1808227885,
@@ -296,7 +296,7 @@
             // 
             this.soLOT.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.soLOT.Enabled = false;
-            this.soLOT.Location = new System.Drawing.Point(322, 24);
+            this.soLOT.Location = new System.Drawing.Point(322, 25);
             this.soLOT.Name = "soLOT";
             this.soLOT.Size = new System.Drawing.Size(120, 26);
             this.soLOT.TabIndex = 37;
@@ -316,7 +316,7 @@
             // 
             this.khoiLuong.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.khoiLuong.DecimalPlaces = 1;
-            this.khoiLuong.Location = new System.Drawing.Point(467, 24);
+            this.khoiLuong.Location = new System.Drawing.Point(467, 25);
             this.khoiLuong.Maximum = new decimal(new int[] {
             5000,
             0,
@@ -329,9 +329,9 @@
             // 
             // chieuDai
             // 
+            this.chieuDai.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.chieuDai.DecimalPlaces = 1;
-            this.chieuDai.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.chieuDai.Location = new System.Drawing.Point(534, 22);
+            this.chieuDai.Location = new System.Drawing.Point(534, 25);
             this.chieuDai.Maximum = new decimal(new int[] {
             210000,
             0,
@@ -349,7 +349,7 @@
             this.GhiChu.Location = new System.Drawing.Point(716, 3);
             this.GhiChu.Name = "GhiChu";
             this.tableLayoutPanel1.SetRowSpan(this.GhiChu, 2);
-            this.GhiChu.Size = new System.Drawing.Size(289, 49);
+            this.GhiChu.Size = new System.Drawing.Size(289, 51);
             this.GhiChu.TabIndex = 10;
             this.GhiChu.Text = "";
             // 
@@ -391,12 +391,13 @@
             // 
             // btnNhapPhe
             // 
-            this.btnNhapPhe.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnNhapPhe.Location = new System.Drawing.Point(601, 22);
+            this.btnNhapPhe.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnNhapPhe.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnNhapPhe.Location = new System.Drawing.Point(601, 26);
             this.btnNhapPhe.Name = "btnNhapPhe";
             this.btnNhapPhe.Size = new System.Drawing.Size(52, 23);
             this.btnNhapPhe.TabIndex = 39;
-            this.btnNhapPhe.Text = "Nhập";
+            this.btnNhapPhe.Text = "Chưa nhập";
             this.btnNhapPhe.UseVisualStyleBackColor = true;
             // 
             // panel3

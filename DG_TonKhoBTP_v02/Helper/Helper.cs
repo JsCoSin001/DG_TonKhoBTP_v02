@@ -303,7 +303,13 @@ namespace DG_TonKhoBTP_v02.Helper
               tclv.NguoiLam, tclv.ToTruong, tclv.QuanDoc,
               ttp.KhoiLuongTruoc AS KhoiLuongTruoc, ttp.KhoiLuongSau as KhoiLuongSau,
               ttp.ChieuDaiTruoc as ChieuDaiTruoc, ttp.ChieuDaiSau as ChieuDaiSau,
-              ttp.Phe as Phe, ttp.HanNoi as HanNoi, ttp.GhiChu as GhiChu ";
+              IFNULL(pl.DayPhe_NL, 0) AS DayPhe_NL,
+              IFNULL(pl.NhuaPhe_NL, 0) AS NhuaPhe_NL,
+              IFNULL(pl.DongPhe_NL, 0) AS DongPhe_NL,
+              IFNULL(pl.DayPhe_TP, 0) AS DayPhe_TP,
+              IFNULL(pl.NhuaPhe_TP, 0) AS NhuaPhe_TP,
+              IFNULL(pl.DongPhe_TP, 0) AS DongPhe_TP,
+              ttp.HanNoi as HanNoi, ttp.GhiChu as GhiChu ";
         }
 
         public static string TaoSqL_LayThongTinBaoCaoChung_Edit()
@@ -318,7 +324,19 @@ namespace DG_TonKhoBTP_v02.Helper
               tclv.NguoiLam, tclv.ToTruong, tclv.QuanDoc,
               ttp.KhoiLuongTruoc AS KhoiLuongTruoc, ttp.KhoiLuongSau as KhoiLuongSau,
               ttp.ChieuDaiTruoc as ChieuDaiTruoc, ttp.ChieuDaiSau as ChieuDaiSau,ds_nvl.DonVi AS DonViNVL,
-              ttp.Phe as Phe, ttp.HanNoi as HanNoi, ttp.GhiChu as GhiChu,
+              IFNULL(pl.DayPhe_NL, 0) AS DayPhe_NL,
+              IFNULL(pl.NhuaPhe_NL, 0) AS NhuaPhe_NL,
+              IFNULL(pl.DongPhe_NL, 0) AS DongPhe_NL,
+              IFNULL(pl.DayPhe_TP, 0) AS DayPhe_TP,
+              IFNULL(pl.NhuaPhe_TP, 0) AS NhuaPhe_TP,
+              IFNULL(pl.DongPhe_TP, 0) AS DongPhe_TP,
+              IFNULL(pl.GhiChuDayPhe_NL, '') AS GhiChuDayPhe_NL,
+              IFNULL(pl.GhiChuNhuaPhe_NL, '') AS GhiChuNhuaPhe_NL,
+              IFNULL(pl.GhiChuDongPhe_NL, '') AS GhiChuDongPhe_NL,
+              IFNULL(pl.GhiChuDayPhe_TP, '') AS GhiChuDayPhe_TP,
+              IFNULL(pl.GhiChuNhuaPhe_TP, '') AS GhiChuNhuaPhe_TP,
+              IFNULL(pl.GhiChuDongPhe_TP, '') AS GhiChuDongPhe_TP,
+              ttp.HanNoi as HanNoi, ttp.GhiChu as GhiChu,
               1 AS TyLe,
               1 AS TyLeHoanDoi,
               0 AS IsCorrect ";
@@ -347,7 +365,12 @@ namespace DG_TonKhoBTP_v02.Helper
                     TT.KhoiLuongSau,
                     TT.ChieuDaiTruoc,
                     TT.ChieuDaiSau,
-                    TT.Phe,
+                    IFNULL(PL.DayPhe_NL, 0) AS DayPhe_NL,
+                    IFNULL(PL.NhuaPhe_NL, 0) AS NhuaPhe_NL,
+                    IFNULL(PL.DongPhe_NL, 0) AS DongPhe_NL,
+                    IFNULL(PL.DayPhe_TP, 0) AS DayPhe_TP,
+                    IFNULL(PL.NhuaPhe_TP, 0) AS NhuaPhe_TP,
+                    IFNULL(PL.DongPhe_TP, 0) AS DongPhe_TP,
                     TT.GhiChu,
                     CLV.ToTruong AS ToTruong,
                     CLV.QuanDoc AS QuanDoc
@@ -356,6 +379,8 @@ namespace DG_TonKhoBTP_v02.Helper
                     ON TT.DanhSachSP_ID = SP.id
                 LEFT JOIN ThongTinCaLamViec AS CLV
                     ON CLV.TTThanhPham_id = TT.id
+                LEFT JOIN PheLieu AS PL
+                    ON PL.TTThanhPham_ID = TT.id
                 WHERE {whereCol} LIKE '%' || @{key} || '%';
             ";
             return sql;
@@ -381,6 +406,7 @@ namespace DG_TonKhoBTP_v02.Helper
                 LEFT JOIN CD_GhepLoiQB cgl  ON cgl.TTThanhPham_ID   = ttp.id
                 LEFT JOIN TTNVL        nvl  ON nvl.TTThanhPham_ID   = ttp.id
                 LEFT JOIN DanhSachMaSP ds_nvl ON ds_nvl.id          = nvl.DanhSachMaSP_ID
+                LEFT JOIN PheLieu      pl   ON pl.TTThanhPham_ID    = ttp.id
             ";
         }
 

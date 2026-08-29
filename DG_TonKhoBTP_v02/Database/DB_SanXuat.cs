@@ -421,9 +421,9 @@ namespace DG_TonKhoBTP_v02.Database
         {
             const string sql = @"
                 INSERT INTO TTThanhPham (DanhSachSP_ID, QC, MaBin, KhoiLuongTruoc, KhoiLuongSau,
-                    ChieuDaiTruoc, ChieuDaiSau, Phe, CongDoan, GhiChu, HanNoi, DateInsert)
+                    ChieuDaiTruoc, ChieuDaiSau, CongDoan, GhiChu, HanNoi, DateInsert)
                 VALUES (@DanhSachSP_ID, @QC, @MaBin, @KhoiLuongTruoc, @KhoiLuongSau,
-                    @ChieuDaiTruoc, @ChieuDaiSau, @Phe, @CongDoan, @GhiChu, @HanNoi, @DateInsert);
+                    @ChieuDaiTruoc, @ChieuDaiSau, @CongDoan, @GhiChu, @HanNoi, @DateInsert);
                 SELECT last_insert_rowid();";
             using var cmd = new SQLiteCommand(sql, conn, tx);
             cmd.Parameters.AddWithValue("@DanhSachSP_ID", m.DanhSachSP_ID);
@@ -433,7 +433,6 @@ namespace DG_TonKhoBTP_v02.Database
             cmd.Parameters.AddWithValue("@KhoiLuongSau", m.KhoiLuongSau);
             cmd.Parameters.AddWithValue("@ChieuDaiTruoc", m.ChieuDaiTruoc);
             cmd.Parameters.AddWithValue("@ChieuDaiSau", m.ChieuDaiSau);
-            cmd.Parameters.AddWithValue("@Phe", m.Phe);
             cmd.Parameters.AddWithValue("@CongDoan", m.CongDoan.Id);
             cmd.Parameters.AddWithValue("@GhiChu", (object?)m.GhiChu ?? DBNull.Value);
             cmd.Parameters.AddWithValue("@HanNoi", m.HanNoi);
@@ -496,11 +495,11 @@ namespace DG_TonKhoBTP_v02.Database
             const string sql = @"
                 INSERT INTO CaiDatCDBoc (TTThanhPham_ID, MangNuoc, PuliDanDay, BoDemMet, MayIn,
                     v1, v2, v3, v4, v5, v6, Co, Dau1, Dau2, Khuon, BinhSay,
-                    DKKhuon1, DKKhuon2, TTNhua, NhuaPhe, GhiChuNhuaPhe, DayPhe, GhiChuDayPhe,
+                    DKKhuon1, DKKhuon2, TTNhua,
                     KTDKLan1, KTDKLan2, KTDKLan3, DiemMongLan1, DiemMongLan2)
                 VALUES (@TTThanhPham_ID, @MangNuoc, @PuliDanDay, @BoDemMet, @MayIn,
                     @v1, @v2, @v3, @v4, @v5, @v6, @Co, @Dau1, @Dau2, @Khuon, @BinhSay,
-                    @DKKhuon1, @DKKhuon2, @TTNhua, @NhuaPhe, @GhiChuNhuaPhe, @DayPhe, @GhiChuDayPhe,
+                    @DKKhuon1, @DKKhuon2, @TTNhua,
                     @KTDKLan1, @KTDKLan2, @KTDKLan3, @DiemMongLan1, @DiemMongLan2);";
             using var cmd = new SQLiteCommand(sql, conn, tx);
             cmd.Parameters.AddWithValue("@TTThanhPham_ID", tpId);
@@ -521,10 +520,6 @@ namespace DG_TonKhoBTP_v02.Database
             cmd.Parameters.AddWithValue("@BinhSay", (object?)m.BinhSay ?? DBNull.Value);
             cmd.Parameters.AddWithValue("@DKKhuon1", m.DKKhuon1); cmd.Parameters.AddWithValue("@DKKhuon2", m.DKKhuon2);
             cmd.Parameters.AddWithValue("@TTNhua", m.TTNhua ?? string.Empty);
-            cmd.Parameters.AddWithValue("@NhuaPhe", m.NhuaPhe);
-            cmd.Parameters.AddWithValue("@GhiChuNhuaPhe", (object?)m.GhiChuNhuaPhe ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("@DayPhe", m.DayPhe);
-            cmd.Parameters.AddWithValue("@GhiChuDayPhe", (object?)m.GhiChuDayPhe ?? DBNull.Value);
             cmd.Parameters.AddWithValue("@KTDKLan1", m.KTDKLan1); cmd.Parameters.AddWithValue("@KTDKLan2", m.KTDKLan2); cmd.Parameters.AddWithValue("@KTDKLan3", m.KTDKLan3);
             cmd.Parameters.AddWithValue("@DiemMongLan1", m.DiemMongLan1); cmd.Parameters.AddWithValue("@DiemMongLan2", m.DiemMongLan2);
             try { cmd.ExecuteNonQuery(); return conn.LastInsertRowId; }
@@ -655,10 +650,10 @@ namespace DG_TonKhoBTP_v02.Database
 
         private static void UpdateTTThanhPham(SQLiteConnection conn, SQLiteTransaction tx, TTThanhPham m, long tpId, List<TTNVL> nvl)
         {
-            const string sql = @"UPDATE TTThanhPham SET DanhSachSP_ID=@DanhSachSP_ID, MaBin=@MaBin, Phe=@Phe, CongDoan=@CongDoan, GhiChu=@GhiChu, QC=@QC WHERE id=@id;";
+            const string sql = @"UPDATE TTThanhPham SET DanhSachSP_ID=@DanhSachSP_ID, MaBin=@MaBin, CongDoan=@CongDoan, GhiChu=@GhiChu, QC=@QC WHERE id=@id;";
             using var cmd = new SQLiteCommand(sql, conn, tx);
             cmd.Parameters.AddWithValue("@DanhSachSP_ID", m.DanhSachSP_ID); cmd.Parameters.AddWithValue("@MaBin", m.MaBin);
-            cmd.Parameters.AddWithValue("@Phe", m.Phe); cmd.Parameters.AddWithValue("@CongDoan", m.CongDoan.Id);
+            cmd.Parameters.AddWithValue("@CongDoan", m.CongDoan.Id);
             cmd.Parameters.AddWithValue("@GhiChu", (object?)m.GhiChu ?? DBNull.Value);
             cmd.Parameters.AddWithValue("@QC", m.QC); cmd.Parameters.AddWithValue("@id", tpId);
             cmd.ExecuteNonQuery();

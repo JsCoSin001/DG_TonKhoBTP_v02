@@ -188,7 +188,6 @@ namespace DG_TonKhoBTP_v02.Database.KeToan
                 KhoiLuongSau,
                 ChieuDaiTruoc,
                 ChieuDaiSau,
-                Phe,
                 CongDoan,
                 GhiChu,
                 DateInsert
@@ -201,7 +200,6 @@ namespace DG_TonKhoBTP_v02.Database.KeToan
                 @KhoiLuongSau,
                 @ChieuDaiTruoc,
                 @ChieuDaiSau,
-                0,
                 0,
                 @GhiChu,
                 @DateInsert
@@ -400,14 +398,14 @@ namespace DG_TonKhoBTP_v02.Database.KeToan
             INSERT INTO TTThanhPham
             (
                 DanhSachSP_ID, MaBin, KhoiLuongTruoc,
-                KhoiLuongSau, ChieuDaiTruoc, ChieuDaiSau, Phe,
+                KhoiLuongSau, ChieuDaiTruoc, ChieuDaiSau,
                 CongDoan, GhiChu, HanNoi, DateInsert
             )
             VALUES
             (
                 @DanhSachSP_ID, @MaBin, @KhoiLuongTruoc,
                 @KhoiLuongSau, @ChieuDaiTruoc, @ChieuDaiSau,
-                0, 0, @GhiChu, 0, @DateInsert
+                0, @GhiChu, 0, @DateInsert
             );
             SELECT last_insert_rowid();";
 

@@ -34,7 +34,7 @@ namespace DG_TonKhoBTP_v02.Helper
             MangNuoc, PuliDanDay, BoDemMet, MayIn,
             v1, v2, v3, v4, v5, v6,
             Co,  Dau1, Dau2, Khuon, BinhSay, DKKhuon1, DKKhuon2,
-            TTNhua, NhuaPhe, GhiChuNhuaPhe, DayPhe, GhiChuDayPhe,
+            TTNhua,
             KTDKLan1, KTDKLan2, KTDKLan3, DiemMongLan1, DiemMongLan2
         ";
     }

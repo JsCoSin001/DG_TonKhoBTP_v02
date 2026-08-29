@@ -130,10 +130,10 @@ namespace DG_TonKhoBTP_v02.Database
             const string sql = @"
                 INSERT INTO TTThanhPham
                 (DanhSachSP_ID, MaBin, KhoiLuongTruoc, KhoiLuongSau,
-                 ChieuDaiTruoc, ChieuDaiSau, Phe, CongDoan, GhiChu, DateInsert)
+                 ChieuDaiTruoc, ChieuDaiSau, CongDoan, GhiChu, DateInsert)
                 VALUES
                 (@DanhSachSP_ID, @MaBin, @KhoiLuongTruoc, @KhoiLuongSau,
-                 @ChieuDaiTruoc, @ChieuDaiSau, 0, 0, @GhiChu, @DateInsert);
+                 @ChieuDaiTruoc, @ChieuDaiSau, 0, @GhiChu, @DateInsert);
                 SELECT last_insert_rowid();";
 
             using var conn = DB_Base.OpenConnection();
@@ -165,8 +165,8 @@ namespace DG_TonKhoBTP_v02.Database
             const string sqlSelect = @"SELECT id FROM TTThanhPham WHERE MaBin = @MaBin LIMIT 1;";
             const string sqlInsert = @"
                 INSERT INTO TTThanhPham (DanhSachSP_ID, MaBin, KhoiLuongTruoc, KhoiLuongSau,
-                    ChieuDaiTruoc, ChieuDaiSau, Phe, CongDoan, GhiChu, DateInsert)
-                VALUES (@DanhSachSP_ID, @MaBin, @KL, @KL, @CD, @CD, 0, 0, @GhiChu, @DateInsert);";
+                    ChieuDaiTruoc, ChieuDaiSau, CongDoan, GhiChu, DateInsert)
+                VALUES (@DanhSachSP_ID, @MaBin, @KL, @KL, @CD, @CD, 0, @GhiChu, @DateInsert);";
             const string sqlUpdate = @"
                 UPDATE TTThanhPham
                 SET DanhSachSP_ID  = @DanhSachSP_ID,

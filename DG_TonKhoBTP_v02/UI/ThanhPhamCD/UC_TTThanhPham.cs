@@ -4,6 +4,7 @@ using DG_TonKhoBTP_v02.Dictionary;
 using DG_TonKhoBTP_v02.Helper;
 using DG_TonKhoBTP_v02.Models;
 using DG_TonKhoBTP_v02.UI.Helper;
+using DG_TonKhoBTP_v02.UI.ThanhPhamCD;
 using System;
 using System.Collections.Generic;
 using CoreHelper = DG_TonKhoBTP_v02.Helper.Helper;
@@ -27,6 +28,7 @@ namespace DG_TonKhoBTP_v02.UI
         public CongDoan congDoan;
         private List<BomComponentData> _bomComponents;
         private int _bomLoadVersion;
+        private PheLieuData _pheLieuDraft = new PheLieuData();
 
         public void SetTenCongDoan(string value) => tenCongDoan = value;
 
@@ -59,7 +61,6 @@ namespace DG_TonKhoBTP_v02.UI
                 KhoiLuong = khoiLuong.Value,
                 ChieuDai = chieuDai.Value,
                 ChuyenDoi = nbrChuyenDoi.Value,
-                Phe = phe.Value,
                 GhiChu = GhiChu?.Text ?? string.Empty,
                 SoLOT = soLOT?.Text ?? string.Empty,
                 TenMay = LayTenMayTuSoLOT(),
@@ -82,6 +83,53 @@ namespace DG_TonKhoBTP_v02.UI
                 TyLe = x.TyLe,
                 TyLeHoanDoi = x.TyLeHoanDoi
             }).ToList();
+        }
+
+        private static PheLieuData ClonePheLieu(PheLieuData source)
+        {
+            if (source == null) return new PheLieuData();
+
+            return new PheLieuData
+            {
+                DayPhe_NL = source.DayPhe_NL,
+                NhuaPhe_NL = source.NhuaPhe_NL,
+                DongPhe_NL = source.DongPhe_NL,
+                GhiChuDayPhe_NL = source.GhiChuDayPhe_NL ?? string.Empty,
+                GhiChuNhuaPhe_NL = source.GhiChuNhuaPhe_NL ?? string.Empty,
+                GhiChuDongPhe_NL = source.GhiChuDongPhe_NL ?? string.Empty,
+                DayPhe_TP = source.DayPhe_TP,
+                NhuaPhe_TP = source.NhuaPhe_TP,
+                DongPhe_TP = source.DongPhe_TP,
+                GhiChuDayPhe_TP = source.GhiChuDayPhe_TP ?? string.Empty,
+                GhiChuNhuaPhe_TP = source.GhiChuNhuaPhe_TP ?? string.Empty,
+                GhiChuDongPhe_TP = source.GhiChuDongPhe_TP ?? string.Empty
+            };
+        }
+
+        /// <summary>
+        /// Trạng thái nhập phế chỉ dựa trên 6 giá trị số.
+        /// Ghi chú không được tính là đã nhập phế.
+        /// </summary>
+        public bool HasPheLieuData => _pheLieuDraft != null && _pheLieuDraft.HasData();
+
+        private void UpdatePheLieuButtonState()
+        {
+            if (btnNhapPhe == null) return;
+            btnNhapPhe.Text = HasPheLieuData ? "Đã nhập" : "Chưa nhập";
+        }
+
+        private static void ClearPheLieuNotesIfNoData(PheLieuData data)
+        {
+            if (data == null || data.HasData()) return;
+
+            // Theo nghiệp vụ: nếu cả 6 giá trị số bằng 0 thì toàn bộ ghi chú
+            // không được xem là dữ liệu phế và sẽ bị bỏ qua.
+            data.GhiChuDayPhe_NL = string.Empty;
+            data.GhiChuNhuaPhe_NL = string.Empty;
+            data.GhiChuDongPhe_NL = string.Empty;
+            data.GhiChuDayPhe_TP = string.Empty;
+            data.GhiChuNhuaPhe_TP = string.Empty;
+            data.GhiChuDongPhe_TP = string.Empty;
         }
 
         private static bool BomComponentsEqual(
@@ -134,6 +182,8 @@ namespace DG_TonKhoBTP_v02.UI
             congDoan = cd;
 
             timTenTPCongDoan.KeyDown += timNVL_KeyDown;
+            btnNhapPhe.Click += btnNhapPhe_Click;
+            UpdatePheLieuButtonState();
         }
 
         public void CapNhatGhiChuDongGoi(string ghiChu)
@@ -200,10 +250,10 @@ namespace DG_TonKhoBTP_v02.UI
                 KhoiLuongSau = (double)khoiLuong.Value,
                 ChieuDaiTruoc = (double)chieuDai.Value,
                 ChieuDaiSau = (double)chieuDai.Value,
-                Phe = (double)phe.Value,
                 GhiChu = GhiChu?.Text ?? string.Empty,
                 DateInsert = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
-                BomComponents = CloneBomComponents(_bomComponents)
+                BomComponents = CloneBomComponents(_bomComponents),
+                PheLieu = ClonePheLieu(_pheLieuDraft)
             };
         }
 
@@ -230,7 +280,8 @@ namespace DG_TonKhoBTP_v02.UI
                 soLOT.Text = string.Empty;
                 khoiLuong.Value = khoiLuong.Minimum;
                 chieuDai.Value = chieuDai.Minimum;
-                phe.Value = phe.Minimum;
+                _pheLieuDraft = new PheLieuData();
+                UpdatePheLieuButtonState();
                 GhiChu.Text = string.Empty;
             }
             finally
@@ -594,6 +645,8 @@ namespace DG_TonKhoBTP_v02.UI
             try
             {
                 ResetController_TimTenSP();
+                _pheLieuDraft = new PheLieuData();
+                UpdatePheLieuButtonState();
 
                 if (dt == null || dt.Rows.Count == 0) return;
 
@@ -615,9 +668,16 @@ namespace DG_TonKhoBTP_v02.UI
                 CoreHelper.SetIfPresent(row, "donvi", val => donVi.Text = Convert.ToString(val));
                 CoreHelper.SetIfPresent(row, "KhoiLuongTruoc", val => khoiLuong.Value = Convert.ToDecimal(val));
                 CoreHelper.SetIfPresent(row, "ChieuDaiTruoc", val => chieuDai.Value = Convert.ToDecimal(val));
-                CoreHelper.SetIfPresent(row, "Phe", val => phe.Value = Convert.ToDecimal(val));
                 CoreHelper.SetIfPresent(row, "GhiChu", val => GhiChu.Text = Convert.ToString(val));
                 CoreHelper.SetIfPresent(row, "ChuyenDoi", val => nbrChuyenDoi.Value = Convert.ToDecimal(val));
+
+                // Sao chép thành phẩm không mang dữ liệu phế sang bản ghi mới.
+                _pheLieuDraft = kieuDL == 1
+                    ? new PheLieuData()
+                    : ReadPheLieuFromRow(row);
+
+                ClearPheLieuNotesIfNoData(_pheLieuDraft);
+                UpdatePheLieuButtonState();
 
                 string[] mabin = CoreHelper.CatMaBin(bin);
 
@@ -635,6 +695,54 @@ namespace DG_TonKhoBTP_v02.UI
             {
                 _dangLoadDuLieuBanDau = false;
             }
+        }
+
+        private static PheLieuData ReadPheLieuFromRow(DataRow row)
+        {
+            var data = new PheLieuData();
+
+            CoreHelper.SetIfPresent(row, "DayPhe_NL", val => data.DayPhe_NL = Convert.ToDouble(val));
+            CoreHelper.SetIfPresent(row, "NhuaPhe_NL", val => data.NhuaPhe_NL = Convert.ToDouble(val));
+            CoreHelper.SetIfPresent(row, "DongPhe_NL", val => data.DongPhe_NL = Convert.ToDouble(val));
+            CoreHelper.SetIfPresent(row, "GhiChuDayPhe_NL", val => data.GhiChuDayPhe_NL = Convert.ToString(val));
+            CoreHelper.SetIfPresent(row, "GhiChuNhuaPhe_NL", val => data.GhiChuNhuaPhe_NL = Convert.ToString(val));
+            CoreHelper.SetIfPresent(row, "GhiChuDongPhe_NL", val => data.GhiChuDongPhe_NL = Convert.ToString(val));
+
+            CoreHelper.SetIfPresent(row, "DayPhe_TP", val => data.DayPhe_TP = Convert.ToDouble(val));
+            CoreHelper.SetIfPresent(row, "NhuaPhe_TP", val => data.NhuaPhe_TP = Convert.ToDouble(val));
+            CoreHelper.SetIfPresent(row, "DongPhe_TP", val => data.DongPhe_TP = Convert.ToDouble(val));
+            CoreHelper.SetIfPresent(row, "GhiChuDayPhe_TP", val => data.GhiChuDayPhe_TP = Convert.ToString(val));
+            CoreHelper.SetIfPresent(row, "GhiChuNhuaPhe_TP", val => data.GhiChuNhuaPhe_TP = Convert.ToString(val));
+            CoreHelper.SetIfPresent(row, "GhiChuDongPhe_TP", val => data.GhiChuDongPhe_TP = Convert.ToString(val));
+
+            return data;
+        }
+
+        /// <summary>
+        /// Mở form nhập phế. Hàm public để UC_SubmitForm có thể tự mở form
+        /// khi người dùng chọn No tại cảnh báo chưa nhập phế liệu.
+        /// </summary>
+        public void OpenPheLieuForm()
+        {
+            using (var frm = new Frm_PheLieu(ClonePheLieu(_pheLieuDraft)))
+            {
+                Form owner = FindForm();
+                DialogResult result = owner != null
+                    ? frm.ShowDialog(owner)
+                    : frm.ShowDialog();
+
+                if (result == DialogResult.OK)
+                {
+                    _pheLieuDraft = ClonePheLieu(frm.PheLieu);
+                    ClearPheLieuNotesIfNoData(_pheLieuDraft);
+                    UpdatePheLieuButtonState();
+                }
+            }
+        }
+
+        private void btnNhapPhe_Click(object sender, EventArgs e)
+        {
+            OpenPheLieuForm();
         }
 
         private void khoiLuong_ValueChanged(object sender, EventArgs e)

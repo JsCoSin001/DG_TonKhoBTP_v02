@@ -188,6 +188,13 @@ namespace DG_TonKhoBTP_v02.UI
                 if (submitData == null)
                     return;
 
+                // Sau khi các validation bắt buộc đã hợp lệ, kiểm tra phế liệu.
+                // Nếu chưa có giá trị phế, người dùng có thể chọn:
+                // - No: hủy lần submit này và mở Frm_PheLieu để bổ sung.
+                // - Yes: tiếp tục lưu; database sẽ không tạo dòng PheLieu.
+                if (!ConfirmPheLieu(host, submitData, ref waiting))
+                    return;
+
                 // Nếu phát hiện bất thường trong mối quan hệ giữa nguyên vật liệu
                 // và thành phẩm, đóng form chờ trước khi hiển thị hộp thoại xác nhận
                 // để bảo đảm thông báo không bị che.
@@ -911,6 +918,57 @@ namespace DG_TonKhoBTP_v02.UI
         {
             return !string.IsNullOrWhiteSpace(loi) &&
                    !DanhSachLoiKhongCanXacNhan.Contains(loi);
+        }
+
+        /// <summary>
+        /// Cảnh báo khi cả 6 giá trị phế bằng 0.
+        /// No: dừng submit và tự mở Frm_PheLieu để người dùng bổ sung.
+        /// Yes: tiếp tục lưu. SavePheLieu sẽ không tạo row khi không có số liệu phế.
+        /// </summary>
+        private bool ConfirmPheLieu(
+            Form host,
+            SubmitFormData submitData,
+            ref FrmWaiting waiting)
+        {
+            PheLieuData pheLieu = submitData?.ThongTinThanhPham?.PheLieu;
+
+            if (pheLieu != null && pheLieu.HasData())
+                return true;
+
+            CloseWaitingSafe(waiting);
+            waiting = null;
+
+            DialogResult result = MessageBox.Show(
+                host,
+                "Phế liệu chưa được nhập. Nhấn No để bổ sung, nhấn Yes để tiếp tục",
+                "XÁC NHẬN PHẾ LIỆU",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Warning,
+                MessageBoxDefaultButton.Button2);
+
+            if (result == DialogResult.Yes)
+            {
+                waiting = ShowWaiting();
+                return true;
+            }
+
+            // No (hoặc đóng hộp thoại): không lưu và mở form phế để bổ sung.
+            UC_TTThanhPham ucThanhPham = CoreHelper.FindControlRecursive<UC_TTThanhPham>(host);
+            if (ucThanhPham != null)
+            {
+                ucThanhPham.OpenPheLieuForm();
+            }
+            else
+            {
+                MessageBox.Show(
+                    host,
+                    "Không tìm thấy màn hình thông tin thành phẩm để nhập phế liệu.",
+                    "LỖI",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+            }
+
+            return false;
         }
 
         /// <summary>

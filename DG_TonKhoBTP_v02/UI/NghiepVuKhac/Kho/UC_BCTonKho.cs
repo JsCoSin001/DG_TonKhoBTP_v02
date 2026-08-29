@@ -322,7 +322,6 @@ namespace DG_TonKhoBTP_v02.UI
             TTThanhPham.KhoiLuongSau as KLSau,
             TTThanhPham.ChieuDaiTruoc as CDTruoc,
             TTThanhPham.ChieuDaiSau as CDSau,
-            TTThanhPham.Phe,
             TTThanhPham.KLBanTran,
             TTThanhPham.GhiChu
         FROM TTThanhPham

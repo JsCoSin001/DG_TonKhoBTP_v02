@@ -198,7 +198,7 @@ namespace DG_TonKhoBTP_v02.Dictionary
            "Chiếu Xạ",
            EnumStore.MayTheoCongDoan["Chieu_Xa"],
             BaseColumns(),
-           new List<string> { "TP.356%", "GCCX.101" },
+           new List<string> { "TP.356%", "GCCX.101%" },
            Select_TP_CoKhoiLuong(),
            new Dictionary<string, decimal> { { "klConLai", 5.0m }, { "cdConLai", 5.0m } }
        );

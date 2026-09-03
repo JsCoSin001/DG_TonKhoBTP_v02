@@ -404,6 +404,7 @@ namespace DG_TonKhoBTP_v02.Helper
                 LEFT JOIN CD_KeoRut    ckr  ON ckr.TTThanhPham_ID   = ttp.id
                 LEFT JOIN CD_BenRuot   cbr  ON cbr.TTThanhPham_ID   = ttp.id
                 LEFT JOIN CD_GhepLoiQB cgl  ON cgl.TTThanhPham_ID   = ttp.id
+                LEFT JOIN CD_ChieuXa   ccx  ON ccx.TTThanhPham_id   = ttp.id
                 LEFT JOIN TTNVL        nvl  ON nvl.TTThanhPham_ID   = ttp.id
                 LEFT JOIN DanhSachMaSP ds_nvl ON ds_nvl.id          = nvl.DanhSachMaSP_ID
                 LEFT JOIN PheLieu      pl   ON pl.TTThanhPham_ID    = ttp.id
@@ -412,6 +413,20 @@ namespace DG_TonKhoBTP_v02.Helper
 
         public static string TaoSQL_LayChiTiet_1CD(int id)
         {
+            if (id == 10)
+            {
+                return @"
+                    ccx.LucCangThu AS ChieuXa_LucCangThu,
+                    ccx.LucCangTha AS ChieuXa_LucCangTha,
+                    ccx.SoVong AS ChieuXa_SoVong,
+                    ccx.TocDo AS ChieuXa_TocDo,
+                    ccx.NLCX AS ChieuXa_NLCX,
+                    ccx.DongDien AS ChieuXa_DongDien,
+                    ccx.LieuChieu AS ChieuXa_LieuChieu,
+                    ccx.NgoaiQuan AS ChieuXa_NgoaiQuan,
+                    ccx.DoChiuNhiet AS ChieuXa_DoChiuNhiet";
+            }
+
             string[] dsCotCongDoan = ChiTietCongDoanBoc.DSTenCotRieng;
 
             string sqlChung = "";

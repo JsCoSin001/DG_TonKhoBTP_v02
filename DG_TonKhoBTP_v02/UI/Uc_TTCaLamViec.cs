@@ -1,4 +1,5 @@
 ﻿using DG_TonKhoBTP_v02.Core;
+using DG_TonKhoBTP_v02.Helper;
 using DG_TonKhoBTP_v02.Models;
 using DocumentFormat.OpenXml.Spreadsheet;
 using System;
@@ -98,7 +99,16 @@ namespace DG_TonKhoBTP_v02.UI
             var row = dt.Rows[0];
 
             CoreHelper.SetIfPresent(row, "May", val => cbMay.Text = Convert.ToString(val));
-            CoreHelper.SetIfPresent(row, "Ngay", val => ngay.Value = Convert.ToDateTime(val));
+
+            if (kieuDL == 1)
+            {
+                // Sao chép: bắt buộc người dùng chủ động chọn lại ngày sản xuất.
+                ngay.Value = CaLamViecPolicy.NgayChuaChon;
+            }
+            else
+            {
+                CoreHelper.SetIfPresent(row, "Ngay", val => ngay.Value = Convert.ToDateTime(val));
+            }
 
             if (kieuDL == 2)
             {

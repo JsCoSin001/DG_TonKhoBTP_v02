@@ -278,6 +278,22 @@ namespace DG_TonKhoBTP_v02.Core
         public double?  BuocBen { get; set; }       // NOT NULL
     }
 
+    // --------------------------- Công đoạn: Chiếu Xạ ---------------------------
+    public class CD_ChieuXa
+    {
+        public int Id { get; set; }
+        public int? TTThanhPhan_ID { get; set; }
+        public double? LucCangThu { get; set; }
+        public double? LucCangTha { get; set; }
+        public int? SoVong { get; set; }
+        public double? TocDo { get; set; }
+        public double? NLCX { get; set; }
+        public double? DongDien { get; set; }
+        public double? LieuChieu { get; set; }
+        public string? NgoaiQuan { get; set; }
+        public string? DoChiuNhiet { get; set; }
+    }
+
     // --------------------------- Công đoạn: Ghép Lõi + Quấn Băng ---------------------------
     public class CD_GhepLoiQB
     {

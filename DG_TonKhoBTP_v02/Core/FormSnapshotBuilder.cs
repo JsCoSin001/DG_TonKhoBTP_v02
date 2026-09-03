@@ -26,12 +26,11 @@ namespace DG_TonKhoBTP_v02.Core
                                                  
                     snap.Sections[section.SectionName] = data;
                 }
-                catch
+                catch (System.Exception ex)
                 {
-                    FrmWaiting.ShowGifAlert($"DỮ LIỆU KHÔNG ĐẠT YÊU CẦU", "LỖI");
-
                     System.Console.WriteLine($"Lỗi khi thu thập dữ liệu từ section: {section.SectionName}");
-                    throw;
+                    throw new System.InvalidOperationException(
+                        $"Không thể lấy dữ liệu từ {section.SectionName}.", ex);
                 }                
             }
 

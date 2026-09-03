@@ -299,6 +299,14 @@ namespace DG_TonKhoBTP_v02.UI
         {
             if (row == null) return;
 
+            if (!CongDoanPolicy.CanKiemTraBom(_CD))
+            {
+                row.TyLe = 1d;
+                row.TyLeHoanDoi = 1d;
+                row.IsCorrect = true;
+                return;
+            }
+
             BomComponentData matched = null;
             if (row.DanhSachMaSP_ID.HasValue && thanhPham?.BomComponents != null)
             {
@@ -523,7 +531,13 @@ namespace DG_TonKhoBTP_v02.UI
             if (canhBaoKl || canhBaoCd)
             {
                 cellStyle.BackColor = Color.Red;
+                cellStyle.ForeColor = Color.White;
+                return;
             }
+
+            // Nền không cảnh báo: giữ nền hiện tại, chỉ áp dụng màu chữ theo BOM.
+            // Chiếu Xạ không kiểm tra BOM nên IsCorrect luôn true.
+            cellStyle.ForeColor = row.IsCorrect ? Color.Black : Color.Red;
         }
 
         private void dtgTTNVL_EditingControlShowing(object sender, DataGridViewEditingControlShowingEventArgs e)
@@ -912,7 +926,7 @@ namespace DG_TonKhoBTP_v02.UI
                     continue;
                 }
 
-                if (newItem.IsCorrect == false && _CD.Id != 1)
+                if (CongDoanPolicy.CanCanhBaoSaiBomKhiQuet(_CD) && newItem.IsCorrect == false)
                 {
                     DialogResult confirm = MessageBox.Show(
                         $"Mã bin này không phù hợp với {thanhPham.SoLOT}\nNếu tiếp tục chọn Yes, hoặc quét lại chọn No",
@@ -1071,6 +1085,12 @@ namespace DG_TonKhoBTP_v02.UI
                 return;
             }
 
+            if (_CD.Id == 10)
+            {
+                TinhGiaTriConLai_CD_ChieuXa(_nvlRows);
+                return;
+            }
+
             if (_CD.Id > 1 && _CD.Id != 9)
             {
                 TinhGiaTriConLai_CD_Khac(_nvlRows, thanhPham);
@@ -1162,6 +1182,15 @@ namespace DG_TonKhoBTP_v02.UI
         /// Đặt hết về 0 vì công đoạn 1 không cần tính KL/CD còn lại.
         /// </summary>
         private static void TinhGiaTriConLai_CD_Ben( IList<TTNVLRow> nvlRows)
+        {
+            GanKetQuaGiaTriConLai(nvlRows);
+        }
+
+        /// <summary>
+        /// Công đoạn Chiếu Xạ áp dụng cùng quy tắc với Bện:
+        /// khi hệ thống tính lại, KL/CD còn lại của toàn bộ NVL bằng 0.
+        /// </summary>
+        private static void TinhGiaTriConLai_CD_ChieuXa(IList<TTNVLRow> nvlRows)
         {
             GanKetQuaGiaTriConLai(nvlRows);
         }

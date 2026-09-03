@@ -358,14 +358,6 @@ namespace DG_TonKhoBTP_v02.UI
                 return null;
             }
 
-            if (!ValidateCaLamViec(
-                    caLamViec,
-                    waiting,
-                    swTotal))
-            {
-                return null;
-            }
-
             // Công đoạn 9 luôn bỏ qua dữ liệu NVL,
             // áp dụng cho cả tạo mới và chỉnh sửa.
             bool laCongDoan9 =
@@ -405,18 +397,8 @@ namespace DG_TonKhoBTP_v02.UI
                     return null;
                 }
 
-                if (!ValidateNguyenVatLieu(
-                        nvlRows,
-                        caLamViec,
-                        waiting,
-                        swTotal))
-                {
-                    return null;
-                }
-
-                nguyenVatLieu = nvlRows
-                    .Select(row => row.ToTTNVL())
-                    .ToList();
+                // Chỉ chuyển sang model lưu DB sau khi validation bắt buộc đã đạt.
+                nguyenVatLieu = new List<TTNVL>();
             }
 
             // =========================================================
@@ -437,12 +419,20 @@ namespace DG_TonKhoBTP_v02.UI
             // Không cập nhật số lượng còn lại của NVL.
             ApplyHanNoiRules(thanhPham);
 
-            if (!ValidateThanhPham(
-                    thanhPham,
-                    waiting,
-                    swTotal))
+            List<string> danhSachLoiBatBuoc = LayDanhSachLoiBatBuoc(
+                snapshot, caLamViec, nvlRows, thanhPham, laCongDoan9);
+
+            if (danhSachLoiBatBuoc.Count > 0)
             {
+                ShowValidationErrors(waiting, danhSachLoiBatBuoc);
                 return null;
+            }
+
+            if (!laCongDoan9)
+            {
+                nguyenVatLieu = nvlRows
+                    .Select(row => row.ToTTNVL())
+                    .ToList();
             }
 
             // =========================================================
@@ -526,6 +516,55 @@ namespace DG_TonKhoBTP_v02.UI
             };
         }
 
+        private List<string> LayDanhSachLoiBatBuoc(
+            FormSnapshot snapshot,
+            ThongTinCaLamViec caLamViec,
+            List<TTNVLRow> nvlRows,
+            TTThanhPham thanhPham,
+            bool laCongDoan9)
+        {
+            var errors = new List<string>();
+
+            errors.AddRange(Validator.LayDanhSachLoiTTCaLamViec(caLamViec));
+
+            if (!laCongDoan9)
+            {
+                errors.AddRange(Validator.LayDanhSachLoiTTNVL(
+                    nvlRows,
+                    caLamViec?.May,
+                    _Cd));
+            }
+
+            errors.AddRange(Validator.LayDanhSachLoiTTThanhPham(thanhPham));
+
+            if (!laCongDoan9)
+                errors.AddRange(Validator.LayDanhSachLoiChiTietCongDoan(snapshot));
+
+            return errors
+                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .Select(x => x.Trim())
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+        }
+
+        private static void ShowValidationErrors(FrmWaiting waiting, IEnumerable<string> errors)
+        {
+            List<string> danhSach = (errors ?? Enumerable.Empty<string>())
+                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .Select(x => x.Trim())
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            if (danhSach.Count == 0)
+                return;
+
+            string message = "DỮ LIỆU CHƯA HỢP LỆ\n\n" +
+                string.Join("\n", danhSach.Select(x => "• " + x));
+
+            CloseWaitingSafe(waiting);
+            FrmWaiting.ShowGifAlert(message, "LỖI");
+        }
+
         private bool ValidateCaLamViec(
             ThongTinCaLamViec caLamViec,
             FrmWaiting waiting,
@@ -594,6 +633,10 @@ namespace DG_TonKhoBTP_v02.UI
             CongDoan congDoan)
         {
             var danhSachLoi = new List<LoiNhapLieuData>();
+
+            if (!CongDoanPolicy.CanKiemTraBom(congDoan))
+                return danhSachLoi;
+
             LoiNhapLieuData loi;
 
             if (

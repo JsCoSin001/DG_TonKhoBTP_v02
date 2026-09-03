@@ -161,10 +161,10 @@
             // 
             // may
             // 
-            this.may.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.may.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.may.Enabled = false;
             this.may.FormattingEnabled = true;
-            this.may.Location = new System.Drawing.Point(3, 22);
+            this.may.Location = new System.Drawing.Point(3, 24);
             this.may.Name = "may";
             this.may.Size = new System.Drawing.Size(52, 28);
             this.may.TabIndex = 2;

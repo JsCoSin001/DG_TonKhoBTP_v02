@@ -599,6 +599,10 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
                         InsertCDBenRuot(conn, tx, tpId, ben);
                         break;
 
+                    case CD_ChieuXa chieuXa:
+                        InsertCDChieuXa(conn, tx, tpId, chieuXa);
+                        break;
+
                     case CD_GhepLoiQB qb:
                         InsertCDGhepLoiQB(conn, tx, tpId, qb);
                         break;
@@ -696,6 +700,10 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
 
                     case CD_BenRuot ben:
                         InsertCDBenRuot(conn, tx, tpId, ben);
+                        break;
+
+                    case CD_ChieuXa chieuXa:
+                        InsertCDChieuXa(conn, tx, tpId, chieuXa);
                         break;
 
                     case CD_GhepLoiQB qb:
@@ -796,6 +804,10 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
                 {
                     case CD_BenRuot ben:
                         UpdateCDBenRuot(conn, tx, tpId, ben);
+                        break;
+
+                    case CD_ChieuXa chieuXa:
+                        UpdateCDChieuXa(conn, tx, tpId, chieuXa);
                         break;
 
                     case CD_KeoRut keo:
@@ -907,6 +919,10 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
                 {
                     case CD_BenRuot ben:
                         UpdateCDBenRuot(conn, tx, tpId, ben);
+                        break;
+
+                    case CD_ChieuXa chieuXa:
+                        UpdateCDChieuXa(conn, tx, tpId, chieuXa);
                         break;
 
                     case CD_KeoRut keo:
@@ -1436,6 +1452,37 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
             cmd.Parameters.AddWithValue("@BuocBen", m.BuocBen);
             cmd.Parameters.AddWithValue("@TTThanhPham_ID", thongTinSpId);
             cmd.ExecuteNonQuery();
+        }
+
+        private static void UpdateCDChieuXa(SQLiteConnection conn, SQLiteTransaction tx, long thongTinSpId, CD_ChieuXa m)
+        {
+            const string sql = @"
+                UPDATE CD_ChieuXa
+                SET LucCangThu = @LucCangThu,
+                    LucCangTha = @LucCangTha,
+                    SoVong = @SoVong,
+                    TocDo = @TocDo,
+                    NLCX = @NLCX,
+                    DongDien = @DongDien,
+                    LieuChieu = @LieuChieu,
+                    NgoaiQuan = @NgoaiQuan,
+                    DoChiuNhiet = @DoChiuNhiet
+                WHERE TTThanhPham_id = @TTThanhPham_id;";
+
+            using (var cmd = new SQLiteCommand(sql, conn, tx))
+            {
+                cmd.Parameters.AddWithValue("@TTThanhPham_id", thongTinSpId);
+                cmd.Parameters.AddWithValue("@LucCangThu", (object)m.LucCangThu ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@LucCangTha", (object)m.LucCangTha ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@SoVong", (object)m.SoVong ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@TocDo", (object)m.TocDo ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@NLCX", (object)m.NLCX ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@DongDien", (object)m.DongDien ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@LieuChieu", (object)m.LieuChieu ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@NgoaiQuan", (object)m.NgoaiQuan ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@DoChiuNhiet", (object)m.DoChiuNhiet ?? DBNull.Value);
+                cmd.ExecuteNonQuery();
+            }
         }
 
         private static void UpdateCDGhepLoiQB(SQLiteConnection conn, SQLiteTransaction tx, long thongTinSpId, CD_GhepLoiQB m)
@@ -2207,6 +2254,30 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
             cmd.Parameters.AddWithValue("@ChieuXoan", m.ChieuXoan ?? "Z");
             cmd.Parameters.AddWithValue("@BuocBen", m.BuocBen);
             cmd.ExecuteNonQuery();
+        }
+
+        private static void InsertCDChieuXa(SQLiteConnection conn, SQLiteTransaction tx, long thongTinSpId, CD_ChieuXa m)
+        {
+            const string sql = @"
+                INSERT INTO CD_ChieuXa
+                (TTThanhPham_id, LucCangThu, LucCangTha, SoVong, TocDo, NLCX, DongDien, LieuChieu, NgoaiQuan, DoChiuNhiet)
+                VALUES
+                (@TTThanhPham_id, @LucCangThu, @LucCangTha, @SoVong, @TocDo, @NLCX, @DongDien, @LieuChieu, @NgoaiQuan, @DoChiuNhiet);";
+
+            using (var cmd = new SQLiteCommand(sql, conn, tx))
+            {
+                cmd.Parameters.AddWithValue("@TTThanhPham_id", thongTinSpId);
+                cmd.Parameters.AddWithValue("@LucCangThu", (object)m.LucCangThu ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@LucCangTha", (object)m.LucCangTha ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@SoVong", (object)m.SoVong ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@TocDo", (object)m.TocDo ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@NLCX", (object)m.NLCX ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@DongDien", (object)m.DongDien ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@LieuChieu", (object)m.LieuChieu ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@NgoaiQuan", (object)m.NgoaiQuan ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@DoChiuNhiet", (object)m.DoChiuNhiet ?? DBNull.Value);
+                cmd.ExecuteNonQuery();
+            }
         }
 
         private static void InsertCDGhepLoiQB(SQLiteConnection conn, SQLiteTransaction tx, long thongTinSpId, CD_GhepLoiQB m)

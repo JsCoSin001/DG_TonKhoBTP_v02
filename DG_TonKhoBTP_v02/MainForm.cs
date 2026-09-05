@@ -32,7 +32,7 @@ namespace DG_TonKhoBTP_v02
     {
         private string _URL = Properties.Settings.Default.URL;
         private CongDoanUiService _ui;
-        private string _ver = "2.8.0";
+        private string _ver = "2.8.1";
         private bool show = false;
         private void InitUiService()
         {
@@ -1709,5 +1709,37 @@ namespace DG_TonKhoBTP_v02
             }
         }
 
+        private void btnLoi_DungMay_Click(object sender, EventArgs e)
+        {
+            using (var waiting = new FrmWaiting("ĐANG KHỞI TẠO GIAO DIỆN..."))
+            {
+                try
+                {
+                    waiting.ShowAndRefresh();
+
+                    pnShow.SuspendLayout();
+                    pnShow.Visible = false;
+
+                    pnShow.Controls.Clear();
+
+                    var uc = new UC_LoiDungMay
+                    {
+                        Dock = DockStyle.Fill
+                    };
+                    pnShow.Controls.Add(uc);
+                }
+                catch (Exception ex)
+                {
+                    FrmWaiting.ShowGifAlert($"Lỗi khởi tạo giao diện: {ex.Message}");
+                }
+                finally
+                {
+                    pnShow.Visible = true;
+                    pnShow.ResumeLayout(true);
+                    waiting?.CloseAndDispose();
+                    btnCapNhatMaHang.Enabled = true;
+                }
+            }
+        }
     }
 }

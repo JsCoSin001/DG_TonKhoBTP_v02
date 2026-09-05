@@ -117,9 +117,9 @@
             // tongChieuDai
             // 
             this.tongChieuDai.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.ColumnHeader;
-            this.tongChieuDai.HeaderText = "Tổng CD";
+            this.tongChieuDai.HeaderText = "CD 1 cuộn";
             this.tongChieuDai.Name = "tongChieuDai";
-            this.tongChieuDai.Width = 91;
+            this.tongChieuDai.Width = 101;
             // 
             // soDau
             // 

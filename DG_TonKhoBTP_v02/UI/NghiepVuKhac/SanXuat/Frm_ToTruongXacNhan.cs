@@ -65,7 +65,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.SanXuat
             {
                 checkResult = await WaitingHelper.RunWithWaiting(
                     () => Task.Run(() => GetUsernameByCode(code)),
-                    "ĐANG KIỂM TRA MÃ TỔ TRƯỞNG...");
+                    "ĐANG KIỂM TRA MÃ ...");
             }
             catch
             {
@@ -81,12 +81,12 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.SanXuat
 
             if (checkResult.Status == CodeCheckStatus.Invalid)
             {
-                FrmWaiting.ShowGifAlert("Mã tổ trưởng không hợp lệ.");
+                FrmWaiting.ShowGifAlert("Mã không hợp lệ.");
             }
             else
             {
                 FrmWaiting.ShowGifAlert(
-                    "Không thể kiểm tra mã tổ trưởng do lỗi dữ liệu.\n" +
+                    "Không thể kiểm tra mã do lỗi dữ liệu.\n" +
                     "Vui lòng thử lại hoặc liên hệ người quản lý.",
                     "LỖI");
             }

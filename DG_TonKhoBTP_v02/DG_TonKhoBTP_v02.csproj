@@ -362,6 +362,12 @@
       <DependentUpon>UC_HaLo.cs</DependentUpon>
     </Compile>
     <Compile Include="UI\NghiepVuKhac\SanXuat\ICustomUserControl.cs" />
+    <Compile Include="UI\NghiepVuKhac\SanXuat\UC_LoiDungMay.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\NghiepVuKhac\SanXuat\UC_LoiDungMay.Designer.cs">
+      <DependentUpon>UC_LoiDungMay.cs</DependentUpon>
+    </Compile>
     <Compile Include="UI\NghiepVuKhac\SanXuat\UC_TachBin.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -634,6 +640,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="UI\NghiepVuKhac\SanXuat\UC_HaLo.resx">
       <DependentUpon>UC_HaLo.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\NghiepVuKhac\SanXuat\UC_LoiDungMay.resx">
+      <DependentUpon>UC_LoiDungMay.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UI\NghiepVuKhac\SanXuat\UC_TachBin.resx">
       <DependentUpon>UC_TachBin.cs</DependentUpon>

@@ -15,8 +15,7 @@
     }
 
     internal sealed class TenLoiDungMay_Model
-    {
-        public int Id { get; set; }
+    {        public int Id { get; set; }
         public string TenLoi { get; set; } = string.Empty;
         public string MoTaLoi { get; set; } = string.Empty;
         public int MaCongDoan { get; set; }

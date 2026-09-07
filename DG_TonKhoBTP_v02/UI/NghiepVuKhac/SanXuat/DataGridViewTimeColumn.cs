@@ -1,7 +1,8 @@
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Globalization;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
 namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.SanXuat
@@ -164,6 +165,18 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.SanXuat
         DateTimePicker,
         IDataGridViewEditingControl
     {
+        private const int WM_LBUTTONDOWN = 0x0201;
+        private const int WM_LBUTTONUP = 0x0202;
+        private const int MK_LBUTTON = 0x0001;
+
+        [DllImport("user32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool PostMessage(
+            IntPtr hWnd,
+            int msg,
+            IntPtr wParam,
+            IntPtr lParam);
+
         private DataGridView dataGridView;
         private bool valueChanged;
         private int rowIndex;
@@ -237,8 +250,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.SanXuat
 
         /// <summary>
         /// Được DataGridView gọi ngay khi editor bắt đầu hoạt động.
-        /// Nếu cell đang rỗng thì tạo 00:00 ngay lập tức,
-        /// sau đó focus và đưa vùng nhập về phần GIỜ.
+        /// Nếu cell đang rỗng thì tạo 00:00 ngay lập tức.
+        /// Việc chọn riêng phần giờ được thực hiện bởi FocusHourPart().
         /// </summary>
         public void PrepareEditingControlForEdit(bool selectAll)
         {
@@ -259,23 +272,73 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.SanXuat
 
                 NotifyDataGridViewOfValueChange();
             }
+        }
 
-            // DateTimePicker không public API để chọn trực tiếp field HH.
-            // Chờ native control được hiển thị rồi focus và di chuyển về field trái nhất.
-            BeginInvoke(new Action(() =>
+        /// <summary>
+        /// Đưa keyboard focus vào DateTimePicker và bôi đen field giờ (HH).
+        ///
+        /// DateTimePicker (win32 SysDateTimePick32) không có API quản lý để
+        /// chọn một field cụ thể, nên cách chuẩn để làm việc này là giả lập
+        /// một cú click chuột vào đúng toạ độ field HH bằng PostMessage.
+        ///
+        /// QUAN TRỌNG: hàm này CHỈ được gọi từ một điểm an toàn — cụ thể là
+        /// thông qua Control.BeginInvoke() từ sự kiện EditingControlShowing
+        /// của DataGridView (xem UC_LoiDungMay_EditingControlShowing).
+        /// BeginInvoke đưa lệnh gọi vào hàng đợi message và trì hoãn thực thi
+        /// cho đến khi vòng lặp message hiện tại (xử lý click chuột gốc của
+        /// DataGridView) đã hoàn tất. Nhờ vậy PostMessage bên dưới không còn
+        /// bị lồng (reentrant) vào quá trình xử lý WM_LBUTTONDOWN/UP gốc của
+        /// lưới nữa — đây chính là nguyên nhân gây treo (đơ) form ở bản trước,
+        /// KHÔNG PHẢI do bản thân kỹ thuật PostMessage.
+        ///
+        /// TUYỆT ĐỐI không gọi hàm này trực tiếp trong CellMouseDown/CellMouseUp
+        /// của DataGridView.
+        /// </summary>
+        public void FocusHourPart()
+        {
+            if (IsDisposed || !IsHandleCreated)
             {
-                if (IsDisposed || !IsHandleCreated)
-                {
-                    return;
-                }
+                return;
+            }
 
+            if (!Focused)
+            {
                 Focus();
+            }
 
-                // Với format HH:mm, nhấn Left vài lần sẽ giữ selection ở field HH.
-                SendKeys.SendWait("{LEFT}");
-                SendKeys.SendWait("{LEFT}");
-                SendKeys.SendWait("{LEFT}");
-            }));
+            // Đặt điểm click vào giữa field HH thay vì sát mép trái.
+            // TextRenderer giúp vị trí ổn định hơn khi font thay đổi.
+            int hourTextWidth = TextRenderer.MeasureText(
+                "00",
+                Font,
+                Size.Empty,
+                TextFormatFlags.NoPadding).Width;
+
+            int x = 4 + (hourTextWidth / 2);
+            int y = Math.Max(1, ClientSize.Height / 2);
+
+            // Bảo đảm tọa độ luôn nằm trong client area.
+            x = Math.Max(4, Math.Min(x, Math.Max(4, ClientSize.Width - 2)));
+
+            IntPtr lParam = MakeLParam(x, y);
+
+            PostMessage(
+                Handle,
+                WM_LBUTTONDOWN,
+                new IntPtr(MK_LBUTTON),
+                lParam);
+
+            PostMessage(
+                Handle,
+                WM_LBUTTONUP,
+                IntPtr.Zero,
+                lParam);
+        }
+
+        private static IntPtr MakeLParam(int x, int y)
+        {
+            int value = (y << 16) | (x & 0xFFFF);
+            return new IntPtr(value);
         }
 
         public bool RepositionEditingControlOnValueChange

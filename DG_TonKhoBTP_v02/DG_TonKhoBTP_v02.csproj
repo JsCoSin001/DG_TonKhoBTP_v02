@@ -160,6 +160,7 @@
     <Compile Include="Database\DB_XuatNhapKho.cs" />
     <Compile Include="Database\Kho\TonKhoExcelReport_DB.cs" />
     <Compile Include="Database\Kho\XuatKho_DB.cs" />
+    <Compile Include="Database\SanXuat\LoiDungMay_DB.cs" />
     <Compile Include="Database\SanXuat\SubmitForm_DB.cs" />
     <Compile Include="Database\User\PermissionDbHelper.cs" />
     <Compile Include="Database\User_DatabaseHelper.cs" />
@@ -207,6 +208,7 @@
     <Compile Include="Models\LoginClass.cs" />
     <Compile Include="Models\Kho\NhapKho_Model.cs" />
     <Compile Include="Models\OtherClass.cs" />
+    <Compile Include="Models\SanXuat\LoiDungMay_Model.cs" />
     <Compile Include="Models\SanXuat\SubmitForm_Model.cs" />
     <Compile Include="Models\ThanhPhamData.cs" />
     <Compile Include="Models\ThongTinDatHangUpdateModel.cs" />

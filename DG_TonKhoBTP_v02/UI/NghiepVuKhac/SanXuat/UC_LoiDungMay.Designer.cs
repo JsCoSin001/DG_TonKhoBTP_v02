@@ -36,9 +36,6 @@
             this.grvDsLoiDungMay = new System.Windows.Forms.DataGridView();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
-            this.quanDoc = new System.Windows.Forms.TextBox();
-            this.label6 = new System.Windows.Forms.Label();
-            this.toTruong = new System.Windows.Forms.TextBox();
             this.label5 = new System.Windows.Forms.Label();
             this.nguoiLam = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
@@ -48,6 +45,9 @@
             this.label7 = new System.Windows.Forms.Label();
             this.ngay = new System.Windows.Forms.DateTimePicker();
             this.cbMay = new System.Windows.Forms.ComboBox();
+            this.quanDoc = new System.Windows.Forms.TextBox();
+            this.label6 = new System.Windows.Forms.Label();
+            this.congDoan = new System.Windows.Forms.ComboBox();
             this.panel1.SuspendLayout();
             this.panel3.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -155,16 +155,13 @@
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 70F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 70F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 100F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 200F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 136F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 350F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 100F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 100F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel1.Controls.Add(this.quanDoc, 11, 0);
             this.tableLayoutPanel1.Controls.Add(this.label6, 10, 0);
-            this.tableLayoutPanel1.Controls.Add(this.toTruong, 9, 0);
             this.tableLayoutPanel1.Controls.Add(this.label5, 8, 0);
             this.tableLayoutPanel1.Controls.Add(this.nguoiLam, 7, 0);
             this.tableLayoutPanel1.Controls.Add(this.label4, 6, 0);
@@ -174,6 +171,7 @@
             this.tableLayoutPanel1.Controls.Add(this.label7, 0, 0);
             this.tableLayoutPanel1.Controls.Add(this.ngay, 1, 0);
             this.tableLayoutPanel1.Controls.Add(this.cbMay, 3, 0);
+            this.tableLayoutPanel1.Controls.Add(this.congDoan, 9, 0);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(10, 26);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
@@ -182,46 +180,15 @@
             this.tableLayoutPanel1.Size = new System.Drawing.Size(998, 37);
             this.tableLayoutPanel1.TabIndex = 0;
             // 
-            // quanDoc
-            // 
-            this.quanDoc.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.quanDoc.Enabled = false;
-            this.quanDoc.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.quanDoc.Location = new System.Drawing.Point(945, 3);
-            this.quanDoc.Name = "quanDoc";
-            this.quanDoc.Size = new System.Drawing.Size(50, 26);
-            this.quanDoc.TabIndex = 6;
-            // 
-            // label6
-            // 
-            this.label6.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label6.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label6.Location = new System.Drawing.Point(845, 0);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(94, 37);
-            this.label6.TabIndex = 16;
-            this.label6.Text = "Quản đốc";
-            this.label6.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // toTruong
-            // 
-            this.toTruong.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.toTruong.Enabled = false;
-            this.toTruong.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.toTruong.Location = new System.Drawing.Point(789, 3);
-            this.toTruong.Name = "toTruong";
-            this.toTruong.Size = new System.Drawing.Size(50, 26);
-            this.toTruong.TabIndex = 5;
-            // 
             // label5
             // 
             this.label5.Dock = System.Windows.Forms.DockStyle.Fill;
             this.label5.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label5.Location = new System.Drawing.Point(689, 0);
+            this.label5.Location = new System.Drawing.Point(833, 0);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(94, 37);
+            this.label5.Size = new System.Drawing.Size(130, 37);
             this.label5.TabIndex = 14;
-            this.label5.Text = "Tổ trưởng";
+            this.label5.Text = "Tên Công đoạn";
             this.label5.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // nguoiLam
@@ -230,7 +197,7 @@
             this.nguoiLam.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.nguoiLam.Location = new System.Drawing.Point(633, 3);
             this.nguoiLam.Name = "nguoiLam";
-            this.nguoiLam.Size = new System.Drawing.Size(50, 26);
+            this.nguoiLam.Size = new System.Drawing.Size(194, 26);
             this.nguoiLam.TabIndex = 4;
             // 
             // label4
@@ -315,6 +282,36 @@
             this.cbMay.Size = new System.Drawing.Size(94, 28);
             this.cbMay.TabIndex = 2;
             // 
+            // quanDoc
+            // 
+            this.quanDoc.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.quanDoc.Enabled = false;
+            this.quanDoc.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.quanDoc.Location = new System.Drawing.Point(1419, 3);
+            this.quanDoc.Name = "quanDoc";
+            this.quanDoc.Size = new System.Drawing.Size(1, 26);
+            this.quanDoc.TabIndex = 6;
+            // 
+            // label6
+            // 
+            this.label6.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.label6.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label6.Location = new System.Drawing.Point(1319, 0);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(94, 37);
+            this.label6.TabIndex = 16;
+            this.label6.Text = "Tổ trưởng";
+            this.label6.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // congDoan
+            // 
+            this.congDoan.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.congDoan.FormattingEnabled = true;
+            this.congDoan.Location = new System.Drawing.Point(969, 8);
+            this.congDoan.Name = "congDoan";
+            this.congDoan.Size = new System.Drawing.Size(344, 24);
+            this.congDoan.TabIndex = 17;
+            // 
             // UC_LoiDungMay
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 16F);
@@ -342,9 +339,6 @@
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
-        private System.Windows.Forms.TextBox quanDoc;
-        private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.TextBox toTruong;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.TextBox nguoiLam;
         private System.Windows.Forms.Label label4;
@@ -358,5 +352,8 @@
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.Panel panel2;
         private System.Windows.Forms.DataGridView grvDsLoiDungMay;
+        private System.Windows.Forms.TextBox quanDoc;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.ComboBox congDoan;
     }
 }

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -203,28 +203,48 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.SanXuat
             grvDsLoiDungMay.EditingControlShowing +=
                 GrvDsLoiDungMay_EditingControlShowing;
 
-            // Quan trọng: click một lần vào ô thời gian là bắt đầu edit ngay.
-            grvDsLoiDungMay.CellMouseDown +=
-                GrvDsLoiDungMay_CellMouseDown;
+            // Ghi chú: KHÔNG tự gọi BeginEdit() hay giả lập click chuột vào
+            // DateTimePicker ở đây nữa (CellMouseDown/CellMouseUp trước đây).
+            // EditMode = EditOnEnter đã tự mở editor khi click vào cell rồi;
+            // gọi thêm BeginEdit()/giả lập chuột ngay trong lúc DataGridView
+            // đang xử lý dở sự kiện chuột gốc gây lồng message (reentrant)
+            // và làm cả form bị đơ. Việc focus vào field giờ (HH) được xử lý
+            // an toàn trong GrvDsLoiDungMay_EditingControlShowing bên dưới,
+            // sau khi editor đã sẵn sàng hoàn toàn.
         }
 
         /// <summary>
-        /// Click một lần vào cột thời gian:
-        /// - chọn cell
-        /// - mở editor ngay
-        /// - DataGridViewTimeEditingControl sẽ tự tạo 00:00 nếu cell đang trống
-        ///   và đưa focus về phần giờ.
+        /// - Cột "Tên lỗi": ép ComboBox ở chế độ chỉ chọn (không cho gõ tự do).
+        /// - Cột thời gian: cell rỗng đã tự động được set 00:00 bởi
+        ///   DataGridViewTimeCell/PrepareEditingControlForEdit (không cần code
+        ///   thêm ở đây). Việc còn lại là focus vào field giờ (HH) để người
+        ///   dùng gõ số ngay, thực hiện AN TOÀN bằng cách trì hoãn qua
+        ///   BeginInvoke — chạy sau khi message loop của cú click gốc đã xử lý
+        ///   xong, tránh gọi lồng (reentrant) làm treo form.
         /// </summary>
-        private void GrvDsLoiDungMay_CellMouseDown(
+        private void GrvDsLoiDungMay_EditingControlShowing(
             object sender,
-            DataGridViewCellMouseEventArgs e)
+            DataGridViewEditingControlShowingEventArgs e)
         {
-            if (e.RowIndex < 0 || e.ColumnIndex < 0)
+            if (grvDsLoiDungMay.CurrentCell == null ||
+                grvDsLoiDungMay.CurrentCell.OwningColumn == null)
             {
                 return;
             }
 
-            string columnName = grvDsLoiDungMay.Columns[e.ColumnIndex].Name;
+            string columnName = grvDsLoiDungMay.CurrentCell.OwningColumn.Name;
+
+            if (columnName == ColTenLoi)
+            {
+                ComboBox comboBox = e.Control as ComboBox;
+
+                if (comboBox != null)
+                {
+                    comboBox.DropDownStyle = ComboBoxStyle.DropDownList;
+                }
+
+                return;
+            }
 
             bool isTimeColumn =
                 columnName == ColThoiGianBatDau ||
@@ -235,41 +255,21 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.SanXuat
                 return;
             }
 
-            DataGridViewCell cell =
-                grvDsLoiDungMay.Rows[e.RowIndex].Cells[e.ColumnIndex];
+            DataGridViewTimeEditingControl timeControl =
+                e.Control as DataGridViewTimeEditingControl;
 
-            if (cell.ReadOnly)
+            if (timeControl == null)
             {
                 return;
             }
 
-            // Đặt cell được click làm CurrentCell ngay từ MouseDown.
-            grvDsLoiDungMay.CurrentCell = cell;
-
-            // Ép DataGridView tạo DateTimePicker editor ngay trong click đầu tiên.
-            grvDsLoiDungMay.BeginEdit(true);
-        }
-
-        /// <summary>
-        /// Chỉ cho phép chọn Tên lỗi trong danh sách truyền vào.
-        /// </summary>
-        private void GrvDsLoiDungMay_EditingControlShowing(
-            object sender,
-            DataGridViewEditingControlShowingEventArgs e)
-        {
-            if (grvDsLoiDungMay.CurrentCell == null ||
-                grvDsLoiDungMay.CurrentCell.OwningColumn == null ||
-                grvDsLoiDungMay.CurrentCell.OwningColumn.Name != ColTenLoi)
+            timeControl.BeginInvoke(new MethodInvoker(() =>
             {
-                return;
-            }
-
-            ComboBox comboBox = e.Control as ComboBox;
-
-            if (comboBox != null)
-            {
-                comboBox.DropDownStyle = ComboBoxStyle.DropDownList;
-            }
+                if (!timeControl.IsDisposed && timeControl.IsHandleCreated)
+                {
+                    timeControl.FocusHourPart();
+                }
+            }));
         }
 
         /// <summary>

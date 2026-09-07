@@ -30,6 +30,10 @@
         {
             this.label1 = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.panel3 = new System.Windows.Forms.Panel();
+            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.panel2 = new System.Windows.Forms.Panel();
+            this.grvDsLoiDungMay = new System.Windows.Forms.DataGridView();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.quanDoc = new System.Windows.Forms.TextBox();
@@ -44,17 +48,13 @@
             this.label7 = new System.Windows.Forms.Label();
             this.ngay = new System.Windows.Forms.DateTimePicker();
             this.cbMay = new System.Windows.Forms.ComboBox();
-            this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.panel2 = new System.Windows.Forms.Panel();
-            this.panel3 = new System.Windows.Forms.Panel();
-            this.grvDsLoiDungMay = new System.Windows.Forms.DataGridView();
             this.panel1.SuspendLayout();
-            this.groupBox1.SuspendLayout();
-            this.tableLayoutPanel1.SuspendLayout();
+            this.panel3.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.panel2.SuspendLayout();
-            this.panel3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.grvDsLoiDungMay)).BeginInit();
+            this.groupBox1.SuspendLayout();
+            this.tableLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // label1
@@ -80,11 +80,62 @@
             this.panel1.Size = new System.Drawing.Size(1024, 644);
             this.panel1.TabIndex = 1;
             // 
+            // panel3
+            // 
+            this.panel3.Controls.Add(this.groupBox2);
+            this.panel3.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panel3.Location = new System.Drawing.Point(3, 122);
+            this.panel3.Name = "panel3";
+            this.panel3.Padding = new System.Windows.Forms.Padding(0, 5, 0, 0);
+            this.panel3.Size = new System.Drawing.Size(1018, 320);
+            this.panel3.TabIndex = 3;
+            // 
+            // groupBox2
+            // 
+            this.groupBox2.Controls.Add(this.panel2);
+            this.groupBox2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.groupBox2.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.groupBox2.Location = new System.Drawing.Point(0, 5);
+            this.groupBox2.Name = "groupBox2";
+            this.groupBox2.Size = new System.Drawing.Size(1018, 315);
+            this.groupBox2.TabIndex = 2;
+            this.groupBox2.TabStop = false;
+            this.groupBox2.Text = "Nguyên nhân dừng máy";
+            // 
+            // panel2
+            // 
+            this.panel2.Controls.Add(this.grvDsLoiDungMay);
+            this.panel2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panel2.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.panel2.Location = new System.Drawing.Point(3, 19);
+            this.panel2.Name = "panel2";
+            this.panel2.Padding = new System.Windows.Forms.Padding(5);
+            this.panel2.Size = new System.Drawing.Size(1012, 293);
+            this.panel2.TabIndex = 0;
+            // 
+            // grvDsLoiDungMay
+            // 
+            this.grvDsLoiDungMay.AllowUserToDeleteRows = false;
+            this.grvDsLoiDungMay.AllowUserToResizeRows = false;
+            this.grvDsLoiDungMay.BackgroundColor = System.Drawing.SystemColors.Window;
+            this.grvDsLoiDungMay.ColumnHeadersHeight = 50;
+            this.grvDsLoiDungMay.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
+            this.grvDsLoiDungMay.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.grvDsLoiDungMay.EditMode = System.Windows.Forms.DataGridViewEditMode.EditOnEnter;
+            this.grvDsLoiDungMay.Location = new System.Drawing.Point(5, 5);
+            this.grvDsLoiDungMay.MultiSelect = false;
+            this.grvDsLoiDungMay.Name = "grvDsLoiDungMay";
+            this.grvDsLoiDungMay.RowHeadersVisible = false;
+            this.grvDsLoiDungMay.RowTemplate.Height = 30;
+            this.grvDsLoiDungMay.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
+            this.grvDsLoiDungMay.Size = new System.Drawing.Size(1002, 283);
+            this.grvDsLoiDungMay.TabIndex = 0;
+            // 
             // groupBox1
             // 
             this.groupBox1.Controls.Add(this.tableLayoutPanel1);
             this.groupBox1.Dock = System.Windows.Forms.DockStyle.Top;
-            this.groupBox1.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.groupBox1.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.groupBox1.Location = new System.Drawing.Point(3, 49);
             this.groupBox1.Margin = new System.Windows.Forms.Padding(4);
             this.groupBox1.Name = "groupBox1";
@@ -264,46 +315,6 @@
             this.cbMay.Size = new System.Drawing.Size(94, 28);
             this.cbMay.TabIndex = 2;
             // 
-            // groupBox2
-            // 
-            this.groupBox2.Controls.Add(this.panel2);
-            this.groupBox2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.groupBox2.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.groupBox2.Location = new System.Drawing.Point(0, 5);
-            this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(1018, 315);
-            this.groupBox2.TabIndex = 2;
-            this.groupBox2.TabStop = false;
-            this.groupBox2.Text = "Nguyên nhân dừng máy";
-            // 
-            // panel2
-            // 
-            this.panel2.Controls.Add(this.grvDsLoiDungMay);
-            this.panel2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel2.Location = new System.Drawing.Point(3, 19);
-            this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(1012, 293);
-            this.panel2.TabIndex = 0;
-            // 
-            // panel3
-            // 
-            this.panel3.Controls.Add(this.groupBox2);
-            this.panel3.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panel3.Location = new System.Drawing.Point(3, 122);
-            this.panel3.Name = "panel3";
-            this.panel3.Padding = new System.Windows.Forms.Padding(0, 5, 0, 0);
-            this.panel3.Size = new System.Drawing.Size(1018, 320);
-            this.panel3.TabIndex = 3;
-            // 
-            // grvDsLoiDungMay
-            // 
-            this.grvDsLoiDungMay.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.grvDsLoiDungMay.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.grvDsLoiDungMay.Location = new System.Drawing.Point(0, 0);
-            this.grvDsLoiDungMay.Name = "grvDsLoiDungMay";
-            this.grvDsLoiDungMay.Size = new System.Drawing.Size(1012, 293);
-            this.grvDsLoiDungMay.TabIndex = 0;
-            // 
             // UC_LoiDungMay
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 16F);
@@ -314,13 +325,13 @@
             this.Name = "UC_LoiDungMay";
             this.Size = new System.Drawing.Size(1024, 644);
             this.panel1.ResumeLayout(false);
+            this.panel3.ResumeLayout(false);
+            this.groupBox2.ResumeLayout(false);
+            this.panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.grvDsLoiDungMay)).EndInit();
             this.groupBox1.ResumeLayout(false);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
-            this.groupBox2.ResumeLayout(false);
-            this.panel2.ResumeLayout(false);
-            this.panel3.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.grvDsLoiDungMay)).EndInit();
             this.ResumeLayout(false);
 
         }

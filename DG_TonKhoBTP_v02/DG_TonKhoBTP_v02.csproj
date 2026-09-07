@@ -362,6 +362,7 @@
       <DependentUpon>UC_HaLo.cs</DependentUpon>
     </Compile>
     <Compile Include="UI\NghiepVuKhac\SanXuat\ICustomUserControl.cs" />
+    <Compile Include="UI\NghiepVuKhac\SanXuat\DataGridViewTimeColumn.cs" />
     <Compile Include="UI\NghiepVuKhac\SanXuat\UC_LoiDungMay.cs">
       <SubType>UserControl</SubType>
     </Compile>

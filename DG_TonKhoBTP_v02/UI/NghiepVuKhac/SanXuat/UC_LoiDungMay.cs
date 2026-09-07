@@ -1,4 +1,7 @@
-﻿using System;
+﻿using DG_TonKhoBTP_v02.Database.SanXuat;
+using DG_TonKhoBTP_v02.Models.SanXuat;
+using DG_TonKhoBTP_v02.UI.Helper;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -15,11 +18,89 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.SanXuat
         private const string ColXoa = "colXoa";
 
         private readonly List<string> danhSachTenLoi = new List<string>();
+        private bool dangNapDanhMuc;
 
         public UC_LoiDungMay()
         {
             InitializeComponent();
             CauHinhGridLoiDungMay();
+
+            Load += UC_LoiDungMay_Load;
+            congDoan.SelectedIndexChanged += CongDoan_SelectedIndexChanged;
+        }
+
+        private void UC_LoiDungMay_Load(object sender, EventArgs e)
+        {
+            ngay.Value = DateTime.Today;
+            NapDanhSachCongDoan();
+        }
+
+        private void NapDanhSachCongDoan()
+        {
+            dangNapDanhMuc = true;
+
+            try
+            {
+                List<DanhSachCongDoan_Model> danhSachCongDoan =
+                    LoiDungMay_DB.GetDanhSachCongDoanCoMay();
+
+                congDoan.DataSource = null;
+                congDoan.DisplayMember = nameof(DanhSachCongDoan_Model.TenCongDoan);
+                congDoan.ValueMember = nameof(DanhSachCongDoan_Model.MaCongDoan);
+                congDoan.DataSource = danhSachCongDoan;
+                congDoan.SelectedIndex = -1;
+
+                ResetDuLieuTheoCongDoan();
+            }
+            finally
+            {
+                dangNapDanhMuc = false;
+            }
+        }
+
+        private void CongDoan_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (dangNapDanhMuc)
+            {
+                return;
+            }
+
+            ResetDuLieuTheoCongDoan();
+
+            DanhSachCongDoan_Model congDoanDaChon =
+                congDoan.SelectedItem as DanhSachCongDoan_Model;
+
+            if (congDoanDaChon == null)
+            {
+                return;
+            }
+
+            List<DanhSachMay_Model> danhSachMay =
+                DanhSachMayHelper.LayTheoMaCongDoan(congDoanDaChon.MaCongDoan);
+
+            cbMay.DisplayMember = nameof(DanhSachMay_Model.TenMay);
+            cbMay.ValueMember = nameof(DanhSachMay_Model.Id);
+            cbMay.DataSource = danhSachMay;
+            cbMay.SelectedIndex = -1;
+
+            List<TenLoiDungMay_Model> danhSachLoi =
+                LoiDungMay_DB.GetDanhSachTenLoiTheoMaCongDoan(congDoanDaChon.MaCongDoan);
+
+            List<string> danhSachTenLoiTheoCongDoan =
+                danhSachLoi.Select(x => x.TenLoi).ToList();
+
+            danhSachTenLoiTheoCongDoan.Add("Lỗi khác");
+            SetDanhSachLoi(danhSachTenLoiTheoCongDoan);
+        }
+
+        private void ResetDuLieuTheoCongDoan()
+        {
+            cbMay.DataSource = null;
+            cbMay.Items.Clear();
+            cbMay.SelectedIndex = -1;
+
+            grvDsLoiDungMay.Rows.Clear();
+            SetDanhSachLoi(new List<string>());
         }
 
         /// <summary>
@@ -308,6 +389,12 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.SanXuat
             {
                 grvDsLoiDungMay.Rows.RemoveAt(e.RowIndex);
             }
+        }
+
+
+        private void btnLuu_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

@@ -251,6 +251,7 @@
     <Compile Include="UI\Helper\AutoSearchWithCombobox\ComboBoxSearchHelper.cs" />
     <Compile Include="UI\Helper\AutoSearchWithCombobox\VatTuPhu.cs" />
     <Compile Include="UI\Helper\KiemTraSoLuongBinHelper.cs" />
+    <Compile Include="UI\Helper\DanhSachMayHelper.cs" />
     <Compile Include="UI\Helper\PhanTachCauTrucDay.cs" />
     <Compile Include="UI\NghiepVuKhac\KeToan\Frm_BoSungThemDuLieu.cs">
       <SubType>Form</SubType>

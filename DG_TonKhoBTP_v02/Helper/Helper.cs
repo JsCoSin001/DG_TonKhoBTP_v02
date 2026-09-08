@@ -183,17 +183,17 @@ namespace DG_TonKhoBTP_v02.Helper
 
         public static string TaoThongBao(Label lb = null)
         {
-            ConfigDB configDB = DatabaseHelper.GetConfig();
+            KhoaDatabase KhoaDatabase = DatabaseHelper.GetConfig();
 
             // Nếu Active == true ⇒ chỉ ẩn label và thoát
-            if (configDB  == null || configDB.Active)
+            if (KhoaDatabase  == null || KhoaDatabase.Active)
             {
                 if (lb != null) lb.Visible = false;
                 return "";
             }
 
             // Đến đây nghĩa là Active == false
-            string tb = $"{configDB.Author}: {configDB.Message} ".ToUpper();
+            string tb = $"{KhoaDatabase.Author}: {KhoaDatabase.Message} ".ToUpper();
 
             FrmWaiting.ShowGifAlert(tb, "THÔNG BÁO");
 

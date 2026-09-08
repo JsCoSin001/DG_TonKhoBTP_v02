@@ -2824,21 +2824,21 @@ namespace DG_TonKhoBTP_v02.Database
         }
 
 
-        public static ConfigDB GetConfig()
+        public static KhoaDatabase GetConfig()
         {
 
             using (var conn = new SQLiteConnection(_connStr))
             {
                 conn.Open();
 
-                string sql = "SELECT Active,Author, Message FROM ConfigDB ORDER BY ID DESC  LIMIT 1";
+                string sql = "SELECT Active,Author, Message FROM KhoaDatabase ORDER BY ID DESC  LIMIT 1";
 
                 using (var cmd = new SQLiteCommand(sql, conn))
                 using (var reader = cmd.ExecuteReader())
                 {
                     if (reader.Read())
                     {
-                        return new ConfigDB
+                        return new KhoaDatabase
                         {
                             Active = reader.IsDBNull(0) ? false : reader.GetBoolean(0),
                             Author = reader.IsDBNull(1) ? null : reader.GetString(1),
@@ -3318,9 +3318,9 @@ namespace DG_TonKhoBTP_v02.Database
         #endregion
 
         #region setup config
-        public static bool InsertConfig(ConfigDB config)
+        public static bool InsertConfig(KhoaDatabase config)
         {
-            string query = "INSERT INTO ConfigDB (Active, Author, Message, Ngay) VALUES (@active, @author, @message, @ngay)";
+            string query = "INSERT INTO KhoaDatabase (Active, Author, Message, Ngay) VALUES (@active, @author, @message, @ngay)";
             bool flg = false;
             try
             {

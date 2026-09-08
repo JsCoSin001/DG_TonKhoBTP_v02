@@ -28,7 +28,7 @@ namespace DG_TonKhoBTP_v02.UI.Setting
             {
                 await WaitingHelper.RunWithWaiting(async () =>
                 {
-                    ConfigDB config = null;
+                    KhoaDatabase config = null;
 
                     await Task.Run(() =>
                     {
@@ -130,7 +130,7 @@ namespace DG_TonKhoBTP_v02.UI.Setting
                 return  ;
             }
 
-            ConfigDB config = new ConfigDB
+            KhoaDatabase config = new KhoaDatabase
             {
                 Active = rdoHoatDong.Checked,
                 Author = tbxNguoiThucHien.Text.Trim(),

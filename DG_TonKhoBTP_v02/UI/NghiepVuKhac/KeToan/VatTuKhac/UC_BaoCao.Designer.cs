@@ -431,6 +431,8 @@
             // 
             this.cbKhongKhoaVatTu.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.cbKhongKhoaVatTu.AutoSize = true;
+            this.cbKhongKhoaVatTu.Checked = true;
+            this.cbKhongKhoaVatTu.CheckState = System.Windows.Forms.CheckState.Checked;
             this.cbKhongKhoaVatTu.Location = new System.Drawing.Point(37, 14);
             this.cbKhongKhoaVatTu.Name = "cbKhongKhoaVatTu";
             this.cbKhongKhoaVatTu.Size = new System.Drawing.Size(104, 22);
@@ -456,7 +458,7 @@
             this.btnKhoa.TabIndex = 0;
             this.btnKhoa.Text = "Khoá";
             this.btnKhoa.UseVisualStyleBackColor = true;
-            this.btnKhoa.Click += new System.EventHandler(this.btnTimDL_Click);
+            this.btnKhoa.Click += new System.EventHandler(this.btnKhoa_Click);
             // 
             // flowLayoutPanel2
             // 

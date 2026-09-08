@@ -2105,5 +2105,10 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
             cbxXuatTCVN.Enabled =
                 cbxExportExcel.Checked;
         }
+
+        private void btnKhoa_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }

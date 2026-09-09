@@ -70,7 +70,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
             // User ngoài Acc/Admin không nhìn thấy cụm cấu hình khóa vật tư.
             flowLayoutPanel1.Visible = _canManageNgayKhoaVatTu;
 
-            cbKhongKhoaVatTu.CheckedChanged += cbKhongKhoaVatTu_CheckedChanged;
+            cbKhoaVatTu.CheckedChanged += cbKhoaVatTu_CheckedChanged;
             VisibleChanged += UC_BaoCao_VisibleChanged;
 
             RefreshNgayKhoaVatTu(showError: _canManageNgayKhoaVatTu);
@@ -93,14 +93,15 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
                 {
                     if (ngayKhoa.HasValue)
                     {
-                        cbKhongKhoaVatTu.Checked = false;
+                        // Checkbox mang nghĩa dương: checked = đang khóa.
+                        cbKhoaVatTu.Checked = true;
                         dtNgayKhoaVatTu.Enabled = _canManageNgayKhoaVatTu;
                         btnKhoa.Enabled = _canManageNgayKhoaVatTu;
                         dtNgayKhoaVatTu.Value = ngayKhoa.Value.Date;
                     }
                     else
                     {
-                        cbKhongKhoaVatTu.Checked = true;
+                        cbKhoaVatTu.Checked = false;
                         dtNgayKhoaVatTu.Enabled = false;
                         btnKhoa.Enabled = false;
                     }
@@ -117,6 +118,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
                 _isLoadingNgayKhoaVatTu = true;
                 try
                 {
+                    cbKhoaVatTu.Checked = false;
                     dtNgayKhoaVatTu.Enabled = false;
                     btnKhoa.Enabled = false;
                 }
@@ -128,7 +130,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
                 if (showError)
                 {
                     FrmWaiting.ShowGifAlert(
-                        "Cấu hình khoá nhập liệu vật tư không hợp lệ. " + ex.Message,
+                        "Cấu hình NgayKhoa_VatTu không hợp lệ. " + ex.Message,
                         myIcon: EnumStore.Icon.Warning);
                 }
 
@@ -136,39 +138,38 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
             }
         }
 
-        private void cbKhongKhoaVatTu_CheckedChanged(object sender, EventArgs e)
+        private void cbKhoaVatTu_CheckedChanged(object sender, EventArgs e)
         {
             if (_isLoadingNgayKhoaVatTu || !_canManageNgayKhoaVatTu)
                 return;
 
-            if (cbKhongKhoaVatTu.Checked)
+            if (cbKhoaVatTu.Checked)
             {
-                try
-                {
-                    // Chọn "Không khóa" là lưu NULL ngay, không cần nhấn btnKhoa.
-                    ConfigApp_DB.SetNgayKhoaVatTu(null);
-                    dtNgayKhoaVatTu.Enabled = false;
-                    btnKhoa.Enabled = false;
-
-                    FrmWaiting.ShowGifAlert(
-                        "Đã bỏ khóa ngày vật tư.",
-                        myIcon: EnumStore.Icon.Success);
-                }
-                catch (Exception ex)
-                {
-                    FrmWaiting.ShowGifAlert(
-                        "Không thể cập nhật cấu hình NgayKhoa_VatTu. " + ex.Message,
-                        myIcon: EnumStore.Icon.Warning);
-                    RefreshNgayKhoaVatTu(showError: false);
-                }
-
+                // Tick "Khoá" chỉ mở phần chọn ngày; chưa ghi DB cho đến khi nhấn btnKhoa.
+                dtNgayKhoaVatTu.Enabled = true;
+                btnKhoa.Enabled = true;
+                dtNgayKhoaVatTu.Value = GetLastDayOfPreviousMonth(DateTime.Today);
                 return;
             }
 
-            // Bỏ tick chỉ mở quyền chọn ngày; chưa ghi DB cho đến khi nhấn btnKhoa.
-            dtNgayKhoaVatTu.Enabled = true;
-            btnKhoa.Enabled = true;
-            dtNgayKhoaVatTu.Value = GetLastDayOfPreviousMonth(DateTime.Today);
+            try
+            {
+                // Bỏ tick "Khoá" = bỏ khóa ngay, không cần nhấn btnKhoa.
+                ConfigApp_DB.SetNgayKhoaVatTu(null);
+                dtNgayKhoaVatTu.Enabled = false;
+                btnKhoa.Enabled = false;
+
+                FrmWaiting.ShowGifAlert(
+                    "Đã bỏ khóa ngày vật tư.",
+                    myIcon: EnumStore.Icon.Success);
+            }
+            catch (Exception ex)
+            {
+                FrmWaiting.ShowGifAlert(
+                    "Không thể cập nhật cấu hình NgayKhoa_VatTu. " + ex.Message,
+                    myIcon: EnumStore.Icon.Warning);
+                RefreshNgayKhoaVatTu(showError: false);
+            }
         }
 
         private static DateTime GetLastDayOfPreviousMonth(DateTime today)
@@ -2222,26 +2223,17 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
 
         private void btnKhoa_Click(object sender, EventArgs e)
         {
-            if (!_canManageNgayKhoaVatTu)
+            if (!_canManageNgayKhoaVatTu || !cbKhoaVatTu.Checked)
                 return;
 
             try
             {
-                if (cbKhongKhoaVatTu.Checked)
-                {
-                    // Bình thường nút đã disabled ở trạng thái này; giữ guard để an toàn.
-                    ConfigApp_DB.SetNgayKhoaVatTu(null);
-                }
-                else
-                {
-                    ConfigApp_DB.SetNgayKhoaVatTu(dtNgayKhoaVatTu.Value.Date);
-                }
+                DateTime ngayKhoa = dtNgayKhoaVatTu.Value.Date;
+                ConfigApp_DB.SetNgayKhoaVatTu(ngayKhoa);
 
                 RefreshNgayKhoaVatTu(showError: false);
                 FrmWaiting.ShowGifAlert(
-                    cbKhongKhoaVatTu.Checked
-                        ? "Đã bỏ khóa ngày vật tư."
-                        : $"Đã khóa dữ liệu vật tư đến hết ngày {dtNgayKhoaVatTu.Value:dd/MM/yyyy}.",
+                    $"Đã khóa dữ liệu vật tư đến hết ngày {ngayKhoa:dd/MM/yyyy}.",
                     myIcon: EnumStore.Icon.Success);
             }
             catch (Exception ex)

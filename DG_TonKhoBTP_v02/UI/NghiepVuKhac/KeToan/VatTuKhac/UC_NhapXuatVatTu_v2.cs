@@ -1,4 +1,5 @@
 ﻿using DG_TonKhoBTP_v02.Database;
+using DG_TonKhoBTP_v02.Database.KeToan.VatTuKhac;
 using DG_TonKhoBTP_v02.Models;
 using DG_TonKhoBTP_v02.Models.KeToan.VatTuKhac;
 using DG_TonKhoBTP_v02.UI.Helper.AutoSearchWithCombobox;
@@ -52,6 +53,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
         private bool _editingIsGroupXuat;
         private DateTime? _editingOldNgay;
         private bool _isChangingEditDateProgrammatically;
+        private DateTime? _ngayKhoaVatTu;
+        private bool _ngayKhoaVatTuConfigValid;
 
         private bool IsDichVu =>
             _model.IsDichVu
@@ -80,7 +83,188 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
             InitComboBoxSearch();
             InitTenPhieu();
 
+            VisibleChanged += UC_NhapXuatVatTu_v2_VisibleChanged;
             Disposed += UC_NhapXuatVatTu_v2_Disposed;
+
+            RefreshNgayKhoaVatTu(showError: true);
+        }
+
+        private void UC_NhapXuatVatTu_v2_VisibleChanged(object sender, EventArgs e)
+        {
+            if (Visible)
+                RefreshNgayKhoaVatTu(showError: true);
+        }
+
+        private bool RefreshNgayKhoaVatTu(bool showError)
+        {
+            try
+            {
+                _ngayKhoaVatTu = ConfigApp_DB.GetNgayKhoaVatTu();
+                _ngayKhoaVatTuConfigValid = true;
+                ApplyNgayKhoaVatTuToCurrentState();
+                CapNhatTenPhieu();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _ngayKhoaVatTu = null;
+                _ngayKhoaVatTuConfigValid = false;
+                ApplyNgayKhoaVatTuToCurrentState();
+
+                if (showError)
+                {
+                    FrmWaiting.ShowGifAlert(
+                        "Cấu hình NgayKhoa_VatTu không hợp lệ. " + ex.Message,
+                        myIcon: EnumStore.Icon.Warning);
+                }
+
+                return false;
+            }
+        }
+
+        private bool TryReadNgayKhoaVatTuForOperation()
+        {
+            try
+            {
+                _ngayKhoaVatTu = ConfigApp_DB.GetNgayKhoaVatTu();
+                _ngayKhoaVatTuConfigValid = true;
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _ngayKhoaVatTu = null;
+                _ngayKhoaVatTuConfigValid = false;
+                ApplyNgayKhoaVatTuToCurrentState();
+                FrmWaiting.ShowGifAlert(
+                    "Không thể tiếp tục vì cấu hình NgayKhoa_VatTu không hợp lệ. " + ex.Message,
+                    myIcon: EnumStore.Icon.Warning);
+                return false;
+            }
+        }
+
+        private bool CanUseBusinessDateWithLoadedConfig(DateTime ngay, string thaoTac)
+        {
+            if (!_ngayKhoaVatTu.HasValue)
+                return true;
+
+            DateTime ngayKhoa = _ngayKhoaVatTu.Value.Date;
+            if (ngay.Date <= ngayKhoa)
+            {
+                FrmWaiting.ShowGifAlert(
+                    $"Không thể {thaoTac}. Dữ liệu vật tư đã khóa đến hết ngày {ngayKhoa:dd/MM/yyyy}.",
+                    myIcon: EnumStore.Icon.Warning);
+                return false;
+            }
+
+            if (ngay.Date > DateTime.Today)
+            {
+                FrmWaiting.ShowGifAlert(
+                    $"Không thể {thaoTac}. Khi có ngày khóa, ngày nghiệp vụ chỉ được chọn đến hôm nay ({DateTime.Today:dd/MM/yyyy}).",
+                    myIcon: EnumStore.Icon.Warning);
+                return false;
+            }
+
+            return true;
+        }
+
+        private bool CanModifyExistingRowDate(DataRowView row, string thaoTac)
+        {
+            if (!TryReadNgayKhoaVatTuForOperation())
+                return false;
+
+            if (!_ngayKhoaVatTu.HasValue)
+                return true;
+
+            if (row == null || !TryParseDbDate(GetString(row, "ngay"), out DateTime ngay))
+            {
+                FrmWaiting.ShowGifAlert(
+                    $"Không thể {thaoTac} vì không xác định được ngày của dữ liệu.",
+                    myIcon: EnumStore.Icon.Warning);
+                return false;
+            }
+
+            return CanUseBusinessDateWithLoadedConfig(ngay.Date, thaoTac);
+        }
+
+        private void ApplyNgayKhoaVatTuToCurrentState()
+        {
+            if (ngayNhap_Xuat == null || ngayNhap_Xuat.IsDisposed || btnLuu == null || btnLuu.IsDisposed)
+                return;
+
+            ResetNgayNhapXuatBounds();
+
+            if (!_ngayKhoaVatTuConfigValid)
+            {
+                ngayNhap_Xuat.Enabled = false;
+                btnLuu.Enabled = false;
+                return;
+            }
+
+            if (!_ngayKhoaVatTu.HasValue)
+            {
+                btnLuu.Enabled = true;
+
+                if (_isEditMode && _editingOldNgay.HasValue)
+                {
+                    CauHinhNgayEditTrongCungThang(_editingOldNgay.Value.Date, keepCurrentValue: true);
+                    ngayNhap_Xuat.Enabled = true;
+                }
+                else
+                {
+                    ngayNhap_Xuat.Enabled = !_isEditMode && !CoChiTietTrongGrid();
+                }
+
+                return;
+            }
+
+            DateTime ngayKhoa = _ngayKhoaVatTu.Value.Date;
+            DateTime maxDate = DateTime.Today;
+
+            if (ngayKhoa >= maxDate)
+            {
+                ngayNhap_Xuat.Enabled = false;
+                btnLuu.Enabled = false;
+                return;
+            }
+
+            DateTime minDate = ngayKhoa.AddDays(1);
+
+            if (_isEditMode && _editingOldNgay.HasValue && _editingOldNgay.Value.Date <= ngayKhoa)
+            {
+                ngayNhap_Xuat.Enabled = false;
+                btnLuu.Enabled = false;
+                return;
+            }
+
+            DateTime target = ngayNhap_Xuat.Value.Date;
+            if (target < minDate || target > maxDate)
+                target = maxDate;
+
+            SetNgayNhapXuatRange(minDate, maxDate, target);
+            btnLuu.Enabled = true;
+            ngayNhap_Xuat.Enabled = _isEditMode || !CoChiTietTrongGrid();
+        }
+
+        private void ResetNgayNhapXuatBounds()
+        {
+            ngayNhap_Xuat.MaxDate = DateTimePicker.MaximumDateTime;
+            ngayNhap_Xuat.MinDate = DateTimePicker.MinimumDateTime;
+        }
+
+        private void SetNgayNhapXuatRange(DateTime minDate, DateTime maxDate, DateTime target)
+        {
+            _isChangingEditDateProgrammatically = true;
+            try
+            {
+                ResetNgayNhapXuatBounds();
+                ngayNhap_Xuat.MinDate = minDate;
+                ngayNhap_Xuat.MaxDate = maxDate;
+                ngayNhap_Xuat.Value = target;
+            }
+            finally
+            {
+                _isChangingEditDateProgrammatically = false;
+            }
         }
 
         private void InitTenPhieu()
@@ -99,6 +283,10 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
             if (_isEditMode)
             {
                 if (!_editingOldNgay.HasValue)
+                    return;
+
+                // Khi có NgayKhoa_VatTu, rule ngày khóa ưu tiên và thay thế rule cùng tháng.
+                if (_ngayKhoaVatTu.HasValue)
                     return;
 
                 DateTime ngayCu = _editingOldNgay.Value.Date;
@@ -597,6 +785,25 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
                 FrmWaiting.ShowGifAlert("Mã phiếu không được để trống", myIcon: EnumStore.Icon.Warning);
                 return false;
             }
+
+            // Luôn đọc lại cấu hình ngay trước Save/Update.
+            if (!TryReadNgayKhoaVatTuForOperation())
+                return false;
+
+            if (_isEditMode
+                && _editingOldNgay.HasValue
+                && _ngayKhoaVatTu.HasValue
+                && _editingOldNgay.Value.Date <= _ngayKhoaVatTu.Value.Date)
+            {
+                FrmWaiting.ShowGifAlert(
+                    $"Không thể sửa. Dữ liệu vật tư đã khóa đến hết ngày {_ngayKhoaVatTu.Value:dd/MM/yyyy}.",
+                    myIcon: EnumStore.Icon.Warning);
+                return false;
+            }
+
+            if (!CanUseBusinessDateWithLoadedConfig(ngayNhap_Xuat.Value.Date, _isEditMode ? "sửa" : "lưu"))
+                return false;
+
             int? danhSachKhoId = IsDichVu ? null : GetSelectedKhoId();
             if (!IsDichVu && !danhSachKhoId.HasValue)
             {
@@ -621,6 +828,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
                 return false;
 
             if (_isEditMode
+                && !_ngayKhoaVatTu.HasValue
                 && _editingOldNgay.HasValue
                 && (_editingOldNgay.Value.Year != ngayNhap_Xuat.Value.Year
                     || _editingOldNgay.Value.Month != ngayNhap_Xuat.Value.Month))
@@ -763,6 +971,10 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
                 return;
             }
 
+            // Ngày khóa áp dụng cho cả Delete và được đọc lại ngay trước thao tác.
+            if (!CanModifyExistingRowDate(row, "xóa"))
+                return;
+
             string tenPhieu = GetString(row, "TenPhieu");
             string tenVatTu = GetString(row, "ten");
             decimal soLuong = Math.Abs(GetDecimal(row, "thucNhan"));
@@ -867,6 +1079,9 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
                 return;
             }
 
+            if (!CanModifyExistingRowDate(row, "sửa"))
+                return;
+
             FillFormForEdit(row);
         }
 
@@ -893,8 +1108,9 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
             if (TryParseDbDate(GetString(row, "ngay"), out ngay))
             {
                 _editingOldNgay = ngay.Date;
-                CauHinhNgayEditTrongCungThang(ngay.Date);
-                ngayNhap_Xuat.Enabled = true;
+                ResetNgayNhapXuatBounds();
+                ngayNhap_Xuat.Value = ngay.Date;
+                ApplyNgayKhoaVatTuToCurrentState();
             }
             else
             {
@@ -965,8 +1181,9 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
             ResetChiTietDangNhap();
             ClearGridGiuCot();
 
-            ngayNhap_Xuat.Enabled = true;
-            ngayNhap_Xuat.Value = DateTime.Now;
+            ResetNgayNhapXuatBounds();
+            ngayNhap_Xuat.Value = DateTime.Today;
+            ApplyNgayKhoaVatTuToCurrentState();
             CapNhatTenPhieu();
         }
 
@@ -1015,28 +1232,19 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
 
         private void CapNhatTrangThaiNgayTheoChiTietPhieu()
         {
-            ngayNhap_Xuat.Enabled = _isEditMode || !CoChiTietTrongGrid();
+            ApplyNgayKhoaVatTuToCurrentState();
         }
 
-        private void CauHinhNgayEditTrongCungThang(DateTime ngayGoc)
+        private void CauHinhNgayEditTrongCungThang(DateTime ngayGoc, bool keepCurrentValue = false)
         {
             DateTime ngayDauThang = new DateTime(ngayGoc.Year, ngayGoc.Month, 1);
             DateTime ngayCuoiThang = ngayDauThang.AddMonths(1).AddDays(-1);
+            DateTime target = keepCurrentValue ? ngayNhap_Xuat.Value.Date : ngayGoc.Date;
 
-            _isChangingEditDateProgrammatically = true;
-            try
-            {
-                // Reset giới hạn cũ trước khi chuyển sang một phiếu thuộc tháng khác.
-                ngayNhap_Xuat.MinDate = DateTimePicker.MinimumDateTime;
-                ngayNhap_Xuat.MaxDate = DateTimePicker.MaximumDateTime;
-                ngayNhap_Xuat.Value = ngayGoc;
-                ngayNhap_Xuat.MinDate = ngayDauThang;
-                ngayNhap_Xuat.MaxDate = ngayCuoiThang;
-            }
-            finally
-            {
-                _isChangingEditDateProgrammatically = false;
-            }
+            if (target < ngayDauThang || target > ngayCuoiThang)
+                target = ngayGoc.Date;
+
+            SetNgayNhapXuatRange(ngayDauThang, ngayCuoiThang, target);
         }
 
         private void ResetEditState()
@@ -1052,8 +1260,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
             _isChangingEditDateProgrammatically = true;
             try
             {
-                ngayNhap_Xuat.MinDate = DateTimePicker.MinimumDateTime;
-                ngayNhap_Xuat.MaxDate = DateTimePicker.MaximumDateTime;
+                ResetNgayNhapXuatBounds();
             }
             finally
             {
@@ -1061,6 +1268,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
             }
 
             btnLuu.Text = "Lưu";
+            ApplyNgayKhoaVatTuToCurrentState();
         }
 
         private int? GetSelectedKhoId()
@@ -1248,6 +1456,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
 
         private void UC_NhapXuatVatTu_v2_Disposed(object sender, EventArgs e)
         {
+            VisibleChanged -= UC_NhapXuatVatTu_v2_VisibleChanged;
             if (_searchHelper != null)
             {
                 _searchHelper.ItemSelected -= SearchHelper_ItemSelected;

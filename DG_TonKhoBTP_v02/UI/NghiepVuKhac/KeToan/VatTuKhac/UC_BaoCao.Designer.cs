@@ -46,6 +46,11 @@
             this.cbxMoCuaSo = new System.Windows.Forms.CheckBox();
             this.cbxXuatTCVN = new System.Windows.Forms.CheckBox();
             this.cbxExportExcel = new System.Windows.Forms.CheckBox();
+            this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
+            this.btnKhoa = new System.Windows.Forms.Button();
+            this.dtNgayKhoaVatTu = new System.Windows.Forms.DateTimePicker();
+            this.cbKhongKhoaVatTu = new System.Windows.Forms.CheckBox();
+            this.flowLayoutPanel2 = new System.Windows.Forms.FlowLayoutPanel();
             this.btnChinhTrangThai = new System.Windows.Forms.Button();
             this.cbxAll = new System.Windows.Forms.CheckBox();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
@@ -55,19 +60,14 @@
             this.cbxKieu = new System.Windows.Forms.ComboBox();
             this.panel1 = new System.Windows.Forms.Panel();
             this.lblTieuDe = new System.Windows.Forms.Label();
-            this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
-            this.cbKhongKhoaVatTu = new System.Windows.Forms.CheckBox();
-            this.dtNgayKhoaVatTu = new System.Windows.Forms.DateTimePicker();
-            this.btnKhoa = new System.Windows.Forms.Button();
-            this.flowLayoutPanel2 = new System.Windows.Forms.FlowLayoutPanel();
             this.fileSystemWatcher1 = new System.IO.FileSystemWatcher();
             this.panel3.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
-            this.tableLayoutPanel2.SuspendLayout();
-            this.panel1.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
             this.flowLayoutPanel2.SuspendLayout();
+            this.tableLayoutPanel2.SuspendLayout();
+            this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -137,7 +137,7 @@
             this.cbxdsKho.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbxdsKho.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbxdsKho.FormattingEnabled = true;
-            this.cbxdsKho.Location = new System.Drawing.Point(809, 9);
+            this.cbxdsKho.Location = new System.Drawing.Point(809, 11);
             this.cbxdsKho.Name = "cbxdsKho";
             this.cbxdsKho.Size = new System.Drawing.Size(106, 26);
             this.cbxdsKho.TabIndex = 6;
@@ -175,7 +175,7 @@
             "Chưa về",
             "Chưa hoàn thành",
             "Đã hoàn thành"});
-            this.cbxLoaiYC.Location = new System.Drawing.Point(1002, 9);
+            this.cbxLoaiYC.Location = new System.Drawing.Point(1002, 11);
             this.cbxLoaiYC.Name = "cbxLoaiYC";
             this.cbxLoaiYC.Size = new System.Drawing.Size(106, 26);
             this.cbxLoaiYC.TabIndex = 6;
@@ -286,6 +286,62 @@
             this.cbxExportExcel.UseVisualStyleBackColor = true;
             this.cbxExportExcel.CheckedChanged += new System.EventHandler(this.cbxExportExcel_CheckedChanged);
             // 
+            // flowLayoutPanel1
+            // 
+            this.flowLayoutPanel1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.flowLayoutPanel1.Controls.Add(this.btnKhoa);
+            this.flowLayoutPanel1.Controls.Add(this.dtNgayKhoaVatTu);
+            this.flowLayoutPanel1.Controls.Add(this.cbKhongKhoaVatTu);
+            this.flowLayoutPanel1.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
+            this.flowLayoutPanel1.Location = new System.Drawing.Point(644, 13);
+            this.flowLayoutPanel1.Name = "flowLayoutPanel1";
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(399, 52);
+            this.flowLayoutPanel1.TabIndex = 3;
+            // 
+            // btnKhoa
+            // 
+            this.btnKhoa.Location = new System.Drawing.Point(297, 3);
+            this.btnKhoa.Name = "btnKhoa";
+            this.btnKhoa.Size = new System.Drawing.Size(99, 45);
+            this.btnKhoa.TabIndex = 0;
+            this.btnKhoa.Text = "Khoá";
+            this.btnKhoa.UseVisualStyleBackColor = true;
+            this.btnKhoa.Click += new System.EventHandler(this.btnKhoa_Click);
+            // 
+            // dtNgayKhoaVatTu
+            // 
+            this.dtNgayKhoaVatTu.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.dtNgayKhoaVatTu.Enabled = false;
+            this.dtNgayKhoaVatTu.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
+            this.dtNgayKhoaVatTu.Location = new System.Drawing.Point(147, 12);
+            this.dtNgayKhoaVatTu.Name = "dtNgayKhoaVatTu";
+            this.dtNgayKhoaVatTu.Size = new System.Drawing.Size(144, 26);
+            this.dtNgayKhoaVatTu.TabIndex = 4;
+            // 
+            // cbKhongKhoaVatTu
+            // 
+            this.cbKhongKhoaVatTu.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.cbKhongKhoaVatTu.AutoSize = true;
+            this.cbKhongKhoaVatTu.Checked = true;
+            this.cbKhongKhoaVatTu.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.cbKhongKhoaVatTu.Location = new System.Drawing.Point(37, 14);
+            this.cbKhongKhoaVatTu.Name = "cbKhongKhoaVatTu";
+            this.cbKhongKhoaVatTu.Size = new System.Drawing.Size(104, 22);
+            this.cbKhongKhoaVatTu.TabIndex = 0;
+            this.cbKhongKhoaVatTu.Text = "Không khoá";
+            this.cbKhongKhoaVatTu.UseVisualStyleBackColor = true;
+            // 
+            // flowLayoutPanel2
+            // 
+            this.flowLayoutPanel2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.flowLayoutPanel2.Controls.Add(this.btnChinhTrangThai);
+            this.flowLayoutPanel2.Controls.Add(this.cbxAll);
+            this.flowLayoutPanel2.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
+            this.flowLayoutPanel2.Location = new System.Drawing.Point(1049, 13);
+            this.flowLayoutPanel2.Name = "flowLayoutPanel2";
+            this.flowLayoutPanel2.Size = new System.Drawing.Size(287, 52);
+            this.flowLayoutPanel2.TabIndex = 4;
+            // 
             // btnChinhTrangThai
             // 
             this.btnChinhTrangThai.Location = new System.Drawing.Point(140, 3);
@@ -350,7 +406,7 @@
             this.cbxNguoiThucHien.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbxNguoiThucHien.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbxNguoiThucHien.FormattingEnabled = true;
-            this.cbxNguoiThucHien.Location = new System.Drawing.Point(1230, 9);
+            this.cbxNguoiThucHien.Location = new System.Drawing.Point(1230, 11);
             this.cbxNguoiThucHien.Name = "cbxNguoiThucHien";
             this.cbxNguoiThucHien.Size = new System.Drawing.Size(106, 26);
             this.cbxNguoiThucHien.TabIndex = 6;
@@ -363,7 +419,7 @@
             this.cbxThoiGian.Items.AddRange(new object[] {
             "Không",
             "Theo khoảng thời gian"});
-            this.cbxThoiGian.Location = new System.Drawing.Point(223, 9);
+            this.cbxThoiGian.Location = new System.Drawing.Point(223, 11);
             this.cbxThoiGian.Name = "cbxThoiGian";
             this.cbxThoiGian.Size = new System.Drawing.Size(106, 26);
             this.cbxThoiGian.TabIndex = 6;
@@ -389,7 +445,7 @@
             "Đề Nghị",
             "Nhập Hàng",
             "Xuất Hàng"});
-            this.cbxKieu.Location = new System.Drawing.Point(3, 11);
+            this.cbxKieu.Location = new System.Drawing.Point(3, 9);
             this.cbxKieu.Name = "cbxKieu";
             this.cbxKieu.Size = new System.Drawing.Size(178, 26);
             this.cbxKieu.TabIndex = 7;
@@ -415,62 +471,6 @@
             this.lblTieuDe.Text = "BÁO CÁO";
             this.lblTieuDe.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
             // 
-            // flowLayoutPanel1
-            // 
-            this.flowLayoutPanel1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.flowLayoutPanel1.Controls.Add(this.btnKhoa);
-            this.flowLayoutPanel1.Controls.Add(this.dtNgayKhoaVatTu);
-            this.flowLayoutPanel1.Controls.Add(this.cbKhongKhoaVatTu);
-            this.flowLayoutPanel1.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
-            this.flowLayoutPanel1.Location = new System.Drawing.Point(644, 13);
-            this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(399, 52);
-            this.flowLayoutPanel1.TabIndex = 3;
-            // 
-            // cbKhongKhoaVatTu
-            // 
-            this.cbKhongKhoaVatTu.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.cbKhongKhoaVatTu.AutoSize = true;
-            this.cbKhongKhoaVatTu.Checked = true;
-            this.cbKhongKhoaVatTu.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.cbKhongKhoaVatTu.Location = new System.Drawing.Point(37, 14);
-            this.cbKhongKhoaVatTu.Name = "cbKhongKhoaVatTu";
-            this.cbKhongKhoaVatTu.Size = new System.Drawing.Size(104, 22);
-            this.cbKhongKhoaVatTu.TabIndex = 0;
-            this.cbKhongKhoaVatTu.Text = "Không khoá";
-            this.cbKhongKhoaVatTu.UseVisualStyleBackColor = true;
-            // 
-            // dtNgayKhoaVatTu
-            // 
-            this.dtNgayKhoaVatTu.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.dtNgayKhoaVatTu.Enabled = false;
-            this.dtNgayKhoaVatTu.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
-            this.dtNgayKhoaVatTu.Location = new System.Drawing.Point(147, 12);
-            this.dtNgayKhoaVatTu.Name = "dtNgayKhoaVatTu";
-            this.dtNgayKhoaVatTu.Size = new System.Drawing.Size(144, 26);
-            this.dtNgayKhoaVatTu.TabIndex = 4;
-            // 
-            // btnKhoa
-            // 
-            this.btnKhoa.Location = new System.Drawing.Point(297, 3);
-            this.btnKhoa.Name = "btnKhoa";
-            this.btnKhoa.Size = new System.Drawing.Size(99, 45);
-            this.btnKhoa.TabIndex = 0;
-            this.btnKhoa.Text = "Khoá";
-            this.btnKhoa.UseVisualStyleBackColor = true;
-            this.btnKhoa.Click += new System.EventHandler(this.btnKhoa_Click);
-            // 
-            // flowLayoutPanel2
-            // 
-            this.flowLayoutPanel2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.flowLayoutPanel2.Controls.Add(this.btnChinhTrangThai);
-            this.flowLayoutPanel2.Controls.Add(this.cbxAll);
-            this.flowLayoutPanel2.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
-            this.flowLayoutPanel2.Location = new System.Drawing.Point(1049, 13);
-            this.flowLayoutPanel2.Name = "flowLayoutPanel2";
-            this.flowLayoutPanel2.Size = new System.Drawing.Size(287, 52);
-            this.flowLayoutPanel2.TabIndex = 4;
-            // 
             // fileSystemWatcher1
             // 
             this.fileSystemWatcher1.EnableRaisingEvents = true;
@@ -492,13 +492,13 @@
             this.groupBox1.ResumeLayout(false);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
-            this.tableLayoutPanel2.ResumeLayout(false);
-            this.tableLayoutPanel2.PerformLayout();
-            this.panel1.ResumeLayout(false);
             this.flowLayoutPanel1.ResumeLayout(false);
             this.flowLayoutPanel1.PerformLayout();
             this.flowLayoutPanel2.ResumeLayout(false);
             this.flowLayoutPanel2.PerformLayout();
+            this.tableLayoutPanel2.ResumeLayout(false);
+            this.tableLayoutPanel2.PerformLayout();
+            this.panel1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher1)).EndInit();
             this.ResumeLayout(false);
 

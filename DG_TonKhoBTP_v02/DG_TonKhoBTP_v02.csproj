@@ -57,7 +57,7 @@
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>Goldcup-logo-K-ten.ico</ApplicationIcon>
+    <ApplicationIcon>main-logo.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="BCrypt.Net-Next, Version=4.0.3.0, Culture=neutral, PublicKeyToken=1e11be04b6288443, processorArchitecture=MSIL">
@@ -804,6 +804,7 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Goldcup-logo-K-ten.ico" />
+    <Content Include="main-logo.ico" />
     <None Include="Resources\user_131563.png" />
   </ItemGroup>
   <ItemGroup />

@@ -3,6 +3,7 @@ using DG_TonKhoBTP_v02.Core;
 using DG_TonKhoBTP_v02.Database;
 using DG_TonKhoBTP_v02.Dictionary;
 using DG_TonKhoBTP_v02.DL_Ben;
+using DG_TonKhoBTP_v02.Helper;
 using DG_TonKhoBTP_v02.Models;
 using DG_TonKhoBTP_v02.UI;
 using DG_TonKhoBTP_v02.UI.Actions;
@@ -50,6 +51,7 @@ namespace DG_TonKhoBTP_v02
         public MainForm()
         {
             InitializeComponent();
+            ApplyBranding();
             DatabaseHelper.SetDatabasePath(_URL);
             lblAuthor.Text = $"Make by Linh - Ver: {_ver} - All rights reserved";
 
@@ -57,6 +59,11 @@ namespace DG_TonKhoBTP_v02
 
             ShowHomePage();
 
+        }
+
+        private void ApplyBranding()
+        {
+            BrandingService.Apply(imgLogo, this, null, lblTenCty);
         }
 
         #region Hàm log cấu trúc control

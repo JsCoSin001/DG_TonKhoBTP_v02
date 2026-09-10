@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DG_TonKhoBTP_v02.Helper;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -15,6 +16,12 @@ namespace QLDuLieuTonKho_BTP
         public Uc_HomePage()
         {
             InitializeComponent();
+            ApplyBranding();
+        }
+
+        private void ApplyBranding()
+        {
+            BrandingService.Apply(pictureBox1, null, label1);
         }
 
         private void label1_Click(object sender, EventArgs e)

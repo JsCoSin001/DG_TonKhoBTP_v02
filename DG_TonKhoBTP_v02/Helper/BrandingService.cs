@@ -68,7 +68,6 @@ namespace DG_TonKhoBTP_v02.Helper
             PictureBox logoControl = null,
             Form form = null,
             Label homeTitleLabel = null,
-            Label companyNameLabel = null,
             string logoPath = null,
             string iconPath = null)
         {
@@ -77,10 +76,10 @@ namespace DG_TonKhoBTP_v02.Helper
                 homeTitleLabel.Text = HomeTitle;
             }
 
-            if (companyNameLabel != null)
-            {
-                companyNameLabel.Text = CompanyName;
-            }
+            //if (companyNameLabel != null)
+            //{
+            //    companyNameLabel.Text = CompanyName;
+            //}
 
             if (logoControl != null && !string.IsNullOrWhiteSpace(logoPath))
             {

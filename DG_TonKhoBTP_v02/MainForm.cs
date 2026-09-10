@@ -67,7 +67,6 @@ namespace DG_TonKhoBTP_v02
                 imgLogo,
                 this,
                 null,
-                lblTenCty,
                 BrandingService.MainLogoPath,
                 BrandingService.IconPath);
         }
@@ -1074,7 +1073,7 @@ namespace DG_TonKhoBTP_v02
             pnShow.Dock = DockStyle.Fill;
             pnShow.Controls.Add(homePage);
             homePage.Dock = DockStyle.Fill;
-            homePage.lblVersion.Text = "Phiên bản: v" + _ver;
+            //homePage.lblVersion.Text = "Phiên bản: v" + _ver;
 
 
             if (UserContext.IsAuthenticated)
@@ -1753,6 +1752,11 @@ namespace DG_TonKhoBTP_v02
                     btnCapNhatMaHang.Enabled = true;
                 }
             }
+        }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+            ShowHomePage();
         }
     }
 }

@@ -93,8 +93,8 @@ namespace DG_TonKhoBTP_v02
             this.avatar = new System.Windows.Forms.PictureBox();
             this.pnLogo = new System.Windows.Forms.Panel();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
-            this.lblTenCty = new System.Windows.Forms.Label();
             this.imgLogo = new System.Windows.Forms.PictureBox();
+            this.label1 = new System.Windows.Forms.Label();
             this.pnSign = new System.Windows.Forms.Panel();
             this.lblAuthor = new System.Windows.Forms.Label();
             this.pnMain = new System.Windows.Forms.Panel();
@@ -160,7 +160,7 @@ namespace DG_TonKhoBTP_v02
             this.pnLeft.Location = new System.Drawing.Point(0, 0);
             this.pnLeft.Margin = new System.Windows.Forms.Padding(4);
             this.pnLeft.Name = "pnLeft";
-            this.pnLeft.Size = new System.Drawing.Size(202, 1061);
+            this.pnLeft.Size = new System.Drawing.Size(202, 1035);
             this.pnLeft.TabIndex = 0;
             // 
             // fpnButton
@@ -174,7 +174,7 @@ namespace DG_TonKhoBTP_v02
             this.fpnButton.Dock = System.Windows.Forms.DockStyle.Fill;
             this.fpnButton.Location = new System.Drawing.Point(0, 70);
             this.fpnButton.Name = "fpnButton";
-            this.fpnButton.Size = new System.Drawing.Size(202, 947);
+            this.fpnButton.Size = new System.Drawing.Size(202, 921);
             this.fpnButton.TabIndex = 2;
             // 
             // groupBox1
@@ -965,7 +965,7 @@ namespace DG_TonKhoBTP_v02
             // 
             this.panel18.Controls.Add(this.tbUser);
             this.panel18.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel18.Location = new System.Drawing.Point(0, 1017);
+            this.panel18.Location = new System.Drawing.Point(0, 991);
             this.panel18.Name = "panel18";
             this.panel18.Padding = new System.Windows.Forms.Padding(0, 0, 17, 0);
             this.panel18.Size = new System.Drawing.Size(202, 44);
@@ -1078,8 +1078,8 @@ namespace DG_TonKhoBTP_v02
             this.tableLayoutPanel1.ColumnCount = 2;
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 38.02083F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 61.97917F));
-            this.tableLayoutPanel1.Controls.Add(this.lblTenCty, 1, 0);
             this.tableLayoutPanel1.Controls.Add(this.imgLogo, 0, 0);
+            this.tableLayoutPanel1.Controls.Add(this.label1, 1, 0);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(5, 5);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
@@ -1087,19 +1087,6 @@ namespace DG_TonKhoBTP_v02
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel1.Size = new System.Drawing.Size(192, 60);
             this.tableLayoutPanel1.TabIndex = 0;
-            // 
-            // lblTenCty
-            // 
-            this.lblTenCty.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.lblTenCty.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lblTenCty.Font = new System.Drawing.Font("Tahoma", 17.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblTenCty.Location = new System.Drawing.Point(75, 0);
-            this.lblTenCty.Name = "lblTenCty";
-            this.lblTenCty.Size = new System.Drawing.Size(114, 60);
-            this.lblTenCty.TabIndex = 1;
-            this.lblTenCty.Text = "ĐÔNG GIANG";
-            this.lblTenCty.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.lblTenCty.Click += new System.EventHandler(this.lblTenCty_Click);
             // 
             // imgLogo
             // 
@@ -1113,11 +1100,24 @@ namespace DG_TonKhoBTP_v02
             this.imgLogo.TabStop = false;
             this.imgLogo.Click += new System.EventHandler(this.imgLogo_Click);
             // 
+            // label1
+            // 
+            this.label1.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.label1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.label1.Font = new System.Drawing.Font("Tahoma", 17.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label1.Location = new System.Drawing.Point(75, 0);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(114, 60);
+            this.label1.TabIndex = 1;
+            this.label1.Text = "FASTER";
+            this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.label1.Click += new System.EventHandler(this.label1_Click);
+            // 
             // pnSign
             // 
             this.pnSign.Controls.Add(this.lblAuthor);
             this.pnSign.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.pnSign.Location = new System.Drawing.Point(0, 1042);
+            this.pnSign.Location = new System.Drawing.Point(0, 1016);
             this.pnSign.Margin = new System.Windows.Forms.Padding(0);
             this.pnSign.Name = "pnSign";
             this.pnSign.Size = new System.Drawing.Size(1132, 19);
@@ -1138,9 +1138,9 @@ namespace DG_TonKhoBTP_v02
             // 
             this.pnMain.Controls.Add(this.panel1);
             this.pnMain.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pnMain.Location = new System.Drawing.Point(0, 0);
+            this.pnMain.Location = new System.Drawing.Point(0, 26);
             this.pnMain.Name = "pnMain";
-            this.pnMain.Size = new System.Drawing.Size(1334, 1061);
+            this.pnMain.Size = new System.Drawing.Size(1334, 1035);
             this.pnMain.TabIndex = 1;
             // 
             // panel1
@@ -1150,7 +1150,7 @@ namespace DG_TonKhoBTP_v02
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(1334, 1061);
+            this.panel1.Size = new System.Drawing.Size(1334, 1035);
             this.panel1.TabIndex = 5;
             // 
             // panel15
@@ -1160,7 +1160,7 @@ namespace DG_TonKhoBTP_v02
             this.panel15.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel15.Location = new System.Drawing.Point(202, 0);
             this.panel15.Name = "panel15";
-            this.panel15.Size = new System.Drawing.Size(1132, 1061);
+            this.panel15.Size = new System.Drawing.Size(1132, 1035);
             this.panel15.TabIndex = 5;
             // 
             // pnShow
@@ -1168,7 +1168,7 @@ namespace DG_TonKhoBTP_v02
             this.pnShow.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnShow.Location = new System.Drawing.Point(0, 0);
             this.pnShow.Name = "pnShow";
-            this.pnShow.Size = new System.Drawing.Size(1132, 1042);
+            this.pnShow.Size = new System.Drawing.Size(1132, 1016);
             this.pnShow.TabIndex = 1;
             // 
             // menuApp
@@ -1299,7 +1299,6 @@ namespace DG_TonKhoBTP_v02
         private System.Windows.Forms.Panel pnLeft;
         private System.Windows.Forms.Panel pnLogo;
         private System.Windows.Forms.PictureBox imgLogo;
-        private System.Windows.Forms.Label lblTenCty;
         private System.Windows.Forms.Panel pnSign;
 
         //private System.Windows.Forms.Button btnKeoRut;
@@ -1394,6 +1393,7 @@ namespace DG_TonKhoBTP_v02
         private System.Windows.Forms.Panel panel16;
         private CustomButton btnLoi_DungMay;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
+        private System.Windows.Forms.Label label1;
     }
 }
 

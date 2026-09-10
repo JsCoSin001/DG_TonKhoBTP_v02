@@ -24,7 +24,6 @@ namespace QLDuLieuTonKho_BTP
             BrandingService.Apply(
                 pictureBox1,
                 null,
-                label1,
                 null,
                 BrandingService.HomeLogoPath);
         }

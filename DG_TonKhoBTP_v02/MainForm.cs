@@ -32,7 +32,7 @@ namespace DG_TonKhoBTP_v02
     {
         private string _URL = Properties.Settings.Default.URL;
         private CongDoanUiService _ui;
-        private string _ver = "2.8.2";
+        private string _ver = "2.8.3";
         private bool show = false;
         private void InitUiService()
         {

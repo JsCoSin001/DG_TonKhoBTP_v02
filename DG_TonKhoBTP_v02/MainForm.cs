@@ -63,7 +63,13 @@ namespace DG_TonKhoBTP_v02
 
         private void ApplyBranding()
         {
-            BrandingService.Apply(imgLogo, this, null, lblTenCty);
+            BrandingService.Apply(
+                imgLogo,
+                this,
+                null,
+                lblTenCty,
+                BrandingService.MainLogoPath,
+                BrandingService.IconPath);
         }
 
         #region Hàm log cấu trúc control

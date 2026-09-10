@@ -10,33 +10,30 @@ using System.Windows.Forms;
 namespace DG_TonKhoBTP_v02.Helper
 {
     /// <summary>
-    /// Quản lý logo và nội dung branding dùng chung cho giao diện.
-    /// Logo được đọc từ thư mục chạy ứng dụng để có thể thay đổi mà không sửa Designer/resx.
+    /// Quản lý logo, icon và nội dung branding dùng chung cho giao diện.
+    /// Ảnh được đọc từ thư mục chạy ứng dụng để có thể thay đổi mà không sửa Designer/resx.
     /// </summary>
     public static class BrandingService
     {
-        private const string DefaultLogoRelativePath = @"Assets\logo.png";
+        private const string DefaultMainLogoRelativePath = @"Assets\main-logo.png";
+        private const string DefaultHomeLogoRelativePath = @"Assets\homepage-logo.png";
+        private const string DefaultIconRelativePath = @"Assets\app-icon.png";
         private const string DefaultHomeTitle = "WELCOME TO DONG GIANG FACTORY";
         private const string DefaultCompanyName = "ĐÔNG GIANG";
 
-        public static string LogoPath
+        public static string MainLogoPath
         {
-            get
-            {
-                string configuredPath = ConfigurationManager.AppSettings["BrandingLogoPath"] ?? string.Empty;
-                if (string.IsNullOrWhiteSpace(configuredPath))
-                {
-                    configuredPath = DefaultLogoRelativePath;
-                }
+            get { return GetConfiguredPath("BrandingMainLogoPath", DefaultMainLogoRelativePath); }
+        }
 
-                configuredPath = configuredPath.Trim();
-                if (Path.IsPathRooted(configuredPath))
-                {
-                    return configuredPath;
-                }
+        public static string HomeLogoPath
+        {
+            get { return GetConfiguredPath("BrandingHomeLogoPath", DefaultHomeLogoRelativePath); }
+        }
 
-                return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, configuredPath);
-            }
+        public static string IconPath
+        {
+            get { return GetConfiguredPath("BrandingIconPath", DefaultIconRelativePath); }
         }
 
         public static string HomeTitle
@@ -63,10 +60,17 @@ namespace DG_TonKhoBTP_v02.Helper
 
         /// <summary>
         /// Áp branding cho các control được truyền vào.
-        /// Control nào không cần thay đổi thì để null.
-        /// Nếu file logo không tồn tại hoặc không đọc được, ảnh/icon do Designer gán sẵn sẽ được giữ nguyên.
+        /// Control hoặc đường dẫn nào không cần thay đổi thì để null.
+        /// logoPath và iconPath độc lập, vì vậy PictureBox và Form.Icon có thể dùng hai ảnh khác nhau.
+        /// Nếu một file ảnh không tồn tại hoặc không đọc được, ảnh/icon do Designer gán sẵn cho control đó sẽ được giữ nguyên.
         /// </summary>
-        public static void Apply(PictureBox logoControl = null, Form form = null, Label homeTitleLabel = null, Label companyNameLabel = null)
+        public static void Apply(
+            PictureBox logoControl = null,
+            Form form = null,
+            Label homeTitleLabel = null,
+            Label companyNameLabel = null,
+            string logoPath = null,
+            string iconPath = null)
         {
             if (homeTitleLabel != null)
             {
@@ -78,52 +82,84 @@ namespace DG_TonKhoBTP_v02.Helper
                 companyNameLabel.Text = CompanyName;
             }
 
-            Image sourceLogo = LoadLogoImage();
-            if (sourceLogo == null)
+            if (logoControl != null && !string.IsNullOrWhiteSpace(logoPath))
             {
-                return;
-            }
-
-            using (sourceLogo)
-            {
-                if (logoControl != null)
+                using (Image sourceLogo = LoadImage(logoPath))
                 {
-                    Image oldImage = logoControl.Image;
-
-                    // logo.png có thể có độ phân giải rất lớn. Zoom giúp ảnh luôn
-                    // co vừa PictureBox thay vì chỉ hiển thị góc trên-trái của ảnh.
-                    logoControl.SizeMode = PictureBoxSizeMode.Zoom;
-                    logoControl.Image = new Bitmap(sourceLogo);
-
-                    if (oldImage != null)
+                    if (sourceLogo != null)
                     {
-                        oldImage.Dispose();
+                        Image oldImage = logoControl.Image;
+
+                        // Ảnh có thể có độ phân giải rất lớn. Zoom giúp ảnh luôn
+                        // co vừa PictureBox thay vì chỉ hiển thị góc trên-trái của ảnh.
+                        logoControl.SizeMode = PictureBoxSizeMode.Zoom;
+                        logoControl.Image = new Bitmap(sourceLogo);
+
+                        if (oldImage != null)
+                        {
+                            oldImage.Dispose();
+                        }
                     }
                 }
+            }
 
-                if (form != null)
+            if (form != null && !string.IsNullOrWhiteSpace(iconPath))
+            {
+                using (Image sourceIcon = LoadImage(iconPath))
                 {
-                    Icon icon = CreateIcon(sourceLogo);
-                    if (icon != null)
+                    if (sourceIcon != null)
                     {
-                        form.Icon = icon;
+                        Icon icon = CreateIcon(sourceIcon);
+                        if (icon != null)
+                        {
+                            form.Icon = icon;
+                        }
                     }
                 }
             }
         }
 
-        private static Image LoadLogoImage()
+        private static string GetConfiguredPath(string appSettingKey, string defaultRelativePath)
         {
+            string configuredPath = ConfigurationManager.AppSettings[appSettingKey] ?? string.Empty;
+            if (string.IsNullOrWhiteSpace(configuredPath))
+            {
+                configuredPath = defaultRelativePath;
+            }
+
+            return ResolvePath(configuredPath);
+        }
+
+        private static string ResolvePath(string path)
+        {
+            if (string.IsNullOrWhiteSpace(path))
+            {
+                return string.Empty;
+            }
+
+            path = path.Trim();
+            if (Path.IsPathRooted(path))
+            {
+                return path;
+            }
+
+            return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, path);
+        }
+
+        private static Image LoadImage(string imagePath)
+        {
+            string resolvedPath = ResolvePath(imagePath);
+
             try
             {
-                if (!File.Exists(LogoPath))
+                if (string.IsNullOrWhiteSpace(resolvedPath) || !File.Exists(resolvedPath))
                 {
-                    Debug.WriteLine("BrandingService: Không tìm thấy logo: " + LogoPath);
+                    Debug.WriteLine("BrandingService: Không tìm thấy ảnh: " + resolvedPath);
                     return null;
                 }
 
-                // Clone ảnh để không giữ khóa file logo.png sau khi load.
-                using (FileStream stream = new FileStream(LogoPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                // Clone ảnh để không giữ khóa file sau khi load.
+                using (FileStream stream = new FileStream(resolvedPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                 using (Image source = Image.FromStream(stream))
                 {
                     return new Bitmap(source);
@@ -131,7 +167,7 @@ namespace DG_TonKhoBTP_v02.Helper
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("BrandingService: Không thể load logo. " + ex.Message);
+                Debug.WriteLine("BrandingService: Không thể load ảnh '" + resolvedPath + "'. " + ex.Message);
                 return null;
             }
         }
@@ -167,7 +203,7 @@ namespace DG_TonKhoBTP_v02.Helper
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("BrandingService: Không thể tạo icon từ logo. " + ex.Message);
+                Debug.WriteLine("BrandingService: Không thể tạo icon từ ảnh. " + ex.Message);
                 return null;
             }
             finally

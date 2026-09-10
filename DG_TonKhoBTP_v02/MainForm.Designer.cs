@@ -676,7 +676,7 @@ namespace DG_TonKhoBTP_v02
             this.btnLoi_DungMay.Size = new System.Drawing.Size(169, 45);
             this.btnLoi_DungMay.TabIndex = 8;
             this.btnLoi_DungMay.TabStop = false;
-            this.btnLoi_DungMay.Text = "LỖI DỪNG MÁY";
+            this.btnLoi_DungMay.Text = "NN DỪNG MÁY";
             this.btnLoi_DungMay.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.btnLoi_DungMay.UseVisualStyleBackColor = false;
             this.btnLoi_DungMay.Click += new System.EventHandler(this.btnLoi_DungMay_Click);
@@ -1105,7 +1105,6 @@ namespace DG_TonKhoBTP_v02
             // 
             this.imgLogo.Cursor = System.Windows.Forms.Cursors.Hand;
             this.imgLogo.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.imgLogo.Image = ((System.Drawing.Image)(resources.GetObject("imgLogo.Image")));
             this.imgLogo.Location = new System.Drawing.Point(3, 3);
             this.imgLogo.Name = "imgLogo";
             this.imgLogo.Padding = new System.Windows.Forms.Padding(10);

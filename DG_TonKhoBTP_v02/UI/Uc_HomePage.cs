@@ -21,7 +21,12 @@ namespace QLDuLieuTonKho_BTP
 
         private void ApplyBranding()
         {
-            BrandingService.Apply(pictureBox1, null, label1);
+            BrandingService.Apply(
+                pictureBox1,
+                null,
+                label1,
+                null,
+                BrandingService.HomeLogoPath);
         }
 
         private void label1_Click(object sender, EventArgs e)

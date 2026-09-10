@@ -214,10 +214,12 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
         }
 
         /// <summary>
-        /// Tính thời gian dừng theo khung giờ sản xuất của từng ca.
-        /// Ca 1: 06:00 - 18:00 cùng ngày.
-        /// Ca 2: 18:00 - 06:00 sáng hôm sau.
-        /// Ca 3 giữ cách tính cũ để không thay đổi nghiệp vụ chưa được định nghĩa.
+        /// Tính thời gian dừng theo các khung giờ có thể xảy ra của từng ca.
+        /// Không cần xác định người dùng đang theo mô hình 2 ca hay 3 ca:
+        /// - Ca 1: 06:00 - 18:00 (bao phủ cả 06:00 - 14:00 và 06:00 - 18:00).
+        /// - Ca 2: hợp lệ nếu thuộc 14:00 - 22:00 HOẶC 18:00 - 06:00 sáng hôm sau.
+        /// - Ca 3: 22:00 - 06:00 sáng hôm sau.
+        /// Chỉ báo lỗi khi khoảng thời gian không hợp lệ theo tất cả khung có thể của ca đó.
         /// </summary>
         public static bool TryTinhThoiGianDungTheoCa(
             TimeSpan thoiGianBatDau,
@@ -231,78 +233,77 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
 
             if (ca == 1)
             {
-                TimeSpan batDauCa = TimeSpan.FromHours(6);
-                TimeSpan ketThucCa = TimeSpan.FromHours(18);
-
-                if (thoiGianBatDau < batDauCa || thoiGianBatDau >= ketThucCa)
+                if (TryTinhThoiGianDungTrongKhungCa(
+                    thoiGianBatDau,
+                    thoiGianKetThuc,
+                    TimeSpan.FromHours(6),
+                    TimeSpan.FromHours(18),
+                    out soPhutDung,
+                    out _))
                 {
-                    thongBao =
-                        "Thời gian bắt đầu phải từ 06:00 và trước 18:00.";
-                    return false;
+                    return true;
                 }
 
-                if (thoiGianKetThuc <= batDauCa || thoiGianKetThuc > ketThucCa)
-                {
-                    thongBao =
-                        "Thời gian kết thúc phải sau 06:00 và không được vượt quá 18:00.";
-                    return false;
-                }
-
-                if (thoiGianKetThuc <= thoiGianBatDau)
-                {
-                    thongBao =
-                        "Thời gian kết thúc phải sau thời gian bắt đầu.";
-                    return false;
-                }
-
-                soPhutDung = Convert.ToInt32(
-                    (thoiGianKetThuc - thoiGianBatDau).TotalMinutes);
-                return soPhutDung > 0;
+                thongBao =
+                    "Thời gian Ca 1 phải nằm trong khoảng từ 06:00 đến 18:00 và thời gian kết thúc phải sau thời gian bắt đầu.";
+                return false;
             }
 
             if (ca == 2)
             {
-                int batDauTheoCa;
-                int ketThucTheoCa;
+                // Trường hợp 1: mô hình 3 ca, Ca 2 = 14:00 - 22:00.
+                int soPhutTheoCa14Den22;
+                bool hopLeTheoCa14Den22 = TryTinhThoiGianDungTrongKhungCa(
+                    thoiGianBatDau,
+                    thoiGianKetThuc,
+                    TimeSpan.FromHours(14),
+                    TimeSpan.FromHours(22),
+                    out soPhutTheoCa14Den22,
+                    out _);
 
-                if (!TryGetSoPhutTinhTuDauCa2(thoiGianBatDau, out batDauTheoCa))
+                // Trường hợp 2: mô hình 2 ca, Ca 2 = 18:00 - 06:00 hôm sau.
+                int soPhutTheoCa18Den06;
+                bool hopLeTheoCa18Den06 = TryTinhThoiGianDungTrongKhungCa(
+                    thoiGianBatDau,
+                    thoiGianKetThuc,
+                    TimeSpan.FromHours(18),
+                    TimeSpan.FromHours(6),
+                    out soPhutTheoCa18Den06,
+                    out _);
+
+                if (hopLeTheoCa14Den22)
                 {
-                    thongBao =
-                        "Thời gian bắt đầu phải nằm trong khoảng từ 18:00 đến 06:00.";
-                    return false;
+                    soPhutDung = soPhutTheoCa14Den22;
+                    return true;
                 }
 
-                if (!TryGetSoPhutTinhTuDauCa2(thoiGianKetThuc, out ketThucTheoCa))
+                if (hopLeTheoCa18Den06)
                 {
-                    thongBao =
-                        "Thời gian kết thúc phải nằm trong khoảng từ 18:00 đến 06:00.";
-                    return false;
+                    soPhutDung = soPhutTheoCa18Den06;
+                    return true;
                 }
 
-                if (ketThucTheoCa <= batDauTheoCa)
-                {
-                    thongBao =
-                        "Thời gian kết thúc phải sau thời gian bắt đầu.";
-                    return false;
-                }
-
-                soPhutDung = ketThucTheoCa - batDauTheoCa;
-                return soPhutDung > 0 && soPhutDung <= 12 * 60;
+                thongBao =
+                    "Thời gian Ca 2 phải hợp lệ theo một trong hai khung 14:00 - 22:00 hoặc 18:00 - 06:00, và thời gian kết thúc phải sau thời gian bắt đầu.";
+                return false;
             }
 
             if (ca == 3)
             {
-                if (!TryTinhThoiGianDung(
+                if (TryTinhThoiGianDungTrongKhungCa(
                     thoiGianBatDau,
                     thoiGianKetThuc,
-                    out soPhutDung))
+                    TimeSpan.FromHours(22),
+                    TimeSpan.FromHours(6),
+                    out soPhutDung,
+                    out _))
                 {
-                    thongBao =
-                        "Thời gian kết thúc phải sau thời gian bắt đầu.";
-                    return false;
+                    return true;
                 }
 
-                return true;
+                thongBao =
+                    "Thời gian Ca 3 phải nằm trong khoảng từ 22:00 đến 06:00 và thời gian kết thúc phải sau thời gian bắt đầu.";
+                return false;
             }
 
             thongBao = "Ca làm việc không hợp lệ.";
@@ -312,6 +313,7 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
         /// <summary>
         /// Chuyển khoảng thời gian nhập thành DateTime thực tế trên trục thời gian của ca.
         /// Dùng chung cho kiểm tra overlap ở UI và DB.
+        /// Với Ca 2, thử khung 14:00 - 22:00 trước; nếu không hợp lệ thì thử 18:00 - 06:00.
         /// </summary>
         public static bool TryLayKhoangThoiGianTheoCa(
             DateTime ngay,
@@ -325,83 +327,143 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
             ketThuc = DateTime.MinValue;
 
             int soPhutDung;
-            string thongBao;
-            if (!TryTinhThoiGianDungTheoCa(
-                thoiGianBatDau,
-                thoiGianKetThuc,
-                ca,
-                out soPhutDung,
-                out thongBao))
-            {
-                return false;
-            }
+            int batDauTheoCa;
+            TimeSpan mocBatDauCa;
 
             if (ca == 1)
             {
-                DateTime dauCa = ngay.Date.AddHours(6);
-                batDau = dauCa.AddMinutes(
-                    (thoiGianBatDau - TimeSpan.FromHours(6)).TotalMinutes);
-                ketThuc = batDau.AddMinutes(soPhutDung);
-                return true;
-            }
-
-            if (ca == 2)
-            {
-                int batDauTheoCa;
-                if (!TryGetSoPhutTinhTuDauCa2(
+                mocBatDauCa = TimeSpan.FromHours(6);
+                if (!TryTinhThoiGianDungTrongKhungCa(
                     thoiGianBatDau,
+                    thoiGianKetThuc,
+                    mocBatDauCa,
+                    TimeSpan.FromHours(18),
+                    out soPhutDung,
                     out batDauTheoCa))
                 {
                     return false;
                 }
-
-                DateTime dauCa = ngay.Date.AddHours(18);
-                batDau = dauCa.AddMinutes(batDauTheoCa);
-                ketThuc = batDau.AddMinutes(soPhutDung);
-                return true;
             }
-
-            // Ca 3 giữ trục thời gian theo cách cũ.
-            batDau = ngay.Date.Add(thoiGianBatDau);
-            ketThuc = ngay.Date.Add(thoiGianKetThuc);
-
-            if (ketThuc < batDau)
+            else if (ca == 2)
             {
-                ketThuc = ketThuc.AddDays(1);
+                mocBatDauCa = TimeSpan.FromHours(14);
+                if (!TryTinhThoiGianDungTrongKhungCa(
+                    thoiGianBatDau,
+                    thoiGianKetThuc,
+                    mocBatDauCa,
+                    TimeSpan.FromHours(22),
+                    out soPhutDung,
+                    out batDauTheoCa))
+                {
+                    mocBatDauCa = TimeSpan.FromHours(18);
+                    if (!TryTinhThoiGianDungTrongKhungCa(
+                        thoiGianBatDau,
+                        thoiGianKetThuc,
+                        mocBatDauCa,
+                        TimeSpan.FromHours(6),
+                        out soPhutDung,
+                        out batDauTheoCa))
+                    {
+                        return false;
+                    }
+                }
             }
-
-            return true;
-        }
-
-        private static bool TryGetSoPhutTinhTuDauCa2(
-            TimeSpan thoiGian,
-            out int soPhut)
-        {
-            soPhut = 0;
-
-            if (thoiGian < TimeSpan.Zero ||
-                thoiGian >= TimeSpan.FromHours(24))
+            else if (ca == 3)
+            {
+                mocBatDauCa = TimeSpan.FromHours(22);
+                if (!TryTinhThoiGianDungTrongKhungCa(
+                    thoiGianBatDau,
+                    thoiGianKetThuc,
+                    mocBatDauCa,
+                    TimeSpan.FromHours(6),
+                    out soPhutDung,
+                    out batDauTheoCa))
+                {
+                    return false;
+                }
+            }
+            else
             {
                 return false;
             }
 
-            TimeSpan mocBatDauCa = TimeSpan.FromHours(18);
-            TimeSpan mocKetThucCa = TimeSpan.FromHours(6);
+            DateTime dauCa = ngay.Date.Add(mocBatDauCa);
+            batDau = dauCa.AddMinutes(batDauTheoCa);
+            ketThuc = batDau.AddMinutes(soPhutDung);
+            return true;
+        }
 
-            if (thoiGian >= mocBatDauCa)
+        /// <summary>
+        /// Validate một khoảng thời gian theo một khung ca cụ thể và tính duration.
+        /// Hỗ trợ cả ca cùng ngày (vd. 14:00 - 22:00) và ca qua ngày (vd. 22:00 - 06:00).
+        /// </summary>
+        private static bool TryTinhThoiGianDungTrongKhungCa(
+            TimeSpan thoiGianBatDau,
+            TimeSpan thoiGianKetThuc,
+            TimeSpan mocBatDauCa,
+            TimeSpan mocKetThucCa,
+            out int soPhutDung,
+            out int batDauTheoCa)
+        {
+            soPhutDung = 0;
+            batDauTheoCa = 0;
+
+            if (thoiGianBatDau < TimeSpan.Zero ||
+                thoiGianBatDau >= TimeSpan.FromHours(24) ||
+                thoiGianKetThuc < TimeSpan.Zero ||
+                thoiGianKetThuc >= TimeSpan.FromHours(24))
             {
-                soPhut = Convert.ToInt32(
-                    (thoiGian - mocBatDauCa).TotalMinutes);
-                return true;
+                return false;
             }
 
-            if (thoiGian <= mocKetThucCa)
+            int doDaiCa = TinhSoPhutTheoChieuTien(
+                mocBatDauCa,
+                mocKetThucCa);
+
+            int ketThucTheoCa;
+            batDauTheoCa = TinhSoPhutTheoChieuTien(
+                mocBatDauCa,
+                thoiGianBatDau);
+            ketThucTheoCa = TinhSoPhutTheoChieuTien(
+                mocBatDauCa,
+                thoiGianKetThuc);
+
+            // Bắt đầu được phép đúng đầu ca nhưng không được đúng cuối ca.
+            if (batDauTheoCa < 0 || batDauTheoCa >= doDaiCa)
             {
-                soPhut = 6 * 60 + Convert.ToInt32(thoiGian.TotalMinutes);
-                return true;
+                return false;
             }
 
-            return false;
+            // Kết thúc phải sau đầu ca và được phép đúng cuối ca.
+            if (ketThucTheoCa <= 0 || ketThucTheoCa > doDaiCa)
+            {
+                return false;
+            }
+
+            if (ketThucTheoCa <= batDauTheoCa)
+            {
+                return false;
+            }
+
+            soPhutDung = ketThucTheoCa - batDauTheoCa;
+            return soPhutDung > 0 && soPhutDung <= doDaiCa;
+        }
+
+        /// <summary>
+        /// Tính số phút đi theo chiều thời gian từ mốc bắt đầu đến thời gian cần xét,
+        /// có vòng qua 00:00 khi cần.
+        /// </summary>
+        private static int TinhSoPhutTheoChieuTien(
+            TimeSpan mocBatDau,
+            TimeSpan thoiGian)
+        {
+            double soPhut = (thoiGian - mocBatDau).TotalMinutes;
+            if (soPhut < 0)
+            {
+                soPhut += 24 * 60;
+            }
+
+            return Convert.ToInt32(soPhut);
         }
 
         /// <summary>

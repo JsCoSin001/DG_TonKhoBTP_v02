@@ -160,7 +160,7 @@ namespace DG_TonKhoBTP_v02
             this.pnLeft.Location = new System.Drawing.Point(0, 0);
             this.pnLeft.Margin = new System.Windows.Forms.Padding(4);
             this.pnLeft.Name = "pnLeft";
-            this.pnLeft.Size = new System.Drawing.Size(202, 1035);
+            this.pnLeft.Size = new System.Drawing.Size(202, 1061);
             this.pnLeft.TabIndex = 0;
             // 
             // fpnButton
@@ -174,7 +174,7 @@ namespace DG_TonKhoBTP_v02
             this.fpnButton.Dock = System.Windows.Forms.DockStyle.Fill;
             this.fpnButton.Location = new System.Drawing.Point(0, 70);
             this.fpnButton.Name = "fpnButton";
-            this.fpnButton.Size = new System.Drawing.Size(202, 921);
+            this.fpnButton.Size = new System.Drawing.Size(202, 947);
             this.fpnButton.TabIndex = 2;
             // 
             // groupBox1
@@ -965,7 +965,7 @@ namespace DG_TonKhoBTP_v02
             // 
             this.panel18.Controls.Add(this.tbUser);
             this.panel18.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel18.Location = new System.Drawing.Point(0, 991);
+            this.panel18.Location = new System.Drawing.Point(0, 1017);
             this.panel18.Name = "panel18";
             this.panel18.Padding = new System.Windows.Forms.Padding(0, 0, 17, 0);
             this.panel18.Size = new System.Drawing.Size(202, 44);
@@ -1117,7 +1117,7 @@ namespace DG_TonKhoBTP_v02
             // 
             this.pnSign.Controls.Add(this.lblAuthor);
             this.pnSign.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.pnSign.Location = new System.Drawing.Point(0, 1016);
+            this.pnSign.Location = new System.Drawing.Point(0, 1042);
             this.pnSign.Margin = new System.Windows.Forms.Padding(0);
             this.pnSign.Name = "pnSign";
             this.pnSign.Size = new System.Drawing.Size(1132, 19);
@@ -1138,9 +1138,9 @@ namespace DG_TonKhoBTP_v02
             // 
             this.pnMain.Controls.Add(this.panel1);
             this.pnMain.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pnMain.Location = new System.Drawing.Point(0, 26);
+            this.pnMain.Location = new System.Drawing.Point(0, 0);
             this.pnMain.Name = "pnMain";
-            this.pnMain.Size = new System.Drawing.Size(1334, 1035);
+            this.pnMain.Size = new System.Drawing.Size(1334, 1061);
             this.pnMain.TabIndex = 1;
             // 
             // panel1
@@ -1150,7 +1150,7 @@ namespace DG_TonKhoBTP_v02
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(1334, 1035);
+            this.panel1.Size = new System.Drawing.Size(1334, 1061);
             this.panel1.TabIndex = 5;
             // 
             // panel15
@@ -1160,7 +1160,7 @@ namespace DG_TonKhoBTP_v02
             this.panel15.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel15.Location = new System.Drawing.Point(202, 0);
             this.panel15.Name = "panel15";
-            this.panel15.Size = new System.Drawing.Size(1132, 1035);
+            this.panel15.Size = new System.Drawing.Size(1132, 1061);
             this.panel15.TabIndex = 5;
             // 
             // pnShow
@@ -1168,7 +1168,7 @@ namespace DG_TonKhoBTP_v02
             this.pnShow.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnShow.Location = new System.Drawing.Point(0, 0);
             this.pnShow.Name = "pnShow";
-            this.pnShow.Size = new System.Drawing.Size(1132, 1016);
+            this.pnShow.Size = new System.Drawing.Size(1132, 1042);
             this.pnShow.TabIndex = 1;
             // 
             // menuApp

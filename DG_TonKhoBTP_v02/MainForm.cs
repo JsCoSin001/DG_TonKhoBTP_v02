@@ -1486,6 +1486,7 @@ namespace DG_TonKhoBTP_v02
             DG_TonKhoBTP_v02.Dictionary.AppContext.URL = url;
             DB_Base.SetDatabasePath(url);
 
+            userRegistration.Visible = !_isNgocKhanh;
         }
 
         private void btnTachBin_Click(object sender, EventArgs e)

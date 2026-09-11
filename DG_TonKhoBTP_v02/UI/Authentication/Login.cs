@@ -18,6 +18,36 @@ namespace DG_TonKhoBTP_v02.UI.Authentication
         {
             InitializeComponent();
             this.flg = flg;
+
+            if (!this.flg)
+                LoadSavedLogin();
+        }
+
+        private void LoadSavedLogin()
+        {
+            string savedUserName = Settings.Default.SavedLoginUserName;
+            string savedPassword = Settings.Default.SavedLoginPassword;
+
+            if (!string.IsNullOrEmpty(savedUserName) && !string.IsNullOrEmpty(savedPassword))
+            {
+                txtUser.Text = savedUserName;
+                txtPassword.Text = savedPassword;
+                cbLuuTaiKhoan.Checked = true;
+            }
+        }
+
+        private void SaveLogin(string username, string password)
+        {
+            Settings.Default.SavedLoginUserName = username;
+            Settings.Default.SavedLoginPassword = password;
+            Settings.Default.Save();
+        }
+
+        private void ClearSavedLogin()
+        {
+            Settings.Default.SavedLoginUserName = "";
+            Settings.Default.SavedLoginPassword = "";
+            Settings.Default.Save();
         }
 
         private async void btnLogin_Click(object sender, EventArgs e)
@@ -66,6 +96,11 @@ namespace DG_TonKhoBTP_v02.UI.Authentication
                     return;
                 }
 
+                if (cbLuuTaiKhoan.Checked)
+                    SaveLogin(username, txtPassword.Text);
+                else
+                    ClearSavedLogin();
+
                 UserContext.Set(login);
                 this.DialogResult = DialogResult.OK;
                 this.Close();
@@ -80,6 +115,12 @@ namespace DG_TonKhoBTP_v02.UI.Authentication
         {
             txtPassword.Text = "";
             txtUser.Text = "";
+
+            if (!flg)
+            {
+                cbLuuTaiKhoan.Checked = false;
+                ClearSavedLogin();
+            }
         }
 
         private void label4_Click(object sender, EventArgs e)

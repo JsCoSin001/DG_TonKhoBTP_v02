@@ -62,6 +62,30 @@ namespace DG_TonKhoBTP_v02.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string SavedLoginUserName {
+            get {
+                return ((string)(this["SavedLoginUserName"]));
+            }
+            set {
+                this["SavedLoginUserName"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string SavedLoginPassword {
+            get {
+                return ((string)(this["SavedLoginPassword"]));
+            }
+            set {
+                this["SavedLoginPassword"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
         public string PrinterName {
             get {
                 return ((string)(this["PrinterName"]));

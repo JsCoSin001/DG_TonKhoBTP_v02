@@ -11,6 +11,12 @@
     <Setting Name="UserPass" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
+    <Setting Name="SavedLoginUserName" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="SavedLoginPassword" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
     <Setting Name="PrinterName" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>

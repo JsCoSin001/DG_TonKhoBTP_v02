@@ -49,6 +49,17 @@ namespace DG_TonKhoBTP_v02.UI.Authentication
 
                 if (result)
                 {
+                    string savedUserName = Properties.Settings.Default.SavedLoginUserName;
+                    string savedPassword = Properties.Settings.Default.SavedLoginPassword;
+
+                    if (!string.IsNullOrEmpty(savedUserName) &&
+                        !string.IsNullOrEmpty(savedPassword) &&
+                        string.Equals(savedUserName, UserContext.UserName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        Properties.Settings.Default.SavedLoginPassword = newPassword;
+                        Properties.Settings.Default.Save();
+                    }
+
                     FrmWaiting.ShowGifAlert("Đổi mật khẩu thành công.", "THÔNG BÁO", EnumStore.Icon.Success);
                     this.Close();
                 }

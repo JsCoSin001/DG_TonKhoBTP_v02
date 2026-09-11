@@ -1,6 +1,7 @@
 ﻿
 using DG_TonKhoBTP_v02.Core;
 using DG_TonKhoBTP_v02.Database;
+using DG_TonKhoBTP_v02.Database.KeToan.VatTuKhac;
 using DG_TonKhoBTP_v02.Dictionary;
 using DG_TonKhoBTP_v02.DL_Ben;
 using DG_TonKhoBTP_v02.Helper;
@@ -22,6 +23,7 @@ using System.Data;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using CoreHelper = DG_TonKhoBTP_v02.Helper.Helper;
 using DG_TonKhoBTP_v02.UI.NghiepVuKhac.SanXuat;
@@ -1388,12 +1390,42 @@ namespace DG_TonKhoBTP_v02
             }
         }
 
-        private void MainForm_Shown(object sender, EventArgs e)
+        private async void MainForm_Shown(object sender, EventArgs e)
         {
             if (!DatabaseHelper.TryPing(_URL))
             {
                 ShowLoginForm(true);
                 Program.RestartApplication();
+                return;
+            }
+
+            string? appVersion;
+            try
+            {
+                appVersion = await Task.Run(() => ConfigApp_DB.GetAppVersion());
+            }
+            catch (Exception ex)
+            {
+                if (IsDisposed || Disposing)
+                    return;
+
+                Debug.WriteLine($"Lỗi kiểm tra phiên bản chương trình: {ex}");
+                FrmWaiting.ShowGifAlert("Lỗi kiểm tra App vesion.");
+                Close();
+                return;
+            }
+
+            if (IsDisposed || Disposing)
+                return;
+
+            if (string.IsNullOrWhiteSpace(appVersion))
+                return;
+
+            string currentVersion = (_ver ?? string.Empty).Trim();
+            if (!string.Equals(appVersion.Trim(), currentVersion, StringComparison.Ordinal))
+            {
+                FrmWaiting.ShowGifAlert("Chương trình cần nâng cấp");
+                Close();
             }
         }
 

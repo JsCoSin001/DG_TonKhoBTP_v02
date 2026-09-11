@@ -7,7 +7,42 @@ namespace DG_TonKhoBTP_v02.Database.KeToan.VatTuKhac
     internal static class ConfigApp_DB
     {
         private const string TEN_NGAY_KHOA_VAT_TU = "NgayKhoa_VatTu";
+        private const string TEN_APP_VERSION = "AppVersion";
         private const string DATE_FORMAT = "yyyyMMdd";
+
+        public static string? GetAppVersion()
+        {
+            const string sql = @"
+            SELECT GiaTri
+            FROM ConfigApp
+            WHERE Ten = @ten
+            LIMIT 1;";
+
+            using (var conn = new SQLiteConnection(DatabaseHelper.GetStringConnector))
+            using (var cmd = new SQLiteCommand(sql, conn))
+            {
+                conn.Open();
+                cmd.Parameters.AddWithValue("@ten", TEN_APP_VERSION);
+
+                using (SQLiteDataReader reader = cmd.ExecuteReader())
+                {
+                    if (!reader.Read())
+                    {
+                        throw new InvalidOperationException(
+                            $"Không tìm thấy cấu hình '{TEN_APP_VERSION}' trong bảng ConfigApp.");
+                    }
+
+                    if (reader.IsDBNull(0))
+                        return null;
+
+                    string rawValue = Convert.ToString(reader.GetValue(0));
+                    if (string.IsNullOrWhiteSpace(rawValue))
+                        return null;
+
+                    return rawValue.Trim();
+                }
+            }
+        }
 
         public static DateTime? GetNgayKhoaVatTu()
         {

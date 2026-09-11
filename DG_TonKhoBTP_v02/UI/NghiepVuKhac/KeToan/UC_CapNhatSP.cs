@@ -170,7 +170,13 @@ namespace DG_TonKhoBTP_v02.UI
 
             if (!string.IsNullOrEmpty(maSP))
             {
+                // Kiểu cho ĐG
                 kieuSP.Text = maSP.Split('.')[0];
+
+
+                // Kiểu cho oto
+                //kieuSP.Text = maSP.Split('-')[0];
+
                 Console.WriteLine(maSP.Split('.')[0]);
             }
         }

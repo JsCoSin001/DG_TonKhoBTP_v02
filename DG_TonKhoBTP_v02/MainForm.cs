@@ -36,6 +36,8 @@ namespace DG_TonKhoBTP_v02
         private string _URL = Properties.Settings.Default.URL;
         private CongDoanUiService _ui;
         private string _ver = "2.8.3";
+
+        private bool _isNgocKhanh = true;
         private bool show = false;
         private void InitUiService()
         {
@@ -1077,6 +1079,19 @@ namespace DG_TonKhoBTP_v02
             homePage.Dock = DockStyle.Fill;
             //homePage.lblVersion.Text = "Phiên bản: v" + _ver;
 
+            if (_isNgocKhanh)
+            {
+                grbChucNang.Visible = !_isNgocKhanh;
+                grbBaoCao.Visible = !_isNgocKhanh;
+                pnTachBin.Visible = !_isNgocKhanh;
+                pnGopBin_HanNoi.Visible = !_isNgocKhanh;
+                pnHaLo_NhapLai.Visible = !_isNgocKhanh;
+                pnKiemKe.Visible = !_isNgocKhanh;
+                pnKiemTraDL.Visible = !_isNgocKhanh;
+                grbKeHoach.Visible = !_isNgocKhanh;
+                grbKho.Visible = !_isNgocKhanh;
+            }
+
 
             if (UserContext.IsAuthenticated)
             {
@@ -1091,10 +1106,9 @@ namespace DG_TonKhoBTP_v02
 
                 string iconAvatar = EnumStore.Icon.NoneLogin;
                 avatar.Image = Image.FromFile(@"Assets\" + iconAvatar + ".ico");
-            }
-
-                
+            }                
         }
+
 
         private void homeToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -1471,6 +1485,7 @@ namespace DG_TonKhoBTP_v02
             string url = Properties.Settings.Default.URL;
             DG_TonKhoBTP_v02.Dictionary.AppContext.URL = url;
             DB_Base.SetDatabasePath(url);
+
         }
 
         private void btnTachBin_Click(object sender, EventArgs e)

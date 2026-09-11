@@ -238,16 +238,16 @@ namespace DG_TonKhoBTP_v02.Printer.A4
                 LineAlignment = StringAlignment.Near
             })
             {
-                g.DrawString("Mẫu số 20 - HD",
+                g.DrawString("Mẫu số 01 - VT",
                     new Font("Times New Roman", 10.5f, FontStyle.Bold),
                     Brushes.Black,
                     new RectangleF(rightRect.Left, rightRect.Top, rightRect.Width, 16), sf);
 
-                g.DrawString("( Theo QĐ số: 19/2006/QĐ-BTC", FontSmall,
+                g.DrawString("( Kèm theo thông tư số 99/2025/TT-BTC", FontSmall,
                     Brushes.Black,
                     new RectangleF(rightRect.Left, rightRect.Top + 16, rightRect.Width, 14), sf);
 
-                g.DrawString("ngày 30 tháng 3 năm 2006", FontSmall,
+                g.DrawString("ngày 27 tháng 10 năm 2025", FontSmall,
                     Brushes.Black,
                     new RectangleF(rightRect.Left, rightRect.Top + 30, rightRect.Width, 14), sf);
 

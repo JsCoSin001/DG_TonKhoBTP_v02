@@ -164,7 +164,9 @@ namespace DG_TonKhoBTP_v02.Printer.A4
 
         private void DrawLabelValue(Graphics g, string label, string value, int x, int y, int width)
         {
-            g.DrawString(label, FontSmall, Brushes.Black, x, y);
+            if (value == "") return;
+            
+            g.DrawString(label, FontSmall, Brushes.Black, x, y); 
 
             float labelW = g.MeasureString(label, FontSmall).Width;
             g.DrawString(value, FontSmall, Brushes.Black, x + labelW + 2, y);

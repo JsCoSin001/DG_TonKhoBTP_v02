@@ -81,5 +81,10 @@ namespace DG_TonKhoBTP_v02.UI.Authentication
             txtPassword.Text = "";
             txtUser.Text = "";
         }
+
+        private void label4_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }

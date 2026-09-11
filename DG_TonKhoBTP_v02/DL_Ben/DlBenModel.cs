@@ -1,4 +1,5 @@
 ﻿using DG_TonKhoBTP_v02.Core;
+using DG_TonKhoBTP_v02.Database;
 using DG_TonKhoBTP_v02.UI;
 using System;
 using System.Collections.Generic;
@@ -54,11 +55,13 @@ namespace DG_TonKhoBTP_v02.DL_Ben
         public static void SetDatabasePath(string path)
         {
             // database version 2
-            _connStr2 = $"Data Source={path};Version=3;"; 
+            string dataSource = DB_Base.ToSQLiteDataSource(path);
+            _connStr2 = $"Data Source={dataSource};Version=3;";
 
             string newPath = path.Replace("QLSX_v02", "QLSX_DG_New");
+            string legacyDataSource = DB_Base.ToSQLiteDataSource(newPath);
             // database version 1
-            _connStr = $"Data Source={newPath};Version=3;";
+            _connStr = $"Data Source={legacyDataSource};Version=3;";
         }
 
         // Cập nhật db

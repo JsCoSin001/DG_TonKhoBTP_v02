@@ -11,10 +11,26 @@ namespace DG_TonKhoBTP_v02.Database
     {
         public static string _connStr;
 
+        /// <summary>
+        /// Chuyển đường dẫn file sang dạng phù hợp với parser connection string của System.Data.SQLite.
+        /// Với UNC path (\\server\share\file.db), cặp backslash đầu phải được escape thành bốn backslash
+        /// khi đặt trong chuỗi Data Source. Đường dẫn ổ đĩa cục bộ/mapped drive được giữ nguyên.
+        /// </summary>
+        internal static string ToSQLiteDataSource(string path)
+        {
+            if (string.IsNullOrWhiteSpace(path))
+                return path;
+
+            return path.StartsWith(@"\\", System.StringComparison.Ordinal)
+                ? @"\\" + path
+                : path;
+        }
+
         /// <summary>Thiết lập đường dẫn đến file SQLite.</summary>
         public static void SetDatabasePath(string path)
         {
-            _connStr = $"Data Source={path};Version=3;";
+            string dataSource = ToSQLiteDataSource(path);
+            _connStr = $"Data Source={dataSource};Version=3;";
         }
 
         public static string GetStringConnector => _connStr;

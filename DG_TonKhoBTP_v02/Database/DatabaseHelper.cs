@@ -37,7 +37,8 @@ namespace DG_TonKhoBTP_v02.Database
         // Thiết lập đường dẫn đến cơ sở dữ liệu SQLite
         public static void SetDatabasePath(string path)
         {
-            _connStr = $"Data Source={path};Version=3;Foreign Keys=True;";
+            string dataSource = DB_Base.ToSQLiteDataSource(path);
+            _connStr = $"Data Source={dataSource};Version=3;Foreign Keys=True;";
         }
 
         public static string GetStringConnector
@@ -1373,26 +1374,30 @@ namespace DG_TonKhoBTP_v02.Database
 
         public static bool TryPing(string dbPath, int timeoutSeconds = 3)
         {
-
             if (string.IsNullOrWhiteSpace(dbPath))
-            {
-                return false;
-            }
-
-            dbPath = System.IO.Path.GetFullPath(dbPath);
-
-            if (!File.Exists(dbPath))
             {
                 return false;
             }
 
             try
             {
+                // Path.GetFullPath giữ nguyên UNC path hợp lệ và chuẩn hóa đường dẫn local/mapped drive.
+                dbPath = System.IO.Path.GetFullPath(dbPath);
+
+                if (!File.Exists(dbPath))
+                {
+                    return false;
+                }
+
+                // System.Data.SQLite dùng parser riêng cho connection string.
+                // UNC path cần escape cặp backslash đầu trước khi đưa vào Data Source.
+                string dataSource = DB_Base.ToSQLiteDataSource(dbPath);
+
                 // Read Only để chỉ kiểm tra (không ghi/không tạo mới)
                 // FailIfMissing để báo lỗi rõ nếu file thiếu
                 // Default Timeout áp dụng cho các thao tác lock/chờ
                 string connStr =
-                    $"Data Source={dbPath};Version=3;Read Only=True;FailIfMissing=True;Default Timeout={timeoutSeconds};";
+                    $"Data Source={dataSource};Version=3;Read Only=True;FailIfMissing=True;Default Timeout={timeoutSeconds};";
 
                 using (var conn = new SQLiteConnection(connStr))
                 {
@@ -1407,7 +1412,7 @@ namespace DG_TonKhoBTP_v02.Database
 
                 return true;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return false;
             }

@@ -13,7 +13,7 @@ namespace DG_TonKhoBTP_v02.Printer.A4
             public string Address { get; set; } = "Thôn An Lạc, Xã Như Quỳnh, Tỉnh Hưng Yên, Việt Nam";
             public string LogoPath { get; set; } = System.IO.Path.Combine(
                                                           System.AppDomain.CurrentDomain.BaseDirectory, "Assets", "logo.png");
-            public string FormCode { get; set; }  = "Mẫu số 01/VT";
+            public string FormCode { get; set; }  = "01/VT";
             public string IssueDate { get; set; } = "";
             public string Revision { get; set; } = "";
         }

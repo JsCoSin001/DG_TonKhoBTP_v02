@@ -1338,7 +1338,7 @@ namespace DG_TonKhoBTP_v02
             menuApp.Visible = UserContext.IsAuthenticated;
 
             // Hiển thị chức năng đăng ký tài khoản chỉ dành cho Admin
-            menuApp.Items["userRegistration"].Visible = UserContext.HasRole("Admin");
+            menuApp.Items["userRegistration"].Visible = !_isNgocKhanh && UserContext.HasRole("Admin");
 
 
             // Hiển thị hoặc ẩn chức năng nhập dữ liệu công đoạn
@@ -1486,7 +1486,6 @@ namespace DG_TonKhoBTP_v02
             DG_TonKhoBTP_v02.Dictionary.AppContext.URL = url;
             DB_Base.SetDatabasePath(url);
 
-            userRegistration.Visible = !_isNgocKhanh;
         }
 
         private void btnTachBin_Click(object sender, EventArgs e)

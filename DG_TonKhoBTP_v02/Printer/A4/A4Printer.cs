@@ -155,7 +155,7 @@ namespace DG_TonKhoBTP_v02.Printer.A4
             g.DrawString(co.CompanyName ?? "", FontBold, Brushes.Black, centerRect.Left, centerRect.Top + 4);
             g.DrawString(co.Address ?? "", FontNormal, Brushes.Black, centerRect.Left, centerRect.Top + 26);
 
-            DrawLabelValue(g, "Mã số:", co.FormCode ?? "", rightRect.Left, rightRect.Top + 2, rightW);
+            DrawLabelValue(g, "Mẫu số:", co.FormCode ?? "", rightRect.Left, rightRect.Top + 2, rightW);
             DrawLabelValue(g, "Ngày ban hành:", co.IssueDate ?? "", rightRect.Left, rightRect.Top + 20, rightW);
             DrawLabelValue(g, "Lần sửa đổi:", co.Revision ?? "", rightRect.Left, rightRect.Top + 38, rightW);
 

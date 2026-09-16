@@ -2,6 +2,12 @@ using System;
 
 namespace DG_TonKhoBTP_v02.Models.SanXuat
 {
+    internal enum LoiDungMayInputMode
+    {
+        Manual,
+        Automatic
+    }
+
     internal sealed class DanhSachCongDoan_Model
     {
         public int Id { get; set; }
@@ -26,8 +32,8 @@ namespace DG_TonKhoBTP_v02.Models.SanXuat
 
     /// <summary>
     /// Model tương ứng với table DanhSachLoiDungMay.
-    /// ThoiGianDung luôn được tính từ ThoiGianBatDau/ThoiGianKetThuc,
-    /// không nhận giá trị nhập tay từ UI.
+    /// Manual: ThoiGianDung nhập tay, ThoiGianBatDau/ThoiGianKetThuc có thể NULL.
+    /// Automatic: ThoiGianDung được tính từ ThoiGianBatDau/ThoiGianKetThuc.
     /// </summary>
     internal sealed class DanhSachLoiDungMay_Model
     {
@@ -36,8 +42,8 @@ namespace DG_TonKhoBTP_v02.Models.SanXuat
         public DateTime Ngay { get; set; }
         public int DanhSachMayId { get; set; }
         public string NguoiLam { get; set; } = string.Empty;
-        public TimeSpan ThoiGianBatDau { get; set; }
-        public TimeSpan ThoiGianKetThuc { get; set; }
+        public TimeSpan? ThoiGianBatDau { get; set; }
+        public TimeSpan? ThoiGianKetThuc { get; set; }
         public int ThoiGianDung { get; set; }
         public string GhiChu { get; set; } = string.Empty;
         public int Ca { get; set; }

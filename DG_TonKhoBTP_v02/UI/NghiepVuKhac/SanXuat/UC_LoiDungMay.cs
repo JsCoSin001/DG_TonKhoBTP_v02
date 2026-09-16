@@ -1,4 +1,5 @@
 ﻿using DG_TonKhoBTP_v02.Database.SanXuat;
+using DG_TonKhoBTP_v02.Dictionary;
 using DG_TonKhoBTP_v02.Models.SanXuat;
 using DG_TonKhoBTP_v02.UI.Helper;
 using System;
@@ -18,6 +19,16 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.SanXuat
         private const string ColGhiChu = "colGhiChu";
         private const string ColXoa = "colXoa";
         private const string TenLoiLamViecKhac = "Làm việc khác";
+        private static readonly DateTime NgayChuaChon = new DateTime(1970, 1, 1);
+
+        // Chỉ cần đổi biến này sang Automatic để bật lại cơ chế nhập
+        // Bắt đầu/Kết thúc và tự tính Thời gian dừng như phiên bản trước.
+        private const LoiDungMayInputMode CheDoNhapThoiGian = LoiDungMayInputMode.Manual;
+
+        private static bool LaCheDoNhapThuCong
+        {
+            get { return CheDoNhapThoiGian == LoiDungMayInputMode.Manual; }
+        }
 
         private readonly List<TenLoiDungMay_Model> danhSachLoiHienTai =
             new List<TenLoiDungMay_Model>();
@@ -47,7 +58,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.SanXuat
 
         private async void UC_LoiDungMay_Load(object sender, EventArgs e)
         {
-            ngay.Value = DateTime.Today;
+            ngay.Value = NgayChuaChon;
             ca.SelectedIndex = -1;
             await NapDanhSachCongDoanAsync();
         }
@@ -75,11 +86,10 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.SanXuat
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
+                FrmWaiting.ShowGifAlert(
                     "Không thể tải danh mục lỗi dừng máy.\n" + ex.Message,
-                    "Lỗi",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
+                    "LỖI",
+                    EnumStore.Icon.Warning);
             }
             finally
             {
@@ -136,11 +146,10 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.SanXuat
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
+                FrmWaiting.ShowGifAlert(
                     "Không thể tải danh mục theo công đoạn.\n" + ex.Message,
-                    "Lỗi",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
+                    "LỖI",
+                    EnumStore.Icon.Warning);
             }
             finally
             {
@@ -244,6 +253,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.SanXuat
                     Name = ColThoiGianBatDau,
                     HeaderText = "Thời gian bắt đầu",
                     Width = 170,
+                    Visible = !LaCheDoNhapThuCong,
                     SortMode = DataGridViewColumnSortMode.NotSortable
                 };
 
@@ -253,6 +263,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.SanXuat
                     Name = ColThoiGianKetThuc,
                     HeaderText = "Thời gian kết thúc",
                     Width = 170,
+                    Visible = !LaCheDoNhapThuCong,
                     SortMode = DataGridViewColumnSortMode.NotSortable
                 };
 
@@ -260,14 +271,18 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.SanXuat
                 new DataGridViewTextBoxColumn
                 {
                     Name = ColThoiGianDung,
-                    HeaderText = "Thời gian dừng",
-                    Width = 135,
-                    ReadOnly = true,
+                    HeaderText = LaCheDoNhapThuCong
+                        ? "Thời gian dừng (phút)"
+                        : "Thời gian dừng",
+                    Width = LaCheDoNhapThuCong ? 175 : 135,
+                    ReadOnly = !LaCheDoNhapThuCong,
                     SortMode = DataGridViewColumnSortMode.NotSortable
                 };
             thoiGianDungColumn.DefaultCellStyle.Alignment =
                 DataGridViewContentAlignment.MiddleCenter;
-            thoiGianDungColumn.DefaultCellStyle.BackColor = SystemColors.Control;
+            thoiGianDungColumn.DefaultCellStyle.BackColor = LaCheDoNhapThuCong
+                ? SystemColors.Window
+                : SystemColors.Control;
 
             DataGridViewTextBoxColumn ghiChuColumn =
                 new DataGridViewTextBoxColumn
@@ -338,14 +353,16 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.SanXuat
             {
                 string colName = grvDsLoiDungMay.Columns[e.ColumnIndex].Name;
 
-                // Cột duration được code tự tính. Bỏ qua event của chính cột này
+                // Automatic: duration do code tự tính nên bỏ qua event của chính cột này
                 // để tránh vòng lặp CellValueChanged -> tính duration -> CellValueChanged.
-                if (colName == ColThoiGianDung)
+                // Manual: duration là dữ liệu người dùng nhập nên vẫn phải validate.
+                if (!LaCheDoNhapThuCong && colName == ColThoiGianDung)
                 {
                     return;
                 }
 
-                if (colName == ColThoiGianBatDau || colName == ColThoiGianKetThuc)
+                if (!LaCheDoNhapThuCong &&
+                    (colName == ColThoiGianBatDau || colName == ColThoiGianKetThuc))
                 {
                     CapNhatThoiGianDung(row);
                 }
@@ -372,9 +389,15 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.SanXuat
                 return;
             }
 
-            CapNhatThoiGianDung(row);
+            if (!LaCheDoNhapThuCong)
+            {
+                CapNhatThoiGianDung(row);
+            }
             KiemTraDong(row, true, out _, out _, out _, out _, out _, out _);
-            KiemTraOverlapTrongGridVaDanhDau(row.Index);
+            if (!LaCheDoNhapThuCong)
+            {
+                KiemTraOverlapTrongGridVaDanhDau(row.Index);
+            }
         }
 
         private void GrvDsLoiDungMay_RowValidated(object sender, DataGridViewCellEventArgs e)
@@ -395,9 +418,15 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.SanXuat
                 return;
             }
 
-            CapNhatThoiGianDung(row);
+            if (!LaCheDoNhapThuCong)
+            {
+                CapNhatThoiGianDung(row);
+            }
             KiemTraDong(row, true, out _, out _, out _, out _, out _, out _);
-            KiemTraOverlapTrongGridVaDanhDau(row.Index);
+            if (!LaCheDoNhapThuCong)
+            {
+                KiemTraOverlapTrongGridVaDanhDau(row.Index);
+            }
         }
 
         private void GrvDsLoiDungMay_DataError(object sender, DataGridViewDataErrorEventArgs e)
@@ -501,11 +530,10 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.SanXuat
 
                 if (!TryGetMayId(out mayId) || !TryGetCa(out caValue))
                 {
-                    MessageBox.Show(
+                    FrmWaiting.ShowGifAlert(
                         "Không xác định được Máy/Ca để xoá dữ liệu.",
-                        "Không thể xoá dữ liệu",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Warning);
+                        "KHÔNG THỂ XOÁ DỮ LIỆU",
+                        EnumStore.Icon.Warning);
                     return;
                 }
 
@@ -529,11 +557,10 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.SanXuat
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(
+                    FrmWaiting.ShowGifAlert(
                         "Không thể xoá toàn bộ dữ liệu.\n" + ex.Message,
-                        "Lỗi",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Error);
+                        "LỖI",
+                        EnumStore.Icon.Warning);
                 }
                 finally
                 {
@@ -553,7 +580,10 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.SanXuat
             if (result == DialogResult.Yes)
             {
                 grvDsLoiDungMay.Rows.RemoveAt(e.RowIndex);
-                DanhDauLaiOverlapTrongGrid();
+                if (!LaCheDoNhapThuCong)
+                {
+                    DanhDauLaiOverlapTrongGrid();
+                }
             }
         }
 
@@ -603,6 +633,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.SanXuat
                 int caValue;
 
                 if (!TryGetMaCongDoan(out maCongDoan) ||
+                    !DaChonNgay() ||
                     !TryGetMayId(out mayId) ||
                     !TryGetCa(out caValue))
                 {
@@ -618,7 +649,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.SanXuat
                             () => LoiDungMay_DB.GetDanhSachDaLuuTheoMayNgayCa(
                                 ngayDaChon,
                                 mayId,
-                                caValue)),
+                                caValue,
+                                CheDoNhapThoiGian)),
                         "ĐANG TẢI DỮ LIỆU LỖI DỪNG MÁY...");
 
                 if (danhSach == null || danhSach.Count == 0)
@@ -665,24 +697,27 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.SanXuat
                     }
                 }
 
-                for (int i = 0; i < danhSach.Count; i++)
+                if (!LaCheDoNhapThuCong)
                 {
-                    for (int j = i + 1; j < danhSach.Count; j++)
+                    for (int i = 0; i < danhSach.Count; i++)
                     {
-                        if (HaiKhoangThoiGianChongLan(
-                            danhSach[i].Ngay,
-                            danhSach[i].ThoiGianBatDau,
-                            danhSach[i].ThoiGianKetThuc,
-                            danhSach[j].Ngay,
-                            danhSach[j].ThoiGianBatDau,
-                            danhSach[j].ThoiGianKetThuc,
-                            caValue))
+                        for (int j = i + 1; j < danhSach.Count; j++)
                         {
-                            throw new InvalidOperationException(
-                                string.Format(
-                                    "Bản ghi id={0} và id={1} có thời gian dừng máy chồng lấn nhau.",
-                                    danhSach[i].Id,
-                                    danhSach[j].Id));
+                            if (HaiKhoangThoiGianChongLan(
+                                danhSach[i].Ngay,
+                                danhSach[i].ThoiGianBatDau,
+                                danhSach[i].ThoiGianKetThuc,
+                                danhSach[j].Ngay,
+                                danhSach[j].ThoiGianBatDau,
+                                danhSach[j].ThoiGianKetThuc,
+                                caValue))
+                            {
+                                throw new InvalidOperationException(
+                                    string.Format(
+                                        "Bản ghi id={0} và id={1} có thời gian dừng máy chồng lấn nhau.",
+                                        danhSach[i].Id,
+                                        danhSach[j].Id));
+                            }
                         }
                     }
                 }
@@ -703,13 +738,17 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.SanXuat
                     row.Cells[ColTenLoi].Value = item.TenLoiDungMayId;
                     row.Cells[ColThoiGianBatDau].Value = item.ThoiGianBatDau;
                     row.Cells[ColThoiGianKetThuc].Value = item.ThoiGianKetThuc;
-                    row.Cells[ColThoiGianDung].Value =
-                        string.Format("{0} phút", item.ThoiGianDung);
+                    row.Cells[ColThoiGianDung].Value = LaCheDoNhapThuCong
+                        ? (object)item.ThoiGianDung
+                        : string.Format("{0} phút", item.ThoiGianDung);
                     row.Cells[ColGhiChu].Value = item.GhiChu;
                 }
 
                 dangChinhSuaDuLieuDaLuu = true;
-                DanhDauLaiOverlapTrongGrid();
+                if (!LaCheDoNhapThuCong)
+                {
+                    DanhDauLaiOverlapTrongGrid();
+                }
             }
             catch (Exception ex)
             {
@@ -719,11 +758,10 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.SanXuat
                 nguoiLamBanDauKhiTai = string.Empty;
                 dangChinhSuaDuLieuDaLuu = false;
 
-                MessageBox.Show(
+                FrmWaiting.ShowGifAlert(
                     "Không thể tải dữ liệu lỗi dừng máy đã lưu.\n" + ex.Message,
-                    "Lỗi",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
+                    "LỖI",
+                    EnumStore.Icon.Warning);
             }
             finally
             {
@@ -734,6 +772,11 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.SanXuat
 
         private void CapNhatThoiGianDung(DataGridViewRow row)
         {
+            if (LaCheDoNhapThuCong)
+            {
+                return;
+            }
+
             if (row == null || row.IsNewRow)
             {
                 return;
@@ -808,6 +851,32 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.SanXuat
                 thongBao = "Tên lỗi không được để trống.";
                 GanLoiCell(row, ColTenLoi, thongBao, ganLoiLenCell);
                 return false;
+            }
+
+            if (LaCheDoNhapThuCong)
+            {
+                string thoiGianDungText =
+                    (Convert.ToString(row.Cells[ColThoiGianDung].Value) ?? string.Empty).Trim();
+
+                if (!int.TryParse(thoiGianDungText, out soPhutDung) || soPhutDung <= 0)
+                {
+                    thongBao = "Thời gian dừng phải là số phút nguyên lớn hơn 0.";
+                    GanLoiCell(row, ColThoiGianDung, thongBao, ganLoiLenCell);
+                    return false;
+                }
+
+                ghiChu = Convert.ToString(row.Cells[ColGhiChu].Value) ?? string.Empty;
+                ghiChu = ghiChu.Trim();
+
+                TenLoiDungMay_Model tenLoiThuCong = loiTheoId[tenLoiId];
+                if (IsLamViecKhac(tenLoiThuCong.TenLoi) && string.IsNullOrWhiteSpace(ghiChu))
+                {
+                    thongBao = "Khi chọn 'Làm việc khác' bắt buộc phải nhập ghi chú.";
+                    GanLoiCell(row, ColGhiChu, thongBao, ganLoiLenCell);
+                    return false;
+                }
+
+                return true;
             }
 
             if (!TryGetTime(row.Cells[ColThoiGianBatDau].Value, out batDau))
@@ -914,6 +983,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.SanXuat
             return row.Cells[ColTenLoi].Value != null
                 || row.Cells[ColThoiGianBatDau].Value != null
                 || row.Cells[ColThoiGianKetThuc].Value != null
+                || !string.IsNullOrWhiteSpace(Convert.ToString(row.Cells[ColThoiGianDung].Value))
                 || !string.IsNullOrWhiteSpace(Convert.ToString(row.Cells[ColGhiChu].Value));
         }
 
@@ -927,6 +997,11 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.SanXuat
 
         private void KiemTraOverlapTrongGridVaDanhDau(int rowIndex)
         {
+            if (LaCheDoNhapThuCong)
+            {
+                return;
+            }
+
             if (rowIndex < 0 || rowIndex >= grvDsLoiDungMay.Rows.Count)
             {
                 return;
@@ -1009,6 +1084,11 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.SanXuat
 
         private void DanhDauLaiOverlapTrongGrid()
         {
+            if (LaCheDoNhapThuCong)
+            {
+                return;
+            }
+
             foreach (DataGridViewRow row in grvDsLoiDungMay.Rows)
             {
                 if (!row.IsNewRow)
@@ -1028,13 +1108,19 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.SanXuat
 
         private static bool HaiKhoangThoiGianChongLan(
             DateTime ngayA,
-            TimeSpan startA,
-            TimeSpan endA,
+            TimeSpan? startA,
+            TimeSpan? endA,
             DateTime ngayB,
-            TimeSpan startB,
-            TimeSpan endB,
+            TimeSpan? startB,
+            TimeSpan? endB,
             int caValue)
         {
+            if (!startA.HasValue || !endA.HasValue ||
+                !startB.HasValue || !endB.HasValue)
+            {
+                return false;
+            }
+
             DateTime aStart;
             DateTime aEnd;
             DateTime bStart;
@@ -1042,15 +1128,15 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.SanXuat
 
             if (!LoiDungMay_DB.TryLayKhoangThoiGianTheoCa(
                     ngayA,
-                    startA,
-                    endA,
+                    startA.Value,
+                    endA.Value,
                     caValue,
                     out aStart,
                     out aEnd) ||
                 !LoiDungMay_DB.TryLayKhoangThoiGianTheoCa(
                     ngayB,
-                    startB,
-                    endB,
+                    startB.Value,
+                    endB.Value,
                     caValue,
                     out bStart,
                     out bEnd))
@@ -1099,6 +1185,11 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.SanXuat
             return false;
         }
 
+        private bool DaChonNgay()
+        {
+            return ngay.Value.Date != NgayChuaChon.Date;
+        }
+
         private bool ValidateHeader(
             out int maCongDoan,
             out int mayId,
@@ -1112,28 +1203,35 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.SanXuat
 
             if (!TryGetMaCongDoan(out maCongDoan))
             {
-                MessageBox.Show("Vui lòng chọn công đoạn.", "Thiếu dữ liệu", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                FrmWaiting.ShowGifAlert("Vui lòng chọn công đoạn.", "THIẾU DỮ LIỆU", EnumStore.Icon.Warning);
                 congDoan.Focus();
+                return false;
+            }
+
+            if (!DaChonNgay())
+            {
+                FrmWaiting.ShowGifAlert("Vui lòng chọn ngày.", "THIẾU DỮ LIỆU", EnumStore.Icon.Warning);
+                ngay.Focus();
                 return false;
             }
 
             if (!TryGetMayId(out mayId))
             {
-                MessageBox.Show("Vui lòng chọn máy.", "Thiếu dữ liệu", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                FrmWaiting.ShowGifAlert("Vui lòng chọn máy.", "THIẾU DỮ LIỆU", EnumStore.Icon.Warning);
                 cbMay.Focus();
                 return false;
             }
 
             if (!TryGetCa(out caValue))
             {
-                MessageBox.Show("Vui lòng chọn ca.", "Thiếu dữ liệu", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                FrmWaiting.ShowGifAlert("Vui lòng chọn ca.", "THIẾU DỮ LIỆU", EnumStore.Icon.Warning);
                 ca.Focus();
                 return false;
             }
 
             if (string.IsNullOrWhiteSpace(nguoiLamValue))
             {
-                MessageBox.Show("Vui lòng nhập người làm.", "Thiếu dữ liệu", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                FrmWaiting.ShowGifAlert("Vui lòng nhập người làm.", "THIẾU DỮ LIỆU", EnumStore.Icon.Warning);
                 nguoiLam.Focus();
                 return false;
             }
@@ -1208,8 +1306,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.SanXuat
                     Ngay = ngay.Value.Date,
                     DanhSachMayId = mayId,
                     NguoiLam = nguoiLamCuaDong,
-                    ThoiGianBatDau = batDau,
-                    ThoiGianKetThuc = ketThuc,
+                    ThoiGianBatDau = LaCheDoNhapThuCong ? (TimeSpan?)null : batDau,
+                    ThoiGianKetThuc = LaCheDoNhapThuCong ? (TimeSpan?)null : ketThuc,
                     ThoiGianDung = soPhutDung,
                     GhiChu = ghiChu,
                     Ca = caValue,
@@ -1227,6 +1325,11 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.SanXuat
 
         private void ValidateOverlapTrongDanhSach(List<DanhSachLoiDungMay_Model> danhSach)
         {
+            if (LaCheDoNhapThuCong)
+            {
+                return;
+            }
+
             for (int i = 0; i < danhSach.Count; i++)
             {
                 for (int j = i + 1; j < danhSach.Count; j++)
@@ -1275,26 +1378,24 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.SanXuat
                 await WaitingHelper.RunWithWaiting<bool>(
                     async () => await Task.Run(() =>
                     {
-                        LoiDungMay_DB.LuuDanhSach(danhSach);
+                        LoiDungMay_DB.LuuDanhSach(danhSach, CheDoNhapThoiGian);
                         return true;
                     }),
                     "ĐANG LƯU DỮ LIỆU LỖI DỪNG MÁY...");
 
-                MessageBox.Show(
+                FrmWaiting.ShowGifAlert(
                     "Lưu dữ liệu lỗi dừng máy thành công.",
-                    "Thành công",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Information);
+                    "THÀNH CÔNG",
+                    EnumStore.Icon.Success);
 
                 ResetToanBoForm();
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
+                FrmWaiting.ShowGifAlert(
                     ex.Message,
-                    "Không thể lưu dữ liệu",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Warning);
+                    "KHÔNG THỂ LƯU DỮ LIỆU",
+                    EnumStore.Icon.Warning);
             }
             finally
             {
@@ -1316,7 +1417,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.SanXuat
                 cbMay.Items.Clear();
                 cbMay.SelectedIndex = -1;
                 congDoan.SelectedIndex = -1;
-                ngay.Value = DateTime.Today;
+                ngay.Value = NgayChuaChon;
                 SetDanhSachLoi(new List<TenLoiDungMay_Model>());
                 nguoiLamDaLuuTheoId.Clear();
                 nguoiLamBanDauKhiTai = string.Empty;

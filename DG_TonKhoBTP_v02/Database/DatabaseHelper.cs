@@ -3315,6 +3315,7 @@ namespace DG_TonKhoBTP_v02.Database
 
             const string sql = @"
                 SELECT
+                    tcd.id                      AS TTCuonDay_CD_ID,
                     tcd.TTLo_ID,
                     lo.KichThuoc                 AS KichThuocLo,
                     CASE
@@ -3349,6 +3350,9 @@ namespace DG_TonKhoBTP_v02.Database
                     {
                         result.Add(new ThongTinCuonDay
                         {
+                            TTCuonDay_CD_ID = reader["TTCuonDay_CD_ID"] == DBNull.Value
+                                ? (long?)null
+                                : Convert.ToInt64(reader["TTCuonDay_CD_ID"]),
                             TTLo_ID = reader["TTLo_ID"] == DBNull.Value ? (int?)null : Convert.ToInt32(reader["TTLo_ID"]),
                             KichThuocLo = reader["KichThuocLo"] == DBNull.Value
                                 ? string.Empty

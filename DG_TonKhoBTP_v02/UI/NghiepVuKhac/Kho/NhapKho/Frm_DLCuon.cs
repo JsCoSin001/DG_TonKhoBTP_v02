@@ -241,6 +241,9 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
                 {
                     int rowIndex = grvThongTinCuonDay.Rows.Add();
                     DataGridViewRow row = grvThongTinCuonDay.Rows[rowIndex];
+                    // Giữ khóa nguồn để khi chỉnh sửa có thể UPDATE đúng TTCuonDay_CD,
+                    // không nhận dạng gián tiếp bằng số cuộn/chiều dài.
+                    row.Tag = item.TTCuonDay_CD_ID;
 
                     // Model/snapshot: null = Cuộn.
                     // Grid: 0 = Cuộn.
@@ -728,8 +731,13 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
                     kichThuocLo = kichThuocLo?.Trim() ?? string.Empty;
                 }
 
+                long? sourceId = null;
+                if (row.Tag != null && long.TryParse(row.Tag.ToString(), out long parsedSourceId) && parsedSourceId > 0)
+                    sourceId = parsedSourceId;
+
                 result.Add(new ThongTinCuonDay
                 {
+                    TTCuonDay_CD_ID = sourceId,
                     TTLo_ID = ttLoId,
                     KichThuocLo = kichThuocLo,
                     TTLoHopLe = ttLoHopLe,

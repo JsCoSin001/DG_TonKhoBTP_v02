@@ -10,6 +10,9 @@ namespace DG_TonKhoBTP_v02.Models
 {
     public class ThongTinCuonDay
     {
+        /// <summary>FK tới TTCuonDay_CD.id. Null đối với dòng nguồn mới chưa được lưu.</summary>
+        public long? TTCuonDay_CD_ID { get; set; } = null;
+
         public int? TTLo_ID { get; set; } = null;
         public string KichThuocLo { get; set; } = string.Empty;
         public bool TTLoHopLe { get; set; } = true;

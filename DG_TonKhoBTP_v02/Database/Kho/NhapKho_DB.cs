@@ -768,14 +768,25 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
 
             const string sql = @"
         SELECT
-            SoCuon,
-            TongChieuDai,
-            SoDau,
-            soCuoi,
-            GhiChu
-        FROM TTCuonDay
-        WHERE ThongTinNhapKho_ID = @ThongTinNhapKho_ID
-        ORDER BY id;";
+            cd.SoCuon,
+            cd.TongChieuDai,
+            cd.SoDau,
+            cd.soCuoi,
+            cd.GhiChu,
+            CASE WHEN nk.Loai = 'Lô' THEN lo.id ELSE NULL END AS TTLo_ID,
+            CASE WHEN nk.Loai = 'Lô' THEN lo.KichThuoc ELSE NULL END AS KichThuocLo,
+            CASE
+                WHEN nk.Loai <> 'Lô' THEN 1
+                WHEN lo.id IS NOT NULL THEN 1
+                ELSE 0
+            END AS TTLoHopLe
+        FROM TTCuonDay cd
+        INNER JOIN TTNhapKho nk ON nk.id = cd.ThongTinNhapKho_ID
+        LEFT JOIN TTLo lo
+            ON nk.Loai = 'Lô'
+           AND CAST(lo.KichThuoc AS TEXT) = CAST(nk.ChieuCaoLo AS TEXT)
+        WHERE cd.ThongTinNhapKho_ID = @ThongTinNhapKho_ID
+        ORDER BY cd.id;";
 
             using var conn = DB_Base.OpenConnection();
             using var cmd = new SQLiteCommand(sql, conn);
@@ -788,6 +799,11 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
             {
                 result.Add(new DG_TonKhoBTP_v02.Models.ThongTinCuonDay
                 {
+                    TTLo_ID = reader["TTLo_ID"] == DBNull.Value ? (int?)null : Convert.ToInt32(reader["TTLo_ID"]),
+                    KichThuocLo = reader["KichThuocLo"] == DBNull.Value
+                        ? string.Empty
+                        : (reader["KichThuocLo"].ToString() ?? string.Empty).Trim(),
+                    TTLoHopLe = reader["TTLoHopLe"] != DBNull.Value && Convert.ToInt32(reader["TTLoHopLe"]) == 1,
                     SoCuon = reader["SoCuon"] == DBNull.Value ? 0 : Convert.ToInt32(reader["SoCuon"]),
                     TongChieuDai = reader["TongChieuDai"] == DBNull.Value ? 0 : Convert.ToInt32(reader["TongChieuDai"]),
                     SoDau = reader["SoDau"] == DBNull.Value ? 0 : Convert.ToInt32(reader["SoDau"]),

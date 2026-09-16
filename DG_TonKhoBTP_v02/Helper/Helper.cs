@@ -100,6 +100,34 @@ namespace DG_TonKhoBTP_v02.Helper
         }
 
 
+        /// <summary>
+        /// Tạo chuỗi thông tin đóng gói theo từng dòng.
+        /// TTLo_ID = null là Cuộn; TTLo_ID có giá trị là Lô và dùng KichThuocLo của chính dòng đó.
+        /// </summary>
+        public static string TaoChuoiThongTinCuonDay(List<ThongTinCuonDay> ds)
+        {
+            if (ds == null || ds.Count == 0)
+                return string.Empty;
+
+            return string.Join(" + ", ds.Select(x =>
+            {
+                if (!x.TTLo_ID.HasValue)
+                {
+                    return x.SoCuon == 1
+                        ? $"{x.TongChieuDai}"
+                        : $"{x.SoCuon}c x {x.TongChieuDai}";
+                }
+
+                string kichThuocLo = x.KichThuocLo?.Trim() ?? string.Empty;
+                string loText = string.IsNullOrWhiteSpace(kichThuocLo)
+                    ? "L?"
+                    : $"L{kichThuocLo}";
+
+                return $"{loText} {x.TongChieuDai}({x.SoDau:D2}-{x.soCuoi:D2})";
+            }));
+        }
+
+
 
 
         public static string TaoMaDon_Khac()

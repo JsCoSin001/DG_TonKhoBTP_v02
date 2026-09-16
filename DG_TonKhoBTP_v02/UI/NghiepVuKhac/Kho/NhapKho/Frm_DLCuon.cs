@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
@@ -26,6 +27,12 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
         // - -1 chỉ là trạng thái chưa chọn, không được phép lưu
         private const int LOAI_CHUA_CHON_VALUE = -1;
         private const int LOAI_CUON_VALUE = 0;
+
+        // Nguồn mặc định của combobox chỉ chứa Cuộn + TTLo đang Active.
+        // Các TTLo inactive/không hợp lệ chỉ được bổ sung cho đúng cell lịch sử cần hiển thị.
+        private DataTable _loaiDongGoiSource;
+        private readonly Dictionary<int, string> _ttLoKichThuocById = new Dictionary<int, string>();
+        private readonly HashSet<int> _ttLoActiveIds = new HashSet<int>();
 
         // ── Kết quả trả về sau khi lưu thành công ─────────────────────────────
         public List<ThongTinCuonDay> KetQua { get; private set; }
@@ -68,46 +75,63 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
 
         private void LoadLoaiDongGoiVaoComboColumn()
         {
-            // Dùng DataSource + ValueMember kiểu int để tránh lỗi combobox
-            // tự nhảy về item đầu tiên khi rời ô.
-            // Quy ước trong grid:
-            // - -1 = -- Chọn loại --
-            // - 0  = Cuộn
-            // - >0 = TTLo.id
-            // Quy ước trong model/snapshot:
-            // - -1 không được lưu
-            // - null = Cuộn
-            // - >0   = TTLo.id
-            DataTable dtSource = new DataTable();
-            dtSource.Columns.Add("LoaiValue", typeof(int));
-            dtSource.Columns.Add("TenHienThi", typeof(string));
+            _ttLoKichThuocById.Clear();
+            _ttLoActiveIds.Clear();
 
-            // Không mặc định là Cuộn. Dòng mới sẽ nhận -1 và bắt buộc người dùng chọn.
-            dtSource.Rows.Add(LOAI_CHUA_CHON_VALUE, "-- Chọn loại --");
-            dtSource.Rows.Add(LOAI_CUON_VALUE, "Cuộn");
+            DataTable dtSource = TaoNguonLoaiDongGoiCoBan();
 
-            DataTable dtTTLo = DatabaseHelper.LayDanhSachTTLoActive();
-            foreach (DataRow row in dtTTLo.Rows)
+            DataTable dtTTLoActive = DatabaseHelper.LayDanhSachTTLoActive();
+            foreach (DataRow row in dtTTLoActive.Rows)
             {
                 if (row["id"] == DBNull.Value) continue;
 
                 int id = Convert.ToInt32(row["id"]);
                 string kichThuoc = row["KichThuoc"] == DBNull.Value
                     ? string.Empty
-                    : Convert.ToString(row["KichThuoc"])?.Trim();
+                    : (Convert.ToString(row["KichThuoc"]) ?? string.Empty).Trim();
 
                 if (string.IsNullOrWhiteSpace(kichThuoc)) continue;
 
-                // Yêu cầu mới: hiển thị dạng "Lô 12", "Lô 14", ...
+                _ttLoActiveIds.Add(id);
+                _ttLoKichThuocById[id] = kichThuoc;
                 dtSource.Rows.Add(id, "Lô " + kichThuoc);
             }
+
+            List<int> referencedIds = _thongTinCuonHienTai
+                .Where(x => x.TTLo_ID.HasValue && x.TTLo_ID.Value > 0)
+                .Select(x => x.TTLo_ID.Value)
+                .Distinct()
+                .ToList();
+
+            if (referencedIds.Count > 0)
+            {
+                DataTable dtReferenced = DatabaseHelper.LayDanhSachTTLoTheoIds(referencedIds);
+                HashSet<int> foundIds = new HashSet<int>();
+
+                foreach (DataRow row in dtReferenced.Rows)
+                {
+                    if (row["id"] == DBNull.Value) continue;
+
+                    int id = Convert.ToInt32(row["id"]);
+                    string kichThuoc = row["KichThuoc"] == DBNull.Value
+                        ? string.Empty
+                        : (Convert.ToString(row["KichThuoc"]) ?? string.Empty).Trim();
+
+                    foundIds.Add(id);
+                    if (!string.IsNullOrWhiteSpace(kichThuoc))
+                        _ttLoKichThuocById[id] = kichThuoc;
+                }
+
+            }
+
+            _loaiDongGoiSource = dtSource;
 
             if (grvThongTinCuonDay.Columns["loai"] is DataGridViewComboBoxColumn colLoai)
             {
                 colLoai.DataSource = null;
                 colLoai.Items.Clear();
 
-                colLoai.DataSource = dtSource;
+                colLoai.DataSource = _loaiDongGoiSource;
                 colLoai.DisplayMember = "TenHienThi";
                 colLoai.ValueMember = "LoaiValue";
                 colLoai.ValueType = typeof(int);
@@ -116,6 +140,43 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
                 colLoai.DisplayStyle = DataGridViewComboBoxDisplayStyle.ComboBox;
                 colLoai.FlatStyle = FlatStyle.Flat;
             }
+        }
+
+        private static DataTable TaoNguonLoaiDongGoiCoBan()
+        {
+            DataTable dt = new DataTable();
+            dt.Columns.Add("LoaiValue", typeof(int));
+            dt.Columns.Add("TenHienThi", typeof(string));
+            dt.Rows.Add(LOAI_CHUA_CHON_VALUE, "-- Chọn loại --");
+            dt.Rows.Add(LOAI_CUON_VALUE, "Cuộn");
+            return dt;
+        }
+
+        private void GanNguonLoaiChoDongLichSu(DataGridViewRow row, ThongTinCuonDay item)
+        {
+            if (row == null || !item.TTLo_ID.HasValue) return;
+
+            int ttLoId = item.TTLo_ID.Value;
+            if (_ttLoActiveIds.Contains(ttLoId)) return;
+
+            if (!(row.Cells["loai"] is DataGridViewComboBoxCell cell)) return;
+
+            DataTable cellSource = _loaiDongGoiSource?.Copy() ?? TaoNguonLoaiDongGoiCoBan();
+
+            if (_ttLoKichThuocById.TryGetValue(ttLoId, out string kichThuoc)
+                && !string.IsNullOrWhiteSpace(kichThuoc))
+            {
+                cellSource.Rows.Add(ttLoId, "Lô " + kichThuoc + " (ngừng sử dụng)");
+            }
+            else
+            {
+                cellSource.Rows.Add(ttLoId, $"Lô [ID {ttLoId}] - không hợp lệ");
+            }
+
+            cell.DataSource = cellSource;
+            cell.DisplayMember = "TenHienThi";
+            cell.ValueMember = "LoaiValue";
+            cell.ValueType = typeof(int);
         }
 
         private static bool TryGetLoaiValueFromCell(DataGridViewCell cell, out int loaiValue)
@@ -183,6 +244,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
 
                     // Model/snapshot: null = Cuộn.
                     // Grid: 0 = Cuộn.
+                    // TTLo inactive/không tồn tại chỉ được bổ sung vào đúng cell lịch sử này.
+                    GanNguonLoaiChoDongLichSu(row, item);
                     row.Cells["loai"].Value = item.TTLo_ID.HasValue
                         ? item.TTLo_ID.Value
                         : LOAI_CUON_VALUE;
@@ -526,6 +589,17 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
                 return false;
             }
 
+            if (loaiValue > LOAI_CUON_VALUE && !_ttLoKichThuocById.ContainsKey(loaiValue))
+            {
+                MarkCellError(cell);
+                MessageBox.Show(
+                    $"Dòng {rowIndex + 1} – TTLo_ID = {loaiValue} không còn tồn tại trong bảng TTLo.\n" +
+                    "Vui lòng chọn lại một loại lô hợp lệ.",
+                    "Lỗi dữ liệu", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                grvThongTinCuonDay.CurrentCell = cell;
+                return false;
+            }
+
             ttLoId = ConvertLoaiValueToTTLoId(loaiValue);
             ResetCellColor(cell);
             return true;
@@ -646,9 +720,19 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
                     return;
                 }
 
+                string kichThuocLo = string.Empty;
+                bool ttLoHopLe = true;
+                if (ttLoId.HasValue)
+                {
+                    ttLoHopLe = _ttLoKichThuocById.TryGetValue(ttLoId.Value, out kichThuocLo);
+                    kichThuocLo = kichThuocLo?.Trim() ?? string.Empty;
+                }
+
                 result.Add(new ThongTinCuonDay
                 {
                     TTLo_ID = ttLoId,
+                    KichThuocLo = kichThuocLo,
+                    TTLoHopLe = ttLoHopLe,
                     SoCuon = slCuon,
                     TongChieuDai = tongCD,
                     SoDau = soDau,

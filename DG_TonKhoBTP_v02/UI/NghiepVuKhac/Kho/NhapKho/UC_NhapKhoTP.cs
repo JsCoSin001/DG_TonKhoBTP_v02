@@ -38,13 +38,15 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
             InitGridFont();
             InitImportExcelButton();
 
+            // dataGridView1 chỉ hiển thị thông tin Cuộn/Lô.
+            // Việc chỉnh sửa vẫn thực hiện qua Frm_DLCuon.
+            dataGridView1.ReadOnly = true;
+
             grvDSNhapKho.CellDoubleClick += GrvDSNhapKho_CellDoubleClick;
 
             grvDSNhapKho.CurrentCellDirtyStateChanged += GrvDSNhapKho_CurrentCellDirtyStateChanged;
             grvDSNhapKho.CellValueChanged += GrvDSNhapKho_CellValueChanged;
             grvDSNhapKho.EditingControlShowing += GrvDSNhapKho_EditingControlShowing;
-
-            nrChieuCaoLo.SelectedIndexChanged += NrChieuCaoLo_SelectedIndexChanged;
         }
 
 
@@ -60,110 +62,104 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
         }
 
 
-        private void LoadDanhSachChieuCaoLo()
+        private void LoadThongTinCuonDayTuCongDoan()
         {
+            thongTinDayNhapKho = new List<ThongTinCuonDay>();
+            _ttCuonDayChanged = false;
+            LoadThongTinDayVaoGrid();
+
+            if (!_selectedTTThanhPhamID.HasValue || _selectedTTThanhPhamID.Value <= 0)
+                return;
+
             try
             {
-                DataTable dt = NhapKho_DB.LayDanhSachKichThuocLo();
+                thongTinDayNhapKho = DatabaseHelper.LayTTCuonDayCDTheoTTThanhPhamId(_selectedTTThanhPhamID.Value)
+                    ?? new List<ThongTinCuonDay>();
 
-                nrChieuCaoLo.BeginUpdate();
-                nrChieuCaoLo.DataSource = null;
-                nrChieuCaoLo.Items.Clear();
-
-                nrChieuCaoLo.DisplayMember = "KichThuoc";
-                nrChieuCaoLo.ValueMember = "KichThuoc";
-                nrChieuCaoLo.DataSource = dt;
-
-                nrChieuCaoLo.SelectedIndex = dt.Rows.Count > 0 ? 0 : -1;
-                nrChieuCaoLo.Enabled = rdLo.Checked;
+                LoadThongTinDayVaoGrid();
             }
             catch (Exception ex)
             {
-                nrChieuCaoLo.DataSource = null;
-                nrChieuCaoLo.Items.Clear();
-                nrChieuCaoLo.SelectedIndex = -1;
-                FrmWaiting.ShowGifAlert($"Lỗi khi tải danh sách chiều cao lô:\n{ex.Message}");
-            }
-            finally
-            {
-                nrChieuCaoLo.EndUpdate();
+                thongTinDayNhapKho = new List<ThongTinCuonDay>();
+                LoadThongTinDayVaoGrid();
+                FrmWaiting.ShowGifAlert($"Lỗi khi tải thông tin cuộn/lô từ công đoạn:\n{ex.Message}");
             }
         }
 
-        private bool TryGetChieuCaoLo(out decimal chieuCaoLo)
+        private void LoadThongTinDayVaoGrid()
         {
-            string text = nrChieuCaoLo.Text?.Trim() ?? string.Empty;
+            dataGridView1.Rows.Clear();
 
-            if (string.IsNullOrWhiteSpace(text))
-            {
-                chieuCaoLo = 0;
-                return false;
-            }
-
-            return decimal.TryParse(text, NumberStyles.Any, CultureInfo.InvariantCulture, out chieuCaoLo)
-                || decimal.TryParse(text, NumberStyles.Any, CultureInfo.CurrentCulture, out chieuCaoLo);
-        }
-
-        private decimal GetChieuCaoLoDecimalOrZero()
-        {
-            return TryGetChieuCaoLo(out decimal chieuCaoLo) ? chieuCaoLo : 0m;
-        }
-
-        private double GetChieuCaoLoDoubleOrZero()
-        {
-            return (double)GetChieuCaoLoDecimalOrZero();
-        }
-
-        private void SetSelectedChieuCaoLo(string value)
-        {
-            value = value?.Trim() ?? string.Empty;
-
-            if (string.IsNullOrWhiteSpace(value))
-            {
-                nrChieuCaoLo.SelectedIndex = -1;
-                return;
-            }
-
-            for (int i = 0; i < nrChieuCaoLo.Items.Count; i++)
-            {
-                string itemText = nrChieuCaoLo.GetItemText(nrChieuCaoLo.Items[i])?.Trim() ?? string.Empty;
-                if (string.Equals(itemText, value, StringComparison.OrdinalIgnoreCase))
-                {
-                    nrChieuCaoLo.SelectedIndex = i;
-                    return;
-                }
-            }
-
-            if (decimal.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out decimal dbValue)
-                || decimal.TryParse(value, NumberStyles.Any, CultureInfo.CurrentCulture, out dbValue))
-            {
-                for (int i = 0; i < nrChieuCaoLo.Items.Count; i++)
-                {
-                    string itemText = nrChieuCaoLo.GetItemText(nrChieuCaoLo.Items[i])?.Trim() ?? string.Empty;
-
-                    if ((decimal.TryParse(itemText, NumberStyles.Any, CultureInfo.InvariantCulture, out decimal itemValue)
-                         || decimal.TryParse(itemText, NumberStyles.Any, CultureInfo.CurrentCulture, out itemValue))
-                        && itemValue == dbValue)
-                    {
-                        nrChieuCaoLo.SelectedIndex = i;
-                        return;
-                    }
-                }
-            }
-
-            nrChieuCaoLo.SelectedIndex = -1;
-        }
-
-        private void NrChieuCaoLo_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (!rdLo.Checked || thongTinDayNhapKho == null || thongTinDayNhapKho.Count == 0)
+            if (thongTinDayNhapKho == null || thongTinDayNhapKho.Count == 0)
                 return;
 
-            tbxThongTinDay.Text = CoreHelper.TaoChuoiThongTinCuonDay(
-                thongTinDayNhapKho,
-                isCuon: false,
-                GetChieuCaoLoDecimalOrZero()
-            );
+            foreach (ThongTinCuonDay item in thongTinDayNhapKho)
+            {
+                string loai;
+                if (!item.TTLo_ID.HasValue)
+                {
+                    loai = "Cuộn";
+                }
+                else if (!item.TTLoHopLe)
+                {
+                    loai = "Lô (không hợp lệ)";
+                }
+                else
+                {
+                    string kichThuoc = (item.KichThuocLo ?? string.Empty).Trim();
+                    loai = string.IsNullOrWhiteSpace(kichThuoc)
+                        ? "Lô"
+                        : $"Lô {kichThuoc}";
+                }
+
+                int rowIndex = dataGridView1.Rows.Add();
+                DataGridViewRow row = dataGridView1.Rows[rowIndex];
+                row.Cells["col_Loai"].Value = loai;
+                row.Cells["col_ChieuDai"].Value = item.TongChieuDai;
+                row.Cells["col_SoLuong"].Value = item.SoCuon;
+                row.Cells["col_SoDau"].Value = item.SoDau;
+                row.Cells["col_SoCuoi"].Value = item.soCuoi;
+                row.Cells["cl_GhiChu"].Value = item.Ghichu ?? string.Empty;
+            }
+        }
+
+        private bool CoTTLoKhongHopLe()
+        {
+            return thongTinDayNhapKho != null
+                && thongTinDayNhapKho.Any(x => x.TTLo_ID.HasValue && !x.TTLoHopLe);
+        }
+
+        // TTNhapKho hiện vẫn có header Loai/ChieuCaoLo dạng một giá trị.
+        // Danh sách chi tiết trong thongTinDayNhapKho mới là nguồn xác định Cuộn/Lô theo từng dòng.
+        // Để giữ tương thích schema hiện tại: chỉ cần có một dòng Lô thì header ghi Lô,
+        // ChieuCaoLo lấy kích thước của dòng Lô hợp lệ đầu tiên.
+        private string GetLoaiNhapKhoHeader()
+        {
+            if (thongTinDayNhapKho == null || thongTinDayNhapKho.Count == 0)
+                return "Cuộn";
+
+            return thongTinDayNhapKho.Any(x => x.TTLo_ID.HasValue) ? "Lô" : "Cuộn";
+        }
+
+        private double GetChieuCaoLoHeader()
+        {
+            if (thongTinDayNhapKho == null || thongTinDayNhapKho.Count == 0)
+                return 0;
+
+            ThongTinCuonDay dongLo = thongTinDayNhapKho
+                .FirstOrDefault(x => x.TTLo_ID.HasValue && x.TTLoHopLe && !string.IsNullOrWhiteSpace(x.KichThuocLo));
+
+            if (dongLo == null)
+                return 0;
+
+            string text = dongLo.KichThuocLo.Trim();
+            if (double.TryParse(text, NumberStyles.Any, CultureInfo.InvariantCulture, out double value)
+                || double.TryParse(text, NumberStyles.Any, CultureInfo.CurrentCulture, out value))
+            {
+                return value;
+            }
+
+            return 0;
         }
 
         private void OnMaBinSelected(DataRowView row)
@@ -181,6 +177,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
             else
                 nbSoMet.Value = 0;
 
+            LoadThongTinCuonDayTuCongDoan();
+
             nbSoMet.Focus();
             nbSoMet.Select(0, int.MaxValue);
         }
@@ -192,6 +190,9 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
             rtbGhiChu.Text = string.Empty;
             nbSoMet.Value = 0;
             _selectedTTThanhPhamID = null;
+            thongTinDayNhapKho = new List<ThongTinCuonDay>();
+            LoadThongTinDayVaoGrid();
+            _ttCuonDayChanged = false;
         }
 
         
@@ -226,12 +227,16 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
                 valid = false;
             }
 
-            decimal chieuCaoLoValidate;
-            if (rdLo.Checked && !TryGetChieuCaoLo(out chieuCaoLoValidate)) { MarkError(nrChieuCaoLo); valid = false; }
-
-            if (thongTinDayNhapKho == null || thongTinDayNhapKho.Count == 0 || string.IsNullOrWhiteSpace(tbxThongTinDay.Text))
+            if (CoTTLoKhongHopLe())
             {
-                MarkError(tbxThongTinDay);
+                //MarkError(tbxThongTinDay);
+                FrmWaiting.ShowGifAlert("Thông tin cuộn/lô có TTLo_ID không còn tồn tại. Vui lòng mở Thông tin đóng gói và chọn lại loại lô hợp lệ.");
+                return false;
+            }
+
+            if (thongTinDayNhapKho == null || thongTinDayNhapKho.Count == 0 )
+            {
+                //MarkError(tbxThongTinDay);
                 valid = false;
             }
             if (!valid)
@@ -251,9 +256,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
             tbMaBin.BackColor = n;
             nbSoMet.BackColor = n;
             tbKhachHang.BackColor = n;
-            tbxThongTinDay.BackColor = n;
+            //tbxThongTinDay.BackColor = n;
             rtbGhiChu.BackColor = n;
-            nrChieuCaoLo.BackColor = n;
         }
 
         
@@ -272,7 +276,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
 
             if (thongTinDayNhapKho == null || thongTinDayNhapKho.Count == 0)
             {
-                MarkError(tbxThongTinDay);
+                //MarkError(tbxThongTinDay);
                 FrmWaiting.ShowGifAlert("Vui lòng nhập thông tin cuộn/dây trước khi lưu.");
                 return;
             }
@@ -294,8 +298,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
                     KhachHang = tbKhachHang.Text.Trim(),
                     GhiChu = rtbGhiChu.Text.Trim(),
 
-                    Loai = rdLo.Checked ? "Lô" : "Cuộn",
-                    ChieuCaoLo = rdLo.Checked ? GetChieuCaoLoDoubleOrZero() : 0,
+                    Loai = GetLoaiNhapKhoHeader(),
+                    ChieuCaoLo = GetChieuCaoLoHeader(),
 
                     NguoiLam = tbNguoiLam.Text.Trim(),
                     TenDuAn = rtbDuAn.Text.Trim(),
@@ -434,8 +438,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
                     KhachHang = tbKhachHang.Text.Trim(),
                     GhiChu = rtbGhiChu.Text.Trim(),
 
-                    Loai = rdLo.Checked ? "Lô" : "Cuộn",
-                    ChieuCaoLo = rdLo.Checked ? GetChieuCaoLoDoubleOrZero() : 0,
+                    Loai = GetLoaiNhapKhoHeader(),
+                    ChieuCaoLo = GetChieuCaoLoHeader(),
 
                     NguoiLam = tbNguoiLam.Text.Trim(),
                     TenDuAn = rtbDuAn.Text.Trim(),
@@ -456,7 +460,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
                 );
 
                 WriteRowFromForm(grvDSNhapKho.Rows[_editingRowIndex]);
-                grvDSNhapKho.Rows[_editingRowIndex].Cells["cuon"].Value = LayGiaTriCuonTuThongTinDay(tbxThongTinDay.Text);
+                //grvDSNhapKho.Rows[_editingRowIndex].Cells["cuon"].Value = LayGiaTriCuonTuThongTinDay(tbxThongTinDay.Text);
 
                 grvDSNhapKho.FirstDisplayedScrollingRowIndex = _editingRowIndex;
                 grvDSNhapKho.ClearSelection();
@@ -475,7 +479,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
         private void WriteRowFromForm(DataGridViewRow row)
         {
             string loaiDonVal = rdHangDat.Checked ? "Hàng đặt" : "Hàng bán";
-            string loaiVal = rdLo.Checked ? "Lô" : "Cuộn";
+            string loaiVal = GetLoaiNhapKhoHeader();
+            double chieuCaoLo = GetChieuCaoLoHeader();
 
             row.Cells["ngay"].Value = dtNgay.Value.ToString("dd/MM/yyyy");
             row.Cells["soBB"].Value = nbSoBB.Value.ToString();
@@ -489,8 +494,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
             row.Cells["loaiDon"].Value = loaiDonVal;
             row.Cells["khachHang"].Value = tbKhachHang.Text.Trim();
             row.Cells["loai"].Value = loaiVal;
-            row.Cells["chieuCaoLo"].Value = rdLo.Checked
-                ? GetChieuCaoLoDecimalOrZero().ToString(CultureInfo.InvariantCulture)
+            row.Cells["chieuCaoLo"].Value = loaiVal == "Lô" && chieuCaoLo > 0
+                ? chieuCaoLo.ToString(CultureInfo.InvariantCulture)
                 : string.Empty;
             row.Cells["ghiChu"].Value = rtbGhiChu.Text.Trim();
             row.Cells["duAn"].Value = rtbDuAn.Text.Trim();
@@ -504,7 +509,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
 
             // Ghi id trước để WriteRowFromForm không vô tình xóa mất
             row.Cells["id_NhapKho"].Value = idNhapKho.ToString();
-            row.Cells["cuon"].Value = LayGiaTriCuonTuThongTinDay(tbxThongTinDay.Text);
+            //row.Cells["cuon"].Value = LayGiaTriCuonTuThongTinDay(tbxThongTinDay.Text);
             row.Cells["soMet"].Value = model.SoMet;
 
             WriteRowFromForm(row);
@@ -660,39 +665,22 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
 
             tbKhachHang.Text = row.Cells["khachHang"].Value?.ToString() ?? string.Empty;
 
-            bool isLo = row.Cells["loai"].Value?.ToString() == "Lô";
-            rdLo.Checked = isLo;
-            rdCuon.Checked = !isLo;
-
-            if (isLo)
-            {
-                SetSelectedChieuCaoLo(row.Cells["chieuCaoLo"].Value?.ToString());
-                nrChieuCaoLo.Enabled = true;
-            }
-            else
-            {
-                nrChieuCaoLo.SelectedIndex = -1;
-                nrChieuCaoLo.Enabled = false;
-            }
-
             try
             {
                 thongTinDayNhapKho = _editingIdNhapKho > 0
                     ? NhapKho_DB.LayThongTinCuonDay(_editingIdNhapKho)
                     : new List<ThongTinCuonDay>();
 
-                bool isCuon = rdCuon.Checked;
-
-                tbxThongTinDay.Text = thongTinDayNhapKho.Count > 0
-                    ? CoreHelper.TaoChuoiThongTinCuonDay(thongTinDayNhapKho, isCuon, GetChieuCaoLoDecimalOrZero())
-                    : string.Empty;
+                //tbxThongTinDay.Text = thongTinDayNhapKho.Count > 0
+                //    ? CoreHelper.TaoChuoiThongTinCuonDay(thongTinDayNhapKho)
+                //    : string.Empty;
 
                 _ttCuonDayChanged = false;
             }
             catch (Exception ex)
             {
                 thongTinDayNhapKho = new List<ThongTinCuonDay>();
-                tbxThongTinDay.Text = string.Empty;
+                //tbxThongTinDay.Text = string.Empty;
                 _ttCuonDayChanged = false;
 
                 FrmWaiting.ShowGifAlert($"Lỗi khi tải thông tin cuộn/dây:\n{ex.Message}");
@@ -909,18 +897,12 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
             thongTinDayNhapKho.Clear();
             _ttCuonDayChanged = false;
 
-            tbxThongTinDay.Text = string.Empty;
+            //tbxThongTinDay.Text = string.Empty;
 
             nbSoBB.Value = resetAll ? 0 : nbSoBB.Value;
 
             rdHangDat.Checked = true;
-            rdLo.Checked = true;
-
             rdHangBan.Checked = false;
-            rdCuon.Checked = false;
-
-            nrChieuCaoLo.Enabled = true;
-            nrChieuCaoLo.SelectedIndex = nrChieuCaoLo.Items.Count > 0 ? 0 : -1;
 
             _editingRowIndex = -1;
             SetEditMode(false);
@@ -939,7 +921,6 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
 
         private void UC_QcDuyetNhapKho_Load(object sender, EventArgs e)
         {
-            LoadDanhSachChieuCaoLo();
             SetEditMode(false);
             nbSoBB.Focus();
             nbSoBB.Select(0, int.MaxValue);
@@ -1081,14 +1062,11 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
 
         private void btnTTCuon_Click(object sender, EventArgs e)
         {
-            bool isCuon = rdCuon.Checked;
-
-            decimal chieuCaoLo = GetChieuCaoLoDecimalOrZero();
-
-            if (!isCuon && !TryGetChieuCaoLo(out chieuCaoLo))
+            if ((thongTinDayNhapKho == null || thongTinDayNhapKho.Count == 0)
+                && _selectedTTThanhPhamID.HasValue
+                && _selectedTTThanhPhamID.Value > 0)
             {
-                FrmWaiting.ShowGifAlert("Vui lòng chọn chiều cao lô trước.");
-                return;
+                LoadThongTinCuonDayTuCongDoan();
             }
 
             List<ThongTinCuonDay> duLieuHienTai = thongTinDayNhapKho == null
@@ -1111,45 +1089,14 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
                 if (tongCD != soMet)
                 {
                     FrmWaiting.ShowGifAlert("Tổng chiều dài các cuộn không hợp lệ");
-
-                    duLieuMoi.Clear();
                     return;
                 }
 
                 thongTinDayNhapKho = duLieuMoi;
-
-                tbxThongTinDay.Text = CoreHelper.TaoChuoiThongTinCuonDay(
-                    thongTinDayNhapKho,
-                    isCuon,
-                    chieuCaoLo
-                );
-
+                LoadThongTinDayVaoGrid();
                 _ttCuonDayChanged = true;
             }
         }
-
-        private void rdCuon_CheckedChanged(object sender, EventArgs e)
-        {
-            if (rdCuon.Checked)
-            {
-                nrChieuCaoLo.SelectedIndex = -1;
-                nrChieuCaoLo.Enabled = false;
-            }
-            else
-            {
-                nrChieuCaoLo.Enabled = true;
-
-                if (nrChieuCaoLo.Items.Count > 0 && nrChieuCaoLo.SelectedIndex < 0)
-                    nrChieuCaoLo.SelectedIndex = 0;
-            }
-
-            tbxThongTinDay.Text = string.Empty;
-            thongTinDayNhapKho.Clear();
-
-            if (_editingIdNhapKho > 0)
-                _ttCuonDayChanged = true;
-        }
-
 
         private static string GetDbText(DataRow row, string columnName)
         {

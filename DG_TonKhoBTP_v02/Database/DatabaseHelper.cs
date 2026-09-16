@@ -2868,6 +2868,41 @@ namespace DG_TonKhoBTP_v02.Database
             return GetData(sql);
         }
 
+        public static DataTable LayDanhSachTTLoTheoIds(IEnumerable<int> ids)
+        {
+            List<int> idList = ids == null
+                ? new List<int>()
+                : ids.Where(x => x > 0).Distinct().ToList();
+
+            DataTable dt = new DataTable();
+            if (idList.Count == 0)
+                return dt;
+
+            List<string> parameterNames = new List<string>();
+            for (int i = 0; i < idList.Count; i++)
+                parameterNames.Add("@id" + i);
+
+            string sql = $@"
+                SELECT id, KichThuoc, Active
+                FROM TTLo
+                WHERE id IN ({string.Join(",", parameterNames)})
+                ORDER BY CAST(KichThuoc AS REAL), KichThuoc;";
+
+            using (var conn = new SQLiteConnection(_connStr))
+            using (var cmd = new SQLiteCommand(sql, conn))
+            {
+                for (int i = 0; i < idList.Count; i++)
+                    cmd.Parameters.AddWithValue("@id" + i, idList[i]);
+
+                using (var adapter = new SQLiteDataAdapter(cmd))
+                {
+                    adapter.Fill(dt);
+                }
+            }
+
+            return dt;
+        }
+
         #endregion
 
         #region Update dữ liệu
@@ -3281,16 +3316,24 @@ namespace DG_TonKhoBTP_v02.Database
             const string sql = @"
                 SELECT
                     tcd.TTLo_ID,
-                    IFNULL(tcd.SoCuon, 0)       AS SoCuon,
+                    lo.KichThuoc                 AS KichThuocLo,
+                    CASE
+                        WHEN tcd.TTLo_ID IS NULL THEN 1
+                        WHEN lo.id IS NOT NULL THEN 1
+                        ELSE 0
+                    END                          AS TTLoHopLe,
+                    IFNULL(tcd.SoCuon, 0)        AS SoCuon,
                     tcd.TongChieuDai,
                     tcd.SoDau,
                     tcd.SoCuoi,
-                    IFNULL(tcd.GhiChu, '')      AS GhiChu
+                    IFNULL(tcd.GhiChu, '')       AS GhiChu
                 FROM TTCuonDay_CD tcd
                 INNER JOIN CD_BocVo cbv
                     ON cbv.id = tcd.CongDoan_ID
                 INNER JOIN CaiDatCDBoc cdb
                     ON cdb.id = cbv.CaiDatCDBoc_ID
+                LEFT JOIN TTLo lo
+                    ON lo.id = tcd.TTLo_ID
                 WHERE cdb.TTThanhPham_ID = @TTThanhPham_ID
                 ORDER BY tcd.id;";
 
@@ -3307,6 +3350,10 @@ namespace DG_TonKhoBTP_v02.Database
                         result.Add(new ThongTinCuonDay
                         {
                             TTLo_ID = reader["TTLo_ID"] == DBNull.Value ? (int?)null : Convert.ToInt32(reader["TTLo_ID"]),
+                            KichThuocLo = reader["KichThuocLo"] == DBNull.Value
+                                ? string.Empty
+                                : (Convert.ToString(reader["KichThuocLo"]) ?? string.Empty).Trim(),
+                            TTLoHopLe = Convert.ToInt32(reader["TTLoHopLe"]) == 1,
                             SoCuon = Convert.ToInt32(reader["SoCuon"]),
                             TongChieuDai = Convert.ToInt32(reader["TongChieuDai"]),
                             SoDau = Convert.ToInt32(reader["SoDau"]),

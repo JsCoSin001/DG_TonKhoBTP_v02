@@ -108,7 +108,7 @@ public static class EnumStore
     public static readonly Dictionary<string, List<string>> MayTheoCongDoan =
         new Dictionary<string, List<string>>
         {
-            { "KeoRut", May("R6", "R10", "R12", "MD16A4") },
+            { "KeoRut", May("R6", "R10", "R12", "MD16A4", "R9") },
             { "Ben_CU_AL", May("B1", "B2", "B3", "B4", "B5", "B6", "B7", "B8", "B9", "B10", "B13", "B14", "B15", "B16", "B17") },
             { "BocCachDien", May("E1","E2", "E3", "E4", "E5", "E6","E7", "E8", "E9", "E11", "E12", "E13") },
             { "BocLot", May("E1", "E4", "E7", "E10","E13", "E14", "E15") },
@@ -118,7 +118,7 @@ public static class EnumStore
             { "QB_Mica", May("T3", "T4", "T5", "T6") },
             { "Chieu_Xa", May("CX_1") },
             { "Machine_All", May(
-                "R6", "R10", "R12", "MD16A4",
+                "R6", "R10", "R12", "MD16A4", "R9",
                 "B1", "B2", "B3", "B4", "B5", "B6", "B7", "B8", "B9", "B10", "B13", "B14", "B15", "B16", "B17",
                 "E1", "E2", "E3", "E4", "E5", "E6", "E7", "E8", "E9", "E10", "E11", "E12", "E13",  "E14", "E15",
                 "P1", "P2", "P3", "P4", "P5", "P6",

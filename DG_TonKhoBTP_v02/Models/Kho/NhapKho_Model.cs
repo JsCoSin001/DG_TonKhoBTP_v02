@@ -18,8 +18,8 @@ namespace DG_TonKhoBTP_v02.Models
         public bool TTLoHopLe { get; set; } = true;
         public int SoCuon { get; set; }
         public int TongChieuDai { get; set; }
-        public int SoDau { get; set; }
-        public int soCuoi { get; set; }
+        public int? SoDau { get; set; }
+        public int? soCuoi { get; set; }
         public string Ghichu { get; set; }
     }
 

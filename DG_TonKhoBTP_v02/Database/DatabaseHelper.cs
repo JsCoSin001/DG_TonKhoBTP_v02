@@ -3360,8 +3360,8 @@ namespace DG_TonKhoBTP_v02.Database
                             TTLoHopLe = Convert.ToInt32(reader["TTLoHopLe"]) == 1,
                             SoCuon = Convert.ToInt32(reader["SoCuon"]),
                             TongChieuDai = Convert.ToInt32(reader["TongChieuDai"]),
-                            SoDau = Convert.ToInt32(reader["SoDau"]),
-                            soCuoi = Convert.ToInt32(reader["SoCuoi"]),
+                            SoDau = reader["SoDau"] == DBNull.Value ? (int?)null : Convert.ToInt32(reader["SoDau"]),
+                            soCuoi = reader["SoCuoi"] == DBNull.Value ? (int?)null : Convert.ToInt32(reader["SoCuoi"]),
                             Ghichu = Convert.ToString(reader["GhiChu"]) ?? string.Empty
                         });
                     }

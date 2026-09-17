@@ -322,8 +322,12 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
                     return false;
                 }
 
-                int.TryParse(row.Cells["col_SoDau"].Value?.ToString(), out int soDau);
-                int.TryParse(row.Cells["col_SoCuoi"].Value?.ToString(), out int soCuoi);
+                int? soDau = int.TryParse(row.Cells["col_SoDau"].Value?.ToString(), out int parsedSoDau)
+                    ? parsedSoDau
+                    : (int?)null;
+                int? soCuoi = int.TryParse(row.Cells["col_SoCuoi"].Value?.ToString(), out int parsedSoCuoi)
+                    ? parsedSoCuoi
+                    : (int?)null;
 
                 result.Add(new ThongTinCuonDay
                 {
@@ -374,8 +378,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
                 }
 
                 int tongChieuDai = source.TongChieuDai;
-                int soDau = source.SoDau;
-                int soCuoi = source.soCuoi;
+                int? soDau = source.SoDau;
+                int? soCuoi = source.soCuoi;
 
                 if (int.TryParse(row.Cells["col_ChieuDai"].Value?.ToString(), out int parsedTongChieuDai))
                     tongChieuDai = parsedTongChieuDai;
@@ -1507,8 +1511,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
                         || !string.IsNullOrWhiteSpace(GetDbText(row, "ct_KichThuocLo")),
                     SoCuon = ParseDbInt(row, "ct_SoCuon"),
                     TongChieuDai = ParseDbInt(row, "ct_TongChieuDai"),
-                    SoDau = ParseDbInt(row, "ct_SoDau"),
-                    soCuoi = ParseDbInt(row, "ct_soCuoi"),
+                    SoDau = ParseDbIntNullable(row, "ct_SoDau"),
+                    soCuoi = ParseDbIntNullable(row, "ct_soCuoi"),
                     Ghichu = GetDbText(row, "ct_GhiChu")
                 });
             }

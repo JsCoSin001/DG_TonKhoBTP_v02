@@ -1,4 +1,4 @@
-using DG_TonKhoBTP_v02.Models.Kho;
+﻿using DG_TonKhoBTP_v02.Models.Kho;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -23,9 +23,9 @@ namespace DG_TonKhoBTP_v02.Database.Kho
         /// - Cả Kieu = 1 và Kieu = 0 đều tính tồn thực tế theo TTXuatKho.
         ///
         /// Công thức tồn Lô:
-        /// - SoCuoiTon = COALESCE(MIN(TTXuatKho.SoDau), TTCuonDay.SoCuoi)
-        /// - SoM       = SoCuoiTon - TTCuonDay.SoDau
-        /// - Chỉ lấy nếu SoM > 0
+        /// - SoCuoiTon đi theo hướng lô gốc: MIN(SoDau xuất) với hướng tăng, MAX với hướng giảm.
+        /// - SoM = ABS(SoCuoiTon - TTCuonDay.SoDau).
+        /// - Không giả định SoCuoi > SoDau; chỉ lấy nếu SoM > 0.
         /// </summary>
         public static TonKhoLoReport LayBaoCaoTonKhoLo()
         {
@@ -111,7 +111,11 @@ namespace DG_TonKhoBTP_v02.Database.Kho
                             COALESCE(bs.M, '') AS MauSac,
                             tp.MaBin     AS MaBin,
                             cd.SoDau     AS SoDauTon,
-                            COALESCE(MIN(xk.SoDau), cd.SoCuoi) AS SoCuoiTon
+                            CASE
+                                WHEN cd.SoDau IS NULL OR cd.SoCuoi IS NULL THEN NULL
+                                WHEN cd.SoCuoi >= cd.SoDau THEN COALESCE(MIN(xk.SoDau), cd.SoCuoi)
+                                ELSE COALESCE(MAX(xk.SoDau), cd.SoCuoi)
+                            END AS SoCuoiTon
                     FROM    TTNhapKho      nk
                     JOIN    TTThanhPham    tp ON tp.id = nk.TTThanhPham_ID
                     JOIN    DanhSachMaSP   sp ON sp.id = tp.DanhSachSP_ID
@@ -133,9 +137,11 @@ namespace DG_TonKhoBTP_v02.Database.Kho
                         MaBin,
                         SoDauTon,
                         SoCuoiTon,
-                        SoCuoiTon - SoDauTon AS SoM
+                        ABS(SoCuoiTon - SoDauTon) AS SoM
                 FROM    ton
-                WHERE   SoCuoiTon > SoDauTon
+                WHERE   SoDauTon IS NOT NULL
+                  AND   SoCuoiTon IS NOT NULL
+                  AND   ABS(SoCuoiTon - SoDauTon) > 0
                 ORDER BY
                         CASE WHEN TenNhom = 'Khác' THEN 1 ELSE 0 END,
                         TenNhom,

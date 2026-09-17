@@ -122,7 +122,9 @@ namespace DG_TonKhoBTP_v02.UI
 
         private void btnDongGoi_Click(object sender, EventArgs e)
         {
-            using (Frm_DLCuon frm = new Frm_DLCuon(_thongTinCuonDay))
+            using (Frm_DLCuon frm = new Frm_DLCuon(
+                _thongTinCuonDay,
+                nullSoDauSoCuoiChoCuonMoi: true))
             {
                 if (frm.ShowDialog() != DialogResult.OK)
                     return;
@@ -189,6 +191,7 @@ namespace DG_TonKhoBTP_v02.UI
 
             return source.Select(x => new ThongTinCuonDay
             {
+                TTCuonDay_CD_ID = x.TTCuonDay_CD_ID,
                 TTLo_ID = x.TTLo_ID,
                 SoCuon = x.SoCuon,
                 TongChieuDai = x.TongChieuDai,

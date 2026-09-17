@@ -128,8 +128,8 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                     SoCuon = soCuonConLai,
                     // TongChieuDai của TTCuonDay_CD là chiều dài của 1 cuộn/lô.
                     TongChieuDai = Convert.ToInt32(reader["TongChieuDai"]),
-                    SoDau = Convert.ToInt32(reader["SoDau"]),
-                    soCuoi = Convert.ToInt32(reader["SoCuoi"]),
+                    SoDau = reader["SoDau"] == DBNull.Value ? (int?)null : Convert.ToInt32(reader["SoDau"]),
+                    soCuoi = reader["SoCuoi"] == DBNull.Value ? (int?)null : Convert.ToInt32(reader["SoCuoi"]),
                     Ghichu = Convert.ToString(reader["GhiChu"]) ?? string.Empty
                 });
             }
@@ -226,8 +226,8 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                             CongDoanId = Convert.ToInt64(reader["CongDoan_ID"]),
                             SoCuon = Convert.ToInt32(reader["SoCuon"]),
                             TongChieuDai = Convert.ToInt32(reader["TongChieuDai"]),
-                            SoDau = Convert.ToInt32(reader["SoDau"]),
-                            SoCuoi = Convert.ToInt32(reader["SoCuoi"]),
+                            SoDau = reader["SoDau"] == DBNull.Value ? (int?)null : Convert.ToInt32(reader["SoDau"]),
+                            SoCuoi = reader["SoCuoi"] == DBNull.Value ? (int?)null : Convert.ToInt32(reader["SoCuoi"]),
                             TTLoId = reader["TTLo_ID"] == DBNull.Value ? (int?)null : Convert.ToInt32(reader["TTLo_ID"]),
                             SoCuonDaNhap = Convert.ToInt32(reader["SoCuonDaNhap"])
                         };
@@ -339,8 +339,8 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
             public long CongDoanId { get; set; }
             public int SoCuon { get; set; }
             public int TongChieuDai { get; set; }
-            public int SoDau { get; set; }
-            public int SoCuoi { get; set; }
+            public int? SoDau { get; set; }
+            public int? SoCuoi { get; set; }
             public int? TTLoId { get; set; }
             public int SoCuonDaNhap { get; set; }
         }
@@ -351,8 +351,8 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
         {
             cmd.Parameters.AddWithValue("@SoCuon", item.SoCuon);
             cmd.Parameters.AddWithValue("@TongChieuDai", item.TongChieuDai);
-            cmd.Parameters.AddWithValue("@SoDau", item.SoDau);
-            cmd.Parameters.AddWithValue("@SoCuoi", item.soCuoi);
+            cmd.Parameters.AddWithValue("@SoDau", item.SoDau.HasValue ? (object)item.SoDau.Value : DBNull.Value);
+            cmd.Parameters.AddWithValue("@SoCuoi", item.soCuoi.HasValue ? (object)item.soCuoi.Value : DBNull.Value);
             cmd.Parameters.AddWithValue("@GhiChu", string.IsNullOrWhiteSpace(item.Ghichu)
                 ? (object)DBNull.Value
                 : item.Ghichu.Trim());
@@ -545,8 +545,8 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                     int soCuonNguon;
                     int soCuonDaNhap;
                     int chieuDai1Cuon;
-                    int soDau;
-                    int soCuoi;
+                    int? soDau;
+                    int? soCuoi;
                     object ttLoId;
 
                     using (SQLiteDataReader reader = getSource.ExecuteReader())
@@ -558,11 +558,10 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                         soCuonNguon = reader["SoCuonNguon"] == DBNull.Value ? 0 : Convert.ToInt32(reader["SoCuonNguon"]);
                         soCuonDaNhap = reader["SoCuonDaNhap"] == DBNull.Value ? 0 : Convert.ToInt32(reader["SoCuonDaNhap"]);
                         chieuDai1Cuon = Convert.ToInt32(reader["TongChieuDai"]);
-                        soDau = Convert.ToInt32(reader["SoDau"]);
-                        soCuoi = Convert.ToInt32(reader["SoCuoi"]);
+                        soDau = reader["SoDau"] == DBNull.Value ? (int?)null : Convert.ToInt32(reader["SoDau"]);
+                        soCuoi = reader["SoCuoi"] == DBNull.Value ? (int?)null : Convert.ToInt32(reader["SoCuoi"]);
                         ttLoId = reader["TTLo_ID"] == DBNull.Value ? (object)DBNull.Value : Convert.ToInt32(reader["TTLo_ID"]);
                     }
-
                     int soCuonConLai = soCuonNguon - soCuonDaNhap;
                     if (soCuonConLai < 0) soCuonConLai = 0;
 
@@ -580,8 +579,8 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                     // Các thuộc tính kỹ thuật luôn lấy trực tiếp từ TTCuonDay_CD hiện tại.
                     insertDetail.Parameters["@SoCuon"].Value = requested.SoCuon;
                     insertDetail.Parameters["@ChieuDai_1cuon"].Value = chieuDai1Cuon;
-                    insertDetail.Parameters["@SoDau"].Value = soDau;
-                    insertDetail.Parameters["@SoCuoi"].Value = soCuoi;
+                    insertDetail.Parameters["@SoDau"].Value = soDau.HasValue ? (object)soDau.Value : DBNull.Value;
+                    insertDetail.Parameters["@SoCuoi"].Value = soCuoi.HasValue ? (object)soCuoi.Value : DBNull.Value;
                     insertDetail.Parameters["@ThongTinNhapKho_ID"].Value = headerId;
                     insertDetail.Parameters["@TTLo_ID"].Value = ttLoId;
                     insertDetail.Parameters["@Ngay"].Value = string.IsNullOrWhiteSpace(model.Ngay)
@@ -1095,8 +1094,8 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                     TTLoHopLe = Convert.ToInt32(reader["TTLoHopLe"]) == 1,
                     SoCuon = reader["SoCuon"] == DBNull.Value ? 0 : Convert.ToInt32(reader["SoCuon"]),
                     TongChieuDai = reader["ChieuDai_1cuon"] == DBNull.Value ? 0 : Convert.ToInt32(reader["ChieuDai_1cuon"]),
-                    SoDau = reader["SoDau"] == DBNull.Value ? 0 : Convert.ToInt32(reader["SoDau"]),
-                    soCuoi = reader["SoCuoi"] == DBNull.Value ? 0 : Convert.ToInt32(reader["SoCuoi"]),
+                    SoDau = reader["SoDau"] == DBNull.Value ? (int?)null : Convert.ToInt32(reader["SoDau"]),
+                    soCuoi = reader["SoCuoi"] == DBNull.Value ? (int?)null : Convert.ToInt32(reader["SoCuoi"]),
                     Ghichu = reader["GhiChu"] == DBNull.Value ? string.Empty : reader["GhiChu"].ToString()
                 });
             }

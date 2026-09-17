@@ -26,11 +26,17 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
         private readonly FrmDLCuonMode _mode;
         private readonly Dictionary<long, int> _soCuonToiDaNhapKho;
 
+        // Chỉ btnDongGoi truyền true.
+        // Khi true, dòng Cuộn MỚI (chưa có TTCuonDay_CD_ID) sẽ để Số đầu/Số cuối = NULL.
+        // Dòng đã có trong DB luôn giữ nguyên Số đầu/Số cuối được truyền vào.
+        private readonly bool _nullSoDauSoCuoiChoCuonMoi;
+
         // ── Tránh event tự tính chạy trong lúc đang load dữ liệu cũ ──────────
         private bool _loadingGrid = false;
 
-        // ── Tên cột xoá ───────────────────────────────────────────────────────
+        // ── Tên các cột thao tác ───────────────────────────────────────────────
         private const string COL_XOA = "colXoa";
+        private const string COL_DAO_CHIEU = "colDaoChieu";
 
         // ── Giá trị nội bộ dùng trong combobox cột loai ───────────────────────
         // Lưu ý:
@@ -50,8 +56,14 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
         public List<ThongTinCuonDay> KetQua { get; private set; }
         public List<ThongTinCuonDay> ThongTinCuon { get; private set; }
 
-        public Frm_DLCuon(List<ThongTinCuonDay> thongTinCuonHienTai = null)
-            : this(thongTinCuonHienTai, FrmDLCuonMode.DongGoiNguon, null)
+        public Frm_DLCuon(
+            List<ThongTinCuonDay> thongTinCuonHienTai = null,
+            bool nullSoDauSoCuoiChoCuonMoi = false)
+            : this(
+                thongTinCuonHienTai,
+                FrmDLCuonMode.DongGoiNguon,
+                null,
+                nullSoDauSoCuoiChoCuonMoi)
         {
         }
 
@@ -59,10 +71,20 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
             List<ThongTinCuonDay> thongTinCuonHienTai,
             FrmDLCuonMode mode,
             IDictionary<long, int> soCuonToiDaNhapKho)
+            : this(thongTinCuonHienTai, mode, soCuonToiDaNhapKho, false)
+        {
+        }
+
+        public Frm_DLCuon(
+            List<ThongTinCuonDay> thongTinCuonHienTai,
+            FrmDLCuonMode mode,
+            IDictionary<long, int> soCuonToiDaNhapKho,
+            bool nullSoDauSoCuoiChoCuonMoi)
         {
             InitializeComponent();
 
             _mode = mode;
+            _nullSoDauSoCuoiChoCuonMoi = nullSoDauSoCuoiChoCuonMoi;
             _thongTinCuonHienTai = thongTinCuonHienTai == null
                 ? new List<ThongTinCuonDay>()
                 : new List<ThongTinCuonDay>(thongTinCuonHienTai);
@@ -111,6 +133,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
             }
 
             LoadLoaiDongGoiVaoComboColumn();
+            AddReverseButtonColumn();
             AddDeleteButtonColumn();
             ConfigureGrid();
             LoadThongTinCuonHienTaiVaoGrid();
@@ -409,7 +432,9 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
             {
                 // Cuộn:
                 // - Người dùng nhập Tổng CD.
-                // - Số đầu / Số cuối tự tính và bị khóa.
+                // - Dòng đã có TTCuonDay_CD_ID: giữ nguyên Số đầu/Số cuối lịch sử.
+                // - Dòng mới từ btnDongGoi: Số đầu/Số cuối = NULL.
+                // - Dòng mới từ ngữ cảnh khác: giữ nghiệp vụ cũ (0 -> Tổng CD).
                 SetCellReadonly(row, "tongChieuDai", false);
                 SetCellReadonly(row, "soDau", true);
                 SetCellReadonly(row, "soCuoi", true);
@@ -421,7 +446,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
             {
                 // Lô:
                 // - Người dùng nhập Số đầu / Số cuối.
-                // - Tổng CD tự tính = Số cuối - Số đầu và bị khóa.
+                // - Tổng CD tự tính = |Số cuối - Số đầu| và bị khóa.
                 SetCellReadonly(row, "tongChieuDai", true);
                 SetCellReadonly(row, "soDau", false);
                 SetCellReadonly(row, "soCuoi", false);
@@ -432,17 +457,39 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
         }
 
 
+        private static bool TryGetSourceId(DataGridViewRow row, out long sourceId)
+        {
+            sourceId = 0;
+            return row != null
+                && row.Tag != null
+                && long.TryParse(row.Tag.ToString(), out sourceId)
+                && sourceId > 0;
+        }
+
         private void AutoSetSoDauSoCuoiForCuon(DataGridViewRow row)
         {
             if (row == null || row.IsNewRow) return;
             if (!IsCuonRow(row)) return;
 
+            // Dữ liệu đã có trong DB phải được bảo toàn tuyệt đối.
+            if (TryGetSourceId(row, out _))
+                return;
+
+            if (_nullSoDauSoCuoiChoCuonMoi)
+            {
+                row.Cells["soDau"].Value = null;
+                row.Cells["soCuoi"].Value = null;
+                return;
+            }
+
+            // Các ngữ cảnh khác giữ nguyên nghiệp vụ cũ cho dòng mới.
             string raw = row.Cells["tongChieuDai"].Value?.ToString()?.Trim() ?? string.Empty;
             if (!int.TryParse(raw, out int tongCD) || tongCD < 0) return;
 
             row.Cells["soDau"].Value = 0;
             row.Cells["soCuoi"].Value = tongCD;
         }
+
 
         private void AutoSetTongChieuDaiForLo(DataGridViewRow row)
         {
@@ -458,11 +505,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
             if (!int.TryParse(rawSoCuoi, out int soCuoi) || soCuoi < 0)
                 return;
 
-            int tongCD = soCuoi - soDau;
-
-            if (tongCD < 0)
-                return;
-
+            // Chiều dài là khoảng cách giữa hai đầu, không phụ thuộc hướng cuốn.
+            int tongCD = Math.Abs(soCuoi - soDau);
             row.Cells["tongChieuDai"].Value = tongCD;
         }
 
@@ -510,7 +554,6 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
 
             if (colName == "tongChieuDai")
             {
-                // Cuộn: nhập Tổng CD => tự set Số đầu / Số cuối.
                 if (IsCuonRow(row))
                     AutoSetSoDauSoCuoiForCuon(row);
 
@@ -544,6 +587,79 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
         }
 
         // ════════════════════════════════════════════════════════════════════
+        // CỘT ĐẢO CHIỀU
+        // ════════════════════════════════════════════════════════════════════
+
+        private void AddReverseButtonColumn()
+        {
+            if (grvThongTinCuonDay.Columns.Contains(COL_DAO_CHIEU)) return;
+
+            var btnCol = new DataGridViewButtonColumn
+            {
+                Name = COL_DAO_CHIEU,
+                HeaderText = "",
+                Text = "Đảo chiều",
+                UseColumnTextForButtonValue = true,
+                Width = 95,
+                FlatStyle = FlatStyle.Flat,
+                Visible = _mode != FrmDLCuonMode.NhapKho
+            };
+
+            btnCol.DefaultCellStyle.BackColor = Color.FromArgb(220, 235, 255);
+            btnCol.DefaultCellStyle.ForeColor = Color.DarkBlue;
+            btnCol.DefaultCellStyle.Font = new Font("Tahoma", 9.75F, FontStyle.Bold);
+
+            grvThongTinCuonDay.Columns.Add(btnCol);
+
+            grvThongTinCuonDay.CellClick -= DataGridView1_CellClick_DaoChieu;
+            grvThongTinCuonDay.CellClick += DataGridView1_CellClick_DaoChieu;
+        }
+
+        private void DataGridView1_CellClick_DaoChieu(object sender, DataGridViewCellEventArgs e)
+        {
+            if (_mode == FrmDLCuonMode.NhapKho) return;
+            if (e.RowIndex < 0 || e.ColumnIndex < 0) return;
+            if (!grvThongTinCuonDay.Columns.Contains(COL_DAO_CHIEU)) return;
+            if (grvThongTinCuonDay.Columns[e.ColumnIndex].Name != COL_DAO_CHIEU) return;
+            if (grvThongTinCuonDay.Rows[e.RowIndex].IsNewRow) return;
+
+            grvThongTinCuonDay.EndEdit();
+
+            DataGridViewRow row = grvThongTinCuonDay.Rows[e.RowIndex];
+
+            // Cuộn không có Số đầu/Số cuối nên không có khái niệm đảo chiều.
+            if (!IsLoRow(row)) return;
+            if (!TryReadDgvCellInt(grvThongTinCuonDay, e.RowIndex, "soDau", out _)
+                || !TryReadDgvCellInt(grvThongTinCuonDay, e.RowIndex, "soCuoi", out _))
+                return;
+
+            object soDauCu = row.Cells["soDau"].Value;
+            object soCuoiCu = row.Cells["soCuoi"].Value;
+
+            // Chặn các event tự tính trong lúc đổi 2 ô để tránh trạng thái trung gian
+            // làm thay đổi Tổng chiều dài.
+            bool loadingCu = _loadingGrid;
+            _loadingGrid = true;
+            try
+            {
+                row.Cells["soDau"].Value = soCuoiCu;
+                row.Cells["soCuoi"].Value = soDauCu;
+            }
+            finally
+            {
+                _loadingGrid = loadingCu;
+            }
+
+            // Với Lô, luôn đồng bộ Tổng CD theo khoảng cách tuyệt đối giữa hai đầu.
+            if (IsLoRow(row))
+                AutoSetTongChieuDaiForLo(row);
+
+            ResetCellColor(row.Cells["soDau"]);
+            ResetCellColor(row.Cells["soCuoi"]);
+            ResetCellColor(row.Cells["tongChieuDai"]);
+        }
+
+        // ════════════════════════════════════════════════════════════════════
         // CỘT XOÁ
         // ════════════════════════════════════════════════════════════════════
 
@@ -573,7 +689,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
 
         private void DataGridView1_CellClick_Xoa(object sender, DataGridViewCellEventArgs e)
         {
-            if (e.RowIndex < 0) return;
+            if (e.RowIndex < 0 || e.ColumnIndex < 0) return;
             if (!grvThongTinCuonDay.Columns.Contains(COL_XOA)) return;
             if (grvThongTinCuonDay.Columns[e.ColumnIndex].Name != COL_XOA) return;
             if (grvThongTinCuonDay.Rows[e.RowIndex].IsNewRow) return;
@@ -754,9 +870,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
             }
 
             if (colName == "tongChieuDai" && IsCuonRow(row))
-            {
                 AutoSetSoDauSoCuoiForCuon(row);
-            }
         }
 
 
@@ -902,40 +1016,75 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
 
                 if (!ValidateDgvCellIsNonNegativeInt(grvThongTinCuonDay, i, "slCuon", "Số lượng", out int slCuon)) return;
 
+                long? sourceId = TryGetSourceId(row, out long parsedSourceId)
+                    ? (long?)parsedSourceId
+                    : null;
+
+                int tongCD;
+                int? soDau = null;
+                int? soCuoi = null;
+
                 if (!ttLoId.HasValue)
                 {
                     // Cuộn:
-                    // - Người dùng nhập Tổng CD.
-                    // - Hệ thống tự tính Số đầu = 0, Số cuối = Tổng CD.
-                    if (!ValidateDgvCellIsNonNegativeInt(grvThongTinCuonDay, i, "tongChieuDai", "Tổng chiều dài", out _)) return;
+                    // - Dòng đã có trong DB: giữ nguyên Số đầu/Số cuối được truyền vào.
+                    // - Dòng mới từ btnDongGoi: NULL/NULL.
+                    // - Dòng mới từ ngữ cảnh khác: giữ nghiệp vụ cũ 0 -> Tổng CD.
+                    if (!ValidateDgvCellIsNonNegativeInt(
+                        grvThongTinCuonDay, i, "tongChieuDai", "Tổng chiều dài", out tongCD))
+                        return;
+
                     AutoSetSoDauSoCuoiForCuon(row);
+
+                    if (sourceId.HasValue)
+                    {
+                        ThongTinCuonDay original = _thongTinCuonHienTai.FirstOrDefault(x =>
+                            x != null
+                            && x.TTCuonDay_CD_ID.HasValue
+                            && x.TTCuonDay_CD_ID.Value == sourceId.Value);
+
+                        if (original == null)
+                        {
+                            FrmWaiting.ShowGifAlert(
+                                $"Dòng {i + 1}: không tìm thấy dữ liệu nguồn TTCuonDay_CD_ID={sourceId.Value}.");
+                            return;
+                        }
+
+                        soDau = original.SoDau;
+                        soCuoi = original.soCuoi;
+                    }
+                    else if (_nullSoDauSoCuoiChoCuonMoi)
+                    {
+                        soDau = null;
+                        soCuoi = null;
+                    }
+                    else
+                    {
+                        if (!ValidateDgvCellIsNonNegativeInt(
+                            grvThongTinCuonDay, i, "soDau", "Số đầu", out int parsedSoDau))
+                            return;
+                        if (!ValidateDgvCellIsNonNegativeInt(
+                            grvThongTinCuonDay, i, "soCuoi", "Số cuối", out int parsedSoCuoi))
+                            return;
+
+                        soDau = parsedSoDau;
+                        soCuoi = parsedSoCuoi;
+                    }
                 }
                 else
                 {
-                    // Lô:
-                    // - Người dùng nhập Số đầu / Số cuối.
-                    // - Hệ thống tự tính Tổng CD = Số cuối - Số đầu.
-                    if (!ValidateDgvCellIsNonNegativeInt(grvThongTinCuonDay, i, "soDau", "Số đầu", out _)) return;
-                    if (!ValidateDgvCellIsNonNegativeInt(grvThongTinCuonDay, i, "soCuoi", "Số cuối", out _)) return;
-                    AutoSetTongChieuDaiForLo(row);
-                }
+                    // Lô: hai đầu là bắt buộc, nhưng KHÔNG yêu cầu Số cuối > Số đầu.
+                    if (!ValidateDgvCellIsNonNegativeInt(
+                        grvThongTinCuonDay, i, "soDau", "Số đầu", out int parsedSoDau))
+                        return;
+                    if (!ValidateDgvCellIsNonNegativeInt(
+                        grvThongTinCuonDay, i, "soCuoi", "Số cuối", out int parsedSoCuoi))
+                        return;
 
-                if (!ValidateDgvCellIsNonNegativeInt(grvThongTinCuonDay, i, "tongChieuDai", "Tổng chiều dài", out int tongCD)) return;
-                if (!ValidateDgvCellIsNonNegativeInt(grvThongTinCuonDay, i, "soDau", "Số đầu", out int soDau)) return;
-                if (!ValidateDgvCellIsNonNegativeInt(grvThongTinCuonDay, i, "soCuoi", "Số cuối", out int soCuoi)) return;
-
-                int diff = soCuoi - soDau;
-                if (tongCD != diff)
-                {
-                    MarkCellError(row.Cells["tongChieuDai"]);
-                    MarkCellError(row.Cells["soDau"]);
-                    MarkCellError(row.Cells["soCuoi"]);
-
-                    MessageBox.Show(
-                        $"Dòng {i + 1}: Tổng chiều dài ({tongCD}) phải bằng Số cuối − Số đầu\n" +
-                        $"({soCuoi} − {soDau} = {diff}).",
-                        "Lỗi dữ liệu", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
+                    soDau = parsedSoDau;
+                    soCuoi = parsedSoCuoi;
+                    tongCD = Math.Abs(parsedSoCuoi - parsedSoDau);
+                    row.Cells["tongChieuDai"].Value = tongCD;
                 }
 
                 string kichThuocLo = string.Empty;
@@ -945,10 +1094,6 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
                     ttLoHopLe = _ttLoKichThuocById.TryGetValue(ttLoId.Value, out kichThuocLo);
                     kichThuocLo = kichThuocLo?.Trim() ?? string.Empty;
                 }
-
-                long? sourceId = null;
-                if (row.Tag != null && long.TryParse(row.Tag.ToString(), out long parsedSourceId) && parsedSourceId > 0)
-                    sourceId = parsedSourceId;
 
                 result.Add(new ThongTinCuonDay
                 {

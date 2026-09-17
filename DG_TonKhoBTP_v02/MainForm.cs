@@ -28,7 +28,6 @@ using System.Windows.Forms;
 using CoreHelper = DG_TonKhoBTP_v02.Helper.Helper;
 using DG_TonKhoBTP_v02.UI.NghiepVuKhac.SanXuat;
 using DG_TonKhoBTP_v02.UI.CD_ChieuXa;
-
 namespace DG_TonKhoBTP_v02
 {
     public partial class MainForm : Form
@@ -1698,9 +1697,10 @@ namespace DG_TonKhoBTP_v02
                     pnShow.SuspendLayout();
                     pnShow.Visible = false;
 
+
                     pnShow.Controls.Clear();
 
-                    var uc = new UC_XuatKho
+                    var uc = new UC_XuatKhoTP
                     {
                         Dock = DockStyle.Fill
                     };

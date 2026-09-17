@@ -2105,8 +2105,12 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
 
                 cmd.Parameters["@SoCuon"].Value = item.SoCuon;
                 cmd.Parameters["@TongChieuDai"].Value = item.TongChieuDai;
-                cmd.Parameters["@SoDau"].Value = item.SoDau;
-                cmd.Parameters["@SoCuoi"].Value = item.soCuoi;
+                cmd.Parameters["@SoDau"].Value = item.SoDau.HasValue
+                    ? (object)item.SoDau.Value
+                    : DBNull.Value;
+                cmd.Parameters["@SoCuoi"].Value = item.soCuoi.HasValue
+                    ? (object)item.soCuoi.Value
+                    : DBNull.Value;
                 cmd.Parameters["@GhiChu"].Value = string.IsNullOrWhiteSpace(item.Ghichu)
                     ? (object)DBNull.Value
                     : item.Ghichu.Trim();

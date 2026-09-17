@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Data;
 using System.Data.SQLite;
 using System.Threading;
@@ -35,8 +35,11 @@ namespace DG_TonKhoBTP_v02.Database.Kho
                             cd.id AS TTCuonDay_ID,
                             cd.SoDau AS SoDauNhap,
                             CASE
-                                WHEN nk.Loai = 'Lô'
-                                    THEN COALESCE(MIN(xk.SoDau), cd.SoCuoi)
+                                WHEN nk.Loai = 'Lô' AND cd.SoDau IS NOT NULL AND cd.SoCuoi IS NOT NULL THEN
+                                    CASE
+                                        WHEN cd.SoCuoi >= cd.SoDau THEN COALESCE(MIN(xk.SoDau), cd.SoCuoi)
+                                        ELSE COALESCE(MAX(xk.SoDau), cd.SoCuoi)
+                                    END
                                 ELSE cd.SoCuoi
                             END AS SoCuoiTon,
                             CASE
@@ -65,7 +68,7 @@ namespace DG_TonKhoBTP_v02.Database.Kho
                         Loai
                 FROM    ton
                 WHERE  (Loai = 'Cuộn' AND SoCuonTon > 0)
-                   OR  (Loai = 'Lô'   AND SoCuoiTon > SoDauNhap)
+                   OR  (Loai = 'Lô'   AND SoDauNhap IS NOT NULL AND SoCuoiTon IS NOT NULL AND ABS(SoCuoiTon - SoDauNhap) > 0)
                 ORDER BY MaBin
                 LIMIT 50";
 
@@ -96,8 +99,9 @@ namespace DG_TonKhoBTP_v02.Database.Kho
         ///
         /// Quy tắc:
         /// - Cuộn: SoCuonTon = SoCuon nhập - tổng SoCuon đã xuất.
-        /// - Lô:   SoCuoiTon = nếu chưa xuất thì SoCuoi nhập,
-        ///                 nếu đã xuất thì MIN(SoDau xuất), vì xuất giảm dần từ cuối về đầu.
+        /// - Lô: tồn được tính theo hướng của lô gốc.
+        ///   Hướng tăng dùng MIN(SoDau xuất), hướng giảm dùng MAX(SoDau xuất).
+        ///   Chiều dài tồn luôn dùng ABS, không giả định SoCuoi > SoDau.
         /// Chỉ trả về dòng còn tồn và TTNhapKho.Kieu = 1.
         /// </summary>
         public static DataTable LayDuLieuTonKhoCuonDay(long ttThanhPhamId)
@@ -129,6 +133,7 @@ namespace DG_TonKhoBTP_v02.Database.Kho
                             nk.Loai,
                             cd.SoDau AS SoDauNhap,
                             cd.SoCuoi AS SoCuoiNhap,
+                            cd.ChieuDai_1cuon AS ChieuDai1Cuon,
                             cd.GhiChu,
                             CASE
                                 WHEN nk.Loai = 'Lô'
@@ -138,8 +143,11 @@ namespace DG_TonKhoBTP_v02.Database.Kho
                                 ELSE 0
                             END AS SoCuonTon,
                             CASE
-                                WHEN nk.Loai = 'Lô'
-                                    THEN COALESCE(MIN(xk.SoDau), cd.SoCuoi)
+                                WHEN nk.Loai = 'Lô' AND cd.SoDau IS NOT NULL AND cd.SoCuoi IS NOT NULL THEN
+                                    CASE
+                                        WHEN cd.SoCuoi >= cd.SoDau THEN COALESCE(MIN(xk.SoDau), cd.SoCuoi)
+                                        ELSE COALESCE(MAX(xk.SoDau), cd.SoCuoi)
+                                    END
                                 ELSE cd.SoCuoi
                             END AS SoCuoiTon
                     FROM    TTNhapKho   nk
@@ -154,9 +162,13 @@ namespace DG_TonKhoBTP_v02.Database.Kho
                         TTCuonDay_ID,
                         CASE
                             WHEN Loai = 'Cuộn'
-                                THEN SoCuonTon * (SoCuoiNhap - SoDauNhap)
+                                THEN SoCuonTon * CASE
+                                    WHEN SoDauNhap IS NOT NULL AND SoCuoiNhap IS NOT NULL
+                                        THEN ABS(SoCuoiNhap - SoDauNhap)
+                                    ELSE COALESCE(ChieuDai1Cuon, 0)
+                                END
                             WHEN Loai = 'Lô'
-                                THEN SoCuoiTon - SoDauNhap
+                                THEN ABS(SoCuoiTon - SoDauNhap)
                             ELSE 0
                         END AS TongChieuDai,
                         SoCuonTon AS SoCuon,
@@ -166,7 +178,7 @@ namespace DG_TonKhoBTP_v02.Database.Kho
                         Loai
                 FROM    ton
                 WHERE  (Loai = 'Cuộn' AND SoCuonTon > 0)
-                   OR  (Loai = 'Lô'   AND SoCuoiTon > SoDauNhap)
+                   OR  (Loai = 'Lô'   AND SoDauNhap IS NOT NULL AND SoCuoiTon IS NOT NULL AND ABS(SoCuoiTon - SoDauNhap) > 0)
                 ORDER BY TTNhapKho_ID, TTCuonDay_ID";
 
             using var conn = DB_Base.OpenConnection();
@@ -198,7 +210,7 @@ namespace DG_TonKhoBTP_v02.Database.Kho
         /// <summary>
         /// Chèn một bản ghi vào TTXuatKho.
         /// Trả về id mới được chèn (last insert rowid).
-        /// TongChieuDai = SoCuon * (soCuoi - SoDau) — tính ở tầng DB để nhất quán.
+        /// Lô: TongChieuDai = SoCuon * ABS(SoCuoi - SoDau). Cuộn: SoCuon * ChieuDai_1cuon; SoDau/SoCuoi có thể NULL.
         /// </summary>
         public static long ThemXuatKho(
             long ttCuonDayId,
@@ -209,10 +221,6 @@ namespace DG_TonKhoBTP_v02.Database.Kho
             string ngayXuat,
             string nguoiLam)
         {
-            int tongChieuDai = 0;
-            if (soCuon.HasValue && soDau.HasValue && soCuoi.HasValue)
-                tongChieuDai = soCuon.Value * (soCuoi.Value - soDau.Value);
-
             const string sql = @"
                 INSERT INTO TTXuatKho
                     (TTCuonDay_ID, SoCuon, TongChieuDai, SoDau, soCuoi, GhiChu, NgayXuat, NguoiLam)
@@ -221,6 +229,7 @@ namespace DG_TonKhoBTP_v02.Database.Kho
                 SELECT last_insert_rowid();";
 
             using var conn = DB_Base.OpenConnection();
+            int tongChieuDai = TinhTongChieuDaiXuatKho(conn, ttCuonDayId, soCuon, soDau, soCuoi);
             using var cmd = new SQLiteCommand(sql, conn);
 
             cmd.Parameters.AddWithValue("@ttCuonDayId", ttCuonDayId);
@@ -255,10 +264,6 @@ namespace DG_TonKhoBTP_v02.Database.Kho
                     "Vui lòng sửa/xoá các lần xuất sau trước, hoặc tạo nghiệp vụ điều chỉnh.");
             }
 
-            int tongChieuDai = 0;
-            if (soCuon.HasValue && soDau.HasValue && soCuoi.HasValue)
-                tongChieuDai = soCuon.Value * (soCuoi.Value - soDau.Value);
-
             const string sql = @"
                 UPDATE TTXuatKho
                 SET    SoCuon       = @soCuon,
@@ -271,6 +276,8 @@ namespace DG_TonKhoBTP_v02.Database.Kho
                 WHERE  id = @id";
 
             using var conn = DB_Base.OpenConnection();
+            long ttCuonDayId = LayTTCuonDayIdTheoXuatKhoId(conn, id);
+            int tongChieuDai = TinhTongChieuDaiXuatKho(conn, ttCuonDayId, soCuon, soDau, soCuoi);
             using var cmd = new SQLiteCommand(sql, conn);
 
             cmd.Parameters.AddWithValue("@id", id);
@@ -283,6 +290,39 @@ namespace DG_TonKhoBTP_v02.Database.Kho
             cmd.Parameters.AddWithValue("@nguoiLam", nguoiLam);
 
             cmd.ExecuteNonQuery();
+        }
+
+        private static int TinhTongChieuDaiXuatKho(
+            SQLiteConnection conn, long ttCuonDayId, int? soCuon, int? soDau, int? soCuoi)
+        {
+            int soLuong = soCuon.GetValueOrDefault(0);
+            if (soLuong < 0) soLuong = 0;
+
+            if (soDau.HasValue && soCuoi.HasValue)
+                return soLuong * Math.Abs(soCuoi.Value - soDau.Value);
+
+            const string sql = @"
+                SELECT ChieuDai_1cuon
+                FROM TTCuonDay
+                WHERE id = @id
+                LIMIT 1;";
+
+            using var cmd = new SQLiteCommand(sql, conn);
+            cmd.Parameters.AddWithValue("@id", ttCuonDayId);
+            object value = cmd.ExecuteScalar();
+            int chieuDai1Cuon = value == null || value == DBNull.Value ? 0 : Convert.ToInt32(value);
+            return soCuon.GetValueOrDefault(0) * Math.Max(chieuDai1Cuon, 0);
+        }
+
+        private static long LayTTCuonDayIdTheoXuatKhoId(SQLiteConnection conn, long xuatKhoId)
+        {
+            const string sql = "SELECT TTCuonDay_ID FROM TTXuatKho WHERE id = @id LIMIT 1;";
+            using var cmd = new SQLiteCommand(sql, conn);
+            cmd.Parameters.AddWithValue("@id", xuatKhoId);
+            object value = cmd.ExecuteScalar();
+            if (value == null || value == DBNull.Value)
+                throw new InvalidOperationException($"Không tìm thấy TTXuatKho id={xuatKhoId}.");
+            return Convert.ToInt64(value);
         }
 
         // ════════════════════════════════════════════════════════════════════════
@@ -302,7 +342,7 @@ namespace DG_TonKhoBTP_v02.Database.Kho
 
         /// <summary>
         /// Với Loại = 'Lô', chỉ cho sửa phiếu xuất mới nhất của cùng TTCuonDay_ID
-        /// để tránh phá chuỗi xuất giảm dần từ cuối về đầu.
+        /// để tránh phá chuỗi xuất liên tiếp theo hướng của lô gốc.
         /// Với Loại khác 'Lô', luôn trả về true.
         /// </summary>
         public static bool LaPhieuXuatLoMoiNhat(long xuatKhoId)
@@ -341,7 +381,7 @@ namespace DG_TonKhoBTP_v02.Database.Kho
                         cd.id AS TTCuonDay_ID,
                         nk.Loai,
                         cd.SoCuon AS SoCuonNhap,
-                        cd.TongChieuDai AS TongChieuDaiNhap,
+                        cd.ChieuDai_1cuon AS TongChieuDaiNhap,
                         cd.SoDau AS SoDauNhap,
                         cd.SoCuoi AS SoCuoiNhap,
                         cd.GhiChu AS GhiChu_CD,
@@ -353,6 +393,7 @@ namespace DG_TonKhoBTP_v02.Database.Kho
                         xk.NguoiLam,
                         COALESCE(SUM(COALESCE(xkKhac.SoCuon, 0)), 0) AS TongSoCuonXuatKhac,
                         MIN(xkKhac.SoDau) AS MinSoDauXuatKhac,
+                        MAX(xkKhac.SoDau) AS MaxSoDauXuatKhac,
                         CASE
                             WHEN nk.Loai <> 'Lô' THEN 1
                             WHEN NOT EXISTS (
@@ -375,9 +416,16 @@ namespace DG_TonKhoBTP_v02.Database.Kho
                     TTCuonDay_ID,
                     CASE
                         WHEN Loai = 'Cuộn'
-                            THEN (COALESCE(SoCuonNhap, 0) - TongSoCuonXuatKhac) * (SoCuoiNhap - SoDauNhap)
-                        WHEN Loai = 'Lô'
-                            THEN COALESCE(MinSoDauXuatKhac, SoCuoiNhap) - SoDauNhap
+                            THEN (COALESCE(SoCuonNhap, 0) - TongSoCuonXuatKhac) * CASE
+                                WHEN SoDauNhap IS NOT NULL AND SoCuoiNhap IS NOT NULL
+                                    THEN ABS(SoCuoiNhap - SoDauNhap)
+                                ELSE COALESCE(TongChieuDaiNhap, 0)
+                            END
+                        WHEN Loai = 'Lô' THEN ABS(
+                            CASE
+                                WHEN SoCuoiNhap >= SoDauNhap THEN COALESCE(MinSoDauXuatKhac, SoCuoiNhap)
+                                ELSE COALESCE(MaxSoDauXuatKhac, SoCuoiNhap)
+                            END - SoDauNhap)
                         ELSE TongChieuDaiNhap
                     END AS TongChieuDai_NK,
                     CASE
@@ -387,7 +435,11 @@ namespace DG_TonKhoBTP_v02.Database.Kho
                     END AS SoCuon_CD,
                     SoDauNhap AS SoDau_CD,
                     CASE
-                        WHEN Loai = 'Lô' THEN COALESCE(MinSoDauXuatKhac, SoCuoiNhap)
+                        WHEN Loai = 'Lô' AND SoDauNhap IS NOT NULL AND SoCuoiNhap IS NOT NULL THEN
+                            CASE
+                                WHEN SoCuoiNhap >= SoDauNhap THEN COALESCE(MinSoDauXuatKhac, SoCuoiNhap)
+                                ELSE COALESCE(MaxSoDauXuatKhac, SoCuoiNhap)
+                            END
                         ELSE SoCuoiNhap
                     END AS soCuoi_CD,
                     GhiChu_CD,

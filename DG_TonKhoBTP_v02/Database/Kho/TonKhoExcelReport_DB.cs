@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
@@ -12,8 +12,10 @@ namespace DG_TonKhoBTP_v02.Database.Kho
     /// Sheet Lô:
     /// - TTNhapKho.Loai = 'Lô'
     /// - Lấy cả Kieu = 1 và Kieu = 0, hiển thị thành Lô / Lẻ.
-    /// - Tồn thực tế: SoCuoiTon = COALESCE(MIN(TTXuatKho.SoDau), TTCuonDay.SoCuoi).
-    /// - Chỉ lấy dòng còn tồn: SoCuoiTon > SoDau.
+    /// - Tồn thực tế theo hướng của lô gốc:
+    ///   + hướng tăng: lấy MIN(SoDau xuất);
+    ///   + hướng giảm: lấy MAX(SoDau xuất).
+    /// - Chiều dài tồn = ABS(SoCuoiTon - SoDau), không giả định SoCuoi > SoDau.
     ///
     /// Sheet Cuộn:
     /// - TTNhapKho.Loai = 'Cuộn'
@@ -45,8 +47,18 @@ namespace DG_TonKhoBTP_v02.Database.Kho
                             COALESCE(bs.M, '') AS MauSac,
                             nk.ChieuCaoLo AS ChieuCaoLo,
                             cd.SoDau AS SoDauTon,
-                            COALESCE(MIN(xk.SoDau), cd.SoCuoi) AS SoCuoiTon,
-                            COALESCE(MIN(xk.SoDau), cd.SoCuoi) - cd.SoDau AS TongChieuDaiTon,
+                            CASE
+                                WHEN cd.SoDau IS NULL OR cd.SoCuoi IS NULL THEN NULL
+                                WHEN cd.SoCuoi >= cd.SoDau THEN COALESCE(MIN(xk.SoDau), cd.SoCuoi)
+                                ELSE COALESCE(MAX(xk.SoDau), cd.SoCuoi)
+                            END AS SoCuoiTon,
+                            ABS(
+                                CASE
+                                    WHEN cd.SoDau IS NULL OR cd.SoCuoi IS NULL THEN NULL
+                                    WHEN cd.SoCuoi >= cd.SoDau THEN COALESCE(MIN(xk.SoDau), cd.SoCuoi)
+                                    ELSE COALESCE(MAX(xk.SoDau), cd.SoCuoi)
+                                END - cd.SoDau
+                            ) AS TongChieuDaiTon,
                             cd.GhiChu AS GhiChu
                     FROM    TTNhapKho      nk
                     JOIN    TTThanhPham    tp ON tp.id = nk.TTThanhPham_ID

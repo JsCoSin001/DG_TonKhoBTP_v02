@@ -349,11 +349,11 @@
     <Compile Include="UI\NghiepVuKhac\Kho\UC_NhapKho.Designer.cs">
       <DependentUpon>UC_NhapKho.cs</DependentUpon>
     </Compile>
-    <Compile Include="UI\NghiepVuKhac\Kho\XuatKho\UC_XuatKho.cs">
+    <Compile Include="UI\NghiepVuKhac\Kho\XuatKho\UC_XuatKhoTP.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="UI\NghiepVuKhac\Kho\XuatKho\UC_XuatKho.Designer.cs">
-      <DependentUpon>UC_XuatKho.cs</DependentUpon>
+    <Compile Include="UI\NghiepVuKhac\Kho\XuatKho\UC_XuatKhoTP.Designer.cs">
+      <DependentUpon>UC_XuatKhoTP.cs</DependentUpon>
     </Compile>
     <Compile Include="UI\NghiepVuKhac\SanXuat\Frm_ToTruongXacNhan.cs">
       <SubType>Form</SubType>
@@ -639,8 +639,8 @@
     <EmbeddedResource Include="UI\NghiepVuKhac\Kho\UC_NhapKho.resx">
       <DependentUpon>UC_NhapKho.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="UI\NghiepVuKhac\Kho\XuatKho\UC_XuatKho.resx">
-      <DependentUpon>UC_XuatKho.cs</DependentUpon>
+    <EmbeddedResource Include="UI\NghiepVuKhac\Kho\XuatKho\UC_XuatKhoTP.resx">
+      <DependentUpon>UC_XuatKhoTP.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UI\NghiepVuKhac\SanXuat\Frm_ToTruongXacNhan.resx">
       <DependentUpon>Frm_ToTruongXacNhan.cs</DependentUpon>

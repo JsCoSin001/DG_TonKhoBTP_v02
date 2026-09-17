@@ -35,6 +35,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
         public UC_NhapKhoTP()
         {
             InitializeComponent();
+            InitDanhSachNhapKhoGridColumns();
             InitMaBinSearch();
             InitGridFont();
             InitImportExcelButton();
@@ -48,6 +49,166 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
             grvDSNhapKho.CurrentCellDirtyStateChanged += GrvDSNhapKho_CurrentCellDirtyStateChanged;
             grvDSNhapKho.CellValueChanged += GrvDSNhapKho_CellValueChanged;
             grvDSNhapKho.EditingControlShowing += GrvDSNhapKho_EditingControlShowing;
+        }
+
+        /// <summary>
+        /// Bảo đảm grvDSNhapKho có đầy đủ các cột mà code-behind truy cập theo tên.
+        /// Một số bản Designer hiện tại chỉ khởi tạo DataGridView nhưng không AddRange cột,
+        /// khiến Rows.Add() ném lỗi "Columns must be added first" sau khi lưu nhập kho.
+        /// Nếu Designer đã có cột thì giữ nguyên hoàn toàn.
+        /// </summary>
+        private void InitDanhSachNhapKhoGridColumns()
+        {
+            if (grvDSNhapKho == null || grvDSNhapKho.Columns.Count > 0)
+                return;
+
+            grvDSNhapKho.AllowUserToAddRows = false;
+            grvDSNhapKho.RowHeadersVisible = false;
+
+            grvDSNhapKho.Columns.AddRange(new DataGridViewColumn[]
+            {
+                new DataGridViewTextBoxColumn
+                {
+                    Name = "TTThanhPham_ID",
+                    DataPropertyName = "TTThanhPham_ID",
+                    HeaderText = "id",
+                    Visible = false
+                },
+                new DataGridViewTextBoxColumn
+                {
+                    Name = "id_NhapKho",
+                    DataPropertyName = "id_NhapKho",
+                    HeaderText = "id nhập kho",
+                    Visible = false
+                },
+                new DataGridViewTextBoxColumn
+                {
+                    Name = "ngay",
+                    DataPropertyName = "ngay",
+                    HeaderText = "Ngày",
+                    ReadOnly = true,
+                    Width = 125
+                },
+                new DataGridViewTextBoxColumn
+                {
+                    Name = "soBB",
+                    DataPropertyName = "soBB",
+                    HeaderText = "Số BB",
+                    ReadOnly = true
+                },
+                new DataGridViewTextBoxColumn
+                {
+                    Name = "nguoiLam",
+                    DataPropertyName = "nguoiLam",
+                    HeaderText = "Người làm"
+                },
+                new DataGridViewTextBoxColumn
+                {
+                    Name = "tenSP",
+                    DataPropertyName = "tenSP",
+                    HeaderText = "Chủng loại SP",
+                    ReadOnly = true,
+                    Width = 250
+                },
+                new DataGridViewTextBoxColumn
+                {
+                    Name = "maBin2",
+                    DataPropertyName = "maBin2",
+                    HeaderText = "Mã SP",
+                    ReadOnly = true,
+                    FillWeight = 150F,
+                    Width = 200
+                },
+                new DataGridViewTextBoxColumn
+                {
+                    Name = "loaiDon",
+                    DataPropertyName = "loaiDon",
+                    HeaderText = "Loại",
+                    ReadOnly = true
+                },
+                new DataGridViewTextBoxColumn
+                {
+                    Name = "soMet",
+                    DataPropertyName = "soMet",
+                    HeaderText = "Số Mét",
+                    Width = 120
+                },
+                new DataGridViewTextBoxColumn
+                {
+                    Name = "khachHang",
+                    DataPropertyName = "khachHang",
+                    HeaderText = "Khách hàng",
+                    ReadOnly = true,
+                    Width = 150
+                },
+                new DataGridViewTextBoxColumn
+                {
+                    Name = "loai",
+                    DataPropertyName = "loai",
+                    HeaderText = "Loại"
+                },
+                new DataGridViewTextBoxColumn
+                {
+                    Name = "chieuCaoLo",
+                    DataPropertyName = "chieuCaoLo",
+                    HeaderText = "Chiều cao lô",
+                    ReadOnly = true,
+                    Width = 130
+                },
+                new DataGridViewTextBoxColumn
+                {
+                    Name = "cuon",
+                    DataPropertyName = "cuon",
+                    HeaderText = "Thông tin cuộn",
+                    Width = 200
+                },
+                new DataGridViewTextBoxColumn
+                {
+                    Name = "ghiChu",
+                    DataPropertyName = "ghiChu",
+                    HeaderText = "Ghi chú",
+                    ReadOnly = true,
+                    Width = 190
+                },
+                new DataGridViewTextBoxColumn
+                {
+                    Name = "tenChiTiet",
+                    HeaderText = "Chi tiết SP",
+                    Width = 200
+                },
+                new DataGridViewTextBoxColumn
+                {
+                    Name = "duAn",
+                    HeaderText = "Tên dự án",
+                    ReadOnly = true,
+                    Width = 150
+                },
+                new DataGridViewTextBoxColumn
+                {
+                    Name = "khoiLuongCap",
+                    HeaderText = "KL cáp"
+                },
+                new DataGridViewComboBoxColumn
+                {
+                    Name = "klLo",
+                    HeaderText = "KL lô",
+                    DisplayStyle = DataGridViewComboBoxDisplayStyle.ComboBox,
+                    FlatStyle = FlatStyle.Flat,
+                    Width = 130
+                },
+                new DataGridViewTextBoxColumn
+                {
+                    Name = "klTong",
+                    HeaderText = "KL Tổng",
+                    ReadOnly = true
+                },
+                new DataGridViewTextBoxColumn
+                {
+                    Name = "tieuChuan",
+                    HeaderText = "Tiêu chuẩn",
+                    Width = 120
+                }
+            });
         }
 
 
@@ -173,6 +334,67 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
                     SoDau = soDau,
                     soCuoi = soCuoi,
                     Ghichu = row.Cells["cl_GhiChu"].Value?.ToString() ?? string.Empty
+                });
+            }
+
+            return true;
+        }
+
+
+        private bool TryLayThongTinCuonDayHienTaiTuGrid(out List<ThongTinCuonDay> result, out string error)
+        {
+            result = new List<ThongTinCuonDay>();
+            error = string.Empty;
+
+            var sourceById = (thongTinDayNhapKho ?? new List<ThongTinCuonDay>())
+                .Where(x => x != null && x.TTCuonDay_CD_ID.HasValue && x.TTCuonDay_CD_ID.Value > 0)
+                .GroupBy(x => x.TTCuonDay_CD_ID.Value)
+                .ToDictionary(g => g.Key, g => g.First());
+
+            foreach (DataGridViewRow row in dataGridView1.Rows)
+            {
+                if (row.IsNewRow) continue;
+
+                if (row.Tag == null || !long.TryParse(row.Tag.ToString(), out long sourceId) || sourceId <= 0)
+                {
+                    error = "Có dòng cuộn/lô không xác định được TTCuonDay_CD_ID nguồn.";
+                    return false;
+                }
+
+                if (!sourceById.TryGetValue(sourceId, out ThongTinCuonDay source))
+                {
+                    error = $"Không tìm thấy dữ liệu nguồn TTCuonDay_CD id={sourceId} trong danh sách hiện tại.";
+                    return false;
+                }
+
+                if (!int.TryParse(row.Cells["col_SoLuong"].Value?.ToString(), out int soCuon) || soCuon <= 0)
+                {
+                    error = $"TTCuonDay_CD id={sourceId}: số cuộn không hợp lệ.";
+                    return false;
+                }
+
+                int tongChieuDai = source.TongChieuDai;
+                int soDau = source.SoDau;
+                int soCuoi = source.soCuoi;
+
+                if (int.TryParse(row.Cells["col_ChieuDai"].Value?.ToString(), out int parsedTongChieuDai))
+                    tongChieuDai = parsedTongChieuDai;
+                if (int.TryParse(row.Cells["col_SoDau"].Value?.ToString(), out int parsedSoDau))
+                    soDau = parsedSoDau;
+                if (int.TryParse(row.Cells["col_SoCuoi"].Value?.ToString(), out int parsedSoCuoi))
+                    soCuoi = parsedSoCuoi;
+
+                result.Add(new ThongTinCuonDay
+                {
+                    TTCuonDay_CD_ID = sourceId,
+                    TTLo_ID = source.TTLo_ID,
+                    KichThuocLo = source.KichThuocLo ?? string.Empty,
+                    TTLoHopLe = source.TTLoHopLe,
+                    SoCuon = soCuon,
+                    TongChieuDai = tongChieuDai,
+                    SoDau = soDau,
+                    soCuoi = soCuoi,
+                    Ghichu = row.Cells["cl_GhiChu"].Value?.ToString() ?? source.Ghichu ?? string.Empty
                 });
             }
 
@@ -1132,17 +1354,10 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
             cell.Style.BackColor = Color.Empty;
         }
 
-        private void btnTTCuon_Click(object sender, EventArgs e)
+        private void XuLyTTCuonCheDoSuaPhieuCu()
         {
-            if (!_selectedTTThanhPhamID.HasValue || _selectedTTThanhPhamID.Value <= 0)
-            {
-                FrmWaiting.ShowGifAlert("Vui lòng chọn MaBin trước khi chỉnh sửa thông tin đóng gói.");
-                return;
-            }
-
             try
             {
-                // Frm_DLCuon phải chỉnh nguồn đầy đủ TTCuonDay_CD, không phải chỉ phần còn lại.
                 List<ThongTinCuonDay> duLieuNguon =
                     DatabaseHelper.LayTTCuonDayCDTheoTTThanhPhamId(_selectedTTThanhPhamID.Value)
                     ?? new List<ThongTinCuonDay>();
@@ -1155,15 +1370,10 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
                     List<ThongTinCuonDay> duLieuMoi =
                         frm.ThongTinCuon ?? new List<ThongTinCuonDay>();
 
-                    // Cập nhật trực tiếp TTCuonDay_CD. DB sẽ chặn:
-                    // - giảm SoCuon thấp hơn số đã nhập;
-                    // - sửa thuộc tính kỹ thuật của dòng đã có lịch sử nhập;
-                    // - xoá dòng đã có lịch sử nhập.
                     NhapKho_DB.CapNhatTTCuonDayCDTheoTTThanhPhamId(
                         _selectedTTThanhPhamID.Value,
                         duLieuMoi);
 
-                    // Sau khi sửa nguồn, tải lại CHỈ phần còn lại để chuẩn bị cho lần nhập hiện tại.
                     LoadThongTinCuonDayTuCongDoan();
                     _ttCuonDayChanged = true;
                 }
@@ -1171,6 +1381,83 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
             catch (Exception ex)
             {
                 MessageBox.Show($"Lỗi khi cập nhật thông tin cuộn/lô:\n{ex.Message}",
+                    "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void btnTTCuon_Click(object sender, EventArgs e)
+        {
+            if (!_selectedTTThanhPhamID.HasValue || _selectedTTThanhPhamID.Value <= 0)
+            {
+                FrmWaiting.ShowGifAlert("Vui lòng chọn MaBin trước khi chỉnh sửa thông tin cuộn/lô nhập kho.");
+                return;
+            }
+
+            // Luồng sửa phiếu cũ (double-click grvDSNhapKho) chưa nằm trong thay đổi lần này.
+            // Giữ nguyên hành vi cũ để không tác động nghiệp vụ ngoài phạm vi đã chốt.
+            if (_editingIdNhapKho > 0)
+            {
+                XuLyTTCuonCheDoSuaPhieuCu();
+                return;
+            }
+
+            try
+            {
+                // Nguồn hiển thị của Frm_DLCuon là chính dữ liệu hiện đang có trên dataGridView1,
+                // không tải lại toàn bộ TTCuonDay_CD và không sửa TTCuonDay_CD.
+                if (!TryLayThongTinCuonDayHienTaiTuGrid(out List<ThongTinCuonDay> duLieuHienTai, out string gridError))
+                {
+                    FrmWaiting.ShowGifAlert(gridError);
+                    return;
+                }
+
+                if (duLieuHienTai.Count == 0)
+                {
+                    FrmWaiting.ShowGifAlert("Không có cuộn/lô còn lại để chỉnh số lượng nhập kho.");
+                    return;
+                }
+
+                // Đọc lại số lượng còn lại thực tế chỉ để làm giới hạn validate.
+                // Không dùng dữ liệu này để thay thế nội dung đang hiển thị trên grid.
+                List<ThongTinCuonDay> duLieuConLaiTrongDb =
+                    NhapKho_DB.LayTTCuonDayConLaiTheoTTThanhPhamId(_selectedTTThanhPhamID.Value)
+                    ?? new List<ThongTinCuonDay>();
+
+                Dictionary<long, int> soCuonToiDaTheoNguon = duLieuConLaiTrongDb
+                    .Where(x => x != null && x.TTCuonDay_CD_ID.HasValue && x.TTCuonDay_CD_ID.Value > 0)
+                    .GroupBy(x => x.TTCuonDay_CD_ID.Value)
+                    .ToDictionary(g => g.Key, g => g.First().SoCuon);
+
+                bool coSourceDaThayDoi = duLieuHienTai.Any(x =>
+                    x == null
+                    || !x.TTCuonDay_CD_ID.HasValue
+                    || !soCuonToiDaTheoNguon.ContainsKey(x.TTCuonDay_CD_ID.Value));
+
+                if (coSourceDaThayDoi)
+                {
+                    FrmWaiting.ShowGifAlert(
+                        "Dữ liệu cuộn/lô còn lại đã thay đổi trong database. " +
+                        "Vui lòng chọn lại MaBin để tải dữ liệu mới trước khi chỉnh sửa.");
+                    return;
+                }
+
+                using (Frm_DLCuon frm = new Frm_DLCuon(
+                    duLieuHienTai,
+                    FrmDLCuonMode.NhapKho,
+                    soCuonToiDaTheoNguon))
+                {
+                    if (frm.ShowDialog() != DialogResult.OK)
+                        return;
+
+                    // Chỉ cập nhật dữ liệu tạm trên UI. Không INSERT/UPDATE/DELETE TTCuonDay_CD.
+                    thongTinDayNhapKho = frm.ThongTinCuon ?? new List<ThongTinCuonDay>();
+                    LoadThongTinDayVaoGrid();
+                    _ttCuonDayChanged = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi khi chỉnh sửa thông tin cuộn/lô nhập kho:\n{ex.Message}",
                     "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }

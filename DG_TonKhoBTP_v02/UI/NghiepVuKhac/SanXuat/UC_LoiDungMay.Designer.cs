@@ -42,7 +42,6 @@
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.quanDoc = new System.Windows.Forms.TextBox();
             this.label6 = new System.Windows.Forms.Label();
-            this.label5 = new System.Windows.Forms.Label();
             this.cbMay = new System.Windows.Forms.ComboBox();
             this.nguoiLam = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
@@ -52,6 +51,7 @@
             this.label7 = new System.Windows.Forms.Label();
             this.ngay = new System.Windows.Forms.DateTimePicker();
             this.congDoan = new System.Windows.Forms.ComboBox();
+            this.label5 = new System.Windows.Forms.Label();
             this.panel1.SuspendLayout();
             this.panel3.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -212,23 +212,23 @@
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 70F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 70F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 100F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 200F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 70F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 171F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 99F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 100F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 100F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel1.Controls.Add(this.quanDoc, 11, 0);
             this.tableLayoutPanel1.Controls.Add(this.label6, 10, 0);
-            this.tableLayoutPanel1.Controls.Add(this.label5, 8, 0);
-            this.tableLayoutPanel1.Controls.Add(this.cbMay, 9, 0);
-            this.tableLayoutPanel1.Controls.Add(this.nguoiLam, 7, 0);
-            this.tableLayoutPanel1.Controls.Add(this.label4, 6, 0);
             this.tableLayoutPanel1.Controls.Add(this.ca, 5, 0);
             this.tableLayoutPanel1.Controls.Add(this.label3, 4, 0);
             this.tableLayoutPanel1.Controls.Add(this.label2, 2, 0);
             this.tableLayoutPanel1.Controls.Add(this.label7, 0, 0);
             this.tableLayoutPanel1.Controls.Add(this.ngay, 1, 0);
             this.tableLayoutPanel1.Controls.Add(this.congDoan, 3, 0);
+            this.tableLayoutPanel1.Controls.Add(this.cbMay, 7, 0);
+            this.tableLayoutPanel1.Controls.Add(this.nguoiLam, 9, 0);
+            this.tableLayoutPanel1.Controls.Add(this.label4, 8, 0);
+            this.tableLayoutPanel1.Controls.Add(this.label5, 6, 0);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(10, 26);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
@@ -259,35 +259,24 @@
             this.label6.Text = "Tổ trưởng";
             this.label6.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
-            // label5
-            // 
-            this.label5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.label5.AutoSize = true;
-            this.label5.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label5.Location = new System.Drawing.Point(1133, 9);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(64, 18);
-            this.label5.TabIndex = 14;
-            this.label5.Text = "Máy";
-            this.label5.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
             // cbMay
             // 
+            this.cbMay.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbMay.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbMay.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cbMay.FormattingEnabled = true;
-            this.cbMay.Location = new System.Drawing.Point(1203, 3);
+            this.cbMay.Location = new System.Drawing.Point(933, 4);
             this.cbMay.Name = "cbMay";
-            this.cbMay.Size = new System.Drawing.Size(94, 28);
+            this.cbMay.Size = new System.Drawing.Size(165, 28);
             this.cbMay.TabIndex = 2;
             // 
             // nguoiLam
             // 
             this.nguoiLam.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.nguoiLam.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.nguoiLam.Location = new System.Drawing.Point(933, 5);
+            this.nguoiLam.Location = new System.Drawing.Point(1203, 5);
             this.nguoiLam.Name = "nguoiLam";
-            this.nguoiLam.Size = new System.Drawing.Size(194, 26);
+            this.nguoiLam.Size = new System.Drawing.Size(94, 26);
             this.nguoiLam.TabIndex = 4;
             // 
             // label4
@@ -295,9 +284,9 @@
             this.label4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.label4.AutoSize = true;
             this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label4.Location = new System.Drawing.Point(833, 9);
+            this.label4.Location = new System.Drawing.Point(1104, 9);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(94, 18);
+            this.label4.Size = new System.Drawing.Size(93, 18);
             this.label4.TabIndex = 12;
             this.label4.Text = "Người làm";
             this.label4.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -376,6 +365,18 @@
             this.congDoan.Size = new System.Drawing.Size(344, 27);
             this.congDoan.TabIndex = 17;
             // 
+            // label5
+            // 
+            this.label5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.label5.AutoSize = true;
+            this.label5.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label5.Location = new System.Drawing.Point(833, 9);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(94, 18);
+            this.label5.TabIndex = 12;
+            this.label5.Text = "Máy";
+            this.label5.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
             // UC_LoiDungMay
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 16F);
@@ -405,7 +406,6 @@
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
-        private System.Windows.Forms.Label label5;
         private System.Windows.Forms.TextBox nguoiLam;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.ComboBox ca;
@@ -425,5 +425,6 @@
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
         private System.Windows.Forms.Button btnLuu;
         private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Label label5;
     }
 }

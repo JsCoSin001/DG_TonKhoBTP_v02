@@ -9,10 +9,22 @@ using System.Windows.Forms;
 
 namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
 {
+    public enum FrmDLCuonMode
+    {
+        DongGoiNguon = 0,
+        NhapKho = 1
+    }
+
     public partial class Frm_DLCuon : Form
     {
         // ── Dữ liệu hiện tại được truyền vào khi mở lại form / khi edit ───────
         private readonly List<ThongTinCuonDay> _thongTinCuonHienTai;
+
+        // Frm_DLCuon được dùng chung:
+        // - DongGoiNguon: giữ nguyên nghiệp vụ khai báo/chỉnh quy cách đóng gói.
+        // - NhapKho: chỉ cho phép chỉnh số lượng nhập hoặc bỏ dòng khỏi lần nhập hiện tại.
+        private readonly FrmDLCuonMode _mode;
+        private readonly Dictionary<long, int> _soCuonToiDaNhapKho;
 
         // ── Tránh event tự tính chạy trong lúc đang load dữ liệu cũ ──────────
         private bool _loadingGrid = false;
@@ -39,14 +51,45 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
         public List<ThongTinCuonDay> ThongTinCuon { get; private set; }
 
         public Frm_DLCuon(List<ThongTinCuonDay> thongTinCuonHienTai = null)
+            : this(thongTinCuonHienTai, FrmDLCuonMode.DongGoiNguon, null)
+        {
+        }
+
+        public Frm_DLCuon(
+            List<ThongTinCuonDay> thongTinCuonHienTai,
+            FrmDLCuonMode mode,
+            IDictionary<long, int> soCuonToiDaNhapKho)
         {
             InitializeComponent();
 
+            _mode = mode;
             _thongTinCuonHienTai = thongTinCuonHienTai == null
                 ? new List<ThongTinCuonDay>()
                 : new List<ThongTinCuonDay>(thongTinCuonHienTai);
 
+            _soCuonToiDaNhapKho = soCuonToiDaNhapKho == null
+                ? new Dictionary<long, int>()
+                : new Dictionary<long, int>(soCuonToiDaNhapKho);
+
             this.Load += Frm_DLCuon_Load;
+        }
+
+        private static ThongTinCuonDay CloneThongTinCuonDay(ThongTinCuonDay item)
+        {
+            if (item == null) return null;
+
+            return new ThongTinCuonDay
+            {
+                TTCuonDay_CD_ID = item.TTCuonDay_CD_ID,
+                TTLo_ID = item.TTLo_ID,
+                KichThuocLo = item.KichThuocLo ?? string.Empty,
+                TTLoHopLe = item.TTLoHopLe,
+                SoCuon = item.SoCuon,
+                TongChieuDai = item.TongChieuDai,
+                SoDau = item.SoDau,
+                soCuoi = item.soCuoi,
+                Ghichu = item.Ghichu ?? string.Empty
+            };
         }
 
         // ════════════════════════════════════════════════════════════════════
@@ -55,8 +98,17 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
 
         private void Frm_DLCuon_Load(object sender, EventArgs e)
         {
-            label1.Text = "THÔNG TIN ĐÓNG GÓI";
-            this.Text = "Thông tin đóng gói";
+            if (_mode == FrmDLCuonMode.NhapKho)
+            {
+                label1.Text = "THÔNG TIN CUỘN/LÔ NHẬP KHO";
+                this.Text = "Thông tin cuộn/lô nhập kho";
+                btnLuuTTCuonDay.Text = "OK";
+            }
+            else
+            {
+                label1.Text = "THÔNG TIN ĐÓNG GÓI";
+                this.Text = "Thông tin đóng gói";
+            }
 
             LoadLoaiDongGoiVaoComboColumn();
             AddDeleteButtonColumn();
@@ -271,14 +323,17 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
         private void FocusFirstInputCell()
         {
             if (grvThongTinCuonDay.Rows.Count == 0) return;
-            if (!grvThongTinCuonDay.Columns.Contains("loai")) return;
 
-            DataGridViewCell cell = grvThongTinCuonDay.Rows[0].Cells["loai"];
-            if (cell.Value == null || cell.Value == DBNull.Value)
+            string columnName = _mode == FrmDLCuonMode.NhapKho ? "slCuon" : "loai";
+            if (!grvThongTinCuonDay.Columns.Contains(columnName)) return;
+
+            DataGridViewCell cell = grvThongTinCuonDay.Rows[0].Cells[columnName];
+            if (_mode != FrmDLCuonMode.NhapKho && (cell.Value == null || cell.Value == DBNull.Value))
                 cell.Value = LOAI_CHUA_CHON_VALUE;
 
             grvThongTinCuonDay.CurrentCell = cell;
-            grvThongTinCuonDay.BeginEdit(true);
+            if (!cell.ReadOnly)
+                grvThongTinCuonDay.BeginEdit(true);
         }
 
         // ════════════════════════════════════════════════════════════════════
@@ -287,8 +342,24 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
 
         private void ConfigureGrid()
         {
-            grvThongTinCuonDay.AllowUserToAddRows = true;
-            grvThongTinCuonDay.AllowUserToDeleteRows = true;
+            bool isNhapKho = _mode == FrmDLCuonMode.NhapKho;
+
+            grvThongTinCuonDay.AllowUserToAddRows = !isNhapKho;
+            // Ở chế độ Nhập kho chỉ xoá qua nút Xoá để luôn kiểm soát việc không xoá dòng cuối cùng.
+            grvThongTinCuonDay.AllowUserToDeleteRows = !isNhapKho;
+
+            if (grvThongTinCuonDay.Columns.Contains("loai"))
+                grvThongTinCuonDay.Columns["loai"].ReadOnly = isNhapKho;
+            if (grvThongTinCuonDay.Columns.Contains("slCuon"))
+                grvThongTinCuonDay.Columns["slCuon"].ReadOnly = false;
+            if (grvThongTinCuonDay.Columns.Contains("tongChieuDai"))
+                grvThongTinCuonDay.Columns["tongChieuDai"].ReadOnly = isNhapKho;
+            if (grvThongTinCuonDay.Columns.Contains("soDau"))
+                grvThongTinCuonDay.Columns["soDau"].ReadOnly = isNhapKho;
+            if (grvThongTinCuonDay.Columns.Contains("soCuoi"))
+                grvThongTinCuonDay.Columns["soCuoi"].ReadOnly = isNhapKho;
+            if (grvThongTinCuonDay.Columns.Contains("ghiChu"))
+                grvThongTinCuonDay.Columns["ghiChu"].ReadOnly = isNhapKho;
 
             grvThongTinCuonDay.CellEndEdit -= DataGridView1_CellEndEdit;
             grvThongTinCuonDay.CellEndEdit += DataGridView1_CellEndEdit;
@@ -309,6 +380,17 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
         private void ApplyRowMode(DataGridViewRow row, bool autoCalculate)
         {
             if (row == null || row.IsNewRow) return;
+
+            if (_mode == FrmDLCuonMode.NhapKho)
+            {
+                SetCellReadonly(row, "loai", true);
+                SetCellReadonly(row, "slCuon", false);
+                SetCellReadonly(row, "tongChieuDai", true);
+                SetCellReadonly(row, "soDau", true);
+                SetCellReadonly(row, "soCuoi", true);
+                SetCellReadonly(row, "ghiChu", true);
+                return;
+            }
 
             // Nếu chưa chọn Loại đóng gói thì không xem là Cuộn/Lô.
             // Người dùng sẽ bị validate bắt buộc chọn khi bấm Lưu.
@@ -413,6 +495,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
         private void DataGridView1_CellValueChanged(object sender, DataGridViewCellEventArgs e)
         {
             if (_loadingGrid) return;
+            if (_mode == FrmDLCuonMode.NhapKho) return;
             if (e.RowIndex < 0) return;
             if (grvThongTinCuonDay.Rows[e.RowIndex].IsNewRow) return;
 
@@ -495,6 +578,12 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
             if (grvThongTinCuonDay.Columns[e.ColumnIndex].Name != COL_XOA) return;
             if (grvThongTinCuonDay.Rows[e.RowIndex].IsNewRow) return;
 
+            if (_mode == FrmDLCuonMode.NhapKho && DemSoDongDuLieu() <= 1)
+            {
+                FrmWaiting.ShowGifAlert("Phải giữ lại ít nhất 1 dòng cuộn/lô để nhập kho.");
+                return;
+            }
+
             var confirm = MessageBox.Show(
                 $"Bạn có chắc muốn xoá dòng {e.RowIndex + 1} không?",
                 "Xác nhận xoá",
@@ -504,6 +593,16 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
 
             if (confirm == DialogResult.Yes)
                 grvThongTinCuonDay.Rows.RemoveAt(e.RowIndex);
+        }
+
+        private int DemSoDongDuLieu()
+        {
+            int count = 0;
+            foreach (DataGridViewRow row in grvThongTinCuonDay.Rows)
+            {
+                if (!row.IsNewRow) count++;
+            }
+            return count;
         }
 
         // ════════════════════════════════════════════════════════════════════
@@ -626,6 +725,13 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
             string colName = grvThongTinCuonDay.Columns[e.ColumnIndex].Name;
             DataGridViewRow row = grvThongTinCuonDay.Rows[e.RowIndex];
 
+            if (_mode == FrmDLCuonMode.NhapKho)
+            {
+                if (colName == "slCuon")
+                    ValidateSoCuonNhapKho(e.RowIndex, showMessage: true, out _);
+                return;
+            }
+
             var intCols = new Dictionary<string, string>
             {
                 { "slCuon",       "Số lượng" },
@@ -654,6 +760,109 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
         }
 
 
+        private bool ValidateSoCuonNhapKho(int rowIndex, bool showMessage, out int soCuon)
+        {
+            soCuon = 0;
+
+            if (rowIndex < 0 || rowIndex >= grvThongTinCuonDay.Rows.Count)
+                return false;
+
+            DataGridViewRow row = grvThongTinCuonDay.Rows[rowIndex];
+            if (row.IsNewRow) return true;
+
+            DataGridViewCell cell = row.Cells["slCuon"];
+            string raw = cell.Value?.ToString()?.Trim() ?? string.Empty;
+
+            if (!int.TryParse(raw, out soCuon) || soCuon <= 0)
+            {
+                MarkCellError(cell);
+                if (showMessage)
+                {
+                    FrmWaiting.ShowGifAlert($"Dòng {rowIndex + 1}: số lượng nhập phải là số nguyên lớn hơn 0.");
+                    grvThongTinCuonDay.CurrentCell = cell;
+                }
+                return false;
+            }
+
+            if (row.Tag == null || !long.TryParse(row.Tag.ToString(), out long sourceId) || sourceId <= 0)
+            {
+                MarkCellError(cell);
+                if (showMessage)
+                    FrmWaiting.ShowGifAlert($"Dòng {rowIndex + 1}: không xác định được TTCuonDay_CD_ID nguồn.");
+                return false;
+            }
+
+            if (!_soCuonToiDaNhapKho.TryGetValue(sourceId, out int soCuonToiDa) || soCuonToiDa <= 0)
+            {
+                MarkCellError(cell);
+                if (showMessage)
+                {
+                    FrmWaiting.ShowGifAlert(
+                        $"Dòng {rowIndex + 1}: dữ liệu nguồn đã thay đổi hoặc không còn số lượng để nhập. " +
+                        "Vui lòng chọn lại MaBin để tải dữ liệu mới.");
+                    grvThongTinCuonDay.CurrentCell = cell;
+                }
+                return false;
+            }
+
+            if (soCuon > soCuonToiDa)
+            {
+                MarkCellError(cell);
+                if (showMessage)
+                {
+                    FrmWaiting.ShowGifAlert(
+                        $"Dòng {rowIndex + 1}: số lượng nhập ({soCuon}) không được vượt quá số lượng còn lại ({soCuonToiDa}).");
+                    grvThongTinCuonDay.CurrentCell = cell;
+                }
+                return false;
+            }
+
+            ResetCellColor(cell);
+            return true;
+        }
+
+        private void LuuCheDoNhapKho()
+        {
+            if (DemSoDongDuLieu() == 0)
+            {
+                FrmWaiting.ShowGifAlert("Phải có ít nhất 1 dòng cuộn/lô để nhập kho.");
+                return;
+            }
+
+            var originalsById = _thongTinCuonHienTai
+                .Where(x => x != null && x.TTCuonDay_CD_ID.HasValue && x.TTCuonDay_CD_ID.Value > 0)
+                .GroupBy(x => x.TTCuonDay_CD_ID.Value)
+                .ToDictionary(g => g.Key, g => g.First());
+
+            var result = new List<ThongTinCuonDay>();
+
+            for (int i = 0; i < grvThongTinCuonDay.Rows.Count; i++)
+            {
+                DataGridViewRow row = grvThongTinCuonDay.Rows[i];
+                if (row.IsNewRow) continue;
+
+                if (!ValidateSoCuonNhapKho(i, showMessage: true, out int soCuon))
+                    return;
+
+                if (row.Tag == null || !long.TryParse(row.Tag.ToString(), out long sourceId) || sourceId <= 0
+                    || !originalsById.TryGetValue(sourceId, out ThongTinCuonDay original))
+                {
+                    FrmWaiting.ShowGifAlert(
+                        $"Dòng {i + 1}: không tìm thấy dữ liệu nguồn tương ứng. Vui lòng chọn lại MaBin.");
+                    return;
+                }
+
+                ThongTinCuonDay item = CloneThongTinCuonDay(original);
+                item.SoCuon = soCuon;
+                result.Add(item);
+            }
+
+            KetQua = result;
+            ThongTinCuon = result;
+            DialogResult = DialogResult.OK;
+            Close();
+        }
+
         // ════════════════════════════════════════════════════════════════════
         // NÚT LƯU: CHỈ TRẢ DỮ LIỆU VỀ UC, CHƯA LƯU DB
         // ════════════════════════════════════════════════════════════════════
@@ -661,6 +870,12 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
         private void btnLuuTTCuonDay_Click(object sender, EventArgs e)
         {
             grvThongTinCuonDay.EndEdit();
+
+            if (_mode == FrmDLCuonMode.NhapKho)
+            {
+                LuuCheDoNhapKho();
+                return;
+            }
 
             int rowCount = grvThongTinCuonDay.Rows.Count;
             if (grvThongTinCuonDay.AllowUserToAddRows && rowCount > 0)

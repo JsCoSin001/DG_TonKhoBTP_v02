@@ -95,8 +95,8 @@ namespace DG_TonKhoBTP_v02.UI
                 // Kiểm tra trạng thái nghiệp vụ ban đầu trước khi xử lý Submit.
                 // Nếu trạng thái hiện tại không cho phép lưu, hàm sẽ hiển thị thông báo
                 // phù hợp và kết thúc luồng xử lý.
-                if (!ValidateSubmitStatus(swTotal))
-                    return;
+
+                if (CoreHelper.TaoThongBao() != "") return;
 
                 // Tìm form cha đang chứa UC_SubmitForm.
                 // Form cha được dùng làm nguồn để thu thập dữ liệu từ các UserControl liên quan.
@@ -265,19 +265,6 @@ namespace DG_TonKhoBTP_v02.UI
             }
         }
 
-        private bool ValidateSubmitStatus(Stopwatch swTotal)
-        {
-            string message = CoreHelper.TaoThongBao(lblTrangThai);
-            Debug.WriteLine($"TaoThongBao: {swTotal.ElapsedMilliseconds} ms");
-
-            if (string.IsNullOrEmpty(message))
-                return true;
-
-            _timerThongBao.Stop();
-            _timerThongBao.Start();
-            Debug.WriteLine($"Thoát sớm vì trạng thái form không hợp lệ: {swTotal.ElapsedMilliseconds} ms");
-            return false;
-        }
 
         private Form GetHostForm(FrmWaiting waiting, Stopwatch swTotal)
         {
@@ -1358,7 +1345,6 @@ namespace DG_TonKhoBTP_v02.UI
             _timerThongBao.Interval = 5000;
             _timerThongBao.Tick += (s, args) =>
             {
-                lblTrangThai.Visible = false;
                 _timerThongBao.Stop();
             };
 

@@ -120,11 +120,36 @@ namespace DG_TonKhoBTP_v02.UI
             UpdateDongGoiButtonText();
         }
 
+        private static void LayDuLieuTTLoChoFrm(
+            IEnumerable<ThongTinCuonDay> data,
+            out DataTable ttLoActive,
+            out DataTable ttLoReferenced)
+        {
+            // Mọi truy xuất DB được thực hiện tại caller. Frm_DLCuon chỉ nhận dữ liệu và trả kết quả.
+            ttLoActive = DatabaseHelper.LayDanhSachTTLoActive() ?? new DataTable();
+
+            List<int> referencedIds = (data ?? Enumerable.Empty<ThongTinCuonDay>())
+                .Where(x => x != null && x.TTLo_ID.HasValue && x.TTLo_ID.Value > 0)
+                .Select(x => x.TTLo_ID.Value)
+                .Distinct()
+                .ToList();
+
+            ttLoReferenced = referencedIds.Count == 0
+                ? new DataTable()
+                : (DatabaseHelper.LayDanhSachTTLoTheoIds(referencedIds) ?? new DataTable());
+        }
+
         private void btnDongGoi_Click(object sender, EventArgs e)
         {
+            LayDuLieuTTLoChoFrm(_thongTinCuonDay, out DataTable ttLoActive, out DataTable ttLoReferenced);
+
             using (Frm_DLCuon frm = new Frm_DLCuon(
                 _thongTinCuonDay,
-                nullSoDauSoCuoiChoCuonMoi: true))
+                FrmDLCuonMode.DongGoiNguon,
+                null,
+                true,
+                ttLoActive,
+                ttLoReferenced))
             {
                 if (frm.ShowDialog() != DialogResult.OK)
                     return;
@@ -191,8 +216,12 @@ namespace DG_TonKhoBTP_v02.UI
 
             return source.Select(x => new ThongTinCuonDay
             {
+                TTCuonDay_ID = x.TTCuonDay_ID,
                 TTCuonDay_CD_ID = x.TTCuonDay_CD_ID,
+                CoLichSuDownstream = x.CoLichSuDownstream,
                 TTLo_ID = x.TTLo_ID,
+                KichThuocLo = x.KichThuocLo ?? string.Empty,
+                TTLoHopLe = x.TTLoHopLe,
                 SoCuon = x.SoCuon,
                 TongChieuDai = x.TongChieuDai,
                 SoDau = x.SoDau,

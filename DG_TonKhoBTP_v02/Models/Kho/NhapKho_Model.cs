@@ -10,8 +10,20 @@ namespace DG_TonKhoBTP_v02.Models
 {
     public class ThongTinCuonDay
     {
+        /// <summary>
+        /// PK của TTCuonDay. Chỉ có giá trị khi dữ liệu đại diện cho chi tiết nhập kho đã tồn tại.
+        /// Được giữ nguyên xuyên suốt luồng Edit để UPDATE in-place và bảo toàn liên kết downstream.
+        /// </summary>
+        public long? TTCuonDay_ID { get; set; } = null;
+
         /// <summary>FK tới TTCuonDay_CD.id. Null đối với dòng nguồn mới chưa được lưu.</summary>
         public long? TTCuonDay_CD_ID { get; set; } = null;
+
+        /// <summary>
+        /// Được caller nạp từ DB trước khi mở Frm_DLCuon. Frm_DLCuon không tự truy vấn DB.
+        /// Khi true, luồng NhapKhoEdit chỉ cho sửa GhiChu và không cho xoá dòng.
+        /// </summary>
+        public bool CoLichSuDownstream { get; set; } = false;
 
         public int? TTLo_ID { get; set; } = null;
         public string KichThuocLo { get; set; } = string.Empty;

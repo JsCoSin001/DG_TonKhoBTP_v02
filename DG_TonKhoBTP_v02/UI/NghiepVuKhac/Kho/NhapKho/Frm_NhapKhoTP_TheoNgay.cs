@@ -8,13 +8,18 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho
+namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
 {
-    public partial class UC_XuatKhoTP : UserControl
+    public partial class Frm_NhapKhoTP_TheoNgay : Form
     {
-        public UC_XuatKhoTP()
+        public Frm_NhapKhoTP_TheoNgay()
         {
             InitializeComponent();
+        }
+
+        private void label3_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

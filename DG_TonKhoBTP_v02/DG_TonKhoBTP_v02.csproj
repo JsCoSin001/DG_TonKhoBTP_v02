@@ -161,6 +161,7 @@
     <Compile Include="Database\DB_SanXuat.cs" />
     <Compile Include="Database\DB_XuatNhapKho.cs" />
     <Compile Include="Database\Kho\TonKhoExcelReport_DB.cs" />
+    <Compile Include="Database\Kho\XuatKho\CatDay_DB.cs" />
     <Compile Include="Database\Kho\XuatKho_DB.cs" />
     <Compile Include="Database\SanXuat\LoiDungMay_DB.cs" />
     <Compile Include="Database\SanXuat\SubmitForm_DB.cs" />
@@ -206,6 +207,7 @@
     <Compile Include="Models\KeToan\VatTuKhac\NhapXuatVatTu_Model.cs" />
     <Compile Include="Models\Kho\LotCode.cs" />
     <Compile Include="Models\Kho\TonKhoLoReportModels.cs" />
+    <Compile Include="Models\Kho\XuatKho\CatDay_Model.cs" />
     <Compile Include="Models\Kho\XuatKho_Model.cs" />
     <Compile Include="Models\KiemKe.cs" />
     <Compile Include="Models\LoginClass.cs" />
@@ -304,6 +306,12 @@
     <Compile Include="UI\NghiepVuKhac\Kho\NhapKho\Frm_DLCuon.Designer.cs">
       <DependentUpon>Frm_DLCuon.cs</DependentUpon>
     </Compile>
+    <Compile Include="UI\NghiepVuKhac\Kho\NhapKho\Frm_NhapKhoTP_TheoNgay.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\NghiepVuKhac\Kho\NhapKho\Frm_NhapKhoTP_TheoNgay.Designer.cs">
+      <DependentUpon>Frm_NhapKhoTP_TheoNgay.cs</DependentUpon>
+    </Compile>
     <Compile Include="UI\NghiepVuKhac\Kho\NhapKho\UC_NhapKhoNVL.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -340,20 +348,17 @@
     <Compile Include="UI\NghiepVuKhac\KeToan\VatTuKhac\UC_NhapXuatVatTu.Designer.cs">
       <DependentUpon>UC_NhapXuatVatTu.cs</DependentUpon>
     </Compile>
-    <Compile Include="UI\NghiepVuKhac\Kho\NhapKho\UC_NhapKho.ImportExcel.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
     <Compile Include="UI\NghiepVuKhac\Kho\UC_NhapKho.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="UI\NghiepVuKhac\Kho\UC_NhapKho.Designer.cs">
       <DependentUpon>UC_NhapKho.cs</DependentUpon>
     </Compile>
-    <Compile Include="UI\NghiepVuKhac\Kho\XuatKho\UC_XuatKhoTP.cs">
+    <Compile Include="UI\NghiepVuKhac\Kho\XuatKho\UC_CatDay.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="UI\NghiepVuKhac\Kho\XuatKho\UC_XuatKhoTP.Designer.cs">
-      <DependentUpon>UC_XuatKhoTP.cs</DependentUpon>
+    <Compile Include="UI\NghiepVuKhac\Kho\XuatKho\UC_CatDay.Designer.cs">
+      <DependentUpon>UC_CatDay.cs</DependentUpon>
     </Compile>
     <Compile Include="UI\NghiepVuKhac\SanXuat\Frm_ToTruongXacNhan.cs">
       <SubType>Form</SubType>
@@ -618,6 +623,9 @@
     <EmbeddedResource Include="UI\NghiepVuKhac\Kho\NhapKho\Frm_DLCuon.resx">
       <DependentUpon>Frm_DLCuon.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="UI\NghiepVuKhac\Kho\NhapKho\Frm_NhapKhoTP_TheoNgay.resx">
+      <DependentUpon>Frm_NhapKhoTP_TheoNgay.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="UI\NghiepVuKhac\Kho\NhapKho\UC_NhapKhoNVL.resx">
       <DependentUpon>UC_NhapKhoNVL.cs</DependentUpon>
     </EmbeddedResource>
@@ -639,8 +647,8 @@
     <EmbeddedResource Include="UI\NghiepVuKhac\Kho\UC_NhapKho.resx">
       <DependentUpon>UC_NhapKho.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="UI\NghiepVuKhac\Kho\XuatKho\UC_XuatKhoTP.resx">
-      <DependentUpon>UC_XuatKhoTP.cs</DependentUpon>
+    <EmbeddedResource Include="UI\NghiepVuKhac\Kho\XuatKho\UC_CatDay.resx">
+      <DependentUpon>UC_CatDay.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UI\NghiepVuKhac\SanXuat\Frm_ToTruongXacNhan.resx">
       <DependentUpon>Frm_ToTruongXacNhan.cs</DependentUpon>

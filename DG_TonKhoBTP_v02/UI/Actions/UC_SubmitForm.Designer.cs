@@ -34,7 +34,6 @@
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.cbInTemNVL = new System.Windows.Forms.CheckBox();
-            this.lblTrangThai = new System.Windows.Forms.Label();
             this.tableLayoutPanel1.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
@@ -92,7 +91,6 @@
             this.tableLayoutPanel1.Controls.Add(this.btnLuu, 3, 0);
             this.tableLayoutPanel1.Controls.Add(this.btnClear, 2, 0);
             this.tableLayoutPanel1.Controls.Add(this.flowLayoutPanel1, 1, 0);
-            this.tableLayoutPanel1.Controls.Add(this.lblTrangThai, 0, 0);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
@@ -121,19 +119,6 @@
             this.cbInTemNVL.Text = "checkBox1";
             this.cbInTemNVL.UseVisualStyleBackColor = true;
             // 
-            // lblTrangThai
-            // 
-            this.lblTrangThai.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.lblTrangThai.AutoSize = true;
-            this.lblTrangThai.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblTrangThai.ForeColor = System.Drawing.Color.Firebrick;
-            this.lblTrangThai.Location = new System.Drawing.Point(3, 19);
-            this.lblTrangThai.Name = "lblTrangThai";
-            this.lblTrangThai.Size = new System.Drawing.Size(35, 13);
-            this.lblTrangThai.TabIndex = 4;
-            this.lblTrangThai.Text = "label1";
-            this.lblTrangThai.Visible = false;
-            // 
             // UC_SubmitForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -144,7 +129,6 @@
             this.Size = new System.Drawing.Size(706, 52);
             this.Load += new System.EventHandler(this.UC_SubmitForm_Load);
             this.tableLayoutPanel1.ResumeLayout(false);
-            this.tableLayoutPanel1.PerformLayout();
             this.flowLayoutPanel1.ResumeLayout(false);
             this.flowLayoutPanel1.PerformLayout();
             this.ResumeLayout(false);
@@ -158,7 +142,6 @@
         private System.Windows.Forms.CheckBox cbInTem;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
-        private System.Windows.Forms.Label lblTrangThai;
         private System.Windows.Forms.CheckBox cbInTemNVL;
     }
 }

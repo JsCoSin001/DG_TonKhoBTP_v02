@@ -1,7 +1,6 @@
 ﻿using DG_TonKhoBTP_v02.Database;
 using DG_TonKhoBTP_v02.Database.ChatLuong;
 using DG_TonKhoBTP_v02.Models;
-using DG_TonKhoBTP_v02.Printer.TemXuatHang;
 using DG_TonKhoBTP_v02.UI.Helper.AutoSearchWithCombobox;
 using DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho;
 using System;
@@ -10,7 +9,6 @@ using System.Data;
 using System.Drawing;
 using System.Globalization;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using CoreHelper = DG_TonKhoBTP_v02.Helper.Helper;
 using FontStyle = System.Drawing.FontStyle;
@@ -26,19 +24,21 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
         private long _editingIdNhapKho = 0;
 
         private long? _selectedTTThanhPhamID = null;
-        private bool _headerNhapKhoDaTonTai = false;
-
 
         private List<ThongTinCuonDay> thongTinDayNhapKho = new List<ThongTinCuonDay>();
         private bool _ttCuonDayChanged = false;
 
+        private sealed class ThongTinCuonDayGridTag
+        {
+            public long? TTCuonDayId { get; set; }
+            public long? SourceId { get; set; }
+        }
+
         public UC_NhapKhoTP()
         {
             InitializeComponent();
-            InitDanhSachNhapKhoGridColumns();
             InitMaBinSearch();
             InitGridFont();
-            InitImportExcelButton();
 
             // dataGridView1 chỉ hiển thị thông tin Cuộn/Lô.
             // Việc chỉnh sửa vẫn thực hiện qua Frm_DLCuon.
@@ -46,169 +46,6 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
 
             grvDSNhapKho.CellDoubleClick += GrvDSNhapKho_CellDoubleClick;
 
-            grvDSNhapKho.CurrentCellDirtyStateChanged += GrvDSNhapKho_CurrentCellDirtyStateChanged;
-            grvDSNhapKho.CellValueChanged += GrvDSNhapKho_CellValueChanged;
-            grvDSNhapKho.EditingControlShowing += GrvDSNhapKho_EditingControlShowing;
-        }
-
-        /// <summary>
-        /// Bảo đảm grvDSNhapKho có đầy đủ các cột mà code-behind truy cập theo tên.
-        /// Một số bản Designer hiện tại chỉ khởi tạo DataGridView nhưng không AddRange cột,
-        /// khiến Rows.Add() ném lỗi "Columns must be added first" sau khi lưu nhập kho.
-        /// Nếu Designer đã có cột thì giữ nguyên hoàn toàn.
-        /// </summary>
-        private void InitDanhSachNhapKhoGridColumns()
-        {
-            if (grvDSNhapKho == null || grvDSNhapKho.Columns.Count > 0)
-                return;
-
-            grvDSNhapKho.AllowUserToAddRows = false;
-            grvDSNhapKho.RowHeadersVisible = false;
-
-            grvDSNhapKho.Columns.AddRange(new DataGridViewColumn[]
-            {
-                new DataGridViewTextBoxColumn
-                {
-                    Name = "TTThanhPham_ID",
-                    DataPropertyName = "TTThanhPham_ID",
-                    HeaderText = "id",
-                    Visible = false
-                },
-                new DataGridViewTextBoxColumn
-                {
-                    Name = "id_NhapKho",
-                    DataPropertyName = "id_NhapKho",
-                    HeaderText = "id nhập kho",
-                    Visible = false
-                },
-                new DataGridViewTextBoxColumn
-                {
-                    Name = "ngay",
-                    DataPropertyName = "ngay",
-                    HeaderText = "Ngày",
-                    ReadOnly = true,
-                    Width = 125
-                },
-                new DataGridViewTextBoxColumn
-                {
-                    Name = "soBB",
-                    DataPropertyName = "soBB",
-                    HeaderText = "Số BB",
-                    ReadOnly = true
-                },
-                new DataGridViewTextBoxColumn
-                {
-                    Name = "nguoiLam",
-                    DataPropertyName = "nguoiLam",
-                    HeaderText = "Người làm"
-                },
-                new DataGridViewTextBoxColumn
-                {
-                    Name = "tenSP",
-                    DataPropertyName = "tenSP",
-                    HeaderText = "Chủng loại SP",
-                    ReadOnly = true,
-                    Width = 250
-                },
-                new DataGridViewTextBoxColumn
-                {
-                    Name = "maBin2",
-                    DataPropertyName = "maBin2",
-                    HeaderText = "Mã SP",
-                    ReadOnly = true,
-                    FillWeight = 150F,
-                    Width = 200
-                },
-                new DataGridViewTextBoxColumn
-                {
-                    Name = "loaiDon",
-                    DataPropertyName = "loaiDon",
-                    HeaderText = "Loại",
-                    ReadOnly = true
-                },
-                new DataGridViewTextBoxColumn
-                {
-                    Name = "soMet",
-                    DataPropertyName = "soMet",
-                    HeaderText = "Số Mét",
-                    Width = 120
-                },
-                new DataGridViewTextBoxColumn
-                {
-                    Name = "khachHang",
-                    DataPropertyName = "khachHang",
-                    HeaderText = "Khách hàng",
-                    ReadOnly = true,
-                    Width = 150
-                },
-                new DataGridViewTextBoxColumn
-                {
-                    Name = "loai",
-                    DataPropertyName = "loai",
-                    HeaderText = "Loại"
-                },
-                new DataGridViewTextBoxColumn
-                {
-                    Name = "chieuCaoLo",
-                    DataPropertyName = "chieuCaoLo",
-                    HeaderText = "Chiều cao lô",
-                    ReadOnly = true,
-                    Width = 130
-                },
-                new DataGridViewTextBoxColumn
-                {
-                    Name = "cuon",
-                    DataPropertyName = "cuon",
-                    HeaderText = "Thông tin cuộn",
-                    Width = 200
-                },
-                new DataGridViewTextBoxColumn
-                {
-                    Name = "ghiChu",
-                    DataPropertyName = "ghiChu",
-                    HeaderText = "Ghi chú",
-                    ReadOnly = true,
-                    Width = 190
-                },
-                new DataGridViewTextBoxColumn
-                {
-                    Name = "tenChiTiet",
-                    HeaderText = "Chi tiết SP",
-                    Width = 200
-                },
-                new DataGridViewTextBoxColumn
-                {
-                    Name = "duAn",
-                    HeaderText = "Tên dự án",
-                    ReadOnly = true,
-                    Width = 150
-                },
-                new DataGridViewTextBoxColumn
-                {
-                    Name = "khoiLuongCap",
-                    HeaderText = "KL cáp"
-                },
-                new DataGridViewComboBoxColumn
-                {
-                    Name = "klLo",
-                    HeaderText = "KL lô",
-                    DisplayStyle = DataGridViewComboBoxDisplayStyle.ComboBox,
-                    FlatStyle = FlatStyle.Flat,
-                    Width = 130
-                },
-                new DataGridViewTextBoxColumn
-                {
-                    Name = "klTong",
-                    HeaderText = "KL Tổng",
-                    ReadOnly = true
-                },
-                new DataGridViewTextBoxColumn
-                {
-                    Name = "tieuChuan",
-                    HeaderText = "Tiêu chuẩn",
-                    Width = 120
-                }
-            });
         }
 
 
@@ -223,6 +60,50 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
             _maBinSearchHelper.Cleared += OnMaBinCleared;
         }
 
+
+        private static void LayDuLieuTTLoChoFrm(
+            IEnumerable<ThongTinCuonDay> data,
+            out DataTable ttLoActive,
+            out DataTable ttLoReferenced)
+        {
+            // Mọi truy xuất DB phục vụ Frm_DLCuon được thực hiện tại caller.
+            ttLoActive = DatabaseHelper.LayDanhSachTTLoActive() ?? new DataTable();
+
+            List<int> referencedIds = (data ?? Enumerable.Empty<ThongTinCuonDay>())
+                .Where(x => x != null && x.TTLo_ID.HasValue && x.TTLo_ID.Value > 0)
+                .Select(x => x.TTLo_ID.Value)
+                .Distinct()
+                .ToList();
+
+            ttLoReferenced = referencedIds.Count == 0
+                ? new DataTable()
+                : (DatabaseHelper.LayDanhSachTTLoTheoIds(referencedIds) ?? new DataTable());
+        }
+
+        private static bool TryGetGridSourceId(DataGridViewRow row, out long sourceId)
+        {
+            sourceId = 0;
+            if (row == null || row.Tag == null) return false;
+
+            if (row.Tag is ThongTinCuonDayGridTag tag)
+            {
+                if (!tag.SourceId.HasValue || tag.SourceId.Value <= 0) return false;
+                sourceId = tag.SourceId.Value;
+                return true;
+            }
+
+            return long.TryParse(row.Tag.ToString(), out sourceId) && sourceId > 0;
+        }
+
+        private static long? GetGridTTCuonDayId(DataGridViewRow row)
+        {
+            if (row?.Tag is ThongTinCuonDayGridTag tag
+                && tag.TTCuonDayId.HasValue
+                && tag.TTCuonDayId.Value > 0)
+                return tag.TTCuonDayId.Value;
+
+            return null;
+        }
 
         private void LoadThongTinCuonDayTuCongDoan()
         {
@@ -278,8 +159,12 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
 
                 int rowIndex = dataGridView1.Rows.Add();
                 DataGridViewRow row = dataGridView1.Rows[rowIndex];
-                // ID nguồn là khóa dùng để chống nhập trùng; không hiển thị ra UI.
-                row.Tag = item.TTCuonDay_CD_ID;
+                // Giữ cả identity TTCuonDay và lineage TTCuonDay_CD trong Tag, không hiển thị ra UI.
+                row.Tag = new ThongTinCuonDayGridTag
+                {
+                    TTCuonDayId = item.TTCuonDay_ID,
+                    SourceId = item.TTCuonDay_CD_ID
+                };
                 row.Cells["col_Loai"].Value = loai;
                 row.Cells["col_ChieuDai"].Value = item.TongChieuDai;
                 row.Cells["col_SoLuong"].Value = item.SoCuon;
@@ -304,7 +189,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
             {
                 if (row.IsNewRow) continue;
 
-                if (row.Tag == null || !long.TryParse(row.Tag.ToString(), out long sourceId) || sourceId <= 0)
+                if (!TryGetGridSourceId(row, out long sourceId))
                 {
                     error = "Có dòng cuộn/lô không xác định được TTCuonDay_CD_ID nguồn.";
                     return false;
@@ -331,6 +216,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
 
                 result.Add(new ThongTinCuonDay
                 {
+                    TTCuonDay_ID = GetGridTTCuonDayId(row),
                     TTCuonDay_CD_ID = sourceId,
                     SoCuon = soCuon,
                     // Trong luồng nhập kho, TongChieuDai mang nghĩa chiều dài của 1 cuộn/lô.
@@ -350,24 +236,45 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
             result = new List<ThongTinCuonDay>();
             error = string.Empty;
 
-            var sourceById = (thongTinDayNhapKho ?? new List<ThongTinCuonDay>())
+            List<ThongTinCuonDay> current = thongTinDayNhapKho ?? new List<ThongTinCuonDay>();
+            var byTTCuonDayId = current
+                .Where(x => x != null && x.TTCuonDay_ID.HasValue && x.TTCuonDay_ID.Value > 0)
+                .GroupBy(x => x.TTCuonDay_ID.Value)
+                .ToDictionary(g => g.Key, g => g.First());
+
+            var bySourceId = current
                 .Where(x => x != null && x.TTCuonDay_CD_ID.HasValue && x.TTCuonDay_CD_ID.Value > 0)
                 .GroupBy(x => x.TTCuonDay_CD_ID.Value)
-                .ToDictionary(g => g.Key, g => g.First());
+                .ToDictionary(g => g.Key, g => g.ToList());
 
             foreach (DataGridViewRow row in dataGridView1.Rows)
             {
                 if (row.IsNewRow) continue;
 
-                if (row.Tag == null || !long.TryParse(row.Tag.ToString(), out long sourceId) || sourceId <= 0)
+                if (!TryGetGridSourceId(row, out long sourceId))
                 {
                     error = "Có dòng cuộn/lô không xác định được TTCuonDay_CD_ID nguồn.";
                     return false;
                 }
 
-                if (!sourceById.TryGetValue(sourceId, out ThongTinCuonDay source))
+                long? ttCuonDayId = GetGridTTCuonDayId(row);
+                ThongTinCuonDay source = null;
+
+                if (ttCuonDayId.HasValue)
                 {
-                    error = $"Không tìm thấy dữ liệu nguồn TTCuonDay_CD id={sourceId} trong danh sách hiện tại.";
+                    byTTCuonDayId.TryGetValue(ttCuonDayId.Value, out source);
+                }
+                else if (bySourceId.TryGetValue(sourceId, out List<ThongTinCuonDay> candidates)
+                    && candidates.Count == 1)
+                {
+                    source = candidates[0];
+                }
+
+                if (source == null)
+                {
+                    error = ttCuonDayId.HasValue
+                        ? $"Không tìm thấy TTCuonDay id={ttCuonDayId.Value} trong danh sách hiện tại."
+                        : $"Không xác định duy nhất dữ liệu nguồn TTCuonDay_CD id={sourceId} trong danh sách hiện tại.";
                     return false;
                 }
 
@@ -390,7 +297,9 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
 
                 result.Add(new ThongTinCuonDay
                 {
+                    TTCuonDay_ID = ttCuonDayId ?? source.TTCuonDay_ID,
                     TTCuonDay_CD_ID = sourceId,
+                    CoLichSuDownstream = source.CoLichSuDownstream,
                     TTLo_ID = source.TTLo_ID,
                     KichThuocLo = source.KichThuocLo ?? string.Empty,
                     TTLoHopLe = source.TTLoHopLe,
@@ -405,46 +314,16 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
             return true;
         }
 
-
-        private void LoadHeaderNhapKhoNeuCo()
-        {
-            _headerNhapKhoDaTonTai = false;
-            tbNguoiLam.ReadOnly = false;
-
-            if (!_selectedTTThanhPhamID.HasValue || _selectedTTThanhPhamID.Value <= 0)
-                return;
-
-            DataTable dt = NhapKho_DB.LayTTNhapKhoTPTheoTTThanhPhamId(_selectedTTThanhPhamID.Value);
-            if (dt == null || dt.Rows.Count == 0)
-                return;
-
-            DataRow header = dt.Rows[0];
-            _headerNhapKhoDaTonTai = true;
-
-            if (header["SoBB"] != DBNull.Value
-                && decimal.TryParse(header["SoBB"].ToString(), NumberStyles.Any, CultureInfo.InvariantCulture, out decimal soBB))
-            {
-                nbSoBB.Value = Math.Min(Math.Max(soBB, nbSoBB.Minimum), nbSoBB.Maximum);
-            }
-
-            rtbGhiChu.Text = header["GhiChu"] == DBNull.Value
-                ? string.Empty
-                : header["GhiChu"].ToString();
-
-            tbNguoiLam.Text = header["NguoiLam"] == DBNull.Value
-                ? string.Empty
-                : header["NguoiLam"].ToString();
-
-            // NguoiLam chỉ thuộc lần tạo header đầu tiên (quyết định 6A).
-            tbNguoiLam.ReadOnly = true;
-        }
-
         private void OnMaBinSelected(DataRowView row)
         {
             cbxMaBin.Text = row["MaBin"]?.ToString() ?? string.Empty;
             tbTenSP.Text = row["Ten"]?.ToString() ?? string.Empty;
             tbMaBin.Text = row["MaBin"]?.ToString() ?? string.Empty;
-            rtbGhiChu.Text = row["GhiChu"]?.ToString() ?? string.Empty;
+
+            // Mỗi lần btnNhapKho là một lần nhập mới độc lập.
+            // Ghi chú của lần nhập không kế thừa từ TTThanhPham hay TTNhapKhoTP cũ.
+            rtbGhiChu.Text = string.Empty;
+            tbNguoiLam.ReadOnly = false;
 
             _selectedTTThanhPhamID = long.TryParse(row["TTThanhPham_ID"]?.ToString(), out long id)
                             ? id : (long?)null;
@@ -454,7 +333,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
             else
                 nbSoMet.Value = 0;
 
-            LoadHeaderNhapKhoNeuCo();
+            // Không tải/preload TTNhapKhoTP cũ. Chỉ lấy dữ liệu cuộn/lô còn lại của MaBin.
             LoadThongTinCuonDayTuCongDoan();
 
             nbSoMet.Focus();
@@ -468,7 +347,6 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
             rtbGhiChu.Text = string.Empty;
             nbSoMet.Value = 0;
             _selectedTTThanhPhamID = null;
-            _headerNhapKhoDaTonTai = false;
             tbNguoiLam.ReadOnly = false;
             thongTinDayNhapKho = new List<ThongTinCuonDay>();
             LoadThongTinDayVaoGrid();
@@ -487,7 +365,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
             if (string.IsNullOrWhiteSpace(tbMaBin.Text)) { MarkError(tbMaBin); valid = false; }
             if (nbSoMet.Value <= 0) { MarkError(nbSoMet); valid = false; }
 
-            if (!_headerNhapKhoDaTonTai && string.IsNullOrWhiteSpace(tbNguoiLam.Text))
+            if (string.IsNullOrWhiteSpace(tbNguoiLam.Text))
             {
                 MarkError(tbNguoiLam);
                 valid = false;
@@ -594,17 +472,14 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
         private void LoadDongNhapKhoTuDb(long headerId)
         {
             DataTable dt = NhapKho_DB.LayTTNhapKhoTPTheoId(headerId);
-            if (dt == null || dt.Rows.Count == 0)
-                return;
+            if (dt == null || dt.Rows.Count == 0) return;
 
             DataRow dr = dt.Rows[0];
             DataGridViewRow target = null;
-
             foreach (DataGridViewRow row in grvDSNhapKho.Rows)
             {
                 if (row.IsNewRow) continue;
-                if (long.TryParse(row.Cells["id_NhapKho"].Value?.ToString(), out long existingId)
-                    && existingId == headerId)
+                if (long.TryParse(row.Cells["id_NhapKho"].Value?.ToString(), out long existingId) && existingId == headerId)
                 {
                     target = row;
                     break;
@@ -621,31 +496,41 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
             target.Cells["id_NhapKho"].Value = GetDbText(dr, "id_NhapKho");
             target.Cells["TTThanhPham_ID"].Value = GetDbText(dr, "TTThanhPham_ID");
             target.Cells["ngay"].Value = GetDbText(dr, "ngay");
-            target.Cells["soBB"].Value = GetDbText(dr, "soBB");
             target.Cells["nguoiLam"].Value = GetDbText(dr, "nguoiLam");
             target.Cells["tenSP"].Value = GetDbText(dr, "tenSP");
             target.Cells["soMet"].Value = GetDbText(dr, "soMet");
             target.Cells["maBin2"].Value = GetDbText(dr, "maBin2");
             target.Cells["ghiChu"].Value = GetDbText(dr, "ghiChu");
-
-            // Các cột nghiệp vụ cũ không còn được nhập ở UC mới.
-            target.Cells["loaiDon"].Value = string.Empty;
-            target.Cells["khachHang"].Value = string.Empty;
-            target.Cells["loai"].Value = string.Empty;
-            target.Cells["chieuCaoLo"].Value = string.Empty;
-            target.Cells["duAn"].Value = string.Empty;
-
-            if (long.TryParse(GetDbText(dr, "TTThanhPham_ID"), out long ttThanhPhamId)
-                && double.TryParse(GetDbText(dr, "soMet"), NumberStyles.Any, CultureInfo.InvariantCulture, out double soMet))
-            {
-                DiemCacCotBoSungVaoRow(target, ttThanhPhamId, 0, soMet);
-            }
+            target.Cells["thongSo"].Value = TaoChuoiDSCuonLo(NhapKho_DB.LayThongTinCuonDay(headerId));
 
             grvDSNhapKho.ClearSelection();
             target.Selected = true;
-            if (target.Index >= 0)
-                grvDSNhapKho.FirstDisplayedScrollingRowIndex = target.Index;
+            if (target.Index >= 0) grvDSNhapKho.FirstDisplayedScrollingRowIndex = target.Index;
         }
+
+        private static string TaoChuoiDSCuonLo(IEnumerable<ThongTinCuonDay> dsCuon)
+        {
+            if (dsCuon == null) return string.Empty;
+
+            List<string> parts = new List<string>();
+            foreach (ThongTinCuonDay item in dsCuon)
+            {
+                if (item == null) continue;
+
+                if (item.TTLo_ID.HasValue)
+                {
+                    if (!item.SoDau.HasValue || !item.soCuoi.HasValue) continue;
+                    string kichThuoc = (item.KichThuocLo ?? string.Empty).Trim();
+                    parts.Add($"L{kichThuoc}: {item.SoDau.Value} -> {item.soCuoi.Value}");
+                }
+                else
+                {
+                    parts.Add($"{item.SoCuon}C x {item.TongChieuDai}");
+                }
+            }
+            return string.Join(" + ", parts);
+        }
+
 
         private void btnDelete_Click(object sender, EventArgs e)
         {
@@ -656,41 +541,38 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
                 return;
             }
 
-            // Kiểm tra có dòng đang được chọn không
+            // 1 row grvDSNhapKho = 1 TTNhapKhoTP.
+            // Xoá là xoá cả lần nhập cùng các TTCuonDay trực thuộc.
             if (_editingRowIndex < 0 || _editingIdNhapKho <= 0)
             {
                 FrmWaiting.ShowGifAlert("Vui lòng chọn dòng cần xoá.");
                 return;
             }
 
-            DataGridViewRow row = grvDSNhapKho.Rows[_editingRowIndex];
-
-            long ttThanhPhamId = long.TryParse(row.Cells["TTThanhPham_ID"].Value?.ToString(), out long tpId)
-                ? tpId : 0;
-
-            double soMet = double.TryParse(
-                row.Cells["soMet"].Value?.ToString(),
-                System.Globalization.NumberStyles.Any,
-                System.Globalization.CultureInfo.InvariantCulture,
-                out double met) ? met : 0;
-
-            if (ttThanhPhamId <= 0)
+            if (MessageBox.Show(
+                    "Bạn có chắc chắn muốn xoá lần nhập kho này?",
+                    "Xác nhận xoá",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Warning) != DialogResult.Yes)
             {
-                FrmWaiting.ShowGifAlert("Dòng này không có dữ liệu hợp lệ để xoá.");
                 return;
             }
 
-            if (MessageBox.Show("Bạn có chắc chắn muốn xoá dòng này?",
-                    "Xác nhận xoá", MessageBoxButtons.YesNo,
-                    MessageBoxIcon.Warning) == DialogResult.No) return;
-
-
             try
             {
-                NhapKho_DB.XoaMotDong(_editingIdNhapKho, ttThanhPhamId, soMet);
+                // DB layer tự đọc lại dữ liệu hiện tại, kiểm tra downstream và thực hiện transaction.
+                // Không dùng các snapshot TTThanhPham_ID / soMet trên UI để quyết định xoá.
+                NhapKho_DB.XoaMotDong(_editingIdNhapKho);
 
+                // Chỉ cập nhật UI sau khi transaction DB đã COMMIT thành công.
                 grvDSNhapKho.Rows.RemoveAt(_editingRowIndex);
                 ResetForm();
+            }
+            catch (InvalidOperationException ex)
+            {
+                // Bao gồm rule nghiệp vụ:
+                // "Không thể xoá do đã có lịch sử cắt dây/xuất kho."
+                FrmWaiting.ShowGifAlert(ex.Message);
             }
             catch (Exception ex)
             {
@@ -790,208 +672,83 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
         private void WriteRowFromForm(DataGridViewRow row)
         {
             row.Cells["ngay"].Value = dtNgay.Value.ToString("dd/MM/yyyy");
-            row.Cells["soBB"].Value = nbSoBB.Value > 0 ? nbSoBB.Value.ToString() : string.Empty;
             row.Cells["nguoiLam"].Value = tbNguoiLam.Text.Trim();
             row.Cells["TTThanhPham_ID"].Value = _selectedTTThanhPhamID?.ToString() ?? string.Empty;
             row.Cells["tenSP"].Value = tbTenSP.Text.Trim();
             row.Cells["maBin2"].Value = tbMaBin.Text.Trim();
-            row.Cells["soMet"].Value = nbSoMet.Value.ToString(System.Globalization.CultureInfo.InvariantCulture);
-
-            // Các trường này không còn thuộc UI nhập kho ở schema mới.
-            row.Cells["loaiDon"].Value = string.Empty;
-            row.Cells["khachHang"].Value = string.Empty;
-            row.Cells["loai"].Value = string.Empty;
-            row.Cells["chieuCaoLo"].Value = string.Empty;
+            row.Cells["soMet"].Value = nbSoMet.Value.ToString(CultureInfo.InvariantCulture);
             row.Cells["ghiChu"].Value = rtbGhiChu.Text.Trim();
-            row.Cells["duAn"].Value = string.Empty;
+            row.Cells["thongSo"].Value = TaoChuoiDSCuonLo(thongTinDayNhapKho);
         }
+
 
         private void ThemDongVaoGrid(long idNhapKho, NhapKho_Model model)
         {
             int rowIndex = grvDSNhapKho.Rows.Add();
             DataGridViewRow row = grvDSNhapKho.Rows[rowIndex];
             row.Height = 35;
-
-            // Ghi id trước để WriteRowFromForm không vô tình xóa mất
             row.Cells["id_NhapKho"].Value = idNhapKho.ToString();
-            //row.Cells["cuon"].Value = LayGiaTriCuonTuThongTinDay(tbxThongTinDay.Text);
-            row.Cells["soMet"].Value = model.SoMet;
-
             WriteRowFromForm(row);
-
-            // ── Điền các cột bổ sung: TTBoSung + TTLo ──────────────────────────
-            DiemCacCotBoSungVaoRow(row, model.TTThanhPham_ID, model.ChieuCaoLo, model.SoMet);
-
             grvDSNhapKho.FirstDisplayedScrollingRowIndex = grvDSNhapKho.RowCount - 1;
         }
 
-        /// <summary>
-        /// Query TTBoSung + TTLo rồi điền vào các cột:
-        /// tenChiTiet, tieuChuan, khoiLuongCap, klLo (ComboBox), klTong.
-        /// </summary>
-        private void DiemCacCotBoSungVaoRow(DataGridViewRow row, long ttThanhPhamId, double chieuCaoLo, double soMet)
-        {
-            try
-            {
-                var info = NhapKho_DB.LayThongTinBoSungVaLo(ttThanhPhamId, chieuCaoLo);
-
-                bool heSoTBang0 = info.HeSoT == 0;
-                double khoiLuongCap = heSoTBang0 ? 0 : soMet * info.HeSoT;
-
-                row.Cells["tenChiTiet"].Value = info.TenChiTiet;
-                row.Cells["tieuChuan"].Value = info.TieuChuan;
-                row.Cells["khoiLuongCap"].Value = khoiLuongCap.ToString("G6", System.Globalization.CultureInfo.InvariantCulture);
-
-                if (heSoTBang0)
-                    DanhDauHeSoTBang0(row, hienThongBao: true);
-                else
-                    XoaDanhDauHeSoTBang0(row);
-
-                // ── Xây dựng ComboBox klLo ────────────────────────────────────
-                var cbCell = row.Cells["klLo"] as DataGridViewComboBoxCell;
-                if (cbCell != null)
-                {
-                    cbCell.Items.Clear();
-
-                    double klDefault = 0;
-
-                    if (info.KlKhoiLuong.HasValue)
-                    {
-                        string itemKL = info.KlKhoiLuong.Value.ToString("G6", System.Globalization.CultureInfo.InvariantCulture);
-                        cbCell.Items.Add(itemKL);
-                        klDefault = info.KlKhoiLuong.Value;
-                    }
-
-                    if (info.KlKhoiLuongCaNanPhu.HasValue)
-                    {
-                        string itemCNP = info.KlKhoiLuongCaNanPhu.Value.ToString("G6", System.Globalization.CultureInfo.InvariantCulture);
-                        cbCell.Items.Add(itemCNP);
-                    }
-
-                    // Giá trị mặc định = KhoiLuong
-                    if (cbCell.Items.Count > 0)
-                        cbCell.Value = cbCell.Items[0];
-
-                    // Nếu HeSoT = 0 thì KL Tổng đặt là 0 theo yêu cầu.
-                    double klTong = heSoTBang0 ? 0 : khoiLuongCap + klDefault;
-                    row.Cells["klTong"].Value = klTong.ToString("G6", System.Globalization.CultureInfo.InvariantCulture);
-                }
-                else
-                {
-                    row.Cells["klTong"].Value = heSoTBang0
-                        ? "0"
-                        : khoiLuongCap.ToString("G6", System.Globalization.CultureInfo.InvariantCulture);
-                }
-            }
-            catch (Exception ex)
-            {
-                // Không để lỗi phụ làm hỏng luồng nhập kho chính
-                System.Diagnostics.Debug.WriteLine($"[DiemCacCotBoSungVaoRow] {ex.Message}");
-            }
-        }
 
 
         private void GrvDSNhapKho_RowClick(object sender, DataGridViewCellEventArgs e)
         {
-            if (e.RowIndex < 0) return;
-            if (e.ColumnIndex < 0) return;
+            if (e.RowIndex < 0 || e.ColumnIndex < 0) return;
 
             DataGridViewRow row = grvDSNhapKho.Rows[e.RowIndex];
+            _editingIdNhapKho = long.TryParse(row.Cells["id_NhapKho"].Value?.ToString(), out long nkId) ? nkId : 0;
+            if (_editingIdNhapKho <= 0) return;
 
-            _editingIdNhapKho = long.TryParse(
-                row.Cells["id_NhapKho"].Value?.ToString(),
-                out long nkId)
-                ? nkId
-                : 0;
+            DataTable dt = NhapKho_DB.LayTTNhapKhoTPTheoId(_editingIdNhapKho);
+            if (dt == null || dt.Rows.Count == 0) return;
+            DataRow header = dt.Rows[0];
 
-            _selectedTTThanhPhamID = long.TryParse(
-                row.Cells["TTThanhPham_ID"].Value?.ToString(),
-                out long tpId)
-                ? tpId
-                : (long?)null;
+            _selectedTTThanhPhamID = long.TryParse(GetDbText(header, "TTThanhPham_ID"), out long tpId) ? tpId : (long?)null;
 
-            string ngayText = row.Cells["ngay"].Value?.ToString() ?? string.Empty;
-
-            string[] dateFormats =
-            {
-                "dd/MM/yyyy", "d/M/yyyy",
-                "yyyy-MM-dd",
-                "dd-MM-yyyy", "d-M-yyyy"
-            };
-
-            if (DateTime.TryParseExact(
-                    ngayText,
-                    dateFormats,
-                    System.Globalization.CultureInfo.InvariantCulture,
-                    System.Globalization.DateTimeStyles.None,
-                    out DateTime ngayVal))
-            {
+            string ngayText = GetDbText(header, "ngay");
+            string[] dateFormats = { "dd/MM/yyyy", "d/M/yyyy", "yyyy-MM-dd", "dd-MM-yyyy", "d-M-yyyy" };
+            if (DateTime.TryParseExact(ngayText, dateFormats, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime ngayVal)
+                || DateTime.TryParse(ngayText, out ngayVal))
                 dtNgay.Value = ngayVal;
-            }
-            else if (DateTime.TryParse(ngayText, out ngayVal))
-            {
-                dtNgay.Value = ngayVal;
-            }
 
-            if (decimal.TryParse(
-                    row.Cells["soBB"].Value?.ToString(),
-                    System.Globalization.NumberStyles.Any,
-                    System.Globalization.CultureInfo.InvariantCulture,
-                    out decimal soBBVal))
-            {
+            if (decimal.TryParse(GetDbText(header, "soBB"), NumberStyles.Any, CultureInfo.InvariantCulture, out decimal soBBVal))
                 nbSoBB.Value = Math.Min(Math.Max(soBBVal, nbSoBB.Minimum), nbSoBB.Maximum);
-            }
             else
-            {
                 nbSoBB.Value = 0;
-            }
 
-            cbxMaBin.Text = row.Cells["maBin2"].Value?.ToString() ?? string.Empty;
-            tbNguoiLam.Text = row.Cells["nguoiLam"].Value?.ToString() ?? string.Empty;
-            tbTenSP.Text = row.Cells["tenSP"].Value?.ToString() ?? string.Empty;
-            tbMaBin.Text = row.Cells["maBin2"].Value?.ToString() ?? string.Empty;
+            tbNguoiLam.Text = GetDbText(header, "nguoiLam");
+            tbTenSP.Text = GetDbText(header, "tenSP");
+            tbMaBin.Text = GetDbText(header, "maBin2");
 
-            if (decimal.TryParse(
-                row.Cells["soMet"].Value?.ToString(),
-                System.Globalization.NumberStyles.Any,
-                System.Globalization.CultureInfo.InvariantCulture,
-                out decimal soMetVal))
-            {
+            if (decimal.TryParse(GetDbText(header, "soMet"), NumberStyles.Any, CultureInfo.InvariantCulture, out decimal soMetVal))
                 nbSoMet.Value = Math.Min(Math.Max(soMetVal, nbSoMet.Minimum), nbSoMet.Maximum);
-            }
             else
-            {
                 nbSoMet.Value = 0;
-            }
+
+            rtbGhiChu.Text = GetDbText(header, "ghiChu");
 
             try
             {
-                thongTinDayNhapKho = _editingIdNhapKho > 0
-                    ? NhapKho_DB.LayThongTinCuonDay(_editingIdNhapKho)
-                    : new List<ThongTinCuonDay>();
-
-                //tbxThongTinDay.Text = thongTinDayNhapKho.Count > 0
-                //    ? CoreHelper.TaoChuoiThongTinCuonDay(thongTinDayNhapKho)
-                //    : string.Empty;
-
+                thongTinDayNhapKho = NhapKho_DB.LayThongTinCuonDay(_editingIdNhapKho);
+                LoadThongTinDayVaoGrid();
                 _ttCuonDayChanged = false;
             }
             catch (Exception ex)
             {
                 thongTinDayNhapKho = new List<ThongTinCuonDay>();
-                //tbxThongTinDay.Text = string.Empty;
+                LoadThongTinDayVaoGrid();
                 _ttCuonDayChanged = false;
-
                 FrmWaiting.ShowGifAlert($"Lỗi khi tải thông tin cuộn/dây:\n{ex.Message}");
-
             }
-
-            rtbGhiChu.Text = row.Cells["ghiChu"].Value?.ToString() ?? string.Empty;
 
             _editingRowIndex = e.RowIndex;
             SetEditMode(true);
             ResetValidationColors();
         }
+
 
         private void tbTimKiem_KeyDown(object sender, KeyEventArgs e)
         {
@@ -1030,141 +787,32 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
 
         private void LoadNhapKhoVaoGrid(DataTable dt)
         {
-            if (grvDSNhapKho.DataSource != null)
-                grvDSNhapKho.DataSource = null;
-
+            if (grvDSNhapKho.DataSource != null) grvDSNhapKho.DataSource = null;
             grvDSNhapKho.Rows.Clear();
 
-            Dictionary<string, List<DataRow>> groups = new Dictionary<string, List<DataRow>>();
-            List<string> orderKeys = new List<string>();
-            int heSoT0Count = 0;
-
+            HashSet<long> daThem = new HashSet<long>();
             foreach (DataRow dr in dt.Rows)
             {
-                string key = GetDbText(dr, "id_NhapKho");
-
-                if (!groups.TryGetValue(key, out List<DataRow> rows))
-                {
-                    rows = new List<DataRow>();
-                    groups[key] = rows;
-                    orderKeys.Add(key);
-                }
-
-                rows.Add(dr);
-            }
-
-            foreach (string key in orderKeys)
-            {
-                List<DataRow> rows = groups[key];
-                if (rows.Count == 0) continue;
-
-                DataRow first = rows[0];
-
-                string loai = GetDbText(first, "loai");
-                bool isCuon = loai == "Cuộn";
-                decimal chieuCaoLo = ParseDbDecimal(first, "chieuCaoLo");
-
-                List<ThongTinCuonDay> dsCuon = BuildThongTinCuonDay(rows);
-
-                string thongTinDay = dsCuon.Count > 0
-                    ? CoreHelper.TaoChuoiThongTinCuonDay(dsCuon, isCuon, chieuCaoLo)
-                    : GetDbText(first, "cuonCu");
+                if (!long.TryParse(GetDbText(dr, "id_NhapKho"), out long idNhapKho) || !daThem.Add(idNhapKho))
+                    continue;
 
                 int rowIndex = grvDSNhapKho.Rows.Add();
                 DataGridViewRow row = grvDSNhapKho.Rows[rowIndex];
                 row.Height = 35;
-
-                row.Cells["id_NhapKho"].Value = GetDbText(first, "id_NhapKho");
-                row.Cells["TTThanhPham_ID"].Value = GetDbText(first, "TTThanhPham_ID");
-                row.Cells["ngay"].Value = GetDbText(first, "ngay");
-                row.Cells["soBB"].Value = GetDbText(first, "soBB");
-                row.Cells["NguoiLam"].Value = GetDbText(first, "nguoiLam");
-                row.Cells["tenSP"].Value = GetDbText(first, "tenSP");
-                row.Cells["soMet"].Value = GetDbText(first, "soMet");
-                row.Cells["maBin2"].Value = GetDbText(first, "maBin2");
-                row.Cells["loaiDon"].Value = GetDbText(first, "loaiDon");
-                row.Cells["khachHang"].Value = GetDbText(first, "khachHang");
-                row.Cells["loai"].Value = loai;
-                row.Cells["chieuCaoLo"].Value = GetDbNumberText(first, "chieuCaoLo");
-                row.Cells["cuon"].Value = LayGiaTriCuonTuThongTinDay(thongTinDay);
-                row.Cells["ghiChu"].Value = GetDbText(first, "ghiChu");
-                row.Cells["duAn"].Value = GetDbText(first, "tenDuAn");
-
-                // ── Điền cột TTBoSung + TTLo (đã JOIN sẵn trong query) ──────────
-                double soMetRow = ParseDbDecimal(first, "soMet") == 0 ? 0 : (double)ParseDbDecimal(first, "soMet");
-                double heSoT = 0;
-                bool coGiaTriHeSoT = first.Table.Columns.Contains("heSoT") && first["heSoT"] != DBNull.Value;
-                if (coGiaTriHeSoT)
-                    double.TryParse(first["heSoT"].ToString(),
-                        System.Globalization.NumberStyles.Any,
-                        System.Globalization.CultureInfo.InvariantCulture, out heSoT);
-
-                bool heSoTBang0 = coGiaTriHeSoT && heSoT == 0;
-                double khoiLuongCap = heSoTBang0 ? 0 : soMetRow * heSoT;
-
-                row.Cells["tenChiTiet"].Value = GetDbText(first, "tenChiTiet");
-                row.Cells["tieuChuan"].Value = GetDbText(first, "tieuChuan");
-                row.Cells["khoiLuongCap"].Value = khoiLuongCap.ToString("G6", System.Globalization.CultureInfo.InvariantCulture);
-
-                if (heSoTBang0)
-                {
-                    DanhDauHeSoTBang0(row, hienThongBao: false);
-                    heSoT0Count++;
-                }
-                else
-                {
-                    XoaDanhDauHeSoTBang0(row);
-                }
-
-                // ComboBox klLo
-                var cbCell = row.Cells["klLo"] as DataGridViewComboBoxCell;
-                if (cbCell != null)
-                {
-                    cbCell.Items.Clear();
-                    double klDefault = 0;
-
-                    if (first.Table.Columns.Contains("klLoKhoiLuong") && first["klLoKhoiLuong"] != DBNull.Value)
-                    {
-                        double.TryParse(first["klLoKhoiLuong"].ToString(),
-                            System.Globalization.NumberStyles.Any,
-                            System.Globalization.CultureInfo.InvariantCulture, out double klKL);
-                        string itemKL = klKL.ToString("G6", System.Globalization.CultureInfo.InvariantCulture);
-                        cbCell.Items.Add(itemKL);
-                        klDefault = klKL;
-                    }
-
-                    if (first.Table.Columns.Contains("klLoKhoiLuongCaNanPhu") && first["klLoKhoiLuongCaNanPhu"] != DBNull.Value)
-                    {
-                        double.TryParse(first["klLoKhoiLuongCaNanPhu"].ToString(),
-                            System.Globalization.NumberStyles.Any,
-                            System.Globalization.CultureInfo.InvariantCulture, out double klCNP);
-                        cbCell.Items.Add(klCNP.ToString("G6", System.Globalization.CultureInfo.InvariantCulture));
-                    }
-
-                    if (cbCell.Items.Count > 0)
-                        cbCell.Value = cbCell.Items[0];
-
-                    row.Cells["klTong"].Value = (heSoTBang0 ? 0 : khoiLuongCap + klDefault).ToString(
-                        "G6", System.Globalization.CultureInfo.InvariantCulture);
-                }
-                else
-                {
-                    row.Cells["klTong"].Value = heSoTBang0
-                        ? "0"
-                        : khoiLuongCap.ToString("G6", System.Globalization.CultureInfo.InvariantCulture);
-                }
-
-            }
-
-            if (heSoT0Count > 0)
-            {
-                FrmWaiting.ShowGifAlert($"Có {heSoT0Count} dòng có hệ số T = 0. Đã tô vàng ô KL cáp và đặt KL Tổng = 0.");
+                row.Cells["id_NhapKho"].Value = idNhapKho;
+                row.Cells["TTThanhPham_ID"].Value = GetDbText(dr, "TTThanhPham_ID");
+                row.Cells["ngay"].Value = GetDbText(dr, "ngay");
+                row.Cells["nguoiLam"].Value = GetDbText(dr, "nguoiLam");
+                row.Cells["tenSP"].Value = GetDbText(dr, "tenSP");
+                row.Cells["soMet"].Value = GetDbText(dr, "soMet");
+                row.Cells["maBin2"].Value = GetDbText(dr, "maBin2");
+                row.Cells["ghiChu"].Value = GetDbText(dr, "ghiChu");
+                row.Cells["thongSo"].Value = TaoChuoiDSCuonLo(NhapKho_DB.LayThongTinCuonDay(idNhapKho));
             }
 
             _editingRowIndex = -1;
             _editingIdNhapKho = 0;
             SetEditMode(false);
-
             if (grvDSNhapKho.Rows.Count > 0)
             {
                 grvDSNhapKho.ClearSelection();
@@ -1173,19 +821,18 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
             }
         }
 
+
         private void SetEditMode(bool editMode)
         {
             btnSua.Enabled = editMode;
             btnDelete.Enabled = editMode;
             btnNhapKho.Enabled = !editMode;
-            SetImportExcelButtonEnabled(!editMode);
         }
 
         private void ResetForm(bool resetAll = false)
         {
             _maBinSearchHelper.Reset();
             _selectedTTThanhPhamID = null;
-            _headerNhapKhoDaTonTai = false;
             _editingIdNhapKho = 0;
             tbNguoiLam.ReadOnly = false;
 
@@ -1249,142 +896,51 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
             grvDSNhapKho.ColumnHeadersHeight = 38;
             grvDSNhapKho.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
 
-            if (grvDSNhapKho.Columns.Contains("tenChiTiet"))
-                grvDSNhapKho.Columns["tenChiTiet"].DefaultCellStyle.WrapMode = DataGridViewTriState.True;
         }
 
-        private void GrvDSNhapKho_CurrentCellDirtyStateChanged(object sender, EventArgs e)
-        {
-            // Commit ngay khi người dùng chọn item trong ComboBox
-            if (grvDSNhapKho.IsCurrentCellDirty &&
-                grvDSNhapKho.CurrentCell?.OwningColumn?.Name == "klLo")
-            {
-                grvDSNhapKho.CommitEdit(DataGridViewDataErrorContexts.Commit);
-            }
-        }
-
-        private void GrvDSNhapKho_CellValueChanged(object sender, DataGridViewCellEventArgs e)
-        {
-            if (e.RowIndex < 0 || e.ColumnIndex < 0) return;
-
-            string columnName = grvDSNhapKho.Columns[e.ColumnIndex]?.Name;
-            if (columnName != "klLo" && columnName != "khoiLuongCap") return;
-
-            TinhLaiKlTong(grvDSNhapKho.Rows[e.RowIndex]);
-        }
-
-        private void TinhLaiKlTong(DataGridViewRow row)
-        {
-            if (row == null || row.IsNewRow) return;
-
-            string klLoText = row.Cells["klLo"].Value?.ToString() ?? "0";
-            string klCapText = row.Cells["khoiLuongCap"].Value?.ToString() ?? "0";
-
-            double klLo = ParseDoubleOrZero(klLoText);
-            double klCap = ParseDoubleOrZero(klCapText);
-
-            row.Cells["klTong"].Value = (klCap + klLo).ToString(
-                "G6", System.Globalization.CultureInfo.InvariantCulture);
-        }
-
-        private static double ParseDoubleOrZero(string text)
-        {
-            if (string.IsNullOrWhiteSpace(text)) return 0;
-
-            return double.TryParse(text, System.Globalization.NumberStyles.Any,
-                       System.Globalization.CultureInfo.InvariantCulture, out double value)
-                   || double.TryParse(text, System.Globalization.NumberStyles.Any,
-                       System.Globalization.CultureInfo.CurrentCulture, out value)
-                ? value
-                : 0;
-        }
-
-        private void GrvDSNhapKho_EditingControlShowing(object sender, DataGridViewEditingControlShowingEventArgs e)
-        {
-            if (e.Control is TextBox tb)
-            {
-                tb.KeyDown -= TenChiTietEditingTextBox_KeyDown;
-                tb.Multiline = false;
-                tb.AcceptsReturn = false;
-                tb.WordWrap = false;
-
-                string columnName = grvDSNhapKho.CurrentCell?.OwningColumn?.Name;
-                if (columnName == "tenChiTiet")
-                {
-                    tb.Multiline = true;
-                    tb.AcceptsReturn = true;
-                    tb.WordWrap = true;
-                    tb.KeyDown += TenChiTietEditingTextBox_KeyDown;
-                }
-            }
-        }
-
-        private void TenChiTietEditingTextBox_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode != Keys.Enter || !e.Shift) return;
-
-            if (sender is TextBox tb)
-            {
-                tb.SelectedText = Environment.NewLine;
-                e.SuppressKeyPress = true;
-                e.Handled = true;
-            }
-        }
-
-        private static string LayGiaTriCuonTuThongTinDay(string thongTinDay)
-        {
-            if (string.IsNullOrWhiteSpace(thongTinDay)) return string.Empty;
-
-            Match match = Regex.Match(thongTinDay, @"\(([^()\s]+-[^()\s]+)\)");
-            return match.Success ? match.Groups[1].Value.Trim() : string.Empty;
-        }
-
-        private static void DanhDauHeSoTBang0(DataGridViewRow row, bool hienThongBao)
-        {
-            if (row?.DataGridView == null || !row.DataGridView.Columns.Contains("khoiLuongCap")) return;
-
-            DataGridViewCell cell = row.Cells["khoiLuongCap"];
-            cell.Style.BackColor = Color.Yellow;
-
-            if (hienThongBao)
-                FrmWaiting.ShowGifAlert("Hệ số T = 0. Đã tô vàng ô KL cáp và đặt KL Tổng = 0.");
-        }
-
-        private static void XoaDanhDauHeSoTBang0(DataGridViewRow row)
-        {
-            if (row?.DataGridView == null || !row.DataGridView.Columns.Contains("khoiLuongCap")) return;
-
-            DataGridViewCell cell = row.Cells["khoiLuongCap"];
-            cell.Style.BackColor = Color.Empty;
-        }
 
         private void XuLyTTCuonCheDoSuaPhieuCu()
         {
             try
             {
-                List<ThongTinCuonDay> duLieuNguon =
-                    DatabaseHelper.LayTTCuonDayCDTheoTTThanhPhamId(_selectedTTThanhPhamID.Value)
-                    ?? new List<ThongTinCuonDay>();
+                // Luồng D lấy đúng working-state hiện tại từ dataGridView1.
+                // Không đọc lại TTCuonDay_CD và không ghi DB khi đóng Frm_DLCuon.
+                if (!TryLayThongTinCuonDayHienTaiTuGrid(
+                    out List<ThongTinCuonDay> duLieuHienTai,
+                    out string gridError))
+                {
+                    FrmWaiting.ShowGifAlert(gridError);
+                    return;
+                }
 
-                using (Frm_DLCuon frm = new Frm_DLCuon(thongTinCuonHienTai: duLieuNguon))
+                if (duLieuHienTai.Count == 0)
+                {
+                    FrmWaiting.ShowGifAlert("Không có cuộn/lô để chỉnh sửa.");
+                    return;
+                }
+
+                LayDuLieuTTLoChoFrm(duLieuHienTai, out DataTable ttLoActive, out DataTable ttLoReferenced);
+
+                using (Frm_DLCuon frm = new Frm_DLCuon(
+                    duLieuHienTai,
+                    FrmDLCuonMode.NhapKhoEdit,
+                    null,
+                    false,
+                    ttLoActive,
+                    ttLoReferenced))
                 {
                     if (frm.ShowDialog() != DialogResult.OK)
                         return;
 
-                    List<ThongTinCuonDay> duLieuMoi =
-                        frm.ThongTinCuon ?? new List<ThongTinCuonDay>();
-
-                    NhapKho_DB.CapNhatTTCuonDayCDTheoTTThanhPhamId(
-                        _selectedTTThanhPhamID.Value,
-                        duLieuMoi);
-
-                    LoadThongTinCuonDayTuCongDoan();
+                    // Frm_DLCuon chỉ trả trạng thái cuối. DB chỉ được cập nhật khi người dùng bấm btnSua.
+                    thongTinDayNhapKho = frm.ThongTinCuon ?? new List<ThongTinCuonDay>();
+                    LoadThongTinDayVaoGrid();
                     _ttCuonDayChanged = true;
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Lỗi khi cập nhật thông tin cuộn/lô:\n{ex.Message}",
+                MessageBox.Show($"Lỗi khi chỉnh sửa thông tin cuộn/lô:\n{ex.Message}",
                     "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -1397,8 +953,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
                 return;
             }
 
-            // Luồng sửa phiếu cũ (double-click grvDSNhapKho) chưa nằm trong thay đổi lần này.
-            // Giữ nguyên hành vi cũ để không tác động nghiệp vụ ngoài phạm vi đã chốt.
+            // Luồng D: sửa phiếu cũ dùng mode NhapKhoEdit riêng; không tác động các luồng tạo mới.
             if (_editingIdNhapKho > 0)
             {
                 XuLyTTCuonCheDoSuaPhieuCu();
@@ -1445,10 +1000,15 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
                     return;
                 }
 
+                LayDuLieuTTLoChoFrm(duLieuHienTai, out DataTable ttLoActive, out DataTable ttLoReferenced);
+
                 using (Frm_DLCuon frm = new Frm_DLCuon(
                     duLieuHienTai,
                     FrmDLCuonMode.NhapKho,
-                    soCuonToiDaTheoNguon))
+                    soCuonToiDaTheoNguon,
+                    false,
+                    ttLoActive,
+                    ttLoReferenced))
                 {
                     if (frm.ShowDialog() != DialogResult.OK)
                         return;
@@ -1473,52 +1033,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
             return row[columnName]?.ToString() ?? string.Empty;
         }
 
-        private static string GetDbNumberText(DataRow row, string columnName)
-        {
-            if (!row.Table.Columns.Contains(columnName)) return string.Empty;
-            if (row[columnName] == DBNull.Value) return string.Empty;
-
-            try
-            {
-                decimal value = Convert.ToDecimal(row[columnName],
-                    System.Globalization.CultureInfo.InvariantCulture);
-                return value.ToString("G", System.Globalization.CultureInfo.InvariantCulture);
-            }
-            catch
-            {
-                return row[columnName]?.ToString() ?? string.Empty;
-            }
-        }
-
-        private static List<ThongTinCuonDay> BuildThongTinCuonDay(List<DataRow> rows)
-        {
-            List<ThongTinCuonDay> result = new List<ThongTinCuonDay>();
-
-            foreach (DataRow row in rows)
-            {
-                string tongChieuDaiText = GetDbText(row, "ct_TongChieuDai");
-
-                // Không có dòng chi tiết TTCuonDay.
-                if (string.IsNullOrWhiteSpace(tongChieuDaiText))
-                    continue;
-
-                result.Add(new ThongTinCuonDay
-                {
-                    TTCuonDay_CD_ID = ParseDbLongNullable(row, "ct_TTCuonDay_CD_ID"),
-                    TTLo_ID = ParseDbIntNullable(row, "ct_TTLo_ID"),
-                    KichThuocLo = GetDbText(row, "ct_KichThuocLo"),
-                    TTLoHopLe = !ParseDbIntNullable(row, "ct_TTLo_ID").HasValue
-                        || !string.IsNullOrWhiteSpace(GetDbText(row, "ct_KichThuocLo")),
-                    SoCuon = ParseDbInt(row, "ct_SoCuon"),
-                    TongChieuDai = ParseDbInt(row, "ct_TongChieuDai"),
-                    SoDau = ParseDbIntNullable(row, "ct_SoDau"),
-                    soCuoi = ParseDbIntNullable(row, "ct_soCuoi"),
-                    Ghichu = GetDbText(row, "ct_GhiChu")
-                });
-            }
-
-            return result;
-        }
+        
 
         private static int? ParseDbIntNullable(DataRow row, string columnName)
         {
@@ -1563,74 +1078,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
         }
 
 
-
-        // ── Cấu hình cố định (khai báo 1 lần, dùng lại) ─────────────────────
-        // Đường dẫn ảnh: thay bằng đường dẫn thực tế trong project của bạn
-        private static readonly LabelPrintConfig _printConfig = LabelPrintConfig.CreateDefault(
-            logoSmallPath: @"Assets\Tem\Goldcup-logo.png",
-            certLogoPath: @"Assets\Tem\Certificate.png",
-            kcsLogoPath: @"Assets\Tem\kcs.png",
-            publishedDate: "Ban hành: 13/12/2025"
-        );
-
-        private void btnXemDL_Click(object sender, EventArgs e)
-        {
-            grvDSNhapKho.EndEdit();
-
-            var labels = GetLabelsFromGrid();
-
-            if (labels.Count == 0)
-            {
-                MessageBox.Show("Không có dữ liệu để in tem.",
-                    "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
-
-            using (var svc = new LabelPrintService())
-            {
-                _printConfig.ShowPreview = true;
-                svc.Print(labels, _printConfig, ownerForm: this.FindForm());
-            }
-        }
-
-        // ── Lấy danh sách LabelData từ DataGridView (ví dụ thực tế hơn) ─────
-        private List<LabelData> GetLabelsFromGrid()
-        {
-            var labels = new List<LabelData>();
-
-            foreach (DataGridViewRow row in grvDSNhapKho.Rows)
-            {
-                if (row.IsNewRow) continue;
-
-                labels.Add(new LabelData
-                {
-                    ProductType = GetCellText(row, "tenChiTiet"),
-                    ProductCode = GetCellText(row, "maBin2"),
-                    Length = GetCellText(row, "soMet") + " m",
-                    LengthRange = GetCellText(row, "cuon"),
-                    CableWeight = GetCellText(row, "khoiLuongCap") + " kg",
-                    TotalWeight = GetCellText(row, "klTong") + " kg"    ,
-                    InspectionDate = GetCellText(row, "ngay"),
-                    Inspector = GetCellText(row, "nguoiLam"),
-                    QualityResult = "Đạt",
-                    Standard = GetCellText(row, "tieuChuan"),
-                    Project = GetCellText(row, "duAn")
-                });
-            }
-
-            return labels;
-        }
-
-        private string GetCellText(DataGridViewRow row, string columnName)
-        {
-            if (row == null) return string.Empty;
-            if (row.DataGridView == null) return string.Empty;
-            if (!row.DataGridView.Columns.Contains(columnName)) return string.Empty;
-
-            return row.Cells[columnName].Value?.ToString()?.Trim() ?? string.Empty;
-        }
-
-        private void btnSetLoLe_Click(object sender, EventArgs e)
+        private void btnImportExcel_Click(object sender, EventArgs e)
         {
 
         }

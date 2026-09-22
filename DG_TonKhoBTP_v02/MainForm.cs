@@ -1700,7 +1700,7 @@ namespace DG_TonKhoBTP_v02
 
                     pnShow.Controls.Clear();
 
-                    var uc = new UC_XuatKhoTP
+                    var uc = new UC_CatDay
                     {
                         Dock = DockStyle.Fill
                     };

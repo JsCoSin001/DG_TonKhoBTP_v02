@@ -362,6 +362,91 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
         }
 
 
+        private sealed class TTCuonDayEditState
+        {
+            public long Id { get; set; }
+            public long? SourceId { get; set; }
+            public int SoCuon { get; set; }
+            public int ChieuDai1Cuon { get; set; }
+            public int? SoDau { get; set; }
+            public int? SoCuoi { get; set; }
+            public int? TTLoId { get; set; }
+            public string GhiChu { get; set; } = string.Empty;
+            public bool CoLichSuCatDay { get; set; }
+            public bool CoTTXuatKho { get; set; }
+            public bool CoLichSuDownstream => CoLichSuCatDay || CoTTXuatKho;
+        }
+
+        private static bool TableExists(SQLiteConnection conn, SQLiteTransaction tran, string tableName)
+        {
+            using var cmd = new SQLiteCommand(@"
+                SELECT 1
+                FROM sqlite_master
+                WHERE type='table' AND name=@name
+                LIMIT 1;", conn, tran);
+            cmd.Parameters.AddWithValue("@name", tableName);
+            object value = cmd.ExecuteScalar();
+            return value != null && value != DBNull.Value;
+        }
+
+        private static Dictionary<long, TTCuonDayEditState> LayTrangThaiTTCuonDayDeSua(
+            SQLiteConnection conn,
+            SQLiteTransaction tran,
+            long idNhapKho)
+        {
+            bool coBangLichSuCatDay = TableExists(conn, tran, "LichSuCatDay");
+            bool coBangTTXuatKho = TableExists(conn, tran, "TTXuatKho");
+
+            string lichSuCatExpr = coBangLichSuCatDay
+                ? "EXISTS(SELECT 1 FROM LichSuCatDay ls WHERE ls.TTCuonDay_ID = td.id LIMIT 1)"
+                : "0";
+            string xuatKhoExpr = coBangTTXuatKho
+                ? "EXISTS(SELECT 1 FROM TTXuatKho xk WHERE xk.TTCuonDay_ID = td.id LIMIT 1)"
+                : "0";
+
+            string sql = $@"
+                SELECT
+                    td.id,
+                    td.TTCuonDay_CD_ID,
+                    IFNULL(td.SoCuon, 0) AS SoCuon,
+                    IFNULL(td.ChieuDai_1cuon, 0) AS ChieuDai_1cuon,
+                    td.SoDau,
+                    td.SoCuoi,
+                    td.TTLo_ID,
+                    IFNULL(td.GhiChu, '') AS GhiChu,
+                    CASE WHEN {lichSuCatExpr} THEN 1 ELSE 0 END AS CoLichSuCatDay,
+                    CASE WHEN {xuatKhoExpr} THEN 1 ELSE 0 END AS CoTTXuatKho
+                FROM TTCuonDay td
+                WHERE td.ThongTinNhapKho_ID = @HeaderId
+                ORDER BY td.id;";
+
+            var result = new Dictionary<long, TTCuonDayEditState>();
+            using var cmd = new SQLiteCommand(sql, conn, tran);
+            cmd.Parameters.AddWithValue("@HeaderId", idNhapKho);
+            using SQLiteDataReader reader = cmd.ExecuteReader();
+            while (reader.Read())
+            {
+                var item = new TTCuonDayEditState
+                {
+                    Id = Convert.ToInt64(reader["id"]),
+                    SourceId = reader["TTCuonDay_CD_ID"] == DBNull.Value
+                        ? (long?)null
+                        : Convert.ToInt64(reader["TTCuonDay_CD_ID"]),
+                    SoCuon = Convert.ToInt32(reader["SoCuon"]),
+                    ChieuDai1Cuon = Convert.ToInt32(reader["ChieuDai_1cuon"]),
+                    SoDau = reader["SoDau"] == DBNull.Value ? (int?)null : Convert.ToInt32(reader["SoDau"]),
+                    SoCuoi = reader["SoCuoi"] == DBNull.Value ? (int?)null : Convert.ToInt32(reader["SoCuoi"]),
+                    TTLoId = reader["TTLo_ID"] == DBNull.Value ? (int?)null : Convert.ToInt32(reader["TTLo_ID"]),
+                    GhiChu = Convert.ToString(reader["GhiChu"]) ?? string.Empty,
+                    CoLichSuCatDay = Convert.ToInt32(reader["CoLichSuCatDay"]) == 1,
+                    CoTTXuatKho = Convert.ToInt32(reader["CoTTXuatKho"]) == 1
+                };
+                result[item.Id] = item;
+            }
+
+            return result;
+        }
+
         // ════════════════════════════════════════════════════════════════════════
         // CHỨC NĂNG 1 – NHẬP KHO (INSERT TTNhapKho + TTCuonDay), trả về id vừa tạo
         // ════════════════════════════════════════════════════════════════════════
@@ -403,25 +488,13 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                 WHERE id = @id
                 LIMIT 1;";
 
-            const string sqlFindHeader = @"
-                SELECT id
-                FROM TTNhapKhoTP
-                WHERE TTThanhPham_ID = @TTThanhPham_ID
-                LIMIT 1;";
-
+            // Mỗi lần bấm btnNhapKho luôn tạo một TTNhapKhoTP mới.
             const string sqlInsertHeader = @"
                 INSERT INTO TTNhapKhoTP
                     (NgayNhapKho, SoBB, TTThanhPham_ID, TenSP, TongChieuDai, GhiChu, NguoiLam)
                 VALUES
                     (@NgayNhapKho, @SoBB, @TTThanhPham_ID, @TenSP, @TongChieuDai, @GhiChu, @NguoiLam);
                 SELECT last_insert_rowid();";
-
-            // Khi header đã tồn tại, chỉ SoBB/GhiChu được phép ghi đè theo nghiệp vụ đã chốt.
-            const string sqlUpdateHeaderMetadata = @"
-                UPDATE TTNhapKhoTP
-                SET SoBB = @SoBB,
-                    GhiChu = @GhiChu
-                WHERE id = @id;";
 
             const string sqlGetSource = @"
                 SELECT
@@ -449,7 +522,7 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                      ThongTinNhapKho_ID, LoaiDon, KhachHang, TenDuAn,
                      TTLo_ID, Ngay, TTCuonDay_CD_ID)
                 VALUES
-                    (@SoCuon, @ChieuDai_1cuon, @SoDau, @SoCuoi, NULL,
+                    (@SoCuon, @ChieuDai_1cuon, @SoDau, @SoCuoi, @GhiChu,
                      @ThongTinNhapKho_ID, NULL, NULL, NULL,
                      @TTLo_ID, @Ngay, @TTCuonDay_CD_ID);";
 
@@ -470,39 +543,22 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
             {
                 long headerId;
 
-                using (var cmd = new SQLiteCommand(sqlFindHeader, conn, tran))
+                // Tạo header mới trước để giữ đúng nghĩa: 1 lần btnNhapKho = 1 TTNhapKhoTP.
+                using (var insertHeader = new SQLiteCommand(sqlInsertHeader, conn, tran))
                 {
-                    cmd.Parameters.AddWithValue("@TTThanhPham_ID", model.TTThanhPham_ID);
-                    object existing = cmd.ExecuteScalar();
-
-                    if (existing != null && existing != DBNull.Value)
-                    {
-                        headerId = Convert.ToInt64(existing);
-
-                        using var updateHeader = new SQLiteCommand(sqlUpdateHeaderMetadata, conn, tran);
-                        updateHeader.Parameters.AddWithValue("@id", headerId);
-                        updateHeader.Parameters.AddWithValue("@SoBB", model.SoBB > 0 ? (object)model.SoBB : DBNull.Value);
-                        updateHeader.Parameters.AddWithValue("@GhiChu", model.GhiChu ?? string.Empty);
-                        updateHeader.ExecuteNonQuery();
-                    }
-                    else
-                    {
-                        using var insertHeader = new SQLiteCommand(sqlInsertHeader, conn, tran);
-                        insertHeader.Parameters.AddWithValue("@NgayNhapKho",
-                            string.IsNullOrWhiteSpace(model.Ngay) ? (object)DBNull.Value : model.Ngay);
-                        insertHeader.Parameters.AddWithValue("@SoBB", model.SoBB > 0 ? (object)model.SoBB : DBNull.Value);
-                        insertHeader.Parameters.AddWithValue("@TTThanhPham_ID", model.TTThanhPham_ID);
-                        insertHeader.Parameters.AddWithValue("@TenSP", model.TenSP ?? string.Empty);
-                        // TongChieuDai là snapshot ChieuDaiSau tại lần nhập đầu tiên.
-                        insertHeader.Parameters.AddWithValue("@TongChieuDai", model.SoMet);
-                        insertHeader.Parameters.AddWithValue("@GhiChu", model.GhiChu ?? string.Empty);
-                        insertHeader.Parameters.AddWithValue("@NguoiLam", model.NguoiLam ?? string.Empty);
-                        headerId = Convert.ToInt64(insertHeader.ExecuteScalar());
-                    }
+                    insertHeader.Parameters.AddWithValue("@NgayNhapKho",
+                        string.IsNullOrWhiteSpace(model.Ngay) ? (object)DBNull.Value : model.Ngay);
+                    insertHeader.Parameters.AddWithValue("@SoBB", model.SoBB > 0 ? (object)model.SoBB : DBNull.Value);
+                    insertHeader.Parameters.AddWithValue("@TTThanhPham_ID", model.TTThanhPham_ID);
+                    insertHeader.Parameters.AddWithValue("@TenSP", model.TenSP ?? string.Empty);
+                    insertHeader.Parameters.AddWithValue("@TongChieuDai", model.SoMet);
+                    insertHeader.Parameters.AddWithValue("@GhiChu", model.GhiChu ?? string.Empty);
+                    insertHeader.Parameters.AddWithValue("@NguoiLam", model.NguoiLam ?? string.Empty);
+                    headerId = Convert.ToInt64(insertHeader.ExecuteScalar());
                 }
 
-                // Header INSERT/UPDATE phía trên đã đưa transaction vào trạng thái ghi.
-                // Sau đó mới kiểm tra ChieuDaiSau để tránh dùng nbSoMet cũ khi có phiên nhập kho đồng thời.
+                // Header INSERT đã đưa transaction vào trạng thái ghi.
+                // Sau đó kiểm tra lại ChieuDaiSau để tránh dùng snapshot cũ khi có phiên nhập kho đồng thời.
                 using (var getTp = new SQLiteCommand(sqlGetThanhPham, conn, tran))
                 {
                     getTp.Parameters.AddWithValue("@id", model.TTThanhPham_ID);
@@ -519,7 +575,6 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                     }
                 }
 
-                // Chống nhập trùng lớp 2: kiểm tra lại từng nguồn ngay trong transaction.
                 using var getSource = new SQLiteCommand(sqlGetSource, conn, tran);
                 getSource.Parameters.Add("@TTCuonDay_CD_ID", DbType.Int64);
                 getSource.Parameters.Add("@TTThanhPham_ID", DbType.Int64);
@@ -529,6 +584,7 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                 insertDetail.Parameters.Add("@ChieuDai_1cuon", DbType.Int32);
                 insertDetail.Parameters.Add("@SoDau", DbType.Int32);
                 insertDetail.Parameters.Add("@SoCuoi", DbType.Int32);
+                insertDetail.Parameters.Add("@GhiChu", DbType.String);
                 insertDetail.Parameters.Add("@ThongTinNhapKho_ID", DbType.Int64);
                 insertDetail.Parameters.Add("@TTLo_ID", DbType.Int32);
                 insertDetail.Parameters.Add("@Ngay", DbType.String);
@@ -562,6 +618,7 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                         soCuoi = reader["SoCuoi"] == DBNull.Value ? (int?)null : Convert.ToInt32(reader["SoCuoi"]);
                         ttLoId = reader["TTLo_ID"] == DBNull.Value ? (object)DBNull.Value : Convert.ToInt32(reader["TTLo_ID"]);
                     }
+
                     int soCuonConLai = soCuonNguon - soCuonDaNhap;
                     if (soCuonConLai < 0) soCuonConLai = 0;
 
@@ -576,11 +633,17 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                             "Vui lòng tải lại dữ liệu.");
                     }
 
-                    // Các thuộc tính kỹ thuật luôn lấy trực tiếp từ TTCuonDay_CD hiện tại.
                     insertDetail.Parameters["@SoCuon"].Value = requested.SoCuon;
                     insertDetail.Parameters["@ChieuDai_1cuon"].Value = chieuDai1Cuon;
-                    insertDetail.Parameters["@SoDau"].Value = soDau.HasValue ? (object)soDau.Value : DBNull.Value;
-                    insertDetail.Parameters["@SoCuoi"].Value = soCuoi.HasValue ? (object)soCuoi.Value : DBNull.Value;
+
+                    int? soDauFinal = requested.SoDau ?? soDau;
+                    int? soCuoiFinal = requested.soCuoi ?? soCuoi;
+                    if (requested.TTLo_ID.HasValue && (!soDauFinal.HasValue || !soCuoiFinal.HasValue))
+                        throw new InvalidOperationException($"TTCuonDay_CD id={sourceId}: Lô phải có đủ Số đầu và Số cuối.");
+
+                    insertDetail.Parameters["@SoDau"].Value = soDauFinal.HasValue ? (object)soDauFinal.Value : DBNull.Value;
+                    insertDetail.Parameters["@SoCuoi"].Value = soCuoiFinal.HasValue ? (object)soCuoiFinal.Value : DBNull.Value;
+                    insertDetail.Parameters["@GhiChu"].Value = requested.Ghichu ?? string.Empty;
                     insertDetail.Parameters["@ThongTinNhapKho_ID"].Value = headerId;
                     insertDetail.Parameters["@TTLo_ID"].Value = ttLoId;
                     insertDetail.Parameters["@Ngay"].Value = string.IsNullOrWhiteSpace(model.Ngay)
@@ -633,28 +696,268 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
             List<DG_TonKhoBTP_v02.Models.ThongTinCuonDay> dsCuon,
             bool capNhatTTCuonDay)
         {
-            if (idNhapKho <= 0)
-                throw new ArgumentException("idNhapKho không hợp lệ.", nameof(idNhapKho));
-            if (model == null)
-                throw new ArgumentNullException(nameof(model));
+            if (idNhapKho <= 0) throw new ArgumentException("idNhapKho không hợp lệ.", nameof(idNhapKho));
+            if (model == null) throw new ArgumentNullException(nameof(model));
+            if (dsCuon == null || dsCuon.Count == 0)
+                throw new InvalidOperationException("Không có dữ liệu cuộn/lô để cập nhật.");
+            if (dsCuon.Any(x => x == null || !x.TTCuonDay_CD_ID.HasValue || x.TTCuonDay_CD_ID.Value <= 0))
+                throw new InvalidOperationException("Có dòng cuộn/lô không xác định được TTCuonDay_CD_ID nguồn.");
 
-            // Theo lưu trình mới, TTNhapKhoTP là header gốc và TTCuonDay là lịch sử append-only.
-            // Nút sửa cũ chỉ còn cập nhật metadata header được phép ghi đè: SoBB và GhiChu.
-            const string sql = @"
-                UPDATE TTNhapKhoTP
-                SET SoBB = @SoBB,
-                    GhiChu = @GhiChu
-                WHERE id = @id;";
+            if (capNhatTTCuonDay)
+            {
+                if (dsCuon.Any(x => !x.TTCuonDay_ID.HasValue || x.TTCuonDay_ID.Value <= 0))
+                    throw new InvalidOperationException("Có dòng cuộn/lô không xác định được TTCuonDay_ID để cập nhật.");
+
+                long duplicateId = dsCuon
+                    .GroupBy(x => x.TTCuonDay_ID.Value)
+                    .Where(g => g.Count() > 1)
+                    .Select(g => g.Key)
+                    .FirstOrDefault();
+                if (duplicateId > 0)
+                    throw new InvalidOperationException($"TTCuonDay id={duplicateId} bị lặp trong dữ liệu cập nhật.");
+            }
 
             using var conn = DB_Base.OpenConnection();
-            using var cmd = new SQLiteCommand(sql, conn);
-            cmd.Parameters.AddWithValue("@id", idNhapKho);
-            cmd.Parameters.AddWithValue("@SoBB", model.SoBB > 0 ? (object)model.SoBB : DBNull.Value);
-            cmd.Parameters.AddWithValue("@GhiChu", model.GhiChu ?? string.Empty);
+            using var tran = conn.BeginTransaction();
+            try
+            {
+                double tongCu;
+                using (var cmd = new SQLiteCommand(@"
+                    SELECT COALESCE(SUM(IFNULL(SoCuon,0) * IFNULL(ChieuDai_1cuon,0)),0)
+                    FROM TTCuonDay
+                    WHERE ThongTinNhapKho_ID=@id;", conn, tran))
+                {
+                    cmd.Parameters.AddWithValue("@id", idNhapKho);
+                    tongCu = Convert.ToDouble(cmd.ExecuteScalar());
+                }
 
-            if (cmd.ExecuteNonQuery() == 0)
-                throw new InvalidOperationException($"Không cập nhật được TTNhapKhoTP id={idNhapKho}.");
+                const string sqlHeader = @"
+                    UPDATE TTNhapKhoTP
+                    SET NgayNhapKho=@NgayNhapKho,
+                        SoBB=@SoBB,
+                        TTThanhPham_ID=@TTThanhPham_ID,
+                        TenSP=@TenSP,
+                        TongChieuDai=@TongChieuDai,
+                        GhiChu=@GhiChu,
+                        NguoiLam=@NguoiLam
+                    WHERE id=@id;";
+
+                using (var cmd = new SQLiteCommand(sqlHeader, conn, tran))
+                {
+                    cmd.Parameters.AddWithValue("@id", idNhapKho);
+                    cmd.Parameters.AddWithValue("@NgayNhapKho", string.IsNullOrWhiteSpace(model.Ngay) ? (object)DBNull.Value : model.Ngay);
+                    cmd.Parameters.AddWithValue("@SoBB", model.SoBB > 0 ? (object)model.SoBB : DBNull.Value);
+                    cmd.Parameters.AddWithValue("@TTThanhPham_ID", model.TTThanhPham_ID);
+                    cmd.Parameters.AddWithValue("@TenSP", model.TenSP ?? string.Empty);
+                    cmd.Parameters.AddWithValue("@TongChieuDai", model.SoMet);
+                    cmd.Parameters.AddWithValue("@GhiChu", model.GhiChu ?? string.Empty);
+                    cmd.Parameters.AddWithValue("@NguoiLam", model.NguoiLam ?? string.Empty);
+                    if (cmd.ExecuteNonQuery() == 0)
+                        throw new InvalidOperationException($"Không cập nhật được TTNhapKhoTP id={idNhapKho}.");
+                }
+
+                if (capNhatTTCuonDay)
+                {
+                    Dictionary<long, TTCuonDayEditState> hienTai = LayTrangThaiTTCuonDayDeSua(conn, tran, idNhapKho);
+                    if (hienTai.Count == 0)
+                        throw new InvalidOperationException($"TTNhapKhoTP id={idNhapKho} không có TTCuonDay để cập nhật.");
+
+                    var submitted = dsCuon.ToDictionary(x => x.TTCuonDay_ID.Value, x => x);
+
+                    foreach (var pair in submitted)
+                    {
+                        long ttCuonDayId = pair.Key;
+                        var item = pair.Value;
+
+                        if (!hienTai.TryGetValue(ttCuonDayId, out TTCuonDayEditState old))
+                            throw new InvalidOperationException(
+                                $"TTCuonDay id={ttCuonDayId} không thuộc TTNhapKhoTP id={idNhapKho}.");
+
+                        if (!old.SourceId.HasValue || old.SourceId.Value != item.TTCuonDay_CD_ID.Value)
+                            throw new InvalidOperationException(
+                                $"TTCuonDay id={ttCuonDayId}: TTCuonDay_CD_ID nguồn không được thay đổi khi sửa phiếu.");
+
+                        if (old.CoLichSuDownstream)
+                        {
+                            bool protectedChanged =
+                                old.SoCuon != item.SoCuon
+                                || old.ChieuDai1Cuon != item.TongChieuDai
+                                || old.SoDau != item.SoDau
+                                || old.SoCuoi != item.soCuoi
+                                || old.TTLoId != item.TTLo_ID;
+
+                            if (protectedChanged)
+                            {
+                                throw new InvalidOperationException(
+                                    $"TTCuonDay id={ttCuonDayId} đã có lịch sử cắt dây hoặc xuất kho; chỉ được sửa GhiChu.");
+                            }
+                        }
+                    }
+
+                    foreach (TTCuonDayEditState old in hienTai.Values)
+                    {
+                        if (submitted.ContainsKey(old.Id)) continue;
+                        if (old.CoLichSuDownstream)
+                        {
+                            throw new InvalidOperationException(
+                                $"Không thể xoá TTCuonDay id={old.Id} vì đã có lịch sử cắt dây hoặc xuất kho.");
+                        }
+                    }
+
+                    // Kiểm tra tổng số cuộn theo từng nguồn, loại trừ lượng đang thuộc chính phiếu hiện tại.
+                    const string sqlSource = @"
+                        SELECT
+                            IFNULL(cd.SoCuon, 0) AS SoCuonNguon,
+                            COALESCE((
+                                SELECT SUM(IFNULL(td.SoCuon,0))
+                                FROM TTCuonDay td
+                                WHERE td.TTCuonDay_CD_ID = cd.id
+                                  AND td.ThongTinNhapKho_ID <> @HeaderId
+                            ),0) AS DaNhapKhac
+                        FROM TTCuonDay_CD cd
+                        WHERE cd.id=@SourceId
+                        LIMIT 1;";
+
+                    using var getSource = new SQLiteCommand(sqlSource, conn, tran);
+                    getSource.Parameters.Add("@HeaderId", DbType.Int64);
+                    getSource.Parameters.Add("@SourceId", DbType.Int64);
+                    getSource.Parameters["@HeaderId"].Value = idNhapKho;
+
+                    foreach (var group in dsCuon.GroupBy(x => x.TTCuonDay_CD_ID.Value))
+                    {
+                        long sourceId = group.Key;
+                        int tongSoCuonYeuCau = group.Sum(x => x.SoCuon);
+                        if (tongSoCuonYeuCau <= 0)
+                            throw new InvalidOperationException($"TTCuonDay_CD id={sourceId}: số cuộn cập nhật phải lớn hơn 0.");
+
+                        getSource.Parameters["@SourceId"].Value = sourceId;
+                        using var reader = getSource.ExecuteReader();
+                        if (!reader.Read())
+                            throw new InvalidOperationException($"Không tìm thấy TTCuonDay_CD id={sourceId}.");
+
+                        int soCuonNguon = reader["SoCuonNguon"] == DBNull.Value ? 0 : Convert.ToInt32(reader["SoCuonNguon"]);
+                        int daNhapKhac = reader["DaNhapKhac"] == DBNull.Value ? 0 : Convert.ToInt32(reader["DaNhapKhac"]);
+                        int conKhaDung = soCuonNguon - daNhapKhac;
+                        if (conKhaDung < 0) conKhaDung = 0;
+
+                        if (tongSoCuonYeuCau > conKhaDung)
+                        {
+                            throw new InvalidOperationException(
+                                $"TTCuonDay_CD id={sourceId}: tổng số cuộn cập nhật ({tongSoCuonYeuCau}) " +
+                                $"vượt quá số còn khả dụng ({conKhaDung}).");
+                        }
+                    }
+
+                    foreach (var item in dsCuon)
+                    {
+                        if (item.SoCuon <= 0)
+                            throw new InvalidOperationException($"TTCuonDay id={item.TTCuonDay_ID}: số cuộn phải lớn hơn 0.");
+                        if (item.TongChieuDai < 0)
+                            throw new InvalidOperationException($"TTCuonDay id={item.TTCuonDay_ID}: chiều dài không hợp lệ.");
+                        if (item.TTLo_ID.HasValue && (!item.SoDau.HasValue || !item.soCuoi.HasValue))
+                            throw new InvalidOperationException($"TTCuonDay id={item.TTCuonDay_ID}: Lô phải có đủ Số đầu và Số cuối.");
+                    }
+
+                    // Xoá đúng các detail bị người dùng loại khỏi Frm_DLCuon, không xoá-all/reinsert.
+                    using (var del = new SQLiteCommand(@"
+                        DELETE FROM TTCuonDay
+                        WHERE id=@Id AND ThongTinNhapKho_ID=@HeaderId;", conn, tran))
+                    {
+                        del.Parameters.Add("@Id", DbType.Int64);
+                        del.Parameters.Add("@HeaderId", DbType.Int64);
+                        del.Parameters["@HeaderId"].Value = idNhapKho;
+
+                        foreach (TTCuonDayEditState old in hienTai.Values)
+                        {
+                            if (submitted.ContainsKey(old.Id)) continue;
+                            del.Parameters["@Id"].Value = old.Id;
+                            if (del.ExecuteNonQuery() != 1)
+                                throw new InvalidOperationException($"Không xoá được TTCuonDay id={old.Id}.");
+                        }
+                    }
+
+                    const string sqlUpdateDetail = @"
+                        UPDATE TTCuonDay
+                        SET SoCuon=@SoCuon,
+                            ChieuDai_1cuon=@ChieuDai,
+                            SoDau=@SoDau,
+                            SoCuoi=@SoCuoi,
+                            GhiChu=@GhiChu,
+                            TTLo_ID=@TTLo_ID,
+                            Ngay=@Ngay
+                        WHERE id=@Id AND ThongTinNhapKho_ID=@HeaderId;";
+
+                    const string sqlUpdateLockedNote = @"
+                        UPDATE TTCuonDay
+                        SET GhiChu=@GhiChu
+                        WHERE id=@Id AND ThongTinNhapKho_ID=@HeaderId;";
+
+                    using var updateDetail = new SQLiteCommand(sqlUpdateDetail, conn, tran);
+                    updateDetail.Parameters.Add("@SoCuon", DbType.Int32);
+                    updateDetail.Parameters.Add("@ChieuDai", DbType.Int32);
+                    updateDetail.Parameters.Add("@SoDau", DbType.Int32);
+                    updateDetail.Parameters.Add("@SoCuoi", DbType.Int32);
+                    updateDetail.Parameters.Add("@GhiChu", DbType.String);
+                    updateDetail.Parameters.Add("@TTLo_ID", DbType.Int32);
+                    updateDetail.Parameters.Add("@Ngay", DbType.String);
+                    updateDetail.Parameters.Add("@Id", DbType.Int64);
+                    updateDetail.Parameters.Add("@HeaderId", DbType.Int64);
+                    updateDetail.Parameters["@HeaderId"].Value = idNhapKho;
+
+                    using var updateLockedNote = new SQLiteCommand(sqlUpdateLockedNote, conn, tran);
+                    updateLockedNote.Parameters.Add("@GhiChu", DbType.String);
+                    updateLockedNote.Parameters.Add("@Id", DbType.Int64);
+                    updateLockedNote.Parameters.Add("@HeaderId", DbType.Int64);
+                    updateLockedNote.Parameters["@HeaderId"].Value = idNhapKho;
+
+                    foreach (var item in dsCuon)
+                    {
+                        long id = item.TTCuonDay_ID.Value;
+                        TTCuonDayEditState old = hienTai[id];
+
+                        if (old.CoLichSuDownstream)
+                        {
+                            updateLockedNote.Parameters["@GhiChu"].Value = item.Ghichu ?? string.Empty;
+                            updateLockedNote.Parameters["@Id"].Value = id;
+                            if (updateLockedNote.ExecuteNonQuery() != 1)
+                                throw new InvalidOperationException($"Không cập nhật được GhiChu của TTCuonDay id={id}.");
+                            continue;
+                        }
+
+                        updateDetail.Parameters["@SoCuon"].Value = item.SoCuon;
+                        updateDetail.Parameters["@ChieuDai"].Value = item.TongChieuDai;
+                        updateDetail.Parameters["@SoDau"].Value = item.SoDau.HasValue ? (object)item.SoDau.Value : DBNull.Value;
+                        updateDetail.Parameters["@SoCuoi"].Value = item.soCuoi.HasValue ? (object)item.soCuoi.Value : DBNull.Value;
+                        updateDetail.Parameters["@GhiChu"].Value = item.Ghichu ?? string.Empty;
+                        updateDetail.Parameters["@TTLo_ID"].Value = item.TTLo_ID.HasValue ? (object)item.TTLo_ID.Value : DBNull.Value;
+                        updateDetail.Parameters["@Ngay"].Value = string.IsNullOrWhiteSpace(model.Ngay) ? (object)DBNull.Value : model.Ngay;
+                        updateDetail.Parameters["@Id"].Value = id;
+
+                        if (updateDetail.ExecuteNonQuery() != 1)
+                            throw new InvalidOperationException($"Không cập nhật được TTCuonDay id={id}.");
+                    }
+
+                    double tongMoi = dsCuon.Sum(x => (double)x.SoCuon * x.TongChieuDai);
+                    double delta = tongCu - tongMoi;
+                    using var updateTp = new SQLiteCommand(@"
+                        UPDATE TTThanhPham
+                        SET ChieuDaiSau = MAX(0, IFNULL(ChieuDaiSau,0) + @Delta)
+                        WHERE id=@id;", conn, tran);
+                    updateTp.Parameters.AddWithValue("@Delta", delta);
+                    updateTp.Parameters.AddWithValue("@id", model.TTThanhPham_ID);
+                    if (updateTp.ExecuteNonQuery() == 0)
+                        throw new InvalidOperationException($"Không cập nhật được TTThanhPham id={model.TTThanhPham_ID}.");
+                }
+
+                tran.Commit();
+            }
+            catch
+            {
+                tran.Rollback();
+                throw;
+            }
         }
+
 
 
         public static DataTable LayTTNhapKhoTPTheoTTThanhPhamId(long ttThanhPhamId)
@@ -1003,42 +1306,113 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
             return dt;
         }
 
-        public static void XoaMotDong(long idNhapKho, long ttThanhPhamId, double soMet)
+        /// <summary>
+        /// Xoá trọn một lần nhập kho (1 TTNhapKhoTP + toàn bộ TTCuonDay trực thuộc).
+        ///
+        /// Rule nghiệp vụ:
+        /// - Chỉ được xoá khi KHÔNG có bất kỳ TTCuonDay nào của lần nhập đã phát sinh
+        ///   LichSuCatDay hoặc TTXuatKho.
+        /// - Nếu chỉ một TTCuonDay có downstream thì chặn xoá toàn bộ TTNhapKhoTP.
+        /// - Khi xoá thành công, hoàn trả tổng chiều dài thực tế của các TTCuonDay
+        ///   về TTThanhPham.ChieuDaiSau.
+        /// - Không tin snapshot TTThanhPham_ID / số mét từ UI; toàn bộ dữ liệu dùng để xoá
+        ///   được đọc lại trong cùng transaction.
+        /// </summary>
+        public static void XoaMotDong(long idNhapKho)
         {
-            const string sqlRollback = @"
-            UPDATE TTThanhPham
-            SET ChieuDaiSau = @SoMet,
-                NhapKho     = 0
-            WHERE id = @id;";
-
-            const string sqlDelete = @"
-            DELETE FROM TTNhapKho
-            WHERE id = @id;";
+            if (idNhapKho <= 0)
+                throw new ArgumentException("idNhapKho không hợp lệ.", nameof(idNhapKho));
 
             using var conn = DB_Base.OpenConnection();
             using var tran = conn.BeginTransaction();
 
             try
             {
-                // Bước 1: Rollback TTThanhPham
-                using (var cmd = new SQLiteCommand(sqlRollback, conn, tran))
-                {
-                    cmd.Parameters.AddWithValue("@SoMet", soMet);
-                    cmd.Parameters.AddWithValue("@id", ttThanhPhamId);
+                long ttThanhPhamId;
 
-                    if (cmd.ExecuteNonQuery() == 0)
+                // Đọc đúng TTNhapKhoTP đang xoá trong transaction.
+                using (var cmd = new SQLiteCommand(@"
+                    SELECT TTThanhPham_ID
+                    FROM TTNhapKhoTP
+                    WHERE id = @id
+                    LIMIT 1;", conn, tran))
+                {
+                    cmd.Parameters.AddWithValue("@id", idNhapKho);
+                    object value = cmd.ExecuteScalar();
+
+                    if (value == null || value == DBNull.Value)
                         throw new InvalidOperationException(
-                            $"Không rollback được TTThanhPham id={ttThanhPhamId}.");
+                            $"Không tìm thấy TTNhapKhoTP id={idNhapKho}.");
+
+                    ttThanhPhamId = Convert.ToInt64(value);
+                    if (ttThanhPhamId <= 0)
+                        throw new InvalidOperationException(
+                            $"TTNhapKhoTP id={idNhapKho} không có TTThanhPham_ID hợp lệ.");
                 }
 
-                // Bước 2: Xoá TTNhapKho
-                using (var cmd = new SQLiteCommand(sqlDelete, conn, tran))
+                // Đọc toàn bộ TTCuonDay và trạng thái downstream bằng chính helper
+                // đang dùng cho luồng sửa. Helper này tương thích cả DB cũ chưa có
+                // bảng LichSuCatDay.
+                Dictionary<long, TTCuonDayEditState> dsTTCuonDay =
+                    LayTrangThaiTTCuonDayDeSua(conn, tran, idNhapKho);
+
+                if (dsTTCuonDay.Values.Any(x => x.CoLichSuDownstream))
+                {
+                    throw new InvalidOperationException(
+                        "Không thể xoá do đã có lịch sử cắt dây/xuất kho.");
+                }
+
+                // Hoàn trả đúng lượng đã nhập của riêng lần nhập này.
+                // Không dùng TTNhapKhoTP.TongChieuDai vì đây là snapshot chiều dài
+                // còn lại tại thời điểm nhập, không phải tổng lượng thực tế đã nhập.
+                double tongChieuDaiHoanTra = dsTTCuonDay.Values.Sum(
+                    x => (double)x.SoCuon * x.ChieuDai1Cuon);
+
+                // Xoá detail chủ động thay vì dựa hoàn toàn vào ON DELETE CASCADE.
+                // Downstream đã được kiểm tra ở trên nên thao tác này không được phép
+                // làm mất lịch sử cắt dây / xuất kho.
+                using (var cmd = new SQLiteCommand(@"
+                    DELETE FROM TTCuonDay
+                    WHERE ThongTinNhapKho_ID = @id;", conn, tran))
+                {
+                    cmd.Parameters.AddWithValue("@id", idNhapKho);
+                    cmd.ExecuteNonQuery();
+                }
+
+                // Xoá đúng header TTNhapKhoTP.
+                using (var cmd = new SQLiteCommand(@"
+                    DELETE FROM TTNhapKhoTP
+                    WHERE id = @id;", conn, tran))
                 {
                     cmd.Parameters.AddWithValue("@id", idNhapKho);
 
-                    if (cmd.ExecuteNonQuery() == 0)
+                    if (cmd.ExecuteNonQuery() != 1)
                         throw new InvalidOperationException(
-                            $"Không xoá được TTNhapKho id={idNhapKho}.");
+                            $"Không xoá được TTNhapKhoTP id={idNhapKho}.");
+                }
+
+                // Trả lại chiều dài của lần nhập vừa xoá.
+                // NhapKho chỉ về 0 khi TTThanhPham không còn bất kỳ lần nhập nào khác.
+                using (var cmd = new SQLiteCommand(@"
+                    UPDATE TTThanhPham
+                    SET ChieuDaiSau = IFNULL(ChieuDaiSau, 0) + @TongHoanTra,
+                        NhapKho = CASE
+                            WHEN EXISTS (
+                                SELECT 1
+                                FROM TTNhapKhoTP nk
+                                WHERE nk.TTThanhPham_ID = @TTThanhPham_ID
+                                LIMIT 1
+                            ) THEN 1
+                            ELSE 0
+                        END
+                    WHERE id = @TTThanhPham_ID;", conn, tran))
+                {
+                    cmd.Parameters.AddWithValue("@TongHoanTra", tongChieuDaiHoanTra);
+                    cmd.Parameters.AddWithValue("@TTThanhPham_ID", ttThanhPhamId);
+
+                    if (cmd.ExecuteNonQuery() != 1)
+                        throw new InvalidOperationException(
+                            $"Không cập nhật được TTThanhPham id={ttThanhPhamId} sau khi xoá nhập kho.");
                 }
 
                 tran.Commit();
@@ -1055,8 +1429,20 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
             var result = new List<DG_TonKhoBTP_v02.Models.ThongTinCuonDay>();
             if (idNhapKho <= 0) return result;
 
-            const string sql = @"
+            using var conn = DB_Base.OpenConnection();
+
+            bool coBangLichSuCatDay = TableExists(conn, null, "LichSuCatDay");
+            bool coBangTTXuatKho = TableExists(conn, null, "TTXuatKho");
+            string lichSuCatExpr = coBangLichSuCatDay
+                ? "EXISTS(SELECT 1 FROM LichSuCatDay ls WHERE ls.TTCuonDay_ID = cd.id LIMIT 1)"
+                : "0";
+            string xuatKhoExpr = coBangTTXuatKho
+                ? "EXISTS(SELECT 1 FROM TTXuatKho xk WHERE xk.TTCuonDay_ID = cd.id LIMIT 1)"
+                : "0";
+
+            string sql = $@"
                 SELECT
+                    cd.id AS TTCuonDay_ID,
                     cd.TTCuonDay_CD_ID,
                     cd.SoCuon,
                     cd.ChieuDai_1cuon,
@@ -1069,13 +1455,13 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                         WHEN cd.TTLo_ID IS NULL THEN 1
                         WHEN lo.id IS NOT NULL THEN 1
                         ELSE 0
-                    END AS TTLoHopLe
+                    END AS TTLoHopLe,
+                    CASE WHEN ({lichSuCatExpr}) OR ({xuatKhoExpr}) THEN 1 ELSE 0 END AS CoLichSuDownstream
                 FROM TTCuonDay cd
                 LEFT JOIN TTLo lo ON lo.id = cd.TTLo_ID
                 WHERE cd.ThongTinNhapKho_ID = @ThongTinNhapKho_ID
                 ORDER BY cd.id;";
 
-            using var conn = DB_Base.OpenConnection();
             using var cmd = new SQLiteCommand(sql, conn);
             cmd.Parameters.AddWithValue("@ThongTinNhapKho_ID", idNhapKho);
             using SQLiteDataReader reader = cmd.ExecuteReader();
@@ -1084,9 +1470,11 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
             {
                 result.Add(new DG_TonKhoBTP_v02.Models.ThongTinCuonDay
                 {
+                    TTCuonDay_ID = Convert.ToInt64(reader["TTCuonDay_ID"]),
                     TTCuonDay_CD_ID = reader["TTCuonDay_CD_ID"] == DBNull.Value
                         ? (long?)null
                         : Convert.ToInt64(reader["TTCuonDay_CD_ID"]),
+                    CoLichSuDownstream = Convert.ToInt32(reader["CoLichSuDownstream"]) == 1,
                     TTLo_ID = reader["TTLo_ID"] == DBNull.Value ? (int?)null : Convert.ToInt32(reader["TTLo_ID"]),
                     KichThuocLo = reader["KichThuocLo"] == DBNull.Value
                         ? string.Empty

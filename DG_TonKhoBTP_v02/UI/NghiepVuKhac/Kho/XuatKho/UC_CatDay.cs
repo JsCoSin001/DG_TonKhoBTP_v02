@@ -40,20 +40,23 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho
         private void CauHinhGrid()
         {
             dataGridView1.AllowUserToAddRows = false;
+            dataGridView1.RowTemplate.Height = 35;
 
             ID.ReadOnly = true;
             lot.ReadOnly = true;
             ten.ReadOnly = true;
+            tenKH.ReadOnly = true;
             soLuong.ReadOnly = true;
             soDau.ReadOnly = true;
             soCuoi.ReadOnly = true;
             cd_1.ReadOnly = true;
             tong_cd.ReadOnly = true;
+            loai.ReadOnly = true;
             detail.ReadOnly = true;
 
             // Hai cột này dành cho nghiệp vụ cắt ở bước sau.
             cd_cat.ReadOnly = false;
-            ngayCat.ReadOnly = false;
+            slCuonLay.ReadOnly = false;
         }
 
         private void KhoiTaoTimKiem()
@@ -323,17 +326,26 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho
                 row.Cells["ID"].Value = item.TTCuonDay_ID;
                 row.Cells["lot"].Value = item.Lot;
                 row.Cells["ten"].Value = item.TenSP;
+                row.Cells["tenKH"].Value = item.KhachHang;
                 row.Cells["soLuong"].Value = item.SoCuon;
-                row.Cells["soDau"].Value = item.SoDau;
-                row.Cells["soCuoi"].Value = item.SoCuoi;
+                row.Cells["soDau"].Value = item.SoDau.HasValue ? (object)item.SoDau.Value : string.Empty;
+                row.Cells["soCuoi"].Value = item.SoCuoi.HasValue ? (object)item.SoCuoi.Value : string.Empty;
                 row.Cells["cd_1"].Value = item.ChieuDaiConLai;
                 row.Cells["tong_cd"].Value = item.TongChieuDai;
+                row.Cells["loai"].Value = item.Loai;
 
-                // Hai trường này dành cho nghiệp vụ cắt sau,
-                // tuyệt đối không điền từ LichSuCatDay cũ.
+                // Không lấy dữ liệu nhập cắt/xuất từ lịch sử cũ.
                 row.Cells["cd_cat"].Value = string.Empty;
-                row.Cells["ngayCat"].Value = string.Empty;
-                row.Cells["detail"].Value = string.Empty;
+                row.Cells["slCuonLay"].Value = string.Empty;
+
+                // Khóa nhập chéo nhóm ngay trên grid:
+                // - Nhóm số lượng chỉ cho nhập Cuộn xuất.
+                // - Nhóm chiều dài chỉ cho nhập CD cắt.
+                bool laNhomSoLuong = item.NhomTon == CatDay_InventoryGroup.SoLuong;
+                row.Cells["slCuonLay"].ReadOnly = !laNhomSoLuong;
+                row.Cells["cd_cat"].ReadOnly = laNhomSoLuong;
+
+                row.Cells["detail"].Value = "Chi tiết";
             }
         }
 
@@ -343,13 +355,17 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho
                 return;
 
             var sb = new StringBuilder();
-            sb.AppendLine($"Phát hiện {issues.Count} dữ liệu có chiều dài còn lại âm và đã được loại khỏi kết quả tìm kiếm.");
+            sb.AppendLine($"Phát hiện {issues.Count} TTCuonDay có dữ liệu tồn bất thường và đã được loại khỏi kết quả tìm kiếm.");
             sb.AppendLine();
 
             foreach (CatDay_DataIssue issue in issues)
             {
+                string raw = issue.RawRemaining.HasValue
+                    ? $" — Giá trị còn: {issue.RawRemaining.Value}"
+                    : string.Empty;
+
                 sb.AppendLine(
-                    $"TTCuonDay ID {issue.TTCuonDay_ID} — LOT {issue.Lot} — Remaining {issue.RawRemaining}");
+                    $"TTCuonDay ID {issue.TTCuonDay_ID} — LOT {issue.Lot}{raw} — {issue.NoiDung}");
             }
 
             MessageBox.Show(

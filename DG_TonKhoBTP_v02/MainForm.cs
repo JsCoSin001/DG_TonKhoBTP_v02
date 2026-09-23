@@ -1655,6 +1655,13 @@ namespace DG_TonKhoBTP_v02
 
         private void btnNhapKho_Click(object sender, EventArgs e)
         {
+
+            if (!UserContext.IsAuthenticated)
+            {
+                FrmWaiting.ShowGifAlert($"Bạn cần đăng nhập trước.");
+                return;
+            }
+
             using (var waiting = new FrmWaiting("ĐANG KHỞI TẠO GIAO DIỆN..."))
             {
                 try
@@ -1688,6 +1695,12 @@ namespace DG_TonKhoBTP_v02
 
         private void btnXuatKho_Click(object sender, EventArgs e)
         {
+            if (!UserContext.IsAuthenticated)
+            {
+                FrmWaiting.ShowGifAlert($"Bạn cần đăng nhập trước.");
+                return;
+            }
+
             using (var waiting = new FrmWaiting("ĐANG KHỞI TẠO GIAO DIỆN..."))
             {
                 try

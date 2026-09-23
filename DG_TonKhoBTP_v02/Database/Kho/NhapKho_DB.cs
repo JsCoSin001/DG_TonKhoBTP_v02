@@ -46,6 +46,183 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
             }, ct);
         }
 
+
+        /// <summary>
+        /// Tìm các TTCuonDay_CD còn lại theo Ngày/Ca để nhập kho hàng loạt.
+        /// Chỉ trả MaBin có CongDoan=5, ChieuDaiSau>0 và tổng mét chi tiết còn lại
+        /// khớp ChieuDaiSau. MaBin lệch dữ liệu được đưa vào MaBinBatThuong và không trả item.
+        /// </summary>
+        public static DG_TonKhoBTP_v02.Models.NhapKhoTheoNgaySearchResult TimKiemNhapKhoTheoNgay(
+            DateTime ngayBatDau,
+            DateTime ngayKetThuc,
+            string ca)
+        {
+            if (ngayBatDau.Date > ngayKetThuc.Date)
+                throw new ArgumentException("Ngày bắt đầu không được lớn hơn ngày kết thúc.");
+
+            string caFilter = (ca ?? string.Empty).Trim();
+            bool toanBoCa = string.IsNullOrWhiteSpace(caFilter)
+                || string.Equals(caFilter, "Toàn bộ", StringComparison.OrdinalIgnoreCase);
+
+            var result = new DG_TonKhoBTP_v02.Models.NhapKhoTheoNgaySearchResult();
+
+            // Hỗ trợ Ngay dạng yyyy-MM-dd (chuẩn hiện tại) và dd/MM/yyyy.
+            const string normalizedNgay = @"CASE
+                WHEN instr(clv.Ngay, '/') > 0 AND length(clv.Ngay) >= 10
+                    THEN substr(clv.Ngay, 7, 4) || '-' || substr(clv.Ngay, 4, 2) || '-' || substr(clv.Ngay, 1, 2)
+                ELSE substr(clv.Ngay, 1, 10)
+            END";
+
+            string sourceCte = @"
+                WITH source_remaining AS (
+                    SELECT
+                        tcd.id AS TTCuonDay_CD_ID,
+                        cdb.TTThanhPham_ID,
+                        tcd.TTLo_ID,
+                        lo.KichThuoc AS KichThuocLo,
+                        CASE
+                            WHEN tcd.TTLo_ID IS NULL THEN 1
+                            WHEN lo.id IS NOT NULL THEN 1
+                            ELSE 0
+                        END AS TTLoHopLe,
+                        MAX(0, IFNULL(tcd.SoCuon,0) - COALESCE(SUM(IFNULL(td.SoCuon,0)),0)) AS SoLuongCon,
+                        tcd.TongChieuDai AS ChieuDai1Cuon,
+                        tcd.SoDau,
+                        tcd.SoCuoi,
+                        IFNULL(tcd.GhiChu,'') AS GhiChu
+                    FROM TTCuonDay_CD tcd
+                    INNER JOIN CD_BocVo cbv ON cbv.id=tcd.CongDoan_ID
+                    INNER JOIN CaiDatCDBoc cdb ON cdb.id=cbv.CaiDatCDBoc_ID
+                    LEFT JOIN TTLo lo ON lo.id=tcd.TTLo_ID
+                    LEFT JOIN TTCuonDay td ON td.TTCuonDay_CD_ID=tcd.id
+                    GROUP BY
+                        tcd.id, cdb.TTThanhPham_ID, tcd.TTLo_ID, lo.KichThuoc, lo.id,
+                        tcd.SoCuon, tcd.TongChieuDai, tcd.SoDau, tcd.SoCuoi, tcd.GhiChu
+                )";
+
+            string summarySql = sourceCte + @"
+                SELECT
+                    tp.id AS TTThanhPham_ID,
+                    tp.MaBin,
+                    sp.Ma AS MaSP,
+                    sp.Ten AS TenSP,
+                    tp.ChieuDaiSau,
+                    clv.Ngay,
+                    clv.Ca,
+                    COALESCE(SUM(CASE WHEN sr.SoLuongCon>0 THEN sr.SoLuongCon * sr.ChieuDai1Cuon ELSE 0 END),0) AS TongMetChiTietCon,
+                    COALESCE(SUM(CASE WHEN sr.SoLuongCon>0 THEN 1 ELSE 0 END),0) AS SoDongCon,
+                    COALESCE(SUM(CASE WHEN sr.SoLuongCon>0 AND sr.TTLoHopLe=0 THEN 1 ELSE 0 END),0) AS SoDongLoKhongHopLe
+                FROM TTThanhPham tp
+                INNER JOIN DanhSachMaSP sp ON sp.id=tp.DanhSachSP_ID
+                INNER JOIN ThongTinCaLamViec clv ON clv.TTThanhPham_id=tp.id
+                LEFT JOIN source_remaining sr ON sr.TTThanhPham_ID=tp.id
+                WHERE tp.CongDoan=5
+                  AND tp.ChieuDaiSau>0
+                  AND date(" + normalizedNgay + @") BETWEEN date(@NgayBD) AND date(@NgayKT)
+                  AND (@ToanBoCa=1 OR clv.Ca=@Ca)
+                GROUP BY tp.id,tp.MaBin,sp.Ma,sp.Ten,tp.ChieuDaiSau,clv.Ngay,clv.Ca
+                ORDER BY clv.Ngay,tp.MaBin;";
+
+            var validIds = new HashSet<long>();
+            using (var conn = DB_Base.OpenConnection())
+            using (var cmd = new SQLiteCommand(summarySql, conn))
+            {
+                cmd.Parameters.AddWithValue("@NgayBD", ngayBatDau.Date.ToString("yyyy-MM-dd"));
+                cmd.Parameters.AddWithValue("@NgayKT", ngayKetThuc.Date.ToString("yyyy-MM-dd"));
+                cmd.Parameters.AddWithValue("@ToanBoCa", toanBoCa ? 1 : 0);
+                cmd.Parameters.AddWithValue("@Ca", caFilter);
+
+                using SQLiteDataReader reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    long id = Convert.ToInt64(reader["TTThanhPham_ID"]);
+                    string maBin = Convert.ToString(reader["MaBin"]) ?? string.Empty;
+                    double chieuDaiSau = Convert.ToDouble(reader["ChieuDaiSau"]);
+                    double tongChiTietCon = Convert.ToDouble(reader["TongMetChiTietCon"]);
+                    int soDongCon = Convert.ToInt32(reader["SoDongCon"]);
+                    int soDongLoKhongHopLe = Convert.ToInt32(reader["SoDongLoKhongHopLe"]);
+
+                    bool hopLe = soDongCon > 0
+                        && soDongLoKhongHopLe == 0
+                        && Math.Abs(chieuDaiSau - tongChiTietCon) <= 0.000001d;
+
+                    if (hopLe)
+                        validIds.Add(id);
+                    else if (!result.MaBinBatThuong.Contains(maBin))
+                        result.MaBinBatThuong.Add(maBin);
+                }
+            }
+
+            if (validIds.Count == 0)
+                return result;
+
+            string[] paramNames = validIds.Select((_, i) => "@id" + i).ToArray();
+            string detailSql = sourceCte + @"
+                SELECT
+                    tp.id AS TTThanhPham_ID,
+                    clv.Ngay,
+                    clv.Ca,
+                    tp.MaBin,
+                    sp.Ma AS MaSP,
+                    sp.Ten AS TenSP,
+                    tp.ChieuDaiSau,
+                    sr.TTCuonDay_CD_ID,
+                    sr.TTLo_ID,
+                    sr.KichThuocLo,
+                    sr.TTLoHopLe,
+                    sr.SoLuongCon,
+                    sr.ChieuDai1Cuon,
+                    sr.SoDau,
+                    sr.SoCuoi,
+                    sr.GhiChu
+                FROM TTThanhPham tp
+                INNER JOIN DanhSachMaSP sp ON sp.id=tp.DanhSachSP_ID
+                INNER JOIN ThongTinCaLamViec clv ON clv.TTThanhPham_id=tp.id
+                INNER JOIN source_remaining sr ON sr.TTThanhPham_ID=tp.id AND sr.SoLuongCon>0
+                WHERE tp.id IN (" + string.Join(",", paramNames) + @")
+                  AND date(" + normalizedNgay + @") BETWEEN date(@NgayBD) AND date(@NgayKT)
+                  AND (@ToanBoCa=1 OR clv.Ca=@Ca)
+                ORDER BY clv.Ngay,tp.MaBin,sr.TTCuonDay_CD_ID;";
+
+            using (var conn = DB_Base.OpenConnection())
+            using (var cmd = new SQLiteCommand(detailSql, conn))
+            {
+                cmd.Parameters.AddWithValue("@NgayBD", ngayBatDau.Date.ToString("yyyy-MM-dd"));
+                cmd.Parameters.AddWithValue("@NgayKT", ngayKetThuc.Date.ToString("yyyy-MM-dd"));
+                cmd.Parameters.AddWithValue("@ToanBoCa", toanBoCa ? 1 : 0);
+                cmd.Parameters.AddWithValue("@Ca", caFilter);
+                int i = 0;
+                foreach (long id in validIds)
+                    cmd.Parameters.AddWithValue("@id" + i++, id);
+
+                using SQLiteDataReader reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    result.Items.Add(new DG_TonKhoBTP_v02.Models.NhapKhoTheoNgayDong
+                    {
+                        TTThanhPham_ID = Convert.ToInt64(reader["TTThanhPham_ID"]),
+                        Ngay = Convert.ToString(reader["Ngay"]) ?? string.Empty,
+                        Ca = Convert.ToString(reader["Ca"]) ?? string.Empty,
+                        MaBin = Convert.ToString(reader["MaBin"]) ?? string.Empty,
+                        MaSP = Convert.ToString(reader["MaSP"]) ?? string.Empty,
+                        TenSP = Convert.ToString(reader["TenSP"]) ?? string.Empty,
+                        ChieuDaiSauSnapshot = Convert.ToDouble(reader["ChieuDaiSau"]),
+                        TTCuonDay_CD_ID = Convert.ToInt64(reader["TTCuonDay_CD_ID"]),
+                        TTLo_ID = reader["TTLo_ID"] == DBNull.Value ? (int?)null : Convert.ToInt32(reader["TTLo_ID"]),
+                        KichThuocLo = reader["KichThuocLo"] == DBNull.Value ? string.Empty : (Convert.ToString(reader["KichThuocLo"]) ?? string.Empty).Trim(),
+                        TTLoHopLe = Convert.ToInt32(reader["TTLoHopLe"]) == 1,
+                        SoLuongCon = Convert.ToInt32(reader["SoLuongCon"]),
+                        ChieuDai1Cuon = Convert.ToInt32(reader["ChieuDai1Cuon"]),
+                        SoDau = reader["SoDau"] == DBNull.Value ? (int?)null : Convert.ToInt32(reader["SoDau"]),
+                        SoCuoi = reader["SoCuoi"] == DBNull.Value ? (int?)null : Convert.ToInt32(reader["SoCuoi"]),
+                        GhiChu = Convert.ToString(reader["GhiChu"]) ?? string.Empty
+                    });
+                }
+            }
+
+            return result;
+        }
+
         /// <summary>
         /// Lấy danh sách kích thước lô từ TTLo để đổ vào ComboBox nrChieuCaoLo.
         /// </summary>
@@ -636,10 +813,16 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                     insertDetail.Parameters["@SoCuon"].Value = requested.SoCuon;
                     insertDetail.Parameters["@ChieuDai_1cuon"].Value = chieuDai1Cuon;
 
-                    int? soDauFinal = requested.SoDau ?? soDau;
-                    int? soCuoiFinal = requested.soCuoi ?? soCuoi;
-                    if (requested.TTLo_ID.HasValue && (!soDauFinal.HasValue || !soCuoiFinal.HasValue))
+                    // Trạng thái trên UI là trạng thái cuối cần ghi. Không dùng ?? fallback vì
+                    // thao tác đảo chiều hợp lệ có thể tạo NULL <=> số.
+                    int? soDauFinal = requested.SoDau;
+                    int? soCuoiFinal = requested.soCuoi;
+                    bool laLo = ttLoId != DBNull.Value;
+                    if (laLo && (!soDauFinal.HasValue || !soCuoiFinal.HasValue))
                         throw new InvalidOperationException($"TTCuonDay_CD id={sourceId}: Lô phải có đủ Số đầu và Số cuối.");
+                    if (laLo && chieuDai1Cuon != Math.Abs(soDauFinal.Value - soCuoiFinal.Value))
+                        throw new InvalidOperationException(
+                            $"TTCuonDay_CD id={sourceId}: chiều dài lô phải bằng ABS(Số đầu - Số cuối).");
 
                     insertDetail.Parameters["@SoDau"].Value = soDauFinal.HasValue ? (object)soDauFinal.Value : DBNull.Value;
                     insertDetail.Parameters["@SoCuoi"].Value = soCuoiFinal.HasValue ? (object)soCuoiFinal.Value : DBNull.Value;

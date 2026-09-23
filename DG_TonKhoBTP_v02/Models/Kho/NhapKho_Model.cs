@@ -37,6 +37,37 @@ namespace DG_TonKhoBTP_v02.Models
 
 
 
+
+    /// <summary>
+    /// Một dòng nguồn còn lại dùng cho chức năng nhập kho thành phẩm theo ngày.
+    /// Một dòng tương ứng một TTCuonDay_CD còn số lượng chưa nhập kho.
+    /// </summary>
+    public sealed class NhapKhoTheoNgayDong
+    {
+        public long TTThanhPham_ID { get; set; }
+        public string Ngay { get; set; } = string.Empty;
+        public string Ca { get; set; } = string.Empty;
+        public string MaBin { get; set; } = string.Empty;
+        public string MaSP { get; set; } = string.Empty;
+        public string TenSP { get; set; } = string.Empty;
+        public double ChieuDaiSauSnapshot { get; set; }
+        public long TTCuonDay_CD_ID { get; set; }
+        public int? TTLo_ID { get; set; }
+        public string KichThuocLo { get; set; } = string.Empty;
+        public bool TTLoHopLe { get; set; } = true;
+        public int SoLuongCon { get; set; }
+        public int ChieuDai1Cuon { get; set; }
+        public int? SoDau { get; set; }
+        public int? SoCuoi { get; set; }
+        public string GhiChu { get; set; } = string.Empty;
+    }
+
+    public sealed class NhapKhoTheoNgaySearchResult
+    {
+        public List<NhapKhoTheoNgayDong> Items { get; set; } = new List<NhapKhoTheoNgayDong>();
+        public List<string> MaBinBatThuong { get; set; } = new List<string>();
+    }
+
     public sealed class CongDoanComboItem
     {
         public int Id { get; set; }

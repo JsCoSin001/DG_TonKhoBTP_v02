@@ -9,6 +9,7 @@ using System.Data;
 using System.Drawing;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using System.Windows.Forms;
 using CoreHelper = DG_TonKhoBTP_v02.Helper.Helper;
 using FontStyle = System.Drawing.FontStyle;
@@ -45,6 +46,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
             dataGridView1.ReadOnly = true;
 
             grvDSNhapKho.CellDoubleClick += GrvDSNhapKho_CellDoubleClick;
+            btnNhapKhoTheoNgay.Click += btnNhapKhoTheoNgay_Click;
 
         }
 
@@ -323,7 +325,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
             // Mỗi lần btnNhapKho là một lần nhập mới độc lập.
             // Ghi chú của lần nhập không kế thừa từ TTThanhPham hay TTNhapKhoTP cũ.
             rtbGhiChu.Text = string.Empty;
-            tbNguoiLam.ReadOnly = false;
+            GanNguoiLamTuUserContext();
 
             _selectedTTThanhPhamID = long.TryParse(row["TTThanhPham_ID"]?.ToString(), out long id)
                             ? id : (long?)null;
@@ -347,7 +349,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
             rtbGhiChu.Text = string.Empty;
             nbSoMet.Value = 0;
             _selectedTTThanhPhamID = null;
-            tbNguoiLam.ReadOnly = false;
+            GanNguoiLamTuUserContext();
             thongTinDayNhapKho = new List<ThongTinCuonDay>();
             LoadThongTinDayVaoGrid();
             _ttCuonDayChanged = false;
@@ -834,7 +836,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
             _maBinSearchHelper.Reset();
             _selectedTTThanhPhamID = null;
             _editingIdNhapKho = 0;
-            tbNguoiLam.ReadOnly = false;
+            GanNguoiLamTuUserContext();
 
             tbTenSP.Text = string.Empty;
             tbMaBin.Text = string.Empty;
@@ -867,8 +869,52 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
         private void UC_QcDuyetNhapKho_Load(object sender, EventArgs e)
         {
             SetEditMode(false);
+            GanNguoiLamTuUserContext();
             nbSoBB.Focus();
             nbSoBB.Select(0, int.MaxValue);
+        }
+
+        private void btnNhapKhoTheoNgay_Click(object sender, EventArgs e)
+        {
+            if (!UserContext.IsAuthenticated
+                || (!UserContext.HasRole(RoleNames.Wh) && !UserContext.HasRole(RoleNames.Admin)))
+            {
+                FrmWaiting.ShowGifAlert("Bạn cần cấp quyền để thực hiện yêu cầu này.");
+                return;
+            }
+
+            using (var frm = new Frm_NhapKhoTP_TheoNgay())
+                frm.ShowDialog(this);
+        }
+
+        private void GanNguoiLamTuUserContext()
+        {
+            tbNguoiLam.Text = UserContext.UserName;
+            tbNguoiLam.ReadOnly = true;
+        }
+
+        private static string LayUsernameTuUserContext()
+        {
+            Type t = typeof(UserContext);
+            BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static;
+            foreach (string name in new[] { "Username", "UserName", "CurrentUsername", "CurrentUserName" })
+            {
+                string value = Convert.ToString(t.GetProperty(name, flags)?.GetValue(null))?.Trim();
+                if (!string.IsNullOrWhiteSpace(value)) return value;
+                value = Convert.ToString(t.GetField(name, flags)?.GetValue(null))?.Trim();
+                if (!string.IsNullOrWhiteSpace(value)) return value;
+            }
+            foreach (string holder in new[] { "Current", "CurrentUser", "User", "Login", "Session" })
+            {
+                object obj = t.GetProperty(holder, flags)?.GetValue(null) ?? t.GetField(holder, flags)?.GetValue(null);
+                if (obj == null) continue;
+                foreach (string name in new[] { "Username", "UserName", "Name" })
+                {
+                    string value = Convert.ToString(obj.GetType().GetProperty(name)?.GetValue(obj))?.Trim();
+                    if (!string.IsNullOrWhiteSpace(value)) return value;
+                }
+            }
+            return string.Empty;
         }
 
         protected override void OnHandleDestroyed(EventArgs e)

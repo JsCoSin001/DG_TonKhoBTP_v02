@@ -31,17 +31,6 @@
             this.label1 = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
-            this.ID = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.lot = new System.Windows.Forms.DataGridViewButtonColumn();
-            this.ten = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.soLuong = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.soDau = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.soCuoi = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.cd_1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.tong_cd = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.cd_cat = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.ngayCat = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.detail = new System.Windows.Forms.DataGridViewButtonColumn();
             this.panel2 = new System.Windows.Forms.Panel();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
@@ -62,6 +51,9 @@
             this.label3 = new System.Windows.Forms.Label();
             this.cbXuatExcel = new System.Windows.Forms.CheckBox();
             this.cbxXuatWord = new System.Windows.Forms.CheckBox();
+            this.panel3 = new System.Windows.Forms.Panel();
+            this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
+            this.btnCat = new System.Windows.Forms.Button();
             this.dataGridViewTextBoxColumn1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn3 = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -70,6 +62,23 @@
             this.dataGridViewTextBoxColumn6 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn7 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn8 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.dataGridViewTextBoxColumn9 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.dataGridViewTextBoxColumn10 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.dataGridViewTextBoxColumn11 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.dataGridViewTextBoxColumn12 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ID = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.lot = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ten = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.tenKH = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.tong_cd = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.soLuong = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.soDau = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.soCuoi = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.cd_1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.loai = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.slCuonLay = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.cd_cat = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.detail = new System.Windows.Forms.DataGridViewButtonColumn();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.panel2.SuspendLayout();
@@ -77,6 +86,8 @@
             this.tableLayoutPanel2.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
+            this.panel3.SuspendLayout();
+            this.tableLayoutPanel3.SuspendLayout();
             this.SuspendLayout();
             // 
             // label1
@@ -97,7 +108,7 @@
             this.panel1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.panel1.Location = new System.Drawing.Point(0, 184);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(1130, 520);
+            this.panel1.Size = new System.Drawing.Size(1130, 474);
             this.panel1.TabIndex = 2;
             // 
             // dataGridView1
@@ -108,77 +119,21 @@
             this.ID,
             this.lot,
             this.ten,
+            this.tenKH,
+            this.tong_cd,
             this.soLuong,
             this.soDau,
             this.soCuoi,
             this.cd_1,
-            this.tong_cd,
+            this.loai,
+            this.slCuonLay,
             this.cd_cat,
-            this.ngayCat,
             this.detail});
             this.dataGridView1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dataGridView1.Location = new System.Drawing.Point(0, 0);
             this.dataGridView1.Name = "dataGridView1";
-            this.dataGridView1.Size = new System.Drawing.Size(1130, 520);
+            this.dataGridView1.Size = new System.Drawing.Size(1130, 474);
             this.dataGridView1.TabIndex = 0;
-            // 
-            // ID
-            // 
-            this.ID.HeaderText = "ID";
-            this.ID.Name = "ID";
-            // 
-            // lot
-            // 
-            this.lot.HeaderText = "LOT";
-            this.lot.Name = "lot";
-            this.lot.Width = 150;
-            // 
-            // ten
-            // 
-            this.ten.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.ten.HeaderText = "Tên SP";
-            this.ten.Name = "ten";
-            // 
-            // soLuong
-            // 
-            this.soLuong.HeaderText = "Số cuộn";
-            this.soLuong.Name = "soLuong";
-            // 
-            // soDau
-            // 
-            this.soDau.HeaderText = "Số đầu";
-            this.soDau.Name = "soDau";
-            // 
-            // soCuoi
-            // 
-            this.soCuoi.HeaderText = "Số cuối";
-            this.soCuoi.Name = "soCuoi";
-            // 
-            // cd_1
-            // 
-            this.cd_1.HeaderText = "Chiều dài";
-            this.cd_1.Name = "cd_1";
-            // 
-            // tong_cd
-            // 
-            this.tong_cd.HeaderText = "Tổng CD";
-            this.tong_cd.Name = "tong_cd";
-            // 
-            // cd_cat
-            // 
-            this.cd_cat.HeaderText = "CD cắt";
-            this.cd_cat.Name = "cd_cat";
-            // 
-            // ngayCat
-            // 
-            this.ngayCat.HeaderText = "Ngày cắt";
-            this.ngayCat.Name = "ngayCat";
-            // 
-            // detail
-            // 
-            this.detail.HeaderText = "Chi tiết";
-            this.detail.Name = "detail";
-            this.detail.Width = 70;
             // 
             // panel2
             // 
@@ -447,6 +402,41 @@
             this.cbxXuatWord.Text = "Xuất Word";
             this.cbxXuatWord.UseVisualStyleBackColor = true;
             // 
+            // panel3
+            // 
+            this.panel3.Controls.Add(this.tableLayoutPanel3);
+            this.panel3.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.panel3.Location = new System.Drawing.Point(0, 658);
+            this.panel3.Name = "panel3";
+            this.panel3.Size = new System.Drawing.Size(1130, 46);
+            this.panel3.TabIndex = 1;
+            // 
+            // tableLayoutPanel3
+            // 
+            this.tableLayoutPanel3.ColumnCount = 3;
+            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 159F));
+            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel3.Controls.Add(this.btnCat, 1, 0);
+            this.tableLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanel3.Location = new System.Drawing.Point(0, 0);
+            this.tableLayoutPanel3.Name = "tableLayoutPanel3";
+            this.tableLayoutPanel3.RowCount = 1;
+            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel3.Size = new System.Drawing.Size(1130, 46);
+            this.tableLayoutPanel3.TabIndex = 0;
+            // 
+            // btnCat
+            // 
+            this.btnCat.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.btnCat.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnCat.Location = new System.Drawing.Point(488, 3);
+            this.btnCat.Name = "btnCat";
+            this.btnCat.Size = new System.Drawing.Size(153, 40);
+            this.btnCat.TabIndex = 0;
+            this.btnCat.Text = "Cắt/Lấy";
+            this.btnCat.UseVisualStyleBackColor = true;
+            // 
             // dataGridViewTextBoxColumn1
             // 
             this.dataGridViewTextBoxColumn1.HeaderText = "ID";
@@ -460,6 +450,7 @@
             // 
             // dataGridViewTextBoxColumn3
             // 
+            this.dataGridViewTextBoxColumn3.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
             this.dataGridViewTextBoxColumn3.HeaderText = "Số cuộn";
             this.dataGridViewTextBoxColumn3.Name = "dataGridViewTextBoxColumn3";
             // 
@@ -472,6 +463,7 @@
             // 
             this.dataGridViewTextBoxColumn5.HeaderText = "Số cuối";
             this.dataGridViewTextBoxColumn5.Name = "dataGridViewTextBoxColumn5";
+            this.dataGridViewTextBoxColumn5.Width = 150;
             // 
             // dataGridViewTextBoxColumn6
             // 
@@ -488,11 +480,101 @@
             this.dataGridViewTextBoxColumn8.HeaderText = "CD cắt";
             this.dataGridViewTextBoxColumn8.Name = "dataGridViewTextBoxColumn8";
             // 
+            // dataGridViewTextBoxColumn9
+            // 
+            this.dataGridViewTextBoxColumn9.HeaderText = "CD 1 đơn vị";
+            this.dataGridViewTextBoxColumn9.Name = "dataGridViewTextBoxColumn9";
+            // 
+            // dataGridViewTextBoxColumn10
+            // 
+            this.dataGridViewTextBoxColumn10.HeaderText = "Loại";
+            this.dataGridViewTextBoxColumn10.Name = "dataGridViewTextBoxColumn10";
+            // 
+            // dataGridViewTextBoxColumn11
+            // 
+            this.dataGridViewTextBoxColumn11.HeaderText = "Cuộn xuất";
+            this.dataGridViewTextBoxColumn11.Name = "dataGridViewTextBoxColumn11";
+            // 
+            // dataGridViewTextBoxColumn12
+            // 
+            this.dataGridViewTextBoxColumn12.HeaderText = "CD cắt";
+            this.dataGridViewTextBoxColumn12.Name = "dataGridViewTextBoxColumn12";
+            // 
+            // ID
+            // 
+            this.ID.HeaderText = "ID";
+            this.ID.Name = "ID";
+            // 
+            // lot
+            // 
+            this.lot.HeaderText = "LOT";
+            this.lot.Name = "lot";
+            this.lot.Width = 150;
+            // 
+            // ten
+            // 
+            this.ten.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.ten.HeaderText = "Tên SP";
+            this.ten.Name = "ten";
+            // 
+            // tenKH
+            // 
+            this.tenKH.HeaderText = "Tên khách hàng";
+            this.tenKH.Name = "tenKH";
+            this.tenKH.Width = 150;
+            // 
+            // tong_cd
+            // 
+            this.tong_cd.HeaderText = "Tổng CD";
+            this.tong_cd.Name = "tong_cd";
+            // 
+            // soLuong
+            // 
+            this.soLuong.HeaderText = "Số cuộn";
+            this.soLuong.Name = "soLuong";
+            // 
+            // soDau
+            // 
+            this.soDau.HeaderText = "Số đầu";
+            this.soDau.Name = "soDau";
+            // 
+            // soCuoi
+            // 
+            this.soCuoi.HeaderText = "Số cuối";
+            this.soCuoi.Name = "soCuoi";
+            // 
+            // cd_1
+            // 
+            this.cd_1.HeaderText = "CD 1 đơn vị";
+            this.cd_1.Name = "cd_1";
+            // 
+            // loai
+            // 
+            this.loai.HeaderText = "Loại";
+            this.loai.Name = "loai";
+            // 
+            // slCuonLay
+            // 
+            this.slCuonLay.HeaderText = "Xuất Cuộn";
+            this.slCuonLay.Name = "slCuonLay";
+            // 
+            // cd_cat
+            // 
+            this.cd_cat.HeaderText = "CD cắt";
+            this.cd_cat.Name = "cd_cat";
+            // 
+            // detail
+            // 
+            this.detail.HeaderText = "";
+            this.detail.Name = "detail";
+            this.detail.Width = 70;
+            // 
             // UC_CatDay
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.panel1);
+            this.Controls.Add(this.panel3);
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.label1);
             this.Name = "UC_CatDay";
@@ -508,6 +590,8 @@
             this.flowLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
+            this.panel3.ResumeLayout(false);
+            this.tableLayoutPanel3.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -545,16 +629,25 @@
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
         private System.Windows.Forms.CheckBox cbXuatExcel;
         private System.Windows.Forms.CheckBox cbxXuatWord;
+        private System.Windows.Forms.Panel panel3;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel3;
+        private System.Windows.Forms.Button btnCat;
+        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn9;
+        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn10;
+        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn11;
+        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn12;
         private System.Windows.Forms.DataGridViewTextBoxColumn ID;
-        private System.Windows.Forms.DataGridViewButtonColumn lot;
+        private System.Windows.Forms.DataGridViewTextBoxColumn lot;
         private System.Windows.Forms.DataGridViewTextBoxColumn ten;
+        private System.Windows.Forms.DataGridViewTextBoxColumn tenKH;
+        private System.Windows.Forms.DataGridViewTextBoxColumn tong_cd;
         private System.Windows.Forms.DataGridViewTextBoxColumn soLuong;
         private System.Windows.Forms.DataGridViewTextBoxColumn soDau;
         private System.Windows.Forms.DataGridViewTextBoxColumn soCuoi;
         private System.Windows.Forms.DataGridViewTextBoxColumn cd_1;
-        private System.Windows.Forms.DataGridViewTextBoxColumn tong_cd;
+        private System.Windows.Forms.DataGridViewTextBoxColumn loai;
+        private System.Windows.Forms.DataGridViewTextBoxColumn slCuonLay;
         private System.Windows.Forms.DataGridViewTextBoxColumn cd_cat;
-        private System.Windows.Forms.DataGridViewTextBoxColumn ngayCat;
         private System.Windows.Forms.DataGridViewButtonColumn detail;
     }
 }

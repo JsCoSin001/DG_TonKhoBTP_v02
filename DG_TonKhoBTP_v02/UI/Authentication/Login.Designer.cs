@@ -38,8 +38,8 @@
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
             this.btnCancel = new System.Windows.Forms.Button();
             this.btnLogin = new System.Windows.Forms.Button();
-            this.label3 = new System.Windows.Forms.Label();
             this.cbLuuTaiKhoan = new System.Windows.Forms.CheckBox();
+            this.label3 = new System.Windows.Forms.Label();
             this.panel2.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
@@ -168,6 +168,17 @@
             this.btnLogin.UseVisualStyleBackColor = true;
             this.btnLogin.Click += new System.EventHandler(this.btnLogin_Click);
             // 
+            // cbLuuTaiKhoan
+            // 
+            this.cbLuuTaiKhoan.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.cbLuuTaiKhoan.AutoSize = true;
+            this.cbLuuTaiKhoan.Location = new System.Drawing.Point(98, 15);
+            this.cbLuuTaiKhoan.Name = "cbLuuTaiKhoan";
+            this.cbLuuTaiKhoan.Size = new System.Drawing.Size(135, 22);
+            this.cbLuuTaiKhoan.TabIndex = 2;
+            this.cbLuuTaiKhoan.Text = "Lưu tài khoản";
+            this.cbLuuTaiKhoan.UseVisualStyleBackColor = true;
+            // 
             // label3
             // 
             this.label3.AutoSize = true;
@@ -180,17 +191,6 @@
             this.label3.TabIndex = 7;
             this.label3.Text = "ĐĂNG NHẬP";
             this.label3.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
-            // 
-            // cbLuuTaiKhoan
-            // 
-            this.cbLuuTaiKhoan.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.cbLuuTaiKhoan.AutoSize = true;
-            this.cbLuuTaiKhoan.Location = new System.Drawing.Point(98, 15);
-            this.cbLuuTaiKhoan.Name = "cbLuuTaiKhoan";
-            this.cbLuuTaiKhoan.Size = new System.Drawing.Size(135, 22);
-            this.cbLuuTaiKhoan.TabIndex = 2;
-            this.cbLuuTaiKhoan.Text = "Lưu tài khoản";
-            this.cbLuuTaiKhoan.UseVisualStyleBackColor = true;
             // 
             // Login
             // 

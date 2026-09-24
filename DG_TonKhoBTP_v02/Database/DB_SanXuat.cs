@@ -8,6 +8,7 @@
 
 using DG_TonKhoBTP_v02.Core;
 using DG_TonKhoBTP_v02.Models;
+using DG_TonKhoBTP_v02.Database.SanXuat;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -346,8 +347,8 @@ namespace DG_TonKhoBTP_v02.Database
             string sqlJoin = CoreHelper.TaoSQL_TaoKetNoiCacBang();
             string ngayBD = ngayBatDau.Date.AddHours(5).AddMinutes(59).ToString("yyyy-MM-dd HH:mm:ss");
             string ngayKT = ngayKetThuc.Date.AddDays(1).AddHours(6).ToString("yyyy-MM-dd HH:mm:ss");
-            string sqlDkNgay = $" WHERE date(tclv.Ngay) >= date('{ngayBD}') AND date(tclv.Ngay) <= date('{ngayKT}')";
-            string sqlOrder = " ORDER BY tclv.Ngay DESC, ttp.id DESC;";
+            string sqlDkNgay = $" WHERE date(tclv.NgayBatDau) >= date('{ngayBD}') AND date(tclv.NgayBatDau) <= date('{ngayKT}')";
+            string sqlOrder = " ORDER BY tclv.NgayBatDau DESC, ttp.id DESC;";
             string query = sqlSelect + " ," + sqlChiTietCD + " ," + sqlTenNVL + sqlJoin + sqlDkNgay + loaiCD + sqlOrder;
             return DB_Base.GetData(query);
         }
@@ -360,7 +361,7 @@ namespace DG_TonKhoBTP_v02.Database
             string sqlJoin = CoreHelper.TaoSQL_TaoKetNoiCacBang();
             loaiCD = loaiCD.Replace("AND", "WHERE") + @"
                 AND ((ds.DonVi = 'KG' AND ttp.KhoiLuongSau <> 0) OR (ds.DonVi = 'M' AND ttp.ChieuDaiSau <> 0))";
-            string sqlOrder = " ORDER BY tclv.Ngay DESC, ttp.id DESC;";
+            string sqlOrder = " ORDER BY tclv.NgayBatDau DESC, ttp.id DESC;";
             string query = sqlSelect + " ," + sqlChiTietCD + " ," + sqlTenNVL + sqlJoin + loaiCD + sqlOrder;
             return DB_Base.GetData(query);
         }
@@ -383,7 +384,7 @@ namespace DG_TonKhoBTP_v02.Database
             var result = new List<PrinterModel>();
             var paramNames = listBin.Select((bin, index) => "@bin" + index).ToList();
             string query = $@"
-                SELECT t.Ngay AS NgaySX, t.Ca AS CaSX, tp.QC, tp.KhoiLuongSau AS KhoiLuong, tp.ChieuDaiSau AS ChieuDai,
+                SELECT t.NgayBatDau AS NgaySX, t.Ca AS CaSX, tp.QC, tp.KhoiLuongSau AS KhoiLuong, tp.ChieuDaiSau AS ChieuDai,
                     d.ten AS TenSP, tp.MaBin, d.ma AS MaSP, t.NguoiLam AS TenCN, tp.GhiChu AS GhiChu
                 FROM TTThanhPham tp
                 LEFT JOIN ThongTinCaLamViec t ON t.TTThanhPham_id = tp.id
@@ -442,19 +443,7 @@ namespace DG_TonKhoBTP_v02.Database
 
         internal static long InsertThongTinCaLamViec(SQLiteConnection conn, SQLiteTransaction tx, ThongTinCaLamViec m, long id)
         {
-            const string sql = @"
-                INSERT INTO ThongTinCaLamViec (Ngay, TTThanhPham_id, May, Ca, NguoiLam, ToTruong, QuanDoc)
-                VALUES (@Ngay, @TTThanhPham_id, @May, @Ca, @NguoiLam, @ToTruong, @QuanDoc);
-                SELECT last_insert_rowid();";
-            using var cmd = new SQLiteCommand(sql, conn, tx);
-            cmd.Parameters.AddWithValue("@Ngay", m.Ngay);
-            cmd.Parameters.AddWithValue("@TTThanhPham_id", id);
-            cmd.Parameters.AddWithValue("@May", m.May);
-            cmd.Parameters.AddWithValue("@Ca", m.Ca);
-            cmd.Parameters.AddWithValue("@NguoiLam", m.NguoiLam);
-            cmd.Parameters.AddWithValue("@ToTruong", (object?)m.ToTruong ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("@QuanDoc", (object?)m.QuanDoc ?? DBNull.Value);
-            return (long)(cmd.ExecuteScalar() ?? 0L);
+            return SubmitForm_DB.InsertThongTinCaLamViec(conn, tx, m, id);
         }
 
         internal static void InsertTTNVL(SQLiteConnection conn, SQLiteTransaction tx, long thongTinSpId, List<TTNVL> items)
@@ -638,12 +627,30 @@ namespace DG_TonKhoBTP_v02.Database
 
         private static void UpdateThongTinCaLamViec(SQLiteConnection conn, SQLiteTransaction tx, ThongTinCaLamViec m, long tpId)
         {
-            const string sql = @"UPDATE ThongTinCaLamViec SET Ngay=@Ngay, May=@May, Ca=@Ca, NguoiLam=@NguoiLam, ToTruong=@ToTruong, QuanDoc=@QuanDoc WHERE TTThanhPham_id=@id;";
+            const string sql = @"
+                UPDATE ThongTinCaLamViec
+                SET May=@May,
+                    DanhSachMay_ID=@DanhSachMay_ID,
+                    Ca=@Ca,
+                    NguoiLam=@NguoiLam,
+                    ToTruong=@ToTruong,
+                    QuanDoc=@QuanDoc,
+                    NgayBatDau=@NgayBatDau,
+                    GioBatDau=@GioBatDau,
+                    NgayKetThuc=@NgayKetThuc,
+                    GioKetThuc=@GioKetThuc
+                WHERE TTThanhPham_id=@id;";
             using var cmd = new SQLiteCommand(sql, conn, tx);
-            cmd.Parameters.AddWithValue("@Ngay", m.Ngay); cmd.Parameters.AddWithValue("@May", m.May);
-            cmd.Parameters.AddWithValue("@Ca", m.Ca); cmd.Parameters.AddWithValue("@NguoiLam", m.NguoiLam);
+            cmd.Parameters.AddWithValue("@May", m.May);
+            cmd.Parameters.AddWithValue("@DanhSachMay_ID", m.DanhSachMayId > 0 ? (object)m.DanhSachMayId : DBNull.Value);
+            cmd.Parameters.AddWithValue("@Ca", m.Ca);
+            cmd.Parameters.AddWithValue("@NguoiLam", m.NguoiLam);
             cmd.Parameters.AddWithValue("@ToTruong", (object?)m.ToTruong ?? DBNull.Value);
             cmd.Parameters.AddWithValue("@QuanDoc", (object?)m.QuanDoc ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@NgayBatDau", m.NgayBatDau.HasValue ? (object)m.NgayBatDau.Value.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) : DBNull.Value);
+            cmd.Parameters.AddWithValue("@GioBatDau", m.GioBatDau.HasValue ? (object)m.GioBatDau.Value.ToString(@"hh\:mm", CultureInfo.InvariantCulture) : DBNull.Value);
+            cmd.Parameters.AddWithValue("@NgayKetThuc", m.NgayKetThuc.HasValue ? (object)m.NgayKetThuc.Value.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) : DBNull.Value);
+            cmd.Parameters.AddWithValue("@GioKetThuc", m.GioKetThuc.HasValue ? (object)m.GioKetThuc.Value.ToString(@"hh\:mm", CultureInfo.InvariantCulture) : DBNull.Value);
             cmd.Parameters.AddWithValue("@id", tpId);
             cmd.ExecuteNonQuery();
         }

@@ -264,7 +264,7 @@ namespace DG_TonKhoBTP_v02.Helper
                     d.ChuyenDoi     AS ChuyenDoi,
                     t.Qc            AS Qc,
                     t.MaBin         AS BinNVL,
-                    v.Ngay          AS Ngay,
+                    v.NgayBatDau    AS Ngay,
                     v.Ca            AS Ca,
                     v.NguoiLam      AS NguoiLam,
                     t.GhiChu        AS GhiChu,
@@ -326,7 +326,8 @@ namespace DG_TonKhoBTP_v02.Helper
             return @"
             SELECT
               ttp.id AS STT,
-              tclv.Ngay, tclv.Ca, tclv.May,nvl.QC,
+              tclv.NgayBatDau AS Ngay, tclv.Ca, tclv.May, tclv.DanhSachMay_ID,
+              tclv.NgayBatDau, tclv.GioBatDau, tclv.NgayKetThuc, tclv.GioKetThuc, nvl.QC,
               ttp.MaBin as MaBin, ds.Ten AS Ten, ds.Ma AS Ma,ds.DonVi, ds.id AS id,
               tclv.NguoiLam, tclv.ToTruong, tclv.QuanDoc,
               ttp.KhoiLuongTruoc AS KhoiLuongTruoc, ttp.KhoiLuongSau as KhoiLuongSau,
@@ -347,7 +348,8 @@ namespace DG_TonKhoBTP_v02.Helper
               ttp.id AS STT,
               ttp_bin.id AS id,
               nvl.DanhSachMaSP_ID AS NVL_DanhSachMaSP_ID,
-              tclv.Ngay, tclv.Ca, tclv.May,nvl.QC,
+              tclv.NgayBatDau AS Ngay, tclv.Ca, tclv.May, tclv.DanhSachMay_ID,
+              tclv.NgayBatDau, tclv.GioBatDau, tclv.NgayKetThuc, tclv.GioKetThuc, nvl.QC,
               ttp.MaBin as MaBin, ds.Ten AS Ten, ds.Ma AS Ma,ds.DonVi,ds.ChuyenDoi, ds.id AS DanhSachMaSP_ID,
               tclv.NguoiLam, tclv.ToTruong, tclv.QuanDoc,
               ttp.KhoiLuongTruoc AS KhoiLuongTruoc, ttp.KhoiLuongSau as KhoiLuongSau,
@@ -381,7 +383,7 @@ namespace DG_TonKhoBTP_v02.Helper
             string sql = $@"
                 SELECT
                     TT.id AS STT,
-                    CLV.Ngay AS Ngay,
+                    CLV.NgayBatDau AS Ngay,
                     CLV.Ca AS Ca,
                     TT.MaBin AS MaBin,
                     SP.Ten AS Ten,

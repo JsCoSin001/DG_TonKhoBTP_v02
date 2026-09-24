@@ -316,7 +316,7 @@ namespace DG_TonKhoBTP_v02.Database
                     ttp.DanhSachSP_ID, ttp.id AS TTThanhPham_ID,
                     sp.Ten, sp.Ma,
                     ttp.ChieuDaiSau, ttp.KhoiLuongSau, ttp.GhiChu,
-                    ca.Ngay AS NgaySX, ca.Ca AS CaSX, ca.NguoiLam AS TenCN,
+                    ca.NgayBatDau AS NgaySX, ca.Ca AS CaSX, ca.NguoiLam AS TenCN,
                     bm.Mau, nvl.QC
                 FROM TTThanhPham ttp
                 JOIN DanhSachMaSP sp           ON sp.id  = ttp.DanhSachSP_ID

@@ -133,7 +133,7 @@
             this.tbNgayBatDau.Location = new System.Drawing.Point(103, 4);
             this.tbNgayBatDau.Name = "tbNgayBatDau";
             this.tbNgayBatDau.Size = new System.Drawing.Size(114, 26);
-            this.tbNgayBatDau.TabIndex = 13;
+            this.tbNgayBatDau.TabIndex = 1;
             // 
             // dateTimePicker1
             // 
@@ -145,7 +145,7 @@
             this.dateTimePicker1.Name = "dateTimePicker1";
             this.dateTimePicker1.ShowUpDown = true;
             this.dateTimePicker1.Size = new System.Drawing.Size(94, 26);
-            this.dateTimePicker1.TabIndex = 14;
+            this.dateTimePicker1.TabIndex = 2;
             // 
             // label5
             // 
@@ -178,7 +178,7 @@
             this.cbMay.Location = new System.Drawing.Point(493, 4);
             this.cbMay.Name = "cbMay";
             this.cbMay.Size = new System.Drawing.Size(94, 26);
-            this.cbMay.TabIndex = 2;
+            this.cbMay.TabIndex = 3;
             this.cbMay.SelectedIndexChanged += new System.EventHandler(this.cbMay_SelectedIndexChanged);
             // 
             // label3
@@ -205,7 +205,7 @@
             this.ca.Location = new System.Drawing.Point(653, 4);
             this.ca.Name = "ca";
             this.ca.Size = new System.Drawing.Size(54, 26);
-            this.ca.TabIndex = 3;
+            this.ca.TabIndex = 4;
             // 
             // label4
             // 
@@ -225,7 +225,7 @@
             this.nguoiLam.Location = new System.Drawing.Point(813, 4);
             this.nguoiLam.Name = "nguoiLam";
             this.nguoiLam.Size = new System.Drawing.Size(296, 26);
-            this.nguoiLam.TabIndex = 4;
+            this.nguoiLam.TabIndex = 6;
             // 
             // label6
             // 
@@ -245,7 +245,7 @@
             this.textBox1.Location = new System.Drawing.Point(1225, 4);
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(94, 26);
-            this.textBox1.TabIndex = 13;
+            this.textBox1.TabIndex = 7;
             // 
             // label7
             // 
@@ -268,7 +268,7 @@
             this.dateTimePicker2.Name = "dateTimePicker2";
             this.dateTimePicker2.ShowUpDown = true;
             this.dateTimePicker2.Size = new System.Drawing.Size(114, 26);
-            this.dateTimePicker2.TabIndex = 14;
+            this.dateTimePicker2.TabIndex = 8;
             // 
             // UC_TTCaLamViec
             // 

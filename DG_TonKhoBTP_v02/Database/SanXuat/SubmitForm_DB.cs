@@ -25,7 +25,7 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
 
             string query = $@"
                 SELECT  
-                    t.Ngay AS NgaySX,
+                    t.NgayBatDau AS NgaySX,
                     t.Ca AS CaSX,
                     tp.QC AS QC,
                     tp.KhoiLuongSau AS KhoiLuong,
@@ -83,7 +83,23 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
         /// Chỉ insert TTThanhPham và ThongTinCaLamViec;
         /// không insert TTNVL, KhacBietBOM hoặc bảng chi tiết công đoạn.
         /// </summary>
-        public static bool SaveDataCongDoan9(ThongTinCaLamViec caLamViec, TTThanhPham thanhPham, out string error)
+        public static bool SaveDataCongDoan9(
+            ThongTinCaLamViec caLamViec,
+            TTThanhPham thanhPham,
+            out string error)
+        {
+            return SaveDataCongDoan9(
+                caLamViec,
+                thanhPham,
+                null,
+                out error);
+        }
+
+        public static bool SaveDataCongDoan9(
+            ThongTinCaLamViec caLamViec,
+            TTThanhPham thanhPham,
+            List<DanhSachLoiDungMay_Model> danhSachLoiDungMay,
+            out string error)
         {
             error = string.Empty;
 
@@ -204,23 +220,31 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
                 const string insertCaLamViecSql = @"
                     INSERT INTO ThongTinCaLamViec
                     (
-                        Ngay,
                         TTThanhPham_id,
                         May,
+                        DanhSachMay_ID,
                         Ca,
                         NguoiLam,
                         ToTruong,
-                        QuanDoc
+                        QuanDoc,
+                        NgayBatDau,
+                        GioBatDau,
+                        NgayKetThuc,
+                        GioKetThuc
                     )
                     VALUES
                     (
-                        @Ngay,
                         @TTThanhPham_id,
                         @May,
+                        @DanhSachMay_ID,
                         @Ca,
                         @NguoiLam,
                         @ToTruong,
-                        @QuanDoc
+                        @QuanDoc,
+                        @NgayBatDau,
+                        @GioBatDau,
+                        @NgayKetThuc,
+                        @GioKetThuc
                     );";
 
                 using (var cmd = new SQLiteCommand(
@@ -228,9 +252,6 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
                     conn,
                     tx))
                 {
-                    cmd.Parameters.AddWithValue(
-                        "@Ngay",
-                        (object)caLamViec.Ngay ?? DBNull.Value);
 
                     cmd.Parameters.AddWithValue(
                         "@TTThanhPham_id",
@@ -239,6 +260,12 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
                     cmd.Parameters.AddWithValue(
                         "@May",
                         (object)caLamViec.May ?? DBNull.Value);
+
+                    cmd.Parameters.AddWithValue(
+                        "@DanhSachMay_ID",
+                        caLamViec.DanhSachMayId > 0
+                            ? (object)caLamViec.DanhSachMayId
+                            : DBNull.Value);
 
                     cmd.Parameters.AddWithValue(
                         "@Ca",
@@ -256,12 +283,23 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
                         "@QuanDoc",
                         (object)caLamViec.QuanDoc ?? DBNull.Value);
 
+                    AddNewCaLamViecParameters(cmd, caLamViec);
+
                     int affectedRows = cmd.ExecuteNonQuery();
                     if (affectedRows != 1)
                     {
                         throw new InvalidOperationException(
                             "Không tạo được bản ghi ThongTinCaLamViec.");
                     }
+                }
+
+                if (danhSachLoiDungMay != null)
+                {
+                    LoiDungMay_DB.DongBoDanhSachTheoTTThanhPham(
+                        conn,
+                        tx,
+                        thanhPhamId,
+                        danhSachLoiDungMay);
                 }
 
                 tx.Commit();
@@ -292,6 +330,23 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
             int idEdit,
             ThongTinCaLamViec caLamViec,
             TTThanhPham thanhPham,
+            string confirmedUsername,
+            out string error)
+        {
+            return UpdateDataCongDoan9(
+                idEdit,
+                caLamViec,
+                thanhPham,
+                null,
+                confirmedUsername,
+                out error);
+        }
+
+        public static bool UpdateDataCongDoan9(
+            int idEdit,
+            ThongTinCaLamViec caLamViec,
+            TTThanhPham thanhPham,
+            List<DanhSachLoiDungMay_Model> danhSachLoiDungMay,
             string confirmedUsername,
             out string error)
         {
@@ -407,12 +462,16 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
                 const string updateCaLamViecSql = @"
                     UPDATE ThongTinCaLamViec
                     SET
-                        Ngay = @Ngay,
                         May = @May,
+                        DanhSachMay_ID = @DanhSachMay_ID,
                         Ca = @Ca,
                         NguoiLam = @NguoiLam,
                         ToTruong = @ToTruong,
-                        QuanDoc = @QuanDoc
+                        QuanDoc = @QuanDoc,
+                        NgayBatDau = @NgayBatDau,
+                        GioBatDau = @GioBatDau,
+                        NgayKetThuc = @NgayKetThuc,
+                        GioKetThuc = @GioKetThuc
                     WHERE TTThanhPham_id = @TTThanhPham_id;";
 
                 int caLamAffected;
@@ -422,13 +481,16 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
                     conn,
                     tx))
                 {
-                    cmd.Parameters.AddWithValue(
-                        "@Ngay",
-                        (object)caLamViec.Ngay ?? DBNull.Value);
 
                     cmd.Parameters.AddWithValue(
                         "@May",
                         (object)caLamViec.May ?? DBNull.Value);
+
+                    cmd.Parameters.AddWithValue(
+                        "@DanhSachMay_ID",
+                        caLamViec.DanhSachMayId > 0
+                            ? (object)caLamViec.DanhSachMayId
+                            : DBNull.Value);
 
                     cmd.Parameters.AddWithValue(
                         "@Ca",
@@ -445,6 +507,8 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
                     cmd.Parameters.AddWithValue(
                         "@QuanDoc",
                         (object)caLamViec.QuanDoc ?? DBNull.Value);
+
+                    AddNewCaLamViecParameters(cmd, caLamViec);
 
                     cmd.Parameters.AddWithValue(
                         "@TTThanhPham_id",
@@ -459,23 +523,31 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
                     const string insertCaLamViecSql = @"
                         INSERT INTO ThongTinCaLamViec
                         (
-                            Ngay,
-                            TTThanhPham_id,
+                                TTThanhPham_id,
                             May,
+                            DanhSachMay_ID,
                             Ca,
                             NguoiLam,
                             ToTruong,
-                            QuanDoc
+                            QuanDoc,
+                            NgayBatDau,
+                            GioBatDau,
+                            NgayKetThuc,
+                            GioKetThuc
                         )
                         VALUES
                         (
-                            @Ngay,
-                            @TTThanhPham_id,
+                                @TTThanhPham_id,
                             @May,
+                            @DanhSachMay_ID,
                             @Ca,
                             @NguoiLam,
                             @ToTruong,
-                            @QuanDoc
+                            @QuanDoc,
+                            @NgayBatDau,
+                            @GioBatDau,
+                            @NgayKetThuc,
+                            @GioKetThuc
                         );";
 
                     using var cmd = new SQLiteCommand(
@@ -484,16 +556,18 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
                         tx);
 
                     cmd.Parameters.AddWithValue(
-                        "@Ngay",
-                        (object)caLamViec.Ngay ?? DBNull.Value);
-
-                    cmd.Parameters.AddWithValue(
                         "@TTThanhPham_id",
                         idEdit);
 
                     cmd.Parameters.AddWithValue(
                         "@May",
                         (object)caLamViec.May ?? DBNull.Value);
+
+                    cmd.Parameters.AddWithValue(
+                        "@DanhSachMay_ID",
+                        caLamViec.DanhSachMayId > 0
+                            ? (object)caLamViec.DanhSachMayId
+                            : DBNull.Value);
 
                     cmd.Parameters.AddWithValue(
                         "@Ca",
@@ -511,6 +585,8 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
                         "@QuanDoc",
                         (object)caLamViec.QuanDoc ?? DBNull.Value);
 
+                    AddNewCaLamViecParameters(cmd, caLamViec);
+
                     int insertedRows = cmd.ExecuteNonQuery();
                     if (insertedRows != 1)
                     {
@@ -524,6 +600,15 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
                     tx,
                     idEdit,
                     confirmedUsername);
+
+                if (danhSachLoiDungMay != null)
+                {
+                    LoiDungMay_DB.DongBoDanhSachTheoTTThanhPham(
+                        conn,
+                        tx,
+                        idEdit,
+                        danhSachLoiDungMay);
+                }
 
                 tx.Commit();
                 return true;
@@ -655,6 +740,25 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
             List<LoiNhapLieuData> danhSachLoiNhapLieu,
             out string errorMsg)
         {
+            return SaveDataSanPhamVoiDanhSachLoiNhapLieu(
+                caLam,
+                tp,
+                nvl,
+                chiTietCD,
+                danhSachLoiNhapLieu,
+                null,
+                out errorMsg);
+        }
+
+        public static bool SaveDataSanPhamVoiDanhSachLoiNhapLieu(
+            ThongTinCaLamViec caLam,
+            TTThanhPham tp,
+            List<TTNVL> nvl,
+            SubmitCongDoanData chiTietCD,
+            List<LoiNhapLieuData> danhSachLoiNhapLieu,
+            List<DanhSachLoiDungMay_Model> danhSachLoiDungMay,
+            out string errorMsg)
+        {
             errorMsg = string.Empty;
 
             if (tp == null)
@@ -731,6 +835,15 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
                     tx,
                     tpId,
                     danhSachLoiNhapLieu);
+
+                if (danhSachLoiDungMay != null)
+                {
+                    LoiDungMay_DB.DongBoDanhSachTheoTTThanhPham(
+                        conn,
+                        tx,
+                        tpId,
+                        danhSachLoiDungMay);
+                }
 
                 tx.Commit();
                 return true;
@@ -874,6 +987,29 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
             string confirmedUsername,
             out string errorMsg)
         {
+            return UpdateDataSanPhamVoiDanhSachLoiNhapLieu(
+                tpId,
+                caLam,
+                tp,
+                nvl,
+                chiTietCD,
+                danhSachLoiNhapLieu,
+                null,
+                confirmedUsername,
+                out errorMsg);
+        }
+
+        public static bool UpdateDataSanPhamVoiDanhSachLoiNhapLieu(
+            int tpId,
+            ThongTinCaLamViec caLam,
+            TTThanhPham tp,
+            List<TTNVL> nvl,
+            SubmitCongDoanData chiTietCD,
+            List<LoiNhapLieuData> danhSachLoiNhapLieu,
+            List<DanhSachLoiDungMay_Model> danhSachLoiDungMay,
+            string confirmedUsername,
+            out string errorMsg)
+        {
             errorMsg = string.Empty;
 
             if (tp == null)
@@ -954,6 +1090,15 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
                     tx,
                     tpId,
                     danhSachLoiNhapLieu);
+
+                if (danhSachLoiDungMay != null)
+                {
+                    LoiDungMay_DB.DongBoDanhSachTheoTTThanhPham(
+                        conn,
+                        tx,
+                        tpId,
+                        danhSachLoiDungMay);
+                }
 
                 InsertChapNhanSuaDLByToTruong(
                     conn,
@@ -1166,22 +1311,29 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
         private static void UpdateThongTinCaLamViec(SQLiteConnection conn, SQLiteTransaction tx, ThongTinCaLamViec m, int id)
         {
             string sqlUpdate = @"UPDATE ThongTinCaLamViec 
-                        SET Ngay = @Ngay,
-                            May = @May,
+                        SET May = @May,
+                            DanhSachMay_ID = @DanhSachMay_ID,
                             Ca = @Ca,
                             NguoiLam = @NguoiLam,
                             ToTruong = @ToTruong,
-                            QuanDoc = @QuanDoc
+                            QuanDoc = @QuanDoc,
+                            NgayBatDau = @NgayBatDau,
+                            GioBatDau = @GioBatDau,
+                            NgayKetThuc = @NgayKetThuc,
+                            GioKetThuc = @GioKetThuc
                         WHERE TTThanhPham_id = @id";
 
             using (var cmd = new SQLiteCommand(sqlUpdate, conn, tx))
             {
-                cmd.Parameters.AddWithValue("@Ngay", m.Ngay);
                 cmd.Parameters.AddWithValue("@May", m.May);
+                cmd.Parameters.AddWithValue(
+                    "@DanhSachMay_ID",
+                    m.DanhSachMayId > 0 ? (object)m.DanhSachMayId : DBNull.Value);
                 cmd.Parameters.AddWithValue("@Ca", m.Ca);
                 cmd.Parameters.AddWithValue("@NguoiLam", m.NguoiLam);
                 cmd.Parameters.AddWithValue("@ToTruong", m.ToTruong ?? (object)DBNull.Value);
                 cmd.Parameters.AddWithValue("@QuanDoc", m.QuanDoc ?? (object)DBNull.Value);
+                AddNewCaLamViecParameters(cmd, m);
                 cmd.Parameters.AddWithValue("@id", id);
 
                 int rowsAffected = cmd.ExecuteNonQuery();
@@ -1956,6 +2108,35 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
             var rowsAffected = cmd.ExecuteNonQuery();
         }
 
+        private static void AddNewCaLamViecParameters(
+            SQLiteCommand cmd,
+            ThongTinCaLamViec m)
+        {
+            if (cmd == null) throw new ArgumentNullException(nameof(cmd));
+            if (m == null) throw new ArgumentNullException(nameof(m));
+
+            cmd.Parameters.AddWithValue(
+                "@NgayBatDau",
+                m.NgayBatDau.HasValue
+                    ? (object)m.NgayBatDau.Value.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)
+                    : DBNull.Value);
+            cmd.Parameters.AddWithValue(
+                "@GioBatDau",
+                m.GioBatDau.HasValue
+                    ? (object)m.GioBatDau.Value.ToString(@"hh\:mm", CultureInfo.InvariantCulture)
+                    : DBNull.Value);
+            cmd.Parameters.AddWithValue(
+                "@NgayKetThuc",
+                m.NgayKetThuc.HasValue
+                    ? (object)m.NgayKetThuc.Value.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)
+                    : DBNull.Value);
+            cmd.Parameters.AddWithValue(
+                "@GioKetThuc",
+                m.GioKetThuc.HasValue
+                    ? (object)m.GioKetThuc.Value.ToString(@"hh\:mm", CultureInfo.InvariantCulture)
+                    : DBNull.Value);
+        }
+
         internal static long InsertThongTinCaLamViec(
             SQLiteConnection conn,
             SQLiteTransaction tx,
@@ -1963,18 +2144,25 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
             long ttThanhPhamId)
         {
             const string sql = @"
-            INSERT INTO ThongTinCaLamViec (Ngay, TTThanhPham_id, May, Ca, NguoiLam, ToTruong, QuanDoc)
-            VALUES (@Ngay, @TTThanhPham_id, @May, @Ca, @NguoiLam, @ToTruong, @QuanDoc);
+            INSERT INTO ThongTinCaLamViec
+                (TTThanhPham_id, May, DanhSachMay_ID, Ca, NguoiLam, ToTruong, QuanDoc,
+                 NgayBatDau, GioBatDau, NgayKetThuc, GioKetThuc)
+            VALUES
+                (@TTThanhPham_id, @May, @DanhSachMay_ID, @Ca, @NguoiLam, @ToTruong, @QuanDoc,
+                 @NgayBatDau, @GioBatDau, @NgayKetThuc, @GioKetThuc);
             SELECT last_insert_rowid();";
 
             using var cmd = new SQLiteCommand(sql, conn, tx);
-            cmd.Parameters.AddWithValue("@Ngay", m.Ngay);
             cmd.Parameters.AddWithValue("@TTThanhPham_id", ttThanhPhamId);
             cmd.Parameters.AddWithValue("@May", m.May);
+            cmd.Parameters.AddWithValue(
+                "@DanhSachMay_ID",
+                m.DanhSachMayId > 0 ? (object)m.DanhSachMayId : DBNull.Value);
             cmd.Parameters.AddWithValue("@Ca", m.Ca);
             cmd.Parameters.AddWithValue("@NguoiLam", m.NguoiLam);
             cmd.Parameters.AddWithValue("@ToTruong", (object?)m.ToTruong ?? DBNull.Value);
             cmd.Parameters.AddWithValue("@QuanDoc", (object?)m.QuanDoc ?? DBNull.Value);
+            AddNewCaLamViecParameters(cmd, m);
 
             return (long)(cmd.ExecuteScalar() ?? 0L);
         }

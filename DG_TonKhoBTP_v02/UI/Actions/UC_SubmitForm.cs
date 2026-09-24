@@ -188,6 +188,12 @@ namespace DG_TonKhoBTP_v02.UI
                 if (submitData == null)
                     return;
 
+                // Báo cáo dừng máy được giữ dạng draft trong UC_TTThanhPham,
+                // tương tự _pheLieuDraft. Form frm_BCDungMay không ghi DB trực tiếp.
+                submitData.DanhSachLoiDungMay = CaptureLoiDungMayDraft(host, waiting);
+                if (submitData.DanhSachLoiDungMay == null)
+                    return;
+
                 // Sau khi các validation bắt buộc đã hợp lệ, kiểm tra phế liệu.
                 // Nếu chưa có giá trị phế, người dùng có thể chọn:
                 // - No: hủy lần submit này và mở Frm_PheLieu để bổ sung.
@@ -951,6 +957,33 @@ namespace DG_TonKhoBTP_v02.UI
         }
 
         /// <summary>
+        /// Chụp draft lỗi dừng máy từ UC_TTThanhPham tại thời điểm submit.
+        /// Tạo mới và sao chép bắt đầu với draft rỗng; chỉnh sửa đã load draft theo TTThanhPham_ID.
+        /// </summary>
+        private List<DanhSachLoiDungMay_Model> CaptureLoiDungMayDraft(
+            Form host,
+            FrmWaiting waiting)
+        {
+            UC_TTThanhPham ucThanhPham =
+                CoreHelper.FindControlRecursive<UC_TTThanhPham>(host);
+
+            if (ucThanhPham == null)
+            {
+                ShowStructureError(
+                    waiting,
+                    "Không tìm thấy UC_TTThanhPham để lấy dữ liệu báo cáo dừng máy.");
+                return null;
+            }
+
+            IReadOnlyList<DanhSachLoiDungMay_Model> draft =
+                ucThanhPham.GetLoiDungMayDraft();
+
+            return draft == null
+                ? new List<DanhSachLoiDungMay_Model>()
+                : draft.ToList();
+        }
+
+        /// <summary>
         /// Cảnh báo khi cả 6 giá trị phế bằng 0.
         /// No: dừng submit và tự mở Frm_PheLieu để người dùng bổ sung.
         /// Yes: tiếp tục lưu. SavePheLieu sẽ không tạo row khi không có số liệu phế.
@@ -1125,7 +1158,11 @@ namespace DG_TonKhoBTP_v02.UI
 
             if (laCongDoan9 && data.IdEdit == 0)
             {
-                result.SaveSuccess = SubmitForm_DB.SaveDataCongDoan9(data.ThongTinCaLamViec, data.ThongTinThanhPham, out error);
+                result.SaveSuccess = SubmitForm_DB.SaveDataCongDoan9(
+                    data.ThongTinCaLamViec,
+                    data.ThongTinThanhPham,
+                    data.DanhSachLoiDungMay,
+                    out error);
 
                 Debug.WriteLine(
                     $"SaveDataCongDoan9: {swDb.ElapsedMilliseconds} ms");
@@ -1136,6 +1173,7 @@ namespace DG_TonKhoBTP_v02.UI
                     data.IdEdit,
                     data.ThongTinCaLamViec,
                     data.ThongTinThanhPham,
+                    data.DanhSachLoiDungMay,
                     data.ConfirmedUsername,
                     out error);
 
@@ -1150,6 +1188,7 @@ namespace DG_TonKhoBTP_v02.UI
                     data.NguyenVatLieu,
                     data.CongDoan,
                     data.DanhSachLoiNhapLieu,
+                    data.DanhSachLoiDungMay,
                     out error);
 
                 Debug.WriteLine(
@@ -1164,6 +1203,7 @@ namespace DG_TonKhoBTP_v02.UI
                     data.NguyenVatLieu,
                     data.CongDoan,
                     data.DanhSachLoiNhapLieu,
+                    data.DanhSachLoiDungMay,
                     data.ConfirmedUsername,
                     out error);
 
@@ -1210,11 +1250,9 @@ namespace DG_TonKhoBTP_v02.UI
 
             return new PrinterModel
             {
-                NgaySX = DateTime.ParseExact(
-                        data.ThongTinCaLamViec.Ngay,
-                        "yyyy-MM-dd",
-                        CultureInfo.InvariantCulture)
-                    .ToString("dd/MM/yyyy"),
+                NgaySX = data.ThongTinCaLamViec.NgayBatDau.HasValue
+                    ? data.ThongTinCaLamViec.NgayBatDau.Value.ToString("dd/MM/yyyy")
+                    : string.Empty,
                 CaSX = data.ThongTinCaLamViec.Ca,
                 Mau = mau,
                 KhoiLuong = data.ThongTinThanhPham.KhoiLuongSau.ToString(),

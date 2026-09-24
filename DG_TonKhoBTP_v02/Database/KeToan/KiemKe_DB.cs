@@ -142,7 +142,7 @@ namespace DG_TonKhoBTP_v02.Database.KeToan
                 ttp.ChieuDaiSau         AS ChieuDaiSau,
                 ttp.KhoiLuongSau        AS KhoiLuongSau,
                 ttp.GhiChu              AS GhiChu,
-                ca.Ngay                 AS NgaySX,
+                ca.NgayBatDau             AS NgaySX,
                 ca.Ca                   AS CaSX,
                 ca.NguoiLam             AS TenCN,
                 bm.Mau                  AS Mau,

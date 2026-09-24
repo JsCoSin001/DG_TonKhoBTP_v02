@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data.SQLite;
 using System.Globalization;
@@ -61,7 +61,10 @@ namespace DG_TonKhoBTP_v02.Database.Kho
 
                 var caLam = new ThongTinCaLamViec
                 {
-                    Ngay = now.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
+                    NgayBatDau = now.Date,
+                    GioBatDau = now.TimeOfDay,
+                    NgayKetThuc = now.Date,
+                    GioKetThuc = now.TimeOfDay,
                     May = "NVL",
                     Ca = "HC",
                     NguoiLam = UserContext.UserName,

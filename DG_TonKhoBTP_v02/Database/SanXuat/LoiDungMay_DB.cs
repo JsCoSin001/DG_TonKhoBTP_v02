@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
 using System.Globalization;
+using System.Linq;
 
 namespace DG_TonKhoBTP_v02.Database.SanXuat
 {
@@ -133,669 +134,294 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
             return result;
         }
 
+
+        #region Lõi mới theo TTThanhPham_ID
+
         /// <summary>
-        /// Kiểm tra tổ hợp Ngày + Máy + Ca đã có ít nhất một bản ghi hay chưa.
+        /// Lấy TTThanhPham.id theo MaBin sau khi luồng thêm mới/sao chép đã lưu thành công.
+        /// TTThanhPham.MaBin được khai báo UNIQUE trong schema.
         /// </summary>
-        public static bool DaCoDuLieuTheoMayNgayCa(DateTime ngay, int danhSachMayId, int ca)
+        public static long GetTTThanhPhamIdTheoMaBin(string maBin)
         {
+            string key = (maBin ?? string.Empty).Trim();
+            if (string.IsNullOrWhiteSpace(key))
+                throw new InvalidOperationException(
+                    "Không xác định được MaBin để lấy TTThanhPham_ID.");
+
+            const string sql = @"
+                SELECT id
+                FROM TTThanhPham
+                WHERE MaBin = @MaBin
+                LIMIT 1;";
+
+            using (SQLiteConnection conn = DB_Base.OpenConnection())
+            using (SQLiteCommand cmd = new SQLiteCommand(sql, conn))
+            {
+                cmd.Parameters.AddWithValue("@MaBin", key);
+                object result = cmd.ExecuteScalar();
+
+                if (result == null || result == DBNull.Value)
+                    throw new InvalidOperationException(
+                        "Không tìm thấy TTThanhPham vừa lưu theo MaBin: " + key);
+
+                long id = Convert.ToInt64(result);
+                if (id <= 0)
+                    throw new InvalidOperationException(
+                        "TTThanhPham_ID vừa lưu không hợp lệ.");
+
+                return id;
+            }
+        }
+
+        public static bool DaCoDuLieuTheoTTThanhPhamId(long ttThanhPhamId)
+        {
+            if (ttThanhPhamId <= 0) return false;
+
             const string sql = @"
                 SELECT EXISTS
                 (
                     SELECT 1
                     FROM DanhSachLoiDungMay
-                    WHERE Ngay = @Ngay
-                      AND DanhSachMay_ID = @DanhSachMay_ID
-                      AND Ca = @Ca
+                    WHERE TTThanhPham_ID = @TTThanhPham_ID
                     LIMIT 1
                 );";
 
             using (SQLiteConnection conn = DB_Base.OpenConnection())
             using (SQLiteCommand cmd = new SQLiteCommand(sql, conn))
             {
-                cmd.Parameters.AddWithValue("@Ngay", ngay.Date.ToString(DinhDangNgay, CultureInfo.InvariantCulture));
-                cmd.Parameters.AddWithValue("@DanhSachMay_ID", danhSachMayId);
-                cmd.Parameters.AddWithValue("@Ca", ca);
-
+                cmd.Parameters.AddWithValue("@TTThanhPham_ID", ttThanhPhamId);
                 object result = cmd.ExecuteScalar();
                 return result != null && result != DBNull.Value && Convert.ToInt32(result) == 1;
             }
         }
 
-        /// <summary>
-        /// Lấy toàn bộ bản ghi đã lưu của cùng Ngày + Máy + Ca.
-        /// Dùng để hiển thị lại dữ liệu trên UI và đồng bộ khi lưu.
-        /// </summary>
-        public static List<DanhSachLoiDungMay_Model> GetDanhSachDaLuuTheoMayNgayCa(
-            DateTime ngay,
-            int danhSachMayId,
-            int ca,
-            LoiDungMayInputMode cheDoNhapThoiGian)
+        public static List<DanhSachLoiDungMay_Model> GetDanhSachDaLuuTheoTTThanhPhamId(
+            long ttThanhPhamId)
         {
+            if (ttThanhPhamId <= 0)
+                return new List<DanhSachLoiDungMay_Model>();
+
             using (SQLiteConnection conn = DB_Base.OpenConnection())
             {
-                return GetDanhSachDaLuuTheoMayNgayCa(
-                    conn,
-                    null,
-                    ngay,
-                    danhSachMayId,
-                    ca,
-                    cheDoNhapThoiGian);
+                return GetDanhSachTheoTTThanhPham(conn, null, ttThanhPhamId);
             }
         }
 
-        /// <summary>
-        /// Tính số phút dừng máy.
-        /// Nếu kết thúc nhỏ hơn bắt đầu thì hiểu là kết thúc ở ngày kế tiếp.
-        /// Bắt đầu bằng kết thúc là không hợp lệ.
-        /// </summary>
-        public static bool TryTinhThoiGianDung(
-            TimeSpan thoiGianBatDau,
-            TimeSpan thoiGianKetThuc,
-            out int soPhutDung)
+        public static void LuuDanhSachTheoTTThanhPham(
+            long ttThanhPhamId,
+            List<DanhSachLoiDungMay_Model> danhSach)
         {
-            soPhutDung = 0;
-
-            DateTime mocNgay = new DateTime(2000, 1, 1);
-            DateTime batDau = mocNgay.Add(thoiGianBatDau);
-            DateTime ketThuc = mocNgay.Add(thoiGianKetThuc);
-
-            if (ketThuc == batDau)
-            {
-                return false;
-            }
-
-            if (ketThuc < batDau)
-            {
-                ketThuc = ketThuc.AddDays(1);
-            }
-
-            double totalMinutes = (ketThuc - batDau).TotalMinutes;
-
-            if (totalMinutes <= 0 || totalMinutes >= 24 * 60)
-            {
-                return false;
-            }
-
-            soPhutDung = Convert.ToInt32(totalMinutes);
-            return soPhutDung > 0;
-        }
-
-        /// <summary>
-        /// Tính thời gian dừng theo các khung giờ có thể xảy ra của từng ca.
-        /// Không cần xác định người dùng đang theo mô hình 2 ca hay 3 ca:
-        /// - Ca 1: 06:00 - 18:00 (bao phủ cả 06:00 - 14:00 và 06:00 - 18:00).
-        /// - Ca 2: hợp lệ nếu thuộc 14:00 - 22:00 HOẶC 18:00 - 06:00 sáng hôm sau.
-        /// - Ca 3: 22:00 - 06:00 sáng hôm sau.
-        /// Chỉ báo lỗi khi khoảng thời gian không hợp lệ theo tất cả khung có thể của ca đó.
-        /// </summary>
-        public static bool TryTinhThoiGianDungTheoCa(
-            TimeSpan thoiGianBatDau,
-            TimeSpan thoiGianKetThuc,
-            int ca,
-            out int soPhutDung,
-            out string thongBao)
-        {
-            soPhutDung = 0;
-            thongBao = string.Empty;
-
-            if (ca == 1)
-            {
-                if (TryTinhThoiGianDungTrongKhungCa(
-                    thoiGianBatDau,
-                    thoiGianKetThuc,
-                    TimeSpan.FromHours(6),
-                    TimeSpan.FromHours(18),
-                    out soPhutDung,
-                    out _))
-                {
-                    return true;
-                }
-
-                thongBao =
-                    "Thời gian Ca 1 phải nằm trong khoảng từ 06:00 đến 18:00 và thời gian kết thúc phải sau thời gian bắt đầu.";
-                return false;
-            }
-
-            if (ca == 2)
-            {
-                // Trường hợp 1: mô hình 3 ca, Ca 2 = 14:00 - 22:00.
-                int soPhutTheoCa14Den22;
-                bool hopLeTheoCa14Den22 = TryTinhThoiGianDungTrongKhungCa(
-                    thoiGianBatDau,
-                    thoiGianKetThuc,
-                    TimeSpan.FromHours(14),
-                    TimeSpan.FromHours(22),
-                    out soPhutTheoCa14Den22,
-                    out _);
-
-                // Trường hợp 2: mô hình 2 ca, Ca 2 = 18:00 - 06:00 hôm sau.
-                int soPhutTheoCa18Den06;
-                bool hopLeTheoCa18Den06 = TryTinhThoiGianDungTrongKhungCa(
-                    thoiGianBatDau,
-                    thoiGianKetThuc,
-                    TimeSpan.FromHours(18),
-                    TimeSpan.FromHours(6),
-                    out soPhutTheoCa18Den06,
-                    out _);
-
-                if (hopLeTheoCa14Den22)
-                {
-                    soPhutDung = soPhutTheoCa14Den22;
-                    return true;
-                }
-
-                if (hopLeTheoCa18Den06)
-                {
-                    soPhutDung = soPhutTheoCa18Den06;
-                    return true;
-                }
-
-                thongBao =
-                    "Thời gian Ca 2 phải hợp lệ theo một trong hai khung 14:00 - 22:00 hoặc 18:00 - 06:00, và thời gian kết thúc phải sau thời gian bắt đầu.";
-                return false;
-            }
-
-            if (ca == 3)
-            {
-                if (TryTinhThoiGianDungTrongKhungCa(
-                    thoiGianBatDau,
-                    thoiGianKetThuc,
-                    TimeSpan.FromHours(22),
-                    TimeSpan.FromHours(6),
-                    out soPhutDung,
-                    out _))
-                {
-                    return true;
-                }
-
-                thongBao =
-                    "Thời gian Ca 3 phải nằm trong khoảng từ 22:00 đến 06:00 và thời gian kết thúc phải sau thời gian bắt đầu.";
-                return false;
-            }
-
-            thongBao = "Ca làm việc không hợp lệ.";
-            return false;
-        }
-
-        /// <summary>
-        /// Chuyển khoảng thời gian nhập thành DateTime thực tế trên trục thời gian của ca.
-        /// Dùng chung cho kiểm tra overlap ở UI và DB.
-        /// Với Ca 2, thử khung 14:00 - 22:00 trước; nếu không hợp lệ thì thử 18:00 - 06:00.
-        /// </summary>
-        public static bool TryLayKhoangThoiGianTheoCa(
-            DateTime ngay,
-            TimeSpan thoiGianBatDau,
-            TimeSpan thoiGianKetThuc,
-            int ca,
-            out DateTime batDau,
-            out DateTime ketThuc)
-        {
-            batDau = DateTime.MinValue;
-            ketThuc = DateTime.MinValue;
-
-            int soPhutDung;
-            int batDauTheoCa;
-            TimeSpan mocBatDauCa;
-
-            if (ca == 1)
-            {
-                mocBatDauCa = TimeSpan.FromHours(6);
-                if (!TryTinhThoiGianDungTrongKhungCa(
-                    thoiGianBatDau,
-                    thoiGianKetThuc,
-                    mocBatDauCa,
-                    TimeSpan.FromHours(18),
-                    out soPhutDung,
-                    out batDauTheoCa))
-                {
-                    return false;
-                }
-            }
-            else if (ca == 2)
-            {
-                mocBatDauCa = TimeSpan.FromHours(14);
-                if (!TryTinhThoiGianDungTrongKhungCa(
-                    thoiGianBatDau,
-                    thoiGianKetThuc,
-                    mocBatDauCa,
-                    TimeSpan.FromHours(22),
-                    out soPhutDung,
-                    out batDauTheoCa))
-                {
-                    mocBatDauCa = TimeSpan.FromHours(18);
-                    if (!TryTinhThoiGianDungTrongKhungCa(
-                        thoiGianBatDau,
-                        thoiGianKetThuc,
-                        mocBatDauCa,
-                        TimeSpan.FromHours(6),
-                        out soPhutDung,
-                        out batDauTheoCa))
-                    {
-                        return false;
-                    }
-                }
-            }
-            else if (ca == 3)
-            {
-                mocBatDauCa = TimeSpan.FromHours(22);
-                if (!TryTinhThoiGianDungTrongKhungCa(
-                    thoiGianBatDau,
-                    thoiGianKetThuc,
-                    mocBatDauCa,
-                    TimeSpan.FromHours(6),
-                    out soPhutDung,
-                    out batDauTheoCa))
-                {
-                    return false;
-                }
-            }
-            else
-            {
-                return false;
-            }
-
-            DateTime dauCa = ngay.Date.Add(mocBatDauCa);
-            batDau = dauCa.AddMinutes(batDauTheoCa);
-            ketThuc = batDau.AddMinutes(soPhutDung);
-            return true;
-        }
-
-        /// <summary>
-        /// Validate một khoảng thời gian theo một khung ca cụ thể và tính duration.
-        /// Hỗ trợ cả ca cùng ngày (vd. 14:00 - 22:00) và ca qua ngày (vd. 22:00 - 06:00).
-        /// </summary>
-        private static bool TryTinhThoiGianDungTrongKhungCa(
-            TimeSpan thoiGianBatDau,
-            TimeSpan thoiGianKetThuc,
-            TimeSpan mocBatDauCa,
-            TimeSpan mocKetThucCa,
-            out int soPhutDung,
-            out int batDauTheoCa)
-        {
-            soPhutDung = 0;
-            batDauTheoCa = 0;
-
-            if (thoiGianBatDau < TimeSpan.Zero ||
-                thoiGianBatDau >= TimeSpan.FromHours(24) ||
-                thoiGianKetThuc < TimeSpan.Zero ||
-                thoiGianKetThuc >= TimeSpan.FromHours(24))
-            {
-                return false;
-            }
-
-            int doDaiCa = TinhSoPhutTheoChieuTien(
-                mocBatDauCa,
-                mocKetThucCa);
-
-            int ketThucTheoCa;
-            batDauTheoCa = TinhSoPhutTheoChieuTien(
-                mocBatDauCa,
-                thoiGianBatDau);
-            ketThucTheoCa = TinhSoPhutTheoChieuTien(
-                mocBatDauCa,
-                thoiGianKetThuc);
-
-            // Bắt đầu được phép đúng đầu ca nhưng không được đúng cuối ca.
-            if (batDauTheoCa < 0 || batDauTheoCa >= doDaiCa)
-            {
-                return false;
-            }
-
-            // Kết thúc phải sau đầu ca và được phép đúng cuối ca.
-            if (ketThucTheoCa <= 0 || ketThucTheoCa > doDaiCa)
-            {
-                return false;
-            }
-
-            if (ketThucTheoCa <= batDauTheoCa)
-            {
-                return false;
-            }
-
-            soPhutDung = ketThucTheoCa - batDauTheoCa;
-            return soPhutDung > 0 && soPhutDung <= doDaiCa;
-        }
-
-        /// <summary>
-        /// Tính số phút đi theo chiều thời gian từ mốc bắt đầu đến thời gian cần xét,
-        /// có vòng qua 00:00 khi cần.
-        /// </summary>
-        private static int TinhSoPhutTheoChieuTien(
-            TimeSpan mocBatDau,
-            TimeSpan thoiGian)
-        {
-            double soPhut = (thoiGian - mocBatDau).TotalMinutes;
-            if (soPhut < 0)
-            {
-                soPhut += 24 * 60;
-            }
-
-            return Convert.ToInt32(soPhut);
-        }
-
-        /// <summary>
-        /// Đồng bộ toàn bộ trạng thái của một Ngày + Máy + Ca trong một transaction.
-        /// ID đã tồn tại được UPDATE khi có thay đổi; dòng mới được INSERT;
-        /// ID cũ không còn trong danh sách được DELETE.
-        /// </summary>
-        public static void LuuDanhSach(
-            List<DanhSachLoiDungMay_Model> danhSach,
-            LoiDungMayInputMode cheDoNhapThoiGian)
-        {
-            if (danhSach == null || danhSach.Count == 0)
-            {
-                throw new InvalidOperationException("Không có dữ liệu lỗi dừng máy để lưu.");
-            }
-
             using (SQLiteConnection conn = DB_Base.OpenConnection())
             using (SQLiteTransaction transaction = conn.BeginTransaction(IsolationLevel.Serializable))
             {
                 try
                 {
-                    ValidateDanhSachTruocKhiLuu(
+                    DongBoDanhSachTheoTTThanhPham(
                         conn,
                         transaction,
-                        danhSach,
-                        cheDoNhapThoiGian);
-
-                    DanhSachLoiDungMay_Model first = danhSach[0];
-                    List<DanhSachLoiDungMay_Model> daLuu =
-                        GetDanhSachDaLuuTheoMayNgayCa(
-                            conn,
-                            transaction,
-                            first.Ngay,
-                            first.DanhSachMayId,
-                            first.Ca,
-                            cheDoNhapThoiGian);
-
-                    var daLuuTheoId = new Dictionary<int, DanhSachLoiDungMay_Model>();
-                    foreach (DanhSachLoiDungMay_Model oldItem in daLuu)
-                    {
-                        daLuuTheoId[oldItem.Id] = oldItem;
-                    }
-
-                    if (cheDoNhapThoiGian == LoiDungMayInputMode.Manual)
-                    {
-                        DongBoThoiGianCuKhiNhapThuCong(danhSach, daLuuTheoId);
-                    }
-
-                    var idCuConTrenGrid = new HashSet<int>();
-
-                    foreach (DanhSachLoiDungMay_Model item in danhSach)
-                    {
-                        if (item.Id > 0 && daLuuTheoId.ContainsKey(item.Id))
-                        {
-                            idCuConTrenGrid.Add(item.Id);
-                        }
-                    }
-
-                    // Xoá các bản ghi người dùng đã loại khỏi grid trước. Việc này
-                    // giúp UPDATE/INSERT sau đó ít có nguy cơ đụng ràng buộc UNIQUE.
-                    foreach (DanhSachLoiDungMay_Model oldItem in daLuu)
-                    {
-                        if (!idCuConTrenGrid.Contains(oldItem.Id))
-                        {
-                            DeleteBanGhiTheoId(conn, transaction, oldItem.Id);
-                        }
-                    }
-
-                    foreach (DanhSachLoiDungMay_Model item in danhSach)
-                    {
-                        DanhSachLoiDungMay_Model oldItem;
-
-                        if (item.Id > 0 && daLuuTheoId.TryGetValue(item.Id, out oldItem))
-                        {
-                            // Không UPDATE nếu người dùng không thay đổi bản ghi.
-                            if (!BanGhiGiongNhau(item, oldItem))
-                            {
-                                UpdateBanGhi(conn, transaction, item);
-                            }
-                        }
-                        else
-                        {
-                            // Last-write-wins: nếu ID cũ đã bị nơi khác xoá trước khi
-                            // người dùng bấm Lưu, trạng thái trên grid vẫn được phục hồi
-                            // bằng một INSERT mới.
-                            item.Id = InsertBanGhi(conn, transaction, item);
-                        }
-                    }
-
+                        ttThanhPhamId,
+                        danhSach);
                     transaction.Commit();
                 }
                 catch
                 {
-                    try
-                    {
-                        transaction.Rollback();
-                    }
-                    catch
-                    {
-                        // Giữ nguyên exception gốc.
-                    }
-
+                    try { transaction.Rollback(); } catch { }
                     throw;
                 }
             }
         }
 
-        /// <summary>
-        /// Xoá ngay toàn bộ dữ liệu của Ngày + Máy + Ca.
-        /// Dùng khi người dùng xác nhận xoá dòng cuối cùng trong Edit mode.
-        /// </summary>
-        public static void XoaToanBoTheoMayNgayCa(
-            DateTime ngay,
-            int danhSachMayId,
-            int ca)
-        {
-            const string sql = @"
-                DELETE FROM DanhSachLoiDungMay
-                WHERE Ngay = @Ngay
-                  AND DanhSachMay_ID = @DanhSachMay_ID
-                  AND Ca = @Ca;";
-
-            using (SQLiteConnection conn = DB_Base.OpenConnection())
-            using (SQLiteTransaction transaction = conn.BeginTransaction(IsolationLevel.Serializable))
-            {
-                try
-                {
-                    using (SQLiteCommand cmd = new SQLiteCommand(sql, conn, transaction))
-                    {
-                        cmd.Parameters.AddWithValue(
-                            "@Ngay",
-                            ngay.Date.ToString(DinhDangNgay, CultureInfo.InvariantCulture));
-                        cmd.Parameters.AddWithValue("@DanhSachMay_ID", danhSachMayId);
-                        cmd.Parameters.AddWithValue("@Ca", ca);
-                        cmd.ExecuteNonQuery();
-                    }
-
-                    transaction.Commit();
-                }
-                catch
-                {
-                    try
-                    {
-                        transaction.Rollback();
-                    }
-                    catch
-                    {
-                        // Giữ nguyên exception gốc.
-                    }
-
-                    throw;
-                }
-            }
-        }
-
-        private static void ValidateDanhSachTruocKhiLuu(
+        public static void DongBoDanhSachTheoTTThanhPham(
             SQLiteConnection conn,
             SQLiteTransaction transaction,
-            List<DanhSachLoiDungMay_Model> danhSach,
-            LoiDungMayInputMode cheDoNhapThoiGian)
+            long ttThanhPhamId,
+            List<DanhSachLoiDungMay_Model> danhSach)
         {
+            if (conn == null) throw new ArgumentNullException(nameof(conn));
+            if (transaction == null) throw new ArgumentNullException(nameof(transaction));
+            if (ttThanhPhamId <= 0)
+                throw new InvalidOperationException("TTThanhPham_ID không hợp lệ.");
+
+            List<DanhSachLoiDungMay_Model> current = danhSach
+                ?? new List<DanhSachLoiDungMay_Model>();
+
+            ValidateDanhSachTheoTTThanhPham(
+                conn,
+                transaction,
+                ttThanhPhamId,
+                current);
+
+            List<DanhSachLoiDungMay_Model> daLuu =
+                GetDanhSachTheoTTThanhPham(conn, transaction, ttThanhPhamId);
+
+            var daLuuTheoId = daLuu.ToDictionary(x => x.Id);
+            DongBoThoiGianCuKhiNhapThuCong(current, daLuuTheoId);
+
+            var idCuConLai = new HashSet<int>(
+                current
+                    .Where(x => x.Id > 0 && daLuuTheoId.ContainsKey(x.Id))
+                    .Select(x => x.Id));
+
+            foreach (DanhSachLoiDungMay_Model oldItem in daLuu)
+            {
+                if (!idCuConLai.Contains(oldItem.Id))
+                    DeleteBanGhiTheoId(conn, transaction, oldItem.Id);
+            }
+
+            foreach (DanhSachLoiDungMay_Model item in current)
+            {
+                item.TTThanhPhamId = ttThanhPhamId;
+
+                DanhSachLoiDungMay_Model oldItem;
+                if (item.Id > 0 && daLuuTheoId.TryGetValue(item.Id, out oldItem))
+                {
+                    if (!BanGhiGiongNhauTheoTTThanhPham(item, oldItem))
+                        UpdateBanGhiTheoTTThanhPham(conn, transaction, item);
+                }
+                else
+                {
+                    item.Id = InsertBanGhiTheoTTThanhPham(conn, transaction, item);
+                }
+            }
+        }
+
+        private static void ValidateDanhSachTheoTTThanhPham(
+            SQLiteConnection conn,
+            SQLiteTransaction transaction,
+            long ttThanhPhamId,
+            List<DanhSachLoiDungMay_Model> danhSach)
+        {
+            if (danhSach == null || danhSach.Count == 0)
+                return;
+
             DanhSachLoiDungMay_Model first = danhSach[0];
 
             if (first.DanhSachMayId <= 0)
-            {
                 throw new InvalidOperationException("Máy không hợp lệ.");
-            }
-
-            if (first.Ca < 1 || first.Ca > 3)
-            {
-                throw new InvalidOperationException("Ca làm việc không hợp lệ.");
-            }
 
             if (first.MaCongDoan < 0)
-            {
                 throw new InvalidOperationException("Công đoạn không hợp lệ.");
-            }
 
-            if (string.IsNullOrWhiteSpace(first.NguoiLam))
-            {
-                throw new InvalidOperationException("Người làm không được để trống.");
-            }
-
-            int maCongDoanCuaMay = GetMaCongDoanCuaMay(conn, transaction, first.DanhSachMayId);
+            int maCongDoanCuaMay =
+                GetMaCongDoanCuaMay(conn, transaction, first.DanhSachMayId);
             if (maCongDoanCuaMay != first.MaCongDoan)
-            {
                 throw new InvalidOperationException("Máy không thuộc công đoạn đã chọn.");
-            }
 
             var idDaXuatHien = new HashSet<int>();
 
             for (int i = 0; i < danhSach.Count; i++)
             {
                 DanhSachLoiDungMay_Model item = danhSach[i];
+                if (item == null)
+                    throw new InvalidOperationException(
+                        string.Format("Dòng {0}: dữ liệu không hợp lệ.", i + 1));
 
                 if (item.Id < 0)
-                {
                     throw new InvalidOperationException(
                         string.Format("Dòng {0}: ID bản ghi không hợp lệ.", i + 1));
-                }
 
                 if (item.Id > 0 && !idDaXuatHien.Add(item.Id))
-                {
                     throw new InvalidOperationException(
                         string.Format("Dòng {0}: ID bản ghi bị trùng trong danh sách.", i + 1));
-                }
 
-                if (item.Ngay.Date != first.Ngay.Date ||
-                    item.DanhSachMayId != first.DanhSachMayId ||
-                    item.Ca != first.Ca ||
+                if (item.DanhSachMayId != first.DanhSachMayId ||
                     item.MaCongDoan != first.MaCongDoan)
                 {
                     throw new InvalidOperationException(
-                        "Các dòng trong một lần lưu phải cùng Ngày, Máy, Ca và Công đoạn.");
+                        "Các dòng trong một lần lưu phải cùng Máy và Công đoạn.");
                 }
 
-                if (string.IsNullOrWhiteSpace(item.NguoiLam))
+                if (item.TTThanhPhamId.HasValue &&
+                    item.TTThanhPhamId.Value > 0 &&
+                    item.TTThanhPhamId.Value != ttThanhPhamId)
                 {
                     throw new InvalidOperationException(
-                        string.Format("Dòng {0}: Người làm không được để trống.", i + 1));
+                        string.Format(
+                            "Dòng {0}: TTThanhPham_ID không khớp bản ghi đang lưu.",
+                            i + 1));
                 }
 
-                if (cheDoNhapThoiGian == LoiDungMayInputMode.Manual)
-                {
-                    if (item.ThoiGianDung <= 0)
-                    {
-                        throw new InvalidOperationException(
-                            string.Format(
-                                "Dòng {0}: Thời gian dừng phải là số phút nguyên lớn hơn 0.",
-                                i + 1));
-                    }
-                }
-                else
-                {
-                    if (!item.ThoiGianBatDau.HasValue || !item.ThoiGianKetThuc.HasValue)
-                    {
-                        throw new InvalidOperationException(
-                            string.Format(
-                                "Dòng {0}: Thời gian bắt đầu và thời gian kết thúc không được để trống.",
-                                i + 1));
-                    }
+                if (item.ThoiGianDung <= 0)
+                    throw new InvalidOperationException(
+                        string.Format(
+                            "Dòng {0}: Thời gian dừng phải là số phút nguyên lớn hơn 0.",
+                            i + 1));
 
-                    int soPhutDung;
-                    string thongBaoThoiGian;
-                    if (!TryTinhThoiGianDungTheoCa(
-                        item.ThoiGianBatDau.Value,
-                        item.ThoiGianKetThuc.Value,
-                        item.Ca,
-                        out soPhutDung,
-                        out thongBaoThoiGian))
-                    {
-                        throw new InvalidOperationException(
-                            string.Format(
-                                "Dòng {0}: {1}",
-                                i + 1,
-                                thongBaoThoiGian));
-                    }
+                TenLoiDungMay_Model tenLoi =
+                    GetTenLoiTheoId(conn, transaction, item.TenLoiDungMayId);
 
-                    // Automatic: không tin duration từ UI; luôn tính lại trước INSERT/UPDATE.
-                    item.ThoiGianDung = soPhutDung;
-                }
-
-                TenLoiDungMay_Model tenLoi = GetTenLoiTheoId(conn, transaction, item.TenLoiDungMayId);
                 if (tenLoi.MaCongDoan != first.MaCongDoan)
-                {
                     throw new InvalidOperationException(
-                        string.Format("Dòng {0}: Lỗi dừng máy không thuộc công đoạn đã chọn.", i + 1));
-                }
+                        string.Format(
+                            "Dòng {0}: Lỗi dừng máy không thuộc công đoạn đã chọn.",
+                            i + 1));
 
                 item.TenLoi = tenLoi.TenLoi;
+                item.TTThanhPhamId = ttThanhPhamId;
 
-                if (IsLamViecKhac(tenLoi.TenLoi) && string.IsNullOrWhiteSpace(item.GhiChu))
+                if (IsLamViecKhac(tenLoi.TenLoi) &&
+                    string.IsNullOrWhiteSpace(item.GhiChu))
                 {
                     throw new InvalidOperationException(
-                        string.Format("Dòng {0}: Khi chọn 'Làm việc khác' bắt buộc phải nhập ghi chú.", i + 1));
+                        string.Format(
+                            "Dòng {0}: Khi chọn 'Làm việc khác' bắt buộc phải nhập ghi chú.",
+                            i + 1));
                 }
             }
+        }
 
-            if (cheDoNhapThoiGian == LoiDungMayInputMode.Automatic)
+        private static List<DanhSachLoiDungMay_Model> GetDanhSachTheoTTThanhPham(
+            SQLiteConnection conn,
+            SQLiteTransaction transaction,
+            long ttThanhPhamId)
+        {
+            const string sql = @"
+                SELECT
+                    id,
+                    TenLoiDungMay_ID,
+                    DanhSachMay_ID,
+                    ThoiGianBatDau,
+                    ThoiGianKetThuc,
+                    ThoiGianDung,
+                    GhiChu,
+                    DanhSachCongDoan_MaCongDoan,
+                    TTThanhPham_ID
+                FROM DanhSachLoiDungMay
+                WHERE TTThanhPham_ID = @TTThanhPham_ID
+                ORDER BY id ASC;";
+
+            var result = new List<DanhSachLoiDungMay_Model>();
+
+            using (SQLiteCommand cmd = new SQLiteCommand(sql, conn, transaction))
             {
-                // Grid đại diện cho trạng thái cuối cùng, nên chỉ cần kiểm tra overlap
-                // giữa các dòng trong chính danh sách hiện tại.
-                for (int i = 0; i < danhSach.Count; i++)
+                cmd.Parameters.AddWithValue("@TTThanhPham_ID", ttThanhPhamId);
+
+                using (SQLiteDataReader reader = cmd.ExecuteReader())
                 {
-                    for (int j = i + 1; j < danhSach.Count; j++)
+                    while (reader.Read())
                     {
-                        if (HaiKhoangThoiGianChongLan(danhSach[i], danhSach[j]))
+                        result.Add(new DanhSachLoiDungMay_Model
                         {
-                            throw new InvalidOperationException(
-                                string.Format("Dòng {0} và dòng {1} có thời gian dừng máy chồng lấn nhau.", i + 1, j + 1));
-                        }
+                            Id = Convert.ToInt32(reader["id"]),
+                            TenLoiDungMayId = Convert.ToInt32(reader["TenLoiDungMay_ID"]),
+                            DanhSachMayId = Convert.ToInt32(reader["DanhSachMay_ID"]),
+                            ThoiGianBatDau = TryParseTimeOrNull(reader["ThoiGianBatDau"]),
+                            ThoiGianKetThuc = TryParseTimeOrNull(reader["ThoiGianKetThuc"]),
+                            ThoiGianDung = Convert.ToInt32(reader["ThoiGianDung"]),
+                            GhiChu = reader["GhiChu"] == DBNull.Value
+                                ? string.Empty
+                                : Convert.ToString(reader["GhiChu"]) ?? string.Empty,
+                            MaCongDoan = Convert.ToInt32(reader["DanhSachCongDoan_MaCongDoan"]),
+                            TTThanhPhamId = Convert.ToInt64(reader["TTThanhPham_ID"])
+                        });
                     }
                 }
             }
+
+            return result;
         }
 
-        /// <summary>
-        /// Manual mode không sử dụng Bắt đầu/Kết thúc. Tuy nhiên với bản ghi cũ,
-        /// nếu duration không đổi thì giữ nguyên hai mốc đã lưu để tránh làm mất dữ liệu.
-        /// Nếu duration bị sửa hoặc là dòng mới thì hai mốc được lưu NULL.
-        /// </summary>
-        private static void DongBoThoiGianCuKhiNhapThuCong(
-            List<DanhSachLoiDungMay_Model> danhSach,
-            Dictionary<int, DanhSachLoiDungMay_Model> daLuuTheoId)
-        {
-            foreach (DanhSachLoiDungMay_Model item in danhSach)
-            {
-                DanhSachLoiDungMay_Model oldItem;
-
-                if (item.Id > 0 &&
-                    daLuuTheoId.TryGetValue(item.Id, out oldItem) &&
-                    item.ThoiGianDung == oldItem.ThoiGianDung)
-                {
-                    item.ThoiGianBatDau = oldItem.ThoiGianBatDau;
-                    item.ThoiGianKetThuc = oldItem.ThoiGianKetThuc;
-                }
-                else
-                {
-                    item.ThoiGianBatDau = null;
-                    item.ThoiGianKetThuc = null;
-                }
-            }
-        }
-
-        private static int InsertBanGhi(
+        private static int InsertBanGhiTheoTTThanhPham(
             SQLiteConnection conn,
             SQLiteTransaction transaction,
             DanhSachLoiDungMay_Model item)
@@ -804,45 +430,40 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
                 INSERT INTO DanhSachLoiDungMay
                 (
                     TenLoiDungMay_ID,
-                    Ngay,
                     DanhSachMay_ID,
-                    NguoiLam,
                     ThoiGianBatDau,
                     ThoiGianKetThuc,
                     ThoiGianDung,
                     GhiChu,
-                    Ca,
-                    DanhSachCongDoan_MaCongDoan
+                    DanhSachCongDoan_MaCongDoan,
+                    TTThanhPham_ID
                 )
                 VALUES
                 (
                     @TenLoiDungMay_ID,
-                    @Ngay,
                     @DanhSachMay_ID,
-                    @NguoiLam,
                     @ThoiGianBatDau,
                     @ThoiGianKetThuc,
                     @ThoiGianDung,
                     @GhiChu,
-                    @Ca,
-                    @MaCongDoan
+                    @MaCongDoan,
+                    @TTThanhPham_ID
                 );";
 
             using (SQLiteCommand cmd = new SQLiteCommand(sql, conn, transaction))
             {
-                GanThamSoBanGhi(cmd, item);
+                GanThamSoBanGhiTheoTTThanhPham(cmd, item);
                 cmd.ExecuteNonQuery();
             }
 
             using (SQLiteCommand idCmd =
                 new SQLiteCommand("SELECT last_insert_rowid();", conn, transaction))
             {
-                object result = idCmd.ExecuteScalar();
-                return Convert.ToInt32(result);
+                return Convert.ToInt32(idCmd.ExecuteScalar());
             }
         }
 
-        private static void UpdateBanGhi(
+        private static void UpdateBanGhiTheoTTThanhPham(
             SQLiteConnection conn,
             SQLiteTransaction transaction,
             DanhSachLoiDungMay_Model item)
@@ -850,54 +471,33 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
             const string sql = @"
                 UPDATE DanhSachLoiDungMay
                 SET TenLoiDungMay_ID = @TenLoiDungMay_ID,
-                    Ngay = @Ngay,
                     DanhSachMay_ID = @DanhSachMay_ID,
-                    NguoiLam = @NguoiLam,
                     ThoiGianBatDau = @ThoiGianBatDau,
                     ThoiGianKetThuc = @ThoiGianKetThuc,
                     ThoiGianDung = @ThoiGianDung,
                     GhiChu = @GhiChu,
-                    Ca = @Ca,
-                    DanhSachCongDoan_MaCongDoan = @MaCongDoan
-                WHERE id = @Id;";
+                    DanhSachCongDoan_MaCongDoan = @MaCongDoan,
+                    TTThanhPham_ID = @TTThanhPham_ID
+                WHERE id = @Id
+                  AND TTThanhPham_ID = @TTThanhPham_ID;";
 
             using (SQLiteCommand cmd = new SQLiteCommand(sql, conn, transaction))
             {
-                GanThamSoBanGhi(cmd, item);
+                GanThamSoBanGhiTheoTTThanhPham(cmd, item);
                 cmd.Parameters.AddWithValue("@Id", item.Id);
 
                 if (cmd.ExecuteNonQuery() != 1)
-                {
                     throw new InvalidOperationException(
                         string.Format("Không thể cập nhật bản ghi id={0}.", item.Id));
-                }
             }
         }
 
-        private static void DeleteBanGhiTheoId(
-            SQLiteConnection conn,
-            SQLiteTransaction transaction,
-            int id)
-        {
-            const string sql = "DELETE FROM DanhSachLoiDungMay WHERE id = @Id;";
-
-            using (SQLiteCommand cmd = new SQLiteCommand(sql, conn, transaction))
-            {
-                cmd.Parameters.AddWithValue("@Id", id);
-                cmd.ExecuteNonQuery();
-            }
-        }
-
-        private static void GanThamSoBanGhi(
+        private static void GanThamSoBanGhiTheoTTThanhPham(
             SQLiteCommand cmd,
             DanhSachLoiDungMay_Model item)
         {
             cmd.Parameters.AddWithValue("@TenLoiDungMay_ID", item.TenLoiDungMayId);
-            cmd.Parameters.AddWithValue(
-                "@Ngay",
-                item.Ngay.Date.ToString(DinhDangNgay, CultureInfo.InvariantCulture));
             cmd.Parameters.AddWithValue("@DanhSachMay_ID", item.DanhSachMayId);
-            cmd.Parameters.AddWithValue("@NguoiLam", item.NguoiLam.Trim());
             cmd.Parameters.AddWithValue(
                 "@ThoiGianBatDau",
                 item.ThoiGianBatDau.HasValue
@@ -914,21 +514,16 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
                 string.IsNullOrWhiteSpace(item.GhiChu)
                     ? (object)DBNull.Value
                     : item.GhiChu.Trim());
-            cmd.Parameters.AddWithValue("@Ca", item.Ca);
             cmd.Parameters.AddWithValue("@MaCongDoan", item.MaCongDoan);
+            cmd.Parameters.AddWithValue("@TTThanhPham_ID", item.TTThanhPhamId.Value);
         }
 
-        private static bool BanGhiGiongNhau(
+        private static bool BanGhiGiongNhauTheoTTThanhPham(
             DanhSachLoiDungMay_Model current,
             DanhSachLoiDungMay_Model oldItem)
         {
             return current.TenLoiDungMayId == oldItem.TenLoiDungMayId
-                && current.Ngay.Date == oldItem.Ngay.Date
                 && current.DanhSachMayId == oldItem.DanhSachMayId
-                && string.Equals(
-                    (current.NguoiLam ?? string.Empty).Trim(),
-                    (oldItem.NguoiLam ?? string.Empty).Trim(),
-                    StringComparison.Ordinal)
                 && current.ThoiGianBatDau == oldItem.ThoiGianBatDau
                 && current.ThoiGianKetThuc == oldItem.ThoiGianKetThuc
                 && current.ThoiGianDung == oldItem.ThoiGianDung
@@ -936,109 +531,56 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
                     (current.GhiChu ?? string.Empty).Trim(),
                     (oldItem.GhiChu ?? string.Empty).Trim(),
                     StringComparison.Ordinal)
-                && current.Ca == oldItem.Ca
-                && current.MaCongDoan == oldItem.MaCongDoan;
+                && current.MaCongDoan == oldItem.MaCongDoan
+                && current.TTThanhPhamId == oldItem.TTThanhPhamId;
         }
 
-        private static List<DanhSachLoiDungMay_Model> GetDanhSachDaLuuTheoMayNgayCa(
-            SQLiteConnection conn,
-            SQLiteTransaction transaction,
-            DateTime ngay,
-            int danhSachMayId,
-            int ca,
-            LoiDungMayInputMode cheDoNhapThoiGian)
+        #endregion
+
+        /// <summary>
+        /// Kiểm tra tổ hợp Ngày + Máy + Ca đã có ít nhất một bản ghi hay chưa.
+        /// </summary>
+
+        private static void DongBoThoiGianCuKhiNhapThuCong(
+            List<DanhSachLoiDungMay_Model> danhSach,
+            Dictionary<int, DanhSachLoiDungMay_Model> daLuuTheoId)
         {
-            const string sql = @"
-                SELECT
-                    id,
-                    TenLoiDungMay_ID,
-                    Ngay,
-                    DanhSachMay_ID,
-                    NguoiLam,
-                    ThoiGianBatDau,
-                    ThoiGianKetThuc,
-                    ThoiGianDung,
-                    GhiChu,
-                    Ca,
-                    DanhSachCongDoan_MaCongDoan
-                FROM DanhSachLoiDungMay
-                WHERE Ngay = @Ngay
-                  AND DanhSachMay_ID = @DanhSachMay_ID
-                  AND Ca = @Ca
-                ORDER BY id ASC;";
+            if (danhSach == null || daLuuTheoId == null)
+                return;
 
-            var result = new List<DanhSachLoiDungMay_Model>();
-
-            using (SQLiteCommand cmd = new SQLiteCommand(sql, conn, transaction))
+            foreach (DanhSachLoiDungMay_Model item in danhSach)
             {
-                cmd.Parameters.AddWithValue("@Ngay", ngay.Date.ToString(DinhDangNgay, CultureInfo.InvariantCulture));
-                cmd.Parameters.AddWithValue("@DanhSachMay_ID", danhSachMayId);
-                cmd.Parameters.AddWithValue("@Ca", ca);
+                if (item == null || item.Id <= 0)
+                    continue;
 
-                using (SQLiteDataReader reader = cmd.ExecuteReader())
+                DanhSachLoiDungMay_Model oldItem;
+                if (!daLuuTheoId.TryGetValue(item.Id, out oldItem))
+                    continue;
+
+                // Khi người dùng chỉ sửa các trường khác và giữ nguyên số phút dừng,
+                // bảo toàn hai mốc giờ cũ nếu draft không mang lại giá trị mới.
+                if (item.ThoiGianDung == oldItem.ThoiGianDung)
                 {
-                    while (reader.Read())
-                    {
-                        TimeSpan? batDau;
-                        TimeSpan? ketThuc;
-                        int duration;
+                    if (!item.ThoiGianBatDau.HasValue)
+                        item.ThoiGianBatDau = oldItem.ThoiGianBatDau;
 
-                        if (cheDoNhapThoiGian == LoiDungMayInputMode.Manual)
-                        {
-                            // Manual: duration trong DB là nguồn dữ liệu chính.
-                            // Hai mốc giờ chỉ được đọc mềm để có thể bảo toàn dữ liệu cũ,
-                            // không dùng chúng để validate/tính lại duration.
-                            batDau = TryParseTimeOrNull(reader["ThoiGianBatDau"]);
-                            ketThuc = TryParseTimeOrNull(reader["ThoiGianKetThuc"]);
-                            duration = Convert.ToInt32(reader["ThoiGianDung"]);
-                        }
-                        else
-                        {
-                            TimeSpan batDauBatBuoc = ParseTime(reader["ThoiGianBatDau"], "ThoiGianBatDau");
-                            TimeSpan ketThucBatBuoc = ParseTime(reader["ThoiGianKetThuc"], "ThoiGianKetThuc");
-
-                            string thongBaoThoiGian;
-                            if (!TryTinhThoiGianDungTheoCa(
-                                batDauBatBuoc,
-                                ketThucBatBuoc,
-                                ca,
-                                out duration,
-                                out thongBaoThoiGian))
-                            {
-                                throw new InvalidOperationException(
-                                    string.Format(
-                                        "Bản ghi DanhSachLoiDungMay id={0} có thời gian không hợp lệ: {1}",
-                                        reader["id"],
-                                        thongBaoThoiGian));
-                            }
-
-                            batDau = batDauBatBuoc;
-                            ketThuc = ketThucBatBuoc;
-                        }
-
-                        result.Add(new DanhSachLoiDungMay_Model
-                        {
-                            Id = Convert.ToInt32(reader["id"]),
-                            TenLoiDungMayId = Convert.ToInt32(reader["TenLoiDungMay_ID"]),
-                            Ngay = ParseDate(reader["Ngay"]),
-                            DanhSachMayId = Convert.ToInt32(reader["DanhSachMay_ID"]),
-                            NguoiLam = reader["NguoiLam"] == DBNull.Value
-                                ? string.Empty
-                                : Convert.ToString(reader["NguoiLam"]) ?? string.Empty,
-                            ThoiGianBatDau = batDau,
-                            ThoiGianKetThuc = ketThuc,
-                            ThoiGianDung = duration,
-                            GhiChu = reader["GhiChu"] == DBNull.Value
-                                ? string.Empty
-                                : Convert.ToString(reader["GhiChu"]) ?? string.Empty,
-                            Ca = Convert.ToInt32(reader["Ca"]),
-                            MaCongDoan = Convert.ToInt32(reader["DanhSachCongDoan_MaCongDoan"])
-                        });
-                    }
+                    if (!item.ThoiGianKetThuc.HasValue)
+                        item.ThoiGianKetThuc = oldItem.ThoiGianKetThuc;
                 }
             }
+        }
 
-            return result;
+        private static void DeleteBanGhiTheoId(
+            SQLiteConnection conn,
+            SQLiteTransaction transaction,
+            int id)
+        {
+            const string sql = "DELETE FROM DanhSachLoiDungMay WHERE id = @Id;";
+            using (SQLiteCommand cmd = new SQLiteCommand(sql, conn, transaction))
+            {
+                cmd.Parameters.AddWithValue("@Id", id);
+                cmd.ExecuteNonQuery();
+            }
         }
 
         private static int GetMaCongDoanCuaMay(
@@ -1049,48 +591,36 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
             const string sql = @"
                 SELECT DanhSachCongDoan_MaCongDoan
                 FROM DanhSachMay
-                WHERE id = @Id
-                LIMIT 1;";
+                WHERE id = @Id;";
 
             using (SQLiteCommand cmd = new SQLiteCommand(sql, conn, transaction))
             {
                 cmd.Parameters.AddWithValue("@Id", danhSachMayId);
-                object result = cmd.ExecuteScalar();
+                object value = cmd.ExecuteScalar();
+                if (value == null || value == DBNull.Value)
+                    throw new InvalidOperationException("Không tìm thấy máy đã chọn.");
 
-                if (result == null || result == DBNull.Value)
-                {
-                    throw new InvalidOperationException("Không tìm thấy máy đã chọn trong database.");
-                }
-
-                return Convert.ToInt32(result);
+                return Convert.ToInt32(value);
             }
         }
 
         private static TenLoiDungMay_Model GetTenLoiTheoId(
             SQLiteConnection conn,
             SQLiteTransaction transaction,
-            int tenLoiId)
+            int tenLoiDungMayId)
         {
             const string sql = @"
-                SELECT
-                    id,
-                    TenLoi,
-                    MoTaLoi,
-                    DanhSachCongDoan_MaCongDoan
+                SELECT id, TenLoi, MoTaLoi, DanhSachCongDoan_MaCongDoan
                 FROM TenLoiDungMay
-                WHERE id = @Id
-                LIMIT 1;";
+                WHERE id = @Id;";
 
             using (SQLiteCommand cmd = new SQLiteCommand(sql, conn, transaction))
             {
-                cmd.Parameters.AddWithValue("@Id", tenLoiId);
-
+                cmd.Parameters.AddWithValue("@Id", tenLoiDungMayId);
                 using (SQLiteDataReader reader = cmd.ExecuteReader())
                 {
                     if (!reader.Read())
-                    {
-                        throw new InvalidOperationException("Không tìm thấy lỗi dừng máy đã chọn trong database.");
-                    }
+                        throw new InvalidOperationException("Không tìm thấy lỗi dừng máy đã chọn.");
 
                     return new TenLoiDungMay_Model
                     {
@@ -1113,138 +643,30 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
                 StringComparison.OrdinalIgnoreCase);
         }
 
-        private static bool LaBanGhiTrung(
-            DanhSachLoiDungMay_Model a,
-            DanhSachLoiDungMay_Model b)
-        {
-            return a.Ngay.Date == b.Ngay.Date
-                && a.DanhSachMayId == b.DanhSachMayId
-                && a.Ca == b.Ca
-                && a.TenLoiDungMayId == b.TenLoiDungMayId
-                && a.ThoiGianBatDau == b.ThoiGianBatDau
-                && a.ThoiGianKetThuc == b.ThoiGianKetThuc;
-        }
-
-        private static bool HaiKhoangThoiGianChongLan(
-            DanhSachLoiDungMay_Model a,
-            DanhSachLoiDungMay_Model b)
-        {
-            if (!a.ThoiGianBatDau.HasValue || !a.ThoiGianKetThuc.HasValue ||
-                !b.ThoiGianBatDau.HasValue || !b.ThoiGianKetThuc.HasValue)
-            {
-                return false;
-            }
-
-            DateTime aStart;
-            DateTime aEnd;
-            DateTime bStart;
-            DateTime bEnd;
-
-            if (!TryLayKhoangThoiGianTheoCa(
-                    a.Ngay,
-                    a.ThoiGianBatDau.Value,
-                    a.ThoiGianKetThuc.Value,
-                    a.Ca,
-                    out aStart,
-                    out aEnd) ||
-                !TryLayKhoangThoiGianTheoCa(
-                    b.Ngay,
-                    b.ThoiGianBatDau.Value,
-                    b.ThoiGianKetThuc.Value,
-                    b.Ca,
-                    out bStart,
-                    out bEnd))
-            {
-                return false;
-            }
-
-            return aStart < bEnd && bStart < aEnd;
-        }
-
-        private static void GetKhoangThoiGian(
-            DateTime ngay,
-            TimeSpan batDau,
-            TimeSpan ketThuc,
-            out DateTime start,
-            out DateTime end)
-        {
-            start = ngay.Date.Add(batDau);
-            end = ngay.Date.Add(ketThuc);
-
-            if (end < start)
-            {
-                end = end.AddDays(1);
-            }
-        }
-
         private static string FormatTime(TimeSpan value)
         {
             return value.ToString(@"hh\:mm", CultureInfo.InvariantCulture);
         }
 
-        private static TimeSpan ParseTime(object value, string columnName)
-        {
-            string text = value == null || value == DBNull.Value
-                ? string.Empty
-                : Convert.ToString(value, CultureInfo.InvariantCulture) ?? string.Empty;
-
-            TimeSpan result;
-            if (!TimeSpan.TryParseExact(
-                text,
-                new[] { @"h\:mm", @"hh\:mm" },
-                CultureInfo.InvariantCulture,
-                TimeSpanStyles.None,
-                out result))
-            {
-                throw new InvalidOperationException(
-                    string.Format("Dữ liệu cột {0} trong DanhSachLoiDungMay không đúng định dạng HH:mm.", columnName));
-            }
-
-            return result;
-        }
-
         private static TimeSpan? TryParseTimeOrNull(object value)
         {
             if (value == null || value == DBNull.Value)
-            {
                 return null;
-            }
 
-            string text = Convert.ToString(value, CultureInfo.InvariantCulture) ?? string.Empty;
+            if (value is TimeSpan)
+                return (TimeSpan)value;
+
+            if (value is DateTime)
+                return ((DateTime)value).TimeOfDay;
+
+            string text = Convert.ToString(value);
+            if (string.IsNullOrWhiteSpace(text))
+                return null;
+
             TimeSpan result;
-
-            if (TimeSpan.TryParseExact(
-                text,
-                new[] { @"h\:mm", @"hh\:mm" },
-                CultureInfo.InvariantCulture,
-                TimeSpanStyles.None,
-                out result))
-            {
-                return result;
-            }
-
-            return null;
-        }
-
-        private static DateTime ParseDate(object value)
-        {
-            string text = value == null || value == DBNull.Value
-                ? string.Empty
-                : Convert.ToString(value, CultureInfo.InvariantCulture) ?? string.Empty;
-
-            DateTime result;
-            if (!DateTime.TryParseExact(
-                text,
-                DinhDangNgay,
-                CultureInfo.InvariantCulture,
-                DateTimeStyles.None,
-                out result))
-            {
-                throw new InvalidOperationException(
-                    "Dữ liệu cột Ngay trong DanhSachLoiDungMay không đúng định dạng yyyy-MM-dd.");
-            }
-
-            return result;
+            return TimeSpan.TryParse(text, CultureInfo.InvariantCulture, out result)
+                ? (TimeSpan?)result
+                : null;
         }
     }
 }

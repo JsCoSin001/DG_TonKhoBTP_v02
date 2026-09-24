@@ -68,9 +68,9 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
 
             // Hỗ trợ Ngay dạng yyyy-MM-dd (chuẩn hiện tại) và dd/MM/yyyy.
             const string normalizedNgay = @"CASE
-                WHEN instr(clv.Ngay, '/') > 0 AND length(clv.Ngay) >= 10
-                    THEN substr(clv.Ngay, 7, 4) || '-' || substr(clv.Ngay, 4, 2) || '-' || substr(clv.Ngay, 1, 2)
-                ELSE substr(clv.Ngay, 1, 10)
+                WHEN instr(clv.NgayBatDau, '/') > 0 AND length(clv.NgayBatDau) >= 10
+                    THEN substr(clv.NgayBatDau, 7, 4) || '-' || substr(clv.NgayBatDau, 4, 2) || '-' || substr(clv.NgayBatDau, 1, 2)
+                ELSE substr(clv.NgayBatDau, 1, 10)
             END";
 
             string sourceCte = @"
@@ -107,7 +107,7 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                     sp.Ma AS MaSP,
                     sp.Ten AS TenSP,
                     tp.ChieuDaiSau,
-                    clv.Ngay,
+                    clv.NgayBatDau AS Ngay,
                     clv.Ca,
                     COALESCE(SUM(CASE WHEN sr.SoLuongCon>0 THEN sr.SoLuongCon * sr.ChieuDai1Cuon ELSE 0 END),0) AS TongMetChiTietCon,
                     COALESCE(SUM(CASE WHEN sr.SoLuongCon>0 THEN 1 ELSE 0 END),0) AS SoDongCon,
@@ -120,8 +120,8 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                   AND tp.ChieuDaiSau>0
                   AND date(" + normalizedNgay + @") BETWEEN date(@NgayBD) AND date(@NgayKT)
                   AND (@ToanBoCa=1 OR clv.Ca=@Ca)
-                GROUP BY tp.id,tp.MaBin,sp.Ma,sp.Ten,tp.ChieuDaiSau,clv.Ngay,clv.Ca
-                ORDER BY clv.Ngay,tp.MaBin;";
+                GROUP BY tp.id,tp.MaBin,sp.Ma,sp.Ten,tp.ChieuDaiSau,clv.NgayBatDau,clv.Ca
+                ORDER BY clv.NgayBatDau,tp.MaBin;";
 
             var validIds = new HashSet<long>();
             using (var conn = DB_Base.OpenConnection())
@@ -160,7 +160,7 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
             string detailSql = sourceCte + @"
                 SELECT
                     tp.id AS TTThanhPham_ID,
-                    clv.Ngay,
+                    clv.NgayBatDau AS Ngay,
                     clv.Ca,
                     tp.MaBin,
                     sp.Ma AS MaSP,
@@ -182,7 +182,7 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                 WHERE tp.id IN (" + string.Join(",", paramNames) + @")
                   AND date(" + normalizedNgay + @") BETWEEN date(@NgayBD) AND date(@NgayKT)
                   AND (@ToanBoCa=1 OR clv.Ca=@Ca)
-                ORDER BY clv.Ngay,tp.MaBin,sr.TTCuonDay_CD_ID;";
+                ORDER BY clv.NgayBatDau,tp.MaBin,sr.TTCuonDay_CD_ID;";
 
             using (var conn = DB_Base.OpenConnection())
             using (var cmd = new SQLiteCommand(detailSql, conn))

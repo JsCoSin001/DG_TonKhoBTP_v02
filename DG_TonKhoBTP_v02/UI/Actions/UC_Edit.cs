@@ -1,5 +1,7 @@
 ﻿using DG_TonKhoBTP_v02.Core;
 using DG_TonKhoBTP_v02.Models;
+using DG_TonKhoBTP_v02.Database.SanXuat;
+using DG_TonKhoBTP_v02.Models.SanXuat;
 using DG_TonKhoBTP_v02.UI.Helper;
 using System;
 using System.Collections.Generic;
@@ -90,6 +92,14 @@ namespace DG_TonKhoBTP_v02.UI
                                 bomComponents;
                         }
 
+                        long ttThanhPhamId = ReadTTThanhPhamId(loaded.Rows[0]);
+                        loaded.ExtendedProperties["LoiDungMay_TTThanhPhamId"] = ttThanhPhamId;
+                        loaded.ExtendedProperties["LoiDungMay_Loaded"] = true;
+                        loaded.ExtendedProperties["LoiDungMay_Items"] =
+                            kieuEdit == 2
+                                ? LoiDungMay_DB.GetDanhSachDaLuuTheoTTThanhPhamId(ttThanhPhamId)
+                                : new List<DanhSachLoiDungMay_Model>();
+
                         return loaded;
                     }),
                     "ĐANG TÌM KIẾM, VUI LÒNG ĐỢI...");
@@ -115,6 +125,27 @@ namespace DG_TonKhoBTP_v02.UI
             }
         }
 
+
+        private static long ReadTTThanhPhamId(DataRow row)
+        {
+            if (row?.Table == null)
+                throw new InvalidOperationException("Không xác định được TTThanhPham_ID.");
+
+            DataColumn column = row.Table.Columns.Cast<DataColumn>()
+                .FirstOrDefault(x => string.Equals(
+                    x.ColumnName,
+                    "STT",
+                    StringComparison.OrdinalIgnoreCase));
+
+            if (column == null || row[column] == DBNull.Value)
+                throw new InvalidOperationException("Không xác định được TTThanhPham_ID.");
+
+            long id = Convert.ToInt64(row[column]);
+            if (id <= 0)
+                throw new InvalidOperationException("TTThanhPham_ID không hợp lệ.");
+
+            return id;
+        }
 
         private static int ReadProductId(DataRow row)
         {

@@ -16,6 +16,7 @@ namespace DG_TonKhoBTP_v02.Models.SanXuat
         public List<TTNVLRow> NguyenVatLieuRows { get; set; }
         public List<TTNVL> NguyenVatLieu { get; set; }
         public List<LoiNhapLieuData> DanhSachLoiNhapLieu { get; set; } = new List<LoiNhapLieuData>();
+        public List<DanhSachLoiDungMay_Model> DanhSachLoiDungMay { get; set; } = new List<DanhSachLoiDungMay_Model>();
         public SubmitCongDoanData CongDoan { get; set; }
         public bool ShouldPrintThanhPham { get; set; }
         public bool ShouldPrintNguyenVatLieu { get; set; }

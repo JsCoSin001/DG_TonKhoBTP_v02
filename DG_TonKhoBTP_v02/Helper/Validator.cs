@@ -12,7 +12,7 @@ namespace DG_TonKhoBTP_v02.Helper
     {
         public static int TTCaLamViec(ThongTinCaLamViec data)
         {
-            if (data == null || CaLamViecPolicy.LaNgayChuaChon(data.Ngay))
+            if (data == null || CaLamViecPolicy.LaNgayChuaChon(data.NgayBatDau))
                 return 4;
 
             if (string.IsNullOrWhiteSpace(data.May))
@@ -28,7 +28,7 @@ namespace DG_TonKhoBTP_v02.Helper
         {
             var result = new List<string>();
 
-            if (data == null || CaLamViecPolicy.LaNgayChuaChon(data.Ngay))
+            if (data == null || CaLamViecPolicy.LaNgayChuaChon(data.NgayBatDau))
                 result.Add(EnumStore.ErrorCaLamViec[4]);
 
             if (data == null || string.IsNullOrWhiteSpace(data.May))
@@ -427,6 +427,12 @@ namespace DG_TonKhoBTP_v02.Helper
     {
         public static readonly DateTime NgayChuaChon = new DateTime(1753, 1, 1);
 
+        public static bool LaNgayChuaChon(DateTime? ngay)
+        {
+            return !ngay.HasValue || ngay.Value.Date == NgayChuaChon.Date;
+        }
+
+        // Giữ overload chuỗi cho các nghiệp vụ khác chưa dùng ThongTinCaLamViec.
         public static bool LaNgayChuaChon(string ngay)
         {
             if (string.IsNullOrWhiteSpace(ngay))

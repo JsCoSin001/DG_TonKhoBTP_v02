@@ -36,7 +36,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho
             string para = "MaBin";
             string sql = @"
             SELECT
-                tlv.Ngay                      AS NgaySX,
+                tlv.NgayBatDau                 AS NgaySX,
                 tlv.Ca                        AS CaSX,
                 CAST(tp.KhoiLuongSau AS TEXT) AS KhoiLuong,
                 CAST(tp.ChieuDaiSau  AS TEXT) AS ChieuDai,

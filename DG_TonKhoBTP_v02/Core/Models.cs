@@ -179,15 +179,27 @@ namespace DG_TonKhoBTP_v02.Core
         }
     }
 
-    // Ca làm việc (tối thiểu cho UC_TTCaLamViec)
+    // Ca làm việc / phiên sản xuất
     public class ThongTinCaLamViec
     {
+        // CongDoan.Id = DanhSachCongDoan.MaCongDoan
         public int Id { get; set; }
-        public string Ngay { get; set; }
+
+        // ID bản ghi TTThanhPham liên quan (khi đã tồn tại).
         public int TTThanhPham_id { get; set; }
-        public string May { get; set; }
-        public string Ca { get; set; }
-        public string NguoiLam { get; set; }
+
+        // Giữ tên máy để tương thích hiển thị/báo cáo; DanhSachMayId là khóa quan hệ.
+        public string May { get; set; } = string.Empty;
+        public int DanhSachMayId { get; set; }
+
+        public string Ca { get; set; } = string.Empty;
+        public string NguoiLam { get; set; } = string.Empty;
+
+        public DateTime? NgayBatDau { get; set; }
+        public TimeSpan? GioBatDau { get; set; }
+        public DateTime? NgayKetThuc { get; set; }
+        public TimeSpan? GioKetThuc { get; set; }
+
         public string? ToTruong { get; set; }
         public string? QuanDoc { get; set; }
     }

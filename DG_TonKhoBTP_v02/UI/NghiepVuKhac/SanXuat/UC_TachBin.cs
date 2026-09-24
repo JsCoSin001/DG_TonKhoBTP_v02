@@ -188,10 +188,15 @@ namespace DG_TonKhoBTP_v02.UI.Actions
                 }
             };
 
+                DateTime ngayTachBin;
+                DateTime? ngayBatDauTachBin = DateTime.TryParse(_TachBinModel.NgaySX, out ngayTachBin)
+                    ? (DateTime?)ngayTachBin.Date
+                    : null;
+
                 ThongTinCaLamViec ttCa = new ThongTinCaLamViec
                 {
                     Ca = _TachBinModel.CaSX,
-                    Ngay = _TachBinModel.NgaySX,
+                    NgayBatDau = ngayBatDauTachBin,
                     NguoiLam = _TachBinModel.NguoiThucHien,
                     May = "Tách Bin",
                 };

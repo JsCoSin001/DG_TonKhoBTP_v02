@@ -770,7 +770,9 @@ namespace DG_TonKhoBTP_v02.UI
             return new PrinterModel
             {
                 NgaySX = DateTime.ParseExact(
-                        data.ThongTinCaLamViec.Ngay,
+                        data.ThongTinCaLamViec.NgayBatDau.HasValue
+                            ? data.ThongTinCaLamViec.NgayBatDau.Value.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)
+                            : string.Empty,
                         "yyyy-MM-dd",
                         CultureInfo.InvariantCulture)
                     .ToString("dd/MM/yyyy"),

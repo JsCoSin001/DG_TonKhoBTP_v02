@@ -764,13 +764,16 @@ namespace DG_TonKhoBTP_v02
         {
             Panel pnTop = new Panel { Dock = DockStyle.Top, AutoSize = true };
 
-            UC_TTCaLamViec uc_caLamViec = new UC_TTCaLamViec(cd.DanhSachMay, _URL, cd);
+            UC_TTCaLamViec uc_caLamViec = new UC_TTCaLamViec(_URL, cd);
             uc_caLamViec.Dock = DockStyle.Top;
 
             UC_TTThanhPham uc_TTThanhPham = new UC_TTThanhPham(cd);
             uc_TTThanhPham.Dock = DockStyle.Top;
 
-            uc_caLamViec.Event_ChonMay += (value) => uc_TTThanhPham.ChonMay(value); ;
+            uc_caLamViec.Event_ThongTinCaLamViecChanged +=
+                model => uc_TTThanhPham.SetThongTinCaLamViec(model);
+
+            uc_TTThanhPham.SetThongTinCaLamViec(uc_caLamViec.GetThongTinCaLamViec());
 
             pnTop.Controls.Add(uc_TTThanhPham);
             pnTop.Controls.Add(uc_caLamViec);

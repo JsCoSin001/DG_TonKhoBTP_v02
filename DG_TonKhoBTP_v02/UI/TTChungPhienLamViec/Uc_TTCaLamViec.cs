@@ -53,7 +53,7 @@ namespace DG_TonKhoBTP_v02.UI
             string ca = CoreHelper.GetShiftValue();
             this.ca.SelectedItem = ca;
 
-            ngay.Value = DateTime.Parse(CoreHelper.GetNgayHienTai());
+            //ngay.Value = DateTime.Parse(CoreHelper.GetNgayHienTai());
         }
 
         private void cbMay_SelectedIndexChanged(object sender, EventArgs e)
@@ -69,25 +69,25 @@ namespace DG_TonKhoBTP_v02.UI
             return new ThongTinCaLamViec
             {
                 Id = _CD.Id,
-                Ngay = ngay.Value.ToString("yyyy-MM-dd"),
+                //Ngay = ngay.Value.ToString("yyyy-MM-dd"),
                 May = cbMay?.Text ?? string.Empty,
                 Ca = ca?.Text ?? string.Empty,
                 NguoiLam = nguoiLam?.Text ?? string.Empty,
-                ToTruong = toTruong?.Text ?? string.Empty,
-                QuanDoc = quanDoc?.Text ?? string.Empty
+                //ToTruong = toTruong?.Text ?? string.Empty,
+                //QuanDoc = quanDoc?.Text ?? string.Empty
             };
         }
 
         public void ClearInputs()
         {
-            ngay.Value = DateTime.Today;
+            //ngay.Value = DateTime.Today;
             cbMay.SelectedIndex = -1;
             cbMay.Text = string.Empty;
             ca.SelectedIndex = -1;
             ca.Text = CoreHelper.GetShiftValue();
             nguoiLam.Clear();
-            toTruong.Clear();
-            quanDoc.Clear();
+            //toTruong.Clear();
+            //quanDoc.Clear();
         }
         #endregion
 
@@ -103,19 +103,19 @@ namespace DG_TonKhoBTP_v02.UI
             if (kieuDL == 1)
             {
                 // Sao chép: bắt buộc người dùng chủ động chọn lại ngày sản xuất.
-                ngay.Value = CaLamViecPolicy.NgayChuaChon;
+                //ngay.Value = CaLamViecPolicy.NgayChuaChon;
             }
             else
             {
-                CoreHelper.SetIfPresent(row, "Ngay", val => ngay.Value = Convert.ToDateTime(val));
+                //CoreHelper.SetIfPresent(row, "Ngay", val => ngay.Value = Convert.ToDateTime(val));
             }
 
             if (kieuDL == 2)
             {
                 CoreHelper.SetIfPresent(row, "Ca", val => ca.Text = Convert.ToString(val));
                 CoreHelper.SetIfPresent(row, "NguoiLam", val => nguoiLam.Text = Convert.ToString(val));
-                CoreHelper.SetIfPresent(row, "ToTruong", val => toTruong.Text = Convert.ToString(val));
-                CoreHelper.SetIfPresent(row, "QuanDoc", val => quanDoc.Text = Convert.ToString(val));
+                //CoreHelper.SetIfPresent(row, "ToTruong", val => toTruong.Text = Convert.ToString(val));
+                //CoreHelper.SetIfPresent(row, "QuanDoc", val => quanDoc.Text = Convert.ToString(val));
             }
         }
         #endregion

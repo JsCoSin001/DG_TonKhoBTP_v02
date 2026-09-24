@@ -1,5 +1,4 @@
-using DG_TonKhoBTP_v02.Database.Kho.XuatKho;
-using DG_TonKhoBTP_v02.Models;
+﻿using DG_TonKhoBTP_v02.Database.Kho.XuatKho;
 using DG_TonKhoBTP_v02.Models.Kho.XuatKho;
 using DG_TonKhoBTP_v02.UI.Helper.AutoSearchWithCombobox;
 using System;
@@ -185,7 +184,11 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho
             }
             catch (Exception ex)
             {
-                FrmWaiting.ShowGifAlert("Không thể tìm dữ liệu cắt dây.");
+                MessageBox.Show(
+                    $"Không thể tìm dữ liệu cắt dây.\n{ex.Message}",
+                    "Lỗi",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
             }
         }
 
@@ -199,7 +202,11 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho
             }
             catch (Exception ex)
             {
-                FrmWaiting.ShowGifAlert("Không thể lấy toàn bộ dữ liệu cắt dây.");
+                MessageBox.Show(
+                    $"Không thể lấy toàn bộ dữ liệu cắt dây.\n{ex.Message}",
+                    "Lỗi",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
             }
         }
 
@@ -241,7 +248,11 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho
 
             if (coNgayBatDau && coNgayKetThuc && dtNgayBD.Value.Date > dtNgayKT.Value.Date)
             {
-                FrmWaiting.ShowGifAlert("Ngày bắt đầu không được lớn hơn ngày kết thúc.");
+                MessageBox.Show(
+                    "Ngày bắt đầu không được lớn hơn ngày kết thúc.",
+                    "Dữ liệu tìm kiếm không hợp lệ",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning);
                 return false;
             }
 
@@ -253,7 +264,11 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho
 
             if (!coThuocTinhTimKiem && !coDieuKienNgay)
             {
-                FrmWaiting.ShowGifAlert("Thiếu điều kiện tìm kiếm");
+                MessageBox.Show(
+                    "Vui lòng chọn ít nhất một điều kiện tìm kiếm. Nếu cần lấy tất cả, hãy dùng nút 'Lấy toàn bộ'.",
+                    "Thiếu điều kiện tìm kiếm",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
                 return false;
             }
 
@@ -262,7 +277,11 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho
             {
                 if (!int.TryParse(searchValue, out int value) || value < 0)
                 {
-                    FrmWaiting.ShowGifAlert("Chiều dài tìm kiếm không phù hợp.");
+                    MessageBox.Show(
+                        "Chiều dài tìm kiếm phải là số nguyên lớn hơn hoặc bằng 0.",
+                        "Chiều dài không hợp lệ",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Warning);
                     return false;
                 }
 
@@ -388,7 +407,11 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho
                     $"TTCuonDay ID {issue.TTCuonDay_ID} — LOT {issue.Lot}{raw} — {issue.NoiDung}");
             }
 
-            FrmWaiting.ShowGifAlert($"Có {issues.Count} kết quả bị loại do dữ liệu bất thường.");
+            MessageBox.Show(
+                sb.ToString().TrimEnd(),
+                "Cảnh báo dữ liệu bất thường",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Warning);
         }
 
         private void DataGridView1_CellValidating(object sender, DataGridViewCellValidatingEventArgs e)
@@ -414,7 +437,13 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho
             if (!int.TryParse(text, out int giaTri) || giaTri <= 0)
             {
                 e.Cancel = true;
-                FrmWaiting.ShowGifAlert("Số lượng cuộn/chiều dài cắt không phù hợp");
+                MessageBox.Show(
+                    column.Name == "slCuonLay"
+                        ? "Cuộn xuất phải là số nguyên lớn hơn 0."
+                        : "CD cắt phải là số nguyên lớn hơn 0.",
+                    "Dữ liệu không hợp lệ",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning);
                 return;
             }
 
@@ -423,15 +452,22 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho
                 if (!long.TryParse(LayTextCell(row, "soLuong"), out long soCuonCon) || soCuonCon <= 0)
                 {
                     e.Cancel = true;
-                    FrmWaiting.ShowGifAlert("Dòng này không còn số cuộn hợp lệ để xuất.");
+                    MessageBox.Show(
+                        "Dòng này không còn số cuộn hợp lệ để xuất.",
+                        "Dữ liệu không hợp lệ",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Warning);
                     return;
                 }
 
                 if (giaTri > soCuonCon)
                 {
                     e.Cancel = true;
-
-                    FrmWaiting.ShowGifAlert("Số lượng cuộn xuất không phù hợp");
+                    MessageBox.Show(
+                        $"Cuộn xuất không được lớn hơn số cuộn còn lại ({soCuonCon}).",
+                        "Dữ liệu không hợp lệ",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Warning);
                 }
 
                 return;
@@ -440,16 +476,22 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho
             if (!long.TryParse(LayTextCell(row, "cd_1"), out long chieuDaiCon) || chieuDaiCon <= 0)
             {
                 e.Cancel = true;
-
-                FrmWaiting.ShowGifAlert("Dòng này không còn chiều dài hợp lệ để cắt.");
+                MessageBox.Show(
+                    "Dòng này không còn chiều dài hợp lệ để cắt.",
+                    "Dữ liệu không hợp lệ",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning);
                 return;
             }
 
             if (giaTri > chieuDaiCon)
             {
                 e.Cancel = true;
-
-                FrmWaiting.ShowGifAlert("Chiều dài cắt không phù hợp ");
+                MessageBox.Show(
+                    $"CD cắt không được lớn hơn CD 1 đơn vị ({chieuDaiCon}).",
+                    "Dữ liệu không hợp lệ",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning);
             }
         }
 
@@ -469,7 +511,11 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho
             List<CatDay_GridSelection> selected = ThuThapDongDaChon();
             if (selected.Count == 0)
             {
-                FrmWaiting.ShowGifAlert("Chưa có dòng nào được chọn để cắt/lấy");
+                MessageBox.Show(
+                    "Vui lòng nhập ít nhất một dòng cần Cắt/Lấy.",
+                    "Chưa chọn dữ liệu",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
                 return;
             }
 
@@ -533,7 +579,11 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho
 
                 GiuLaiCacDong(errorRows);
 
-                FrmWaiting.ShowGifAlert($"Có {errorRows.Count} dòng lỗi.");
+                MessageBox.Show(
+                    $"Có {errorRows.Count} dòng lỗi.",
+                    "Kết quả lên lệnh",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning);
             }
             catch (Exception ex)
             {
@@ -541,7 +591,11 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho
                 CatDay_DB.GhiLogLenLenh("ERROR", "Lỗi kỹ thuật tại UI.", ex);
                 GiuLaiCacDong(new HashSet<DataGridViewRow>(selected.Select(x => x.Row)));
 
-                FrmWaiting.ShowGifAlert("Lỗi bất thường, xin thử lại");
+                MessageBox.Show(
+                    "Không thể lên lệnh do lỗi hệ thống. Không có dòng nào được lưu.",
+                    "Lỗi",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
             }
             finally
             {

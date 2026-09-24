@@ -332,7 +332,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
                 return;
             }
 
-            string username = LayUsernameTuUserContext();
+            string username = UserContext.UserName;
+
             if (string.IsNullOrWhiteSpace(username))
             {
                 FrmWaiting.ShowGifAlert("Không lấy được username của phiên đăng nhập từ UserContext.");
@@ -376,20 +377,25 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
             }
 
             string message;
+            string icon;
 
             if (failed.Count == 0)
             {
                 message =$"Nhập kho hoàn tất." ;
+                icon = EnumStore.Icon.Success;
             }
             else
             {
                 message =$"Lỗi: {failed.Count} Mã Bin\n\n" +
                             $"Vui lòng kiểm tra các dòng còn lại trên danh sách.";
+                icon = EnumStore.Icon.Warning;
             }
 
             FrmWaiting.ShowGifAlert(
                 message,
-                failed.Count == 0 ? "HOÀN TẤT" : "KẾT QUẢ");
+                failed.Count == 0 ? "HOÀN TẤT" : "KẾT QUẢ",
+                icon
+                );
         }
 
         private BatchGroup TaoBatchGroup(long ttThanhPhamId, List<DataGridViewRow> rows, string username)
@@ -569,7 +575,6 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
             public string Error { get; set; } = string.Empty;
         }
 
-        // Giữ event cũ của Designer để không làm thay đổi bố cục/form ngoài phạm vi chức năng.
-        private void label3_Click(object sender, EventArgs e) { }
+       
     }
 }

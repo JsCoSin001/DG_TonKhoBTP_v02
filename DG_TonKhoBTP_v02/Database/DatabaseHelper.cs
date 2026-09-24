@@ -2659,7 +2659,7 @@ namespace DG_TonKhoBTP_v02.Database
 
             string sqlJoin = CoreHelper.TaoSQL_TaoKetNoiCacBang();
 
-            string sqlDk1 = " WHERE date(tclv.Ngay) = date(@para) ";
+            string sqlDk1 = " WHERE date(tclv.NgayBatDau) = date(@para) ";
 
             string sqlDk2 = " AND ttp.CongDoan = " + cd.Id;
 
@@ -2671,7 +2671,7 @@ namespace DG_TonKhoBTP_v02.Database
             }
 
             // 6) ORDER BY
-            string sqlOrder = " ORDER BY tclv.Ngay DESC, ttp.id DESC;";
+            string sqlOrder = " ORDER BY tclv.NgayBatDau DESC, ttp.id DESC;";
 
             // 7) Kết hợp hoàn chỉnh
             string query = sqlSelect + " ," + sqlLayChiTietCD + " ," + sqlTenNVL + sqlJoin + sqlDk1 + sqlDk2 + sqlDk3 + sqlOrder;
@@ -2692,12 +2692,12 @@ namespace DG_TonKhoBTP_v02.Database
 
             string sqlJoin = CoreHelper.TaoSQL_TaoKetNoiCacBang();
 
-            string sqlDk1 = " WHERE strftime('%Y-%m', tclv.Ngay) = strftime('%Y-%m', @para) ";
+            string sqlDk1 = " WHERE strftime('%Y-%m', tclv.NgayBatDau) = strftime('%Y-%m', @para) ";
 
             string sqlDk2 = " AND ttp.CongDoan = " + cd.Id;
 
             // 6) ORDER BY
-            string sqlOrder = " ORDER BY tclv.Ngay DESC, ttp.id DESC;";
+            string sqlOrder = " ORDER BY tclv.NgayBatDau DESC, ttp.id DESC;";
 
             // 7) Kết hợp hoàn chỉnh
             string query = sqlSelect + " ," + sqlLayChiTietCD + " ," + sqlTenNVL + sqlJoin + sqlDk1 + sqlDk2 + sqlOrder;
@@ -2757,10 +2757,10 @@ namespace DG_TonKhoBTP_v02.Database
             string ngayKT = ngayKetThuc.Date.AddDays(1).AddHours(6).ToString("yyyy-MM-dd HH:mm:ss");
 
             // Điều kiện WHERE – chèn trực tiếp giá trị ngày
-            string sqlDkNgay = $" WHERE date(tclv.Ngay) >= date('{ngayBD}') AND date(tclv.Ngay) <= date('{ngayKT}')";
+            string sqlDkNgay = $" WHERE date(tclv.NgayBatDau) >= date('{ngayBD}') AND date(tclv.NgayBatDau) <= date('{ngayKT}')";
 
             // Sắp xếp
-            string sqlOrder = " ORDER BY tclv.Ngay DESC, ttp.id DESC;";
+            string sqlOrder = " ORDER BY tclv.NgayBatDau DESC, ttp.id DESC;";
 
             // Ghép chuỗi hoàn chỉnh
             string query = sqlSelect + " ," + sqlLayChiTietCD + " ," + sqlTenNVL + sqlJoin + sqlDkNgay + loaiCD + sqlOrder;
@@ -2793,7 +2793,7 @@ namespace DG_TonKhoBTP_v02.Database
 
 
             // Sắp xếp
-            string sqlOrder = " ORDER BY tclv.Ngay DESC, ttp.id DESC;";
+            string sqlOrder = " ORDER BY tclv.NgayBatDau DESC, ttp.id DESC;";
 
             // Ghép chuỗi hoàn chỉnh
             string query = sqlSelect + " ," + sqlLayChiTietCD + " ," + sqlTenNVL + sqlJoin + loaiCD + sqlOrder;
@@ -3224,18 +3224,34 @@ namespace DG_TonKhoBTP_v02.Database
 
         private static long InsertThongTinCaLamViec(SQLiteConnection conn, SQLiteTransaction tx, ThongTinCaLamViec m, long id)
         {
+            if (m == null) throw new ArgumentNullException(nameof(m));
+
             const string sql = @"
-            INSERT INTO ThongTinCaLamViec (Ngay,TTThanhPham_id, May, Ca, NguoiLam, ToTruong, QuanDoc)
-            VALUES (@Ngay, @TTThanhPham_id, @May, @Ca, @NguoiLam, @ToTruong, @QuanDoc);
+            INSERT INTO ThongTinCaLamViec
+                (TTThanhPham_id, May, DanhSachMay_ID, Ca, NguoiLam, ToTruong, QuanDoc,
+                 NgayBatDau, GioBatDau, NgayKetThuc, GioKetThuc)
+            VALUES
+                (@TTThanhPham_id, @May, @DanhSachMay_ID, @Ca, @NguoiLam, @ToTruong, @QuanDoc,
+                 @NgayBatDau, @GioBatDau, @NgayKetThuc, @GioKetThuc);
             SELECT last_insert_rowid();";
+
             using var cmd = new SQLiteCommand(sql, conn, tx);
-            cmd.Parameters.AddWithValue("@Ngay", m.Ngay);
             cmd.Parameters.AddWithValue("@TTThanhPham_id", id);
-            cmd.Parameters.AddWithValue("@May", m.May);
-            cmd.Parameters.AddWithValue("@Ca", m.Ca);
-            cmd.Parameters.AddWithValue("@NguoiLam", m.NguoiLam);
+            cmd.Parameters.AddWithValue("@May", m.May ?? string.Empty);
+            cmd.Parameters.AddWithValue("@DanhSachMay_ID", m.DanhSachMayId > 0 ? (object)m.DanhSachMayId : DBNull.Value);
+            cmd.Parameters.AddWithValue("@Ca", m.Ca ?? string.Empty);
+            cmd.Parameters.AddWithValue("@NguoiLam", m.NguoiLam ?? string.Empty);
             cmd.Parameters.AddWithValue("@ToTruong", (object?)m.ToTruong ?? DBNull.Value);
             cmd.Parameters.AddWithValue("@QuanDoc", (object?)m.QuanDoc ?? DBNull.Value);
+            cmd.Parameters.AddWithValue(
+                "@NgayBatDau",
+                m.NgayBatDau.HasValue
+                    ? (object)m.NgayBatDau.Value.ToString("yyyy-MM-dd")
+                    : DBNull.Value);
+            cmd.Parameters.AddWithValue("@GioBatDau", m.GioBatDau.HasValue ? (object)m.GioBatDau.Value.ToString(@"hh\:mm") : DBNull.Value);
+            cmd.Parameters.AddWithValue("@NgayKetThuc", m.NgayKetThuc.HasValue ? (object)m.NgayKetThuc.Value.ToString("yyyy-MM-dd") : DBNull.Value);
+            cmd.Parameters.AddWithValue("@GioKetThuc", m.GioKetThuc.HasValue ? (object)m.GioKetThuc.Value.ToString(@"hh\:mm") : DBNull.Value);
+
             return (long)(cmd.ExecuteScalar() ?? 0L);
         }
 

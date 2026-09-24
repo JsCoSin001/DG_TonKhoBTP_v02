@@ -42,15 +42,15 @@
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.quanDoc = new System.Windows.Forms.TextBox();
             this.label6 = new System.Windows.Forms.Label();
-            this.cbMay = new System.Windows.Forms.ComboBox();
-            this.nguoiLam = new System.Windows.Forms.TextBox();
-            this.label4 = new System.Windows.Forms.Label();
             this.ca = new System.Windows.Forms.ComboBox();
             this.label3 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
             this.ngay = new System.Windows.Forms.DateTimePicker();
             this.congDoan = new System.Windows.Forms.ComboBox();
+            this.cbMay = new System.Windows.Forms.ComboBox();
+            this.nguoiLam = new System.Windows.Forms.TextBox();
+            this.label4 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.panel1.SuspendLayout();
             this.panel3.SuspendLayout();
@@ -259,38 +259,6 @@
             this.label6.Text = "Tổ trưởng";
             this.label6.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
-            // cbMay
-            // 
-            this.cbMay.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.cbMay.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cbMay.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cbMay.FormattingEnabled = true;
-            this.cbMay.Location = new System.Drawing.Point(933, 4);
-            this.cbMay.Name = "cbMay";
-            this.cbMay.Size = new System.Drawing.Size(165, 28);
-            this.cbMay.TabIndex = 2;
-            // 
-            // nguoiLam
-            // 
-            this.nguoiLam.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.nguoiLam.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.nguoiLam.Location = new System.Drawing.Point(1203, 5);
-            this.nguoiLam.Name = "nguoiLam";
-            this.nguoiLam.Size = new System.Drawing.Size(94, 26);
-            this.nguoiLam.TabIndex = 4;
-            // 
-            // label4
-            // 
-            this.label4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.label4.AutoSize = true;
-            this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label4.Location = new System.Drawing.Point(1104, 9);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(93, 18);
-            this.label4.TabIndex = 12;
-            this.label4.Text = "Người làm";
-            this.label4.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
             // ca
             // 
             this.ca.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
@@ -364,6 +332,38 @@
             this.congDoan.Name = "congDoan";
             this.congDoan.Size = new System.Drawing.Size(344, 27);
             this.congDoan.TabIndex = 17;
+            // 
+            // cbMay
+            // 
+            this.cbMay.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.cbMay.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cbMay.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cbMay.FormattingEnabled = true;
+            this.cbMay.Location = new System.Drawing.Point(933, 4);
+            this.cbMay.Name = "cbMay";
+            this.cbMay.Size = new System.Drawing.Size(165, 28);
+            this.cbMay.TabIndex = 2;
+            // 
+            // nguoiLam
+            // 
+            this.nguoiLam.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.nguoiLam.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.nguoiLam.Location = new System.Drawing.Point(1203, 5);
+            this.nguoiLam.Name = "nguoiLam";
+            this.nguoiLam.Size = new System.Drawing.Size(94, 26);
+            this.nguoiLam.TabIndex = 4;
+            // 
+            // label4
+            // 
+            this.label4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.label4.AutoSize = true;
+            this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label4.Location = new System.Drawing.Point(1104, 9);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(93, 18);
+            this.label4.TabIndex = 12;
+            this.label4.Text = "Người làm";
+            this.label4.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // label5
             // 

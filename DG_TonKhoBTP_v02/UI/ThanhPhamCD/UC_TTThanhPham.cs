@@ -745,6 +745,7 @@ namespace DG_TonKhoBTP_v02.UI
             OpenPheLieuForm();
         }
 
+
         private void khoiLuong_ValueChanged(object sender, EventArgs e)
         {
             RaiseThanhPhamSoLieuChanged();

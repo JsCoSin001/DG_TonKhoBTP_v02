@@ -150,7 +150,6 @@
             this.label3.TabIndex = 0;
             this.label3.Text = "Ngày kết thúc";
             this.label3.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.label3.Click += new System.EventHandler(this.label3_Click);
             // 
             // label4
             // 
@@ -163,7 +162,6 @@
             this.label4.TabIndex = 0;
             this.label4.Text = "Ca";
             this.label4.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.label4.Click += new System.EventHandler(this.label3_Click);
             // 
             // dtNgayBD
             // 
@@ -215,7 +213,6 @@
             this.label5.TabIndex = 0;
             this.label5.Text = "Xử lý kết quả";
             this.label5.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.label5.Click += new System.EventHandler(this.label3_Click);
             // 
             // flowLayoutPanel1
             // 

@@ -132,6 +132,7 @@
             this.btnLuuTam.TabIndex = 4;
             this.btnLuuTam.Text = "LƯU TẠM";
             this.btnLuuTam.UseVisualStyleBackColor = true;
+            this.btnLuuTam.Click += new System.EventHandler(this.btnLuuTam_Click);
             // 
             // UC_SubmitForm
             // 

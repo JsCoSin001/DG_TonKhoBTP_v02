@@ -1396,5 +1396,10 @@ namespace DG_TonKhoBTP_v02.UI
             if (_Cd?.Id == 0 || _Cd?.Id == 1)
                 cbInTemNVL.Checked = false;
         }
+
+        private void btnLuuTam_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }

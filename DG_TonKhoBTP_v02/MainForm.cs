@@ -884,7 +884,7 @@ namespace DG_TonKhoBTP_v02
             UC_Edit uC_Edit = new UC_Edit(cd);
             // Đặt Form Sửa số liệu bên trái panel pnEdit_Report
             uC_Edit.Dock = DockStyle.Left;
-            uC_Edit.Width = 400;
+            uC_Edit.Width = 570;
 
             UC_Report uC_Report = new UC_Report(cd);
             // Đặt Form báo cáo toàn panel pnEdit_Report

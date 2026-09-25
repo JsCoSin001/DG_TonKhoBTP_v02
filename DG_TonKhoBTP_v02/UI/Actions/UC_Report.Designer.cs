@@ -45,9 +45,9 @@
             this.groupBox1.Controls.Add(this.tableLayoutPanel1);
             this.groupBox1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.groupBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.groupBox1.Location = new System.Drawing.Point(10, 10);
+            this.groupBox1.Location = new System.Drawing.Point(3, 3);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(353, 67);
+            this.groupBox1.Size = new System.Drawing.Size(367, 81);
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Báo cáo";
@@ -66,7 +66,7 @@
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 1;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(347, 46);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(361, 60);
             this.tableLayoutPanel1.TabIndex = 0;
             // 
             // label1
@@ -74,7 +74,7 @@
             this.label1.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(3, 15);
+            this.label1.Location = new System.Drawing.Point(3, 22);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(43, 16);
             this.label1.TabIndex = 0;
@@ -87,7 +87,7 @@
             this.btnShowBaoCao.BackColor = System.Drawing.Color.LightSeaGreen;
             this.btnShowBaoCao.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnShowBaoCao.ForeColor = System.Drawing.SystemColors.ControlLightLight;
-            this.btnShowBaoCao.Location = new System.Drawing.Point(269, 4);
+            this.btnShowBaoCao.Location = new System.Drawing.Point(283, 11);
             this.btnShowBaoCao.Name = "btnShowBaoCao";
             this.btnShowBaoCao.Size = new System.Drawing.Size(75, 38);
             this.btnShowBaoCao.TabIndex = 1;
@@ -101,7 +101,7 @@
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel1.Location = new System.Drawing.Point(52, 3);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(211, 40);
+            this.panel1.Size = new System.Drawing.Size(225, 54);
             this.panel1.TabIndex = 2;
             // 
             // ngayBC
@@ -111,9 +111,9 @@
             this.ngayBC.CustomFormat = "MM";
             this.ngayBC.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.ngayBC.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
-            this.ngayBC.Location = new System.Drawing.Point(0, 11);
+            this.ngayBC.Location = new System.Drawing.Point(0, 18);
             this.ngayBC.Name = "ngayBC";
-            this.ngayBC.Size = new System.Drawing.Size(205, 26);
+            this.ngayBC.Size = new System.Drawing.Size(219, 26);
             this.ngayBC.TabIndex = 0;
             // 
             // UC_Report
@@ -123,7 +123,7 @@
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.Controls.Add(this.groupBox1);
             this.Name = "UC_Report";
-            this.Padding = new System.Windows.Forms.Padding(10);
+            this.Padding = new System.Windows.Forms.Padding(3);
             this.Size = new System.Drawing.Size(373, 87);
             this.groupBox1.ResumeLayout(false);
             this.tableLayoutPanel1.ResumeLayout(false);

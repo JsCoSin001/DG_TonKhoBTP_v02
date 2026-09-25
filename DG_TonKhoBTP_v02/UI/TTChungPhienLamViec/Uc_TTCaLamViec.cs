@@ -47,8 +47,10 @@ namespace DG_TonKhoBTP_v02.UI
             ca.SelectedIndexChanged += ThongTinCaLamViec_ValueChanged;
             nguoiLam.TextChanged += ThongTinCaLamViec_ValueChanged;
             tbNgayBatDau.TextChanged += ThongTinCaLamViec_ValueChanged;
+            tbNgayBatDau.Leave += NgayTextBox_Leave;
             dateTimePicker1.ValueChanged += ThongTinCaLamViec_ValueChanged;
             textBox1.TextChanged += ThongTinCaLamViec_ValueChanged;
+            textBox1.Leave += NgayTextBox_Leave;
             dateTimePicker2.ValueChanged += ThongTinCaLamViec_ValueChanged;
         }
 
@@ -64,7 +66,7 @@ namespace DG_TonKhoBTP_v02.UI
             ca.SelectedItem = caHienTai;
 
             if (string.IsNullOrWhiteSpace(tbNgayBatDau.Text))
-                tbNgayBatDau.Text = CoreHelper.GetNgayHienTai();
+                tbNgayBatDau.Text = GetNgayHienTaiDeHienThi();
         }
 
         private void NapDanhSachMayTheoCongDoan()
@@ -140,17 +142,150 @@ namespace DG_TonKhoBTP_v02.UI
             return int.TryParse(Convert.ToString(cbMay.SelectedValue), out id) ? id : 0;
         }
 
+        private void NgayTextBox_Leave(object sender, EventArgs e)
+        {
+            TextBox textBox = sender as TextBox;
+            if (textBox == null)
+                return;
+
+            string value = (textBox.Text ?? string.Empty).Trim();
+
+            // Không kiểm tra bắt buộc nhập tại UC_TTCaLamViec.
+            // Ô trống được giữ nguyên để UC_SubmitForm xử lý nghiệp vụ khi lưu.
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                textBox.Text = string.Empty;
+                return;
+            }
+
+            DateTime ngay;
+            if (!TryParseNgayNguoiDung(value, out ngay))
+            {
+                string tenTruong = textBox == tbNgayBatDau
+                    ? "Ngày bắt đầu"
+                    : "Ngày kết thúc";
+
+                FrmWaiting.ShowGifAlert("Định dạng ngày bắt đầu/kết thúc không đúng");
+
+                BeginInvoke(new Action(() =>
+                {
+                    textBox.Focus();
+                    textBox.SelectAll();
+                }));
+
+                return;
+            }
+
+            bool oldState = _dangCapNhatNoiBo;
+            _dangCapNhatNoiBo = true;
+            try
+            {
+                textBox.Text = ngay.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture);
+            }
+            finally
+            {
+                _dangCapNhatNoiBo = oldState;
+            }
+
+            RaiseThongTinCaLamViecChanged();
+        }
+
+        private static bool TryParseNgayNguoiDung(string value, out DateTime ngay)
+        {
+            ngay = default(DateTime);
+
+            if (string.IsNullOrWhiteSpace(value))
+                return false;
+
+            string text = value.Trim();
+            bool coDauGachCheo = text.Contains("/");
+            bool coDauGachNgang = text.Contains("-");
+
+            // Chỉ chấp nhận một loại dấu phân cách: '/' hoặc '-'.
+            if (coDauGachCheo == coDauGachNgang)
+                return false;
+
+            char separator = coDauGachCheo ? '/' : '-';
+            string[] parts = text.Split(separator);
+
+            // Chỉ chấp nhận ngày/tháng hoặc ngày/tháng/năm.
+            if (parts.Length != 2 && parts.Length != 3)
+                return false;
+
+            string ngayText = parts[0].Trim();
+            string thangText = parts[1].Trim();
+
+            if (!LaChuoiSoCoDoDai(ngayText, 1, 2) ||
+                !LaChuoiSoCoDoDai(thangText, 1, 2))
+            {
+                return false;
+            }
+
+            int ngayValue;
+            int thangValue;
+            if (!int.TryParse(ngayText, out ngayValue) ||
+                !int.TryParse(thangText, out thangValue))
+            {
+                return false;
+            }
+
+            int namValue;
+            if (parts.Length == 2)
+            {
+                namValue = DateTime.Now.Year;
+            }
+            else
+            {
+                string namText = parts[2].Trim();
+
+                // Nếu có năm thì bắt buộc đủ 4 chữ số.
+                if (!LaChuoiSoCoDoDai(namText, 4, 4) ||
+                    !int.TryParse(namText, out namValue))
+                {
+                    return false;
+                }
+            }
+
+            try
+            {
+                // Constructor DateTime đồng thời kiểm tra ngày thực tế:
+                // 31/4, tháng 13, 29/2 ở năm không nhuận...
+                ngay = new DateTime(namValue, thangValue, ngayValue);
+                return true;
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                return false;
+            }
+        }
+
+        private static bool LaChuoiSoCoDoDai(string value, int minLength, int maxLength)
+        {
+            if (string.IsNullOrEmpty(value) ||
+                value.Length < minLength ||
+                value.Length > maxLength)
+            {
+                return false;
+            }
+
+            return value.All(char.IsDigit);
+        }
+
         private static DateTime? ParseNullableDate(string value)
         {
             if (string.IsNullOrWhiteSpace(value))
                 return null;
 
             DateTime parsed;
-            string text = value.Trim();
 
+            // Dữ liệu do người dùng nhập theo quy tắc của UC_TTCaLamViec.
+            if (TryParseNgayNguoiDung(value, out parsed))
+                return parsed.Date;
+
+            // Giữ khả năng đọc dữ liệu nội bộ/database theo yyyy-MM-dd.
             if (DateTime.TryParseExact(
-                    text,
-                    new[] { "yyyy-MM-dd", "dd/MM/yyyy", "d/M/yyyy" },
+                    value.Trim(),
+                    "yyyy-MM-dd",
                     CultureInfo.InvariantCulture,
                     DateTimeStyles.None,
                     out parsed))
@@ -158,10 +293,49 @@ namespace DG_TonKhoBTP_v02.UI
                 return parsed.Date;
             }
 
-            if (DateTime.TryParse(text, out parsed))
-                return parsed.Date;
-
             return null;
+        }
+
+        private static string GetNgayHienTaiDeHienThi()
+        {
+            string value = CoreHelper.GetNgayHienTai();
+            DateTime parsed;
+
+            if (DateTime.TryParseExact(
+                    value,
+                    "yyyy-MM-dd",
+                    CultureInfo.InvariantCulture,
+                    DateTimeStyles.None,
+                    out parsed))
+            {
+                return parsed.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture);
+            }
+
+            return value;
+        }
+
+        private static string ChuanHoaNgayDeHienThi(object value)
+        {
+            if (value == null || value == DBNull.Value)
+                return string.Empty;
+
+            string text = Convert.ToString(value) ?? string.Empty;
+            DateTime parsed;
+
+            if (TryParseNgayNguoiDung(text, out parsed))
+                return parsed.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture);
+
+            if (DateTime.TryParseExact(
+                    text.Trim(),
+                    "yyyy-MM-dd",
+                    CultureInfo.InvariantCulture,
+                    DateTimeStyles.None,
+                    out parsed))
+            {
+                return parsed.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture);
+            }
+
+            return text;
         }
 
         private void ChonMayTheoIdHoacTen(DataRow row)
@@ -209,7 +383,7 @@ namespace DG_TonKhoBTP_v02.UI
                 ca.SelectedIndex = -1;
                 ca.Text = CoreHelper.GetShiftValue();
                 nguoiLam.Clear();
-                tbNgayBatDau.Text = CoreHelper.GetNgayHienTai();
+                tbNgayBatDau.Text = GetNgayHienTaiDeHienThi();
                 textBox1.Clear();
             }
             finally
@@ -235,9 +409,9 @@ namespace DG_TonKhoBTP_v02.UI
                 {
                     CoreHelper.SetIfPresent(row, "Ca", val => ca.Text = Convert.ToString(val));
                     CoreHelper.SetIfPresent(row, "NguoiLam", val => nguoiLam.Text = Convert.ToString(val));
-                    CoreHelper.SetIfPresent(row, "NgayBatDau", val => tbNgayBatDau.Text = Convert.ToString(val));
+                    CoreHelper.SetIfPresent(row, "NgayBatDau", val => tbNgayBatDau.Text = ChuanHoaNgayDeHienThi(val));
 
-                    CoreHelper.SetIfPresent(row, "NgayKetThuc", val => textBox1.Text = Convert.ToString(val));
+                    CoreHelper.SetIfPresent(row, "NgayKetThuc", val => textBox1.Text = ChuanHoaNgayDeHienThi(val));
 
                     CoreHelper.SetIfPresent(row, "GioBatDau", val =>
                     {

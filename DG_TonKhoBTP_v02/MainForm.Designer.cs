@@ -64,8 +64,6 @@ namespace DG_TonKhoBTP_v02
             this.pnKiemTraBC = new System.Windows.Forms.Panel();
             this.BtnKiemTraBc = new DG_TonKhoBTP_v02.UI.Component.CustomButton();
             this.grbChucNang = new System.Windows.Forms.GroupBox();
-            this.panel16 = new System.Windows.Forms.Panel();
-            this.btnLoi_DungMay = new DG_TonKhoBTP_v02.UI.Component.CustomButton();
             this.panel5 = new System.Windows.Forms.Panel();
             this.btnChieuXa = new DG_TonKhoBTP_v02.UI.Component.CustomButton();
             this.panel13 = new System.Windows.Forms.Panel();
@@ -126,7 +124,6 @@ namespace DG_TonKhoBTP_v02
             this.pnTruyVetDL.SuspendLayout();
             this.pnKiemTraBC.SuspendLayout();
             this.grbChucNang.SuspendLayout();
-            this.panel16.SuspendLayout();
             this.panel5.SuspendLayout();
             this.panel13.SuspendLayout();
             this.panel12.SuspendLayout();
@@ -185,7 +182,7 @@ namespace DG_TonKhoBTP_v02
             this.groupBox1.Controls.Add(this.panel2);
             this.groupBox1.Dock = System.Windows.Forms.DockStyle.Top;
             this.groupBox1.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.groupBox1.Location = new System.Drawing.Point(0, 1322);
+            this.groupBox1.Location = new System.Drawing.Point(0, 1265);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(185, 209);
             this.groupBox1.TabIndex = 4;
@@ -288,7 +285,7 @@ namespace DG_TonKhoBTP_v02
             this.grbKeHoach.Controls.Add(this.pnKeHoach);
             this.grbKeHoach.Dock = System.Windows.Forms.DockStyle.Top;
             this.grbKeHoach.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.grbKeHoach.Location = new System.Drawing.Point(0, 1239);
+            this.grbKeHoach.Location = new System.Drawing.Point(0, 1182);
             this.grbKeHoach.Name = "grbKeHoach";
             this.grbKeHoach.Size = new System.Drawing.Size(185, 83);
             this.grbKeHoach.TabIndex = 3;
@@ -337,7 +334,7 @@ namespace DG_TonKhoBTP_v02
             this.grbCongCu.Controls.Add(this.pnUpdateMaHang);
             this.grbCongCu.Dock = System.Windows.Forms.DockStyle.Top;
             this.grbCongCu.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.grbCongCu.Location = new System.Drawing.Point(0, 778);
+            this.grbCongCu.Location = new System.Drawing.Point(0, 721);
             this.grbCongCu.Name = "grbCongCu";
             this.grbCongCu.Size = new System.Drawing.Size(185, 461);
             this.grbCongCu.TabIndex = 1;
@@ -561,7 +558,7 @@ namespace DG_TonKhoBTP_v02
             this.grbBaoCao.Controls.Add(this.pnKiemTraBC);
             this.grbBaoCao.Dock = System.Windows.Forms.DockStyle.Top;
             this.grbBaoCao.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.grbBaoCao.Location = new System.Drawing.Point(0, 632);
+            this.grbBaoCao.Location = new System.Drawing.Point(0, 575);
             this.grbBaoCao.Name = "grbBaoCao";
             this.grbBaoCao.Size = new System.Drawing.Size(185, 146);
             this.grbBaoCao.TabIndex = 2;
@@ -631,7 +628,6 @@ namespace DG_TonKhoBTP_v02
             // grbChucNang
             // 
             this.grbChucNang.AutoSize = true;
-            this.grbChucNang.Controls.Add(this.panel16);
             this.grbChucNang.Controls.Add(this.panel5);
             this.grbChucNang.Controls.Add(this.panel13);
             this.grbChucNang.Controls.Add(this.panel12);
@@ -645,41 +641,10 @@ namespace DG_TonKhoBTP_v02
             this.grbChucNang.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.grbChucNang.Location = new System.Drawing.Point(0, 0);
             this.grbChucNang.Name = "grbChucNang";
-            this.grbChucNang.Size = new System.Drawing.Size(185, 632);
+            this.grbChucNang.Size = new System.Drawing.Size(185, 575);
             this.grbChucNang.TabIndex = 0;
             this.grbChucNang.TabStop = false;
             this.grbChucNang.Text = "CÔNG ĐOẠN";
-            // 
-            // panel16
-            // 
-            this.panel16.Controls.Add(this.btnLoi_DungMay);
-            this.panel16.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panel16.Location = new System.Drawing.Point(3, 572);
-            this.panel16.Name = "panel16";
-            this.panel16.Padding = new System.Windows.Forms.Padding(5, 6, 5, 6);
-            this.panel16.Size = new System.Drawing.Size(179, 57);
-            this.panel16.TabIndex = 10;
-            // 
-            // btnLoi_DungMay
-            // 
-            this.btnLoi_DungMay.AutoSize = true;
-            this.btnLoi_DungMay.BackColor = System.Drawing.Color.Snow;
-            this.btnLoi_DungMay.BorderRadius = 10;
-            this.btnLoi_DungMay.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnLoi_DungMay.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.btnLoi_DungMay.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnLoi_DungMay.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnLoi_DungMay.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.btnLoi_DungMay.Location = new System.Drawing.Point(5, 6);
-            this.btnLoi_DungMay.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
-            this.btnLoi_DungMay.Name = "btnLoi_DungMay";
-            this.btnLoi_DungMay.Size = new System.Drawing.Size(169, 45);
-            this.btnLoi_DungMay.TabIndex = 8;
-            this.btnLoi_DungMay.TabStop = false;
-            this.btnLoi_DungMay.Text = "NN DỪNG MÁY";
-            this.btnLoi_DungMay.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.btnLoi_DungMay.UseVisualStyleBackColor = false;
-            this.btnLoi_DungMay.Click += new System.EventHandler(this.btnLoi_DungMay_Click);
             // 
             // panel5
             // 
@@ -1254,8 +1219,6 @@ namespace DG_TonKhoBTP_v02
             this.pnTruyVetDL.ResumeLayout(false);
             this.pnKiemTraBC.ResumeLayout(false);
             this.grbChucNang.ResumeLayout(false);
-            this.panel16.ResumeLayout(false);
-            this.panel16.PerformLayout();
             this.panel5.ResumeLayout(false);
             this.panel5.PerformLayout();
             this.panel13.ResumeLayout(false);
@@ -1390,8 +1353,6 @@ namespace DG_TonKhoBTP_v02
         private CustomButton btnKiemTraDuLieu;
         private System.Windows.Forms.Panel panel5;
         private CustomButton btnChieuXa;
-        private System.Windows.Forms.Panel panel16;
-        private CustomButton btnLoi_DungMay;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
         private System.Windows.Forms.Label label1;
     }

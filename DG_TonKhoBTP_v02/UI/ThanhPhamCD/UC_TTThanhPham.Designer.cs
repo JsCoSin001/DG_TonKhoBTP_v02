@@ -52,6 +52,8 @@
             this.label7 = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
             this.btnNhapPhe = new System.Windows.Forms.Button();
+            this.label10 = new System.Windows.Forms.Label();
+            this.btnBCDungMay = new System.Windows.Forms.Button();
             this.panel3 = new System.Windows.Forms.Panel();
             this.tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
             this.ten = new System.Windows.Forms.TextBox();
@@ -66,8 +68,6 @@
             this.donVi = new System.Windows.Forms.TextBox();
             this.nbrChuyenDoi = new System.Windows.Forms.NumericUpDown();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
-            this.label10 = new System.Windows.Forms.Label();
-            this.btnBCDungMay = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.panel1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -417,6 +417,30 @@
             this.btnNhapPhe.Text = "Chưa nhập";
             this.btnNhapPhe.UseVisualStyleBackColor = true;
             // 
+            // label10
+            // 
+            this.label10.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.label10.AutoSize = true;
+            this.label10.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label10.Location = new System.Drawing.Point(923, 1);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(104, 16);
+            this.label10.TabIndex = 38;
+            this.label10.Text = "BC dừng máy";
+            this.label10.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
+            // 
+            // btnBCDungMay
+            // 
+            this.btnBCDungMay.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnBCDungMay.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnBCDungMay.Location = new System.Drawing.Point(923, 22);
+            this.btnBCDungMay.Name = "btnBCDungMay";
+            this.btnBCDungMay.Size = new System.Drawing.Size(104, 32);
+            this.btnBCDungMay.TabIndex = 39;
+            this.btnBCDungMay.Text = "Chưa nhập";
+            this.btnBCDungMay.UseVisualStyleBackColor = true;
+            // 
             // panel3
             // 
             this.panel3.Controls.Add(this.tableLayoutPanel4);
@@ -569,30 +593,6 @@
             this.nbrChuyenDoi.Name = "nbrChuyenDoi";
             this.nbrChuyenDoi.Size = new System.Drawing.Size(43, 22);
             this.nbrChuyenDoi.TabIndex = 43;
-            // 
-            // label10
-            // 
-            this.label10.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.label10.AutoSize = true;
-            this.label10.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label10.Location = new System.Drawing.Point(923, 1);
-            this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(104, 16);
-            this.label10.TabIndex = 38;
-            this.label10.Text = "BC dừng máy";
-            this.label10.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
-            // 
-            // btnBCDungMay
-            // 
-            this.btnBCDungMay.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnBCDungMay.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnBCDungMay.Location = new System.Drawing.Point(923, 22);
-            this.btnBCDungMay.Name = "btnBCDungMay";
-            this.btnBCDungMay.Size = new System.Drawing.Size(104, 32);
-            this.btnBCDungMay.TabIndex = 39;
-            this.btnBCDungMay.Text = "Chưa nhập";
-            this.btnBCDungMay.UseVisualStyleBackColor = true;
             // 
             // UC_TTThanhPham
             // 

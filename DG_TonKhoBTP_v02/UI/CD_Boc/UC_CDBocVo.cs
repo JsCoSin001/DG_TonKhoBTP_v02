@@ -206,7 +206,13 @@ namespace DG_TonKhoBTP_v02.UI
             if (btnDongGoi == null) return;
 
             int count = _thongTinCuonDay == null ? 0 : _thongTinCuonDay.Count;
-            btnDongGoi.Text = count > 0 ? $"Đã nhập ({count})" : "Nhập";
+            bool hasData = count > 0;
+
+            btnDongGoi.Text = hasData ? $"Đã nhập ({count})" : "Nhập";
+            btnDongGoi.UseVisualStyleBackColor = false;
+            btnDongGoi.BackColor = hasData
+                ? System.Drawing.Color.LightGreen
+                : System.Drawing.Color.LightYellow;
         }
 
         private static List<ThongTinCuonDay> CloneThongTinCuonDay(List<ThongTinCuonDay> source)

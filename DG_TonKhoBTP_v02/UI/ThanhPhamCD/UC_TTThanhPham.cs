@@ -122,7 +122,13 @@ namespace DG_TonKhoBTP_v02.UI
         private void UpdatePheLieuButtonState()
         {
             if (btnNhapPhe == null) return;
-            btnNhapPhe.Text = HasPheLieuData ? "Đã nhập" : "Chưa nhập";
+
+            bool hasData = HasPheLieuData;
+            btnNhapPhe.Text = hasData ? "Đã nhập" : "Chưa nhập";
+            btnNhapPhe.UseVisualStyleBackColor = false;
+            btnNhapPhe.BackColor = hasData
+                ? System.Drawing.Color.LightGreen
+                : System.Drawing.Color.LightYellow;
         }
 
         private static void ClearPheLieuNotesIfNoData(PheLieuData data)
@@ -246,7 +252,13 @@ namespace DG_TonKhoBTP_v02.UI
         private void UpdateLoiDungMayButtonState()
         {
             if (btnBCDungMay == null) return;
-            btnBCDungMay.Text = HasLoiDungMayData ? "Đã nhập" : "Chưa nhập";
+
+            bool hasData = HasLoiDungMayData;
+            btnBCDungMay.Text = hasData ? "Đã nhập" : "Chưa nhập";
+            btnBCDungMay.UseVisualStyleBackColor = false;
+            btnBCDungMay.BackColor = hasData
+                ? System.Drawing.Color.LightGreen
+                : System.Drawing.Color.LightYellow;
         }
 
         private static ThongTinCaLamViec CloneThongTinCaLamViec(ThongTinCaLamViec source)

@@ -34,7 +34,7 @@
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.cbInTemNVL = new System.Windows.Forms.CheckBox();
-            this.button1 = new System.Windows.Forms.Button();
+            this.btnLuuTam = new System.Windows.Forms.Button();
             this.tableLayoutPanel1.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
@@ -92,7 +92,7 @@
             this.tableLayoutPanel1.Controls.Add(this.btnLuu, 3, 0);
             this.tableLayoutPanel1.Controls.Add(this.btnClear, 2, 0);
             this.tableLayoutPanel1.Controls.Add(this.flowLayoutPanel1, 1, 0);
-            this.tableLayoutPanel1.Controls.Add(this.button1, 0, 0);
+            this.tableLayoutPanel1.Controls.Add(this.btnLuuTam, 0, 0);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
@@ -122,16 +122,16 @@
             this.cbInTemNVL.Text = "checkBox1";
             this.cbInTemNVL.UseVisualStyleBackColor = true;
             // 
-            // button1
+            // btnLuuTam
             // 
-            this.button1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.button1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button1.Location = new System.Drawing.Point(3, 3);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(124, 46);
-            this.button1.TabIndex = 4;
-            this.button1.Text = "LƯU TẠM";
-            this.button1.UseVisualStyleBackColor = true;
+            this.btnLuuTam.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.btnLuuTam.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnLuuTam.Location = new System.Drawing.Point(3, 3);
+            this.btnLuuTam.Name = "btnLuuTam";
+            this.btnLuuTam.Size = new System.Drawing.Size(124, 46);
+            this.btnLuuTam.TabIndex = 4;
+            this.btnLuuTam.Text = "LƯU TẠM";
+            this.btnLuuTam.UseVisualStyleBackColor = true;
             // 
             // UC_SubmitForm
             // 
@@ -157,6 +157,6 @@
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
         private System.Windows.Forms.CheckBox cbInTemNVL;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button btnLuuTam;
     }
 }

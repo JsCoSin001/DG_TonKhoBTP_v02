@@ -34,10 +34,10 @@
             this.label2 = new System.Windows.Forms.Label();
             this.nbrSua = new System.Windows.Forms.NumericUpDown();
             this.nbrSaoChep = new System.Windows.Forms.NumericUpDown();
-            this.btnTim = new System.Windows.Forms.Button();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
             this.label3 = new System.Windows.Forms.Label();
             this.cbxTimQr = new System.Windows.Forms.ComboBox();
+            this.btnTim = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nbrSua)).BeginInit();
@@ -136,18 +136,6 @@
             this.nbrSaoChep.Click += new System.EventHandler(this.nbrSaoChep_Click);
             this.nbrSaoChep.KeyDown += new System.Windows.Forms.KeyEventHandler(this.nbrSaoChep_KeyDown);
             // 
-            // btnTim
-            // 
-            this.btnTim.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnTim.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnTim.Location = new System.Drawing.Point(623, 3);
-            this.btnTim.Name = "btnTim";
-            this.btnTim.Size = new System.Drawing.Size(94, 31);
-            this.btnTim.TabIndex = 1;
-            this.btnTim.Text = "Tìm kiếm";
-            this.btnTim.UseVisualStyleBackColor = true;
-            this.btnTim.Click += new System.EventHandler(this.btnTim_Click);
-            // 
             // tableLayoutPanel2
             // 
             this.tableLayoutPanel2.ColumnCount = 2;
@@ -172,19 +160,31 @@
             this.label3.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label3.Location = new System.Drawing.Point(3, 43);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(76, 16);
+            this.label3.Size = new System.Drawing.Size(81, 16);
             this.label3.TabIndex = 6;
-            this.label3.Text = "Tìm theo Qr";
+            this.label3.Text = "Tìm tem tạm";
             // 
             // cbxTimQr
             // 
             this.cbxTimQr.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbxTimQr.FormattingEnabled = true;
-            this.cbxTimQr.Location = new System.Drawing.Point(82, 42);
+            this.cbxTimQr.Location = new System.Drawing.Point(87, 39);
             this.cbxTimQr.Margin = new System.Windows.Forms.Padding(0, 3, 0, 0);
             this.cbxTimQr.Name = "cbxTimQr";
-            this.cbxTimQr.Size = new System.Drawing.Size(638, 27);
+            this.cbxTimQr.Size = new System.Drawing.Size(633, 27);
             this.cbxTimQr.TabIndex = 7;
+            // 
+            // btnTim
+            // 
+            this.btnTim.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnTim.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnTim.Location = new System.Drawing.Point(623, 3);
+            this.btnTim.Name = "btnTim";
+            this.btnTim.Size = new System.Drawing.Size(94, 31);
+            this.btnTim.TabIndex = 1;
+            this.btnTim.Text = "Tìm kiếm";
+            this.btnTim.UseVisualStyleBackColor = true;
+            this.btnTim.Click += new System.EventHandler(this.btnTim_Click);
             // 
             // UC_Edit
             // 

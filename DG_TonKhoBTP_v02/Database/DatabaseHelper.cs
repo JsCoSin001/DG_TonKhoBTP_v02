@@ -2663,7 +2663,7 @@ namespace DG_TonKhoBTP_v02.Database
 
             string sqlJoin = CoreHelper.TaoSQL_TaoKetNoiCacBang();
 
-            string sqlDk1 = " WHERE ttp.Temp = 0 AND date(tclv.NgayBatDau) = date(@para) ";
+            string sqlDk1 = " WHERE ttp.Temp = 0 AND date(tclv.NgayKetThuc) = date(@para) ";
 
             string sqlDk2 = " AND ttp.CongDoan = " + cd.Id;
 
@@ -2675,7 +2675,7 @@ namespace DG_TonKhoBTP_v02.Database
             }
 
             // 6) ORDER BY
-            string sqlOrder = " ORDER BY tclv.NgayBatDau DESC, ttp.id DESC;";
+            string sqlOrder = " ORDER BY tclv.NgayKetThuc DESC, ttp.id DESC;";
 
             // 7) Kết hợp hoàn chỉnh
             string query = sqlSelect + " ," + sqlLayChiTietCD + " ," + sqlTenNVL + sqlJoin + sqlDk1 + sqlDk2 + sqlDk3 + sqlOrder;
@@ -2696,12 +2696,12 @@ namespace DG_TonKhoBTP_v02.Database
 
             string sqlJoin = CoreHelper.TaoSQL_TaoKetNoiCacBang();
 
-            string sqlDk1 = " WHERE strftime('%Y-%m', tclv.NgayBatDau) = strftime('%Y-%m', @para) ";
+            string sqlDk1 = " WHERE ttp.Temp = 0 AND strftime('%Y-%m', tclv.NgayKetThuc) = strftime('%Y-%m', @para) ";
 
             string sqlDk2 = " AND ttp.CongDoan = " + cd.Id;
 
             // 6) ORDER BY
-            string sqlOrder = " ORDER BY tclv.NgayBatDau DESC, ttp.id DESC;";
+            string sqlOrder = " ORDER BY tclv.NgayKetThuc DESC, ttp.id DESC;";
 
             // 7) Kết hợp hoàn chỉnh
             string query = sqlSelect + " ," + sqlLayChiTietCD + " ," + sqlTenNVL + sqlJoin + sqlDk1 + sqlDk2 + sqlOrder;
@@ -2761,10 +2761,10 @@ namespace DG_TonKhoBTP_v02.Database
             string ngayKT = ngayKetThuc.Date.AddDays(1).AddHours(6).ToString("yyyy-MM-dd HH:mm:ss");
 
             // Điều kiện WHERE – chèn trực tiếp giá trị ngày
-            string sqlDkNgay = $" WHERE ttp.Temp = 0 AND date(tclv.NgayBatDau) >= date('{ngayBD}') AND date(tclv.NgayBatDau) <= date('{ngayKT}')";
+            string sqlDkNgay = $" WHERE ttp.Temp = 0 AND date(tclv.NgayKetThuc) >= date('{ngayBD}') AND date(tclv.NgayKetThuc) <= date('{ngayKT}')";
 
             // Sắp xếp
-            string sqlOrder = " ORDER BY tclv.NgayBatDau DESC, ttp.id DESC;";
+            string sqlOrder = " ORDER BY tclv.NgayKetThuc DESC, ttp.id DESC;";
 
             // Ghép chuỗi hoàn chỉnh
             string query = sqlSelect + " ," + sqlLayChiTietCD + " ," + sqlTenNVL + sqlJoin + sqlDkNgay + loaiCD + sqlOrder;
@@ -2798,7 +2798,7 @@ namespace DG_TonKhoBTP_v02.Database
 
 
             // Sắp xếp
-            string sqlOrder = " ORDER BY tclv.NgayBatDau DESC, ttp.id DESC;";
+            string sqlOrder = " ORDER BY tclv.NgayKetThuc DESC, ttp.id DESC;";
 
             // Ghép chuỗi hoàn chỉnh
             string query = sqlSelect + " ," + sqlLayChiTietCD + " ," + sqlTenNVL + sqlJoin + loaiCD + sqlOrder;

@@ -12,7 +12,7 @@ namespace DG_TonKhoBTP_v02.Helper
     {
         public static int TTCaLamViec(ThongTinCaLamViec data)
         {
-            if (data == null || CaLamViecPolicy.LaNgayChuaChon(data.NgayBatDau))
+            if (data == null || CaLamViecPolicy.LaNgayChuaChon(data.NgayKetThuc))
                 return 4;
 
             if (string.IsNullOrWhiteSpace(data.May))
@@ -28,7 +28,7 @@ namespace DG_TonKhoBTP_v02.Helper
         {
             var result = new List<string>();
 
-            if (data == null || CaLamViecPolicy.LaNgayChuaChon(data.NgayBatDau))
+            if (data == null || CaLamViecPolicy.LaNgayChuaChon(data.NgayKetThuc))
                 result.Add(EnumStore.ErrorCaLamViec[4]);
 
             if (data == null || string.IsNullOrWhiteSpace(data.May))

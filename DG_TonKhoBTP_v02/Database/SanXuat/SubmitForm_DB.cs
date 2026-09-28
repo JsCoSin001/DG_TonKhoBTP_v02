@@ -25,7 +25,7 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
 
             string query = $@"
                 SELECT  
-                    t.NgayBatDau AS NgaySX,
+                    t.NgayKetThuc AS NgaySX,
                     t.Ca AS CaSX,
                     tp.QC AS QC,
                     tp.KhoiLuongSau AS KhoiLuong,

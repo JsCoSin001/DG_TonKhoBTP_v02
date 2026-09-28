@@ -1284,8 +1284,8 @@ namespace DG_TonKhoBTP_v02.UI
 
             return new PrinterModel
             {
-                NgaySX = data.ThongTinCaLamViec.NgayBatDau.HasValue
-                    ? data.ThongTinCaLamViec.NgayBatDau.Value.ToString("dd/MM/yyyy")
+                NgaySX = data.ThongTinCaLamViec.NgayKetThuc.HasValue
+                    ? data.ThongTinCaLamViec.NgayKetThuc.Value.ToString("dd/MM/yyyy")
                     : string.Empty,
                 CaSX = data.ThongTinCaLamViec.Ca,
                 Mau = mau,
@@ -1526,7 +1526,6 @@ namespace DG_TonKhoBTP_v02.UI
             ThongTinCaLamViec ca = snapshot.GetSection<ThongTinCaLamViec>("UC_TTCaLamViec");
             List<string> errors = LuuTamValidator.LayDanhSachLoi(tp, rows, ca?.May, _Cd, cd9);
             if (errors.Count > 0) { ShowValidationError(waiting, "DỮ LIỆU CHƯA HỢP LỆ"); return null; }
-
 
             ApplyHanNoiRules(tp);
             var data = new DraftSubmitData

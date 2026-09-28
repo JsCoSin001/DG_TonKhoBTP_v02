@@ -65,8 +65,8 @@ namespace DG_TonKhoBTP_v02.UI
             string caHienTai = CoreHelper.GetShiftValue();
             ca.SelectedItem = caHienTai;
 
-            if (string.IsNullOrWhiteSpace(tbNgayBatDau.Text))
-                tbNgayBatDau.Text = GetNgayHienTaiDeHienThi();
+            if (string.IsNullOrWhiteSpace(textBox1.Text))
+                textBox1.Text = GetNgayHienTaiDeHienThi();
         }
 
         private void NapDanhSachMayTheoCongDoan()
@@ -384,8 +384,8 @@ namespace DG_TonKhoBTP_v02.UI
                 ca.SelectedIndex = -1;
                 ca.Text = CoreHelper.GetShiftValue();
                 nguoiLam.Clear();
-                tbNgayBatDau.Text = GetNgayHienTaiDeHienThi();
-                textBox1.Clear();
+                tbNgayBatDau.Clear();
+                textBox1.Text = GetNgayHienTaiDeHienThi();
             }
             finally
             {
@@ -409,6 +409,10 @@ namespace DG_TonKhoBTP_v02.UI
 
                 if (kieuDL == (int)DataLoadMode.OfficialEdit || kieuDL == (int)DataLoadMode.Draft)
                 {
+                    // Khi load dữ liệu cũ/draft, không giữ ngày kết thúc mặc định của form mới.
+                    // Nếu DB chưa có NgayKetThuc thì để trống để phản ánh đúng dữ liệu nguồn.
+                    textBox1.Clear();
+
                     CoreHelper.SetIfPresent(row, "Ca", val => ca.Text = Convert.ToString(val));
                     CoreHelper.SetIfPresent(row, "NguoiLam", val => nguoiLam.Text = Convert.ToString(val));
                     CoreHelper.SetIfPresent(row, "NgayBatDau", val => tbNgayBatDau.Text = ChuanHoaNgayDeHienThi(val));

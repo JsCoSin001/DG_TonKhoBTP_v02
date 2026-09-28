@@ -349,8 +349,8 @@ namespace DG_TonKhoBTP_v02.Database
             string sqlJoin = CoreHelper.TaoSQL_TaoKetNoiCacBang();
             string ngayBD = ngayBatDau.Date.AddHours(5).AddMinutes(59).ToString("yyyy-MM-dd HH:mm:ss");
             string ngayKT = ngayKetThuc.Date.AddDays(1).AddHours(6).ToString("yyyy-MM-dd HH:mm:ss");
-            string sqlDkNgay = $" WHERE ttp.Temp = 0 AND date(tclv.NgayBatDau) >= date('{ngayBD}') AND date(tclv.NgayBatDau) <= date('{ngayKT}')";
-            string sqlOrder = " ORDER BY tclv.NgayBatDau DESC, ttp.id DESC;";
+            string sqlDkNgay = $" WHERE ttp.Temp = 0 AND date(tclv.NgayKetThuc) >= date('{ngayBD}') AND date(tclv.NgayKetThuc) <= date('{ngayKT}')";
+            string sqlOrder = " ORDER BY tclv.NgayKetThuc DESC, ttp.id DESC;";
             string query = sqlSelect + " ," + sqlChiTietCD + " ," + sqlTenNVL + sqlJoin + sqlDkNgay + loaiCD + sqlOrder;
             return DB_Base.GetData(query);
         }
@@ -364,7 +364,7 @@ namespace DG_TonKhoBTP_v02.Database
             loaiCD = loaiCD.Replace("AND", "WHERE") + @"
                 AND ttp.Temp = 0
                 AND ((ds.DonVi = 'KG' AND ttp.KhoiLuongSau <> 0) OR (ds.DonVi = 'M' AND ttp.ChieuDaiSau <> 0))";
-            string sqlOrder = " ORDER BY tclv.NgayBatDau DESC, ttp.id DESC;";
+            string sqlOrder = " ORDER BY tclv.NgayKetThuc DESC, ttp.id DESC;";
             string query = sqlSelect + " ," + sqlChiTietCD + " ," + sqlTenNVL + sqlJoin + loaiCD + sqlOrder;
             return DB_Base.GetData(query);
         }
@@ -387,7 +387,7 @@ namespace DG_TonKhoBTP_v02.Database
             var result = new List<PrinterModel>();
             var paramNames = listBin.Select((bin, index) => "@bin" + index).ToList();
             string query = $@"
-                SELECT t.NgayBatDau AS NgaySX, t.Ca AS CaSX, tp.QC, tp.KhoiLuongSau AS KhoiLuong, tp.ChieuDaiSau AS ChieuDai,
+                SELECT t.NgayKetThuc AS NgaySX, t.Ca AS CaSX, tp.QC, tp.KhoiLuongSau AS KhoiLuong, tp.ChieuDaiSau AS ChieuDai,
                     d.ten AS TenSP, tp.MaBin, d.ma AS MaSP, t.NguoiLam AS TenCN, tp.GhiChu AS GhiChu
                 FROM TTThanhPham tp
                 LEFT JOIN ThongTinCaLamViec t ON t.TTThanhPham_id = tp.id

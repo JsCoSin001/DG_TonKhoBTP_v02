@@ -22,7 +22,7 @@ namespace DG_TonKhoBTP_v02.Database.KeToan
                 loi.TTThanhpham_id                          AS TTThanhPhamId,
                 tp.CongDoan                                 AS CongDoanId,
                 IFNULL(tp.MaBin, '')                        AS LotThanhPham,
-                IFNULL(ca.NgayBatDau, '')                         AS Ngay,
+                IFNULL(ca.NgayKetThuc, '')                         AS Ngay,
                 IFNULL(ca.May, '')                          AS May,
                 IFNULL(ca.Ca, '')                           AS Ca,
                 IFNULL(ca.NguoiLam, '')                     AS NguoiLam,
@@ -47,10 +47,10 @@ namespace DG_TonKhoBTP_v02.Database.KeToan
               AND IFNULL(loi.Confirmed, 0) = 0
             ORDER BY
                 CASE
-                    WHEN IFNULL(ca.NgayBatDau, '') = '' THEN 1
+                    WHEN IFNULL(ca.NgayKetThuc, '') = '' THEN 1
                     ELSE 0
                 END ASC,
-                ca.NgayBatDau ASC,
+                ca.NgayKetThuc ASC,
                 IFNULL(dsp.Ten, '') COLLATE NOCASE ASC,
                 loi.id ASC;";
 

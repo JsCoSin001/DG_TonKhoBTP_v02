@@ -13,7 +13,9 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
     {
         DongGoiNguon = 0,
         NhapKho = 1,
-        NhapKhoEdit = 2
+        NhapKhoEdit = 2,
+        // Chế độ chỉ dùng để khai báo số tem cuộn cần in thêm. Không thao tác database.
+        InThemTem = 3
     }
 
     public partial class Frm_DLCuon : Form
@@ -150,7 +152,13 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
 
         private void Frm_DLCuon_Load(object sender, EventArgs e)
         {
-            if (_mode == FrmDLCuonMode.NhapKho || _mode == FrmDLCuonMode.NhapKhoEdit)
+            if (_mode == FrmDLCuonMode.InThemTem)
+            {
+                label1.Text = "IN THÊM TEM CUỘN";
+                this.Text = "In thêm tem cuộn";
+                btnLuuTTCuonDay.Text = "OK";
+            }
+            else if (_mode == FrmDLCuonMode.NhapKho || _mode == FrmDLCuonMode.NhapKhoEdit)
             {
                 label1.Text = _mode == FrmDLCuonMode.NhapKhoEdit
                     ? "CHỈNH SỬA THÔNG TIN CUỘN/LÔ NHẬP KHO"
@@ -167,8 +175,11 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
             }
 
             LoadLoaiDongGoiVaoComboColumn();
-            AddReverseButtonColumn();
-            AddDeleteButtonColumn();
+            if (_mode != FrmDLCuonMode.InThemTem)
+            {
+                AddReverseButtonColumn();
+                AddDeleteButtonColumn();
+            }
             ConfigureGrid();
             LoadThongTinCuonHienTaiVaoGrid();
 
@@ -348,6 +359,9 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
 
                 foreach (ThongTinCuonDay item in _thongTinCuonHienTai)
                 {
+                    if (_mode == FrmDLCuonMode.InThemTem && item.TTLo_ID.HasValue)
+                        continue;
+
                     int rowIndex = grvThongTinCuonDay.Rows.Add();
                     DataGridViewRow row = grvThongTinCuonDay.Rows[rowIndex];
                     // Giữ cả identity TTCuonDay và lineage TTCuonDay_CD.
@@ -366,11 +380,11 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
                         ? item.TTLo_ID.Value
                         : LOAI_CUON_VALUE;
 
-                    row.Cells["slCuon"].Value = item.SoCuon;
+                    row.Cells["slCuon"].Value = _mode == FrmDLCuonMode.InThemTem ? null : (object)item.SoCuon;
                     row.Cells["tongChieuDai"].Value = item.TongChieuDai;
                     row.Cells["soDau"].Value = item.SoDau;
                     row.Cells["soCuoi"].Value = item.soCuoi;
-                    row.Cells["ghiChu"].Value = item.Ghichu;
+                    row.Cells["ghiChu"].Value = _mode == FrmDLCuonMode.InThemTem ? string.Empty : item.Ghichu;
 
                     ApplyRowMode(row, autoCalculate: false);
                 }
@@ -385,11 +399,15 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
         {
             if (grvThongTinCuonDay.Rows.Count == 0) return;
 
-            string columnName = _mode == FrmDLCuonMode.NhapKho ? "slCuon" : "loai";
+            string columnName = (_mode == FrmDLCuonMode.NhapKho || _mode == FrmDLCuonMode.InThemTem)
+                ? "slCuon"
+                : "loai";
             if (!grvThongTinCuonDay.Columns.Contains(columnName)) return;
 
             DataGridViewCell cell = grvThongTinCuonDay.Rows[0].Cells[columnName];
-            if (_mode != FrmDLCuonMode.NhapKho && (cell.Value == null || cell.Value == DBNull.Value))
+            if (_mode != FrmDLCuonMode.NhapKho
+                && _mode != FrmDLCuonMode.InThemTem
+                && (cell.Value == null || cell.Value == DBNull.Value))
                 cell.Value = LOAI_CHUA_CHON_VALUE;
 
             grvThongTinCuonDay.CurrentCell = cell;
@@ -405,21 +423,22 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
         {
             bool isNhapKho = _mode == FrmDLCuonMode.NhapKho;
             bool isNhapKhoEdit = _mode == FrmDLCuonMode.NhapKhoEdit;
+            bool isInThemTem = _mode == FrmDLCuonMode.InThemTem;
 
-            // NhapKhoEdit không được thêm dòng mới; xoá chỉ qua nút Xoá để giữ kiểm soát nghiệp vụ.
-            grvThongTinCuonDay.AllowUserToAddRows = !isNhapKho && !isNhapKhoEdit;
-            grvThongTinCuonDay.AllowUserToDeleteRows = !isNhapKho && !isNhapKhoEdit;
+            // Chế độ in thêm tem không được thêm/xoá dòng; chỉ sửa Số lượng và Ghi chú.
+            grvThongTinCuonDay.AllowUserToAddRows = !isNhapKho && !isNhapKhoEdit && !isInThemTem;
+            grvThongTinCuonDay.AllowUserToDeleteRows = !isNhapKho && !isNhapKhoEdit && !isInThemTem;
 
             if (grvThongTinCuonDay.Columns.Contains("loai"))
-                grvThongTinCuonDay.Columns["loai"].ReadOnly = isNhapKho;
+                grvThongTinCuonDay.Columns["loai"].ReadOnly = isNhapKho || isInThemTem;
             if (grvThongTinCuonDay.Columns.Contains("slCuon"))
                 grvThongTinCuonDay.Columns["slCuon"].ReadOnly = false;
             if (grvThongTinCuonDay.Columns.Contains("tongChieuDai"))
-                grvThongTinCuonDay.Columns["tongChieuDai"].ReadOnly = isNhapKho;
+                grvThongTinCuonDay.Columns["tongChieuDai"].ReadOnly = isNhapKho || isInThemTem;
             if (grvThongTinCuonDay.Columns.Contains("soDau"))
-                grvThongTinCuonDay.Columns["soDau"].ReadOnly = isNhapKho;
+                grvThongTinCuonDay.Columns["soDau"].ReadOnly = isNhapKho || isInThemTem;
             if (grvThongTinCuonDay.Columns.Contains("soCuoi"))
-                grvThongTinCuonDay.Columns["soCuoi"].ReadOnly = isNhapKho;
+                grvThongTinCuonDay.Columns["soCuoi"].ReadOnly = isNhapKho || isInThemTem;
             if (grvThongTinCuonDay.Columns.Contains("ghiChu"))
                 grvThongTinCuonDay.Columns["ghiChu"].ReadOnly = isNhapKho;
 
@@ -442,6 +461,17 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
         private void ApplyRowMode(DataGridViewRow row, bool autoCalculate)
         {
             if (row == null || row.IsNewRow) return;
+
+            if (_mode == FrmDLCuonMode.InThemTem)
+            {
+                SetCellReadonly(row, "loai", true);
+                SetCellReadonly(row, "slCuon", false);
+                SetCellReadonly(row, "tongChieuDai", true);
+                SetCellReadonly(row, "soDau", true);
+                SetCellReadonly(row, "soCuoi", true);
+                SetCellReadonly(row, "ghiChu", false);
+                return;
+            }
 
             if (_mode == FrmDLCuonMode.NhapKho)
             {
@@ -920,6 +950,13 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
                 return;
             }
 
+            if (_mode == FrmDLCuonMode.InThemTem)
+            {
+                if (colName == "slCuon")
+                    ValidateSoCuonInThemTem(e.RowIndex, showMessage: true, out _);
+                return;
+            }
+
             var intCols = new Dictionary<string, string>
             {
                 { "slCuon",       "Số lượng" },
@@ -945,6 +982,87 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
                 AutoSetSoDauSoCuoiForCuon(row);
         }
 
+
+        private bool ValidateSoCuonInThemTem(int rowIndex, bool showMessage, out int soCuon)
+        {
+            soCuon = 0;
+
+            if (rowIndex < 0 || rowIndex >= grvThongTinCuonDay.Rows.Count)
+                return false;
+
+            DataGridViewRow row = grvThongTinCuonDay.Rows[rowIndex];
+            if (row.IsNewRow) return true;
+
+            DataGridViewCell cell = row.Cells["slCuon"];
+            string raw = cell.Value?.ToString()?.Trim() ?? string.Empty;
+
+            // Blank hoặc 0 = không in dòng này.
+            if (string.IsNullOrWhiteSpace(raw))
+            {
+                ResetCellColor(cell);
+                soCuon = 0;
+                return true;
+            }
+
+            if (!int.TryParse(raw, out soCuon) || soCuon < 0)
+            {
+                MarkCellError(cell);
+                if (showMessage)
+                {
+                    FrmWaiting.ShowGifAlert($"Dòng {rowIndex + 1}: số lượng tem phải là số nguyên từ 0 trở lên.");
+                    grvThongTinCuonDay.CurrentCell = cell;
+                }
+                return false;
+            }
+
+            ResetCellColor(cell);
+            return true;
+        }
+
+        private void LuuCheDoInThemTem()
+        {
+            var result = new List<ThongTinCuonDay>();
+
+            for (int i = 0; i < grvThongTinCuonDay.Rows.Count; i++)
+            {
+                DataGridViewRow row = grvThongTinCuonDay.Rows[i];
+                if (row.IsNewRow) continue;
+
+                if (!ValidateSoCuonInThemTem(i, showMessage: true, out int soCuon))
+                    return;
+
+                if (soCuon == 0)
+                    continue;
+
+                string rawTongChieuDai = row.Cells["tongChieuDai"].Value?.ToString()?.Trim() ?? string.Empty;
+                if (!int.TryParse(rawTongChieuDai, out int tongChieuDai) || tongChieuDai < 0)
+                {
+                    FrmWaiting.ShowGifAlert($"Dòng {i + 1}: CD 1 cuộn không hợp lệ.");
+                    return;
+                }
+
+                result.Add(new ThongTinCuonDay
+                {
+                    TTLo_ID = null,
+                    SoCuon = soCuon,
+                    TongChieuDai = tongChieuDai,
+                    SoDau = null,
+                    soCuoi = null,
+                    Ghichu = row.Cells["ghiChu"].Value?.ToString()?.Trim() ?? string.Empty
+                });
+            }
+
+            if (result.Count == 0)
+            {
+                FrmWaiting.ShowGifAlert("Vui lòng nhập ít nhất một số lượng tem cần in.");
+                return;
+            }
+
+            KetQua = result;
+            ThongTinCuon = result;
+            DialogResult = DialogResult.OK;
+            Close();
+        }
 
         private bool ValidateSoCuonNhapKho(int rowIndex, bool showMessage, out int soCuon)
         {
@@ -1181,6 +1299,12 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
         private void btnLuuTTCuonDay_Click(object sender, EventArgs e)
         {
             grvThongTinCuonDay.EndEdit();
+
+            if (_mode == FrmDLCuonMode.InThemTem)
+            {
+                LuuCheDoInThemTem();
+                return;
+            }
 
             if (_mode == FrmDLCuonMode.NhapKho)
             {

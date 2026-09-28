@@ -326,20 +326,25 @@ namespace DG_TonKhoBTP_v02.Helper
         {
             return @"
             SELECT
-              ttp.id AS STT,
-              tclv.NgayKetThuc AS Ngay, tclv.Ca, tclv.May, 
-              tclv.NgayBatDau, tclv.GioBatDau, tclv.NgayKetThuc, tclv.GioKetThuc, nvl.QC,
-              ttp.MaBin as MaBin, ds.Ten AS Ten, ds.Ma AS Ma,ds.DonVi, ds.id AS id,
-              tclv.NguoiLam, tclv.ToTruong, tclv.QuanDoc,
-              ttp.KhoiLuongTruoc AS KhoiLuongTruoc, ttp.KhoiLuongSau as KhoiLuongSau,
-              ttp.ChieuDaiTruoc as ChieuDaiTruoc, ttp.ChieuDaiSau as ChieuDaiSau,
-              IFNULL(pl.DayPhe_NL, 0) AS DayPhe_NL,
-              IFNULL(pl.NhuaPhe_NL, 0) AS NhuaPhe_NL,
-              IFNULL(pl.DongPhe_NL, 0) AS DongPhe_NL,
-              IFNULL(pl.DayPhe_TP, 0) AS DayPhe_TP,
-              IFNULL(pl.NhuaPhe_TP, 0) AS NhuaPhe_TP,
-              IFNULL(pl.DongPhe_TP, 0) AS DongPhe_TP,
-              ttp.HanNoi as HanNoi, ttp.GhiChu as GhiChu ";
+                ttp.id AS STT,
+                tclv.NgayKetThuc AS NgayKetThuc, tclv.Ca, tclv.May, 
+                tclv.NgayBatDau, tclv.GioBatDau, tclv.NgayKetThuc, tclv.GioKetThuc, 
+                ttp.MaBin as MaBin, 
+                CASE
+                    WHEN temp = 0 THEN 'Chính thức'
+                    WHEN temp = 1 THEN 'Tạm thời'
+                END AS TrangThai,
+                ds.Ten AS Ten, ds.Ma AS Ma,nvl.QC,ds.DonVi, ds.id AS id,
+                tclv.NguoiLam, tclv.ToTruong, tclv.QuanDoc,
+                ttp.KhoiLuongTruoc AS KhoiLuongTruoc, ttp.KhoiLuongSau as KhoiLuongSau,
+                ttp.ChieuDaiTruoc as ChieuDaiTruoc, ttp.ChieuDaiSau as ChieuDaiSau,
+                IFNULL(pl.DayPhe_NL, 0) AS DayPhe_NL,
+                IFNULL(pl.NhuaPhe_NL, 0) AS NhuaPhe_NL,
+                IFNULL(pl.DongPhe_NL, 0) AS DongPhe_NL,
+                IFNULL(pl.DayPhe_TP, 0) AS DayPhe_TP,
+                IFNULL(pl.NhuaPhe_TP, 0) AS NhuaPhe_TP,
+                IFNULL(pl.DongPhe_TP, 0) AS DongPhe_TP,
+                ttp.HanNoi as HanNoi, ttp.GhiChu as GhiChu ";
         }
 
         public static string TaoSqL_LayThongTinBaoCaoChung_Edit()

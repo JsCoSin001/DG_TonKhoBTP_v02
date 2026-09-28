@@ -1,6 +1,7 @@
 ﻿using DG_TonKhoBTP_v02.Core;
 using DG_TonKhoBTP_v02.Models;
 using DG_TonKhoBTP_v02.Database.SanXuat;
+using DG_TonKhoBTP_v02.Helper;
 using DG_TonKhoBTP_v02.Models.SanXuat;
 using DG_TonKhoBTP_v02.UI.Helper;
 using System;
@@ -132,8 +133,19 @@ namespace DG_TonKhoBTP_v02.UI
             e.Handled = true;
             e.SuppressKeyPress = true;
 
-            string maBin = (cbxTimQr.Text ?? string.Empty).Trim();
-            if (maBin.Length == 0) return;
+            string rawQr = (cbxTimQr.Text ?? string.Empty).Trim();
+            if (rawQr.Length == 0) return;
+
+            // Hỗ trợ cả MaBin cũ và QR mới: cuontp;[mabin];[du-lieu-bo-sung].
+            // Với mã không có cấu trúc, cbxTimQr xác định mặc định đây là CuonTP.
+            QrParseResult qr = QrCodeHelper.Parse(rawQr, QrCodeType.CuonTP);
+            if (!qr.IsValid)
+            {
+                FrmWaiting.ShowGifAlert(qr.ErrorMessage, "MÃ QR KHÔNG HỢP LỆ");
+                return;
+            }
+
+            string maBin = qr.SearchValue;
 
             cbxTimQr.Enabled = false;
             try

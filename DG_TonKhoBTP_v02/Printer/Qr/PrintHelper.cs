@@ -176,7 +176,8 @@ namespace DG_TonKhoBTP_v02.Printer
 
                 // Dòng 2: LOT
                 g.DrawString("LOT:", normalFont, brush, xText, y);
-                g.DrawString(data.MaBin ?? "", boldFont, brush, xText + Mm2Px(14, dpi), y);
+                string lotHienThi = string.IsNullOrWhiteSpace(data.Lot) ? (data.MaBin ?? "") : data.Lot;
+                g.DrawString(lotHienThi, boldFont, brush, xText + Mm2Px(14, dpi), y);
                 y += lineHeightPx;
 
                 // Dòng 3: Khối lượng

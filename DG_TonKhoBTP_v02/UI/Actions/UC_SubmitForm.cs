@@ -6,6 +6,7 @@ using DG_TonKhoBTP_v02.Models;
 using DG_TonKhoBTP_v02.Models.SanXuat;
 using DG_TonKhoBTP_v02.Printer;
 using DG_TonKhoBTP_v02.UI.Helper;
+using DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho;
 using DG_TonKhoBTP_v02.UI.NghiepVuKhac.SanXuat;
 using System;
 using System.Collections.Generic;
@@ -1462,15 +1463,52 @@ namespace DG_TonKhoBTP_v02.UI
                     return;
                 }
 
+                bool laCapNhatDraftDaNap = data.IsUpdate;
+
                 _draftContext.Set(draftId, data.ThongTinThanhPham.MaBin);
                 _loadMode = DataLoadMode.Draft;
                 ApplySubmitMode(_loadMode);
 
-                // Chỉ tem thành phẩm draft có hậu tố. Không thay đổi MaBin trong model/DB.
-                if (data.ShouldPrintThanhPham || data.ShouldPrintNguyenVatLieu)
+                // LƯU TẠM chỉ xét in tem thành phẩm tại công đoạn 5.
+                // Lưu chính thức dùng luồng PrintLabels riêng và không bị thay đổi.
+                if (data.ShouldPrintThanhPham)
                 {
-                    try { PrintDraftLabels(data); }
-                    catch (Exception ex) { FrmWaiting.ShowGifAlert(ex.Message, "LỖI IN"); }
+                    if (data.ThongTinCaLamViec?.NgayBatDau == null)
+                    {
+                        FrmWaiting.ShowGifAlert(
+                            "Vui lòng nhập Ngày bắt đầu trước khi in tem.",
+                            "KHÔNG IN TEM");
+                    }
+                    else if (laCapNhatDraftDaNap)
+                    {
+                        DialogResult inThem = MessageBox.Show(
+                            "Bạn có muốn in thêm tem không?",
+                            "In thêm tem",
+                            MessageBoxButtons.YesNo,
+                            MessageBoxIcon.Question,
+                            MessageBoxDefaultButton.Button2);
+
+                        if (inThem == DialogResult.Yes)
+                        {
+                            List<ThongTinCuonDay> dsCuon = GetDraftCuonRows(data);
+                            using (Frm_DLCuon frm = new Frm_DLCuon(
+                                dsCuon,
+                                FrmDLCuonMode.InThemTem,
+                                null))
+                            {
+                                if (frm.ShowDialog() == DialogResult.OK)
+                                {
+                                    try { PrintDraftLabels(data, frm.ThongTinCuon); }
+                                    catch (Exception ex) { FrmWaiting.ShowGifAlert(ex.Message, "LỖI IN"); }
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        try { PrintDraftLabels(data, GetDraftCuonRows(data)); }
+                        catch (Exception ex) { FrmWaiting.ShowGifAlert(ex.Message, "LỖI IN"); }
+                    }
                 }
 
                 FrmWaiting.ShowGifAlert("LƯU TẠM THÀNH CÔNG.");
@@ -1528,6 +1566,9 @@ namespace DG_TonKhoBTP_v02.UI
             if (errors.Count > 0) { ShowValidationError(waiting, "DỮ LIỆU CHƯA HỢP LỆ"); return null; }
 
             ApplyHanNoiRules(tp);
+            SubmitCongDoanData draftCongDoan = BuildDraftCongDoan(snapshot);
+            bool coDuLieuCuon = GetDraftCuonRows(draftCongDoan).Count > 0;
+
             var data = new DraftSubmitData
             {
                 DraftId = _draftContext.IsDraftLoaded ? _draftContext.DraftId : 0,
@@ -1536,10 +1577,15 @@ namespace DG_TonKhoBTP_v02.UI
                 ThongTinThanhPham = tp,
                 NguyenVatLieuRows = rows,
                 NguyenVatLieu = cd9 ? new List<TTNVL>() : rows.Select(x => x.ToTTNVL()).ToList(),
-                CongDoan = BuildDraftCongDoan(snapshot),
+                CongDoan = draftCongDoan,
                 DanhSachLoiDungMay = CaptureLoiDungMayDraft(host, waiting) ?? new List<DanhSachLoiDungMay_Model>(),
-                ShouldPrintThanhPham = _printer != "" && cbInTem.Checked,
-                ShouldPrintNguyenVatLieu = !cd9 && cbInTemNVL.Checked && rows.Count > 0
+
+                // Quy tắc mới chỉ áp dụng cho LƯU TẠM:
+                // công đoạn 5 + có máy in + cbInTem + có ít nhất một dòng Cuộn (TTLo_ID = null).
+                ShouldPrintThanhPham = (_Cd?.Id == 5) && _printer != "" && cbInTem.Checked && coDuLieuCuon,
+
+                // LƯU TẠM không in tem NVL ở bất kỳ công đoạn nào.
+                ShouldPrintNguyenVatLieu = false
             };
             return data;
         }
@@ -1594,24 +1640,87 @@ namespace DG_TonKhoBTP_v02.UI
             return result;
         }
 
-        private void PrintDraftLabels(DraftSubmitData draft)
+        private static List<ThongTinCuonDay> GetDraftCuonRows(DraftSubmitData draft)
         {
+            return GetDraftCuonRows(draft?.CongDoan);
+        }
+
+        private static List<ThongTinCuonDay> GetDraftCuonRows(SubmitCongDoanData congDoan)
+        {
+            if (!(congDoan?.ChiTietCongDoan is CD_BocVo bocVo) || bocVo.TTCuonDay_CD == null)
+                return new List<ThongTinCuonDay>();
+
+            return bocVo.TTCuonDay_CD
+                .Where(x => x != null && !x.TTLo_ID.HasValue)
+                .ToList();
+        }
+
+        /// <summary>
+        /// In tem tạm cho các dòng Cuộn được truyền vào.
+        /// - Một lần gọi = một đợt in; số thứ tự QR bắt đầu lại từ 01.
+        /// - Dừng ngay khi PrintLabel ném lỗi; các tem phía sau không tiếp tục in.
+        /// - Không ghi database.
+        /// </summary>
+        private void PrintDraftLabels(DraftSubmitData draft, IEnumerable<ThongTinCuonDay> cuonCanIn)
+        {
+            if (draft == null || !draft.ShouldPrintThanhPham)
+                return;
+
+            if (draft.CongDoanId != 5)
+                return;
+
+            if (draft.ThongTinCaLamViec?.NgayBatDau == null)
+                return;
+
+            List<ThongTinCuonDay> rows = (cuonCanIn ?? Enumerable.Empty<ThongTinCuonDay>())
+                .Where(x => x != null && !x.TTLo_ID.HasValue && x.SoCuon > 0)
+                .ToList();
+
+            if (rows.Count == 0)
+                return;
+
             var printData = new SubmitFormData
             {
-                CongDoanId = draft.CongDoanId, ThongTinCaLamViec = draft.ThongTinCaLamViec ?? new ThongTinCaLamViec(),
-                ThongTinThanhPham = draft.ThongTinThanhPham, CongDoan = draft.CongDoan
+                CongDoanId = draft.CongDoanId,
+                ThongTinCaLamViec = draft.ThongTinCaLamViec ?? new ThongTinCaLamViec(),
+                ThongTinThanhPham = draft.ThongTinThanhPham,
+                CongDoan = draft.CongDoan
             };
-            if (draft.ShouldPrintThanhPham)
+
+            // Chuỗi thời gian cố định trong một đợt in; STT bắt đầu lại từ 01 theo phương án 26A.
+            string timePart = DateTime.Now.ToString("yyyyMMddHHmmss", CultureInfo.InvariantCulture);
+            int soThuTu = 0;
+
+            string maBinGoc = draft.ThongTinThanhPham?.MaBin ?? string.Empty;
+            QrParseResult maBinParse = QrCodeHelper.Parse(maBinGoc, QrCodeType.CuonTP);
+            if (maBinParse.IsValid && !string.IsNullOrWhiteSpace(maBinParse.SearchValue))
+                maBinGoc = maBinParse.SearchValue;
+
+            foreach (ThongTinCuonDay row in rows)
             {
-                PrinterModel printer = BuildThanhPhamPrinter(printData);
-                printer.MaBin = (printer.MaBin ?? string.Empty) + " - TEM TẠM";
-                PrintHelper.PrintLabel(printer);
-            }
-            if (draft.ShouldPrintNguyenVatLieu)
-            {
-                printData.NguyenVatLieu = draft.NguyenVatLieu;
-                printData.ShouldPrintNguyenVatLieu = true;
-                PrintNguyenVatLieuLabels(printData);
+                for (int i = 0; i < row.SoCuon; i++)
+                {
+                    soThuTu++;
+                    string qrValue = "cuontp;" + maBinGoc + ";" + timePart + soThuTu.ToString("D2", CultureInfo.InvariantCulture);
+                    QrParseResult qrParsed = QrCodeHelper.Parse(qrValue, QrCodeType.CuonTP);
+
+                    PrinterModel printer = BuildThanhPhamPrinter(printData);
+
+                    // QR và LOT được tách riêng. PrintHelper vẫn dùng MaBin làm QR;
+                    // Lot chỉ thay giá trị chữ LOT hiển thị cho tem tạm.
+                    printer.MaBin = qrValue;
+                    printer.Lot = qrParsed.IsValid ? qrParsed.SearchValue : maBinGoc;
+
+                    printer.KhoiLuong = "0";
+                    printer.ChieuDai = row.TongChieuDai.ToString(CultureInfo.InvariantCulture);
+                    printer.NgaySX = draft.ThongTinCaLamViec.NgayBatDau.Value.ToString("dd/MM/yyyy");
+
+                    // Ghi chú dòng có giá trị thì thay ghi chú thành phẩm; nếu trống giữ ghi chú hiện tại.
+                    if (!string.IsNullOrWhiteSpace(row.Ghichu))
+                        printer.GhiChu = row.Ghichu.Trim();
+
+                    PrintHelper.PrintLabel(printer);
+                }
             }
         }
     }

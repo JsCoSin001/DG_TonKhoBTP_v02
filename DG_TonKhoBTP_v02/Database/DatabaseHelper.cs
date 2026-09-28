@@ -2696,7 +2696,7 @@ namespace DG_TonKhoBTP_v02.Database
 
             string sqlJoin = CoreHelper.TaoSQL_TaoKetNoiCacBang();
 
-            string sqlDk1 = " WHERE ttp.Temp = 0 AND strftime('%Y-%m', tclv.NgayKetThuc) = strftime('%Y-%m', @para) ";
+            string sqlDk1 = " WHERE strftime('%Y-%m', tclv.NgayKetThuc) = strftime('%Y-%m', @para) ";
 
             string sqlDk2 = " AND ttp.CongDoan = " + cd.Id;
 

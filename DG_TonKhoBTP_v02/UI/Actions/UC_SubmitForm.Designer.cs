@@ -125,7 +125,7 @@
             // btnLuuTam
             // 
             this.btnLuuTam.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.btnLuuTam.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnLuuTam.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnLuuTam.Location = new System.Drawing.Point(3, 3);
             this.btnLuuTam.Name = "btnLuuTam";
             this.btnLuuTam.Size = new System.Drawing.Size(124, 46);

@@ -168,7 +168,7 @@
             // 
             this.cbxTimQr.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbxTimQr.FormattingEnabled = true;
-            this.cbxTimQr.Location = new System.Drawing.Point(87, 39);
+            this.cbxTimQr.Location = new System.Drawing.Point(87, 42);
             this.cbxTimQr.Margin = new System.Windows.Forms.Padding(0, 3, 0, 0);
             this.cbxTimQr.Name = "cbxTimQr";
             this.cbxTimQr.Size = new System.Drawing.Size(633, 27);

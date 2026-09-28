@@ -122,7 +122,8 @@ namespace DG_TonKhoBTP_v02.Database.Kho
                     JOIN    TTCuonDay      cd ON cd.ThongTinNhapKho_ID = nk.id
                     LEFT JOIN TTBoSung     bs ON bs.DanhSachMaSP_ID = sp.id
                     LEFT JOIN TTXuatKho    xk ON xk.TTCuonDay_ID = cd.id
-                    WHERE   nk.Loai = 'Lô'
+                    WHERE   tp.Temp = 0
+                      AND   nk.Loai = 'Lô'
                       AND   nk.LoaiDon IN ('Hàng bán', 'Hàng đặt')
                       AND   nk.Kieu IN (0, 1)
                     GROUP BY nk.id, cd.id

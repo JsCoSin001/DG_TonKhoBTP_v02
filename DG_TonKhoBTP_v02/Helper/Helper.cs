@@ -282,7 +282,8 @@ namespace DG_TonKhoBTP_v02.Helper
                     ON t.id = v.TTThanhPham_id
 
                 WHERE
-                    t.Active = 1
+                    t.Temp = 0
+                    AND t.Active = 1
                     AND d.Active = 1
                     AND (
                         @ten IS NULL OR TRIM(@ten) = ''
@@ -327,8 +328,13 @@ namespace DG_TonKhoBTP_v02.Helper
             SELECT
               ttp.id AS STT,
               tclv.NgayBatDau AS Ngay, tclv.Ca, tclv.May, 
-              tclv.NgayBatDau, tclv.GioBatDau, tclv.NgayKetThuc, tclv.GioKetThuc, nvl.QC,
-              ttp.MaBin as MaBin, ds.Ten AS Ten, ds.Ma AS Ma,ds.DonVi, ds.id AS id,
+              tclv.NgayBatDau, tclv.GioBatDau, tclv.NgayKetThuc, tclv.GioKetThuc, ttp.MaBin as MaBin,
+              CASE 
+                WHEN ttp.Temp = 1 THEN 'Chưa chính thức'
+                WHEN ttp.Temp = 0 THEN 'Chính thức'
+                ELSE 'Không xác định'
+              END AS TinhTrang,
+               ds.Ten AS Ten, ds.Ma AS Ma,nvl.QC,ds.DonVi, ds.id AS id,
               tclv.NguoiLam, tclv.ToTruong, tclv.QuanDoc,
               ttp.KhoiLuongTruoc AS KhoiLuongTruoc, ttp.KhoiLuongSau as KhoiLuongSau,
               ttp.ChieuDaiTruoc as ChieuDaiTruoc, ttp.ChieuDaiSau as ChieuDaiSau,
@@ -411,7 +417,8 @@ namespace DG_TonKhoBTP_v02.Helper
                     ON CLV.TTThanhPham_id = TT.id
                 LEFT JOIN PheLieu AS PL
                     ON PL.TTThanhPham_ID = TT.id
-                WHERE {whereCol} LIKE '%' || @{key} || '%';
+                WHERE TT.Temp = 0
+                    AND {whereCol} LIKE '%' || @{key} || '%';
             ";
             return sql;
         }

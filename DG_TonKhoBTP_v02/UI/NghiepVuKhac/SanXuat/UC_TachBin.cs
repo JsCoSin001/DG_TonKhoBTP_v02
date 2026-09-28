@@ -338,7 +338,8 @@ namespace DG_TonKhoBTP_v02.UI.Actions
             FROM TTThanhPham 
             JOIN DanhSachMaSP on DanhSachMaSP.id = TTThanhPham.DanhSachSP_ID
             WHERE
-                MaBin = @lot
+                Temp = 0
+                and MaBin = @lot
                 and KhoiLuongSau <> 0 
                 and active = 1; ";
 

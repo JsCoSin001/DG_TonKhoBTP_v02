@@ -162,7 +162,7 @@ namespace DG_TonKhoBTP_v02.DL_Ben
 
         private static string GetMaBinFromID(SQLiteConnection connection, int id)
         {
-            using (var command = new SQLiteCommand("SELECT Mabin FROM TTThanhPham WHERE ID = @ID", connection))
+            using (var command = new SQLiteCommand("SELECT Mabin FROM TTThanhPham WHERE ID = @ID AND Temp = 0", connection))
             {
                 command.Parameters.AddWithValue("@ID", id);
                 var result = command.ExecuteScalar();

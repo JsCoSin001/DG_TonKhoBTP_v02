@@ -33,7 +33,7 @@ namespace DG_TonKhoBTP_v02.Database
                     kk.NguoiKK,
                     kk.GhiChu
                 FROM TTKiemKeThang kk
-                LEFT JOIN TTThanhPham tp ON tp.id = kk.TTThanhPham_ID
+                LEFT JOIN TTThanhPham tp ON tp.id = kk.TTThanhPham_ID AND tp.Temp = 0
                 LEFT JOIN DanhSachMaSP sp ON sp.id = tp.DanhSachSP_ID
                 WHERE kk.ThoiGianKiemKe = @namThang  AND kk.NguoiKK = @nguoiKK COLLATE NOCASE
                 ORDER BY kk.DateInsert DESC, kk.id DESC;";
@@ -130,10 +130,10 @@ namespace DG_TonKhoBTP_v02.Database
             const string sql = @"
                 INSERT INTO TTThanhPham
                 (DanhSachSP_ID, MaBin, KhoiLuongTruoc, KhoiLuongSau,
-                 ChieuDaiTruoc, ChieuDaiSau, CongDoan, GhiChu, DateInsert)
+                 ChieuDaiTruoc, ChieuDaiSau, CongDoan, GhiChu, DateInsert, Temp)
                 VALUES
                 (@DanhSachSP_ID, @MaBin, @KhoiLuongTruoc, @KhoiLuongSau,
-                 @ChieuDaiTruoc, @ChieuDaiSau, 0, @GhiChu, @DateInsert);
+                 @ChieuDaiTruoc, @ChieuDaiSau, 0, @GhiChu, @DateInsert, 0);
                 SELECT last_insert_rowid();";
 
             using var conn = DB_Base.OpenConnection();
@@ -162,11 +162,11 @@ namespace DG_TonKhoBTP_v02.Database
         {
             if (items == null || items.Count == 0) return 0;
 
-            const string sqlSelect = @"SELECT id FROM TTThanhPham WHERE MaBin = @MaBin LIMIT 1;";
+            const string sqlSelect = @"SELECT id FROM TTThanhPham WHERE MaBin = @MaBin AND Temp = 0 LIMIT 1;";
             const string sqlInsert = @"
                 INSERT INTO TTThanhPham (DanhSachSP_ID, MaBin, KhoiLuongTruoc, KhoiLuongSau,
-                    ChieuDaiTruoc, ChieuDaiSau, CongDoan, GhiChu, DateInsert)
-                VALUES (@DanhSachSP_ID, @MaBin, @KL, @KL, @CD, @CD, 0, @GhiChu, @DateInsert);";
+                    ChieuDaiTruoc, ChieuDaiSau, CongDoan, GhiChu, DateInsert, Temp)
+                VALUES (@DanhSachSP_ID, @MaBin, @KL, @KL, @CD, @CD, 0, @GhiChu, @DateInsert, 0);";
             const string sqlUpdate = @"
                 UPDATE TTThanhPham
                 SET DanhSachSP_ID  = @DanhSachSP_ID,
@@ -175,7 +175,7 @@ namespace DG_TonKhoBTP_v02.Database
                     ChieuDaiTruoc  = @CD,
                     ChieuDaiSau    = @CD,
                     GhiChu         = @GhiChu
-                WHERE MaBin = @MaBin;";
+                WHERE MaBin = @MaBin AND Temp = 0;";
 
             int count = 0;
             using var conn = DB_Base.OpenConnection();
@@ -324,7 +324,8 @@ namespace DG_TonKhoBTP_v02.Database
                 LEFT JOIN CaiDatCDBoc cdb      ON cdb.TTThanhPham_ID = ttp.id
                 LEFT JOIN CD_BocMach bm        ON bm.CaiDatCDBoc_ID = cdb.id
                 LEFT JOIN TTNVL nvl            ON nvl.TTThanhPham_ID = ttp.id
-                WHERE ttp.MaBin = @maBin
+                WHERE ttp.Temp = 0
+                  AND ttp.MaBin = @maBin
                 ORDER BY ttp.id DESC LIMIT 1;";
 
             var dt = new DataTable();
@@ -345,7 +346,7 @@ namespace DG_TonKhoBTP_v02.Database
                 SET KhoiLuongSau = @khoiLuongSau,
                     ChieuDaiSau  = @chieuDaiSau,
                     GhiChu       = @GhiChu
-                WHERE MaBin = @maBin;";
+                WHERE MaBin = @maBin AND Temp = 0;";
 
             using var conn = DB_Base.OpenConnection();
             using var cmd = new SQLiteCommand(sql, conn);

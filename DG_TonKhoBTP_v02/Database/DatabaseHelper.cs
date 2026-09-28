@@ -110,11 +110,14 @@ namespace DG_TonKhoBTP_v02.Database
 
                 string sql = @"
                 SELECT DISTINCT
-                       BinNVL
-                FROM TTNVL
-                WHERE IFNULL(BinNVL, '') <> ''
-                  AND BinNVL LIKE '%' || @key || '%' COLLATE NOCASE
-                ORDER BY BinNVL
+                       nvl.BinNVL
+                FROM TTNVL nvl
+                INNER JOIN TTThanhPham tp
+                    ON tp.id = nvl.TTThanhPham_ID
+                WHERE tp.Temp = 0
+                  AND IFNULL(nvl.BinNVL, '') <> ''
+                  AND nvl.BinNVL LIKE '%' || @key || '%' COLLATE NOCASE
+                ORDER BY nvl.BinNVL
                 LIMIT 50;";
 
                 return DatabaseHelper.GetData(sql, keyword, "key");
@@ -154,7 +157,8 @@ namespace DG_TonKhoBTP_v02.Database
                     ON tp.id = nvl.TTThanhPham_ID
                 LEFT JOIN DanhSachMaSP sp
                     ON sp.id = tp.DanhSachSP_ID
-                WHERE nvl.BinNVL = @key
+                WHERE tp.Temp = 0
+                  AND nvl.BinNVL = @key
                 ORDER BY nvl.TTThanhPham_ID DESC;";
 
                     return DatabaseHelper.GetData(sql, binNVL, "key");
@@ -2659,7 +2663,7 @@ namespace DG_TonKhoBTP_v02.Database
 
             string sqlJoin = CoreHelper.TaoSQL_TaoKetNoiCacBang();
 
-            string sqlDk1 = " WHERE date(tclv.NgayBatDau) = date(@para) ";
+            string sqlDk1 = " WHERE ttp.Temp = 0 AND date(tclv.NgayBatDau) = date(@para) ";
 
             string sqlDk2 = " AND ttp.CongDoan = " + cd.Id;
 
@@ -2721,11 +2725,11 @@ namespace DG_TonKhoBTP_v02.Database
 
             sqlJoin += @"
                 LEFT JOIN TTThanhPham ttp_bin 
-                    ON ttp_bin.MaBin = nvl.BinNVL
+                    ON ttp_bin.MaBin = nvl.BinNVL AND ttp_bin.Temp = 0
             ";
 
             // Tạo điều kiện lọc theo ID
-            string sqlDk1 = " WHERE ttp.id = @id";
+            string sqlDk1 = " WHERE ttp.id = @id AND ttp.Temp = " + (kieuDL == 3 ? "1" : "0");
 
             string sqlDk2 = " AND ttp.CongDoan = " + cd.Id;
 
@@ -2757,7 +2761,7 @@ namespace DG_TonKhoBTP_v02.Database
             string ngayKT = ngayKetThuc.Date.AddDays(1).AddHours(6).ToString("yyyy-MM-dd HH:mm:ss");
 
             // Điều kiện WHERE – chèn trực tiếp giá trị ngày
-            string sqlDkNgay = $" WHERE date(tclv.NgayBatDau) >= date('{ngayBD}') AND date(tclv.NgayBatDau) <= date('{ngayKT}')";
+            string sqlDkNgay = $" WHERE ttp.Temp = 0 AND date(tclv.NgayBatDau) >= date('{ngayBD}') AND date(tclv.NgayBatDau) <= date('{ngayKT}')";
 
             // Sắp xếp
             string sqlOrder = " ORDER BY tclv.NgayBatDau DESC, ttp.id DESC;";
@@ -2784,6 +2788,7 @@ namespace DG_TonKhoBTP_v02.Database
 
             loaiCD = loaiCD.Replace("AND", "WHERE")
                     + @"
+                        AND ttp.Temp = 0
                         AND (
                             (ds.DonVi = 'KG' AND ttp.KhoiLuongSau <> 0)
                             OR
@@ -2822,7 +2827,8 @@ namespace DG_TonKhoBTP_v02.Database
                 FROM TTThanhPham AS TP
                 LEFT JOIN TTNVL AS NVL ON TP.id = NVL.TTThanhPham_ID
                 LEFT JOIN DanhSachMaSP AS SP_NVL ON NVL.DanhSachMaSP_ID = SP_NVL.id
-                WHERE TP.MaBin = @mabin;
+                WHERE TP.Temp = 0
+                  AND TP.MaBin = @mabin;
             ";
 
             return GetData(query, mabin, "mabin");
@@ -3040,7 +3046,7 @@ namespace DG_TonKhoBTP_v02.Database
                     ChieuDaiSau = COALESCE(@ChieuDaiSau, ChieuDaiSau),
                     QC = @QC,
                     LastEdit_ID = @LastEdit_ID
-                WHERE MaBin = @MaBin;";
+                WHERE MaBin = @MaBin AND Temp = 0;";
 
             using var cmd = new SQLiteCommand(sql, conn, tx);
             cmd.Parameters.Add("@KhoiLuongSau", System.Data.DbType.Double);
@@ -3068,7 +3074,7 @@ namespace DG_TonKhoBTP_v02.Database
                 SET 
                     KhoiLuongSau = @KhoiLuongSau,
                     KLBanTran = COALESCE(KLBanTran, 0) + @KhoiLuongBanTran
-                WHERE MaBin = @MaBin;
+                WHERE MaBin = @MaBin AND Temp = 0;
             ";
 
             try
@@ -3260,9 +3266,9 @@ namespace DG_TonKhoBTP_v02.Database
 
             const string sql = @"
             INSERT INTO TTThanhPham
-                (DanhSachSP_ID,QC ,  MaBin, KhoiLuongTruoc, KhoiLuongSau, ChieuDaiTruoc, ChieuDaiSau, CongDoan, GhiChu,HanNoi, DateInsert)
+                (DanhSachSP_ID,QC ,  MaBin, KhoiLuongTruoc, KhoiLuongSau, ChieuDaiTruoc, ChieuDaiSau, CongDoan, GhiChu,HanNoi, DateInsert, Temp)
             VALUES
-                (@DanhSachSP_ID,@QC,  @MaBin, @KhoiLuongTruoc, @KhoiLuongSau, @ChieuDaiTruoc, @ChieuDaiSau, @CongDoan, @GhiChu, @HanNoi, @DateInsert);
+                (@DanhSachSP_ID,@QC,  @MaBin, @KhoiLuongTruoc, @KhoiLuongSau, @ChieuDaiTruoc, @ChieuDaiSau, @CongDoan, @GhiChu, @HanNoi, @DateInsert, 0);
             SELECT last_insert_rowid();";
 
 
@@ -4291,7 +4297,7 @@ namespace DG_TonKhoBTP_v02.Database
                 SET KhoiLuongSau = @khoiLuongSau,
                     ChieuDaiSau  = @chieuDaiSau,
                     GhiChu  = @GhiChu
-                WHERE MaBin = @maBin;";
+                WHERE MaBin = @maBin AND Temp = 0;";
 
                 using var command = new SQLiteCommand(sql, connection);
                 command.Parameters.AddWithValue("@khoiLuongSau", khoiLuongSau);

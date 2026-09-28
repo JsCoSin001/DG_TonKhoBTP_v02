@@ -43,7 +43,8 @@ namespace DG_TonKhoBTP_v02.Database.KeToan
                        ORDER BY caMoiNhat.id DESC
                        LIMIT 1
                    )
-            WHERE IFNULL(loi.Confirmed, 0) = 0
+            WHERE tp.Temp = 0
+              AND IFNULL(loi.Confirmed, 0) = 0
             ORDER BY
                 CASE
                     WHEN IFNULL(ca.NgayBatDau, '') = '' THEN 1
@@ -121,7 +122,7 @@ namespace DG_TonKhoBTP_v02.Database.KeToan
             const string sql = @"
                 SELECT DanhSachSP_ID
                 FROM TTThanhPham
-                WHERE id = @TTThanhPhamId
+                WHERE id = @TTThanhPhamId AND Temp = 0
                 LIMIT 1;";
 
             using (var conn = DB_Base.OpenConnection())

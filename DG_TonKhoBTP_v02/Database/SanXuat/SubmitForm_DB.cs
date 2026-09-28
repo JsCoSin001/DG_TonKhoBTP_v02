@@ -38,7 +38,8 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
                 FROM TTThanhPham tp
                 LEFT JOIN ThongTinCaLamViec t ON t.TTThanhPham_id = tp.id
                 JOIN DanhSachMaSP d ON tp.DanhSachSP_ID = d.id
-                WHERE tp.MaBin IN ({inClause});
+                WHERE tp.Temp = 0
+                  AND tp.MaBin IN ({inClause});
                 ";
 
             using (SQLiteConnection conn = DB_Base.OpenConnection())
@@ -142,7 +143,8 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
                         GhiChu,
                         HanNoi,
                         DateInsert,
-                        LastEdit_ID
+                        LastEdit_ID,
+                        Temp
                     )
                     VALUES
                     (
@@ -157,7 +159,8 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
                         @GhiChu,
                         1,
                         @DateInsert,
-                        NULL
+                        NULL,
+                        0
                     );
 
                     SELECT last_insert_rowid();";
@@ -404,9 +407,11 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
                         CongDoan = 9,
                         GhiChu = @GhiChu,
                         HanNoi = 1,
-                        LastEdit_ID = NULL
+                        LastEdit_ID = NULL,
+                        Temp = 0
                     WHERE id = @id
-                      AND CongDoan = 9;";
+                      AND CongDoan = 9
+                      AND Temp = 0;";
 
                 using (var cmd = new SQLiteCommand(
                     updateThanhPhamSql,
@@ -1184,7 +1189,7 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
                     ChieuDaiSau = COALESCE(@ChieuDaiSau, ChieuDaiSau),
                     QC = @QC,
                     LastEdit_ID = @LastEdit_ID
-                WHERE MaBin = @MaBin;";
+                WHERE MaBin = @MaBin AND Temp = 0;";
 
             using var cmd = new SQLiteCommand(sql, conn, tx);
             cmd.Parameters.Add("@KhoiLuongSau", System.Data.DbType.Double);
@@ -1217,7 +1222,7 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
                 ds.Ten
             FROM TTThanhPham ttp
             LEFT JOIN DanhSachMaSP ds ON ds.id = ttp.DanhSachSP_ID
-            WHERE ttp.id = @tpId;";
+            WHERE ttp.id = @tpId AND ttp.Temp = 0;";
 
             string lotCu = null;
             decimal klCu = 0;
@@ -1355,8 +1360,9 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
                                     ChieuDaiTruoc = @ChieuDaiTruoc,
                                     ChieuDaiSau = @ChieuDaiSau,
                                     HanNoi = @HanNoi,
-                                    GhiChu = @GhiChu
-                                WHERE id = @id";
+                                    GhiChu = @GhiChu,
+                                    Temp = 0
+                                WHERE id = @id AND Temp = 0";
             m.GhiChu = m.GhiChu + "- Đã sửa";
 
 
@@ -1410,7 +1416,7 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
                     QC = @QC,
                     ChieuDaiSau  = COALESCE(@cd, ChieuDaiSau),
                     LastEdit_id = @lastEditId
-             WHERE MaBin       = @mabin ;", conn, tx);
+             WHERE MaBin       = @mabin AND Temp = 0;", conn, tx);
 
             var pKL = cmd.Parameters.Add("@kl", DbType.Double);
             var QC = cmd.Parameters.Add("@QC", DbType.String);
@@ -2094,6 +2100,7 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
               ),
               LastEdit_id = NULL 
             WHERE tp.LastEdit_id = @tpId
+              AND tp.Temp = 0
               AND EXISTS (
                 SELECT 1
                 FROM TTNVL AS nvl
@@ -2172,9 +2179,9 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
 
             const string sql = @"
             INSERT INTO TTThanhPham
-                (DanhSachSP_ID,QC ,  MaBin, KhoiLuongTruoc, KhoiLuongSau, ChieuDaiTruoc, ChieuDaiSau, CongDoan, GhiChu,HanNoi, DateInsert)
+                (DanhSachSP_ID,QC ,  MaBin, KhoiLuongTruoc, KhoiLuongSau, ChieuDaiTruoc, ChieuDaiSau, CongDoan, GhiChu,HanNoi, DateInsert, Temp)
             VALUES
-                (@DanhSachSP_ID,@QC,  @MaBin, @KhoiLuongTruoc, @KhoiLuongSau, @ChieuDaiTruoc, @ChieuDaiSau, @CongDoan, @GhiChu, @HanNoi, @DateInsert);
+                (@DanhSachSP_ID,@QC,  @MaBin, @KhoiLuongTruoc, @KhoiLuongSau, @ChieuDaiTruoc, @ChieuDaiSau, @CongDoan, @GhiChu, @HanNoi, @DateInsert, 0);
             SELECT last_insert_rowid();";
 
 

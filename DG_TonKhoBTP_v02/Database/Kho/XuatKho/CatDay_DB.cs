@@ -405,6 +405,7 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
                 LEFT JOIN TTThanhPham tp ON tp.id = nk.TTThanhPham_ID
                 LEFT JOIN LichSuCatDay lscd ON lscd.TTCuonDay_ID = cd.id
                 WHERE cd.id = @id
+                  AND tp.Temp = 0
                 GROUP BY
                     cd.id,
                     tp.MaBin,
@@ -981,7 +982,7 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
                         ON nk.id = cd.ThongTinNhapKho_ID
                     LEFT JOIN TTThanhPham tp
                         ON tp.id = nk.TTThanhPham_ID
-                    WHERE 1 = 1
+                    WHERE tp.Temp = 0
             ");
 
             if (!criteria.LayToanBo && criteria.SearchType.HasValue)
@@ -1122,7 +1123,7 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
                         ON nk.id = cd.ThongTinNhapKho_ID
                     LEFT JOIN TTThanhPham tp
                         ON tp.id = nk.TTThanhPham_ID
-                    WHERE 1 = 1
+                    WHERE tp.Temp = 0
             ");
 
             sql.AppendLine(dieuKienKeyword);

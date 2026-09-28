@@ -133,6 +133,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Core\ControlCleaner.cs" />
+    <Compile Include="Core\DataLoadMode.cs" />
     <Compile Include="Core\FormSnapshotBuilder.cs" />
     <Compile Include="Core\Interfaces.cs" />
     <Compile Include="Core\ISectionProvider.cs" />
@@ -164,6 +165,7 @@
     <Compile Include="Database\Kho\XuatKho\CatDay_DB.cs" />
     <Compile Include="Database\Kho\XuatKho_DB.cs" />
     <Compile Include="Database\SanXuat\LoiDungMay_DB.cs" />
+    <Compile Include="Database\SanXuat\LuuTam_DB.cs" />
     <Compile Include="Database\SanXuat\SubmitForm_DB.cs" />
     <Compile Include="Database\User\PermissionDbHelper.cs" />
     <Compile Include="Database\User_DatabaseHelper.cs" />
@@ -176,6 +178,7 @@
     <Compile Include="Helper\ChiTietCongDoan.cs" />
     <Compile Include="Helper\DataGridViewUtils.cs" />
     <Compile Include="Helper\KiemTraBomCongDoan0Helper.cs" />
+    <Compile Include="Helper\LuuTamValidator.cs" />
     <Compile Include="Helper\NvlNhapTayPolicy.cs" />
     <Compile Include="Helper\Reuseable\AutoCompleteDropDown.cs">
       <SubType>Form</SubType>
@@ -213,6 +216,8 @@
     <Compile Include="Models\LoginClass.cs" />
     <Compile Include="Models\Kho\NhapKho_Model.cs" />
     <Compile Include="Models\OtherClass.cs" />
+    <Compile Include="Models\SanXuat\DraftContext.cs" />
+    <Compile Include="Models\SanXuat\DraftSubmitData.cs" />
     <Compile Include="Models\SanXuat\LoiDungMay_Model.cs" />
     <Compile Include="Models\SanXuat\SubmitForm_Model.cs" />
     <Compile Include="Models\ThanhPhamData.cs" />

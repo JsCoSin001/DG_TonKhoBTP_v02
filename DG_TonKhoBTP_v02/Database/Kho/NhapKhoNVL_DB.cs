@@ -36,12 +36,12 @@ namespace DG_TonKhoBTP_v02.Database.Kho
                         (DanhSachSP_ID, MaBin,
                          KhoiLuongTruoc, KhoiLuongSau,
                          ChieuDaiTruoc, ChieuDaiSau,
-                         CongDoan, GhiChu, DateInsert, NhapKho)
+                         CongDoan, GhiChu, DateInsert, NhapKho, Temp)
                     VALUES
                         (@DanhSachSP_ID, @MaBin,
                          @KhoiLuong, @KhoiLuong,
                          @ChieuDai, @ChieuDai,
-                         @CongDoan, @GhiChu, @DateInsert, @NhapKho);
+                         @CongDoan, @GhiChu, @DateInsert, @NhapKho, 0);
                     SELECT last_insert_rowid();";
 
                 long newId;
@@ -127,8 +127,9 @@ namespace DG_TonKhoBTP_v02.Database.Kho
                         ChieuDaiTruoc   = @ChieuDai,
                         ChieuDaiSau     = @ChieuDai,
                         CongDoan        = @CongDoan,
-                        GhiChu          = @GhiChu
-                    WHERE id = @TTThanhPham_ID;";
+                        GhiChu          = @GhiChu,
+                        Temp            = 0
+                    WHERE id = @TTThanhPham_ID AND Temp = 0;";
 
                 using (var cmd = new SQLiteCommand(sql, conn, tran))
                 {
@@ -186,7 +187,8 @@ namespace DG_TonKhoBTP_v02.Database.Kho
                         sp.Ma              AS MaSP
                 FROM    TTThanhPham tp
                 JOIN    DanhSachMaSP sp ON sp.id = tp.DanhSachSP_ID
-                WHERE   TRIM(tp.MaBin) = TRIM(@MaBin) COLLATE NOCASE
+                WHERE   tp.Temp = 0
+                  AND   TRIM(tp.MaBin) = TRIM(@MaBin) COLLATE NOCASE
                 LIMIT   1;";
 
             using var conn = DB_Base.OpenConnection();

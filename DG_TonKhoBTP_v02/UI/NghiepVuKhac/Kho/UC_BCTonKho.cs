@@ -54,7 +54,8 @@ namespace DG_TonKhoBTP_v02.UI
                 FROM 
                     TTThanhPham                
                 WHERE 
-                    TTThanhPham.KhoiLuongSau <> 0
+                    TTThanhPham.Temp = 0
+                    AND TTThanhPham.KhoiLuongSau <> 0
                     AND TTThanhPham.MaBin LIKE '%' || @{para} || '%';
             ";
 
@@ -328,7 +329,8 @@ namespace DG_TonKhoBTP_v02.UI
         INNER JOIN DanhSachMaSP 
             ON TTThanhPham.DanhSachSP_ID = DanhSachMaSP.id
         WHERE 
-            (
+            TTThanhPham.Temp = 0
+            AND (
                 (DanhSachMaSP.DonVi = 'KG' AND TTThanhPham.KhoiLuongSau <> 0)
                 OR
                 (DanhSachMaSP.DonVi = 'M' AND TTThanhPham.ChieuDaiSau <> 0)

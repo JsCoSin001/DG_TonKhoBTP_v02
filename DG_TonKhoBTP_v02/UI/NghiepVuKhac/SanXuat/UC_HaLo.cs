@@ -52,7 +52,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho
                    ON tlv.TTThanhPham_id = tp.id
             JOIN DanhSachMaSP sp
                  ON sp.id = tp.DanhSachSP_ID
-            WHERE tp.MaBin = @MaBin COLLATE NOCASE
+            WHERE tp.Temp = 0
+              AND tp.MaBin = @MaBin COLLATE NOCASE
               AND (
                     (sp.DonVi = 'KG' AND COALESCE(tp.KhoiLuongSau, 0) <> 0)
                  OR (sp.DonVi = 'M'  AND COALESCE(tp.ChieuDaiSau, 0) <> 0)

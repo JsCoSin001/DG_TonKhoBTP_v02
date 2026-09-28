@@ -104,7 +104,7 @@ namespace DG_TonKhoBTP_v02.Database.KeToan
                     ELSE 'Chưa lưu'
                 END                                           AS TrangThaiLuu
             FROM TTKiemKeThang kk
-            LEFT JOIN TTThanhPham tp ON tp.id = kk.TTThanhPham_ID
+            LEFT JOIN TTThanhPham tp ON tp.id = kk.TTThanhPham_ID AND tp.Temp = 0
             LEFT JOIN DanhSachMaSP sp ON sp.id = tp.DanhSachSP_ID
             WHERE kk.ThoiGianKiemKe = @namThang
               AND (
@@ -153,7 +153,8 @@ namespace DG_TonKhoBTP_v02.Database.KeToan
             LEFT JOIN CaiDatCDBoc cdb       ON cdb.TTThanhPham_ID = ttp.id
             LEFT JOIN CD_BocMach bm         ON bm.CaiDatCDBoc_ID = cdb.id
             LEFT JOIN TTNVL nvl             ON nvl.TTThanhPham_ID = ttp.id
-            WHERE ttp.MaBin = @maBin
+            WHERE ttp.Temp = 0
+              AND ttp.MaBin = @maBin
             ORDER BY ttp.id DESC
             LIMIT 1;";
 
@@ -190,7 +191,8 @@ namespace DG_TonKhoBTP_v02.Database.KeToan
                 ChieuDaiSau,
                 CongDoan,
                 GhiChu,
-                DateInsert
+                DateInsert,
+                Temp
             )
             VALUES
             (
@@ -202,7 +204,8 @@ namespace DG_TonKhoBTP_v02.Database.KeToan
                 @ChieuDaiSau,
                 0,
                 @GhiChu,
-                @DateInsert
+                @DateInsert,
+                0
             );
             SELECT last_insert_rowid();";
 
@@ -391,21 +394,22 @@ namespace DG_TonKhoBTP_v02.Database.KeToan
                 KhoiLuongSau  = @KhoiLuongSau,
                 ChieuDaiSau   = @ChieuDaiSau,
                 GhiChu        = @GhiChu,
-                DateInsert    = @DateInsert
-            WHERE MaBin = @MaBin;";
+                DateInsert    = @DateInsert,
+                Temp          = 0
+            WHERE MaBin = @MaBin AND Temp = 0;";
 
             const string sqlInsert = @"
             INSERT INTO TTThanhPham
             (
                 DanhSachSP_ID, MaBin, KhoiLuongTruoc,
                 KhoiLuongSau, ChieuDaiTruoc, ChieuDaiSau,
-                CongDoan, GhiChu, HanNoi, DateInsert
+                CongDoan, GhiChu, HanNoi, DateInsert, Temp
             )
             VALUES
             (
                 @DanhSachSP_ID, @MaBin, @KhoiLuongTruoc,
                 @KhoiLuongSau, @ChieuDaiTruoc, @ChieuDaiSau,
-                0, @GhiChu, 0, @DateInsert
+                0, @GhiChu, 0, @DateInsert, 0
             );
             SELECT last_insert_rowid();";
 

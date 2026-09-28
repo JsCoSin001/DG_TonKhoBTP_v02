@@ -127,10 +127,10 @@ namespace DG_TonKhoBTP_v02.Core
         public double? v3 { get; set; }
         public double? v4 { get; set; }
         public double? v5 { get; set; }
-        public double v6 { get; set; } = -1;
+        public double? v6 { get; set; }
         public double? Co { get; set; }
         public double? Dau1 { get; set; }
-        public double Dau2 { get; set; } = -1;
+        public double? Dau2 { get; set; }
         public double? Khuon { get; set; }
         public double? BinhSay { get; set; }
         public double? DKKhuon1 { get; set; }
@@ -274,8 +274,8 @@ namespace DG_TonKhoBTP_v02.Core
         public double? DKTrucY { get; set; }       
         public string? NgoaiQuan { get; set; }       
         public double? TocDo { get; set; }         
-        public double DienApU { get; set; } = -1;       
-        public double DongDienU { get; set; } = -1;   
+        public double? DienApU { get; set; }       
+        public double? DongDienU { get; set; }   
     }
 
     // --------------------------- Công đoạn: Bện Ruột ---------------------------

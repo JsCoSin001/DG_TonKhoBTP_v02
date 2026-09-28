@@ -392,6 +392,7 @@ namespace DG_TonKhoBTP_v02.UI
 
         public void ClearInputs()
         {
+            SetMaBinComponentsLocked(false);
             bool trangThaiLoadTruocDo = _dangLoadDuLieuBanDau;
             _dangLoadDuLieuBanDau = true;
             try
@@ -793,7 +794,7 @@ namespace DG_TonKhoBTP_v02.UI
                 var row = dt.Rows[0];
                 string bin = row["MaBin"]?.ToString() ?? string.Empty;
 
-                if (kieuDL == 2)
+                if (kieuDL == (int)DataLoadMode.OfficialEdit || kieuDL == (int)DataLoadMode.Draft)
                 {
                     CoreHelper.SetIfPresent(row, "STT", val =>
                         _currentTTThanhPhamId = Convert.ToInt64(val));
@@ -858,11 +859,21 @@ namespace DG_TonKhoBTP_v02.UI
                 }
 
                 soLOT.Text = bin;
+                SetMaBinComponentsLocked(kieuDL == (int)DataLoadMode.Draft);
             }
             finally
             {
                 _dangLoadDuLieuBanDau = false;
             }
+        }
+
+
+        private void SetMaBinComponentsLocked(bool locked)
+        {
+            maHanhTrinh.Enabled = !locked;
+            sttCongDoan.Enabled = !locked;
+            sttLo.Enabled = !locked;
+            soBin.Enabled = !locked;
         }
 
         private static PheLieuData ReadPheLieuFromRow(DataRow row)

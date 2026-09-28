@@ -55,6 +55,7 @@ namespace DG_TonKhoBTP_v02.Database.Kho
                     JOIN    TTCuonDay    cd ON cd.ThongTinNhapKho_ID = nk.id
                     LEFT JOIN TTXuatKho  xk ON xk.TTCuonDay_ID = cd.id
                     WHERE   nk.Kieu = 1
+                      AND   tp.Temp = 0
                       AND  (tp.MaBin           LIKE @kw
                             OR sp.Ten_KhongDau LIKE @kw
                             OR sp.Ten          LIKE @kw)
@@ -501,7 +502,8 @@ namespace DG_TonKhoBTP_v02.Database.Kho
                 JOIN    TTNhapKho       nk ON nk.id           = cd.ThongTinNhapKho_ID
                 JOIN    TTThanhPham     tp ON tp.id           = nk.TTThanhPham_ID
                 JOIN    DanhSachMaSP    sp ON sp.id           = tp.DanhSachSP_ID
-                WHERE  (sp.Ten          LIKE @kw
+                WHERE   tp.Temp = 0
+                  AND  (sp.Ten          LIKE @kw
                         OR sp.Ten_KhongDau LIKE @kw
                         OR xk.NgayXuat  LIKE @kw
                         OR tp.MaBin     LIKE @kw)

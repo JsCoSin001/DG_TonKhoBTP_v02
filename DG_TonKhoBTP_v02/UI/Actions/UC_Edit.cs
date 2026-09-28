@@ -28,6 +28,7 @@ namespace DG_TonKhoBTP_v02.UI
         {
             InitializeComponent();
             _cd = cd;
+            cbxTimQr.KeyDown += cbxTimQr_KeyDown;
         }
 
         private void RaiseClearOtherSections()
@@ -125,6 +126,68 @@ namespace DG_TonKhoBTP_v02.UI
             }
         }
 
+        private async void cbxTimQr_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode != Keys.Enter) return;
+            e.Handled = true;
+            e.SuppressKeyPress = true;
+
+            string maBin = (cbxTimQr.Text ?? string.Empty).Trim();
+            if (maBin.Length == 0) return;
+
+            cbxTimQr.Enabled = false;
+            try
+            {
+                LuuTam_DB.DraftLookupResult lookup = await Task.Run(() => LuuTam_DB.FindByMaBin(maBin));
+                if (!lookup.Found)
+                {
+                    FrmWaiting.ShowGifAlert("Không tìm thấy dữ liệu lưu tạm");
+                    return;
+                }
+                if (lookup.Temp == 0)
+                {
+                    FrmWaiting.ShowGifAlert("MaBin đã là dữ liệu chính thức. Vui lòng sử dụng chức năng Sửa.");
+                    return;
+                }
+
+                DataTable dt = await WaitingHelper.RunWithWaiting(
+                    () => Task.Run(() =>
+                    {
+                        DataTable loaded = Database.DatabaseHelper.GetDataByID(
+                            lookup.Id.ToString(), _cd, (int)DataLoadMode.Draft);
+                        if (loaded == null || loaded.Rows.Count == 0) return loaded;
+
+                        int productId = ReadProductId(loaded.Rows[0]);
+                        List<BomComponentData> bomComponents = Database.DatabaseHelper.GetActiveBomComponents(productId);
+                        loaded.ExtendedProperties[BomDataTableProperties.Loaded] = true;
+                        loaded.ExtendedProperties[BomDataTableProperties.Components] = bomComponents ?? new List<BomComponentData>();
+                        loaded.ExtendedProperties["DraftId"] = lookup.Id;
+                        loaded.ExtendedProperties["DraftMaBin"] = lookup.MaBin;
+                        loaded.ExtendedProperties["LoiDungMay_TTThanhPhamId"] = lookup.Id;
+                        loaded.ExtendedProperties["LoiDungMay_Loaded"] = true;
+                        loaded.ExtendedProperties["LoiDungMay_Items"] = LoiDungMay_DB.GetDanhSachDaLuuTheoTTThanhPhamId(lookup.Id);
+                        return loaded;
+                    }),
+                    "ĐANG TẢI DỮ LIỆU LƯU TẠM...");
+
+                if (dt == null || dt.Rows.Count == 0)
+                {
+                    FrmWaiting.ShowGifAlert("Không tìm thấy dữ liệu lưu tạm");
+                    return;
+                }
+
+                cbxTimQr.Text = lookup.MaBin;
+                DataTableSubmitted?.Invoke(this, new DataTableEventArgs(dt, (int)DataLoadMode.Draft));
+            }
+            catch
+            {
+                FrmWaiting.ShowGifAlert("Cơ sở dữ liệu đang bận, thử lại sau ít phút", "LỖI", EnumStore.Icon.Warning);
+            }
+            finally
+            {
+                cbxTimQr.Enabled = true;
+            }
+        }
 
         private static long ReadTTThanhPhamId(DataRow row)
         {

@@ -379,6 +379,7 @@ namespace DG_TonKhoBTP_v02.UI
             _dangCapNhatNoiBo = true;
             try
             {
+                cbMay.Enabled = true;
                 cbMay.SelectedIndex = -1;
                 ca.SelectedIndex = -1;
                 ca.Text = CoreHelper.GetShiftValue();
@@ -404,8 +405,9 @@ namespace DG_TonKhoBTP_v02.UI
 
                 DataRow row = dt.Rows[0];
                 ChonMayTheoIdHoacTen(row);
+                cbMay.Enabled = kieuDL != (int)DataLoadMode.Draft;
 
-                if (kieuDL == 2)
+                if (kieuDL == (int)DataLoadMode.OfficialEdit || kieuDL == (int)DataLoadMode.Draft)
                 {
                     CoreHelper.SetIfPresent(row, "Ca", val => ca.Text = Convert.ToString(val));
                     CoreHelper.SetIfPresent(row, "NguoiLam", val => nguoiLam.Text = Convert.ToString(val));

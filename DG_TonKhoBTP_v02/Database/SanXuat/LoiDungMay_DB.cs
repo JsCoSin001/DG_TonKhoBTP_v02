@@ -152,6 +152,7 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
                 SELECT id
                 FROM TTThanhPham
                 WHERE MaBin = @MaBin
+                  AND Temp = 0
                 LIMIT 1;";
 
             using (SQLiteConnection conn = DB_Base.OpenConnection())

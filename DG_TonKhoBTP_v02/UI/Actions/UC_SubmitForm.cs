@@ -9,6 +9,7 @@ using DG_TonKhoBTP_v02.UI.Helper;
 using DG_TonKhoBTP_v02.UI.NghiepVuKhac.SanXuat;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SQLite;
 using System.Diagnostics;
 using System.Globalization;
@@ -22,7 +23,7 @@ using Validator = DG_TonKhoBTP_v02.Helper.Validator;
 
 namespace DG_TonKhoBTP_v02.UI
 {
-    public partial class UC_SubmitForm : UserControl, IFormSection
+    public partial class UC_SubmitForm : UserControl, IFormSection, IDataReceiver
     {
         public string SectionName => nameof(UC_SubmitForm);
 
@@ -43,6 +44,8 @@ namespace DG_TonKhoBTP_v02.UI
             };
 
         private CongDoan _Cd;
+        private readonly DraftContext _draftContext = new DraftContext();
+        private DataLoadMode _loadMode = DataLoadMode.New;
 
         public UC_SubmitForm(CongDoan cd, Action onSaveSuccess = null)
         {
@@ -53,6 +56,7 @@ namespace DG_TonKhoBTP_v02.UI
 
             _Cd = cd;
             _onSaveSuccess = onSaveSuccess;
+            ApplySubmitMode(DataLoadMode.New);
 
             if (_printer != "")
             {
@@ -160,6 +164,13 @@ namespace DG_TonKhoBTP_v02.UI
                     Debug.WriteLine($"Tổ trưởng xác nhận: {confirmedUsername}");
                 }
 
+                // Bản ghi mới bắt buộc phải qua Lưu tạm trước khi lên chính thức.
+                if (idEdit == 0 && !_draftContext.IsDraftLoaded)
+                {
+                    FrmWaiting.ShowGifAlert("Vui lòng LƯU TẠM trước khi lưu chính thức.");
+                    return;
+                }
+
                 // Chỉ hiển thị form chờ sau khi bước xác nhận edit đã thành công.
                 waiting = ShowWaiting();
                 Debug.WriteLine($"Hiển thị waiting: {swTotal.ElapsedMilliseconds} ms");
@@ -218,14 +229,30 @@ namespace DG_TonKhoBTP_v02.UI
                 //
                 // Sau khi ExecuteSubmit hoàn tất, await sẽ đưa luồng xử lý
                 // trở lại UI thread để đóng form chờ và hiển thị kết quả.
-                SubmitProcessResult result =
-                    await Task.Run(() => ExecuteSubmit(submitData, swTotal));
+                SubmitProcessResult result;
+                bool inventoryConflict = false;
+                if (_draftContext.IsDraftLoaded && idEdit == 0)
+                {
+                    DraftSubmitData draftData = ToDraftSubmitData(submitData, _draftContext.DraftId);
+                    result = await Task.Run(() => ExecuteFinalizeDraft(
+                        draftData, submitData.DanhSachLoiNhapLieu, submitData, out inventoryConflict));
+                }
+                else
+                {
+                    result = await Task.Run(() => ExecuteSubmit(submitData, swTotal));
+                }
 
                 // Đóng form chờ sau khi toàn bộ quá trình lưu và in tem đã hoàn tất.
                 CloseWaitingSafe(waiting);
 
                 // Đặt lại biến để khối finally không tiếp tục đóng cùng một form lần nữa.
                 waiting = null;
+
+                if (inventoryConflict)
+                {
+                    UC_TTNVL ucNvl = CoreHelper.FindControlRecursive<UC_TTNVL>(host);
+                    ucNvl?.ClearInputs();
+                }
 
                 // Hiển thị thông báo kết quả dựa trên trạng thái lưu,
                 // lỗi database và lỗi in tem trong SubmitProcessResult.
@@ -234,7 +261,14 @@ namespace DG_TonKhoBTP_v02.UI
                 // Chỉ thông báo cho màn hình cha khi dữ liệu đã được lưu thành công.
                 // Callback thường được dùng để tải lại danh sách hoặc đóng màn hình nhập liệu.
                 if (result.SaveSuccess)
+                {
+                    if (_draftContext.IsDraftLoaded && idEdit == 0)
+                    {
+                        _draftContext.Clear();
+                        _loadMode = DataLoadMode.New;
+                    }
                     _onSaveSuccess?.Invoke();
+                }
             }
             catch (Exception ex)
             {
@@ -246,7 +280,7 @@ namespace DG_TonKhoBTP_v02.UI
             finally
             {
                 CloseWaitingSafe(waiting);
-                btnLuu.Enabled = true;
+                ApplySubmitMode(_loadMode);
                 Debug.WriteLine($"=== [BTN LƯU] KẾT THÚC: {swTotal.ElapsedMilliseconds} ms ===");
             }
         }
@@ -1376,6 +1410,9 @@ namespace DG_TonKhoBTP_v02.UI
         {
             cbInTem.Checked = true;
             cbInTemNVL.Checked = false;
+            _draftContext.Clear();
+            _loadMode = DataLoadMode.New;
+            ApplySubmitMode(_loadMode);
         }
 
         private void UC_SubmitForm_Load(object sender, EventArgs e)
@@ -1397,9 +1434,186 @@ namespace DG_TonKhoBTP_v02.UI
                 cbInTemNVL.Checked = false;
         }
 
-        private void btnLuuTam_Click(object sender, EventArgs e)
+        private async void btnLuuTam_Click(object sender, EventArgs e)
         {
+            if (_loadMode == DataLoadMode.OfficialEdit) return;
+            btnLuuTam.Enabled = false;
+            FrmWaiting waiting = null;
+            try
+            {
+                Form host = FindForm();
+                if (host == null) return;
 
+                FormSnapshot snapshot = FormSnapshotBuilder.Capture(host);
+                MergeProductSections(host, snapshot, Stopwatch.StartNew());
+
+                DraftSubmitData data = BuildDraftSubmitData(snapshot, host, waiting);
+                if (data == null) return;
+
+                waiting = ShowWaiting();
+                long draftId = 0;
+                string error = null;
+                bool ok = await Task.Run(() => LuuTam_DB.SaveDraft(data, out draftId, out error));
+                CloseWaitingSafe(waiting); waiting = null;
+
+                if (!ok)
+                {
+                    FrmWaiting.ShowGifAlert(string.IsNullOrWhiteSpace(error) ? "LƯU TẠM KHÔNG THÀNH CÔNG." : error, "LỖI");
+                    return;
+                }
+
+                _draftContext.Set(draftId, data.ThongTinThanhPham.MaBin);
+                _loadMode = DataLoadMode.Draft;
+                ApplySubmitMode(_loadMode);
+
+                // Chỉ tem thành phẩm draft có hậu tố. Không thay đổi MaBin trong model/DB.
+                if (data.ShouldPrintThanhPham || data.ShouldPrintNguyenVatLieu)
+                {
+                    try { PrintDraftLabels(data); }
+                    catch (Exception ex) { FrmWaiting.ShowGifAlert(ex.Message, "LỖI IN"); }
+                }
+
+                FrmWaiting.ShowGifAlert("LƯU TẠM THÀNH CÔNG.");
+                _onSaveSuccess?.Invoke();
+            }
+            catch (Exception ex)
+            {
+                CloseWaitingSafe(waiting); waiting = null;
+                FrmWaiting.ShowGifAlert("LỖI: " + ex.Message, "LỖI");
+            }
+            finally
+            {
+                CloseWaitingSafe(waiting);
+                ApplySubmitMode(_loadMode);
+            }
+        }
+
+        public void LoadData(DataTable dt, int kieuDL)
+        {
+            DataLoadMode mode = Enum.IsDefined(typeof(DataLoadMode), kieuDL)
+                ? (DataLoadMode)kieuDL : DataLoadMode.New;
+            _loadMode = mode;
+            if (mode == DataLoadMode.Draft && dt != null && dt.ExtendedProperties.ContainsKey("DraftId"))
+            {
+                long id = Convert.ToInt64(dt.ExtendedProperties["DraftId"]);
+                string maBin = Convert.ToString(dt.ExtendedProperties["DraftMaBin"]);
+                _draftContext.Set(id, maBin);
+            }
+            else
+            {
+                _draftContext.Clear();
+            }
+            ApplySubmitMode(mode);
+        }
+
+        private void ApplySubmitMode(DataLoadMode mode)
+        {
+            if (btnLuu == null || btnLuuTam == null) return;
+            btnLuu.Enabled = mode == DataLoadMode.Draft || mode == DataLoadMode.OfficialEdit;
+            btnLuuTam.Enabled = mode == DataLoadMode.New || mode == DataLoadMode.Copy || mode == DataLoadMode.Draft;
+        }
+
+        private DraftSubmitData BuildDraftSubmitData(FormSnapshot snapshot, Form host, FrmWaiting waiting)
+        {
+            if (!TryGetRequiredSection(snapshot, "UC_TTThanhPham", out TTThanhPham tp, out string err))
+            { ShowStructureError(waiting, err); return null; }
+
+            bool cd9 = _Cd != null && _Cd.Id == 9;
+            List<TTNVLRow> rows = new List<TTNVLRow>();
+            if (!cd9 && !TryGetRequiredSection(snapshot, "UC_TTNVL", out rows, out err))
+            { ShowStructureError(waiting, err); return null; }
+
+            ThongTinCaLamViec ca = snapshot.GetSection<ThongTinCaLamViec>("UC_TTCaLamViec");
+            List<string> errors = LuuTamValidator.LayDanhSachLoi(tp, rows, ca?.May, _Cd, cd9);
+            if (errors.Count > 0) { ShowValidationError(waiting, "DỮ LIỆU CHƯA HỢP LỆ"); return null; }
+
+
+            ApplyHanNoiRules(tp);
+            var data = new DraftSubmitData
+            {
+                DraftId = _draftContext.IsDraftLoaded ? _draftContext.DraftId : 0,
+                CongDoanId = _Cd?.Id ?? 0,
+                ThongTinCaLamViec = ca,
+                ThongTinThanhPham = tp,
+                NguyenVatLieuRows = rows,
+                NguyenVatLieu = cd9 ? new List<TTNVL>() : rows.Select(x => x.ToTTNVL()).ToList(),
+                CongDoan = BuildDraftCongDoan(snapshot),
+                DanhSachLoiDungMay = CaptureLoiDungMayDraft(host, waiting) ?? new List<DanhSachLoiDungMay_Model>(),
+                ShouldPrintThanhPham = _printer != "" && cbInTem.Checked,
+                ShouldPrintNguyenVatLieu = !cd9 && cbInTemNVL.Checked && rows.Count > 0
+            };
+            return data;
+        }
+
+        private static SubmitCongDoanData BuildDraftCongDoan(FormSnapshot snapshot)
+        {
+            if (snapshot?.Sections == null) return null;
+            string[] names = { "CD_KeoRut", "CD_BenRuot", "CD_GhepLoiQB", "CD_BocLot", "CD_BocMach", "CD_BocVo", "CD_ChieuXa" };
+            object detail = names.Select(n => snapshot.Sections.TryGetValue(n, out object v) ? v : null)
+                .FirstOrDefault(HasMeaningfulDraftValue);
+            CaiDatCDBoc setup = snapshot.GetSection<CaiDatCDBoc>("CaiDatCDBoc");
+            if (!HasMeaningfulDraftValue(setup)) setup = null;
+            if (detail == null && setup == null) return null;
+            return new SubmitCongDoanData { ChiTietCongDoan = detail, CaiDatCDBoc = setup };
+        }
+
+        private static bool HasMeaningfulDraftValue(object value)
+        {
+            if (value == null) return false;
+            foreach (var p in value.GetType().GetProperties())
+            {
+                if (!p.CanRead || p.GetIndexParameters().Length != 0) continue;
+                if (p.Name.Equals("Id", StringComparison.OrdinalIgnoreCase) || p.Name.Contains("TTThanhPham")) continue;
+                object v;
+                try { v = p.GetValue(value); } catch { continue; }
+                if (v == null) continue;
+                if (v is string text && !string.IsNullOrWhiteSpace(text)) return true;
+                if (v is System.Collections.IEnumerable en && !(v is string))
+                { foreach (object _ in en) return true; continue; }
+                Type t = Nullable.GetUnderlyingType(p.PropertyType) ?? p.PropertyType;
+                if (t.IsValueType && !Equals(v, Activator.CreateInstance(t))) return true;
+            }
+            return false;
+        }
+
+        private static DraftSubmitData ToDraftSubmitData(SubmitFormData data, long draftId) => new DraftSubmitData
+        {
+            DraftId = draftId, CongDoanId = data.CongDoanId,
+            ThongTinCaLamViec = data.ThongTinCaLamViec, ThongTinThanhPham = data.ThongTinThanhPham,
+            NguyenVatLieuRows = data.NguyenVatLieuRows, NguyenVatLieu = data.NguyenVatLieu,
+            CongDoan = data.CongDoan, DanhSachLoiDungMay = data.DanhSachLoiDungMay,
+            ShouldPrintThanhPham = data.ShouldPrintThanhPham, ShouldPrintNguyenVatLieu = data.ShouldPrintNguyenVatLieu
+        };
+
+        private SubmitProcessResult ExecuteFinalizeDraft(DraftSubmitData draft, List<LoiNhapLieuData> errors, SubmitFormData printData, out bool inventoryConflict)
+        {
+            var result = new SubmitProcessResult();
+            result.SaveSuccess = LuuTam_DB.FinalizeDraft(draft.DraftId, draft, errors, out inventoryConflict, out string error);
+            if (!result.SaveSuccess) { result.SaveError = error; return result; }
+            try { PrintLabels(printData); }
+            catch (Exception ex) { result.HasPrintError = true; result.PrintError = ex.Message; }
+            return result;
+        }
+
+        private void PrintDraftLabels(DraftSubmitData draft)
+        {
+            var printData = new SubmitFormData
+            {
+                CongDoanId = draft.CongDoanId, ThongTinCaLamViec = draft.ThongTinCaLamViec ?? new ThongTinCaLamViec(),
+                ThongTinThanhPham = draft.ThongTinThanhPham, CongDoan = draft.CongDoan
+            };
+            if (draft.ShouldPrintThanhPham)
+            {
+                PrinterModel printer = BuildThanhPhamPrinter(printData);
+                printer.MaBin = (printer.MaBin ?? string.Empty) + " - TEM TẠM";
+                PrintHelper.PrintLabel(printer);
+            }
+            if (draft.ShouldPrintNguyenVatLieu)
+            {
+                printData.NguyenVatLieu = draft.NguyenVatLieu;
+                printData.ShouldPrintNguyenVatLieu = true;
+                PrintNguyenVatLieuLabels(printData);
+            }
         }
     }
 }

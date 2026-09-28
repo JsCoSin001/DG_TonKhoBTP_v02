@@ -60,7 +60,7 @@ namespace DG_TonKhoBTP_v02.Helper
         // WHERE theo ListMa_Accept (DanhSachMaSP.Ma LIKE ...)
         private static string BuildAcceptWhere(List<string> accepts, List<SQLiteParameter> parameters)
         {
-            if (accepts == null || accepts.Count == 0) return string.Empty;
+            if (accepts == null || accepts.Count == 0) return "WHERE TTThanhPham.Temp = 0";
 
             var likeClauses = new List<string>();
             for (int i = 0; i < accepts.Count; i++)
@@ -69,7 +69,7 @@ namespace DG_TonKhoBTP_v02.Helper
                 likeClauses.Add($"DanhSachMaSP.Ma LIKE {p}");
                 parameters.Add(new SQLiteParameter(p, accepts[i]));
             }
-            return $"WHERE ({string.Join(" OR ", likeClauses)})";
+            return $"WHERE TTThanhPham.Temp = 0 AND ({string.Join(" OR ", likeClauses)})";
         }
 
         // Tạo SELECT cho 1 công đoạn

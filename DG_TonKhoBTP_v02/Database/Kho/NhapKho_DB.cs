@@ -26,7 +26,7 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                             tp.GhiChu
                     FROM    TTThanhPham   tp
                     JOIN    DanhSachMaSP  sp ON sp.id = tp.DanhSachSP_ID
-                    WHERE   tp.MaBin LIKE @keyword AND tp.CongDoan = 5 AND tp.ChieuDaiSau > 0 
+                    WHERE   tp.Temp = 0 AND tp.MaBin LIKE @keyword AND tp.CongDoan = 5 AND tp.ChieuDaiSau > 0 
                     ORDER BY tp.MaBin
                     LIMIT   50";
 
@@ -116,7 +116,8 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                 INNER JOIN DanhSachMaSP sp ON sp.id=tp.DanhSachSP_ID
                 INNER JOIN ThongTinCaLamViec clv ON clv.TTThanhPham_id=tp.id
                 LEFT JOIN source_remaining sr ON sr.TTThanhPham_ID=tp.id
-                WHERE tp.CongDoan=5
+                WHERE tp.Temp=0
+                  AND tp.CongDoan=5
                   AND tp.ChieuDaiSau>0
                   AND date(" + normalizedNgay + @") BETWEEN date(@NgayBD) AND date(@NgayKT)
                   AND (@ToanBoCa=1 OR clv.Ca=@Ca)
@@ -179,7 +180,8 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                 INNER JOIN DanhSachMaSP sp ON sp.id=tp.DanhSachSP_ID
                 INNER JOIN ThongTinCaLamViec clv ON clv.TTThanhPham_id=tp.id
                 INNER JOIN source_remaining sr ON sr.TTThanhPham_ID=tp.id AND sr.SoLuongCon>0
-                WHERE tp.id IN (" + string.Join(",", paramNames) + @")
+                WHERE tp.Temp=0
+                  AND tp.id IN (" + string.Join(",", paramNames) + @")
                   AND date(" + normalizedNgay + @") BETWEEN date(@NgayBD) AND date(@NgayKT)
                   AND (@ToanBoCa=1 OR clv.Ca=@Ca)
                 ORDER BY clv.NgayBatDau,tp.MaBin,sr.TTCuonDay_CD_ID;";
@@ -273,6 +275,7 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                 FROM TTCuonDay_CD tcd
                 INNER JOIN CD_BocVo cbv ON cbv.id = tcd.CongDoan_ID
                 INNER JOIN CaiDatCDBoc cdb ON cdb.id = cbv.CaiDatCDBoc_ID
+                INNER JOIN TTThanhPham tp ON tp.id = cdb.TTThanhPham_ID AND tp.Temp = 0
                 LEFT JOIN TTLo lo ON lo.id = tcd.TTLo_ID
                 LEFT JOIN TTCuonDay td ON td.TTCuonDay_CD_ID = tcd.id
                 WHERE cdb.TTThanhPham_ID = @TTThanhPham_ID
@@ -662,7 +665,7 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
             const string sqlGetThanhPham = @"
                 SELECT ChieuDaiSau
                 FROM TTThanhPham
-                WHERE id = @id
+                WHERE id = @id AND Temp = 0
                 LIMIT 1;";
 
             // Mỗi lần bấm btnNhapKho luôn tạo một TTNhapKhoTP mới.
@@ -711,7 +714,7 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                         ELSE @ChieuDaiConLai
                     END,
                     NhapKho = 1
-                WHERE id = @id;";
+                WHERE id = @id AND Temp = 0;";
 
             using var conn = DB_Base.OpenConnection();
             using var tran = conn.BeginTransaction();
@@ -1125,7 +1128,7 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                     using var updateTp = new SQLiteCommand(@"
                         UPDATE TTThanhPham
                         SET ChieuDaiSau = MAX(0, IFNULL(ChieuDaiSau,0) + @Delta)
-                        WHERE id=@id;", conn, tran);
+                        WHERE id=@id AND Temp=0;", conn, tran);
                     updateTp.Parameters.AddWithValue("@Delta", delta);
                     updateTp.Parameters.AddWithValue("@id", model.TTThanhPham_ID);
                     if (updateTp.ExecuteNonQuery() == 0)
@@ -1174,7 +1177,7 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                     tp.MaBin AS maBin2,
                     nk.GhiChu AS ghiChu
                 FROM TTNhapKhoTP nk
-                INNER JOIN TTThanhPham tp ON tp.id = nk.TTThanhPham_ID
+                INNER JOIN TTThanhPham tp ON tp.id = nk.TTThanhPham_ID AND tp.Temp = 0
                 WHERE nk.id = @id
                 LIMIT 1;";
 
@@ -1279,7 +1282,7 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                         SET KhoiLuongSau = 0,
                             ChieuDaiSau = 0,
                             NhapKho = 1
-                        WHERE id IN ({string.Join(",", paramNames)});";
+                        WHERE id IN ({string.Join(",", paramNames)}) AND Temp = 0;";
 
                     using var cmdUpdateThanhPham = new SQLiteCommand(sqlUpdateThanhPham, conn, tran);
                     for (int i = 0; i < dsIdKhongTrung.Count; i++)
@@ -1349,7 +1352,7 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                         bs.TieuChuan AS tieuChuan,
                         CAST(IFNULL(bs.T, 0) AS REAL) AS heSoT
                     FROM TTNhapKhoTP nk
-                    LEFT JOIN TTThanhPham tp ON tp.id = nk.TTThanhPham_ID
+                    LEFT JOIN TTThanhPham tp ON tp.id = nk.TTThanhPham_ID AND tp.Temp = 0
                     LEFT JOIN TTBoSung bs ON bs.DanhSachMaSP_ID = tp.DanhSachSP_ID
                     WHERE
                            TRIM(IFNULL(nk.TenSP, '')) = @keyword COLLATE NOCASE
@@ -1410,7 +1413,8 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                         tp.NhapKho
                 FROM    TTThanhPham   tp
                 LEFT JOIN DanhSachMaSP sp ON sp.id = tp.DanhSachSP_ID
-                WHERE   TRIM(tp.MaBin) = TRIM(@MaBin)
+                WHERE   tp.Temp = 0
+                  AND   TRIM(tp.MaBin) = TRIM(@MaBin)
                 LIMIT   2;";
 
             DataTable dt = new DataTable();
@@ -1474,7 +1478,7 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                     cd.TTLo_ID AS ct_TTLo_ID,
                     lo.KichThuoc AS ct_KichThuocLo
                 FROM TTNhapKhoTP nk
-                LEFT JOIN TTThanhPham tp ON tp.id = nk.TTThanhPham_ID
+                LEFT JOIN TTThanhPham tp ON tp.id = nk.TTThanhPham_ID AND tp.Temp = 0
                 LEFT JOIN TTBoSung bs ON bs.DanhSachMaSP_ID = tp.DanhSachSP_ID
                 LEFT JOIN TTCuonDay cd ON cd.ThongTinNhapKho_ID = nk.id
                 LEFT JOIN TTLo lo ON lo.id = cd.TTLo_ID
@@ -1588,7 +1592,7 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                             ) THEN 1
                             ELSE 0
                         END
-                    WHERE id = @TTThanhPham_ID;", conn, tran))
+                    WHERE id = @TTThanhPham_ID AND Temp = 0;", conn, tran))
                 {
                     cmd.Parameters.AddWithValue("@TongHoanTra", tongChieuDaiHoanTra);
                     cmd.Parameters.AddWithValue("@TTThanhPham_ID", ttThanhPhamId);
@@ -1718,6 +1722,7 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                 LEFT JOIN TTBoSung bs ON bs.DanhSachMaSP_ID = tp.DanhSachSP_ID
                 LEFT JOIN TTLo lo     ON CAST(lo.KichThuoc AS TEXT) = CAST(@chieuCaoLo AS TEXT)
                 WHERE tp.id = @ttThanhPhamId
+                  AND tp.Temp = 0
                 LIMIT 1;";
 
             using var conn = DB_Base.OpenConnection();

@@ -58,7 +58,7 @@ namespace DG_TonKhoBTP_v02.UI
                 return;
             }
 
-            if (kieuEdit == 2)
+            if (kieuEdit == (int)DataLoadMode.OfficialEdit || kieuEdit == (int)DataLoadMode.Draft)
             {
                 // Sửa: lấy STT từ DataTable, STT chính là TTThanhPham.id đã được xác nhận.
                 if (!row.Table.Columns.Contains("STT") || row["STT"] == DBNull.Value)

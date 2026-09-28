@@ -371,11 +371,140 @@ namespace DG_TonKhoBTP_v02.Helper
             if (data.Sections.TryGetValue("CD_ChieuXa", out var chieuXaObj))
                 return LayDanhSachLoiCDChieuXa(chieuXaObj as CD_ChieuXa);
 
-            List<object> chiTiet = KiemTraChiTietCongDoan(data);
-            if (chiTiet == null || chiTiet.Count == 0 || chiTiet[0] == null)
-                return new List<string> { "Chi tiết công đoạn chưa hợp lệ" };
+            if (data.Sections.TryGetValue("CD_KeoRut", out var keoRutObj))
+                return LayDanhSachLoiCDKeoRut(keoRutObj as CD_KeoRut);
 
-            return new List<string>();
+            if (data.Sections.TryGetValue("CD_BenRuot", out var benRuotObj))
+                return LayDanhSachLoiCDBenRuot(benRuotObj as CD_BenRuot);
+
+            if (data.Sections.TryGetValue("CD_GhepLoiQB", out var ghepLoiObj))
+                return LayDanhSachLoiCDGhepLoiQB(ghepLoiObj as CD_GhepLoiQB);
+
+            if (data.Sections.TryGetValue("CD_BocLot", out var bocLotObj))
+                return KetHopLoiBoc(data, LayDanhSachLoiCDBocLot(bocLotObj as CD_BocLot));
+
+            if (data.Sections.TryGetValue("CD_BocMach", out var bocMachObj))
+                return KetHopLoiBoc(data, LayDanhSachLoiCDBocMach(bocMachObj as CD_BocMach));
+
+            if (data.Sections.TryGetValue("CD_BocVo", out var bocVoObj))
+                return KetHopLoiBoc(data, LayDanhSachLoiCDBocVo(bocVoObj as CD_BocVo));
+
+            return new List<string> { "Chi tiết công đoạn chưa hợp lệ" };
+        }
+
+        private static List<string> KetHopLoiBoc(FormSnapshot data, List<string> loiChiTiet)
+        {
+            var result = new List<string>();
+            result.AddRange(LayDanhSachLoiCaiDatCDBoc(
+                data.GetSection<CaiDatCDBoc>("CaiDatCDBoc")));
+            result.AddRange(loiChiTiet ?? new List<string>());
+            return result;
+        }
+
+        private static List<string> LayDanhSachLoiCDKeoRut(CD_KeoRut data)
+        {
+            var result = new List<string>();
+            if (data == null)
+                return new List<string> { "Chi tiết công đoạn Kéo Rút chưa hợp lệ" };
+
+            if (!data.DKTrucX.HasValue) result.Add("ĐK trục X chưa được nhập");
+            if (!data.DKTrucY.HasValue) result.Add("ĐK trục Y chưa được nhập");
+            if (string.IsNullOrWhiteSpace(data.NgoaiQuan)) result.Add("Ngoại quan chưa được chọn");
+            if (!data.TocDo.HasValue) result.Add("Tốc độ chưa được nhập");
+            return result;
+        }
+
+        private static List<string> LayDanhSachLoiCDBenRuot(CD_BenRuot data)
+        {
+            var result = new List<string>();
+            if (data == null)
+                return new List<string> { "Chi tiết công đoạn Bện Ruột chưa hợp lệ" };
+
+            if (!data.DKSoi.HasValue) result.Add("ĐK sợi chưa được nhập");
+            if (!data.SoSoi.HasValue) result.Add("Số sợi chưa được nhập");
+            if (string.IsNullOrWhiteSpace(data.ChieuXoan)) result.Add("Chiều xoắn chưa được chọn");
+            if (!data.BuocBen.HasValue) result.Add("Bước bện chưa được nhập");
+            return result;
+        }
+
+        private static List<string> LayDanhSachLoiCDGhepLoiQB(CD_GhepLoiQB data)
+        {
+            var result = new List<string>();
+            if (data == null)
+                return new List<string> { "Chi tiết công đoạn Ghép Lõi/Quấn Băng chưa hợp lệ" };
+
+            if (string.IsNullOrWhiteSpace(data.ChieuXoan)) result.Add("Chiều xoắn chưa được chọn");
+            if (!data.GoiCachMep.HasValue) result.Add("Gối cách mép chưa được nhập");
+            if (!data.DKBTP.HasValue) result.Add("ĐK BTP chưa được nhập");
+            if (!data.DoRongBang.HasValue) result.Add("Độ rộng băng chưa được nhập");
+            if (!data.DoDayBang.HasValue) result.Add("Độ dày băng chưa được nhập");
+            return result;
+        }
+
+        private static List<string> LayDanhSachLoiCDBocLot(CD_BocLot data)
+        {
+            if (data == null)
+                return new List<string> { "Chi tiết công đoạn Bọc Lót chưa hợp lệ" };
+
+            return data.DoDayTBLot.HasValue
+                ? new List<string>()
+                : new List<string> { "Độ dày TB lót chưa được nhập" };
+        }
+
+        private static List<string> LayDanhSachLoiCDBocMach(CD_BocMach data)
+        {
+            var result = new List<string>();
+            if (data == null)
+                return new List<string> { "Chi tiết công đoạn Bọc Mạch chưa hợp lệ" };
+
+            if (string.IsNullOrWhiteSpace(data.NgoaiQuan)) result.Add("Ngoại quan chưa được chọn");
+            if (!data.LanDanhThung.HasValue) result.Add("Lần đánh thủng chưa được nhập");
+            if (!data.SoMet.HasValue) result.Add("Số mét chưa được nhập");
+            if (data.Mau == null) result.Add("Màu chưa được nhập");
+            return result;
+        }
+
+        private static List<string> LayDanhSachLoiCDBocVo(CD_BocVo data)
+        {
+            var result = new List<string>();
+            if (data == null)
+                return new List<string> { "Chi tiết công đoạn Bọc Vỏ chưa hợp lệ" };
+
+            if (!data.DayVoTB.HasValue) result.Add("Dày vỏ TB chưa được nhập");
+            if (data.InAn == null) result.Add("In ấn chưa được nhập");
+            if (data.TTCuonDay_CD == null || data.TTCuonDay_CD.Count == 0)
+                result.Add("Chưa có thông tin cuộn dây");
+            return result;
+        }
+
+        private static List<string> LayDanhSachLoiCaiDatCDBoc(CaiDatCDBoc data)
+        {
+            var result = new List<string>();
+            if (data == null)
+                return new List<string> { "Cài đặt công đoạn bọc chưa hợp lệ" };
+
+            if (string.IsNullOrWhiteSpace(data.MangNuoc)) result.Add("Máng nước chưa được nhập");
+            if (string.IsNullOrWhiteSpace(data.PuliDanDay)) result.Add("Puli dẫn dây chưa được nhập");
+            if (string.IsNullOrWhiteSpace(data.BoDemMet)) result.Add("Bộ đếm mét chưa được nhập");
+            if (string.IsNullOrWhiteSpace(data.MayIn)) result.Add("Máy in chưa được nhập");
+            if (!data.v1.HasValue) result.Add("v1 chưa được nhập");
+            if (!data.v2.HasValue) result.Add("v2 chưa được nhập");
+            if (!data.v3.HasValue) result.Add("v3 chưa được nhập");
+            if (!data.v4.HasValue) result.Add("v4 chưa được nhập");
+            if (!data.v5.HasValue) result.Add("v5 chưa được nhập");
+            if (!data.Co.HasValue) result.Add("Cổ chưa được nhập");
+            if (!data.Dau1.HasValue) result.Add("Đầu 1 chưa được nhập");
+            if (!data.Khuon.HasValue) result.Add("Khuôn chưa được nhập");
+            if (!data.BinhSay.HasValue) result.Add("Bình sấy chưa được nhập");
+            if (!data.DKKhuon1.HasValue) result.Add("ĐK khuôn 1 chưa được nhập");
+            if (!data.DKKhuon2.HasValue) result.Add("ĐK khuôn 2 chưa được nhập");
+            if (string.IsNullOrWhiteSpace(data.TTNhua)) result.Add("Tình trạng nhựa chưa được nhập");
+            if (!data.KTDKLan1.HasValue) result.Add("KT ĐK lần 1 chưa được nhập");
+            if (!data.KTDKLan2.HasValue) result.Add("KT ĐK lần 2 chưa được nhập");
+            if (!data.KTDKLan3.HasValue) result.Add("KT ĐK lần 3 chưa được nhập");
+            if (!data.DiemMongLan1.HasValue) result.Add("Điểm mỏng lần 1 chưa được nhập");
+            if (!data.DiemMongLan2.HasValue) result.Add("Điểm mỏng lần 2 chưa được nhập");
+            return result;
         }
 
         private static List<string> LayDanhSachLoiCDChieuXa(CD_ChieuXa data)
@@ -401,7 +530,7 @@ namespace DG_TonKhoBTP_v02.Helper
 
         private static bool Check_CaiDatCDBoc(CaiDatCDBoc data)
         {
-            return true;
+            return LayDanhSachLoiCaiDatCDBoc(data).Count == 0;
         }
 
     }

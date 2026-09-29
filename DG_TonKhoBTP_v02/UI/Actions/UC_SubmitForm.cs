@@ -37,11 +37,12 @@ namespace DG_TonKhoBTP_v02.UI
         private static readonly HashSet<string> DanhSachLoiKhongCanXacNhan =
             new HashSet<string>
             {
-                DanhSachLoiNhapLieuSX.Loi_BomNull,
-                DanhSachLoiNhapLieuSX.Loi_KhongXacDinh,
-                DanhSachLoiNhapLieuSX.Loi_BatThuongKhiXuLyTen,
-                DanhSachLoiNhapLieuSX.Loi_KhongDongBoTen,
-                DanhSachLoiNhapLieuSX.Loi_SoLuongBin,
+                // Ví dụ:
+                 DanhSachLoiNhapLieuSX.Loi_BomNull,
+                 DanhSachLoiNhapLieuSX.Loi_KhongXacDinh,
+                 DanhSachLoiNhapLieuSX.Loi_BatThuongKhiXuLyTen,
+                 DanhSachLoiNhapLieuSX.Loi_KhongDongBoTen,
+                 DanhSachLoiNhapLieuSX.Loi_SoLuongBin,
             };
 
         private CongDoan _Cd;
@@ -854,13 +855,43 @@ namespace DG_TonKhoBTP_v02.UI
             }
 
             // Công đoạn 1 bỏ qua kiểm tra tên nguyên liệu so với bom.
-            // Các công đoạn khác kiểm tra NVL có thuộc BOM hay không.
+            // Các công đoạn khác phân biệt:
+            // - NVL thực tế không thuộc bất kỳ component nào của BOM => sai loại NVL.
+            // - BOM còn thiếu component bắt buộc => lỗi số lượng NVL.
             if (congDoan?.Id != 1)
             {
                 var componentIdsThucTe = new HashSet<int>(
                     nguyenVatLieu
                         .Where(nvl => nvl?.DanhSachMaSP_ID != null)
                         .Select(nvl => nvl.DanhSachMaSP_ID.Value));
+
+                var componentIdsBom = new HashSet<int>(
+                    thanhPham.BomComponents
+                        .Where(component => component != null)
+                        .Select(component => component.ComponentId));
+
+                List<TTNVLRow> nguyenVatLieuSaiLoai = nguyenVatLieu
+                    .Where(nvl =>
+                        nvl?.DanhSachMaSP_ID != null &&
+                        !componentIdsBom.Contains(nvl.DanhSachMaSP_ID.Value))
+                    .ToList();
+
+                if (nguyenVatLieuSaiLoai.Count > 0)
+                {
+                    string lyDoSaiLoai =
+                        "Nguyên liệu thực tế không thuộc BOM: " +
+                        string.Join(
+                            "; ",
+                            nguyenVatLieuSaiLoai.Select(nvl =>
+                                $"{nvl.TenNVL ?? string.Empty} " +
+                                $"(DanhSachMaSP_ID = {nvl.DanhSachMaSP_ID})")) +
+                        ". " +
+                        TaoLyDoBomYeuCau(thanhPham.BomComponents);
+
+                    return TaoLoiNhapLieu(
+                        DanhSachLoiNhapLieuSX.Loi_TP_Nl_KhongKhop,
+                        lyDoSaiLoai);
+                }
 
                 List<BomComponentData> componentBiThieu = thanhPham.BomComponents
                     .Where(LaComponentBatBuoc)

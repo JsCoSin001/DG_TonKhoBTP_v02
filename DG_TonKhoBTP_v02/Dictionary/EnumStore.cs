@@ -32,7 +32,7 @@ public static class PermissionCodes
 
 public static class DanhSachLoiNhapLieuSX
 {
-    public const string Loi_TP_Nl_KhongKhop = "Mã/Tên nguyên liệu và thành phẩm không phù hợp với nhau";
+    public const string Loi_TP_Nl_KhongKhop = "Nguyên liệu và thành phẩm không phù hợp với nhau";
     public const string Loi_SoLuongNVL = "Lỗi số lượng Nguyên Liệu";
     public const string Loi_SoLuongBin = "Lỗi số lượng bin";
     public const string Loi_KhoiLuong = "Khối lượng/Chiều dài thành thành phẩm và nguyên liệu đang bất thường";

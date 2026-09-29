@@ -37,11 +37,11 @@ namespace DG_TonKhoBTP_v02.UI
         private static readonly HashSet<string> DanhSachLoiKhongCanXacNhan =
             new HashSet<string>
             {
-                // Ví dụ:
-                 DanhSachLoiNhapLieuSX.Loi_BomNull,
-                 DanhSachLoiNhapLieuSX.Loi_KhongXacDinh,
-                 DanhSachLoiNhapLieuSX.Loi_BatThuongKhiXuLyTen,
-                 DanhSachLoiNhapLieuSX.Loi_KhongDongBoTen,
+                DanhSachLoiNhapLieuSX.Loi_BomNull,
+                DanhSachLoiNhapLieuSX.Loi_KhongXacDinh,
+                DanhSachLoiNhapLieuSX.Loi_BatThuongKhiXuLyTen,
+                DanhSachLoiNhapLieuSX.Loi_KhongDongBoTen,
+                DanhSachLoiNhapLieuSX.Loi_SoLuongBin,
             };
 
         private CongDoan _Cd;

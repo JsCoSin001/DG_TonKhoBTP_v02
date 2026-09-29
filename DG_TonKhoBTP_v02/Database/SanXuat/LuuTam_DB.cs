@@ -47,6 +47,34 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
             return result;
         }
 
+        public static DraftLookupResult FindById(long id)
+        {
+            var result = new DraftLookupResult();
+
+            if (id <= 0)
+                return result;
+
+            using var conn = DB_Base.OpenConnection();
+            using var cmd = new SQLiteCommand(@"
+                SELECT id, MaBin, COALESCE(Temp, 0) AS Temp
+                FROM TTThanhPham
+                WHERE id = @Id
+                LIMIT 1;", conn);
+
+            cmd.Parameters.AddWithValue("@Id", id);
+
+            using var reader = cmd.ExecuteReader();
+
+            if (!reader.Read())
+                return result;
+
+            result.Id = Convert.ToInt64(reader["id"]);
+            result.MaBin = Convert.ToString(reader["MaBin"]) ?? string.Empty;
+            result.Temp = Convert.ToInt32(reader["Temp"]);
+
+            return result;
+        }
+
         public static bool SaveDraft(DraftSubmitData data, out long draftId, out string error)
         {
             draftId = 0;

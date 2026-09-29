@@ -150,7 +150,18 @@ namespace DG_TonKhoBTP_v02.UI
             cbxTimQr.Enabled = false;
             try
             {
-                LuuTam_DB.DraftLookupResult lookup = await Task.Run(() => LuuTam_DB.FindByMaBin(maBin));
+
+                LuuTam_DB.DraftLookupResult lookup = await Task.Run(() =>
+                {
+                    if (long.TryParse(maBin, out long id) && id > 0)
+                    {
+                        return LuuTam_DB.FindById(id);
+                    }
+
+                    return LuuTam_DB.FindByMaBin(maBin);
+                });
+
+
                 if (!lookup.Found)
                 {
                     FrmWaiting.ShowGifAlert("Không tìm thấy dữ liệu lưu tạm");

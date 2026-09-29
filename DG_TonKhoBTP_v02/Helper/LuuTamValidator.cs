@@ -1,4 +1,4 @@
-using DG_TonKhoBTP_v02.Core;
+﻿using DG_TonKhoBTP_v02.Core;
 using DG_TonKhoBTP_v02.Models;
 using System;
 using System.Collections.Generic;
@@ -7,32 +7,56 @@ using System.Linq;
 namespace DG_TonKhoBTP_v02.Helper
 {
     /// <summary>
-    /// Validation dành riêng cho Lưu tạm.
-    /// Chỉ kiểm tra Thành phẩm và NVL theo đúng rule hiện tại;
-    /// không validate ca làm việc/chi tiết công đoạn và không thao tác database.
+    /// Validation tối thiểu dành riêng cho Lưu tạm.
+    /// Không dùng Validator của Lưu chính thức.
     /// </summary>
     public static class LuuTamValidator
     {
-        public static List<string> LayDanhSachLoi(
-            TTThanhPham thanhPham,
-            List<TTNVLRow> nvlRows,
-            string tenMay,
-            CongDoan congDoan,
-            bool boQuaNvl)
+        /// <summary>
+        /// Lưu tạm chỉ yêu cầu đã chọn Thành phẩm và có MaBin để quản lý draft.
+        /// Không kiểm KL/CD hoặc các trường hoàn thiện khác.
+        /// </summary>
+        public static List<string> LayDanhSachLoiThanhPham(TTThanhPham thanhPham)
         {
             var errors = new List<string>();
 
-            errors.AddRange(Validator.LayDanhSachLoiTTThanhPham(thanhPham));
-
-            if (!boQuaNvl)
+            if (thanhPham == null)
             {
-                errors.AddRange(Validator.LayDanhSachLoiTTNVL(
-                    nvlRows,
-                    tenMay,
-                    congDoan));
+                errors.Add("Không có dữ liệu Thành phẩm.");
+                return errors;
             }
 
-            return errors
+            if (thanhPham.DanhSachSP_ID <= 0)
+                errors.Add("Chưa chọn Thành phẩm hợp lệ (DanhSachSP_ID <= 0).");
+
+            if (string.IsNullOrWhiteSpace(thanhPham.MaBin))
+                errors.Add("MaBin Thành phẩm đang trống.");
+
+            return ChuanHoa(errors);
+        }
+
+        /// <summary>
+        /// Mặc định Lưu tạm phải có ít nhất một NVL. Công đoạn 9 là ngoại lệ
+        /// vì nghiệp vụ hiện tại không sử dụng NVL.
+        /// </summary>
+        public static List<string> LayDanhSachLoiNguyenVatLieu(
+            List<TTNVLRow> nvlRows,
+            CongDoan congDoan)
+        {
+            var errors = new List<string>();
+
+            if (congDoan?.Id == 9)
+                return errors;
+
+            if (nvlRows == null || nvlRows.Count == 0)
+                errors.Add("Chưa có Nguyên vật liệu.");
+
+            return ChuanHoa(errors);
+        }
+
+        private static List<string> ChuanHoa(IEnumerable<string> errors)
+        {
+            return (errors ?? Enumerable.Empty<string>())
                 .Where(x => !string.IsNullOrWhiteSpace(x))
                 .Select(x => x.Trim())
                 .Distinct(StringComparer.OrdinalIgnoreCase)

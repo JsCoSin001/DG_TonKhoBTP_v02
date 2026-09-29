@@ -1445,7 +1445,7 @@ namespace DG_TonKhoBTP_v02.UI
                 Form host = FindForm();
                 if (host == null) return;
 
-                FormSnapshot snapshot = FormSnapshotBuilder.Capture(host);
+                FormSnapshot snapshot = FormSnapshotBuilder.CaptureDraft(host);
                 MergeProductSections(host, snapshot, Stopwatch.StartNew());
 
                 DraftSubmitData data = BuildDraftSubmitData(snapshot, host, waiting);
@@ -1562,8 +1562,43 @@ namespace DG_TonKhoBTP_v02.UI
             { ShowStructureError(waiting, err); return null; }
 
             ThongTinCaLamViec ca = snapshot.GetSection<ThongTinCaLamViec>("UC_TTCaLamViec");
-            List<string> errors = LuuTamValidator.LayDanhSachLoi(tp, rows, ca?.May, _Cd, cd9);
-            if (errors.Count > 0) { ShowValidationError(waiting, "DỮ LIỆU CHƯA HỢP LỆ"); return null; }
+
+            // Lưu tạm chỉ giữ các điều kiện tối thiểu của Thành phẩm.
+            List<string> thanhPhamErrors = LuuTamValidator.LayDanhSachLoiThanhPham(tp);
+            if (thanhPhamErrors.Count > 0)
+            {
+                LogDraftValidationErrors("THÀNH PHẨM", thanhPhamErrors);
+                ShowValidationError(waiting, "Thành phẩm chưa hợp lệ");
+                return null;
+            }
+
+            // Mặc định phải có ít nhất một NVL; công đoạn 9 là ngoại lệ.
+            List<string> nvlErrors = LuuTamValidator.LayDanhSachLoiNguyenVatLieu(rows, _Cd);
+            if (nvlErrors.Count > 0)
+            {
+                LogDraftValidationErrors("NGUYÊN LIỆU", nvlErrors);
+                ShowValidationError(waiting, "Nguyên liệu chưa hợp lệ");
+                return null;
+            }
+
+            // Quan hệ BOM của Lưu tạm được tách riêng hoàn toàn khỏi Lưu chính thức.
+            // Không kiểm số lượng Bin. Nếu có bất thường BOM thì chỉ hỏi người dùng
+            // một lần; chi tiết chỉ ghi Debug để hỗ trợ chẩn đoán.
+            List<string> bomErrors = LuuTamBomValidator.LayDanhSachLoi(tp, rows, _Cd);
+            if (bomErrors.Count > 0)
+            {
+                LogDraftValidationErrors("BOM", bomErrors);
+
+                DialogResult confirm = MessageBox.Show(
+                    "Nguyên liệu chưa hợp lệ.\nBạn có muốn tiếp tục lưu tạm không?",
+                    "XÁC NHẬN LƯU TẠM",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Warning,
+                    MessageBoxDefaultButton.Button2);
+
+                if (confirm != DialogResult.Yes)
+                    return null;
+            }
 
             ApplyHanNoiRules(tp);
             SubmitCongDoanData draftCongDoan = BuildDraftCongDoan(snapshot);
@@ -1588,6 +1623,17 @@ namespace DG_TonKhoBTP_v02.UI
                 ShouldPrintNguyenVatLieu = false
             };
             return data;
+        }
+
+        private static void LogDraftValidationErrors(
+            string groupName,
+            IEnumerable<string> errors)
+        {
+            foreach (string error in errors ?? Enumerable.Empty<string>())
+            {
+                if (!string.IsNullOrWhiteSpace(error))
+                    Debug.WriteLine($"[LƯU TẠM][{groupName}] {error.Trim()}");
+            }
         }
 
         private static SubmitCongDoanData BuildDraftCongDoan(FormSnapshot snapshot)

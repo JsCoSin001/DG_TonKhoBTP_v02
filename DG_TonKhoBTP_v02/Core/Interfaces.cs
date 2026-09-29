@@ -25,6 +25,16 @@ namespace DG_TonKhoBTP_v02.Core
         /// </summary>
         string SectionName { get; }
     }
+    /// <summary>
+    /// Hợp đồng lấy dữ liệu dành riêng cho Lưu tạm.
+    /// Dùng để thu thập trạng thái hiện tại mà không kích hoạt validation
+    /// của luồng Lưu chính thức.
+    /// </summary>
+    public interface IDraftFormSection
+    {
+        object GetDraftData();
+    }
+
     public interface IDataReceiver
     {
         void LoadData(DataTable dt, int kieuEdit);

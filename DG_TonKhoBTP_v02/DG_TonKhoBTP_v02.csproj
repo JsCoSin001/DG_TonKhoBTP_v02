@@ -179,6 +179,7 @@
     <Compile Include="Helper\DataGridViewUtils.cs" />
     <Compile Include="Helper\KiemTraBomCongDoan0Helper.cs" />
     <Compile Include="Helper\LuuTamValidator.cs" />
+    <Compile Include="Helper\LuuTamBomValidator.cs" />
     <Compile Include="Helper\QrCodeHelper.cs" />
     <Compile Include="Helper\NvlNhapTayPolicy.cs" />
     <Compile Include="Helper\Reuseable\AutoCompleteDropDown.cs">

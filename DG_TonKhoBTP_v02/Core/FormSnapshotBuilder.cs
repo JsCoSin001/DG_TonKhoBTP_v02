@@ -16,14 +16,33 @@ namespace DG_TonKhoBTP_v02.Core
         /// </summary>
         public static FormSnapshot Capture(Form hostForm)
         {
+            return CaptureInternal(hostForm, useDraftData: false);
+        }
+
+        /// <summary>
+        /// Thu thập dữ liệu dành riêng cho Lưu tạm.
+        /// Section nào hỗ trợ IDraftFormSection sẽ dùng GetDraftData();
+        /// các section còn lại giữ nguyên GetData() như hiện tại.
+        /// </summary>
+        public static FormSnapshot CaptureDraft(Form hostForm)
+        {
+            return CaptureInternal(hostForm, useDraftData: true);
+        }
+
+        private static FormSnapshot CaptureInternal(Form hostForm, bool useDraftData)
+        {
             var snap = new FormSnapshot();
 
             foreach (var section in EnumerateSections(hostForm))
             {
                 try
                 {
-                    var data = section.GetData(); 
-                                                 
+                    object data;
+                    if (useDraftData && section is IDraftFormSection draftSection)
+                        data = draftSection.GetDraftData();
+                    else
+                        data = section.GetData();
+
                     snap.Sections[section.SectionName] = data;
                 }
                 catch (System.Exception ex)
@@ -31,7 +50,7 @@ namespace DG_TonKhoBTP_v02.Core
                     System.Console.WriteLine($"Lỗi khi thu thập dữ liệu từ section: {section.SectionName}");
                     throw new System.InvalidOperationException(
                         $"Không thể lấy dữ liệu từ {section.SectionName}.", ex);
-                }                
+                }
             }
 
             return snap;

@@ -23,7 +23,7 @@ using CoreHelper = DG_TonKhoBTP_v02.Helper.Helper;
 
 namespace DG_TonKhoBTP_v02.UI
 {
-    public partial class UC_TTNVL : UserControl, IFormSection, IDataReceiver
+    public partial class UC_TTNVL : UserControl, IFormSection, IDraftFormSection, IDataReceiver
     {
         private readonly BindingList<TTNVLRow> _nvlRows = new BindingList<TTNVLRow>();
         private readonly BindingSource _nvlSource = new BindingSource();
@@ -704,6 +704,22 @@ namespace DG_TonKhoBTP_v02.UI
             return _nvlRows.ToList();
         }
 
+        /// <summary>
+        /// Lấy dữ liệu thô dành riêng cho Lưu tạm.
+        /// Không chạy ValidateRequiredVisibleInputColumns(); validation đầy đủ
+        /// vẫn được giữ nguyên trong GetData() cho Lưu chính thức.
+        /// </summary>
+        public object GetDraftData()
+        {
+            dtgTTNVL.EndEdit();
+            _nvlSource.EndEdit();
+
+            if (_CD?.Id == 9)
+                return new List<TTNVLRow>();
+
+            return _nvlRows.ToList();
+        }
+
         private bool ValidateRequiredVisibleInputColumns()
         {
             string[] requiredColumns =
@@ -837,17 +853,10 @@ namespace DG_TonKhoBTP_v02.UI
                     return;
                 }
 
-                if (thanhPham.DonVi == "M" && thanhPham.ChieuDai == 0m)
-                {
-                    FrmWaiting.ShowGifAlert("Vui lòng nhập Chiều dài trước khi quét mã QR.");
-                    return;
-                }
-
-                if (thanhPham.DonVi == "KG" && thanhPham.KhoiLuong == 0m)
-                {
-                    FrmWaiting.ShowGifAlert("Vui lòng nhập Khối lượng trước khi quét mã QR.");
-                    return;
-                }
+                // Lưu tạm cho phép nhập/quét NVL trước khi hoàn thiện KL/CD Thành phẩm.
+                // Không chặn quét tại đây; việc tính KL/CD còn lại sẽ chỉ chạy khi
+                // Thành phẩm đã có số liệu cần thiết. Lưu chính thức vẫn validate
+                // đầy đủ Thành phẩm bằng Validator hiện tại.
 
                 string keyword = cbxTimKiem.Text?.Trim();
                 if (string.IsNullOrWhiteSpace(keyword))
@@ -1058,6 +1067,20 @@ namespace DG_TonKhoBTP_v02.UI
                 }
 
                 _dangNhapTayToanBang = false;
+
+                // Với các công đoạn phải tính KL/CD còn lại dựa trên số liệu Thành phẩm,
+                // nếu KL/CD Thành phẩm chưa được nhập thì giữ nguyên giá trị tồn hiện tại
+                // vừa đọc từ DB. Không dùng giá trị 0 để tính giả mức tiêu hao.
+                // Khi người dùng nhập KL/CD sau đó, OnThanhPhamSoLieuChanged() sẽ gọi lại
+                // hàm này và phép tính sẽ được thực hiện theo logic hiện có.
+                if (!CoDuSoLieuThanhPhamDeTinhGiaTriConLai(thanhPham))
+                {
+                    ApDungQuyenNhapTayChoTatCaDong();
+                    RefreshBomRowStyles();
+                    dtgTTNVL.Refresh();
+                    return;
+                }
+
                 TinhGiaTriConLaiTheoCongDoan(thanhPham);
                 LamMoiSauKhiCapNhatGiaTriConLai();
             }
@@ -1065,6 +1088,32 @@ namespace DG_TonKhoBTP_v02.UI
             {
                 _dangCapNhatGiaTriConLai = false;
             }
+        }
+
+
+        /// <summary>
+        /// Xác định đã có đủ số liệu Thành phẩm để chạy công thức tính KL/CD còn lại hay chưa.
+        /// CD1 và CD10 có quy tắc còn lại độc lập với KL/CD Thành phẩm nên vẫn xử lý như cũ.
+        /// Các công đoạn còn lại giữ đúng điều kiện số liệu mà luồng quét trước đây yêu cầu:
+        /// Thành phẩm đơn vị M cần Chiều dài; đơn vị KG cần Khối lượng.
+        /// </summary>
+        private bool CoDuSoLieuThanhPhamDeTinhGiaTriConLai(ThanhPhamData thanhPham)
+        {
+            if (_CD == null || thanhPham == null)
+                return false;
+
+            if (_CD.Id == 1 || _CD.Id == 10)
+                return true;
+
+            string donVi = ChuanHoaDonVi(thanhPham.DonVi);
+
+            if (donVi == "M")
+                return thanhPham.ChieuDai > 0m;
+
+            if (donVi == "KG")
+                return thanhPham.KhoiLuong > 0m;
+
+            return false;
         }
 
 

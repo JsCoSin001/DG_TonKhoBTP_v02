@@ -2696,12 +2696,12 @@ namespace DG_TonKhoBTP_v02.Database
 
             string sqlJoin = CoreHelper.TaoSQL_TaoKetNoiCacBang();
 
-            string sqlDk1 = " WHERE strftime('%Y-%m', tclv.NgayKetThuc) = strftime('%Y-%m', @para) ";
+            string sqlDk1 = " WHERE strftime('%Y-%m', tclv.NgayBatDau) = strftime('%Y-%m', @para) ";
 
             string sqlDk2 = " AND ttp.CongDoan = " + cd.Id;
 
             // 6) ORDER BY
-            string sqlOrder = " ORDER BY tclv.NgayKetThuc DESC, ttp.id DESC;";
+            string sqlOrder = " ORDER BY tclv.NgayBatDau DESC, ttp.id DESC;";
 
             // 7) Kết hợp hoàn chỉnh
             string query = sqlSelect + " ," + sqlLayChiTietCD + " ," + sqlTenNVL + sqlJoin + sqlDk1 + sqlDk2 + sqlOrder;

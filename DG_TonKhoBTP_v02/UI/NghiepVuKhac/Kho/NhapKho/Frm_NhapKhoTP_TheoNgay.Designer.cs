@@ -136,7 +136,7 @@
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(144, 18);
             this.label2.TabIndex = 0;
-            this.label2.Text = "Ngày bắt đầu";
+            this.label2.Text = "Ngày bắt đầu SX";
             this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // label3
@@ -148,7 +148,7 @@
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(144, 18);
             this.label3.TabIndex = 0;
-            this.label3.Text = "Ngày kết thúc";
+            this.label3.Text = "Ngày kết thúc SX";
             this.label3.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // label4

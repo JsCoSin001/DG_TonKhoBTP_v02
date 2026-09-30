@@ -40,6 +40,9 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
         public Frm_NhapKhoTP_TheoNgay()
         {
             InitializeComponent();
+
+            StartPosition = FormStartPosition.CenterScreen;
+
             KhoiTaoGrid();
             GanSuKien();
             ResetMacDinh();
@@ -575,6 +578,5 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
             public string Error { get; set; } = string.Empty;
         }
 
-       
     }
 }

@@ -15,6 +15,7 @@ using System.Data.SQLite;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Runtime.Remoting.Messaging;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -1542,7 +1543,7 @@ namespace DG_TonKhoBTP_v02.UI
                     }
                 }
 
-                FrmWaiting.ShowGifAlert("LƯU TẠM THÀNH CÔNG.");
+                FrmWaiting.ShowGifAlert(message: "LƯU TẠM THÀNH CÔNG.", myIcon:EnumStore.Icon.Success);
                 _onSaveSuccess?.Invoke();
             }
             catch (Exception ex)

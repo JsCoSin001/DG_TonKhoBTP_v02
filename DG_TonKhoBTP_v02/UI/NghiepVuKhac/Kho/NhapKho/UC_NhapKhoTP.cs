@@ -9,9 +9,7 @@ using System.Data;
 using System.Drawing;
 using System.Globalization;
 using System.Linq;
-using System.Reflection;
 using System.Windows.Forms;
-using CoreHelper = DG_TonKhoBTP_v02.Helper.Helper;
 using FontStyle = System.Drawing.FontStyle;
 
 namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
@@ -19,15 +17,12 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
     public partial class UC_NhapKhoTP : UserControl
     {
         private ComboBoxSearchHelper _maBinSearchHelper;
-
         private int _editingRowIndex = -1;
-
         private long _editingIdNhapKho = 0;
-
         private long? _selectedTTThanhPhamID = null;
-
         private List<ThongTinCuonDay> thongTinDayNhapKho = new List<ThongTinCuonDay>();
         private bool _ttCuonDayChanged = false;
+        private bool _suppressFilterEvents = false;
 
         private sealed class ThongTinCuonDayGridTag
         {
@@ -42,14 +37,16 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
             InitGridFont();
 
             // dataGridView1 chỉ hiển thị thông tin Cuộn/Lô.
-            // Việc chỉnh sửa vẫn thực hiện qua Frm_DLCuon.
+            // Chỉnh sửa cuộn/lô vẫn thực hiện qua Frm_DLCuon.
             dataGridView1.ReadOnly = true;
+            grvDSNhapKho.ReadOnly = true;
 
             grvDSNhapKho.CellDoubleClick += GrvDSNhapKho_CellDoubleClick;
             btnNhapKhoTheoNgay.Click += btnNhapKhoTheoNgay_Click;
-
+            checkBox1.CheckedChanged += checkBox1_CheckedChanged;
+            dtNgay.ValueChanged += dtNgay_ValueChanged;
+            cbxMaBin.KeyDown += cbxMaBin_KeyDown;
         }
-
 
         private void InitMaBinSearch()
         {
@@ -58,10 +55,11 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
                 queryFunc: NhapKho_DB.TimKiemMaBinAsync
             );
             _maBinSearchHelper.DisplayColumn = "MaBin";
+            _maBinSearchHelper.SelectedTextBehavior = ComboBoxSelectedTextBehavior.FillDisplayText;
+            _maBinSearchHelper.CanSearch = _ => !checkBox1.Checked;
             _maBinSearchHelper.ItemSelected += OnMaBinSelected;
             _maBinSearchHelper.Cleared += OnMaBinCleared;
         }
-
 
         private static void LayDuLieuTTLoChoFrm(
             IEnumerable<ThongTinCuonDay> data,
@@ -107,32 +105,6 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
             return null;
         }
 
-        private void LoadThongTinCuonDayTuCongDoan()
-        {
-            thongTinDayNhapKho = new List<ThongTinCuonDay>();
-            _ttCuonDayChanged = false;
-            LoadThongTinDayVaoGrid();
-
-            if (!_selectedTTThanhPhamID.HasValue || _selectedTTThanhPhamID.Value <= 0)
-                return;
-
-            try
-            {
-                // Chỉ hiển thị phần TTCuonDay_CD chưa được nhập kho.
-                // Số cuộn còn lại = số cuộn nguồn - tổng số cuộn đã có trong TTCuonDay.
-                thongTinDayNhapKho = NhapKho_DB.LayTTCuonDayConLaiTheoTTThanhPhamId(_selectedTTThanhPhamID.Value)
-                    ?? new List<ThongTinCuonDay>();
-
-                LoadThongTinDayVaoGrid();
-            }
-            catch (Exception ex)
-            {
-                thongTinDayNhapKho = new List<ThongTinCuonDay>();
-                LoadThongTinDayVaoGrid();
-                FrmWaiting.ShowGifAlert($"Lỗi khi tải thông tin cuộn/lô từ công đoạn:\n{ex.Message}");
-            }
-        }
-
         private void LoadThongTinDayVaoGrid()
         {
             dataGridView1.Rows.Clear();
@@ -175,63 +147,6 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
                 row.Cells["cl_GhiChu"].Value = item.Ghichu ?? string.Empty;
             }
         }
-
-        private bool CoTTLoKhongHopLe()
-        {
-            return thongTinDayNhapKho != null
-                && thongTinDayNhapKho.Any(x => x.TTLo_ID.HasValue && !x.TTLoHopLe);
-        }
-
-        private bool TryBuildDanhSachNhapKhoTuGrid(out List<ThongTinCuonDay> result, out string error)
-        {
-            result = new List<ThongTinCuonDay>();
-            error = string.Empty;
-
-            foreach (DataGridViewRow row in dataGridView1.Rows)
-            {
-                if (row.IsNewRow) continue;
-
-                if (!TryGetGridSourceId(row, out long sourceId))
-                {
-                    error = "Có dòng cuộn/lô không xác định được TTCuonDay_CD_ID nguồn.";
-                    return false;
-                }
-
-                if (!int.TryParse(row.Cells["col_SoLuong"].Value?.ToString(), out int soCuon) || soCuon <= 0)
-                {
-                    error = $"TTCuonDay_CD id={sourceId}: số cuộn không hợp lệ.";
-                    return false;
-                }
-
-                if (!int.TryParse(row.Cells["col_ChieuDai"].Value?.ToString(), out int chieuDai1Cuon) || chieuDai1Cuon < 0)
-                {
-                    error = $"TTCuonDay_CD id={sourceId}: chiều dài 1 cuộn/lô không hợp lệ.";
-                    return false;
-                }
-
-                int? soDau = int.TryParse(row.Cells["col_SoDau"].Value?.ToString(), out int parsedSoDau)
-                    ? parsedSoDau
-                    : (int?)null;
-                int? soCuoi = int.TryParse(row.Cells["col_SoCuoi"].Value?.ToString(), out int parsedSoCuoi)
-                    ? parsedSoCuoi
-                    : (int?)null;
-
-                result.Add(new ThongTinCuonDay
-                {
-                    TTCuonDay_ID = GetGridTTCuonDayId(row),
-                    TTCuonDay_CD_ID = sourceId,
-                    SoCuon = soCuon,
-                    // Trong luồng nhập kho, TongChieuDai mang nghĩa chiều dài của 1 cuộn/lô.
-                    TongChieuDai = chieuDai1Cuon,
-                    SoDau = soDau,
-                    soCuoi = soCuoi,
-                    Ghichu = row.Cells["cl_GhiChu"].Value?.ToString() ?? string.Empty
-                });
-            }
-
-            return true;
-        }
-
 
         private bool TryLayThongTinCuonDayHienTaiTuGrid(out List<ThongTinCuonDay> result, out string error)
         {
@@ -318,196 +233,250 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
 
         private void OnMaBinSelected(DataRowView row)
         {
-            cbxMaBin.Text = row["MaBin"]?.ToString() ?? string.Empty;
-            tbTenSP.Text = row["Ten"]?.ToString() ?? string.Empty;
-            tbMaBin.Text = row["MaBin"]?.ToString() ?? string.Empty;
+            string maBin = row?["MaBin"]?.ToString()?.Trim() ?? string.Empty;
+            if (string.IsNullOrWhiteSpace(maBin)) return;
 
-            // Mỗi lần btnNhapKho là một lần nhập mới độc lập.
-            // Ghi chú của lần nhập không kế thừa từ TTThanhPham hay TTNhapKhoTP cũ.
-            rtbGhiChu.Text = string.Empty;
-            GanNguoiLamTuUserContext();
+            _suppressFilterEvents = true;
+            try
+            {
+                if (checkBox1.Checked)
+                    checkBox1.Checked = false;
+                dtNgay.Enabled = false;
+                cbxMaBin.Text = maBin;
+            }
+            finally
+            {
+                _suppressFilterEvents = false;
+            }
 
-            _selectedTTThanhPhamID = long.TryParse(row["TTThanhPham_ID"]?.ToString(), out long id)
-                            ? id : (long?)null;
-
-            if (decimal.TryParse(row["ChieuDaiSau"]?.ToString(), out decimal soMet))
-                nbSoMet.Value = Math.Min(soMet, nbSoMet.Maximum);
-            else
-                nbSoMet.Value = 0;
-
-            // Không tải/preload TTNhapKhoTP cũ. Chỉ lấy dữ liệu cuộn/lô còn lại của MaBin.
-            LoadThongTinCuonDayTuCongDoan();
-
-            nbSoMet.Focus();
-            nbSoMet.Select(0, int.MaxValue);
+            TimKiemTheoMaBin(maBin);
         }
 
         private void OnMaBinCleared()
         {
-            tbTenSP.Text = string.Empty;
-            tbMaBin.Text = string.Empty;
-            rtbGhiChu.Text = string.Empty;
-            nbSoMet.Value = 0;
-            _selectedTTThanhPhamID = null;
-            GanNguoiLamTuUserContext();
-            thongTinDayNhapKho = new List<ThongTinCuonDay>();
-            LoadThongTinDayVaoGrid();
-            _ttCuonDayChanged = false;
-        }
-
-        
-        private bool ValidateInputs()
-        {
-            bool valid = true;
-            ResetValidationColors();
-
-            // SoBB là tùy chọn ở nghiệp vụ mới.
-            if (string.IsNullOrWhiteSpace(cbxMaBin.Text)) { MarkError(cbxMaBin); valid = false; }
-            if (string.IsNullOrWhiteSpace(tbTenSP.Text)) { MarkError(tbTenSP); valid = false; }
-            if (string.IsNullOrWhiteSpace(tbMaBin.Text)) { MarkError(tbMaBin); valid = false; }
-            if (nbSoMet.Value <= 0) { MarkError(nbSoMet); valid = false; }
-
-            if (string.IsNullOrWhiteSpace(tbNguoiLam.Text))
-            {
-                MarkError(tbNguoiLam);
-                valid = false;
-            }
-
-            if (!_selectedTTThanhPhamID.HasValue || _selectedTTThanhPhamID.Value <= 0)
-            {
-                MarkError(cbxMaBin);
-                valid = false;
-            }
-
-            if (CoTTLoKhongHopLe())
-            {
-                FrmWaiting.ShowGifAlert("Thông tin cuộn/lô có TTLo_ID không còn tồn tại. Vui lòng mở Thông tin đóng gói và chọn lại loại lô hợp lệ.");
-                return false;
-            }
-
-            if (!TryBuildDanhSachNhapKhoTuGrid(out List<ThongTinCuonDay> dsGrid, out string gridError)
-                || dsGrid.Count == 0)
-            {
-                if (!string.IsNullOrWhiteSpace(gridError))
-                    FrmWaiting.ShowGifAlert(gridError);
-                else
-                    FrmWaiting.ShowGifAlert("Chưa có cuộn/lô còn lại để nhập kho.");
-                return false;
-            }
-
-            decimal tongChieuDaiGrid = dsGrid.Sum(x => (decimal)x.SoCuon * x.TongChieuDai);
-            if (tongChieuDaiGrid > nbSoMet.Value)
-            {
-                FrmWaiting.ShowGifAlert(
-                    $"Tổng chiều dài trong danh sách ({tongChieuDaiGrid:G}) lớn hơn chiều dài còn lại ({nbSoMet.Value:G}).");
-                return false;
-            }
-
-            if (!valid)
-                FrmWaiting.ShowGifAlert("Kiểm tra dữ liệu tại ô được tô đỏ.");
-
-            return valid;
-        }
-
-        private static void MarkError(Control ctl) => ctl.BackColor = Color.MistyRose;
-
-        private void ResetValidationColors()
-        {
-            Color n = SystemColors.Window;
-            nbSoBB.BackColor = n;
-            cbxMaBin.BackColor = n;
-            tbTenSP.BackColor = n;
-            tbMaBin.BackColor = n;
-            nbSoMet.BackColor = n;
-            rtbGhiChu.BackColor = n;
-            tbNguoiLam.BackColor = n;
-        }
-
-        
-
-        private void BtnNhapKho_Click(object sender, EventArgs e)
-        {
-            if (!UserContext.IsAuthenticated
-                || (!UserContext.HasRole(RoleNames.Wh) && !UserContext.HasRole(RoleNames.Admin)))
-            {
-                FrmWaiting.ShowGifAlert("Bạn cần cấp quyền để thực hiện yêu cầu này.");
+            if (_suppressFilterEvents || checkBox1.Checked)
                 return;
-            }
 
-            if (!ValidateInputs()) return;
+            ClearGridAndEditingDetails();
+        }
 
-            if (!TryBuildDanhSachNhapKhoTuGrid(out List<ThongTinCuonDay> dsCuon, out string gridError))
-            {
-                FrmWaiting.ShowGifAlert(gridError);
+        private void cbxMaBin_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Handled || e.KeyCode != Keys.Enter)
                 return;
-            }
 
+            string maBin = cbxMaBin.Text?.Trim() ?? string.Empty;
+            if (string.IsNullOrWhiteSpace(maBin))
+                return;
+
+            e.Handled = true;
+            e.SuppressKeyPress = true;
+
+            _suppressFilterEvents = true;
             try
             {
-                NhapKho_Model model = new NhapKho_Model
-                {
-                    Ngay = dtNgay.Value.ToString("yyyy-MM-dd"),
-                    SoBB = (int)nbSoBB.Value,
-                    TTThanhPham_ID = _selectedTTThanhPhamID.Value,
-                    TenSP = tbTenSP.Text.Trim(),
-                    // SoMet là snapshot TTThanhPham.ChieuDaiSau tại thời điểm người dùng chọn MaBin.
-                    SoMet = (double)nbSoMet.Value,
-                    GhiChu = rtbGhiChu.Text.Trim(),
-                    NguoiLam = tbNguoiLam.Text.Trim()
-                };
+                if (checkBox1.Checked)
+                    checkBox1.Checked = false;
+                dtNgay.Enabled = false;
+            }
+            finally
+            {
+                _suppressFilterEvents = false;
+            }
 
-                long headerId = NhapKho_DB.NhapKho(model, dsCuon);
+            TimKiemTheoMaBin(maBin);
+        }
 
-                // Theo quyết định đã chốt: sau COMMIT đọc lại dữ liệu từ DB, không tự dựng row từ object vừa lưu.
-                LoadDongNhapKhoTuDb(headerId);
+        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        {
+            if (_suppressFilterEvents) return;
 
-                ResetForm();
+            dtNgay.Enabled = checkBox1.Checked;
+
+            if (checkBox1.Checked)
+            {
+                TimKiemTheoNgay();
+                return;
+            }
+
+            string maBin = cbxMaBin.Text?.Trim() ?? string.Empty;
+            if (!string.IsNullOrWhiteSpace(maBin))
+                TimKiemTheoMaBin(maBin);
+            else
+                ClearGridAndEditingDetails();
+        }
+
+        private void dtNgay_ValueChanged(object sender, EventArgs e)
+        {
+            if (_suppressFilterEvents || !checkBox1.Checked)
+                return;
+
+            TimKiemTheoNgay();
+        }
+
+        private void TimKiemTheoNgay()
+        {
+            try
+            {
+                DataTable dt = NhapKho_DB.TimKiemNhapKhoTheoNgay(dtNgay.Value.Date);
+                LoadNhapKhoVaoGrid(dt);
+                // Theo quyết định đã chốt: tìm theo ngày chỉ hiển thị danh sách.
+                ClearEditingDetails();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Lỗi khi lưu nhập kho:\n{ex.Message}",
+                MessageBox.Show($"Lỗi khi tìm dữ liệu nhập kho theo ngày:\n{ex.Message}",
                     "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-
-        private void LoadDongNhapKhoTuDb(long headerId)
+        private void TimKiemTheoMaBin(string maBin)
         {
-            DataTable dt = NhapKho_DB.LayTTNhapKhoTPTheoId(headerId);
-            if (dt == null || dt.Rows.Count == 0) return;
-
-            DataRow dr = dt.Rows[0];
-            DataGridViewRow target = null;
-            foreach (DataGridViewRow row in grvDSNhapKho.Rows)
+            try
             {
-                if (row.IsNewRow) continue;
-                if (long.TryParse(row.Cells["id_NhapKho"].Value?.ToString(), out long existingId) && existingId == headerId)
+                DataTable dt = NhapKho_DB.TimKiemNhapKhoTheoMaBin(maBin);
+                LoadNhapKhoVaoGrid(dt);
+
+                // Nếu MaBin chỉ có đúng một lần nhập thì hiển thị luôn chi tiết.
+                // Nếu có nhiều lần nhập thì chỉ hiển thị grvDSNhapKho và chờ double-click.
+                if (dt.Rows.Count == 1
+                    && long.TryParse(GetDbText(dt.Rows[0], "id_NhapKho"), out long idNhapKho)
+                    && idNhapKho > 0)
                 {
-                    target = row;
-                    break;
+                    LoadChiTietNhapKho(idNhapKho, TimRowIndexTheoId(idNhapKho));
+                }
+                else
+                {
+                    ClearEditingDetails();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi khi tìm dữ liệu nhập kho theo MaBin:\n{ex.Message}",
+                    "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void RefreshCurrentFilter()
+        {
+            if (checkBox1.Checked)
+            {
+                TimKiemTheoNgay();
+                return;
+            }
+
+            string maBin = cbxMaBin.Text?.Trim() ?? string.Empty;
+            if (!string.IsNullOrWhiteSpace(maBin))
+                TimKiemTheoMaBin(maBin);
+            else
+                ClearGridAndEditingDetails();
+        }
+
+        private void LoadNhapKhoVaoGrid(DataTable dt)
+        {
+            if (grvDSNhapKho.DataSource != null)
+                grvDSNhapKho.DataSource = null;
+
+            grvDSNhapKho.Rows.Clear();
+
+            if (dt != null)
+            {
+                foreach (DataRow dr in dt.Rows)
+                {
+                    if (!long.TryParse(GetDbText(dr, "id_NhapKho"), out long idNhapKho) || idNhapKho <= 0)
+                        continue;
+
+                    int rowIndex = grvDSNhapKho.Rows.Add();
+                    DataGridViewRow row = grvDSNhapKho.Rows[rowIndex];
+                    row.Height = 35;
+                    row.Cells["id_NhapKho"].Value = idNhapKho;
+                    row.Cells["TTThanhPham_ID"].Value = GetDbText(dr, "TTThanhPham_ID");
+                    row.Cells["ngay"].Value = GetDbText(dr, "ngay");
+                    row.Cells["nguoiLam"].Value = GetDbText(dr, "nguoiLam");
+                    row.Cells["tenSP"].Value = GetDbText(dr, "tenSP");
+                    row.Cells["soMet"].Value = GetDbText(dr, "soMet");
+                    row.Cells["maBin2"].Value = GetDbText(dr, "maBin2");
+                    row.Cells["ghiChu"].Value = GetDbText(dr, "ghiChu");
+                    row.Cells["thongSo"].Value = TaoChuoiDSCuonLo(NhapKho_DB.LayThongTinCuonDay(idNhapKho));
                 }
             }
 
-            if (target == null)
-            {
-                int rowIndex = grvDSNhapKho.Rows.Add();
-                target = grvDSNhapKho.Rows[rowIndex];
-                target.Height = 35;
-            }
-
-            target.Cells["id_NhapKho"].Value = GetDbText(dr, "id_NhapKho");
-            target.Cells["TTThanhPham_ID"].Value = GetDbText(dr, "TTThanhPham_ID");
-            target.Cells["ngay"].Value = GetDbText(dr, "ngay");
-            target.Cells["nguoiLam"].Value = GetDbText(dr, "nguoiLam");
-            target.Cells["tenSP"].Value = GetDbText(dr, "tenSP");
-            target.Cells["soMet"].Value = GetDbText(dr, "soMet");
-            target.Cells["maBin2"].Value = GetDbText(dr, "maBin2");
-            target.Cells["ghiChu"].Value = GetDbText(dr, "ghiChu");
-            target.Cells["thongSo"].Value = TaoChuoiDSCuonLo(NhapKho_DB.LayThongTinCuonDay(headerId));
-
             grvDSNhapKho.ClearSelection();
-            target.Selected = true;
-            if (target.Index >= 0) grvDSNhapKho.FirstDisplayedScrollingRowIndex = target.Index;
+            if (grvDSNhapKho.Rows.Count > 0)
+                grvDSNhapKho.FirstDisplayedScrollingRowIndex = 0;
+
+            _editingRowIndex = -1;
+            _editingIdNhapKho = 0;
+            SetEditMode(false);
+        }
+
+        private int TimRowIndexTheoId(long idNhapKho)
+        {
+            foreach (DataGridViewRow row in grvDSNhapKho.Rows)
+            {
+                if (row.IsNewRow) continue;
+                if (long.TryParse(row.Cells["id_NhapKho"].Value?.ToString(), out long currentId)
+                    && currentId == idNhapKho)
+                    return row.Index;
+            }
+            return -1;
+        }
+
+        private void LoadChiTietNhapKho(long idNhapKho, int rowIndex)
+        {
+            if (idNhapKho <= 0) return;
+
+            try
+            {
+                DataTable dt = NhapKho_DB.LayTTNhapKhoTPTheoId(idNhapKho);
+                if (dt == null || dt.Rows.Count == 0)
+                {
+                    FrmWaiting.ShowGifAlert("Dữ liệu nhập kho không còn tồn tại. Vui lòng tìm lại.");
+                    RefreshCurrentFilter();
+                    return;
+                }
+
+                DataRow header = dt.Rows[0];
+                _editingIdNhapKho = idNhapKho;
+                _editingRowIndex = rowIndex;
+                _selectedTTThanhPhamID = long.TryParse(GetDbText(header, "TTThanhPham_ID"), out long tpId)
+                    ? tpId
+                    : (long?)null;
+
+                // dtNgay và cbxMaBin chỉ là bộ lọc tìm kiếm, tuyệt đối không nạp dữ liệu phiếu vào hai control này.
+                tbTenSP.Text = GetDbText(header, "tenSP");
+                tbMaBin.Text = GetDbText(header, "maBin2");
+
+                if (decimal.TryParse(GetDbText(header, "soMet"), NumberStyles.Any,
+                    CultureInfo.InvariantCulture, out decimal soMetVal))
+                    nbSoMet.Value = Math.Min(Math.Max(soMetVal, nbSoMet.Minimum), nbSoMet.Maximum);
+                else
+                    nbSoMet.Value = 0;
+
+                tbNguoiLam.Text = GetDbText(header, "nguoiLam");
+                tbNguoiLam.ReadOnly = true;
+                rtbGhiChu.Text = GetDbText(header, "ghiChu");
+
+                thongTinDayNhapKho = NhapKho_DB.LayThongTinCuonDay(idNhapKho)
+                    ?? new List<ThongTinCuonDay>();
+                LoadThongTinDayVaoGrid();
+                _ttCuonDayChanged = false;
+
+                SetEditMode(true);
+
+                if (rowIndex >= 0 && rowIndex < grvDSNhapKho.Rows.Count)
+                {
+                    grvDSNhapKho.ClearSelection();
+                    grvDSNhapKho.Rows[rowIndex].Selected = true;
+                    grvDSNhapKho.FirstDisplayedScrollingRowIndex = rowIndex;
+                }
+            }
+            catch (Exception ex)
+            {
+                ClearEditingDetails();
+                MessageBox.Show($"Lỗi khi tải dữ liệu nhập kho:\n{ex.Message}",
+                    "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private static string TaoChuoiDSCuonLo(IEnumerable<ThongTinCuonDay> dsCuon)
@@ -533,19 +502,16 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
             return string.Join(" + ", parts);
         }
 
-
         private void btnDelete_Click(object sender, EventArgs e)
         {
             if (!UserContext.IsAuthenticated
                 || (!UserContext.HasRole(RoleNames.Wh) && !UserContext.HasRole(RoleNames.Admin)))
             {
-                FrmWaiting.ShowGifAlert($"Bạn cần cấp quyền để thực hiện yêu cầu này.");
+                FrmWaiting.ShowGifAlert("Bạn cần cấp quyền để thực hiện yêu cầu này.");
                 return;
             }
 
-            // 1 row grvDSNhapKho = 1 TTNhapKhoTP.
-            // Xoá là xoá cả lần nhập cùng các TTCuonDay trực thuộc.
-            if (_editingRowIndex < 0 || _editingIdNhapKho <= 0)
+            if (_editingIdNhapKho <= 0)
             {
                 FrmWaiting.ShowGifAlert("Vui lòng chọn dòng cần xoá.");
                 return;
@@ -556,24 +522,23 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
                     "Xác nhận xoá",
                     MessageBoxButtons.YesNo,
                     MessageBoxIcon.Warning) != DialogResult.Yes)
-            {
                 return;
-            }
 
             try
             {
-                // DB layer tự đọc lại dữ liệu hiện tại, kiểm tra downstream và thực hiện transaction.
-                // Không dùng các snapshot TTThanhPham_ID / soMet trên UI để quyết định xoá.
-                NhapKho_DB.XoaMotDong(_editingIdNhapKho);
+                // Giữ nguyên nghiệp vụ hiện tại: DB layer tự kiểm tra downstream,
+                // xoá TTNhapKhoTP/TTCuonDay và hoàn trả ChieuDaiSau cho TTThanhPham.
+                long idDaXoa = _editingIdNhapKho;
+                NhapKho_DB.XoaMotDong(idDaXoa);
 
-                // Chỉ cập nhật UI sau khi transaction DB đã COMMIT thành công.
-                grvDSNhapKho.Rows.RemoveAt(_editingRowIndex);
-                ResetForm();
+                int rowIndex = TimRowIndexTheoId(idDaXoa);
+                if (rowIndex >= 0 && rowIndex < grvDSNhapKho.Rows.Count)
+                    grvDSNhapKho.Rows.RemoveAt(rowIndex);
+
+                ClearEditingDetails();
             }
             catch (InvalidOperationException ex)
             {
-                // Bao gồm rule nghiệp vụ:
-                // "Không thể xoá do đã có lịch sử cắt dây/xuất kho."
                 FrmWaiting.ShowGifAlert(ex.Message);
             }
             catch (Exception ex)
@@ -588,80 +553,40 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
             if (!UserContext.IsAuthenticated
                 || (!UserContext.HasRole(RoleNames.Wh) && !UserContext.HasRole(RoleNames.Admin)))
             {
-                FrmWaiting.ShowGifAlert($"Bạn cần cấp quyền để thực hiện yêu cầu này.");
-                return;
-            }
-
-            if (_editingRowIndex < 0 || _editingRowIndex >= grvDSNhapKho.Rows.Count)
-            {
-                MessageBox.Show("Không có dòng nào được chọn để sửa.",
-                    "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                FrmWaiting.ShowGifAlert("Bạn cần cấp quyền để thực hiện yêu cầu này.");
                 return;
             }
 
             if (_editingIdNhapKho <= 0)
             {
-                MessageBox.Show("Dòng này chưa được lưu vào cơ sở dữ liệu, không thể cập nhật.",
-                    "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Không có lần nhập kho nào được chọn để sửa.",
+                    "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
             try
-            {                
-
-                DataGridViewRow editingRow = grvDSNhapKho.Rows[_editingRowIndex];
-
-                long ttThanhPhamIdCu = long.TryParse(
-                    editingRow.Cells["TTThanhPham_ID"].Value?.ToString(),
-                    out long cuId)
-                    ? cuId
-                    : 0;
-
-                double soMetCu = double.TryParse(
-                    editingRow.Cells["soMet"].Value?.ToString(),
-                    System.Globalization.NumberStyles.Any,
-                    System.Globalization.CultureInfo.InvariantCulture,
-                    out double cuMet)
-                    ? cuMet
-                    : 0;
-
-                if (ttThanhPhamIdCu <= 0)
-                {
-                    MessageBox.Show("Không tìm thấy TTThanhPham_ID cũ để cập nhật.",
-                        "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
-                }
-
-                NhapKho_Model model = new NhapKho_Model
-                {
-                    Id = _editingIdNhapKho,
-                    Ngay = dtNgay.Value.ToString("yyyy-MM-dd"),
-                    SoBB = (int)nbSoBB.Value,
-                    TTThanhPham_ID = _selectedTTThanhPhamID.HasValue
-                        ? _selectedTTThanhPhamID.Value
-                        : ttThanhPhamIdCu,
-                    TenSP = tbTenSP.Text.Trim(),
-                    SoMet = (double)nbSoMet.Value,
-
-                    GhiChu = rtbGhiChu.Text.Trim(),
-                    NguoiLam = tbNguoiLam.Text.Trim()
-                };
-
+            {
                 List<ThongTinCuonDay> dsCuon = thongTinDayNhapKho == null
                     ? new List<ThongTinCuonDay>()
                     : new List<ThongTinCuonDay>(thongTinDayNhapKho);
 
+                // Theo phase hiện tại chỉ GhiChu và dữ liệu TTCuonDay được phép sửa.
+                // Các giá trị Ngày/MaBin/TTThanhPham/Tên SP/Số mét/Người làm không lấy từ control tìm kiếm để ghi DB.
+                NhapKho_Model model = new NhapKho_Model
+                {
+                    GhiChu = rtbGhiChu.Text.Trim()
+                };
+
                 NhapKho_DB.CapNhatNhapKho(
                     idNhapKho: _editingIdNhapKho,
-                    ttThanhPhamIdCu: ttThanhPhamIdCu,
-                    soMetCu: soMetCu,
+                    ttThanhPhamIdCu: 0,
+                    soMetCu: 0,
                     model: model,
                     dsCuon: dsCuon,
                     capNhatTTCuonDay: _ttCuonDayChanged
                 );
 
-                LoadDongNhapKhoTuDb(_editingIdNhapKho);
-                ResetForm();
+                RefreshCurrentFilter();
             }
             catch (Exception ex)
             {
@@ -670,208 +595,92 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
             }
         }
 
-
-        private void WriteRowFromForm(DataGridViewRow row)
-        {
-            row.Cells["ngay"].Value = dtNgay.Value.ToString("dd/MM/yyyy");
-            row.Cells["nguoiLam"].Value = tbNguoiLam.Text.Trim();
-            row.Cells["TTThanhPham_ID"].Value = _selectedTTThanhPhamID?.ToString() ?? string.Empty;
-            row.Cells["tenSP"].Value = tbTenSP.Text.Trim();
-            row.Cells["maBin2"].Value = tbMaBin.Text.Trim();
-            row.Cells["soMet"].Value = nbSoMet.Value.ToString(CultureInfo.InvariantCulture);
-            row.Cells["ghiChu"].Value = rtbGhiChu.Text.Trim();
-            row.Cells["thongSo"].Value = TaoChuoiDSCuonLo(thongTinDayNhapKho);
-        }
-
-
-        private void ThemDongVaoGrid(long idNhapKho, NhapKho_Model model)
-        {
-            int rowIndex = grvDSNhapKho.Rows.Add();
-            DataGridViewRow row = grvDSNhapKho.Rows[rowIndex];
-            row.Height = 35;
-            row.Cells["id_NhapKho"].Value = idNhapKho.ToString();
-            WriteRowFromForm(row);
-            grvDSNhapKho.FirstDisplayedScrollingRowIndex = grvDSNhapKho.RowCount - 1;
-        }
-
-
-
         private void GrvDSNhapKho_RowClick(object sender, DataGridViewCellEventArgs e)
         {
-            if (e.RowIndex < 0 || e.ColumnIndex < 0) return;
+            if (e.RowIndex < 0 || e.RowIndex >= grvDSNhapKho.Rows.Count)
+                return;
 
             DataGridViewRow row = grvDSNhapKho.Rows[e.RowIndex];
-            _editingIdNhapKho = long.TryParse(row.Cells["id_NhapKho"].Value?.ToString(), out long nkId) ? nkId : 0;
-            if (_editingIdNhapKho <= 0) return;
-
-            DataTable dt = NhapKho_DB.LayTTNhapKhoTPTheoId(_editingIdNhapKho);
-            if (dt == null || dt.Rows.Count == 0) return;
-            DataRow header = dt.Rows[0];
-
-            _selectedTTThanhPhamID = long.TryParse(GetDbText(header, "TTThanhPham_ID"), out long tpId) ? tpId : (long?)null;
-
-            string ngayText = GetDbText(header, "ngay");
-            string[] dateFormats = { "dd/MM/yyyy", "d/M/yyyy", "yyyy-MM-dd", "dd-MM-yyyy", "d-M-yyyy" };
-            if (DateTime.TryParseExact(ngayText, dateFormats, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime ngayVal)
-                || DateTime.TryParse(ngayText, out ngayVal))
-                dtNgay.Value = ngayVal;
-
-            if (decimal.TryParse(GetDbText(header, "soBB"), NumberStyles.Any, CultureInfo.InvariantCulture, out decimal soBBVal))
-                nbSoBB.Value = Math.Min(Math.Max(soBBVal, nbSoBB.Minimum), nbSoBB.Maximum);
-            else
-                nbSoBB.Value = 0;
-
-            tbNguoiLam.Text = GetDbText(header, "nguoiLam");
-            tbTenSP.Text = GetDbText(header, "tenSP");
-            tbMaBin.Text = GetDbText(header, "maBin2");
-
-            if (decimal.TryParse(GetDbText(header, "soMet"), NumberStyles.Any, CultureInfo.InvariantCulture, out decimal soMetVal))
-                nbSoMet.Value = Math.Min(Math.Max(soMetVal, nbSoMet.Minimum), nbSoMet.Maximum);
-            else
-                nbSoMet.Value = 0;
-
-            rtbGhiChu.Text = GetDbText(header, "ghiChu");
-
-            try
-            {
-                thongTinDayNhapKho = NhapKho_DB.LayThongTinCuonDay(_editingIdNhapKho);
-                LoadThongTinDayVaoGrid();
-                _ttCuonDayChanged = false;
-            }
-            catch (Exception ex)
-            {
-                thongTinDayNhapKho = new List<ThongTinCuonDay>();
-                LoadThongTinDayVaoGrid();
-                _ttCuonDayChanged = false;
-                FrmWaiting.ShowGifAlert($"Lỗi khi tải thông tin cuộn/dây:\n{ex.Message}");
-            }
-
-            _editingRowIndex = e.RowIndex;
-            SetEditMode(true);
-            ResetValidationColors();
-        }
-
-
-        private void tbTimKiem_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode != Keys.Enter) return;
-            e.SuppressKeyPress = true;
-            TimKiemNhapKhoVaLoadGrid();
-        }
-
-        private void TimKiemNhapKhoVaLoadGrid()
-        {
-            string keyword = tbTimKiem.Text.Trim();
-
-            if (string.IsNullOrWhiteSpace(keyword))
-            {
-                MessageBox.Show("Vui lòng nhập từ khoá tìm kiếm.",
-                    "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                tbTimKiem.Focus();
+            if (!long.TryParse(row.Cells["id_NhapKho"].Value?.ToString(), out long idNhapKho)
+                || idNhapKho <= 0)
                 return;
-            }
 
-            try
-            {
-                DataTable dt = NhapKho_DB.TimKiemNhapKho(keyword);
-                LoadNhapKhoVaoGrid(dt);
-
-                if (dt.Rows.Count == 0)
-                    MessageBox.Show("Không tìm thấy dữ liệu phù hợp.",
-                        "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Lỗi khi tìm kiếm dữ liệu:\n{ex.Message}",
-                    "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+            LoadChiTietNhapKho(idNhapKho, e.RowIndex);
         }
-
-        private void LoadNhapKhoVaoGrid(DataTable dt)
-        {
-            if (grvDSNhapKho.DataSource != null) grvDSNhapKho.DataSource = null;
-            grvDSNhapKho.Rows.Clear();
-
-            HashSet<long> daThem = new HashSet<long>();
-            foreach (DataRow dr in dt.Rows)
-            {
-                if (!long.TryParse(GetDbText(dr, "id_NhapKho"), out long idNhapKho) || !daThem.Add(idNhapKho))
-                    continue;
-
-                int rowIndex = grvDSNhapKho.Rows.Add();
-                DataGridViewRow row = grvDSNhapKho.Rows[rowIndex];
-                row.Height = 35;
-                row.Cells["id_NhapKho"].Value = idNhapKho;
-                row.Cells["TTThanhPham_ID"].Value = GetDbText(dr, "TTThanhPham_ID");
-                row.Cells["ngay"].Value = GetDbText(dr, "ngay");
-                row.Cells["nguoiLam"].Value = GetDbText(dr, "nguoiLam");
-                row.Cells["tenSP"].Value = GetDbText(dr, "tenSP");
-                row.Cells["soMet"].Value = GetDbText(dr, "soMet");
-                row.Cells["maBin2"].Value = GetDbText(dr, "maBin2");
-                row.Cells["ghiChu"].Value = GetDbText(dr, "ghiChu");
-                row.Cells["thongSo"].Value = TaoChuoiDSCuonLo(NhapKho_DB.LayThongTinCuonDay(idNhapKho));
-            }
-
-            _editingRowIndex = -1;
-            _editingIdNhapKho = 0;
-            SetEditMode(false);
-            if (grvDSNhapKho.Rows.Count > 0)
-            {
-                grvDSNhapKho.ClearSelection();
-                grvDSNhapKho.Rows[0].Selected = true;
-                grvDSNhapKho.FirstDisplayedScrollingRowIndex = 0;
-            }
-        }
-
 
         private void SetEditMode(bool editMode)
         {
             btnSua.Enabled = editMode;
             btnDelete.Enabled = editMode;
-            btnNhapKho.Enabled = !editMode;
         }
 
-        private void ResetForm(bool resetAll = false)
+        private void ClearEditingDetails()
         {
-            _maBinSearchHelper.Reset();
-            _selectedTTThanhPhamID = null;
+            _editingRowIndex = -1;
             _editingIdNhapKho = 0;
-            GanNguoiLamTuUserContext();
+            _selectedTTThanhPhamID = null;
+            _ttCuonDayChanged = false;
 
             tbTenSP.Text = string.Empty;
             tbMaBin.Text = string.Empty;
             nbSoMet.Value = 0;
+            tbNguoiLam.Text = string.Empty;
+            tbNguoiLam.ReadOnly = true;
             rtbGhiChu.Text = string.Empty;
 
-            thongTinDayNhapKho.Clear();
-            _ttCuonDayChanged = false;
-
-            //tbxThongTinDay.Text = string.Empty;
-
-            nbSoBB.Value = resetAll ? 0 : nbSoBB.Value;
-
-
-            _editingRowIndex = -1;
+            thongTinDayNhapKho = new List<ThongTinCuonDay>();
+            LoadThongTinDayVaoGrid();
             SetEditMode(false);
+        }
+
+        private void ClearGridAndEditingDetails()
+        {
+            grvDSNhapKho.Rows.Clear();
+            ClearEditingDetails();
+        }
+
+        private void ResetForm()
+        {
+            _suppressFilterEvents = true;
+            try
+            {
+                checkBox1.Checked = false;
+                dtNgay.Enabled = false;
+                _maBinSearchHelper?.Reset();
+            }
+            finally
+            {
+                _suppressFilterEvents = false;
+            }
+
+            ClearGridAndEditingDetails();
             cbxMaBin.Focus();
         }
 
-        private void btnResetForm_Click(object sender, EventArgs e) => ResetForm(resetAll: true);
-
+        private void btnResetForm_Click(object sender, EventArgs e) => ResetForm();
 
         private void GrvDSNhapKho_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex < 0) return;
-
             GrvDSNhapKho_RowClick(sender, e);
         }
 
         private void UC_QcDuyetNhapKho_Load(object sender, EventArgs e)
         {
-            SetEditMode(false);
-            GanNguoiLamTuUserContext();
-            nbSoBB.Focus();
-            nbSoBB.Select(0, int.MaxValue);
+            _suppressFilterEvents = true;
+            try
+            {
+                checkBox1.Checked = false;
+                dtNgay.Enabled = false;
+            }
+            finally
+            {
+                _suppressFilterEvents = false;
+            }
+
+            tbNguoiLam.ReadOnly = true;
+            ClearGridAndEditingDetails();
+            cbxMaBin.Focus();
         }
 
         private void btnNhapKhoTheoNgay_Click(object sender, EventArgs e)
@@ -885,36 +694,6 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
 
             using (var frm = new Frm_NhapKhoTP_TheoNgay())
                 frm.ShowDialog(this);
-        }
-
-        private void GanNguoiLamTuUserContext()
-        {
-            tbNguoiLam.Text = UserContext.UserName;
-            tbNguoiLam.ReadOnly = true;
-        }
-
-        private static string LayUsernameTuUserContext()
-        {
-            Type t = typeof(UserContext);
-            BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static;
-            foreach (string name in new[] { "Username", "UserName", "CurrentUsername", "CurrentUserName" })
-            {
-                string value = Convert.ToString(t.GetProperty(name, flags)?.GetValue(null))?.Trim();
-                if (!string.IsNullOrWhiteSpace(value)) return value;
-                value = Convert.ToString(t.GetField(name, flags)?.GetValue(null))?.Trim();
-                if (!string.IsNullOrWhiteSpace(value)) return value;
-            }
-            foreach (string holder in new[] { "Current", "CurrentUser", "User", "Login", "Session" })
-            {
-                object obj = t.GetProperty(holder, flags)?.GetValue(null) ?? t.GetField(holder, flags)?.GetValue(null);
-                if (obj == null) continue;
-                foreach (string name in new[] { "Username", "UserName", "Name" })
-                {
-                    string value = Convert.ToString(obj.GetType().GetProperty(name)?.GetValue(obj))?.Trim();
-                    if (!string.IsNullOrWhiteSpace(value)) return value;
-                }
-            }
-            return string.Empty;
         }
 
         protected override void OnHandleDestroyed(EventArgs e)
@@ -943,7 +722,6 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
             grvDSNhapKho.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
 
         }
-
 
         private void XuLyTTCuonCheDoSuaPhieuCu()
         {
@@ -993,83 +771,15 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
 
         private void btnTTCuon_Click(object sender, EventArgs e)
         {
-            if (!_selectedTTThanhPhamID.HasValue || _selectedTTThanhPhamID.Value <= 0)
+            if (_editingIdNhapKho <= 0
+                || !_selectedTTThanhPhamID.HasValue
+                || _selectedTTThanhPhamID.Value <= 0)
             {
-                FrmWaiting.ShowGifAlert("Vui lòng chọn MaBin trước khi chỉnh sửa thông tin cuộn/lô nhập kho.");
+                FrmWaiting.ShowGifAlert("Vui lòng chọn một lần nhập kho cần sửa trước khi chỉnh sửa thông tin cuộn/lô.");
                 return;
             }
 
-            // Luồng D: sửa phiếu cũ dùng mode NhapKhoEdit riêng; không tác động các luồng tạo mới.
-            if (_editingIdNhapKho > 0)
-            {
-                XuLyTTCuonCheDoSuaPhieuCu();
-                return;
-            }
-
-            try
-            {
-                // Nguồn hiển thị của Frm_DLCuon là chính dữ liệu hiện đang có trên dataGridView1,
-                // không tải lại toàn bộ TTCuonDay_CD và không sửa TTCuonDay_CD.
-                if (!TryLayThongTinCuonDayHienTaiTuGrid(out List<ThongTinCuonDay> duLieuHienTai, out string gridError))
-                {
-                    FrmWaiting.ShowGifAlert(gridError);
-                    return;
-                }
-
-                if (duLieuHienTai.Count == 0)
-                {
-                    FrmWaiting.ShowGifAlert("Không có cuộn/lô còn lại để chỉnh số lượng nhập kho.");
-                    return;
-                }
-
-                // Đọc lại số lượng còn lại thực tế chỉ để làm giới hạn validate.
-                // Không dùng dữ liệu này để thay thế nội dung đang hiển thị trên grid.
-                List<ThongTinCuonDay> duLieuConLaiTrongDb =
-                    NhapKho_DB.LayTTCuonDayConLaiTheoTTThanhPhamId(_selectedTTThanhPhamID.Value)
-                    ?? new List<ThongTinCuonDay>();
-
-                Dictionary<long, int> soCuonToiDaTheoNguon = duLieuConLaiTrongDb
-                    .Where(x => x != null && x.TTCuonDay_CD_ID.HasValue && x.TTCuonDay_CD_ID.Value > 0)
-                    .GroupBy(x => x.TTCuonDay_CD_ID.Value)
-                    .ToDictionary(g => g.Key, g => g.First().SoCuon);
-
-                bool coSourceDaThayDoi = duLieuHienTai.Any(x =>
-                    x == null
-                    || !x.TTCuonDay_CD_ID.HasValue
-                    || !soCuonToiDaTheoNguon.ContainsKey(x.TTCuonDay_CD_ID.Value));
-
-                if (coSourceDaThayDoi)
-                {
-                    FrmWaiting.ShowGifAlert(
-                        "Dữ liệu cuộn/lô còn lại đã thay đổi trong database. " +
-                        "Vui lòng chọn lại MaBin để tải dữ liệu mới trước khi chỉnh sửa.");
-                    return;
-                }
-
-                LayDuLieuTTLoChoFrm(duLieuHienTai, out DataTable ttLoActive, out DataTable ttLoReferenced);
-
-                using (Frm_DLCuon frm = new Frm_DLCuon(
-                    duLieuHienTai,
-                    FrmDLCuonMode.NhapKho,
-                    soCuonToiDaTheoNguon,
-                    false,
-                    ttLoActive,
-                    ttLoReferenced))
-                {
-                    if (frm.ShowDialog() != DialogResult.OK)
-                        return;
-
-                    // Chỉ cập nhật dữ liệu tạm trên UI. Không INSERT/UPDATE/DELETE TTCuonDay_CD.
-                    thongTinDayNhapKho = frm.ThongTinCuon ?? new List<ThongTinCuonDay>();
-                    LoadThongTinDayVaoGrid();
-                    _ttCuonDayChanged = true;
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Lỗi khi chỉnh sửa thông tin cuộn/lô nhập kho:\n{ex.Message}",
-                    "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+            XuLyTTCuonCheDoSuaPhieuCu();
         }
 
         private static string GetDbText(DataRow row, string columnName)
@@ -1077,56 +787,6 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
             if (!row.Table.Columns.Contains(columnName)) return string.Empty;
             if (row[columnName] == DBNull.Value) return string.Empty;
             return row[columnName]?.ToString() ?? string.Empty;
-        }
-
-        
-
-        private static int? ParseDbIntNullable(DataRow row, string columnName)
-        {
-            string text = GetDbText(row, columnName);
-            return int.TryParse(text, NumberStyles.Any, CultureInfo.InvariantCulture, out int value)
-                ? value
-                : (int?)null;
-        }
-
-        private static long? ParseDbLongNullable(DataRow row, string columnName)
-        {
-            string text = GetDbText(row, columnName);
-            return long.TryParse(text, NumberStyles.Any, CultureInfo.InvariantCulture, out long value)
-                ? value
-                : (long?)null;
-        }
-
-        private static int ParseDbInt(DataRow row, string columnName)
-        {
-            string text = GetDbText(row, columnName);
-
-            return int.TryParse(
-                text,
-                System.Globalization.NumberStyles.Any,
-                System.Globalization.CultureInfo.InvariantCulture,
-                out int value)
-                ? value
-                : 0;
-        }
-
-        private static decimal ParseDbDecimal(DataRow row, string columnName)
-        {
-            string text = GetDbText(row, columnName);
-
-            return decimal.TryParse(
-                text,
-                System.Globalization.NumberStyles.Any,
-                System.Globalization.CultureInfo.InvariantCulture,
-                out decimal value)
-                ? value
-                : 0;
-        }
-
-
-        private void btnImportExcel_Click(object sender, EventArgs e)
-        {
-
         }
 
     }

@@ -41,6 +41,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
             dataGridView1.ReadOnly = true;
             grvDSNhapKho.ReadOnly = true;
 
+            dtNgay.Value = DateTime.Today.AddDays(-1);
+
             grvDSNhapKho.CellDoubleClick += GrvDSNhapKho_CellDoubleClick;
             btnNhapKhoTheoNgay.Click += btnNhapKhoTheoNgay_Click;
             checkBox1.CheckedChanged += checkBox1_CheckedChanged;

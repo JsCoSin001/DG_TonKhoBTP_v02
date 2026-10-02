@@ -367,6 +367,12 @@
     <Compile Include="UI\NghiepVuKhac\Kho\XuatKho\UC_CatDay.Designer.cs">
       <DependentUpon>UC_CatDay.cs</DependentUpon>
     </Compile>
+    <Compile Include="UI\NghiepVuKhac\Kho\XuatKho\UC_CatDay_temp.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\NghiepVuKhac\Kho\XuatKho\UC_CatDay_temp.Designer.cs">
+      <DependentUpon>UC_CatDay_temp.cs</DependentUpon>
+    </Compile>
     <Compile Include="UI\NghiepVuKhac\SanXuat\Frm_ToTruongXacNhan.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -656,6 +662,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="UI\NghiepVuKhac\Kho\XuatKho\UC_CatDay.resx">
       <DependentUpon>UC_CatDay.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\NghiepVuKhac\Kho\XuatKho\UC_CatDay_temp.resx">
+      <DependentUpon>UC_CatDay_temp.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UI\NghiepVuKhac\SanXuat\Frm_ToTruongXacNhan.resx">
       <DependentUpon>Frm_ToTruongXacNhan.cs</DependentUpon>

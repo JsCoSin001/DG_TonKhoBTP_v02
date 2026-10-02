@@ -39,24 +39,27 @@
             this.dtNgayBD = new System.Windows.Forms.DateTimePicker();
             this.dtNgayKT = new System.Windows.Forms.DateTimePicker();
             this.cbxCa = new System.Windows.Forms.ComboBox();
-            this.label5 = new System.Windows.Forms.Label();
-            this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.cbxAll = new System.Windows.Forms.CheckBox();
             this.btnNhapKho = new System.Windows.Forms.Button();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.dsNhapKho = new System.Windows.Forms.DataGridView();
             this.panel3 = new System.Windows.Forms.Panel();
             this.panel4 = new System.Windows.Forms.Panel();
+            this.panel5 = new System.Windows.Forms.Panel();
+            this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
+            this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.groupBox4 = new System.Windows.Forms.GroupBox();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
-            this.flowLayoutPanel1.SuspendLayout();
-            this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dsNhapKho)).BeginInit();
             this.panel3.SuspendLayout();
             this.panel4.SuspendLayout();
+            this.panel5.SuspendLayout();
+            this.tableLayoutPanel2.SuspendLayout();
+            this.groupBox3.SuspendLayout();
+            this.groupBox4.SuspendLayout();
             this.SuspendLayout();
             // 
             // panel1
@@ -83,22 +86,22 @@
             // 
             // panel2
             // 
-            this.panel2.Controls.Add(this.tableLayoutPanel1);
+            this.panel2.Controls.Add(this.groupBox4);
             this.panel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel2.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.panel2.Location = new System.Drawing.Point(5, 21);
+            this.panel2.Location = new System.Drawing.Point(3, 3);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(1298, 84);
+            this.panel2.Padding = new System.Windows.Forms.Padding(0, 0, 5, 0);
+            this.panel2.Size = new System.Drawing.Size(1044, 113);
             this.panel2.TabIndex = 1;
             // 
             // tableLayoutPanel1
             // 
-            this.tableLayoutPanel1.ColumnCount = 5;
+            this.tableLayoutPanel1.ColumnCount = 4;
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 150F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 150F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 141F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 660F));
             this.tableLayoutPanel1.Controls.Add(this.btnTimKiem, 3, 1);
             this.tableLayoutPanel1.Controls.Add(this.label2, 0, 0);
             this.tableLayoutPanel1.Controls.Add(this.label3, 1, 0);
@@ -106,21 +109,20 @@
             this.tableLayoutPanel1.Controls.Add(this.dtNgayBD, 0, 1);
             this.tableLayoutPanel1.Controls.Add(this.dtNgayKT, 1, 1);
             this.tableLayoutPanel1.Controls.Add(this.cbxCa, 2, 1);
-            this.tableLayoutPanel1.Controls.Add(this.label5, 4, 0);
-            this.tableLayoutPanel1.Controls.Add(this.flowLayoutPanel1, 4, 1);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
+            this.tableLayoutPanel1.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.tableLayoutPanel1.Location = new System.Drawing.Point(3, 19);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 2;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 28F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(1298, 84);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(1033, 91);
             this.tableLayoutPanel1.TabIndex = 0;
             // 
             // btnTimKiem
             // 
             this.btnTimKiem.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.btnTimKiem.Location = new System.Drawing.Point(444, 35);
+            this.btnTimKiem.Location = new System.Drawing.Point(444, 39);
             this.btnTimKiem.Name = "btnTimKiem";
             this.btnTimKiem.Size = new System.Drawing.Size(126, 41);
             this.btnTimKiem.TabIndex = 1;
@@ -169,7 +171,7 @@
             this.dtNgayBD.CustomFormat = "dd/MM/yyyy";
             this.dtNgayBD.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.dtNgayBD.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
-            this.dtNgayBD.Location = new System.Drawing.Point(3, 43);
+            this.dtNgayBD.Location = new System.Drawing.Point(3, 46);
             this.dtNgayBD.Name = "dtNgayBD";
             this.dtNgayBD.Size = new System.Drawing.Size(144, 26);
             this.dtNgayBD.TabIndex = 1;
@@ -181,7 +183,7 @@
             this.dtNgayKT.CustomFormat = "dd/MM/yyyy";
             this.dtNgayKT.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.dtNgayKT.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
-            this.dtNgayKT.Location = new System.Drawing.Point(153, 43);
+            this.dtNgayKT.Location = new System.Drawing.Point(153, 46);
             this.dtNgayKT.Name = "dtNgayKT";
             this.dtNgayKT.Size = new System.Drawing.Size(144, 26);
             this.dtNgayKT.TabIndex = 1;
@@ -197,39 +199,16 @@
             "1",
             "2",
             "3"});
-            this.cbxCa.Location = new System.Drawing.Point(303, 43);
+            this.cbxCa.Location = new System.Drawing.Point(303, 46);
             this.cbxCa.Name = "cbxCa";
             this.cbxCa.Size = new System.Drawing.Size(135, 26);
             this.cbxCa.TabIndex = 2;
-            // 
-            // label5
-            // 
-            this.label5.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(641, 10);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(654, 18);
-            this.label5.TabIndex = 0;
-            this.label5.Text = "Xử lý kết quả";
-            this.label5.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // flowLayoutPanel1
-            // 
-            this.flowLayoutPanel1.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.flowLayoutPanel1.AutoSize = true;
-            this.flowLayoutPanel1.Controls.Add(this.cbxAll);
-            this.flowLayoutPanel1.Controls.Add(this.btnNhapKho);
-            this.flowLayoutPanel1.Location = new System.Drawing.Point(641, 32);
-            this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(253, 47);
-            this.flowLayoutPanel1.TabIndex = 3;
             // 
             // cbxAll
             // 
             this.cbxAll.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.cbxAll.AutoSize = true;
-            this.cbxAll.Location = new System.Drawing.Point(3, 12);
+            this.cbxAll.Location = new System.Drawing.Point(3, 34);
             this.cbxAll.Name = "cbxAll";
             this.cbxAll.Size = new System.Drawing.Size(115, 22);
             this.cbxAll.TabIndex = 2;
@@ -238,24 +217,13 @@
             // 
             // btnNhapKho
             // 
-            this.btnNhapKho.Location = new System.Drawing.Point(124, 3);
+            this.btnNhapKho.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.btnNhapKho.Location = new System.Drawing.Point(129, 25);
             this.btnNhapKho.Name = "btnNhapKho";
-            this.btnNhapKho.Size = new System.Drawing.Size(126, 41);
+            this.btnNhapKho.Size = new System.Drawing.Size(121, 41);
             this.btnNhapKho.TabIndex = 0;
             this.btnNhapKho.Text = "Nhập kho";
             this.btnNhapKho.UseVisualStyleBackColor = true;
-            // 
-            // groupBox1
-            // 
-            this.groupBox1.Controls.Add(this.panel2);
-            this.groupBox1.Dock = System.Windows.Forms.DockStyle.Top;
-            this.groupBox1.Location = new System.Drawing.Point(3, 3);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Padding = new System.Windows.Forms.Padding(5);
-            this.groupBox1.Size = new System.Drawing.Size(1308, 110);
-            this.groupBox1.TabIndex = 2;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Tìm kiếm";
             // 
             // groupBox2
             // 
@@ -290,13 +258,63 @@
             // 
             // panel4
             // 
-            this.panel4.Controls.Add(this.groupBox1);
+            this.panel4.Controls.Add(this.panel2);
+            this.panel4.Controls.Add(this.panel5);
             this.panel4.Dock = System.Windows.Forms.DockStyle.Top;
             this.panel4.Location = new System.Drawing.Point(3, 43);
             this.panel4.Name = "panel4";
             this.panel4.Padding = new System.Windows.Forms.Padding(3, 3, 3, 10);
             this.panel4.Size = new System.Drawing.Size(1314, 126);
             this.panel4.TabIndex = 3;
+            // 
+            // panel5
+            // 
+            this.panel5.Controls.Add(this.groupBox3);
+            this.panel5.Dock = System.Windows.Forms.DockStyle.Right;
+            this.panel5.Location = new System.Drawing.Point(1047, 3);
+            this.panel5.Name = "panel5";
+            this.panel5.Padding = new System.Windows.Forms.Padding(5, 0, 0, 0);
+            this.panel5.Size = new System.Drawing.Size(264, 113);
+            this.panel5.TabIndex = 2;
+            // 
+            // tableLayoutPanel2
+            // 
+            this.tableLayoutPanel2.ColumnCount = 2;
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel2.Controls.Add(this.cbxAll, 0, 0);
+            this.tableLayoutPanel2.Controls.Add(this.btnNhapKho, 1, 0);
+            this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanel2.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.tableLayoutPanel2.Location = new System.Drawing.Point(3, 19);
+            this.tableLayoutPanel2.Name = "tableLayoutPanel2";
+            this.tableLayoutPanel2.RowCount = 1;
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel2.Size = new System.Drawing.Size(253, 91);
+            this.tableLayoutPanel2.TabIndex = 0;
+            // 
+            // groupBox3
+            // 
+            this.groupBox3.Controls.Add(this.tableLayoutPanel2);
+            this.groupBox3.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.groupBox3.Location = new System.Drawing.Point(5, 0);
+            this.groupBox3.Name = "groupBox3";
+            this.groupBox3.Size = new System.Drawing.Size(259, 113);
+            this.groupBox3.TabIndex = 1;
+            this.groupBox3.TabStop = false;
+            this.groupBox3.Text = "Xử lý dữ liệu";
+            // 
+            // groupBox4
+            // 
+            this.groupBox4.Controls.Add(this.tableLayoutPanel1);
+            this.groupBox4.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.groupBox4.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.groupBox4.Location = new System.Drawing.Point(0, 0);
+            this.groupBox4.Name = "groupBox4";
+            this.groupBox4.Size = new System.Drawing.Size(1039, 113);
+            this.groupBox4.TabIndex = 2;
+            this.groupBox4.TabStop = false;
+            this.groupBox4.Text = "Tìm kiếm";
             // 
             // Frm_NhapKhoTP_TheoNgay
             // 
@@ -315,13 +333,15 @@
             this.panel2.ResumeLayout(false);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
-            this.flowLayoutPanel1.ResumeLayout(false);
-            this.flowLayoutPanel1.PerformLayout();
-            this.groupBox1.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dsNhapKho)).EndInit();
             this.panel3.ResumeLayout(false);
             this.panel4.ResumeLayout(false);
+            this.panel5.ResumeLayout(false);
+            this.tableLayoutPanel2.ResumeLayout(false);
+            this.tableLayoutPanel2.PerformLayout();
+            this.groupBox3.ResumeLayout(false);
+            this.groupBox4.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -338,15 +358,16 @@
         private System.Windows.Forms.DateTimePicker dtNgayBD;
         private System.Windows.Forms.DateTimePicker dtNgayKT;
         private System.Windows.Forms.ComboBox cbxCa;
-        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
-        private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Button btnTimKiem;
         private System.Windows.Forms.Button btnNhapKho;
         private System.Windows.Forms.CheckBox cbxAll;
-        private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.DataGridView dsNhapKho;
         private System.Windows.Forms.Panel panel3;
         private System.Windows.Forms.Panel panel4;
+        private System.Windows.Forms.Panel panel5;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
+        private System.Windows.Forms.GroupBox groupBox4;
+        private System.Windows.Forms.GroupBox groupBox3;
     }
 }

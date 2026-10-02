@@ -42,6 +42,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
             InitializeComponent();
 
             StartPosition = FormStartPosition.CenterScreen;
+            WindowState = FormWindowState.Maximized;
 
             KhoiTaoGrid();
             GanSuKien();
@@ -577,6 +578,5 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
             public bool Success { get; set; }
             public string Error { get; set; } = string.Empty;
         }
-
     }
 }

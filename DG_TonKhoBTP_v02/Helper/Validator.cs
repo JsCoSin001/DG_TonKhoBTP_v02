@@ -387,7 +387,15 @@ namespace DG_TonKhoBTP_v02.Helper
                 return KetHopLoiBoc(data, LayDanhSachLoiCDBocMach(bocMachObj as CD_BocMach));
 
             if (data.Sections.TryGetValue("CD_BocVo", out var bocVoObj))
-                return KetHopLoiBoc(data, LayDanhSachLoiCDBocVo(bocVoObj as CD_BocVo));
+            {
+                TTThanhPham thanhPham =
+                    data.GetSection<TTThanhPham>("UC_TTThanhPham")
+                    ?? data.GetSection<TTThanhPham>("TTThanhPham");
+
+                return KetHopLoiBoc(
+                    data,
+                    LayDanhSachLoiCDBocVo(bocVoObj as CD_BocVo, thanhPham));
+            }
 
             return new List<string> { "Chi tiết công đoạn chưa hợp lệ" };
         }
@@ -464,16 +472,40 @@ namespace DG_TonKhoBTP_v02.Helper
             return result;
         }
 
-        private static List<string> LayDanhSachLoiCDBocVo(CD_BocVo data)
+        private static List<string> LayDanhSachLoiCDBocVo( CD_BocVo data, TTThanhPham thanhPham)
         {
             var result = new List<string>();
-            if (data == null)
-                return new List<string> { "Chi tiết công đoạn Bọc Vỏ chưa hợp lệ" };
 
-            if (!data.DayVoTB.HasValue) result.Add("Dày vỏ TB chưa được nhập");
-            if (data.InAn == null) result.Add("In ấn chưa được nhập");
+            if (data == null)
+                return new List<string>
+            {
+                "Chi tiết công đoạn Bọc Vỏ chưa hợp lệ"
+            };
+
+            if (!data.DayVoTB.HasValue)
+                result.Add("Dày vỏ TB chưa được nhập");
+
+            if (data.InAn == null)
+                result.Add("In ấn chưa được nhập");
+
             if (data.TTCuonDay_CD == null || data.TTCuonDay_CD.Count == 0)
+            {
                 result.Add("Chưa có thông tin cuộn dây");
+            }
+            else if (thanhPham != null)
+            {
+                double tongChieuDaiCuon = data.TTCuonDay_CD
+                    .Where(x => x != null)
+                    .Sum(x => (double)x.SoCuon * x.TongChieuDai);
+
+                if (Math.Abs(
+                        thanhPham.ChieuDaiSau - tongChieuDaiCuon
+                    ) > 0.000001d)
+                {
+                    result.Add("Kiểm tra lại thông tin đóng gói và chiều dài thành phẩm");
+                }
+            }
+
             return result;
         }
 

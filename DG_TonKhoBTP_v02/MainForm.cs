@@ -28,6 +28,7 @@ using System.Windows.Forms;
 using CoreHelper = DG_TonKhoBTP_v02.Helper.Helper;
 using DG_TonKhoBTP_v02.UI.NghiepVuKhac.SanXuat;
 using DG_TonKhoBTP_v02.UI.CD_ChieuXa;
+using DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho;
 namespace DG_TonKhoBTP_v02
 {
     public partial class MainForm : Form

@@ -1787,7 +1787,7 @@ namespace DG_TonKhoBTP_v02.UI
                     // QR và LOT được tách riêng. PrintHelper vẫn dùng MaBin làm QR;
                     // Lot chỉ thay giá trị chữ LOT hiển thị cho tem tạm.
                     printer.MaBin = qrValue;
-                    printer.Lot = (qrParsed.IsValid ? qrParsed.SearchValue : maBinGoc) + "-Cuộn";
+                    printer.Lot = (qrParsed.IsValid ? qrParsed.SearchValue : maBinGoc) + "  Cuộn";
 
                     printer.KhoiLuong = "0";
                     printer.ChieuDai = row.TongChieuDai.ToString(CultureInfo.InvariantCulture);

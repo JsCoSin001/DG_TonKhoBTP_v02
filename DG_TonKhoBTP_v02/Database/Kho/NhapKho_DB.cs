@@ -1,4 +1,5 @@
 ﻿using System;
+using DG_TonKhoBTP_v02.Models;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
@@ -513,19 +514,6 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                 throw;
             }
         }
-
-        private sealed class SourceEditState
-        {
-            public long Id { get; set; }
-            public long CongDoanId { get; set; }
-            public int SoCuon { get; set; }
-            public int TongChieuDai { get; set; }
-            public int? SoDau { get; set; }
-            public int? SoCuoi { get; set; }
-            public int? TTLoId { get; set; }
-            public int SoCuonDaNhap { get; set; }
-        }
-
         private static void BindSourceEditParameters(
             SQLiteCommand cmd,
             DG_TonKhoBTP_v02.Models.ThongTinCuonDay item)
@@ -541,23 +529,6 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                 ? (object)item.TTLo_ID.Value
                 : DBNull.Value);
         }
-
-
-        private sealed class TTCuonDayEditState
-        {
-            public long Id { get; set; }
-            public long? SourceId { get; set; }
-            public int SoCuon { get; set; }
-            public int ChieuDai1Cuon { get; set; }
-            public int? SoDau { get; set; }
-            public int? SoCuoi { get; set; }
-            public int? TTLoId { get; set; }
-            public string GhiChu { get; set; } = string.Empty;
-            public bool CoLichSuCatDay { get; set; }
-            public bool CoTTXuatKho { get; set; }
-            public bool CoLichSuDownstream => CoLichSuCatDay || CoTTXuatKho;
-        }
-
         private static bool TableExists(SQLiteConnection conn, SQLiteTransaction tran, string tableName)
         {
             using var cmd = new SQLiteCommand(@"
@@ -570,6 +541,192 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
             return value != null && value != DBNull.Value;
         }
 
+        private static bool LaCuonChan(int? soDau, int? soCuoi)
+            => !soDau.HasValue && !soCuoi.HasValue;
+
+        private static bool LaCuonLe(int? soDau, int? soCuoi)
+            => soDau.HasValue && soCuoi.HasValue;
+
+        private static void KiemTraKieuCuonHopLe(
+            long ttCuonDayId,
+            int soCuon,
+            int chieuDai1Cuon,
+            int? soDau,
+            int? soCuoi)
+        {
+            if (soDau.HasValue != soCuoi.HasValue)
+            {
+                throw new InvalidOperationException(
+                    $"TTCuonDay id={ttCuonDayId}: Số đầu và Số cuối phải cùng có giá trị hoặc cùng để trống.");
+            }
+
+            if (soCuon <= 0)
+                throw new InvalidOperationException($"TTCuonDay id={ttCuonDayId}: số cuộn phải lớn hơn 0.");
+
+            if (chieuDai1Cuon <= 0)
+                throw new InvalidOperationException($"TTCuonDay id={ttCuonDayId}: chiều dài 1 cuộn phải lớn hơn 0.");
+
+            if (LaCuonLe(soDau, soCuoi))
+            {
+                if (soCuon != 1)
+                    throw new InvalidOperationException($"TTCuonDay id={ttCuonDayId}: cuộn lẻ phải có Số cuộn = 1.");
+
+                int chieuDaiTheoMoc = Math.Abs(soCuoi.Value - soDau.Value);
+                if (chieuDaiTheoMoc <= 0)
+                    throw new InvalidOperationException($"TTCuonDay id={ttCuonDayId}: cuộn lẻ phải có chiều dài còn lại lớn hơn 0.");
+
+                if (chieuDai1Cuon != chieuDaiTheoMoc)
+                {
+                    throw new InvalidOperationException(
+                        $"TTCuonDay id={ttCuonDayId}: chiều dài 1 cuộn phải bằng ABS(Số cuối - Số đầu) = {chieuDaiTheoMoc}.");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Sau khi sửa/xoá B1, tồn cuộn chẵn thực tế của sản phẩm không được nhỏ hơn
+        /// lượng các kế hoạch ACTIVE đang giữ chỗ. Không tạo bảng reservation riêng;
+        /// reservation được suy ra trực tiếp từ KeHoachHang/KeHoachCatNhom.
+        /// </summary>
+        private static void KiemTraTonCuonChanSauThayDoi(
+            SQLiteConnection conn,
+            SQLiteTransaction tran,
+            long ttThanhPhamId)
+        {
+            if (!TableExists(conn, tran, "KeHoach")
+                || !TableExists(conn, tran, "KeHoachHang"))
+                return;
+
+            long danhSachMaSpId;
+            using (var cmd = new SQLiteCommand(@"
+                SELECT DanhSachSP_ID
+                FROM TTThanhPham
+                WHERE id=@TTThanhPham_ID
+                LIMIT 1;", conn, tran))
+            {
+                cmd.Parameters.AddWithValue("@TTThanhPham_ID", ttThanhPhamId);
+                object value = cmd.ExecuteScalar();
+                if (value == null || value == DBNull.Value)
+                    throw new InvalidOperationException($"Không xác định được sản phẩm của TTThanhPham id={ttThanhPhamId}.");
+                danhSachMaSpId = Convert.ToInt64(value);
+            }
+
+            int tongCuonChanNhap;
+            using (var cmd = new SQLiteCommand(@"
+                SELECT COALESCE(SUM(IFNULL(td.SoCuon,0)),0)
+                FROM TTCuonDay td
+                INNER JOIN TTNhapKhoTP nk ON nk.id = td.ThongTinNhapKho_ID
+                INNER JOIN TTThanhPham tp ON tp.id = nk.TTThanhPham_ID
+                WHERE tp.DanhSachSP_ID = @DanhSachMaSP_ID
+                  AND td.SoDau IS NULL
+                  AND td.SoCuoi IS NULL;", conn, tran))
+            {
+                cmd.Parameters.AddWithValue("@DanhSachMaSP_ID", danhSachMaSpId);
+                tongCuonChanNhap = Convert.ToInt32(cmd.ExecuteScalar());
+            }
+
+            int daLayNguyen = 0;
+            if (TableExists(conn, tran, "LichSuLayCuon"))
+            {
+                using var cmd = new SQLiteCommand(@"
+                    SELECT COALESCE(SUM(IFNULL(ls.SoLuong,0)),0)
+                    FROM LichSuLayCuon ls
+                    INNER JOIN TTCuonDay td ON td.id = ls.TTCuonDay_ID
+                    INNER JOIN TTNhapKhoTP nk ON nk.id = td.ThongTinNhapKho_ID
+                    INNER JOIN TTThanhPham tp ON tp.id = nk.TTThanhPham_ID
+                    WHERE tp.DanhSachSP_ID = @DanhSachMaSP_ID
+                      AND td.SoDau IS NULL
+                      AND td.SoCuoi IS NULL;", conn, tran);
+                cmd.Parameters.AddWithValue("@DanhSachMaSP_ID", danhSachMaSpId);
+                daLayNguyen = Convert.ToInt32(cmd.ExecuteScalar());
+            }
+
+            int daChuyenThanhLe = 0;
+            if (TableExists(conn, tran, "TonCuonLe"))
+            {
+                using var cmd = new SQLiteCommand(@"
+                    SELECT COUNT(*)
+                    FROM TonCuonLe tl
+                    INNER JOIN TTCuonDay td ON td.id = tl.TTCuonDay_ID
+                    INNER JOIN TTNhapKhoTP nk ON nk.id = td.ThongTinNhapKho_ID
+                    INNER JOIN TTThanhPham tp ON tp.id = nk.TTThanhPham_ID
+                    WHERE tp.DanhSachSP_ID = @DanhSachMaSP_ID
+                      AND td.SoDau IS NULL
+                      AND td.SoCuoi IS NULL;", conn, tran);
+                cmd.Parameters.AddWithValue("@DanhSachMaSP_ID", danhSachMaSpId);
+                daChuyenThanhLe = Convert.ToInt32(cmd.ExecuteScalar());
+            }
+
+            int tonThucTe = tongCuonChanNhap - daLayNguyen - daChuyenThanhLe;
+            if (tonThucTe < 0) tonThucTe = 0;
+
+            string lichSuLaySubquery = TableExists(conn, tran, "LichSuLayCuon")
+                ? "COALESCE((SELECT SUM(IFNULL(ls.SoLuong,0)) FROM LichSuLayCuon ls WHERE ls.KeHoachHang_ID = kh.id),0)"
+                : "0";
+
+            int datTruocLayNguyen;
+            string sqlDatTruocLay = $@"
+                SELECT COALESCE(SUM(
+                    CASE
+                        WHEN kh.SoLuongCuonCanLay - ({lichSuLaySubquery}) > 0
+                            THEN kh.SoLuongCuonCanLay - ({lichSuLaySubquery})
+                        ELSE 0
+                    END
+                ),0)
+                FROM KeHoachHang kh
+                INNER JOIN KeHoach k ON k.id = kh.KeHoach_ID
+                WHERE kh.DanhSachMaSP_ID = @DanhSachMaSP_ID
+                  AND k.TrangThai = 'ACTIVE';";
+            using (var cmd = new SQLiteCommand(sqlDatTruocLay, conn, tran))
+            {
+                cmd.Parameters.AddWithValue("@DanhSachMaSP_ID", danhSachMaSpId);
+                datTruocLayNguyen = Convert.ToInt32(cmd.ExecuteScalar());
+            }
+
+            int datTruocDeCat = 0;
+            if (TableExists(conn, tran, "KeHoachCatNhom")
+                && TableExists(conn, tran, "KeHoachCatChiTiet"))
+            {
+                string chiTietChuaLamExpr = TableExists(conn, tran, "LichSuCat")
+                    ? @"EXISTS (
+                            SELECT 1
+                            FROM KeHoachCatChiTiet ct
+                            WHERE ct.KeHoachCatNhom_ID = n.id
+                              AND NOT EXISTS (
+                                  SELECT 1 FROM LichSuCat lc
+                                  WHERE lc.KeHoachCatChiTiet_ID = ct.id
+                              )
+                        )"
+                    : @"EXISTS (
+                            SELECT 1
+                            FROM KeHoachCatChiTiet ct
+                            WHERE ct.KeHoachCatNhom_ID = n.id
+                        )";
+
+                string sql = $@"
+                    SELECT COUNT(*)
+                    FROM KeHoachCatNhom n
+                    INNER JOIN KeHoachHang kh ON kh.id = n.KeHoachHang_ID
+                    INNER JOIN KeHoach k ON k.id = kh.KeHoach_ID
+                    WHERE kh.DanhSachMaSP_ID = @DanhSachMaSP_ID
+                      AND k.TrangThai = 'ACTIVE'
+                      AND n.TonCuonLe_ID IS NULL
+                      AND {chiTietChuaLamExpr};";
+
+                using var cmd = new SQLiteCommand(sql, conn, tran);
+                cmd.Parameters.AddWithValue("@DanhSachMaSP_ID", danhSachMaSpId);
+                datTruocDeCat = Convert.ToInt32(cmd.ExecuteScalar());
+            }
+
+            int datTruoc = datTruocLayNguyen + datTruocDeCat;
+            if (tonThucTe < datTruoc)
+            {
+                throw new InvalidOperationException(
+                    $"Không thể cập nhật nhập kho vì tồn cuộn chẵn sau thay đổi chỉ còn {tonThucTe} cuộn, " +
+                    $"trong khi các kế hoạch đang ACTIVE đã đặt trước {datTruoc} cuộn.");
+            }
+        }
+
         private static Dictionary<long, TTCuonDayEditState> LayTrangThaiTTCuonDayDeSua(
             SQLiteConnection conn,
             SQLiteTransaction tran,
@@ -577,12 +734,37 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
         {
             bool coBangLichSuCatDay = TableExists(conn, tran, "LichSuCatDay");
             bool coBangTTXuatKho = TableExists(conn, tran, "TTXuatKho");
+            bool coBangLichSuLayCuon = TableExists(conn, tran, "LichSuLayCuon");
+            bool coBangTonCuonLe = TableExists(conn, tran, "TonCuonLe");
+            bool coBangKeHoachCatNhom = TableExists(conn, tran, "KeHoachCatNhom");
+            bool coBangLichSuCatMoi = TableExists(conn, tran, "LichSuCat");
 
             string lichSuCatExpr = coBangLichSuCatDay
                 ? "EXISTS(SELECT 1 FROM LichSuCatDay ls WHERE ls.TTCuonDay_ID = td.id LIMIT 1)"
                 : "0";
             string xuatKhoExpr = coBangTTXuatKho
                 ? "EXISTS(SELECT 1 FROM TTXuatKho xk WHERE xk.TTCuonDay_ID = td.id LIMIT 1)"
+                : "0";
+            string lichSuLayCuonExpr = coBangLichSuLayCuon
+                ? "EXISTS(SELECT 1 FROM LichSuLayCuon ls WHERE ls.TTCuonDay_ID = td.id LIMIT 1)"
+                : "0";
+            string keHoachCatMoiExpr = coBangTonCuonLe && coBangKeHoachCatNhom
+                ? @"EXISTS(
+                        SELECT 1
+                        FROM TonCuonLe tl
+                        INNER JOIN KeHoachCatNhom n ON n.TonCuonLe_ID = tl.id
+                        WHERE tl.TTCuonDay_ID = td.id
+                        LIMIT 1
+                    )"
+                : "0";
+            string lichSuCatMoiExpr = coBangTonCuonLe && coBangLichSuCatMoi
+                ? @"EXISTS(
+                        SELECT 1
+                        FROM TonCuonLe tl
+                        INNER JOIN LichSuCat lc ON lc.TonCuonLe_ID = tl.id
+                        WHERE tl.TTCuonDay_ID = td.id
+                        LIMIT 1
+                    )"
                 : "0";
 
             string sql = $@"
@@ -596,7 +778,10 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                     td.TTLo_ID,
                     IFNULL(td.GhiChu, '') AS GhiChu,
                     CASE WHEN {lichSuCatExpr} THEN 1 ELSE 0 END AS CoLichSuCatDay,
-                    CASE WHEN {xuatKhoExpr} THEN 1 ELSE 0 END AS CoTTXuatKho
+                    CASE WHEN {xuatKhoExpr} THEN 1 ELSE 0 END AS CoTTXuatKho,
+                    CASE WHEN {lichSuLayCuonExpr} THEN 1 ELSE 0 END AS CoLichSuLayCuon,
+                    CASE WHEN {keHoachCatMoiExpr} THEN 1 ELSE 0 END AS CoKeHoachCatMoi,
+                    CASE WHEN {lichSuCatMoiExpr} THEN 1 ELSE 0 END AS CoLichSuCatMoi
                 FROM TTCuonDay td
                 WHERE td.ThongTinNhapKho_ID = @HeaderId
                 ORDER BY td.id;";
@@ -620,7 +805,10 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                     TTLoId = reader["TTLo_ID"] == DBNull.Value ? (int?)null : Convert.ToInt32(reader["TTLo_ID"]),
                     GhiChu = Convert.ToString(reader["GhiChu"]) ?? string.Empty,
                     CoLichSuCatDay = Convert.ToInt32(reader["CoLichSuCatDay"]) == 1,
-                    CoTTXuatKho = Convert.ToInt32(reader["CoTTXuatKho"]) == 1
+                    CoTTXuatKho = Convert.ToInt32(reader["CoTTXuatKho"]) == 1,
+                    CoLichSuLayCuon = Convert.ToInt32(reader["CoLichSuLayCuon"]) == 1,
+                    CoKeHoachCatMoi = Convert.ToInt32(reader["CoKeHoachCatMoi"]) == 1,
+                    CoLichSuCatMoi = Convert.ToInt32(reader["CoLichSuCatMoi"]) == 1
                 };
                 result[item.Id] = item;
             }
@@ -664,7 +852,7 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                     $"Tổng chiều dài trên danh sách ({tongNhapLanNay:G}) lớn hơn chiều dài còn lại ({model.SoMet:G}).");
 
             const string sqlGetThanhPham = @"
-                SELECT ChieuDaiSau
+                SELECT ChieuDaiSau, MaBin
                 FROM TTThanhPham
                 WHERE id = @id AND Temp = 0
                 LIMIT 1;";
@@ -705,7 +893,20 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                 VALUES
                     (@SoCuon, @ChieuDai_1cuon, @SoDau, @SoCuoi, @GhiChu,
                      @ThongTinNhapKho_ID, NULL, NULL, NULL,
-                     @TTLo_ID, @Ngay, @TTCuonDay_CD_ID);";
+                     @TTLo_ID, @Ngay, @TTCuonDay_CD_ID);
+                SELECT last_insert_rowid();";
+
+            const string sqlCheckTonCuonLe = @"
+                SELECT id
+                FROM TonCuonLe
+                WHERE MaCuon = @MaCuon
+                LIMIT 1;";
+
+            const string sqlInsertTonCuonLe = @"
+                INSERT INTO TonCuonLe
+                    (MaCuon, TTThanhPham_ID, TTCuonDay_ID, SoDau, SoCuoi, TrangThai, GhiChu)
+                VALUES
+                    (@MaCuon, @TTThanhPham_ID, @TTCuonDay_ID, @SoDau, @SoCuoi, 'ACTIVE', @GhiChu);";
 
             const string sqlUpdateThanhPham = @"
                 UPDATE TTThanhPham
@@ -740,20 +941,31 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
 
                 // Header INSERT đã đưa transaction vào trạng thái ghi.
                 // Sau đó kiểm tra lại ChieuDaiSau để tránh dùng snapshot cũ khi có phiên nhập kho đồng thời.
+                // Đồng thời lấy MaBin để dùng làm MaCuon khi dòng nhập kho là cuộn lẻ.
+                string maBinThanhPham;
                 using (var getTp = new SQLiteCommand(sqlGetThanhPham, conn, tran))
                 {
                     getTp.Parameters.AddWithValue("@id", model.TTThanhPham_ID);
-                    object value = getTp.ExecuteScalar();
-                    if (value == null || value == DBNull.Value)
+                    using SQLiteDataReader reader = getTp.ExecuteReader();
+                    if (!reader.Read())
                         throw new InvalidOperationException($"Không tìm thấy TTThanhPham id={model.TTThanhPham_ID}.");
 
-                    double chieuDaiSauHienTai = Convert.ToDouble(value);
+                    double chieuDaiSauHienTai = Convert.ToDouble(reader["ChieuDaiSau"]);
+                    maBinThanhPham = Convert.ToString(reader["MaBin"])?.Trim() ?? string.Empty;
+
                     if (Math.Abs(chieuDaiSauHienTai - model.SoMet) > 0.000001d)
                     {
                         throw new InvalidOperationException(
                             $"Chiều dài còn lại của MaBin đã thay đổi từ {model.SoMet:G} thành {chieuDaiSauHienTai:G}. " +
                             "Vui lòng tải lại MaBin trước khi nhập kho.");
                     }
+                }
+
+                bool coCuonLeCanTao = dsCuon.Any(x => x != null && x.SoDau.HasValue && x.soCuoi.HasValue);
+                if (coCuonLeCanTao && !TableExists(conn, tran, "TonCuonLe"))
+                {
+                    throw new InvalidOperationException(
+                        "Không tìm thấy bảng TonCuonLe. Vui lòng cập nhật database theo schema tồn kho mới trước khi nhập cuộn lẻ.");
                 }
 
                 using var getSource = new SQLiteCommand(sqlGetSource, conn, tran);
@@ -770,6 +982,17 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                 insertDetail.Parameters.Add("@TTLo_ID", DbType.Int32);
                 insertDetail.Parameters.Add("@Ngay", DbType.String);
                 insertDetail.Parameters.Add("@TTCuonDay_CD_ID", DbType.Int64);
+
+                using var checkTonCuonLe = new SQLiteCommand(sqlCheckTonCuonLe, conn, tran);
+                checkTonCuonLe.Parameters.Add("@MaCuon", DbType.String);
+
+                using var insertTonCuonLe = new SQLiteCommand(sqlInsertTonCuonLe, conn, tran);
+                insertTonCuonLe.Parameters.Add("@MaCuon", DbType.String);
+                insertTonCuonLe.Parameters.Add("@TTThanhPham_ID", DbType.Int64);
+                insertTonCuonLe.Parameters.Add("@TTCuonDay_ID", DbType.Int64);
+                insertTonCuonLe.Parameters.Add("@SoDau", DbType.Int32);
+                insertTonCuonLe.Parameters.Add("@SoCuoi", DbType.Int32);
+                insertTonCuonLe.Parameters.Add("@GhiChu", DbType.String);
 
                 double tongNhapThucTe = 0;
 
@@ -821,12 +1044,31 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                     // thao tác đảo chiều hợp lệ có thể tạo NULL <=> số.
                     int? soDauFinal = requested.SoDau;
                     int? soCuoiFinal = requested.soCuoi;
-                    bool laLo = ttLoId != DBNull.Value;
-                    if (laLo && (!soDauFinal.HasValue || !soCuoiFinal.HasValue))
-                        throw new InvalidOperationException($"TTCuonDay_CD id={sourceId}: Lô phải có đủ Số đầu và Số cuối.");
-                    if (laLo && chieuDai1Cuon != Math.Abs(soDauFinal.Value - soCuoiFinal.Value))
+
+                    // Quy ước tồn kho mới:
+                    // - Cuộn chẵn: SoDau = NULL và SoCuoi = NULL.
+                    // - Cuộn lẻ:   SoDau != NULL và SoCuoi != NULL, SoCuon = 1.
+                    // NULL một phía là dữ liệu bất thường, không cho phép ghi xuống kho.
+                    bool coSoDau = soDauFinal.HasValue;
+                    bool coSoCuoi = soCuoiFinal.HasValue;
+                    if (coSoDau != coSoCuoi)
+                    {
                         throw new InvalidOperationException(
-                            $"TTCuonDay_CD id={sourceId}: chiều dài lô phải bằng ABS(Số đầu - Số cuối).");
+                            $"TTCuonDay_CD id={sourceId}: Số đầu và Số cuối phải cùng có giá trị hoặc cùng để trống.");
+                    }
+
+                    bool laCuonLe = coSoDau && coSoCuoi;
+                    if (laCuonLe && requested.SoCuon != 1)
+                    {
+                        throw new InvalidOperationException(
+                            $"TTCuonDay_CD id={sourceId}: cuộn lẻ phải có Số cuộn = 1.");
+                    }
+
+                    if (laCuonLe && chieuDai1Cuon != Math.Abs(soDauFinal.Value - soCuoiFinal.Value))
+                    {
+                        throw new InvalidOperationException(
+                            $"TTCuonDay_CD id={sourceId}: chiều dài cuộn lẻ phải bằng ABS(Số đầu - Số cuối).");
+                    }
 
                     insertDetail.Parameters["@SoDau"].Value = soDauFinal.HasValue ? (object)soDauFinal.Value : DBNull.Value;
                     insertDetail.Parameters["@SoCuoi"].Value = soCuoiFinal.HasValue ? (object)soCuoiFinal.Value : DBNull.Value;
@@ -846,7 +1088,36 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                             $"lớn hơn chiều dài còn lại ({model.SoMet:G}). Vui lòng tải lại dữ liệu.");
                     }
 
-                    insertDetail.ExecuteNonQuery();
+                    long ttCuonDayId = Convert.ToInt64(insertDetail.ExecuteScalar());
+
+                    // Chỉ cuộn lẻ mới được quản lý riêng trong TonCuonLe.
+                    // Cuộn chẵn tiếp tục được quản lý theo số lượng trên TTCuonDay.
+                    if (laCuonLe)
+                    {
+                        if (string.IsNullOrWhiteSpace(maBinThanhPham))
+                        {
+                            throw new InvalidOperationException(
+                                $"TTThanhPham id={model.TTThanhPham_ID}: MaBin trống, không thể tạo TonCuonLe.");
+                        }
+
+                        checkTonCuonLe.Parameters["@MaCuon"].Value = maBinThanhPham;
+                        object tonCuonLeDaCo = checkTonCuonLe.ExecuteScalar();
+                        if (tonCuonLeDaCo != null && tonCuonLeDaCo != DBNull.Value)
+                        {
+                            throw new InvalidOperationException(
+                                $"MaBin '{maBinThanhPham}' đã tồn tại trong TonCuonLe, không thể tạo thêm một cuộn lẻ cùng mã.");
+                        }
+
+                        insertTonCuonLe.Parameters["@MaCuon"].Value = maBinThanhPham;
+                        insertTonCuonLe.Parameters["@TTThanhPham_ID"].Value = model.TTThanhPham_ID;
+                        insertTonCuonLe.Parameters["@TTCuonDay_ID"].Value = ttCuonDayId;
+                        insertTonCuonLe.Parameters["@SoDau"].Value = soDauFinal.Value;
+                        insertTonCuonLe.Parameters["@SoCuoi"].Value = soCuoiFinal.Value;
+                        insertTonCuonLe.Parameters["@GhiChu"].Value = string.IsNullOrWhiteSpace(requested.Ghichu)
+                            ? (object)DBNull.Value
+                            : requested.Ghichu.Trim();
+                        insertTonCuonLe.ExecuteNonQuery();
+                    }
                 }
 
                 double chieuDaiConLai = model.SoMet - tongNhapThucTe;
@@ -914,7 +1185,7 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
             try
             {
                 // Không tin TTThanhPham_ID/ngày/MaBin/số mét từ UI khi sửa.
-                // Đọc danh tính thật của lần nhập ngay trong transaction.
+                // Đọc danh tính thật của lần nhập trong cùng transaction.
                 long ttThanhPhamIdThucTe;
                 using (var cmd = new SQLiteCommand(@"
                     SELECT TTThanhPham_ID
@@ -933,7 +1204,7 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                             $"TTNhapKhoTP id={idNhapKho} không có TTThanhPham_ID hợp lệ.");
                 }
 
-                // Phase này chỉ cho phép sửa GhiChu của header.
+                // Header chỉ cho sửa GhiChu.
                 using (var cmd = new SQLiteCommand(@"
                     UPDATE TTNhapKhoTP
                     SET GhiChu=@GhiChu
@@ -964,11 +1235,13 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                             $"TTNhapKhoTP id={idNhapKho} không có TTCuonDay để cập nhật.");
 
                     var submitted = dsCuon.ToDictionary(x => x.TTCuonDay_ID.Value, x => x);
+                    bool coBangTonCuonLe = TableExists(conn, tran, "TonCuonLe");
 
+                    // Kiểm tra từng dòng trước khi ghi DB.
                     foreach (var pair in submitted)
                     {
                         long ttCuonDayId = pair.Key;
-                        var item = pair.Value;
+                        DG_TonKhoBTP_v02.Models.ThongTinCuonDay item = pair.Value;
 
                         if (!hienTai.TryGetValue(ttCuonDayId, out TTCuonDayEditState old))
                             throw new InvalidOperationException(
@@ -977,6 +1250,29 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                         if (!old.SourceId.HasValue || old.SourceId.Value != item.TTCuonDay_CD_ID.Value)
                             throw new InvalidOperationException(
                                 $"TTCuonDay id={ttCuonDayId}: TTCuonDay_CD_ID nguồn không được thay đổi khi sửa phiếu.");
+
+                        KiemTraKieuCuonHopLe(
+                            ttCuonDayId,
+                            old.SoCuon,
+                            old.ChieuDai1Cuon,
+                            old.SoDau,
+                            old.SoCuoi);
+
+                        KiemTraKieuCuonHopLe(
+                            ttCuonDayId,
+                            item.SoCuon,
+                            item.TongChieuDai,
+                            item.SoDau,
+                            item.soCuoi);
+
+                        bool oldLaCuonChan = LaCuonChan(old.SoDau, old.SoCuoi);
+                        bool newLaCuonChan = LaCuonChan(item.SoDau, item.soCuoi);
+                        if (oldLaCuonChan != newLaCuonChan)
+                        {
+                            throw new InvalidOperationException(
+                                $"TTCuonDay id={ttCuonDayId}: Edit nhập kho không được đổi loại cuộn chẵn ↔ cuộn lẻ. " +
+                                "Việc cuộn chẵn chuyển thành cuộn lẻ chỉ được thực hiện tại B3 khi cắt lần đầu.");
+                        }
 
                         if (old.CoLichSuDownstream)
                         {
@@ -990,22 +1286,29 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                             if (protectedChanged)
                             {
                                 throw new InvalidOperationException(
-                                    $"TTCuonDay id={ttCuonDayId} đã có lịch sử cắt dây hoặc xuất kho; chỉ được sửa GhiChu.");
+                                    $"TTCuonDay id={ttCuonDayId} đã được nghiệp vụ phía sau sử dụng; chỉ được sửa GhiChu.");
                             }
+                        }
+                        else if (LaCuonLe(old.SoDau, old.SoCuoi) && !coBangTonCuonLe)
+                        {
+                            throw new InvalidOperationException(
+                                $"TTCuonDay id={ttCuonDayId} là cuộn lẻ nhưng database chưa có bảng TonCuonLe. " +
+                                "Vui lòng cập nhật schema trước khi sửa dữ liệu nhập kho.");
                         }
                     }
 
+                    // Dòng bị loại khỏi Frm_DLCuon chỉ được xoá khi chưa có downstream.
                     foreach (TTCuonDayEditState old in hienTai.Values)
                     {
                         if (submitted.ContainsKey(old.Id)) continue;
                         if (old.CoLichSuDownstream)
                         {
                             throw new InvalidOperationException(
-                                $"Không thể xoá TTCuonDay id={old.Id} vì đã có lịch sử cắt dây hoặc xuất kho.");
+                                $"Không thể xoá TTCuonDay id={old.Id} vì dữ liệu đã được nghiệp vụ phía sau sử dụng.");
                         }
                     }
 
-                    // Kiểm tra tổng số cuộn theo từng nguồn, loại trừ lượng đang thuộc chính phiếu hiện tại.
+                    // Giữ rule nguồn hiện tại: tổng số cuộn theo TTCuonDay_CD không được vượt nguồn.
                     const string sqlSource = @"
                         SELECT
                             IFNULL(cd.SoCuon, 0) AS SoCuonNguon,
@@ -1035,8 +1338,7 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                         getSource.Parameters["@SourceId"].Value = sourceId;
                         using var reader = getSource.ExecuteReader();
                         if (!reader.Read())
-                            throw new InvalidOperationException(
-                                $"Không tìm thấy TTCuonDay_CD id={sourceId}.");
+                            throw new InvalidOperationException($"Không tìm thấy TTCuonDay_CD id={sourceId}.");
 
                         int soCuonNguon = reader["SoCuonNguon"] == DBNull.Value
                             ? 0
@@ -1055,20 +1357,23 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                         }
                     }
 
-                    foreach (var item in dsCuon)
+                    // Xoá TonCuonLe mirror trước khi xoá TTCuonDay để không phụ thuộc
+                    // vào việc database thực tế có bật/khai báo FK CASCADE hay không.
+                    if (coBangTonCuonLe)
                     {
-                        if (item.SoCuon <= 0)
-                            throw new InvalidOperationException(
-                                $"TTCuonDay id={item.TTCuonDay_ID}: số cuộn phải lớn hơn 0.");
-                        if (item.TongChieuDai < 0)
-                            throw new InvalidOperationException(
-                                $"TTCuonDay id={item.TTCuonDay_ID}: chiều dài không hợp lệ.");
-                        if (item.TTLo_ID.HasValue && (!item.SoDau.HasValue || !item.soCuoi.HasValue))
-                            throw new InvalidOperationException(
-                                $"TTCuonDay id={item.TTCuonDay_ID}: Lô phải có đủ Số đầu và Số cuối.");
+                        using var delTonCuonLe = new SQLiteCommand(@"
+                            DELETE FROM TonCuonLe
+                            WHERE TTCuonDay_ID=@TTCuonDay_ID;", conn, tran);
+                        delTonCuonLe.Parameters.Add("@TTCuonDay_ID", DbType.Int64);
+
+                        foreach (TTCuonDayEditState old in hienTai.Values)
+                        {
+                            if (submitted.ContainsKey(old.Id)) continue;
+                            delTonCuonLe.Parameters["@TTCuonDay_ID"].Value = old.Id;
+                            delTonCuonLe.ExecuteNonQuery();
+                        }
                     }
 
-                    // Xoá đúng các detail bị người dùng loại khỏi Frm_DLCuon.
                     using (var del = new SQLiteCommand(@"
                         DELETE FROM TTCuonDay
                         WHERE id=@Id AND ThongTinNhapKho_ID=@HeaderId;", conn, tran))
@@ -1082,13 +1387,10 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                             if (submitted.ContainsKey(old.Id)) continue;
                             del.Parameters["@Id"].Value = old.Id;
                             if (del.ExecuteNonQuery() != 1)
-                                throw new InvalidOperationException(
-                                    $"Không xoá được TTCuonDay id={old.Id}.");
+                                throw new InvalidOperationException($"Không xoá được TTCuonDay id={old.Id}.");
                         }
                     }
 
-                    // Không cập nhật cột Ngay của TTCuonDay ở phase này.
-                    // dtNgay chỉ là bộ lọc tìm kiếm, không phải dữ liệu được phép sửa.
                     const string sqlUpdateDetail = @"
                         UPDATE TTCuonDay
                         SET SoCuon=@SoCuon,
@@ -1121,53 +1423,103 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                     updateLockedNote.Parameters.Add("@HeaderId", DbType.Int64);
                     updateLockedNote.Parameters["@HeaderId"].Value = idNhapKho;
 
-                    foreach (var item in dsCuon)
+                    SQLiteCommand updateTonCuonLe = null;
+                    if (coBangTonCuonLe)
                     {
-                        long id = item.TTCuonDay_ID.Value;
-                        TTCuonDayEditState old = hienTai[id];
-
-                        if (old.CoLichSuDownstream)
-                        {
-                            updateLockedNote.Parameters["@GhiChu"].Value = item.Ghichu ?? string.Empty;
-                            updateLockedNote.Parameters["@Id"].Value = id;
-                            if (updateLockedNote.ExecuteNonQuery() != 1)
-                                throw new InvalidOperationException(
-                                    $"Không cập nhật được GhiChu của TTCuonDay id={id}.");
-                            continue;
-                        }
-
-                        updateDetail.Parameters["@SoCuon"].Value = item.SoCuon;
-                        updateDetail.Parameters["@ChieuDai"].Value = item.TongChieuDai;
-                        updateDetail.Parameters["@SoDau"].Value = item.SoDau.HasValue
-                            ? (object)item.SoDau.Value
-                            : DBNull.Value;
-                        updateDetail.Parameters["@SoCuoi"].Value = item.soCuoi.HasValue
-                            ? (object)item.soCuoi.Value
-                            : DBNull.Value;
-                        updateDetail.Parameters["@GhiChu"].Value = item.Ghichu ?? string.Empty;
-                        updateDetail.Parameters["@TTLo_ID"].Value = item.TTLo_ID.HasValue
-                            ? (object)item.TTLo_ID.Value
-                            : DBNull.Value;
-                        updateDetail.Parameters["@Id"].Value = id;
-
-                        if (updateDetail.ExecuteNonQuery() != 1)
-                            throw new InvalidOperationException(
-                                $"Không cập nhật được TTCuonDay id={id}.");
+                        updateTonCuonLe = new SQLiteCommand(@"
+                            UPDATE TonCuonLe
+                            SET SoDau=@SoDau,
+                                SoCuoi=@SoCuoi,
+                                TrangThai='ACTIVE',
+                                GhiChu=@GhiChu
+                            WHERE TTCuonDay_ID=@TTCuonDay_ID;", conn, tran);
+                        updateTonCuonLe.Parameters.Add("@SoDau", DbType.Int32);
+                        updateTonCuonLe.Parameters.Add("@SoCuoi", DbType.Int32);
+                        updateTonCuonLe.Parameters.Add("@GhiChu", DbType.String);
+                        updateTonCuonLe.Parameters.Add("@TTCuonDay_ID", DbType.Int64);
                     }
 
-                    // Giữ nguyên nghiệp vụ hiện tại: hoàn/trừ chênh lệch chiều dài thực tế
-                    // về TTThanhPham.ChieuDaiSau khi số lượng/chiều dài cuộn-lô thay đổi.
+                    try
+                    {
+                        foreach (DG_TonKhoBTP_v02.Models.ThongTinCuonDay item in dsCuon)
+                        {
+                            long id = item.TTCuonDay_ID.Value;
+                            TTCuonDayEditState old = hienTai[id];
+
+                            if (old.CoLichSuDownstream)
+                            {
+                                updateLockedNote.Parameters["@GhiChu"].Value = item.Ghichu ?? string.Empty;
+                                updateLockedNote.Parameters["@Id"].Value = id;
+                                if (updateLockedNote.ExecuteNonQuery() != 1)
+                                    throw new InvalidOperationException(
+                                        $"Không cập nhật được GhiChu của TTCuonDay id={id}.");
+                                continue;
+                            }
+
+                            updateDetail.Parameters["@SoCuon"].Value = item.SoCuon;
+                            updateDetail.Parameters["@ChieuDai"].Value = item.TongChieuDai;
+                            updateDetail.Parameters["@SoDau"].Value = item.SoDau.HasValue
+                                ? (object)item.SoDau.Value
+                                : DBNull.Value;
+                            updateDetail.Parameters["@SoCuoi"].Value = item.soCuoi.HasValue
+                                ? (object)item.soCuoi.Value
+                                : DBNull.Value;
+                            updateDetail.Parameters["@GhiChu"].Value = item.Ghichu ?? string.Empty;
+                            updateDetail.Parameters["@TTLo_ID"].Value = item.TTLo_ID.HasValue
+                                ? (object)item.TTLo_ID.Value
+                                : DBNull.Value;
+                            updateDetail.Parameters["@Id"].Value = id;
+
+                            if (updateDetail.ExecuteNonQuery() != 1)
+                                throw new InvalidOperationException($"Không cập nhật được TTCuonDay id={id}.");
+
+                            // Cuộn lẻ chưa downstream phải cập nhật đồng thời trạng thái mirror.
+                            if (LaCuonLe(item.SoDau, item.soCuoi))
+                            {
+                                if (updateTonCuonLe == null)
+                                    throw new InvalidOperationException(
+                                        $"TTCuonDay id={id}: không thể đồng bộ cuộn lẻ vì chưa có bảng TonCuonLe.");
+
+                                updateTonCuonLe.Parameters["@SoDau"].Value = item.SoDau.Value;
+                                updateTonCuonLe.Parameters["@SoCuoi"].Value = item.soCuoi.Value;
+                                updateTonCuonLe.Parameters["@GhiChu"].Value = string.IsNullOrWhiteSpace(item.Ghichu)
+                                    ? (object)DBNull.Value
+                                    : item.Ghichu.Trim();
+                                updateTonCuonLe.Parameters["@TTCuonDay_ID"].Value = id;
+
+                                int affected = updateTonCuonLe.ExecuteNonQuery();
+                                if (affected != 1)
+                                {
+                                    throw new InvalidOperationException(
+                                        $"TTCuonDay id={id}: phải có đúng 1 TonCuonLe để đồng bộ nhưng tìm thấy {affected}. " +
+                                        "Vui lòng kiểm tra/backfill dữ liệu tồn cuộn lẻ trước khi sửa phiếu.");
+                                }
+                            }
+                        }
+                    }
+                    finally
+                    {
+                        updateTonCuonLe?.Dispose();
+                    }
+
+                    // Hoàn/trừ chênh lệch chiều dài thực tế về TTThanhPham.ChieuDaiSau.
                     double tongMoi = dsCuon.Sum(x => (double)x.SoCuon * x.TongChieuDai);
                     double delta = tongCu - tongMoi;
-                    using var updateTp = new SQLiteCommand(@"
+                    using (var updateTp = new SQLiteCommand(@"
                         UPDATE TTThanhPham
                         SET ChieuDaiSau = MAX(0, IFNULL(ChieuDaiSau,0) + @Delta)
-                        WHERE id=@id;", conn, tran);
-                    updateTp.Parameters.AddWithValue("@Delta", delta);
-                    updateTp.Parameters.AddWithValue("@id", ttThanhPhamIdThucTe);
-                    if (updateTp.ExecuteNonQuery() != 1)
-                        throw new InvalidOperationException(
-                            $"Không cập nhật được TTThanhPham id={ttThanhPhamIdThucTe}.");
+                        WHERE id=@id;", conn, tran))
+                    {
+                        updateTp.Parameters.AddWithValue("@Delta", delta);
+                        updateTp.Parameters.AddWithValue("@id", ttThanhPhamIdThucTe);
+                        if (updateTp.ExecuteNonQuery() != 1)
+                            throw new InvalidOperationException(
+                                $"Không cập nhật được TTThanhPham id={ttThanhPhamIdThucTe}.");
+                    }
+
+                    // Cuộn chẵn không được sửa/xoá đến mức tồn sau thay đổi nhỏ hơn lượng
+                    // các kế hoạch ACTIVE đang giữ chỗ.
+                    KiemTraTonCuonChanSauThayDoi(conn, tran, ttThanhPhamIdThucTe);
                 }
 
                 tran.Commit();
@@ -1178,7 +1530,6 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                 throw;
             }
         }
-
 
 
         public static DataTable LayTTNhapKhoTPTheoTTThanhPhamId(long ttThanhPhamId)
@@ -1661,7 +2012,6 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
             {
                 long ttThanhPhamId;
 
-                // Đọc đúng TTNhapKhoTP đang xoá trong transaction.
                 using (var cmd = new SQLiteCommand(@"
                     SELECT TTThanhPham_ID
                     FROM TTNhapKhoTP
@@ -1672,8 +2022,7 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                     object value = cmd.ExecuteScalar();
 
                     if (value == null || value == DBNull.Value)
-                        throw new InvalidOperationException(
-                            $"Không tìm thấy TTNhapKhoTP id={idNhapKho}.");
+                        throw new InvalidOperationException($"Không tìm thấy TTNhapKhoTP id={idNhapKho}.");
 
                     ttThanhPhamId = Convert.ToInt64(value);
                     if (ttThanhPhamId <= 0)
@@ -1681,27 +2030,33 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                             $"TTNhapKhoTP id={idNhapKho} không có TTThanhPham_ID hợp lệ.");
                 }
 
-                // Đọc toàn bộ TTCuonDay và trạng thái downstream bằng chính helper
-                // đang dùng cho luồng sửa. Helper này tương thích cả DB cũ chưa có
-                // bảng LichSuCatDay.
                 Dictionary<long, TTCuonDayEditState> dsTTCuonDay =
                     LayTrangThaiTTCuonDayDeSua(conn, tran, idNhapKho);
 
                 if (dsTTCuonDay.Values.Any(x => x.CoLichSuDownstream))
                 {
                     throw new InvalidOperationException(
-                        "Không thể xoá do đã có lịch sử cắt dây/xuất kho.");
+                        "Không thể xoá lần nhập kho vì có cuộn/lô đã được nghiệp vụ phía sau sử dụng.");
                 }
 
-                // Hoàn trả đúng lượng đã nhập của riêng lần nhập này.
-                // Không dùng TTNhapKhoTP.TongChieuDai vì đây là snapshot chiều dài
-                // còn lại tại thời điểm nhập, không phải tổng lượng thực tế đã nhập.
                 double tongChieuDaiHoanTra = dsTTCuonDay.Values.Sum(
                     x => (double)x.SoCuon * x.ChieuDai1Cuon);
 
-                // Xoá detail chủ động thay vì dựa hoàn toàn vào ON DELETE CASCADE.
-                // Downstream đã được kiểm tra ở trên nên thao tác này không được phép
-                // làm mất lịch sử cắt dây / xuất kho.
+                // Chủ động xoá TonCuonLe chưa sử dụng để không phụ thuộc FK CASCADE
+                // trong database thực tế của người dùng.
+                if (TableExists(conn, tran, "TonCuonLe"))
+                {
+                    using var cmd = new SQLiteCommand(@"
+                        DELETE FROM TonCuonLe
+                        WHERE TTCuonDay_ID IN (
+                            SELECT id
+                            FROM TTCuonDay
+                            WHERE ThongTinNhapKho_ID=@id
+                        );", conn, tran);
+                    cmd.Parameters.AddWithValue("@id", idNhapKho);
+                    cmd.ExecuteNonQuery();
+                }
+
                 using (var cmd = new SQLiteCommand(@"
                     DELETE FROM TTCuonDay
                     WHERE ThongTinNhapKho_ID = @id;", conn, tran))
@@ -1710,20 +2065,15 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                     cmd.ExecuteNonQuery();
                 }
 
-                // Xoá đúng header TTNhapKhoTP.
                 using (var cmd = new SQLiteCommand(@"
                     DELETE FROM TTNhapKhoTP
                     WHERE id = @id;", conn, tran))
                 {
                     cmd.Parameters.AddWithValue("@id", idNhapKho);
-
                     if (cmd.ExecuteNonQuery() != 1)
-                        throw new InvalidOperationException(
-                            $"Không xoá được TTNhapKhoTP id={idNhapKho}.");
+                        throw new InvalidOperationException($"Không xoá được TTNhapKhoTP id={idNhapKho}.");
                 }
 
-                // Trả lại chiều dài của lần nhập vừa xoá.
-                // NhapKho chỉ về 0 khi TTThanhPham không còn bất kỳ lần nhập nào khác.
                 using (var cmd = new SQLiteCommand(@"
                     UPDATE TTThanhPham
                     SET ChieuDaiSau = IFNULL(ChieuDaiSau, 0) + @TongHoanTra,
@@ -1746,6 +2096,10 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                             $"Không cập nhật được TTThanhPham id={ttThanhPhamId} sau khi xoá nhập kho.");
                 }
 
+                // Xoá B1 chỉ được hoàn tất nếu phần tồn cuộn chẵn còn lại vẫn đủ cho
+                // toàn bộ kế hoạch ACTIVE đã giữ chỗ.
+                KiemTraTonCuonChanSauThayDoi(conn, tran, ttThanhPhamId);
+
                 tran.Commit();
             }
             catch
@@ -1764,11 +2118,37 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
 
             bool coBangLichSuCatDay = TableExists(conn, null, "LichSuCatDay");
             bool coBangTTXuatKho = TableExists(conn, null, "TTXuatKho");
+            bool coBangLichSuLayCuon = TableExists(conn, null, "LichSuLayCuon");
+            bool coBangTonCuonLe = TableExists(conn, null, "TonCuonLe");
+            bool coBangKeHoachCatNhom = TableExists(conn, null, "KeHoachCatNhom");
+            bool coBangLichSuCatMoi = TableExists(conn, null, "LichSuCat");
+
             string lichSuCatExpr = coBangLichSuCatDay
                 ? "EXISTS(SELECT 1 FROM LichSuCatDay ls WHERE ls.TTCuonDay_ID = cd.id LIMIT 1)"
                 : "0";
             string xuatKhoExpr = coBangTTXuatKho
                 ? "EXISTS(SELECT 1 FROM TTXuatKho xk WHERE xk.TTCuonDay_ID = cd.id LIMIT 1)"
+                : "0";
+            string lichSuLayCuonExpr = coBangLichSuLayCuon
+                ? "EXISTS(SELECT 1 FROM LichSuLayCuon ls WHERE ls.TTCuonDay_ID = cd.id LIMIT 1)"
+                : "0";
+            string keHoachCatMoiExpr = coBangTonCuonLe && coBangKeHoachCatNhom
+                ? @"EXISTS(
+                        SELECT 1
+                        FROM TonCuonLe tl
+                        INNER JOIN KeHoachCatNhom n ON n.TonCuonLe_ID = tl.id
+                        WHERE tl.TTCuonDay_ID = cd.id
+                        LIMIT 1
+                    )"
+                : "0";
+            string lichSuCatMoiExpr = coBangTonCuonLe && coBangLichSuCatMoi
+                ? @"EXISTS(
+                        SELECT 1
+                        FROM TonCuonLe tl
+                        INNER JOIN LichSuCat lc ON lc.TonCuonLe_ID = tl.id
+                        WHERE tl.TTCuonDay_ID = cd.id
+                        LIMIT 1
+                    )"
                 : "0";
 
             string sql = $@"
@@ -1787,7 +2167,13 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                         WHEN lo.id IS NOT NULL THEN 1
                         ELSE 0
                     END AS TTLoHopLe,
-                    CASE WHEN ({lichSuCatExpr}) OR ({xuatKhoExpr}) THEN 1 ELSE 0 END AS CoLichSuDownstream
+                    CASE WHEN
+                        ({lichSuCatExpr})
+                        OR ({xuatKhoExpr})
+                        OR ({lichSuLayCuonExpr})
+                        OR ({keHoachCatMoiExpr})
+                        OR ({lichSuCatMoiExpr})
+                    THEN 1 ELSE 0 END AS CoLichSuDownstream
                 FROM TTCuonDay cd
                 LEFT JOIN TTLo lo ON lo.id = cd.TTLo_ID
                 WHERE cd.ThongTinNhapKho_ID = @ThongTinNhapKho_ID
@@ -1887,15 +2273,5 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                 KlKhoiLuongCaNanPhu = reader["klKhoiLuongCaNanPhu"] == DBNull.Value ? (double?)null : Convert.ToDouble(reader["klKhoiLuongCaNanPhu"]),
             };
         }
-    }
-
-    /// <summary>DTO chứa kết quả từ TTBoSung và TTLo.</summary>
-    public class ThongTinBoSungVaLo
-    {
-        public string TenChiTiet { get; set; } = string.Empty;
-        public string TieuChuan { get; set; } = string.Empty;
-        public double HeSoT { get; set; }
-        public double? KlKhoiLuong { get; set; }
-        public double? KlKhoiLuongCaNanPhu { get; set; }
     }
 }

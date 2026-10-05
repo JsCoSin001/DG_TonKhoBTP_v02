@@ -1,5 +1,4 @@
-﻿using DG_TonKhoBTP_v02.Database.Kho;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -111,6 +110,62 @@ namespace DG_TonKhoBTP_v02.Models
         public Exception Error { get; set; }
 
         public bool ThanhCong => Error == null;
+    }
+
+
+
+    /// <summary>
+    /// Trạng thái một dòng nguồn TTCuonDay_CD khi sửa dữ liệu nguồn nhập kho.
+    /// Được NhapKho_DB sử dụng để kiểm tra số lượng đã nhập và khóa các trường kỹ thuật khi cần.
+    /// </summary>
+    internal sealed class SourceEditState
+    {
+        public long Id { get; set; }
+        public long CongDoanId { get; set; }
+        public int SoCuon { get; set; }
+        public int TongChieuDai { get; set; }
+        public int? SoDau { get; set; }
+        public int? SoCuoi { get; set; }
+        public int? TTLoId { get; set; }
+        public int SoCuonDaNhap { get; set; }
+    }
+
+    /// <summary>
+    /// Snapshot trạng thái TTCuonDay khi Edit B1.
+    /// Dùng để quyết định dòng còn được sửa nghiệp vụ hay chỉ được sửa GhiChu.
+    /// </summary>
+    internal sealed class TTCuonDayEditState
+    {
+        public long Id { get; set; }
+        public long? SourceId { get; set; }
+        public int SoCuon { get; set; }
+        public int ChieuDai1Cuon { get; set; }
+        public int? SoDau { get; set; }
+        public int? SoCuoi { get; set; }
+        public int? TTLoId { get; set; }
+        public string GhiChu { get; set; } = string.Empty;
+        public bool CoLichSuCatDay { get; set; }
+        public bool CoTTXuatKho { get; set; }
+        public bool CoLichSuLayCuon { get; set; }
+        public bool CoKeHoachCatMoi { get; set; }
+        public bool CoLichSuCatMoi { get; set; }
+
+        public bool CoLichSuDownstream =>
+            CoLichSuCatDay
+            || CoTTXuatKho
+            || CoLichSuLayCuon
+            || CoKeHoachCatMoi
+            || CoLichSuCatMoi;
+    }
+
+    /// <summary>DTO chứa kết quả từ TTBoSung và TTLo.</summary>
+    public class ThongTinBoSungVaLo
+    {
+        public string TenChiTiet { get; set; } = string.Empty;
+        public string TieuChuan { get; set; } = string.Empty;
+        public double HeSoT { get; set; }
+        public double? KlKhoiLuong { get; set; }
+        public double? KlKhoiLuongCaNanPhu { get; set; }
     }
 
     /// <summary>

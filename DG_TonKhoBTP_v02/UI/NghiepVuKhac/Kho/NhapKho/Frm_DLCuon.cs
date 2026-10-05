@@ -486,7 +486,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
 
             if (_mode == FrmDLCuonMode.NhapKhoEdit && IsRowDownstreamLocked(row))
             {
-                // Đã có lịch sử cắt dây/xuất kho: chỉ GhiChu được phép thay đổi.
+                // Dữ liệu đã được nghiệp vụ phía sau sử dụng: chỉ GhiChu được phép thay đổi.
                 SetCellReadonly(row, "loai", true);
                 SetCellReadonly(row, "slCuon", true);
                 SetCellReadonly(row, "tongChieuDai", true);
@@ -509,6 +509,11 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
 
             bool isCuon = loaiValue == LOAI_CUON_VALUE;
 
+            // Edit B1 không được đổi loại Cuộn/Lô (tương ứng không được đổi
+            // trạng thái chẵn ↔ lẻ). Việc cuộn chẵn trở thành cuộn lẻ chỉ diễn ra ở B3.
+            if (_mode == FrmDLCuonMode.NhapKhoEdit)
+                SetCellReadonly(row, "loai", true);
+
             if (isCuon)
             {
                 // Cuộn:
@@ -525,12 +530,15 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
             }
             else
             {
-                // Lô:
+                // Lô/cuộn lẻ:
                 // - Người dùng nhập Số đầu / Số cuối.
                 // - Tổng CD tự tính = |Số cuối - Số đầu| và bị khóa.
+                // - Trong Edit B1, Số cuộn luôn phải giữ = 1.
                 SetCellReadonly(row, "tongChieuDai", true);
                 SetCellReadonly(row, "soDau", false);
                 SetCellReadonly(row, "soCuoi", false);
+                if (_mode == FrmDLCuonMode.NhapKhoEdit)
+                    SetCellReadonly(row, "slCuon", true);
 
                 if (autoCalculate)
                     AutoSetTongChieuDaiForLo(row);
@@ -728,7 +736,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
 
             if (_mode == FrmDLCuonMode.NhapKhoEdit && IsRowDownstreamLocked(row))
             {
-                FrmWaiting.ShowGifAlert("Cuộn/lô này đã có lịch sử cắt dây hoặc xuất kho; chỉ được sửa Ghi chú.");
+                FrmWaiting.ShowGifAlert("Cuộn/lô này đã được nghiệp vụ phía sau sử dụng; chỉ được sửa Ghi chú.");
                 return;
             }
 
@@ -791,7 +799,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
 
             if (_mode == FrmDLCuonMode.NhapKhoEdit && IsRowDownstreamLocked(row))
             {
-                FrmWaiting.ShowGifAlert("Không thể xoá cuộn/lô này vì đã có lịch sử cắt dây hoặc xuất kho.");
+                FrmWaiting.ShowGifAlert("Không thể xoá cuộn/lô này vì dữ liệu đã được nghiệp vụ phía sau sử dụng.");
                 return;
             }
 

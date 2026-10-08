@@ -1,6 +1,6 @@
 ﻿namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
 {
-    partial class UC_CatDay
+    partial class UC_LapKeHoachCatDay
     {
         /// <summary> 
         /// Required designer variable.
@@ -73,7 +73,7 @@
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(1826, 63);
             this.label1.TabIndex = 1;
-            this.label1.Text = "QUẢN LÝ TỒN KHO";
+            this.label1.Text = "KẾ HOẠCH CẮT DÂY";
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // panel1
@@ -340,7 +340,7 @@
             this.grvKetQuaTimKiem.Size = new System.Drawing.Size(1812, 661);
             this.grvKetQuaTimKiem.TabIndex = 0;
             // 
-            // UC_CatDay
+            // UC_LapKeHoachCatDay
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -349,7 +349,7 @@
             this.Controls.Add(this.label1);
             this.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Margin = new System.Windows.Forms.Padding(4);
-            this.Name = "UC_CatDay";
+            this.Name = "UC_LapKeHoachCatDay";
             this.Size = new System.Drawing.Size(1826, 852);
             this.panel1.ResumeLayout(false);
             this.panel3.ResumeLayout(false);

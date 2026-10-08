@@ -163,6 +163,7 @@
     <Compile Include="Database\DB_XuatNhapKho.cs" />
     <Compile Include="Database\Kho\TonKhoExcelReport_DB.cs" />
     <Compile Include="Database\Kho\XuatKho\CatDay_DB.cs" />
+    <Compile Include="Database\Kho\XuatKho\LapKeHoachCatDay_DB.cs" />
     <Compile Include="Database\Kho\XuatKho_DB.cs" />
     <Compile Include="Database\SanXuat\LoiDungMay_DB.cs" />
     <Compile Include="Database\SanXuat\LuuTam_DB.cs" />
@@ -213,6 +214,7 @@
     <Compile Include="Models\Kho\LotCode.cs" />
     <Compile Include="Models\Kho\TonKhoLoReportModels.cs" />
     <Compile Include="Models\Kho\XuatKho\CatDay_Model.cs" />
+    <Compile Include="Models\Kho\XuatKho\LapKeHoachCatDay_Model.cs" />
     <Compile Include="Models\Kho\XuatKho_Model.cs" />
     <Compile Include="Models\KiemKe.cs" />
     <Compile Include="Models\LoginClass.cs" />
@@ -367,17 +369,11 @@
     <Compile Include="UI\NghiepVuKhac\Kho\XuatKho\Frm_CatLeCuonChan.Designer.cs">
       <DependentUpon>Frm_CatLeCuonChan.cs</DependentUpon>
     </Compile>
-    <Compile Include="UI\NghiepVuKhac\Kho\XuatKho\UC_CatDay.cs">
+    <Compile Include="UI\NghiepVuKhac\Kho\XuatKho\UC_LapKeHoachCatDay.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="UI\NghiepVuKhac\Kho\XuatKho\UC_CatDay.Designer.cs">
-      <DependentUpon>UC_CatDay.cs</DependentUpon>
-    </Compile>
-    <Compile Include="UI\NghiepVuKhac\Kho\XuatKho\UC_CatDay_temp.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="UI\NghiepVuKhac\Kho\XuatKho\UC_CatDay_temp.Designer.cs">
-      <DependentUpon>UC_CatDay_temp.cs</DependentUpon>
+    <Compile Include="UI\NghiepVuKhac\Kho\XuatKho\UC_LapKeHoachCatDay.Designer.cs">
+      <DependentUpon>UC_LapKeHoachCatDay.cs</DependentUpon>
     </Compile>
     <Compile Include="UI\NghiepVuKhac\SanXuat\Frm_ToTruongXacNhan.cs">
       <SubType>Form</SubType>
@@ -669,11 +665,8 @@
     <EmbeddedResource Include="UI\NghiepVuKhac\Kho\XuatKho\Frm_CatLeCuonChan.resx">
       <DependentUpon>Frm_CatLeCuonChan.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="UI\NghiepVuKhac\Kho\XuatKho\UC_CatDay.resx">
-      <DependentUpon>UC_CatDay.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="UI\NghiepVuKhac\Kho\XuatKho\UC_CatDay_temp.resx">
-      <DependentUpon>UC_CatDay_temp.cs</DependentUpon>
+    <EmbeddedResource Include="UI\NghiepVuKhac\Kho\XuatKho\UC_LapKeHoachCatDay.resx">
+      <DependentUpon>UC_LapKeHoachCatDay.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UI\NghiepVuKhac\SanXuat\Frm_ToTruongXacNhan.resx">
       <DependentUpon>Frm_ToTruongXacNhan.cs</DependentUpon>

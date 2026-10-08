@@ -244,7 +244,7 @@ namespace DG_TonKhoBTP_v02
             this.btnXuatKho.Size = new System.Drawing.Size(169, 51);
             this.btnXuatKho.TabIndex = 9;
             this.btnXuatKho.TabStop = false;
-            this.btnXuatKho.Text = "XUẤT KHO";
+            this.btnXuatKho.Text = "CẮT DÂY";
             this.btnXuatKho.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.btnXuatKho.UseVisualStyleBackColor = false;
             this.btnXuatKho.Click += new System.EventHandler(this.btnXuatKho_Click);

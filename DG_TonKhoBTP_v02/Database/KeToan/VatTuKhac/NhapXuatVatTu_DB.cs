@@ -456,7 +456,7 @@ namespace DG_TonKhoBTP_v02.Database
         private static string BuildSqlTinhTon(string excludeTenPhieu, int? excludeDanhSachMaSPId)
         {
             string sql = @"
-                SELECT IFNULL(SUM(lsxn.SoLuong), 0)
+                SELECT IFNULL(ROUND(SUM(lsxn.SoLuong), 2), 0)
                 FROM LichSuXuatNhap lsxn
                 INNER JOIN ThongTinDatHang ttdh
                     ON ttdh.id = lsxn.ThongTinDatHang_ID
@@ -487,7 +487,7 @@ namespace DG_TonKhoBTP_v02.Database
                     dms.Ma AS ma,
                     dms.DonVi AS donvi,
                     dsdh.MaDon AS MaDon,
-                    (ttdh.SoLuongMua - COALESCE(nhap.TongNhap, 0)) AS SoLuongYeuCau,
+                    ROUND(  ttdh.SoLuongMua - COALESCE(nhap.TongNhap, 0),  2 ) AS SoLuongYeuCau,
                     0 AS SoLuongTon,
                     ttdh.DonGia AS DonGia
                 FROM ThongTinDatHang ttdh
@@ -498,9 +498,9 @@ namespace DG_TonKhoBTP_v02.Database
                 LEFT JOIN (
                     SELECT
                         ThongTinDatHang_ID,
-                        SUM(SoLuong) AS TongNhap
+                        ROUND(SUM(SoLuong), 2) AS TongNhap
                     FROM LichSuXuatNhap
-                    WHERE SoLuong > 0
+                    WHERE ROUND(SoLuong, 2) > 0
                     GROUP BY ThongTinDatHang_ID
                 ) nhap
                     ON nhap.ThongTinDatHang_ID = ttdh.id
@@ -509,7 +509,7 @@ namespace DG_TonKhoBTP_v02.Database
                         dms.Ten LIKE @kw
                         OR IFNULL(dms.Ten_KhongDau, '') LIKE @kwNoDau
                   )
-                  AND (ttdh.SoLuongMua - COALESCE(nhap.TongNhap, 0)) > 0
+                  AND ROUND(  ttdh.SoLuongMua - COALESCE(nhap.TongNhap, 0), 2 ) > 0
                 ORDER BY dms.Ten
                 LIMIT @limit;
             ";
@@ -606,8 +606,8 @@ namespace DG_TonKhoBTP_v02.Database
                     dms.Ma AS ma,
                     dms.DonVi AS donvi,
                     '' AS MaDon,
-                    SUM(lsxn.SoLuong) AS SoLuongYeuCau,
-                    SUM(lsxn.SoLuong) AS SoLuongTon,
+                    ROUND(SUM(lsxn.SoLuong), 2) AS SoLuongYeuCau,
+                    ROUND(SUM(lsxn.SoLuong), 2) AS SoLuongTon,
                     NULL AS DonGia
                 FROM LichSuXuatNhap lsxn
                 INNER JOIN ThongTinDatHang ttdh
@@ -624,7 +624,7 @@ namespace DG_TonKhoBTP_v02.Database
                     dms.Ten,
                     dms.Ma,
                     dms.DonVi
-                HAVING SUM(lsxn.SoLuong) > 0
+                ROUND(SUM(lsxn.SoLuong), 2) > 0
                 ORDER BY dms.Ten
                 LIMIT @limit;
             ";
@@ -1443,13 +1443,13 @@ namespace DG_TonKhoBTP_v02.Database
                     const string sql = @"
                 SELECT
                     ttdh.id AS ThongTinDatHang_ID,
-                    SUM(lsxn.SoLuong) AS SoLuongTon
+                    ROUND(SUM(lsxn.SoLuong), 2) AS SoLuongTon
                 FROM LichSuXuatNhap lsxn
                 INNER JOIN ThongTinDatHang ttdh
                     ON ttdh.id = lsxn.ThongTinDatHang_ID
                 WHERE ttdh.DanhSachMaSP_ID = @danhSachMaSPId
                 GROUP BY ttdh.id
-                HAVING SUM(lsxn.SoLuong) > 0
+                HAVING ROUND(SUM(lsxn.SoLuong), 2) > 0
                 ORDER BY ttdh.id ASC;
             ";
 

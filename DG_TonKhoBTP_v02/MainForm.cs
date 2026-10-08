@@ -1717,7 +1717,7 @@ namespace DG_TonKhoBTP_v02
 
                     pnShow.Controls.Clear();
 
-                    var uc = new UC_CatDay
+                    var uc = new UC_LapKeHoachCatDay
                     {
                         Dock = DockStyle.Fill
                     };

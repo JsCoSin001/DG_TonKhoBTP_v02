@@ -99,7 +99,8 @@ namespace DG_TonKhoBTP_v02.UI.ThanhPhamCD
                 Name = ColNgayDung,
                 HeaderText = "Ngày dừng",
                 Width = 145,
-                ToolTipText = "Nhập dd/MM/yyyy, dd-MM-yyyy, dd/MM, dd-MM hoặc chọn lịch ở cạnh phải",
+                ReadOnly = true,
+                ToolTipText = "Bấm vào ô để chọn ngày từ lịch",
                 SortMode = DataGridViewColumnSortMode.NotSortable
             };
 
@@ -482,32 +483,96 @@ namespace DG_TonKhoBTP_v02.UI.ThanhPhamCD
         private void GrvDsLoiDungMay_CellMouseClick(object sender, DataGridViewCellMouseEventArgs e)
         {
             if (e.RowIndex < 0 || e.ColumnIndex < 0 || e.Button != MouseButtons.Left ||
-                grvDsLoiDungMay.Columns[e.ColumnIndex].Name != ColNgayDung ||
-                e.X < grvDsLoiDungMay.Columns[e.ColumnIndex].Width - 25) return;
+                grvDsLoiDungMay.Columns[e.ColumnIndex].Name != ColNgayDung)
+                return;
 
-            grvDsLoiDungMay.EndEdit();
+            // Kết thúc trạng thái sửa ô trước đó để giá trị ngày không bị ghi đè.
+            if (!grvDsLoiDungMay.EndEdit())
+                return;
+
             DataGridViewRow row = grvDsLoiDungMay.Rows[e.RowIndex];
-            if (row.IsNewRow) return;
             DateTime? existing;
             TryParseNgayDung(Convert.ToString(row.Cells[ColNgayDung].Value), out existing);
+
             DateTime today = DateTime.Today;
-            DateTime selected = existing ?? today;
+            DateTime earliest = today.AddMonths(-1);
+            // Dữ liệu cũ ngoài khoảng vẫn nằm nguyên trong ô, lịch mở ở hôm nay.
+            DateTime selected = existing.HasValue && existing.Value.Date >= earliest && existing.Value.Date <= today
+                ? existing.Value.Date
+                : today;
+
             var calendar = new MonthCalendar
             {
                 MaxSelectionCount = 1,
+                MinDate = earliest,
+                MaxDate = today,
                 SelectionStart = selected,
                 SelectionEnd = selected
             };
+
             var popup = new ToolStripDropDown { Padding = Padding.Empty };
             var host = new ToolStripControlHost(calendar) { Margin = Padding.Empty, Padding = Padding.Empty };
             popup.Items.Add(host);
+            var xoaNgay = new ToolStripMenuItem("Xóa ngày");
+            popup.Items.Add(xoaNgay);
+
             calendar.DateSelected += (s, args) =>
             {
-                row.Cells[ColNgayDung].Value = args.Start.Date.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture);
-                popup.Close();
+                DateTime ngayDaChon = args.Start.Date;
+                // Đóng lịch trước khi cập nhật grid: thay đổi ô có thể làm popup tự đóng.
+                if (!popup.IsDisposed && popup.Visible)
+                    popup.Close();
+                CapNhatNgayDungTrenGrid(row, ngayDaChon);
             };
+            xoaNgay.Click += (s, args) =>
+            {
+                // ToolStripMenuItem có thể tự đóng popup trước khi Click chạy.
+                if (!popup.IsDisposed && popup.Visible)
+                    popup.Close();
+                if (!row.IsNewRow)
+                    CapNhatNgayDungTrenGrid(row, null);
+            };
+            popup.Closed += (s, args) =>
+            {
+                // Không Dispose đồng bộ trong Closed: WinForms có thể vẫn đang
+                // xử lý Show/Close/DateSelected của chính ToolStripDropDown.
+                if (!grvDsLoiDungMay.IsDisposed && !grvDsLoiDungMay.Disposing &&
+                    grvDsLoiDungMay.IsHandleCreated)
+                {
+                    grvDsLoiDungMay.BeginInvoke(new Action(() =>
+                    {
+                        if (!popup.IsDisposed)
+                            popup.Dispose();
+                    }));
+                }
+                else if (!popup.IsDisposed)
+                {
+                    popup.Dispose();
+                }
+            };
+
             Rectangle rect = grvDsLoiDungMay.GetCellDisplayRectangle(e.ColumnIndex, e.RowIndex, false);
             popup.Show(grvDsLoiDungMay, new Point(rect.Left, rect.Bottom));
+        }
+
+        private void CapNhatNgayDungTrenGrid(DataGridViewRow row, DateTime? ngayDung)
+        {
+            // Chỉ tạo dòng mới khi đã chọn ngày; mở/đóng lịch không tạo dòng.
+            if (row.IsNewRow)
+            {
+                if (!ngayDung.HasValue)
+                    return;
+                row = grvDsLoiDungMay.Rows[grvDsLoiDungMay.Rows.Add()];
+            }
+
+            DataGridViewCell cell = row.Cells[ColNgayDung];
+            cell.Value = ngayDung?.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture);
+            grvDsLoiDungMay.InvalidateCell(cell);
+
+            if (DongCoDuLieu(row))
+                ValidateRow(row, true, out _, out _, out _);
+            else
+                ClearErrors(row);
         }
 
         private static bool IsLamViecKhac(string tenLoi)

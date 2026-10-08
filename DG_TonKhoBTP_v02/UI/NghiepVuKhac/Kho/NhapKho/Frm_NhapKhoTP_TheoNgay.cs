@@ -52,6 +52,9 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
         private void KhoiTaoGrid()
         {
             dsNhapKho.AutoGenerateColumns = false;
+            dsNhapKho.Font = new System.Drawing.Font("Tahoma", 11F, System.Drawing.FontStyle.Regular);
+            dsNhapKho.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.None;
+            dsNhapKho.RowTemplate.Height = 35;
             dsNhapKho.AllowUserToAddRows = false;
             dsNhapKho.AllowUserToDeleteRows = false;
             dsNhapKho.MultiSelect = false;
@@ -65,16 +68,16 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
             dsNhapKho.Columns.Add(Hidden(CSnapshot));
             dsNhapKho.Columns.Add(CreateTextColumn(CNgay, "Ngày", 100));
             dsNhapKho.Columns.Add(CreateTextColumn(CCa, "Ca", 55));
-            dsNhapKho.Columns.Add(CreateTextColumn(CMaBin, "Mã Bin", 130));
+            dsNhapKho.Columns.Add(CreateTextColumn(CMaBin, "Mã Bin", 150));
             dsNhapKho.Columns.Add(CreateTextColumn(CMaSP, "Mã SP", 110));
             dsNhapKho.Columns.Add(CreateTextColumn(CTenSP, "Tên SP", 180));
             dsNhapKho.Columns.Add(CreateTextColumn(CLoai, "Loại", 90));
-            dsNhapKho.Columns.Add(CreateTextColumn(CSoLuongCon, "SL còn", 75));
-            dsNhapKho.Columns.Add(new DataGridViewTextBoxColumn { Name = CSoLuongNhap, HeaderText = "SL nhập", Width = 80, ReadOnly = false });
-            dsNhapKho.Columns.Add(CreateTextColumn(CChieuDai, "CD 1 cuộn/lô", 105));
-            dsNhapKho.Columns.Add(CreateTextColumn(CSoDau, "Số đầu", 75));
-            dsNhapKho.Columns.Add(CreateTextColumn(CSoCuoi, "Số cuối", 75));
-            dsNhapKho.Columns.Add(CreateTextColumn(CTongNhap, "Tổng nhập", 95));
+            dsNhapKho.Columns.Add(CreateTextColumn(CSoLuongCon, "SL còn", 110));
+            dsNhapKho.Columns.Add(new DataGridViewTextBoxColumn { Name = CSoLuongNhap, HeaderText = "SL nhập", Width = 100, ReadOnly = false });
+            dsNhapKho.Columns.Add(CreateTextColumn(CChieuDai, "CD đơn vị", 100));
+            dsNhapKho.Columns.Add(CreateTextColumn(CSoDau, "Số đầu", 100));
+            dsNhapKho.Columns.Add(CreateTextColumn(CSoCuoi, "Số cuối", 100));
+            dsNhapKho.Columns.Add(CreateTextColumn(CTongNhap, "Tổng nhập", 110));
             dsNhapKho.Columns.Add(new DataGridViewTextBoxColumn { Name = CGhiChu, HeaderText = "Ghi chú", AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill, ReadOnly = true });
             dsNhapKho.Columns.Add(new DataGridViewButtonColumn { Name = CDao, HeaderText = "Đảo chiều", Text = "Đảo", UseColumnTextForButtonValue = true, Width = 85 });
             dsNhapKho.Columns.Add(new DataGridViewButtonColumn { Name = CXoa, HeaderText = "Xóa", Text = "Xóa", UseColumnTextForButtonValue = true, Width = 65 });

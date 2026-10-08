@@ -1074,7 +1074,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan.VatTuKhac
             int canEdit = GetInt(row, "CanEdit", 1);
             if (canEdit != 1)
             {
-                FrmWaiting.ShowGifAlert("Liên hệ Kế Toán để mở các mã cần thao tác.");
+                FrmWaiting.ShowGifAlert("Dữ liệu đã khoá.");
 
                 return;
             }

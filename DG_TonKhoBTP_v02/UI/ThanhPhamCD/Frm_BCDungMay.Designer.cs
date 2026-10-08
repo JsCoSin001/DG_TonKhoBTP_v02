@@ -56,7 +56,7 @@
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Name = "panel1";
             this.panel1.Padding = new System.Windows.Forms.Padding(3);
-            this.panel1.Size = new System.Drawing.Size(904, 468);
+            this.panel1.Size = new System.Drawing.Size(1113, 468);
             this.panel1.TabIndex = 3;
             // 
             // panel3
@@ -66,7 +66,7 @@
             this.panel3.Location = new System.Drawing.Point(3, 49);
             this.panel3.Name = "panel3";
             this.panel3.Padding = new System.Windows.Forms.Padding(0, 5, 0, 0);
-            this.panel3.Size = new System.Drawing.Size(898, 364);
+            this.panel3.Size = new System.Drawing.Size(1107, 364);
             this.panel3.TabIndex = 3;
             // 
             // groupBox2
@@ -76,7 +76,7 @@
             this.groupBox2.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.groupBox2.Location = new System.Drawing.Point(0, 5);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(898, 359);
+            this.groupBox2.Size = new System.Drawing.Size(1107, 359);
             this.groupBox2.TabIndex = 2;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Nguyên nhân dừng máy";
@@ -89,7 +89,7 @@
             this.panel2.Location = new System.Drawing.Point(3, 19);
             this.panel2.Name = "panel2";
             this.panel2.Padding = new System.Windows.Forms.Padding(5);
-            this.panel2.Size = new System.Drawing.Size(892, 337);
+            this.panel2.Size = new System.Drawing.Size(1101, 337);
             this.panel2.TabIndex = 0;
             // 
             // grvDsLoiDungMay
@@ -107,7 +107,7 @@
             this.grvDsLoiDungMay.RowHeadersVisible = false;
             this.grvDsLoiDungMay.RowTemplate.Height = 30;
             this.grvDsLoiDungMay.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
-            this.grvDsLoiDungMay.Size = new System.Drawing.Size(882, 327);
+            this.grvDsLoiDungMay.Size = new System.Drawing.Size(1091, 327);
             this.grvDsLoiDungMay.TabIndex = 0;
             // 
             // panel4
@@ -116,7 +116,7 @@
             this.panel4.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.panel4.Location = new System.Drawing.Point(3, 413);
             this.panel4.Name = "panel4";
-            this.panel4.Size = new System.Drawing.Size(898, 52);
+            this.panel4.Size = new System.Drawing.Size(1107, 52);
             this.panel4.TabIndex = 4;
             // 
             // tableLayoutPanel2
@@ -133,7 +133,7 @@
             this.tableLayoutPanel2.Name = "tableLayoutPanel2";
             this.tableLayoutPanel2.RowCount = 1;
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel2.Size = new System.Drawing.Size(898, 52);
+            this.tableLayoutPanel2.Size = new System.Drawing.Size(1107, 52);
             this.tableLayoutPanel2.TabIndex = 0;
             // 
             // btnLuu
@@ -142,7 +142,7 @@
             this.btnLuu.Dock = System.Windows.Forms.DockStyle.Fill;
             this.btnLuu.Font = new System.Drawing.Font("Tahoma", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnLuu.ForeColor = System.Drawing.Color.WhiteSmoke;
-            this.btnLuu.Location = new System.Drawing.Point(452, 3);
+            this.btnLuu.Location = new System.Drawing.Point(556, 3);
             this.btnLuu.Name = "btnLuu";
             this.btnLuu.Size = new System.Drawing.Size(144, 46);
             this.btnLuu.TabIndex = 0;
@@ -152,7 +152,7 @@
             // button1
             // 
             this.button1.Font = new System.Drawing.Font("Tahoma", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button1.Location = new System.Drawing.Point(302, 3);
+            this.button1.Location = new System.Drawing.Point(406, 3);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(144, 46);
             this.button1.TabIndex = 1;
@@ -165,7 +165,7 @@
             this.label1.Font = new System.Drawing.Font("Tahoma", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label1.Location = new System.Drawing.Point(3, 3);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(898, 46);
+            this.label1.Size = new System.Drawing.Size(1107, 46);
             this.label1.TabIndex = 0;
             this.label1.Text = "BÁO CÁO NGUYÊN NHÂN DỪNG MÁY";
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -174,7 +174,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(904, 468);
+            this.ClientSize = new System.Drawing.Size(1113, 468);
             this.Controls.Add(this.panel1);
             this.Name = "Frm_BCDungMay";
             this.Text = "Frm_BCDungMay";

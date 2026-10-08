@@ -208,6 +208,39 @@ namespace DG_TonKhoBTP_v02.UI
                 if (submitData.DanhSachLoiDungMay == null)
                     return;
 
+                // Lưu chính thức: ngày dừng bắt buộc. Ngày lịch sử được giữ nguyên
+                // khi chỉnh sửa thì được miễn giới hạn một tháng.
+                DateTime homNay = DateTime.Today;
+                Dictionary<int, DateTime?> ngayCuTheoId = idEdit > 0
+                    ? LoiDungMay_DB.GetDanhSachDaLuuTheoTTThanhPhamId(idEdit)
+                        .ToDictionary(x => x.Id, x => x.NgayDung)
+                    : new Dictionary<int, DateTime?>();
+                for (int i = 0; i < submitData.DanhSachLoiDungMay.Count; i++)
+                {
+                    DanhSachLoiDungMay_Model item = submitData.DanhSachLoiDungMay[i];
+                    if (item == null || !item.NgayDung.HasValue)
+                    {
+                        CloseWaitingSafe(waiting);
+                        waiting = null;
+                        MessageBox.Show(host, string.Format("Dòng {0} của báo cáo dừng máy chưa nhập Ngày dừng.", i + 1),
+                            "KHÔNG THỂ LƯU CHÍNH THỨC", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
+                    }
+                    DateTime ngay = item.NgayDung.Value.Date;
+                    DateTime? ngayCu;
+                    bool giuNgayLichSu = idEdit > 0 && item.Id > 0 &&
+                        ngayCuTheoId.TryGetValue(item.Id, out ngayCu) && ngayCu.HasValue &&
+                        ngayCu.Value.Date == ngay;
+                    if (!giuNgayLichSu && (ngay < homNay.AddMonths(-1) || ngay > homNay))
+                    {
+                        CloseWaitingSafe(waiting);
+                        waiting = null;
+                        MessageBox.Show(host, string.Format("Dòng {0}: Ngày dừng phải thuộc khoảng một tháng trở lại tính đến hôm nay.", i + 1),
+                            "KHÔNG THỂ LƯU CHÍNH THỨC", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
+                    }
+                }
+
                 // Sau khi các validation bắt buộc đã hợp lệ, kiểm tra phế liệu.
                 // Nếu chưa có giá trị phế, người dùng có thể chọn:
                 // - No: hủy lần submit này và mở Frm_PheLieu để bổ sung.

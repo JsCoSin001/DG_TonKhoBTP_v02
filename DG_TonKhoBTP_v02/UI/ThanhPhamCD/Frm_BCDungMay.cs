@@ -3,6 +3,7 @@ using DG_TonKhoBTP_v02.Database.SanXuat;
 using DG_TonKhoBTP_v02.Models.SanXuat;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
@@ -13,6 +14,7 @@ namespace DG_TonKhoBTP_v02.UI.ThanhPhamCD
     {
         private const string ColTenLoi = "colTenLoi";
         private const string ColThoiGianDung = "colThoiGianDung";
+        private const string ColNgayDung = "colNgayDung";
         private const string ColGhiChu = "colGhiChu";
         private const string ColXoa = "colXoa";
         private const string TenLoiLamViecKhac = "Làm việc khác";
@@ -92,6 +94,15 @@ namespace DG_TonKhoBTP_v02.UI.ThanhPhamCD
             thoiGianDungColumn.DefaultCellStyle.Alignment =
                 DataGridViewContentAlignment.MiddleCenter;
 
+            var ngayDungColumn = new DataGridViewTextBoxColumn
+            {
+                Name = ColNgayDung,
+                HeaderText = "Ngày dừng",
+                Width = 145,
+                ToolTipText = "Nhập dd/MM/yyyy, dd-MM-yyyy, dd/MM, dd-MM hoặc chọn lịch ở cạnh phải",
+                SortMode = DataGridViewColumnSortMode.NotSortable
+            };
+
             var ghiChuColumn = new DataGridViewTextBoxColumn
             {
                 Name = ColGhiChu,
@@ -114,11 +125,14 @@ namespace DG_TonKhoBTP_v02.UI.ThanhPhamCD
             grvDsLoiDungMay.Columns.AddRange(
                 tenLoiColumn,
                 thoiGianDungColumn,
+                ngayDungColumn,
                 ghiChuColumn,
                 xoaColumn);
 
             grvDsLoiDungMay.CellContentClick += GrvDsLoiDungMay_CellContentClick;
             grvDsLoiDungMay.EditingControlShowing += GrvDsLoiDungMay_EditingControlShowing;
+            grvDsLoiDungMay.CellMouseClick += GrvDsLoiDungMay_CellMouseClick;
+            grvDsLoiDungMay.CellPainting += GrvDsLoiDungMay_CellPainting;
             grvDsLoiDungMay.CellValidated += GrvDsLoiDungMay_CellValidated;
             grvDsLoiDungMay.DataError += (s, e) => e.ThrowException = false;
         }
@@ -196,6 +210,7 @@ namespace DG_TonKhoBTP_v02.UI.ThanhPhamCD
                 row.Cells[ColTenLoi].Value = item.TenLoiDungMayId;
                 row.Cells[ColThoiGianDung].Value = item.ThoiGianDung;
                 row.Cells[ColGhiChu].Value = item.GhiChu;
+                row.Cells[ColNgayDung].Value = item.NgayDung?.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture);
             }
         }
 
@@ -250,6 +265,12 @@ namespace DG_TonKhoBTP_v02.UI.ThanhPhamCD
             if (row.IsNewRow)
                 return;
 
+            if (e.ColumnIndex >= 0 && grvDsLoiDungMay.Columns[e.ColumnIndex].Name == ColNgayDung)
+            {
+                DateTime? day;
+                if (TryParseNgayDung(Convert.ToString(row.Cells[ColNgayDung].Value), out day) && day.HasValue)
+                    row.Cells[ColNgayDung].Value = day.Value.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture);
+            }
             ValidateRow(row, true, out _, out _, out _);
         }
 
@@ -295,7 +316,8 @@ namespace DG_TonKhoBTP_v02.UI.ThanhPhamCD
 
             return row.Cells[ColTenLoi].Value != null
                 || !string.IsNullOrWhiteSpace(Convert.ToString(row.Cells[ColThoiGianDung].Value))
-                || !string.IsNullOrWhiteSpace(Convert.ToString(row.Cells[ColGhiChu].Value));
+                || !string.IsNullOrWhiteSpace(Convert.ToString(row.Cells[ColGhiChu].Value))
+                || !string.IsNullOrWhiteSpace(Convert.ToString(row.Cells[ColNgayDung].Value));
         }
 
         private bool ValidateRow(
@@ -333,6 +355,24 @@ namespace DG_TonKhoBTP_v02.UI.ThanhPhamCD
                     "Thời gian dừng phải là số phút nguyên lớn hơn 0.",
                     setError);
                 return false;
+            }
+
+            DateTime? ngayDung;
+            if (!TryParseNgayDung(Convert.ToString(row.Cells[ColNgayDung].Value), out ngayDung))
+            {
+                SetError(row, ColNgayDung, "Ngày dừng không hợp lệ. Nhập dd/MM/yyyy hoặc dd-MM-yyyy (có thể bỏ năm).", setError);
+                return false;
+            }
+
+            if (ngayDung.HasValue && !NgayDungTrongKhoang(ngayDung.Value))
+            {
+                DanhSachLoiDungMay_Model banGhiCu = row.Tag as DanhSachLoiDungMay_Model;
+                if (banGhiCu == null || !banGhiCu.NgayDung.HasValue ||
+                    banGhiCu.NgayDung.Value.Date != ngayDung.Value.Date)
+                {
+                    SetError(row, ColNgayDung, "Ngày dừng phải trong khoảng một tháng trở lại tính đến hôm nay.", setError);
+                    return false;
+                }
             }
 
             ghiChu = (Convert.ToString(row.Cells[ColGhiChu].Value) ?? string.Empty).Trim();
@@ -382,6 +422,7 @@ namespace DG_TonKhoBTP_v02.UI.ThanhPhamCD
                         ThoiGianBatDau = durationKhongDoi ? oldItem?.ThoiGianBatDau : null,
                         ThoiGianKetThuc = durationKhongDoi ? oldItem?.ThoiGianKetThuc : null,
                         ThoiGianDung = soPhutDung,
+                        NgayDung = ParseNgayDung(Convert.ToString(row.Cells[ColNgayDung].Value)),
                         GhiChu = ghiChu,
                         MaCongDoan = _thongTinCaLamViec.Id,
                         TTThanhPhamId = oldItem?.TTThanhPhamId
@@ -396,6 +437,77 @@ namespace DG_TonKhoBTP_v02.UI.ThanhPhamCD
             {
                 MessageBox.Show(ex.Message, "KHÔNG THỂ LƯU", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
+        }
+
+        private static bool TryParseNgayDung(string value, out DateTime? ngayDung)
+        {
+            ngayDung = null;
+            value = (value ?? string.Empty).Trim();
+            if (value.Length == 0) return true;
+            value = value.Replace('-', '/');
+            string[] parts = value.Split('/');
+            if (parts.Length == 2) value += "/" + DateTime.Today.Year.ToString(CultureInfo.InvariantCulture);
+            DateTime parsed;
+            if (!DateTime.TryParseExact(value, "dd/MM/yyyy", CultureInfo.InvariantCulture,
+                DateTimeStyles.None, out parsed)) return false;
+            ngayDung = parsed.Date;
+            return true;
+        }
+
+        private static DateTime? ParseNgayDung(string value)
+        {
+            DateTime? result;
+            if (!TryParseNgayDung(value, out result))
+                throw new InvalidOperationException("Ngày dừng không hợp lệ.");
+            return result;
+        }
+
+        private static bool NgayDungTrongKhoang(DateTime ngay)
+        {
+            DateTime today = DateTime.Today;
+            return ngay.Date >= today.AddMonths(-1) && ngay.Date <= today;
+        }
+
+        private void GrvDsLoiDungMay_CellPainting(object sender, DataGridViewCellPaintingEventArgs e)
+        {
+            if (e.RowIndex < 0 || e.ColumnIndex < 0 ||
+                grvDsLoiDungMay.Columns[e.ColumnIndex].Name != ColNgayDung) return;
+            e.Paint(e.CellBounds, DataGridViewPaintParts.All);
+            var iconBounds = new Rectangle(e.CellBounds.Right - 23, e.CellBounds.Top + 5, 18, 18);
+            TextRenderer.DrawText(e.Graphics, "▼", grvDsLoiDungMay.Font, iconBounds,
+                Color.DimGray, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
+            e.Handled = true;
+        }
+
+        private void GrvDsLoiDungMay_CellMouseClick(object sender, DataGridViewCellMouseEventArgs e)
+        {
+            if (e.RowIndex < 0 || e.ColumnIndex < 0 || e.Button != MouseButtons.Left ||
+                grvDsLoiDungMay.Columns[e.ColumnIndex].Name != ColNgayDung ||
+                e.X < grvDsLoiDungMay.Columns[e.ColumnIndex].Width - 25) return;
+
+            grvDsLoiDungMay.EndEdit();
+            DataGridViewRow row = grvDsLoiDungMay.Rows[e.RowIndex];
+            if (row.IsNewRow) return;
+            DateTime? existing;
+            TryParseNgayDung(Convert.ToString(row.Cells[ColNgayDung].Value), out existing);
+            DateTime today = DateTime.Today;
+            DateTime selected = existing ?? today;
+            var calendar = new MonthCalendar
+            {
+                MaxSelectionCount = 1,
+                SelectionStart = selected,
+                SelectionEnd = selected
+            };
+            var popup = new ToolStripDropDown { Padding = Padding.Empty };
+            var host = new ToolStripControlHost(calendar) { Margin = Padding.Empty, Padding = Padding.Empty };
+            popup.Items.Add(host);
+            calendar.DateSelected += (s, args) =>
+            {
+                row.Cells[ColNgayDung].Value = args.Start.Date.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture);
+                popup.Close();
+            };
+            Rectangle rect = grvDsLoiDungMay.GetCellDisplayRectangle(e.ColumnIndex, e.RowIndex, false);
+            popup.Show(grvDsLoiDungMay, new Point(rect.Left, rect.Bottom));
         }
 
         private static bool IsLamViecKhac(string tenLoi)
@@ -444,6 +556,7 @@ namespace DG_TonKhoBTP_v02.UI.ThanhPhamCD
                 ThoiGianBatDau = item.ThoiGianBatDau,
                 ThoiGianKetThuc = item.ThoiGianKetThuc,
                 ThoiGianDung = item.ThoiGianDung,
+                NgayDung = item.NgayDung,
                 GhiChu = item.GhiChu,
                 MaCongDoan = item.MaCongDoan,
                 TTThanhPhamId = item.TTThanhPhamId

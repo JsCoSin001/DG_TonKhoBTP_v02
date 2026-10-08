@@ -384,6 +384,7 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
                     ThoiGianBatDau,
                     ThoiGianKetThuc,
                     ThoiGianDung,
+                    NgayDung,
                     GhiChu,
                     DanhSachCongDoan_MaCongDoan,
                     TTThanhPham_ID
@@ -409,6 +410,9 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
                             ThoiGianBatDau = TryParseTimeOrNull(reader["ThoiGianBatDau"]),
                             ThoiGianKetThuc = TryParseTimeOrNull(reader["ThoiGianKetThuc"]),
                             ThoiGianDung = Convert.ToInt32(reader["ThoiGianDung"]),
+                            NgayDung = reader["NgayDung"] == DBNull.Value
+                                ? (DateTime?)null
+                                : DateTime.ParseExact(Convert.ToString(reader["NgayDung"]), "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture),
                             GhiChu = reader["GhiChu"] == DBNull.Value
                                 ? string.Empty
                                 : Convert.ToString(reader["GhiChu"]) ?? string.Empty,
@@ -435,6 +439,7 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
                     ThoiGianBatDau,
                     ThoiGianKetThuc,
                     ThoiGianDung,
+                    NgayDung,
                     GhiChu,
                     DanhSachCongDoan_MaCongDoan,
                     TTThanhPham_ID
@@ -446,6 +451,7 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
                     @ThoiGianBatDau,
                     @ThoiGianKetThuc,
                     @ThoiGianDung,
+                    @NgayDung,
                     @GhiChu,
                     @MaCongDoan,
                     @TTThanhPham_ID
@@ -476,6 +482,7 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
                     ThoiGianBatDau = @ThoiGianBatDau,
                     ThoiGianKetThuc = @ThoiGianKetThuc,
                     ThoiGianDung = @ThoiGianDung,
+                    NgayDung = @NgayDung,
                     GhiChu = @GhiChu,
                     DanhSachCongDoan_MaCongDoan = @MaCongDoan,
                     TTThanhPham_ID = @TTThanhPham_ID
@@ -510,6 +517,9 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
                     ? (object)FormatTime(item.ThoiGianKetThuc.Value)
                     : DBNull.Value);
             cmd.Parameters.AddWithValue("@ThoiGianDung", item.ThoiGianDung);
+            cmd.Parameters.AddWithValue("@NgayDung", item.NgayDung.HasValue
+                ? (object)item.NgayDung.Value.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture)
+                : DBNull.Value);
             cmd.Parameters.AddWithValue(
                 "@GhiChu",
                 string.IsNullOrWhiteSpace(item.GhiChu)
@@ -528,6 +538,7 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
                 && current.ThoiGianBatDau == oldItem.ThoiGianBatDau
                 && current.ThoiGianKetThuc == oldItem.ThoiGianKetThuc
                 && current.ThoiGianDung == oldItem.ThoiGianDung
+                && current.NgayDung?.Date == oldItem.NgayDung?.Date
                 && string.Equals(
                     (current.GhiChu ?? string.Empty).Trim(),
                     (oldItem.GhiChu ?? string.Empty).Trim(),

@@ -43,6 +43,7 @@ namespace DG_TonKhoBTP_v02.Models.SanXuat
         public TimeSpan? ThoiGianBatDau { get; set; }
         public TimeSpan? ThoiGianKetThuc { get; set; }
         public int ThoiGianDung { get; set; }
+        public DateTime? NgayDung { get; set; }
         public string GhiChu { get; set; } = string.Empty;
         public int MaCongDoan { get; set; }
         public long? TTThanhPhamId { get; set; }

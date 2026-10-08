@@ -297,6 +297,7 @@ namespace DG_TonKhoBTP_v02.UI
                 ThoiGianBatDau = x.ThoiGianBatDau,
                 ThoiGianKetThuc = x.ThoiGianKetThuc,
                 ThoiGianDung = x.ThoiGianDung,
+                NgayDung = x.NgayDung,
                 GhiChu = x.GhiChu,
                 MaCongDoan = x.MaCongDoan,
                 TTThanhPhamId = x.TTThanhPhamId

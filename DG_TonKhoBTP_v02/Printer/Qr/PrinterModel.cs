@@ -14,6 +14,8 @@ namespace DG_TonKhoBTP_v02.Models
         public string? Mau {  get; set; }
         public string? KhoiLuong { get; set; }
         public string? ChieuDai { get; set; }
+        // Chỉ tem tạm LOT mới bật cờ này; các tem hiện tại giữ cách in cũ.
+        public bool AnDonViKhiGiaTriRong { get; set; } = false;
         public string TenSP { get; set; }
         public string QC { get; set; } = "";
         public string MaBin { get; set; }
@@ -34,6 +36,7 @@ namespace DG_TonKhoBTP_v02.Models
             Mau = other.Mau;
             KhoiLuong = other.KhoiLuong;
             ChieuDai = other.ChieuDai;
+            AnDonViKhiGiaTriRong = other.AnDonViKhiGiaTriRong;
             TenSP = other.TenSP;
             QC = other.QC;
             MaBin = other.MaBin;

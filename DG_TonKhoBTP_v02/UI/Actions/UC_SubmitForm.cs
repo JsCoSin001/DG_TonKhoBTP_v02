@@ -54,28 +54,24 @@ namespace DG_TonKhoBTP_v02.UI
         {
             InitializeComponent();
 
-            bool inTem = _printer != "";
+            bool inTem = !string.IsNullOrWhiteSpace(_printer);
             cbInTem.Checked = inTem;
 
             _Cd = cd;
             _onSaveSuccess = onSaveSuccess;
             ApplySubmitMode(DataLoadMode.New);
 
-            if (_printer != "")
+            if (inTem)
             {
-                cbInTem.Text = "In tem đầu ra";
                 cbInTemNVL.Text = "In tem đầu vào";
             }
             else
             {
-                cbInTem.Checked = true;
-                cbInTem.Enabled = false;
-                cbInTem.Text = "Không in tem";
-
                 cbInTemNVL.Checked = false;
                 cbInTemNVL.Enabled = false;
                 cbInTemNVL.Text = "Không in tem";
             }
+            ApplyDraftPrinterCheckboxState();
 
             // Công đoạn 9 không sử dụng và không in tem NVL.
             if (_Cd?.Id == 9)
@@ -1475,6 +1471,7 @@ namespace DG_TonKhoBTP_v02.UI
         public void ClearInputs()
         {
             cbInTem.Checked = true;
+            ApplyDraftPrinterCheckboxState();
             cbInTemNVL.Checked = false;
             _draftContext.Clear();
             _loadMode = DataLoadMode.New;
@@ -1500,11 +1497,33 @@ namespace DG_TonKhoBTP_v02.UI
                 cbInTemNVL.Checked = false;
         }
 
+        /// <summary>Checkbox in tem đầu ra chỉ bật được khi có cấu hình máy in.</summary>
+        private void ApplyDraftPrinterCheckboxState()
+        {
+            if (string.IsNullOrWhiteSpace(_printer))
+            {
+                cbInTem.Checked = false;
+                cbInTem.Enabled = false;
+                cbInTem.Text = "Không có máy in";
+            }
+            else
+            {
+                cbInTem.Enabled = true;
+                cbInTem.Text = "In tem đầu ra";
+            }
+        }
+
+        private bool CanPrintDraftLabels()
+        {
+            return !string.IsNullOrWhiteSpace(_printer) && cbInTem.Checked;
+        }
+
         private async void btnLuuTam_Click(object sender, EventArgs e)
         {
             if (_loadMode == DataLoadMode.OfficialEdit) return;
             btnLuuTam.Enabled = false;
             FrmWaiting waiting = null;
+            bool draftSaved = false;
             try
             {
                 Form host = FindForm();
@@ -1520,6 +1539,7 @@ namespace DG_TonKhoBTP_v02.UI
                 long draftId = 0;
                 string error = null;
                 bool ok = await Task.Run(() => LuuTam_DB.SaveDraft(data, out draftId, out error));
+                draftSaved = ok; // SaveDraft trả true sau khi transaction đã commit.
                 CloseWaitingSafe(waiting); waiting = null;
 
                 if (!ok)
@@ -1528,61 +1548,113 @@ namespace DG_TonKhoBTP_v02.UI
                     return;
                 }
 
+                // Lệnh in chỉ được thực hiện sau khi SaveDraft đã commit thành công.
                 bool laCapNhatDraftDaNap = data.IsUpdate;
-
                 _draftContext.Set(draftId, data.ThongTinThanhPham.MaBin);
                 _loadMode = DataLoadMode.Draft;
                 ApplySubmitMode(_loadMode);
 
-                // LƯU TẠM chỉ xét in tem thành phẩm tại công đoạn 5.
-                // Lưu chính thức dùng luồng PrintLabels riêng và không bị thay đổi.
-                if (data.ShouldPrintThanhPham)
+                List<string> loiInTem = new List<string>();
+                if (CanPrintDraftLabels())
                 {
-                    if (data.ThongTinCaLamViec?.NgayBatDau == null)
+                    // CD5: giữ nguyên nội dung, số lượng và mã QR của tem cuộn cũ.
+                    // Bắt lỗi ở ranh giới nhánh để tem LOT vẫn được thử in tiếp.
+                    if (data.ShouldPrintThanhPham)
                     {
-                        FrmWaiting.ShowGifAlert(
-                            "Vui lòng nhập Ngày bắt đầu trước khi in tem.",
-                            "KHÔNG IN TEM");
-                    }
-                    else if (laCapNhatDraftDaNap)
-                    {
-                        DialogResult inThem = MessageBox.Show(
-                            "Bạn có muốn in thêm tem không?",
-                            "In thêm tem",
-                            MessageBoxButtons.YesNo,
-                            MessageBoxIcon.Question,
-                            MessageBoxDefaultButton.Button2);
-
-                        if (inThem == DialogResult.Yes)
+                        try
                         {
-                            List<ThongTinCuonDay> dsCuon = GetDraftCuonRows(data);
-                            using (Frm_DLCuon frm = new Frm_DLCuon(
-                                dsCuon,
-                                FrmDLCuonMode.InThemTem,
-                                null))
+                            if (laCapNhatDraftDaNap)
                             {
-                                if (frm.ShowDialog() == DialogResult.OK)
+                                DialogResult inThem = MessageBox.Show(
+                                    "Bạn có muốn in thêm tem không?",
+                                    "In thêm tem",
+                                    MessageBoxButtons.YesNo,
+                                    MessageBoxIcon.Question,
+                                    MessageBoxDefaultButton.Button2);
+
+                                if (inThem == DialogResult.Yes)
                                 {
-                                    try { PrintDraftLabels(data, frm.ThongTinCuon); }
-                                    catch (Exception ex) { FrmWaiting.ShowGifAlert(ex.Message, "LỖI IN"); }
+                                    List<ThongTinCuonDay> dsCuon = GetDraftCuonRows(data);
+                                    using (Frm_DLCuon frm = new Frm_DLCuon(
+                                        dsCuon,
+                                        FrmDLCuonMode.InThemTem,
+                                        null))
+                                    {
+                                        if (frm.ShowDialog() == DialogResult.OK)
+                                            PrintDraftLabels(data, frm.ThongTinCuon);
+                                    }
                                 }
                             }
+                            else
+                            {
+                                PrintDraftLabels(data, GetDraftCuonRows(data));
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine("[LƯU TẠM][IN TEM CUỘN] " + ex);
+                            loiInTem.Add("Tem cuộn: " + ex.Message);
                         }
                     }
-                    else
+
+                    // Tất cả công đoạn (kể cả CD5) có một tem tạm/LOT độc lập.
+                    // In lại dùng MaBin cũ nhưng lấy dữ liệu mới vừa commit.
+                    try
                     {
-                        try { PrintDraftLabels(data, GetDraftCuonRows(data)); }
-                        catch (Exception ex) { FrmWaiting.ShowGifAlert(ex.Message, "LỖI IN"); }
+                        bool inTemTam = !laCapNhatDraftDaNap || MessageBox.Show(
+                            "Bạn có muốn in lại tem tạm không?",
+                            "In lại tem tạm",
+                            MessageBoxButtons.YesNo,
+                            MessageBoxIcon.Question,
+                            MessageBoxDefaultButton.Button2) == DialogResult.Yes;
+
+                        if (inTemTam)
+                            PrintDraftLotLabel(data);
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine("[LƯU TẠM][IN TEM LOT] " + ex);
+                        loiInTem.Add("Tem tạm LOT: " + ex.Message);
                     }
                 }
 
-                FrmWaiting.ShowGifAlert(message: "LƯU TẠM THÀNH CÔNG.", myIcon:EnumStore.Icon.Success);
-                _onSaveSuccess?.Invoke();
+                string message;
+                if (string.IsNullOrWhiteSpace(_printer))
+                    message = "Lưu tạm thành công. Không in tem do chưa cấu hình máy in.";
+                else if (loiInTem.Count > 0)
+                    message = "Lưu tạm thành công, nhưng in tem thất bại:\n" + string.Join("\n", loiInTem);
+                else
+                    message = "LƯU TẠM THÀNH CÔNG.";
+
+                // Thông báo một lần, kết quả lưu DB không bị gán nhầm thành lỗi in.
+                try
+                {
+                    FrmWaiting.ShowGifAlert(message, "THÔNG BÁO",
+                        loiInTem.Count > 0 ? EnumStore.Icon.Warning : EnumStore.Icon.Success);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine("[LƯU TẠM][THÔNG BÁO] " + ex);
+                    MessageBox.Show(message, "THÔNG BÁO", MessageBoxButtons.OK,
+                        loiInTem.Count > 0 ? MessageBoxIcon.Warning : MessageBoxIcon.Information);
+                }
+
+                try { _onSaveSuccess?.Invoke(); }
+                catch (Exception ex) { Debug.WriteLine("[LƯU TẠM][CALLBACK] " + ex); }
             }
             catch (Exception ex)
             {
                 CloseWaitingSafe(waiting); waiting = null;
-                FrmWaiting.ShowGifAlert("LỖI: " + ex.Message, "LỖI");
+                if (draftSaved)
+                {
+                    Debug.WriteLine("[LƯU TẠM][LỖI SAU COMMIT] " + ex);
+                    FrmWaiting.ShowGifAlert("Lưu tạm thành công, nhưng xử lý sau lưu gặp lỗi: " + ex.Message,
+                        "THÔNG BÁO");
+                }
+                else
+                {
+                    FrmWaiting.ShowGifAlert("LỖI: " + ex.Message, "LỖI");
+                }
             }
             finally
             {
@@ -1607,6 +1679,7 @@ namespace DG_TonKhoBTP_v02.UI
                 _draftContext.Clear();
             }
             ApplySubmitMode(mode);
+            ApplyDraftPrinterCheckboxState();
         }
 
         private void ApplySubmitMode(DataLoadMode mode)
@@ -1643,6 +1716,15 @@ namespace DG_TonKhoBTP_v02.UI
             {
                 LogDraftValidationErrors("NGUYÊN LIỆU", nvlErrors);
                 ShowValidationError(waiting, "Nguyên liệu chưa hợp lệ");
+                return null;
+            }
+
+            // Kiểm tra Ngày/Ca ngay trước khi ghi DB, không phụ thuộc cbInTem.
+            List<string> caErrors = LuuTamValidator.LayDanhSachLoiCaLamViec(ca);
+            if (caErrors.Count > 0)
+            {
+                LogDraftValidationErrors("NGÀY/CA", caErrors);
+                ShowValidationError(waiting, "Ngày/Ca bắt đầu chưa hợp lệ\n" + string.Join("\n", caErrors));
                 return null;
             }
 
@@ -1764,6 +1846,57 @@ namespace DG_TonKhoBTP_v02.UI
             return bocVo.TTCuonDay_CD
                 .Where(x => x != null && !x.TTLo_ID.HasValue)
                 .ToList();
+        }
+
+        /// <summary>
+        /// Dựng riêng tem tạm LOT từ dữ liệu vừa được lưu thành công.
+        /// Không dùng builder tem chính thức (có các trường chi tiết công đoạn có thể chưa nhập).
+        /// </summary>
+        private PrinterModel BuildDraftLotPrinter(DraftSubmitData draft)
+        {
+            TTThanhPham tp = draft?.ThongTinThanhPham
+                ?? throw new ArgumentException("Không có Thành phẩm để in tem tạm.", nameof(draft));
+            ThongTinCaLamViec ca = draft.ThongTinCaLamViec;
+            string maBin = tp.MaBin ?? string.Empty;
+            string ghiChu = tp.GhiChu ?? string.Empty;
+
+            if (ca != null &&
+                EnumStore.MayTheoCongDoan.TryGetValue("Ben_CU_AL", out var dsMay) &&
+                dsMay.Contains(ca.May ?? string.Empty, StringComparer.OrdinalIgnoreCase) &&
+                draft.CongDoan?.ChiTietCongDoan is CD_BenRuot benRuot)
+            {
+                ghiChu = $"{benRuot.DKSoi}x{benRuot.SoSoi?.ToString() ?? ""} sợi\n" + ghiChu;
+            }
+
+            string mau = draft.CongDoan?.ChiTietCongDoan is CD_BocMach bocMach
+                ? bocMach.Mau ?? string.Empty
+                : string.Empty;
+
+            return new PrinterModel
+            {
+                TenSP = tp.TenTP ?? string.Empty,
+                MaSP = tp.MaTP ?? string.Empty,
+                MaBin = maBin,
+                Lot = maBin + " - TEM TẠM",
+                NgaySX = ca?.NgayBatDau.HasValue == true
+                    ? ca.NgayBatDau.Value.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)
+                    : string.Empty,
+                CaSX = ca?.Ca ?? string.Empty,
+                Mau = mau,
+                KhoiLuong = tp.KhoiLuongSau == 0d ? string.Empty : tp.KhoiLuongSau.ToString(),
+                ChieuDai = tp.ChieuDaiSau == 0d ? string.Empty : tp.ChieuDaiSau.ToString(),
+                DanhGia = string.Empty,
+                TenCN = ca?.NguoiLam ?? string.Empty,
+                GhiChu = ghiChu,
+                AnDonViKhiGiaTriRong = true
+            };
+        }
+
+        /// <summary>In đúng một tem đại diện MaBin/LOT; QR luôn là MaBin gốc.</summary>
+        private void PrintDraftLotLabel(DraftSubmitData draft)
+        {
+            PrinterModel printer = BuildDraftLotPrinter(draft);
+            PrintHelper.PrintLabel(printer);
         }
 
         /// <summary>

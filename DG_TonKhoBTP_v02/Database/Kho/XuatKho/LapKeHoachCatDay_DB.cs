@@ -68,67 +68,15 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
 
                 if (searchType == LapKeHoachCatDay_SearchType.Lot)
                 {
-                    // Gom tồn theo MaBin trước rồi mới lọc suggestion, tránh chạy nhiều
-                    // correlated subquery khi người dùng đang gõ.
+                    // MaCuon la dinh danh duy nhat cua cuon le, cuon chan khong co LOT.
                     cmd.CommandText = @"
-                        WITH
-                        Nhap AS (
-                            SELECT tp.id AS TTThanhPham_ID,
-                                   TRIM(tp.MaBin) AS MaBin,
-                                   COALESCE(SUM(
-                                       CASE
-                                           WHEN cd.SoDau IS NULL
-                                            AND cd.SoCuoi IS NULL
-                                            AND COALESCE(cd.SoCuon, 0) > 0
-                                               THEN cd.SoCuon
-                                           ELSE 0
-                                       END
-                                   ), 0) AS TongNhap
-                            FROM TTThanhPham tp
-                            LEFT JOIN TTNhapKhoTP nk ON nk.TTThanhPham_ID = tp.id
-                            LEFT JOIN TTCuonDay cd ON cd.ThongTinNhapKho_ID = nk.id
-                            WHERE tp.MaBin IS NOT NULL
-                              AND TRIM(tp.MaBin) <> ''
-                              AND tp.MaBin LIKE @kw
-                            GROUP BY tp.id, TRIM(tp.MaBin)
-                        ),
-                        DaLay AS (
-                            SELECT nk.TTThanhPham_ID,
-                                   COALESCE(SUM(ls.SoLuong), 0) AS SoLuong
-                            FROM LichSuLayCuon ls
-                            JOIN TTCuonDay cd ON cd.id = ls.TTCuonDay_ID
-                            JOIN TTNhapKhoTP nk ON nk.id = cd.ThongTinNhapKho_ID
-                            GROUP BY nk.TTThanhPham_ID
-                        ),
-                        DaChuyenLe AS (
-                            SELECT tcl.TTThanhPham_ID,
-                                   COUNT(DISTINCT lc.TonCuonLe_ID) AS SoLuong
-                            FROM LichSuCat lc
-                            JOIN TonCuonLe tcl ON tcl.id = lc.TonCuonLe_ID
-                            WHERE lc.LoaiNguon = 'CUON_CHAN'
-                            GROUP BY tcl.TTThanhPham_ID
-                        )
-                        SELECT GiaTri
-                        FROM (
-                            SELECT n.MaBin AS GiaTri
-                            FROM Nhap n
-                            LEFT JOIN DaLay dl ON dl.TTThanhPham_ID = n.TTThanhPham_ID
-                            LEFT JOIN DaChuyenLe dc ON dc.TTThanhPham_ID = n.TTThanhPham_ID
-                            WHERE n.TongNhap
-                                  - COALESCE(dl.SoLuong, 0)
-                                  - COALESCE(dc.SoLuong, 0) > 0
-
-                            UNION
-
-                            SELECT TRIM(tcl.MaCuon) AS GiaTri
-                            FROM TonCuonLe tcl
-                            WHERE tcl.MaCuon IS NOT NULL
-                              AND TRIM(tcl.MaCuon) <> ''
-                              AND tcl.MaCuon LIKE @kw
-                              AND COALESCE(NULLIF(TRIM(tcl.TrangThai), ''), 'ACTIVE') = 'ACTIVE' COLLATE NOCASE
-                              AND ABS(COALESCE(tcl.SoCuoi, 0) - COALESCE(tcl.SoDau, 0)) > 0
-                        ) x
-                        WHERE GiaTri IS NOT NULL AND TRIM(GiaTri) <> ''
+                        SELECT TRIM(tcl.MaCuon) AS GiaTri
+                        FROM TonCuonLe tcl
+                        WHERE tcl.MaCuon IS NOT NULL
+                          AND TRIM(tcl.MaCuon) <> ''
+                          AND tcl.MaCuon LIKE @kw
+                          AND COALESCE(NULLIF(TRIM(tcl.TrangThai), ''), 'ACTIVE') = 'ACTIVE' COLLATE NOCASE
+                          AND ABS(COALESCE(tcl.SoCuoi, 0) - COALESCE(tcl.SoDau, 0)) > 0
                         ORDER BY GiaTri COLLATE NOCASE
                         LIMIT 50;";
                 }
@@ -526,6 +474,281 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
             return result;
         }
 
+        // Toan bo them / sua / xoa cua mot ke hoach phai thanh cong cung nhau.
+        public static LapKeHoachCatDay_SaveResult LuuKeHoachBatch(LapKeHoachCatDay_BatchSaveRequest request)
+        {
+            var result = new LapKeHoachCatDay_SaveResult();
+            if (request == null || string.IsNullOrWhiteSpace(request.MaKeHoach))
+            {
+                result.Loi = "Vui lòng nhập mã kế hoạch trước khi lưu.";
+                return result;
+            }
+
+            var saves = request.DongCanLuu ?? new List<LapKeHoachCatDay_GridRow>();
+            var deletes = request.DongCanXoa ?? new List<LapKeHoachCatDay_GridRow>();
+            if (saves.Any(x => x == null) || deletes.Any(x => x == null))
+            {
+                result.Loi = "Kiểm tra lại dữ liệu.";
+                return result;
+            }
+            if (saves.Concat(deletes).GroupBy(x => x.RowKey, StringComparer.OrdinalIgnoreCase)
+                .Any(g => g.Count() > 1))
+            {
+                result.Loi = "Dữ liệu bất thường: một dòng bị xử lý nhiều lần.";
+                return result;
+            }
+
+            using var conn = DB_Base.OpenConnection();
+            EnsurePlanningSchema(conn);
+            using var tx = conn.BeginTransaction();
+            try
+            {
+                long? found = LayKeHoachIdTheoMa(conn, tx, request.MaKeHoach.Trim());
+                if (found != request.KeHoach_IDDuKien)
+                {
+                    result.DuLieuDaCu = true;
+                    result.Loi = "Dữ liệu đã cũ, cần reload để cập nhật";
+                    tx.Rollback();
+                    return result;
+                }
+
+                bool create = !found.HasValue;
+                long planId;
+                if (create)
+                {
+                    if (saves.Count == 0 || deletes.Count > 0)
+                    {
+                        result.Loi = "Kế hoạch mới phải có nội dung cần thực hiện.";
+                        tx.Rollback();
+                        return result;
+                    }
+                    using var cmd = new SQLiteCommand(@"
+                        INSERT INTO KeHoach
+                            (MaKeHoach, NgayKeHoach, TrangThai, NguoiNhan, GhiChu, NguoiTao, DateInsert)
+                        VALUES (@ma, @ngay, 'ACTIVE', @nhan, @ghichu, @tao, CURRENT_TIMESTAMP);", conn, tx);
+                    cmd.Parameters.AddWithValue("@ma", request.MaKeHoach.Trim());
+                    cmd.Parameters.AddWithValue("@ngay", DateTime.Now.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
+                    cmd.Parameters.AddWithValue("@nhan", (request.NguoiNhan ?? "").Trim());
+                    cmd.Parameters.AddWithValue("@ghichu", request.GhiChu ?? "");
+                    cmd.Parameters.AddWithValue("@tao", request.NguoiTao ?? "");
+                    cmd.ExecuteNonQuery();
+                    planId = conn.LastInsertRowId;
+                }
+                else
+                {
+                    planId = found.Value;
+                    using (var check = new SQLiteCommand(
+                        "SELECT TrangThai FROM KeHoach WHERE id = @id;", conn, tx))
+                    {
+                        check.Parameters.AddWithValue("@id", planId);
+                        string status = Convert.ToString(check.ExecuteScalar(), CultureInfo.InvariantCulture) ?? "";
+                        if (!string.Equals(status, "ACTIVE", StringComparison.OrdinalIgnoreCase))
+                        {
+                            result.Loi = "Kế hoạch không còn hoạt động, không thể chỉnh sửa.";
+                            tx.Rollback();
+                            return result;
+                        }
+                    }
+                    using var cmd = new SQLiteCommand(
+                        "UPDATE KeHoach SET NguoiNhan = @nhan, GhiChu = @ghichu WHERE id = @id;", conn, tx);
+                    cmd.Parameters.AddWithValue("@nhan", (request.NguoiNhan ?? "").Trim());
+                    cmd.Parameters.AddWithValue("@ghichu", request.GhiChu ?? "");
+                    cmd.Parameters.AddWithValue("@id", planId);
+                    cmd.ExecuteNonQuery();
+                }
+
+                // Xoa phan chua thuc hien truoc khi cap nhat noi dung con lai.
+                foreach (LapKeHoachCatDay_GridRow row in deletes)
+                {
+                    string deleteError = string.Empty;
+                    if (!row.DaTonTaiTrongDB || !XoaDongTrongGiaoDich(conn, tx, planId, row, out deleteError))
+                    {
+                        result.Loi = row.DaTonTaiTrongDB ? deleteError : "Kiểm tra lại dữ liệu.";
+                        tx.Rollback();
+                        return result;
+                    }
+                }
+                foreach (LapKeHoachCatDay_GridRow row in saves)
+                {
+                    if (!LuuDongTrongGiaoDich(conn, tx, planId, row, out string error))
+                    {
+                        result.Loi = (string.IsNullOrWhiteSpace(row.TenSP) ? row.RowKey : row.TenSP)
+                            + ": " + error;
+                        tx.Rollback();
+                        return result;
+                    }
+                }
+
+                if (!KeHoachConNoiDung(conn, tx, planId))
+                {
+                    if (!KeHoachCoLichSu(conn, tx, planId))
+                    {
+                        using var cmd = new SQLiteCommand("DELETE FROM KeHoach WHERE id = @id;", conn, tx);
+                        cmd.Parameters.AddWithValue("@id", planId);
+                        cmd.ExecuteNonQuery();
+                    }
+                    else
+                    {
+                        result.Loi = "Dữ liệu lịch sử chưa đồng bộ; không thể xóa kế hoạch.";
+                        tx.Rollback();
+                        return result;
+                    }
+                }
+                tx.Commit();
+                result.ThanhCong = true;
+                result.TaoMoiKeHoach = create;
+                result.KeHoach_ID = planId;
+                return result;
+            }
+            catch
+            {
+                try { tx.Rollback(); } catch { }
+                throw;
+            }
+        }
+
+        // Chia se transaction cho moi dong; DB chi commit sau khi xu ly tat ca dong.
+        private static bool LuuDongTrongGiaoDich(
+            SQLiteConnection conn, SQLiteTransaction tx, long planId,
+            LapKeHoachCatDay_GridRow row, out string error)
+        {
+            error = string.Empty;
+                long productId = row.DanhSachMaSP_ID;
+                long? khId = LayKeHoachHangId(conn, tx, planId, productId);
+                int? standardSnapshot = khId.HasValue
+                    ? LayChieuDaiKeHoachHang(conn, tx, khId.Value)
+                    : (int?)null;
+
+                // ChieuDai1Cuon_KeHoach chỉ là snapshot của cuộn chẵn.
+                // Kế hoạch chỉ dùng cuộn lẻ được phép để NULL và không cần truy chiều dài chuẩn.
+                if (row.LoaiDong == LapKeHoachCatDay_LoaiDong.CuonChan &&
+                    (!standardSnapshot.HasValue || standardSnapshot.Value <= 0))
+                {
+                    if (!TryLayChieuDaiChuanSanPham(conn, productId, tx, out int resolvedStandard))
+                    {
+                        error = "Kiểm tra lại dữ liệu.";
+                        return false;
+                    }
+                    standardSnapshot = resolvedStandard;
+                }
+
+                if (!khId.HasValue)
+                {
+                    const string insertHang = @"
+                        INSERT INTO KeHoachHang
+                            (KeHoach_ID, DanhSachMaSP_ID, SoLuongCuonCanLay, ChieuDai1Cuon_KeHoach, GhiChu, DateInsert)
+                        VALUES
+                            (@planId, @productId, 0, @standard, '', CURRENT_TIMESTAMP);";
+
+                    using var cmd = new SQLiteCommand(insertHang, conn, tx);
+                    cmd.Parameters.AddWithValue("@planId", planId);
+                    cmd.Parameters.AddWithValue("@productId", productId);
+                    cmd.Parameters.AddWithValue("@standard", (object)standardSnapshot ?? DBNull.Value);
+                    cmd.ExecuteNonQuery();
+                    khId = conn.LastInsertRowId;
+                }
+                else if (row.LoaiDong == LapKeHoachCatDay_LoaiDong.CuonChan &&
+                         standardSnapshot.HasValue &&
+                         !LayChieuDaiKeHoachHang(conn, tx, khId.Value).HasValue)
+                {
+                    using var cmd = new SQLiteCommand(
+                        "UPDATE KeHoachHang SET ChieuDai1Cuon_KeHoach = @standard WHERE id = @id;", conn, tx);
+                    cmd.Parameters.AddWithValue("@standard", standardSnapshot.Value);
+                    cmd.Parameters.AddWithValue("@id", khId.Value);
+                    cmd.ExecuteNonQuery();
+                }
+
+                string validationError;
+                bool stale;
+                if (row.LoaiDong == LapKeHoachCatDay_LoaiDong.CuonChan)
+                {
+                    if (!standardSnapshot.HasValue || standardSnapshot.Value <= 0)
+                    {
+                        error = "Kiểm tra lại dữ liệu.";
+                        return false;
+                    }
+
+                    if (!LuuDongCuonChan(conn, tx, planId, khId.Value, standardSnapshot.Value, row, out validationError, out stale))
+                    {
+                        error = validationError;
+                        return false;
+                    }
+                }
+                else
+                {
+                    if (!LuuDongCuonLe(conn, tx, planId, khId.Value, row, out validationError, out stale))
+                    {
+                        error = validationError;
+                        return false;
+                    }
+                }
+
+            return true;
+        }
+
+        private static bool XoaDongTrongGiaoDich(
+            SQLiteConnection conn, SQLiteTransaction tx, long planId,
+            LapKeHoachCatDay_GridRow row, out string error)
+        {
+            error = string.Empty;
+            long? khId = LayKeHoachHangId(conn, tx, planId, row.DanhSachMaSP_ID);
+            if (!khId.HasValue)
+            {
+                error = "Dữ liệu đã cũ, cần reload để cập nhật";
+                return false;
+            }
+
+            if (row.LoaiDong == LapKeHoachCatDay_LoaiDong.CuonChan)
+            {
+                int planned = LaySoLuongKeHoachHang(conn, tx, khId.Value);
+                int executed = LaySoLuongDaLay(conn, khId.Value, tx);
+                int unstarted = DemNhomChuaBatDau(conn, tx, khId.Value);
+                if (executed != row.SoLuongDaLay)
+                {
+                    error = "Dữ liệu đã cũ, cần reload để cập nhật";
+                    return false;
+                }
+                if (planned <= executed && unstarted <= 0)
+                {
+                    error = "Không thể xóa vì nội dung này đã có dữ liệu thực hiện.";
+                    return false;
+                }
+                using (var cmd = new SQLiteCommand(
+                    "UPDATE KeHoachHang SET SoLuongCuonCanLay = @qty WHERE id = @id;", conn, tx))
+                {
+                    cmd.Parameters.AddWithValue("@qty", executed);
+                    cmd.Parameters.AddWithValue("@id", khId.Value);
+                    cmd.ExecuteNonQuery();
+                }
+                XoaChiTietChuaThucHienTheoCuonChan(conn, tx, khId.Value);
+                XoaNhomCuonChanChuaBatDau(conn, tx, khId.Value);
+            }
+            else
+            {
+                if (!row.TonCuonLe_ID.HasValue)
+                {
+                    error = "Kiểm tra lại dữ liệu.";
+                    return false;
+                }
+                int unfinished = DemChiTietChuaThucHien(conn, tx, khId.Value, row.TonCuonLe_ID.Value);
+                int executed = DemChiTietDaThucHien(conn, tx, khId.Value, row.TonCuonLe_ID.Value);
+                if (executed != row.LayCacDoanDaThucHien().Count)
+                {
+                    error = "Dữ liệu đã cũ, cần reload để cập nhật";
+                    return false;
+                }
+                if (unfinished <= 0)
+                {
+                    error = "Không thể xóa vì nội dung này đã có dữ liệu thực hiện.";
+                    return false;
+                }
+                XoaChiTietChuaThucHienTheoCuonLe(conn, tx, khId.Value, row.TonCuonLe_ID.Value);
+                XoaNhomRong(conn, tx, khId.Value, row.TonCuonLe_ID.Value);
+            }
+            XoaKeHoachHangNeuRong(conn, tx, khId.Value);
+            return true;
+        }
+
         public static LapKeHoachCatDay_SaveResult LuuDong(LapKeHoachCatDay_SaveRequest request)
         {
             var result = new LapKeHoachCatDay_SaveResult();
@@ -830,55 +1053,27 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
             if (string.IsNullOrWhiteSpace(value))
                 return new List<LapKeHoachCatDay_GridRow>();
 
-            const string findPartial = @"
-                SELECT id
-                FROM TonCuonLe
+            // UNIQUE theo dac ta B1/B2; phat hien du lieu cu trung MaCuon neu schema khong bao ve.
+            const string sql = @"
+                SELECT id FROM TonCuonLe
                 WHERE TRIM(MaCuon) = TRIM(@value) COLLATE NOCASE
-                  AND COALESCE(NULLIF(TRIM(TrangThai), ''), 'ACTIVE') = 'ACTIVE' COLLATE NOCASE
-                  AND ABS(COALESCE(SoCuoi, 0) - COALESCE(SoDau, 0)) > 0
-                LIMIT 1;";
-            using (var cmd = new SQLiteCommand(findPartial, conn))
+                LIMIT 2;";
+            using var cmd = new SQLiteCommand(sql, conn);
+            cmd.Parameters.AddWithValue("@value", value);
+            long? id = null;
+            using (var reader = cmd.ExecuteReader())
             {
-                cmd.Parameters.AddWithValue("@value", value);
-                object idObj = cmd.ExecuteScalar();
-                if (idObj != null && idObj != DBNull.Value)
-                {
-                    var ton = LayTonCuonLe(conn, Convert.ToInt64(idObj, CultureInfo.InvariantCulture), excludePlanId);
-                    if (ton == null || ton.TonThucTe <= 0 || !LaCuonLeDangHoatDong(ton.TrangThai))
-                        return new List<LapKeHoachCatDay_GridRow>();
-                    return new List<LapKeHoachCatDay_GridRow> { TaoDongCuonLeMoi(ton) };
-                }
+                if (!reader.Read())
+                    return new List<LapKeHoachCatDay_GridRow>();
+                id = Convert.ToInt64(reader["id"], CultureInfo.InvariantCulture);
+                if (reader.Read())
+                    throw new InvalidOperationException("Dữ liệu bất thường: trùng mã cuộn lẻ " + value);
             }
 
-            const string findProduct = @"
-                SELECT tp.id AS TTThanhPham_ID, tp.DanhSachSP_ID, sp.Ten
-                FROM TTThanhPham tp
-                JOIN DanhSachMaSP sp ON sp.id = tp.DanhSachSP_ID
-                WHERE TRIM(tp.MaBin) = TRIM(@value) COLLATE NOCASE
-                LIMIT 1;";
-
-            using var findCmd = new SQLiteCommand(findProduct, conn);
-            findCmd.Parameters.AddWithValue("@value", value);
-            using var reader = findCmd.ExecuteReader();
-            if (!reader.Read())
+            PartialInventorySnapshot ton = LayTonCuonLe(conn, id.Value, excludePlanId);
+            if (ton == null || ton.TonThucTe <= 0 || !LaCuonLeDangHoatDong(ton.TrangThai))
                 return new List<LapKeHoachCatDay_GridRow>();
-
-            long productId = Convert.ToInt64(reader["DanhSachSP_ID"], CultureInfo.InvariantCulture);
-            long sourceTpId = Convert.ToInt64(reader["TTThanhPham_ID"], CultureInfo.InvariantCulture);
-            string ten = Convert.ToString(reader["Ten"], CultureInfo.InvariantCulture) ?? string.Empty;
-            reader.Close();
-
-            // Tìm LOT/MaBin cuộn chẵn phải phản ánh đúng tồn của chính MaBin được chọn.
-            // Reservation vẫn là theo mã sản phẩm vì B2 chưa khóa một cuộn chẵn vật lý cụ thể.
-            FullInventorySnapshot full = LayTonCuonChanTheoTTThanhPham(conn, sourceTpId, productId, excludePlanId);
-            if (full.TonThucTe <= 0 || full.ChieuDaiChuan <= 0)
-                return new List<LapKeHoachCatDay_GridRow>();
-
-            var row = TaoDongCuonChanMoi(full);
-            row.TTThanhPham_IDNguon = sourceTpId;
-            row.MaNguon = value;
-            row.TenSP = string.IsNullOrWhiteSpace(ten) ? full.TenSP : ten;
-            return new List<LapKeHoachCatDay_GridRow> { row };
+            return new List<LapKeHoachCatDay_GridRow> { TaoDongCuonLeMoi(ton) };
         }
 
         private static List<LapKeHoachCatDay_GridRow> TimTheoTenSanPham(SQLiteConnection conn, string ten, long? excludePlanId)
@@ -1845,13 +2040,42 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
                 return false;
             }
 
-            var desiredGroups = new List<List<int>>();
+            // Tu choi neu B3 da thay doi nhom cuon/lich su trong luc B2 dang sua.
+            var savedFullGroups = (row.NhomCatDaLuu ?? new List<LapKeHoachCatDay_NhomCat>())
+                .Where(x => !x.TonCuonLe_ID.HasValue && x.Id.HasValue).ToList();
+            foreach (LapKeHoachCatDay_NhomCat previous in savedFullGroups)
+            {
+                const string sqlGroup = @"
+                    SELECT COUNT(*) FROM KeHoachCatNhom
+                    WHERE id = @group AND KeHoachHang_ID = @item AND TonCuonLe_ID IS NULL;";
+                if (ExecuteInt(conn, tx, sqlGroup, ("@group", (object)previous.Id.Value),
+                    ("@item", (object)khId)) != 1)
+                {
+                    stale = true;
+                    error = "Dữ liệu đã cũ, cần reload để cập nhật";
+                    return false;
+                }
+                const string sqlExecuted = @"
+                    SELECT COUNT(*) FROM KeHoachCatChiTiet d
+                    JOIN LichSuCat ls ON ls.KeHoachCatChiTiet_ID = d.id
+                    WHERE d.KeHoachCatNhom_ID = @group;";
+                int executedNow = ExecuteInt(conn, tx, sqlExecuted,
+                    ("@group", (object)previous.Id.Value));
+                if (executedNow != previous.ChiTiet.Count(x => x.DaThucHien))
+                {
+                    stale = true;
+                    error = "Dữ liệu đã cũ, cần reload để cập nhật";
+                    return false;
+                }
+            }
 
+            var desiredGroups = new List<(long? GroupId, List<int> Lengths)>();
             if (row.NhomCatPopup != null && row.NhomCatPopup.Count > 0)
             {
-                foreach (var group in row.NhomCatPopup)
+                foreach (LapKeHoachCatDay_NhomCat group in row.NhomCatPopup)
                 {
-                    var values = group.ChiTiet.Where(x => !x.DaThucHien).Select(x => x.ChieuDai).ToList();
+                    List<int> values = group.ChiTiet.Where(x => !x.DaThucHien)
+                        .Select(x => x.ChieuDai).ToList();
                     if (values.Count == 0)
                         continue;
                     if (values.Any(x => x <= 0) || values.Sum() > standard)
@@ -1859,70 +2083,76 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
                         error = "Tổng chiều dài các đoạn cắt không hợp lệ";
                         return false;
                     }
-                    desiredGroups.Add(values);
+                    long? retainedId = group.CoThucHien ? group.Id : null;
+                    if (group.CoThucHien && (!retainedId.HasValue ||
+                        !savedFullGroups.Any(x => x.Id == retainedId)))
+                    {
+                        stale = true;
+                        error = "Dữ liệu đã cũ, cần reload để cập nhật";
+                        return false;
+                    }
+                    desiredGroups.Add((retainedId, values));
                 }
             }
             else if (!string.IsNullOrWhiteSpace(row.ChuoiChieuDaiCat))
             {
                 if (!LapKeHoachCatDay_ChieuDaiParser.TryNormalize(
-                    row.ChuoiChieuDaiCat,
-                    out _,
-                    out List<int> values,
-                    out string invalid,
-                    out bool syntax))
+                    row.ChuoiChieuDaiCat, out _, out List<int> values,
+                    out string invalid, out bool syntax))
                 {
                     error = LapKeHoachCatDay_ChieuDaiParser.TaoThongBaoLoi(invalid, syntax);
                     return false;
                 }
-
-                if (values.Count == 0)
-                {
-                    error = "Không xác định được chiều dài cần cắt. Vui lòng kiểm tra lại dữ liệu đã nhập.";
-                    return false;
-                }
-                if (values.Sum() > standard)
+                if (values.Count == 0 || values.Sum() > standard)
                 {
                     error = "Tổng chiều dài các đoạn cắt không hợp lệ";
                     return false;
                 }
-                desiredGroups.Add(values);
+                // Mot nhom da cat mot phan phai giu nguyen ID nhom da thuc hien.
+                var executedGroups = savedFullGroups.Where(x => x.CoThucHien).ToList();
+                if (executedGroups.Count > 1)
+                {
+                    error = "Không thể chuyển nhiều nhóm đã thực hiện về một cuộn.";
+                    return false;
+                }
+                desiredGroups.Add((executedGroups.Count == 1 ? executedGroups[0].Id : null, values));
             }
 
             int remainingWhole = row.SoLuongCanLay - executedWhole;
             int required = remainingWhole + desiredGroups.Count;
             int available = Math.Max(0, current.TonThucTe - current.DatTruoc);
-
-            if (required <= 0 && executedWhole <= 0)
+            if (required <= 0 && executedWhole <= 0 &&
+                !savedFullGroups.Any(x => x.CoThucHien))
             {
                 error = "Kiểm tra lại dữ liệu.";
                 return false;
             }
-
             if (required > 0 && current.TonThucTe <= 0)
             {
                 error = "Đã hết tồn kho";
                 return false;
             }
-
             if (required > available)
             {
                 error = "Số cuộn khả dụng không đủ";
                 return false;
             }
 
-            using (var cmd = new SQLiteCommand("UPDATE KeHoachHang SET SoLuongCuonCanLay = @qty WHERE id = @id;", conn, tx))
+            using (var cmd = new SQLiteCommand(
+                "UPDATE KeHoachHang SET SoLuongCuonCanLay = @qty WHERE id = @id;", conn, tx))
             {
                 cmd.Parameters.AddWithValue("@qty", row.SoLuongCanLay);
                 cmd.Parameters.AddWithValue("@id", khId);
                 cmd.ExecuteNonQuery();
             }
 
+            // Chi xoa detail chua thuc hien, giu toan bo LichSuCat cua B3.
+            XoaChiTietChuaThucHienTheoCuonChan(conn, tx, khId);
             XoaNhomCuonChanChuaBatDau(conn, tx, khId);
-
-            foreach (List<int> groupValues in desiredGroups)
+            foreach (var group in desiredGroups)
             {
-                long groupId = InsertNhom(conn, tx, khId, null);
-                foreach (int length in groupValues)
+                long groupId = group.GroupId ?? InsertNhom(conn, tx, khId, null);
+                foreach (int length in group.Lengths)
                     InsertChiTiet(conn, tx, groupId, length);
             }
 
@@ -2051,6 +2281,24 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
                       JOIN LichSuCat lc ON lc.KeHoachCatChiTiet_ID = d.id
                       WHERE d.KeHoachCatNhom_ID = KeHoachCatNhom.id
                   );";
+            using var cmd = new SQLiteCommand(sql, conn, tx);
+            cmd.Parameters.AddWithValue("@khId", khId);
+            cmd.ExecuteNonQuery();
+        }
+
+        private static void XoaChiTietChuaThucHienTheoCuonChan(
+            SQLiteConnection conn, SQLiteTransaction tx, long khId)
+        {
+            const string sql = @"
+                DELETE FROM KeHoachCatChiTiet
+                WHERE id IN (
+                    SELECT d.id FROM KeHoachCatChiTiet d
+                    JOIN KeHoachCatNhom n ON n.id = d.KeHoachCatNhom_ID
+                    LEFT JOIN LichSuCat lc ON lc.KeHoachCatChiTiet_ID = d.id
+                    WHERE n.KeHoachHang_ID = @khId
+                      AND n.TonCuonLe_ID IS NULL
+                      AND lc.id IS NULL
+                );";
             using var cmd = new SQLiteCommand(sql, conn, tx);
             cmd.Parameters.AddWithValue("@khId", khId);
             cmd.ExecuteNonQuery();

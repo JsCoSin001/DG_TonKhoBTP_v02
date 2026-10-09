@@ -73,9 +73,11 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
             grvThongTinCatLe.RowHeadersVisible = false;
             grvThongTinCatLe.AutoGenerateColumns = false;
 
-            var gridFont = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point);
+            grvThongTinCatLe.RowTemplate.Height = 33;
+
+            var gridFont = new Font("Tahoma", 11F, FontStyle.Regular, GraphicsUnit.Point);
             grvThongTinCatLe.DefaultCellStyle.Font = gridFont;
-            grvThongTinCatLe.ColumnHeadersDefaultCellStyle.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point);
+            grvThongTinCatLe.ColumnHeadersDefaultCellStyle.Font = new Font("Tahoma", 11F, FontStyle.Regular, GraphicsUnit.Point);
 
             stt.ReadOnly = true;
             tongCD.ReadOnly = true;

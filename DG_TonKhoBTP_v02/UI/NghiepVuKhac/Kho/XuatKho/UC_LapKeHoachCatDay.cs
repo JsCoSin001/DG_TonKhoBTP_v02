@@ -17,6 +17,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
     public partial class UC_LapKeHoachCatDay : UserControl
     {
         private const string COL_TEN_SP = "colTenSP";
+        private const string COL_MA_NGUON = "colMaNguon";
         private const string COL_TON_THUC_TE = "colTonThucTe";
         private const string COL_DAT_TRUOC = "colDatTruoc";
         private const string COL_CD_1C = "colChieuDai1Cuon";
@@ -26,11 +27,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
         private const string COL_CD_CAT = "colChieuDaiCat";
         private const string COL_CAT_LE = "colCatLe";
         private const string COL_TRANG_THAI = "colTrangThai";
-        private const string COL_LUU = "colLuu";
         private const string COL_XOA = "colXoa";
 
-        private static readonly Color MauLuuMoi = Color.FromArgb(40, 167, 69);
-        private static readonly Color MauCapNhat = Color.FromArgb(0, 123, 255);
         private static readonly Color MauXoa = Color.FromArgb(220, 53, 69);
         private static readonly Color MauDisabled = Color.FromArgb(200, 200, 200);
         private static readonly Color MauDisabledText = Color.FromArgb(100, 100, 100);
@@ -45,6 +43,13 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
         private bool _editMode;
         private bool _loadingPlan;
         private string _maKeHoachDaNap = string.Empty;
+        private readonly Dictionary<string, string> _dongGoc =
+            new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, LapKeHoachCatDay_GridRow> _choXoa =
+            new Dictionary<string, LapKeHoachCatDay_GridRow>(StringComparer.OrdinalIgnoreCase);
+        private string _nguoiNhanGoc = string.Empty;
+        private string _ghiChuGoc = string.Empty;
+        private bool _dangLuu;
 
         private LapKeHoachCatDay_GridRow _rowDangEditChieuDai;
         private string _chuoiCatTruocEdit = string.Empty;
@@ -70,16 +75,60 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
 
         private void KhoiTaoGrid()
         {
+            // ==============================
+            // 1. CẤU HÌNH FONT CHỮ
+            // ==============================
+
+            grvKetQuaTimKiem.ColumnHeadersDefaultCellStyle.Font =
+                new Font("Tahoma", 11F, FontStyle.Regular);
+
+            grvKetQuaTimKiem.DefaultCellStyle.Font =
+                new Font("Tahoma", 11F, FontStyle.Regular);
+
+            // ==============================
+            // 2. CHIỀU CAO HEADER
+            // ==============================
+
+            grvKetQuaTimKiem.ColumnHeadersHeightSizeMode =
+                DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
+
+            grvKetQuaTimKiem.ColumnHeadersHeight = 40;
+
+            // ==============================
+            // 3. CẤU HÌNH GRID
+            // ==============================
+
             grvKetQuaTimKiem.AutoGenerateColumns = false;
             grvKetQuaTimKiem.AllowUserToAddRows = false;
             grvKetQuaTimKiem.AllowUserToDeleteRows = false;
             grvKetQuaTimKiem.MultiSelect = false;
             grvKetQuaTimKiem.RowHeadersVisible = false;
-            grvKetQuaTimKiem.SelectionMode = DataGridViewSelectionMode.CellSelect;
-            grvKetQuaTimKiem.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
-            grvKetQuaTimKiem.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
+
+            grvKetQuaTimKiem.SelectionMode =
+                DataGridViewSelectionMode.CellSelect;
+
+            // ==============================
+            // 4. CHIỀU CAO DÒNG DỮ LIỆU
+            // ==============================
+
+            // Tự tăng chiều cao nếu nội dung dài
+            grvKetQuaTimKiem.AutoSizeRowsMode =
+                DataGridViewAutoSizeRowsMode.AllCells;
+
+            // Chiều cao tối thiểu 40 px
+            grvKetQuaTimKiem.RowTemplate.MinimumHeight = 40;
+
+            // Cho phép nội dung xuống dòng
+            grvKetQuaTimKiem.DefaultCellStyle.WrapMode =
+                DataGridViewTriState.True;
+
+            // ==============================
+            // 5. KHỞI TẠO CÁC CỘT
+            // ==============================
+
             grvKetQuaTimKiem.Columns.Clear();
 
+            // Tên sản phẩm
             grvKetQuaTimKiem.Columns.Add(new DataGridViewTextBoxColumn
             {
                 Name = COL_TEN_SP,
@@ -88,6 +137,17 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
                 FillWeight = 160,
                 ReadOnly = true
             });
+
+            // Mã nguồn chỉ hiển thị cho cuộn lẻ
+            grvKetQuaTimKiem.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                Name = COL_MA_NGUON,
+                HeaderText = "Lot",
+                Width = 175,
+                ReadOnly = true
+            });
+
+            // Tồn thực tế
             grvKetQuaTimKiem.Columns.Add(new DataGridViewTextBoxColumn
             {
                 Name = COL_TON_THUC_TE,
@@ -95,6 +155,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
                 Width = 105,
                 ReadOnly = true
             });
+
+            // Đặt trước
             grvKetQuaTimKiem.Columns.Add(new DataGridViewTextBoxColumn
             {
                 Name = COL_DAT_TRUOC,
@@ -102,13 +164,17 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
                 Width = 100,
                 ReadOnly = true
             });
+
+            // Chiều dài một cuộn
             grvKetQuaTimKiem.Columns.Add(new DataGridViewTextBoxColumn
             {
                 Name = COL_CD_1C,
-                HeaderText = "Chiều dài 1 cuộn",
+                HeaderText = "1C đơn vị",
                 Width = 125,
                 ReadOnly = true
             });
+
+            // Số đầu
             grvKetQuaTimKiem.Columns.Add(new DataGridViewTextBoxColumn
             {
                 Name = COL_SO_DAU,
@@ -116,6 +182,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
                 Width = 90,
                 ReadOnly = true
             });
+
+            // Số cuối
             grvKetQuaTimKiem.Columns.Add(new DataGridViewTextBoxColumn
             {
                 Name = COL_SO_CUOI,
@@ -123,18 +191,24 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
                 Width = 90,
                 ReadOnly = true
             });
+
+            // Số lượng lấy
             grvKetQuaTimKiem.Columns.Add(new DataGridViewTextBoxColumn
             {
                 Name = COL_SO_LUONG_LAY,
                 HeaderText = "Số lượng lấy",
                 Width = 100
             });
+
+            // Chiều dài cắt
             grvKetQuaTimKiem.Columns.Add(new DataGridViewTextBoxColumn
             {
                 Name = COL_CD_CAT,
-                HeaderText = "Chiều dài cắt",
-                Width = 180
+                HeaderText = "CD cắt",
+                Width = 100
             });
+
+            // Nút cắt lẻ
             grvKetQuaTimKiem.Columns.Add(new DataGridViewButtonColumn
             {
                 Name = COL_CAT_LE,
@@ -144,6 +218,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
                 UseColumnTextForButtonValue = false,
                 FlatStyle = FlatStyle.Flat
             });
+
+            // Trạng thái
             grvKetQuaTimKiem.Columns.Add(new DataGridViewTextBoxColumn
             {
                 Name = COL_TRANG_THAI,
@@ -151,14 +227,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
                 Width = 150,
                 ReadOnly = true
             });
-            grvKetQuaTimKiem.Columns.Add(new DataGridViewButtonColumn
-            {
-                Name = COL_LUU,
-                HeaderText = "",
-                Width = 105,
-                UseColumnTextForButtonValue = false,
-                FlatStyle = FlatStyle.Flat
-            });
+
+            // Nút xóa
             grvKetQuaTimKiem.Columns.Add(new DataGridViewButtonColumn
             {
                 Name = COL_XOA,
@@ -197,6 +267,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
             cbxKieuTimKiem.SelectedIndexChanged += CbxKieuTimKiem_SelectedIndexChanged;
             cbxKey.KeyDown += CbxKey_KeyDown;
             btnTimToanBo.Click += BtnTimToanBo_Click;
+            button1.Click += Button1_Click;
 
             tbLenhXuatHang.KeyDown += TbLenhXuatHang_KeyDown;
             tbLenhXuatHang.Leave += TbLenhXuatHang_Leave;
@@ -280,6 +351,26 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
             if (string.Equals(ma, _maKeHoachDaNap, StringComparison.OrdinalIgnoreCase))
                 return;
 
+            // Chua tai ma nao: gan ma cho ban nhap moi, khong xoa cac dong dang nhap.
+            if (!_keHoachId.HasValue && string.IsNullOrWhiteSpace(_maKeHoachDaNap)
+                && CoThayDoiChuaLuu() && !string.IsNullOrWhiteSpace(ma))
+            {
+                _maKeHoachDaNap = ma;
+                return;
+            }
+
+            if (CoThayDoiChuaLuu())
+            {
+                DialogResult answer = MessageBox.Show(
+                    "Dữ liệu kế hoạch đang có thay đổi chưa lưu. Tiếp tục sẽ bỏ các thay đổi này. Bạn có muốn chuyển kế hoạch?",
+                    "Thay đổi chưa lưu", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                if (answer != DialogResult.Yes)
+                {
+                    tbLenhXuatHang.Text = _maKeHoachDaNap;
+                    return;
+                }
+            }
+
             if (string.IsNullOrWhiteSpace(ma))
             {
                 ChuyenSangTaoMoi(clearHeader: false);
@@ -295,6 +386,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
 
                 _rows.Clear();
                 grvKetQuaTimKiem.Rows.Clear();
+                _choXoa.Clear();
+                _dongGoc.Clear();
                 _maKeHoachDaNap = ma;
 
                 if (!context.TonTai)
@@ -303,6 +396,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
                     _keHoachId = null;
                     cbxNguoiNhan.Text = string.Empty;
                     tbGhiChu.Clear();
+                    GhiNhanBanGoc();
                     return;
                 }
 
@@ -323,6 +417,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
                     }
                     ThemHoacCapNhatDongGrid(row, false);
                 }
+                GhiNhanBanGoc();
             }
             catch (Exception)
             {
@@ -423,6 +518,10 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
                     FrmWaiting.ShowGifAlert("Dữ liệu này đã có trong danh sách.");
                 }
             }
+            catch (InvalidOperationException ex)
+            {
+                FrmWaiting.ShowGifAlert(ex.Message);
+            }
             catch (Exception)
             {
                 FrmWaiting.ShowGifAlert("Không thể tải dữ liệu tìm kiếm.");
@@ -433,6 +532,13 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
         {
             if (model == null || string.IsNullOrWhiteSpace(model.RowKey))
                 return;
+
+            // Tim lai dong da danh dau cho xoa se hoan tac lenh xoa cho, giu identity DB/B3.
+            if (_choXoa.TryGetValue(model.RowKey, out LapKeHoachCatDay_GridRow recovered))
+            {
+                model = recovered;
+                _choXoa.Remove(model.RowKey);
+            }
 
             if (_rows.TryGetValue(model.RowKey, out _))
             {
@@ -454,11 +560,9 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
 
         private void GanGiaTriDong(DataGridViewRow row, LapKeHoachCatDay_GridRow model)
         {
-            string tenHienThi = model.TenSP;
-            if (!string.IsNullOrWhiteSpace(model.MaNguon))
-                tenHienThi += " - " + model.MaNguon;
-
-            row.Cells[COL_TEN_SP].Value = tenHienThi;
+            row.Cells[COL_TEN_SP].Value = model.TenSP;
+            row.Cells[COL_MA_NGUON].Value = model.LoaiDong == LapKeHoachCatDay_LoaiDong.CuonLe
+                ? model.MaNguon : string.Empty;
             row.Cells[COL_TON_THUC_TE].Value = model.LoaiDong == LapKeHoachCatDay_LoaiDong.CuonChan
                 ? model.TonThucTe + " cuộn"
                 : model.TonThucTe + " m";
@@ -475,7 +579,6 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
             row.Cells[COL_CAT_LE].Value = model.NhomCatPopup.Count > 0
                 ? "Cắt lẻ (" + model.NhomCatPopup.Count + " cuộn)"
                 : "Cắt lẻ";
-            row.Cells[COL_LUU].Value = model.DaTonTaiTrongDB ? "Cập nhật" : "Lưu mới";
             row.Cells[COL_XOA].Value = "Xóa";
         }
 
@@ -490,14 +593,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
             bool catLeEnabled = isFull && model.CanEdit && directCutEmpty;
             StyleButtonCell(row.Cells[COL_CAT_LE], catLeEnabled, Color.FromArgb(255, 193, 7), Color.Black);
 
-            bool saveEnabled = model.CanEdit;
-            StyleButtonCell(
-                row.Cells[COL_LUU],
-                saveEnabled,
-                model.DaTonTaiTrongDB ? MauCapNhat : MauLuuMoi,
-                Color.White);
-
-            bool deleteEnabled = model.DaTonTaiTrongDB && model.CanDelete;
+            bool deleteEnabled = !model.DaTonTaiTrongDB ||
+                (model.CanEdit && model.CanDelete);
             StyleButtonCell(row.Cells[COL_XOA], deleteEnabled, MauXoa, Color.White);
 
             if (string.Equals(model.TrangThai, LapKeHoachCatDay_TrangThai.HetTon, StringComparison.Ordinal))
@@ -510,7 +607,6 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
                 row.Cells[COL_SO_LUONG_LAY].ReadOnly = true;
                 row.Cells[COL_CD_CAT].ReadOnly = true;
                 StyleButtonCell(row.Cells[COL_CAT_LE], false, MauDisabled, MauDisabledText);
-                StyleButtonCell(row.Cells[COL_LUU], false, MauDisabled, MauDisabledText);
                 StyleButtonCell(row.Cells[COL_XOA], false, MauDisabled, MauDisabledText);
             }
         }
@@ -717,7 +813,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
             }
         }
 
-        private async void GrvKetQuaTimKiem_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        private void GrvKetQuaTimKiem_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex < 0)
                 return;
@@ -731,13 +827,9 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
             {
                 MoPopupCatLe(gridRow, model);
             }
-            else if (col == COL_LUU)
-            {
-                await LuuHoacCapNhatDongAsync(gridRow, model);
-            }
             else if (col == COL_XOA)
             {
-                await XoaDongAsync(model);
+                XoaDongTrenGiaoDien(model);
             }
         }
 
@@ -782,174 +874,151 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
             ApDungTrangThaiDong(gridRow, model);
         }
 
-        private async Task LuuHoacCapNhatDongAsync(DataGridViewRow gridRow, LapKeHoachCatDay_GridRow model)
+        private async void Button1_Click(object sender, EventArgs e)
         {
-            if (!model.CanEdit)
+            await LuuToanBoKeHoachAsync();
+        }
+
+        private static bool CoNoiDungNhap(LapKeHoachCatDay_GridRow row)
+        {
+            return row.LoaiDong == LapKeHoachCatDay_LoaiDong.CuonChan
+                ? row.SoLuongCanLay > 0 || !string.IsNullOrWhiteSpace(row.ChuoiChieuDaiCat)
+                    || (row.NhomCatPopup != null && row.NhomCatPopup.Count > 0)
+                : !string.IsNullOrWhiteSpace(row.ChuoiChieuDaiCat);
+        }
+
+        private static string TaoDauVanTay(LapKeHoachCatDay_GridRow row)
+        {
+            string nhom = string.Join("|", (row.NhomCatPopup ?? new List<LapKeHoachCatDay_NhomCat>())
+                .Select(g => (g.Id?.ToString(CultureInfo.InvariantCulture) ?? "0") + ":" +
+                    string.Join(",", g.ChiTiet.Select(x =>
+                        (x.Id?.ToString(CultureInfo.InvariantCulture) ?? "0") + ":" +
+                        x.ChieuDai.ToString(CultureInfo.InvariantCulture) + ":" + x.DaThucHien))));
+            return row.SoLuongCanLay.ToString(CultureInfo.InvariantCulture) + "#" +
+                (row.ChuoiChieuDaiCat ?? string.Empty) + "#" + nhom;
+        }
+
+        private void GhiNhanBanGoc()
+        {
+            _dongGoc.Clear();
+            foreach (LapKeHoachCatDay_GridRow row in _rows.Values.Where(x => x.DaTonTaiTrongDB))
+                _dongGoc[row.RowKey] = TaoDauVanTay(row);
+            _nguoiNhanGoc = cbxNguoiNhan.Text ?? string.Empty;
+            _ghiChuGoc = tbGhiChu.Text ?? string.Empty;
+        }
+
+        private bool DongBiSua(LapKeHoachCatDay_GridRow row)
+        {
+            return !_dongGoc.TryGetValue(row.RowKey, out string old)
+                || !string.Equals(old, TaoDauVanTay(row), StringComparison.Ordinal);
+        }
+
+        private bool CoThayDoiChuaLuu()
+        {
+            return _choXoa.Count > 0
+                || _rows.Values.Any(row => row.DaTonTaiTrongDB
+                    ? DongBiSua(row) : CoNoiDungNhap(row))
+                || !string.Equals(_nguoiNhanGoc, cbxNguoiNhan.Text ?? "", StringComparison.Ordinal)
+                || !string.Equals(_ghiChuGoc, tbGhiChu.Text ?? "", StringComparison.Ordinal);
+        }
+
+        private async Task LuuToanBoKeHoachAsync()
+        {
+            if (_dangLuu || _loadingPlan)
                 return;
-
             grvKetQuaTimKiem.EndEdit();
-
             string ma = (tbLenhXuatHang.Text ?? string.Empty).Trim();
             if (string.IsNullOrWhiteSpace(ma))
             {
                 FrmWaiting.ShowGifAlert("Vui lòng nhập mã kế hoạch trước khi lưu.");
                 return;
             }
-
-            if (model.DaTonTaiTrongDB && DongKhongConNoiDungChuaThucHien(model))
+            if (!string.IsNullOrEmpty(_maKeHoachDaNap) &&
+                !string.Equals(ma, _maKeHoachDaNap, StringComparison.OrdinalIgnoreCase))
             {
-                await XoaDongAsync(model);
+                FrmWaiting.ShowGifAlert("Vui lòng nhấn Enter để tải mã kế hoạch trước khi lưu.");
                 return;
             }
 
-            if (!KiemTraDuLieuDongTruocKhiLuu(model))
-                return;
+            var toSave = new List<LapKeHoachCatDay_GridRow>();
+            var toDelete = _choXoa.Values.ToList();
+            foreach (LapKeHoachCatDay_GridRow row in _rows.Values)
+            {
+                if (row.DaTonTaiTrongDB)
+                {
+                    if (!DongBiSua(row))
+                        continue;
+                    if (DongKhongConNoiDungChuaThucHien(row))
+                    {
+                        if (!row.CanDelete)
+                        {
+                            FrmWaiting.ShowGifAlert("Không thể xóa phần kế hoạch đã thực hiện: " + row.TenSP);
+                            return;
+                        }
+                        toDelete.Add(row);
+                        continue;
+                    }
+                    if (!row.CanEdit || !KiemTraDuLieuDongTruocKhiLuu(row))
+                        return;
+                    toSave.Add(row);
+                }
+                else if (CoNoiDungNhap(row))
+                {
+                    if (!row.CanEdit || !KiemTraDuLieuDongTruocKhiLuu(row))
+                        return;
+                    toSave.Add(row);
+                }
+            }
 
-            var request = new LapKeHoachCatDay_SaveRequest
+            bool headerChanged = _keHoachId.HasValue &&
+                (!string.Equals(_nguoiNhanGoc, cbxNguoiNhan.Text ?? "", StringComparison.Ordinal)
+                 || !string.Equals(_ghiChuGoc, tbGhiChu.Text ?? "", StringComparison.Ordinal));
+            if (!_keHoachId.HasValue && toSave.Count == 0)
+            {
+                FrmWaiting.ShowGifAlert("Kế hoạch mới phải có ít nhất một dòng nội dung.");
+                return;
+            }
+            if (_keHoachId.HasValue && toSave.Count == 0 && toDelete.Count == 0 && !headerChanged)
+            {
+                FrmWaiting.ShowGifAlert("Kế hoạch chưa có thay đổi để lưu.");
+                return;
+            }
+
+            var request = new LapKeHoachCatDay_BatchSaveRequest
             {
                 KeHoach_IDDuKien = _keHoachId,
                 MaKeHoach = ma,
                 NguoiNhan = cbxNguoiNhan.Text ?? string.Empty,
                 GhiChu = tbGhiChu.Text ?? string.Empty,
                 NguoiTao = UserContext.UserName ?? string.Empty,
-                Row = model
+                DongCanLuu = toSave,
+                DongCanXoa = toDelete
             };
 
-            bool wasPersisted = model.DaTonTaiTrongDB;
-            bool coThucHienTruocKhiLuu = model.CoThucHienB3;
+            _dangLuu = true;
             try
             {
                 LapKeHoachCatDay_SaveResult result = await WaitingHelper.RunWithWaiting(
-                    () => Task.Run(() => LapKeHoachCatDay_DB.LuuDong(request)),
-                    wasPersisted ? "ĐANG CẬP NHẬT..." : "ĐANG LƯU KẾ HOẠCH...");
-
+                    () => Task.Run(() => LapKeHoachCatDay_DB.LuuKeHoachBatch(request)),
+                    "ĐANG LƯU TOÀN BỘ KẾ HOẠCH...");
                 if (!result.ThanhCong)
                 {
-                    FrmWaiting.ShowGifAlert(string.IsNullOrWhiteSpace(result.Loi) ? "Không thể lưu kế hoạch. Dữ liệu chưa được thay đổi." : result.Loi);
+                    FrmWaiting.ShowGifAlert(string.IsNullOrWhiteSpace(result.Loi)
+                        ? "Không thể lưu kế hoạch. Không có thay đổi nào được ghi." : result.Loi);
                     return;
                 }
-
-                if (result.TaoMoiKeHoach)
-                {
-                    FrmWaiting.ShowGifAlert("Kế hoạch " + ma + " lưu thành công.");
-                    ResetVeTrangThaiMoi();
-                    return;
-                }
-
-                if (wasPersisted)
-                {
-                    FrmWaiting.ShowGifAlert(coThucHienTruocKhiLuu
-                        ? "Cập nhật thành công"
-                        : "Đã cập nhật nội dung kế hoạch.");
-                }
-                else
-                {
-                    FrmWaiting.ShowGifAlert("Kế hoạch " + ma + " đã được cập nhật");
-                }
-
-                try
-                {
-                    await LamMoiGridSauThaoTacAsync(ma, model.RowKey);
-                }
-                catch (Exception)
-                {
-                    FrmWaiting.ShowGifAlert("Dữ liệu đã cũ, cần reload để cập nhật");
-                }
+                FrmWaiting.ShowGifAlert("Đã lưu kế hoạch " + ma + " thành công.");
+                ResetVeTrangThaiMoi();
             }
             catch (Exception)
             {
-                string msg = wasPersisted
-                    ? "Không thể cập nhật kế hoạch. Dữ liệu chưa được thay đổi."
-                    : "Không thể lưu kế hoạch. Dữ liệu chưa được thay đổi.";
-                FrmWaiting.ShowGifAlert(msg);
+                FrmWaiting.ShowGifAlert("Không thể lưu toàn bộ kế hoạch. Không có thay đổi nào được ghi.");
+            }
+            finally
+            {
+                _dangLuu = false;
             }
         }
-
-
-        private async Task LamMoiGridSauThaoTacAsync(string maKeHoach, string rowKeyVuaLuu)
-        {
-            // Bảo toàn mọi dữ liệu người dùng đang nhập ở các dòng KHÁC dòng vừa lưu,
-            // kể cả dòng đã tồn tại trong DB nhưng đang được sửa mà chưa bấm Cập nhật.
-            var trangThaiNhap = _rows.Values
-                .Where(x => !string.Equals(x.RowKey, rowKeyVuaLuu, StringComparison.OrdinalIgnoreCase))
-                .ToDictionary(
-                    x => x.RowKey,
-                    x => new TrangThaiNhapTam
-                    {
-                        SoLuongCanLay = x.SoLuongCanLay,
-                        ChuoiChieuDaiCat = x.ChuoiChieuDaiCat ?? string.Empty,
-                        NhomCatPopup = (x.NhomCatPopup ?? new List<LapKeHoachCatDay_NhomCat>())
-                            .Select(g => g.Clone())
-                            .ToList()
-                    },
-                    StringComparer.OrdinalIgnoreCase);
-
-            List<LapKeHoachCatDay_GridRow> dongChuaLuu = _rows.Values
-                .Where(x => !x.DaTonTaiTrongDB &&
-                            !string.Equals(x.RowKey, rowKeyVuaLuu, StringComparison.OrdinalIgnoreCase))
-                .ToList();
-
-            LapKeHoachCatDay_KeHoachContext context = await WaitingHelper.RunWithWaiting(
-                () => Task.Run(() =>
-                {
-                    LapKeHoachCatDay_KeHoachContext loaded = LapKeHoachCatDay_DB.LayKeHoachTheoMa(maKeHoach);
-                    if (loaded.TonTai)
-                        LapKeHoachCatDay_DB.LamMoiTonChoCacDong(dongChuaLuu, loaded.Header.Id);
-                    return loaded;
-                }),
-                "ĐANG CẬP NHẬT DỮ LIỆU...");
-
-            if (!context.TonTai)
-            {
-                ChuyenSangTaoMoi(clearHeader: false);
-                return;
-            }
-
-            _rows.Clear();
-            grvKetQuaTimKiem.Rows.Clear();
-            _editMode = true;
-            _keHoachId = context.Header.Id;
-            _maKeHoachDaNap = context.Header.MaKeHoach;
-            tbLenhXuatHang.Text = context.Header.MaKeHoach;
-            cbxNguoiNhan.Text = context.Header.NguoiNhan;
-            tbGhiChu.Text = context.Header.GhiChu;
-
-            bool keHoachDangHoatDong = string.Equals(
-                context.Header.TrangThai, "ACTIVE", StringComparison.OrdinalIgnoreCase);
-
-            foreach (LapKeHoachCatDay_GridRow row in context.Rows)
-            {
-                if (trangThaiNhap.TryGetValue(row.RowKey, out TrangThaiNhapTam state))
-                {
-                    // Giữ nguyên nội dung người dùng đang nhập, kể cả khi refresh mới làm
-                    // nguồn hết khả dụng. Trạng thái/CanEdit mới vẫn được giữ để khóa thao tác.
-                    row.SoLuongCanLay = state.SoLuongCanLay;
-                    row.ChuoiChieuDaiCat = state.ChuoiChieuDaiCat;
-                    row.NhomCatPopup = state.NhomCatPopup.Select(g => g.Clone()).ToList();
-                }
-
-                if (!keHoachDangHoatDong)
-                {
-                    row.CanEdit = false;
-                    row.CanDelete = false;
-                }
-                ThemHoacCapNhatDongGrid(row, false);
-            }
-
-            foreach (LapKeHoachCatDay_GridRow row in dongChuaLuu)
-            {
-                if (_rows.ContainsKey(row.RowKey))
-                    continue;
-
-                if (!keHoachDangHoatDong)
-                {
-                    row.CanEdit = false;
-                    row.CanDelete = false;
-                }
-                ThemHoacCapNhatDongGrid(row, false);
-            }
-        }
-
 
         private static bool DongKhongConNoiDungChuaThucHien(LapKeHoachCatDay_GridRow model)
         {
@@ -1029,77 +1098,25 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
             return true;
         }
 
-        private async Task XoaDongAsync(LapKeHoachCatDay_GridRow model)
+        private void XoaDongTrenGiaoDien(LapKeHoachCatDay_GridRow model)
         {
-            if (!_keHoachId.HasValue || !model.DaTonTaiTrongDB || !model.CanDelete)
+            if (model == null ||
+                (model.DaTonTaiTrongDB && (!model.CanEdit || !model.CanDelete)))
                 return;
 
-            var request = new LapKeHoachCatDay_DeleteRequest
-            {
-                KeHoach_ID = _keHoachId.Value,
-                Row = model
-            };
+            string message = model.CoThucHienB3
+                ? "Dòng này đã thực hiện một phần. Chỉ loại bỏ phần chưa thực hiện khi lưu kế hoạch. Tiếp tục?"
+                : "Loại bỏ dòng này khỏi kế hoạch đang chỉnh sửa?";
+            if (MessageBox.Show(message, "Xác nhận", MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question) != DialogResult.Yes)
+                return;
 
-            try
-            {
-                LapKeHoachCatDay_DeletePreview preview = await WaitingHelper.RunWithWaiting(
-                    () => Task.Run(() => LapKeHoachCatDay_DB.KiemTraXoaDong(request)),
-                    "ĐANG KIỂM TRA...");
-
-                if (!preview.CoTheXoa)
-                {
-                    FrmWaiting.ShowGifAlert(string.IsNullOrWhiteSpace(preview.Loi)
-                        ? "Không thể xóa vì nội dung này đã có dữ liệu thực hiện."
-                        : preview.Loi);
-                    return;
-                }
-
-                string confirm;
-                if (preview.SeXoaCaKeHoach)
-                    confirm = "Nếu tiếp tục mã kế hoạch " + tbLenhXuatHang.Text.Trim() + " sẽ xoá khỏi hệ thống.";
-                else if (preview.CoThucHienMotPhan)
-                    confirm = "Mã kế hoạch " + tbLenhXuatHang.Text.Trim() + " đang thực hiện, nếu tiếp tục chỉ xoá các phần chưa thực hiện.";
-                else
-                    confirm = "Bạn muốn loại bỏ dòng này khỏi kế hoạch?";
-
-                DialogResult answer = MessageBox.Show(confirm, "Xác nhận", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-                if (answer != DialogResult.Yes)
-                    return;
-
-                LapKeHoachCatDay_DeleteResult result = await WaitingHelper.RunWithWaiting(
-                    () => Task.Run(() => LapKeHoachCatDay_DB.XoaDong(request)),
-                    "ĐANG XÓA...");
-
-                if (!result.ThanhCong)
-                {
-                    FrmWaiting.ShowGifAlert(string.IsNullOrWhiteSpace(result.Loi)
-                        ? "Không thể xóa dữ liệu. Dữ liệu hiện tại được giữ nguyên."
-                        : result.Loi);
-                    return;
-                }
-
-                string maKeHoach = tbLenhXuatHang.Text.Trim();
-                if (result.DaXoaKeHoach)
-                {
-                    FrmWaiting.ShowGifAlert("Đã xóa kế hoạch " + maKeHoach + ".");
-                    ResetVeTrangThaiMoi();
-                    return;
-                }
-
-                FrmWaiting.ShowGifAlert("Xoá thành công");
-                try
-                {
-                    await LamMoiGridSauThaoTacAsync(maKeHoach, null);
-                }
-                catch (Exception)
-                {
-                    FrmWaiting.ShowGifAlert("Dữ liệu đã cũ, cần reload để cập nhật");
-                }
-            }
-            catch (Exception)
-            {
-                FrmWaiting.ShowGifAlert("Không thể xóa dữ liệu. Dữ liệu hiện tại được giữ nguyên.");
-            }
+            if (model.DaTonTaiTrongDB)
+                _choXoa[model.RowKey] = model;
+            _rows.Remove(model.RowKey);
+            DataGridViewRow gridRow = TimGridRowTheoKey(model.RowKey);
+            if (gridRow != null)
+                grvKetQuaTimKiem.Rows.Remove(gridRow);
         }
 
         private DataGridViewRow TimGridRowTheoKey(string rowKey)
@@ -1120,6 +1137,10 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
             _maKeHoachDaNap = string.Empty;
             _rows.Clear();
             grvKetQuaTimKiem.Rows.Clear();
+            _dongGoc.Clear();
+            _choXoa.Clear();
+            _nguoiNhanGoc = string.Empty;
+            _ghiChuGoc = string.Empty;
 
             if (clearHeader)
             {

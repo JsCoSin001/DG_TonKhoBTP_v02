@@ -182,12 +182,18 @@ namespace DG_TonKhoBTP_v02.Printer
 
                 // Dòng 3: Khối lượng
                 g.DrawString("K.Lượng:", normalFont, brush, xText, y);
-                g.DrawString($"{data.KhoiLuong ?? ""} Kg", boldFont, brush, xText + Mm2Px(40, dpi), y);
+                g.DrawString(
+                    data.AnDonViKhiGiaTriRong && string.IsNullOrWhiteSpace(data.KhoiLuong)
+                        ? string.Empty : $"{data.KhoiLuong ?? ""} Kg",
+                    boldFont, brush, xText + Mm2Px(40, dpi), y);
                 y += lineHeightPx;
 
                 // Dòng 4: Chiều dài
                 g.DrawString("C.Dài:", normalFont, brush, xText, y);
-                g.DrawString($"{data.ChieuDai ?? ""} M", boldFont, brush, xText + Mm2Px(40, dpi), y);
+                g.DrawString(
+                    data.AnDonViKhiGiaTriRong && string.IsNullOrWhiteSpace(data.ChieuDai)
+                        ? string.Empty : $"{data.ChieuDai ?? ""} M",
+                    boldFont, brush, xText + Mm2Px(40, dpi), y);
                 y += lineHeightPx;
 
                 // Dòng 5: Ca sản xuất

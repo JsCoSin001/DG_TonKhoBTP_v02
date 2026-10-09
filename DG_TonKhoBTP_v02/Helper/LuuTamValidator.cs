@@ -54,6 +54,24 @@ namespace DG_TonKhoBTP_v02.Helper
             return ChuanHoa(errors);
         }
 
+        /// <summary>
+        /// Ngày và Ca bắt đầu là dữ liệu bắt buộc khi Lưu tạm, bất kể có in tem hay không.
+        /// Không yêu cầu Giờ, Máy hoặc Người làm cho bản lưu tạm.
+        /// </summary>
+        public static List<string> LayDanhSachLoiCaLamViec(ThongTinCaLamViec ca)
+        {
+            var errors = new List<string>();
+
+            if (ca == null || !ca.NgayBatDau.HasValue ||
+                ca.NgayBatDau.Value.Date <= DateTime.MinValue.Date)
+                errors.Add("Chưa nhập Ngày bắt đầu hợp lệ.");
+
+            if (string.IsNullOrWhiteSpace(ca?.Ca))
+                errors.Add("Chưa chọn Ca bắt đầu.");
+
+            return ChuanHoa(errors);
+        }
+
         private static List<string> ChuanHoa(IEnumerable<string> errors)
         {
             return (errors ?? Enumerable.Empty<string>())

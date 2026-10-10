@@ -36,7 +36,7 @@ namespace DG_TonKhoBTP_v02.Core
                         break;
 
                     case CheckBox chk:
-                        chk.Checked = true;
+                        chk.Checked = chk.Name != "cbxDongGoi";
                         break;
                     case DataGridView dgv:
                         // Xoá hết dòng nhập

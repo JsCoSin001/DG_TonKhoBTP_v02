@@ -27,6 +27,7 @@ namespace DG_TonKhoBTP_v02.UI
         }
 
         public string SectionName => nameof(UC_CDBocVo);
+        public bool DongGoiChecked => cbxDongGoi.Checked;
 
         public CD_BocVo GetSectionData()
         {
@@ -103,6 +104,8 @@ namespace DG_TonKhoBTP_v02.UI
             }
 
             ClearThongTinCuonDay();
+
+            cbxDongGoi.Checked = false;
 
             if (capNhatGhiChu)
                 DongGoiGhiChuChanged?.Invoke(string.Empty);

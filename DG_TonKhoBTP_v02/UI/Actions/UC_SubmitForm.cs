@@ -1751,6 +1751,17 @@ namespace DG_TonKhoBTP_v02.UI
             SubmitCongDoanData draftCongDoan = BuildDraftCongDoan(snapshot);
             bool coDuLieuCuon = GetDraftCuonRows(draftCongDoan).Count > 0;
 
+            // CD5: Chỉ cho phép in tem cuộn khi đã tích Đóng tải.
+            bool dongGoiChecked = false;
+
+            if (_Cd?.Id == 5)
+            {
+                UC_CDBocVo ucBocVo =
+                    CoreHelper.FindControlRecursive<UC_CDBocVo>(host);
+
+                dongGoiChecked = ucBocVo?.DongGoiChecked == true;
+            }
+
             var data = new DraftSubmitData
             {
                 DraftId = _draftContext.IsDraftLoaded ? _draftContext.DraftId : 0,
@@ -1764,7 +1775,7 @@ namespace DG_TonKhoBTP_v02.UI
 
                 // Quy tắc mới chỉ áp dụng cho LƯU TẠM:
                 // công đoạn 5 + có máy in + cbInTem + có ít nhất một dòng Cuộn (TTLo_ID = null).
-                ShouldPrintThanhPham = (_Cd?.Id == 5) && _printer != "" && cbInTem.Checked && coDuLieuCuon,
+                ShouldPrintThanhPham = (_Cd?.Id == 5) && !string.IsNullOrWhiteSpace(_printer) && cbInTem.Checked && dongGoiChecked && coDuLieuCuon,
 
                 // LƯU TẠM không in tem NVL ở bất kỳ công đoạn nào.
                 ShouldPrintNguyenVatLieu = false

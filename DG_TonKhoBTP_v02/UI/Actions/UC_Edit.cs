@@ -74,6 +74,20 @@ namespace DG_TonKhoBTP_v02.UI
 
             try
             {
+                if (kieuEdit == 2)
+                {
+                    int? nhapKho = await Task.Run(() =>
+                        Database.DatabaseHelper.GetNhapKhoTheoTTThanhPhamId(stt));
+
+                    if (nhapKho != 0)
+                    {
+                        RaiseClearOtherSections();
+                        ClearInputs();
+                        FrmWaiting.ShowGifAlert("LOT đã nhập kho, không thể sửa.");
+                        return;
+                    }
+                }
+
                 DataTable dt = await WaitingHelper.RunWithWaiting(
                     () => Task.Run(() =>
                     {
@@ -116,6 +130,12 @@ namespace DG_TonKhoBTP_v02.UI
             }
             catch
             {
+                if (kieuEdit == 2)
+                {
+                    RaiseClearOtherSections();
+                    ClearInputs();
+                }
+
                 FrmWaiting.ShowGifAlert(
                     "Cơ sở dữ liệu đang bận, thử lại sau ít phút",
                     "LỖI",

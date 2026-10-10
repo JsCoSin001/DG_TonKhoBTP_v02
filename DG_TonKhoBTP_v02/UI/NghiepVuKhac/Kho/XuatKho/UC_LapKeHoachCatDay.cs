@@ -267,7 +267,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
             cbxKieuTimKiem.SelectedIndexChanged += CbxKieuTimKiem_SelectedIndexChanged;
             cbxKey.KeyDown += CbxKey_KeyDown;
             btnTimToanBo.Click += BtnTimToanBo_Click;
-            button1.Click += Button1_Click;
+            btnLuuKeHoach.Click += btnLuuKeHoach_Click;
 
             tbLenhXuatHang.KeyDown += TbLenhXuatHang_KeyDown;
             tbLenhXuatHang.Leave += TbLenhXuatHang_Leave;
@@ -874,7 +874,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
             ApDungTrangThaiDong(gridRow, model);
         }
 
-        private async void Button1_Click(object sender, EventArgs e)
+        private async void btnLuuKeHoach_Click(object sender, EventArgs e)
         {
             await LuuToanBoKeHoachAsync();
         }
@@ -1007,7 +1007,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
                         ? "Không thể lưu kế hoạch. Không có thay đổi nào được ghi." : result.Loi);
                     return;
                 }
-                FrmWaiting.ShowGifAlert("Đã lưu kế hoạch " + ma + " thành công.");
+                FrmWaiting.ShowGifAlert("Đã lưu kế hoạch " + ma + " thành công.", myIcon:EnumStore.Icon.Success);
                 ResetVeTrangThaiMoi();
             }
             catch (Exception)

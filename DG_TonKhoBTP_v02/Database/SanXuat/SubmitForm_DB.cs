@@ -324,6 +324,28 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
             }
         }
 
+        // Kiểm tra một lần ở đầu giao dịch sửa, trước mọi câu lệnh ghi dữ liệu.
+        // Lỗi truy vấn được chuyển lên catch của phương thức cập nhật.
+        private static bool CoTheSuaThanhPham(
+            SQLiteConnection conn,
+            SQLiteTransaction tx,
+            int tpId)
+        {
+            const string sql = @"
+                SELECT NhapKho
+                FROM TTThanhPham
+                WHERE id = @id AND Temp = 0
+                LIMIT 1;";
+
+            using (var cmd = new SQLiteCommand(sql, conn, tx))
+            {
+                cmd.Parameters.AddWithValue("@id", tpId);
+                object value = cmd.ExecuteScalar();
+                return value != null && value != DBNull.Value
+                    && Convert.ToInt32(value) == 0;
+            }
+        }
+
         /// <summary>
         /// Cập nhật bản ghi công đoạn 9.
         /// Chỉ cập nhật TTThanhPham và ThongTinCaLamViec;
@@ -392,6 +414,13 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
 
             try
             {
+                if (!CoTheSuaThanhPham(conn, tx, idEdit))
+                {
+                    try { tx.Rollback(); } catch { }
+                    error = $"LOT đã nhập kho, không thể sửa.";
+                    return false;
+                }
+
                 thanhPham.HanNoi = 1;
 
                 const string updateThanhPhamSql = @"
@@ -1044,6 +1073,13 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
             {
                 conn = DB_Base.OpenConnection();
                 tx = conn.BeginTransaction();
+
+                if (!CoTheSuaThanhPham(conn, tx, tpId))
+                {
+                    try { tx.Rollback(); } catch { }
+                    errorMsg = $"LOT này đã nhập kho nên không thể sửa.";
+                    return false;
+                }
 
                 BackupThongTinTruocKhiSua(conn, tx, tpId, tp, caLam.NguoiLam);
                 UpdateThongTinCaLamViec(conn, tx, caLam, tpId);

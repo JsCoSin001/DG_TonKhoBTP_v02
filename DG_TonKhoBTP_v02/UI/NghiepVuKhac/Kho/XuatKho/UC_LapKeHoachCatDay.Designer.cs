@@ -39,6 +39,7 @@
             this.label6 = new System.Windows.Forms.Label();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.btnTimToanBo = new System.Windows.Forms.Button();
+            this.btnLuuKeHoach = new System.Windows.Forms.Button();
             this.panel2 = new System.Windows.Forms.Panel();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
@@ -51,7 +52,6 @@
             this.panel4 = new System.Windows.Forms.Panel();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.grvKetQuaTimKiem = new System.Windows.Forms.DataGridView();
-            this.button1 = new System.Windows.Forms.Button();
             this.panel1.SuspendLayout();
             this.panel3.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -183,7 +183,7 @@
             // flowLayoutPanel1
             // 
             this.flowLayoutPanel1.Controls.Add(this.btnTimToanBo);
-            this.flowLayoutPanel1.Controls.Add(this.button1);
+            this.flowLayoutPanel1.Controls.Add(this.btnLuuKeHoach);
             this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanel1.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
             this.flowLayoutPanel1.Location = new System.Drawing.Point(582, 3);
@@ -202,6 +202,19 @@
             this.btnTimToanBo.TabIndex = 0;
             this.btnTimToanBo.Text = "Tìm toàn bộ";
             this.btnTimToanBo.UseVisualStyleBackColor = true;
+            // 
+            // btnLuuKeHoach
+            // 
+            this.btnLuuKeHoach.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.btnLuuKeHoach.BackColor = System.Drawing.Color.Navy;
+            this.btnLuuKeHoach.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnLuuKeHoach.ForeColor = System.Drawing.SystemColors.Control;
+            this.btnLuuKeHoach.Location = new System.Drawing.Point(14, 7);
+            this.btnLuuKeHoach.Name = "btnLuuKeHoach";
+            this.btnLuuKeHoach.Size = new System.Drawing.Size(112, 46);
+            this.btnLuuKeHoach.TabIndex = 0;
+            this.btnLuuKeHoach.Text = "Lưu kế hoạch";
+            this.btnLuuKeHoach.UseVisualStyleBackColor = false;
             // 
             // panel2
             // 
@@ -340,19 +353,6 @@
             this.grvKetQuaTimKiem.Size = new System.Drawing.Size(1627, 661);
             this.grvKetQuaTimKiem.TabIndex = 0;
             // 
-            // button1
-            // 
-            this.button1.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.button1.BackColor = System.Drawing.Color.Navy;
-            this.button1.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button1.ForeColor = System.Drawing.SystemColors.Control;
-            this.button1.Location = new System.Drawing.Point(14, 7);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(112, 46);
-            this.button1.TabIndex = 0;
-            this.button1.Text = "Lưu kế hoạch";
-            this.button1.UseVisualStyleBackColor = false;
-            // 
             // UC_LapKeHoachCatDay
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 16F);
@@ -406,6 +406,6 @@
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
         private System.Windows.Forms.Button btnTimToanBo;
         private System.Windows.Forms.TextBox tbGhiChu;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button btnLuuKeHoach;
     }
 }

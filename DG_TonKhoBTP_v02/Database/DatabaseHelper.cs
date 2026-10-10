@@ -2708,6 +2708,28 @@ namespace DG_TonKhoBTP_v02.Database
 
             return GetData(query, key, "para");
         }
+        // Chỉ dùng khi kiểm tra quyền sửa bản ghi chính thức.
+        // Không coi bản ghi thiếu hoặc NhapKho NULL là trạng thái chưa nhập kho.
+        public static int? GetNhapKhoTheoTTThanhPhamId(long id)
+        {
+            const string sql = @"
+                SELECT NhapKho
+                FROM TTThanhPham
+                WHERE id = @id AND Temp = 0
+                LIMIT 1;";
+
+            using (var conn = DB_Base.OpenConnection())
+            using (var cmd = new SQLiteCommand(sql, conn))
+            {
+                cmd.Parameters.AddWithValue("@id", id);
+                object value = cmd.ExecuteScalar();
+                if (value == null || value == DBNull.Value)
+                    return null;
+
+                return Convert.ToInt32(value);
+            }
+        }
+
         // Lấy dữ liệu theo ID
         public static DataTable GetDataByID(string key, CongDoan cd, int kieuDL)
         {

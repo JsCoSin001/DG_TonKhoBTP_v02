@@ -142,7 +142,7 @@ namespace DG_TonKhoBTP_v02.UI.ThanhPhamCD
         {
             try
             {
-                if (_thongTinCaLamViec.Id <= 0)
+                if (_thongTinCaLamViec.Id < 0)
                     throw new InvalidOperationException("Công đoạn không hợp lệ.");
 
                 if (_thongTinCaLamViec.DanhSachMayId <= 0)

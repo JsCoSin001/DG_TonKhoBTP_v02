@@ -722,8 +722,7 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
             if (tonThucTe < datTruoc)
             {
                 throw new InvalidOperationException(
-                    $"Không thể cập nhật nhập kho vì tồn cuộn chẵn sau thay đổi chỉ còn {tonThucTe} cuộn, " +
-                    $"trong khi các kế hoạch đang ACTIVE đã đặt trước {datTruoc} cuộn.");
+                    $"Không thể cập nhật do đã có kế hoạch cắt/xuất.");
             }
         }
 

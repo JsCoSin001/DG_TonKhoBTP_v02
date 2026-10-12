@@ -881,6 +881,25 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
             return true;
         }
 
+        // Tổng chiều dài phải dương, kể cả khi được tự tính từ Số đầu/Số cuối.
+        // Không đổi validation >= 0 của Số đầu, Số cuối và Số lượng.
+        private bool ValidateTongChieuDaiDuong(int rowIndex, int tongChieuDai)
+        {
+            DataGridViewCell cell = grvThongTinCuonDay.Rows[rowIndex].Cells["tongChieuDai"];
+            if (tongChieuDai > 0)
+            {
+                ResetCellColor(cell);
+                return true;
+            }
+
+            MarkCellError(cell);
+            MessageBox.Show(
+                $"Dòng {rowIndex + 1} – Tổng chiều dài phải là số nguyên lớn hơn 0.",
+                "Lỗi nhập liệu", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            grvThongTinCuonDay.CurrentCell = cell;
+            return false;
+        }
+
         private bool ValidateLoaiDongGoi(int rowIndex, out int? ttLoId)
         {
             ttLoId = null;
@@ -978,7 +997,13 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
                 // Không validate ngay ô readonly vì đó là ô hệ thống tự tính.
                 // Validate đầy đủ sẽ chạy khi bấm nút Lưu.
                 if (!row.Cells[colName].ReadOnly)
-                    ValidateDgvCellIsNonNegativeInt(grvThongTinCuonDay, e.RowIndex, colName, tenCot, out _);
+                {
+                    if (!ValidateDgvCellIsNonNegativeInt(
+                        grvThongTinCuonDay, e.RowIndex, colName, tenCot, out int parsedValue))
+                        return;
+                    if (colName == "tongChieuDai" && !ValidateTongChieuDaiDuong(e.RowIndex, parsedValue))
+                        return;
+                }
             }
 
             if ((colName == "soDau" || colName == "soCuoi") && IsLoRow(row))
@@ -1043,9 +1068,10 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
                     continue;
 
                 string rawTongChieuDai = row.Cells["tongChieuDai"].Value?.ToString()?.Trim() ?? string.Empty;
-                if (!int.TryParse(rawTongChieuDai, out int tongChieuDai) || tongChieuDai < 0)
+                if (!int.TryParse(rawTongChieuDai, out int tongChieuDai) || tongChieuDai <= 0)
                 {
-                    FrmWaiting.ShowGifAlert($"Dòng {i + 1}: CD 1 cuộn không hợp lệ.");
+                    MarkCellError(row.Cells["tongChieuDai"]);
+                    FrmWaiting.ShowGifAlert($"Dòng {i + 1}: CD 1 cuộn phải là số nguyên lớn hơn 0.");
                     return;
                 }
 
@@ -1175,6 +1201,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
                 }
                 if (item.SoDau.HasValue && item.soCuoi.HasValue)
                     item.TongChieuDai = Math.Abs(item.soCuoi.Value - item.SoDau.Value);
+                if (!ValidateTongChieuDaiDuong(i, item.TongChieuDai))
+                    return;
                 result.Add(item);
             }
 
@@ -1269,6 +1297,9 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
                     tongCD = Math.Abs(parsedSoCuoi - parsedSoDau);
                     row.Cells["tongChieuDai"].Value = tongCD;
                 }
+
+                if (!ValidateTongChieuDaiDuong(i, tongCD))
+                    return;
 
                 string kichThuocLo = string.Empty;
                 bool ttLoHopLe = true;
@@ -1428,6 +1459,9 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
                     tongCD = Math.Abs(parsedSoCuoi - parsedSoDau);
                     row.Cells["tongChieuDai"].Value = tongCD;
                 }
+
+                if (!ValidateTongChieuDaiDuong(i, tongCD))
+                    return;
 
                 string kichThuocLo = string.Empty;
                 bool ttLoHopLe = true;

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -68,6 +68,7 @@ namespace DG_TonKhoBTP_v02.Models.Kho.XuatKho
     {
         public long? Id { get; set; }
         public long? TonCuonLe_ID { get; set; }
+        public long? QuyCachCuonChan_ID { get; set; }
         public List<LapKeHoachCatDay_ChiTietCat> ChiTiet { get; set; } = new List<LapKeHoachCatDay_ChiTietCat>();
 
         public bool CoThucHien => ChiTiet.Any(x => x.DaThucHien);
@@ -80,6 +81,7 @@ namespace DG_TonKhoBTP_v02.Models.Kho.XuatKho
             {
                 Id = Id,
                 TonCuonLe_ID = TonCuonLe_ID,
+                QuyCachCuonChan_ID = QuyCachCuonChan_ID,
                 ChiTiet = ChiTiet.Select(x => x.Clone()).ToList()
             };
         }
@@ -92,6 +94,7 @@ namespace DG_TonKhoBTP_v02.Models.Kho.XuatKho
 
         public long DanhSachMaSP_ID { get; set; }
         public long? KeHoachHang_ID { get; set; }
+        public long? QuyCachCuonChan_ID { get; set; }
         public long? TonCuonLe_ID { get; set; }
         public long? TTThanhPham_IDNguon { get; set; }
         public long? TTCuonDay_IDNguon { get; set; }
@@ -136,12 +139,23 @@ namespace DG_TonKhoBTP_v02.Models.Kho.XuatKho
         /// <summary>Tất cả nhóm đã lưu của dòng, dùng để bảo toàn lịch sử B3 khi update.</summary>
         public List<LapKeHoachCatDay_NhomCat> NhomCatDaLuu { get; set; } = new List<LapKeHoachCatDay_NhomCat>();
 
+        /// <summary>
+        /// Lịch sử nguồn cuộn chẵn đã chuyển sang TonCuonLe.
+        /// Chỉ phục vụ hiển thị; không được đưa các nhóm này vào phần ghi kế hoạch cuộn chẵn
+        /// hoặc tính giữ chỗ một cuộn chẵn lần thứ hai.
+        /// </summary>
+        public List<LapKeHoachCatDay_NhomCat> NhomCatNguonDaChuyenLe { get; set; } = new List<LapKeHoachCatDay_NhomCat>();
+
+        /// <summary>Cảnh báo tồn kho, độc lập với trạng thái tiến độ thực hiện.</summary>
+        public bool CanhBaoHetTon { get; set; }
+
         public bool DaTonTaiTrongDB { get; set; }
         public string TrangThai { get; set; } = LapKeHoachCatDay_TrangThai.ChuaLuu;
         public bool CanEdit { get; set; } = true;
         public bool CanDelete { get; set; }
 
-        public bool CoThucHienB3 => SoLuongDaLay > 0 || NhomCatDaLuu.Any(x => x.CoThucHien);
+        public bool CoThucHienB3 => SoLuongDaLay > 0 || NhomCatDaLuu.Any(x => x.CoThucHien)
+            || NhomCatNguonDaChuyenLe.Any(x => x.CoThucHien);
         public bool HoanThanh => string.Equals(TrangThai, LapKeHoachCatDay_TrangThai.HoanThanh, StringComparison.Ordinal);
 
         public List<int> LayCacDoanDaThucHien()
@@ -160,6 +174,16 @@ namespace DG_TonKhoBTP_v02.Models.Kho.XuatKho
 
             if (daThucHien.Count > 0)
                 parts.AddRange(daThucHien.Select(x => x + " (Đã thực hiện)"));
+
+            // Hiện lịch sử nguồn đã chuyển lẻ ngay cả khi nhóm này hiện được thực hiện tiếp
+            // trên một dòng cuộn lẻ riêng. Chỉ trình bày đoạn ĐÃ cắt, không sao chép đặt trước.
+            if (LoaiDong == LapKeHoachCatDay_LoaiDong.CuonChan)
+            {
+                parts.AddRange(NhomCatNguonDaChuyenLe
+                    .SelectMany(x => x.ChiTiet)
+                    .Where(x => x.DaThucHien)
+                    .Select(x => x.ChieuDai + " (Đã chuyển lẻ)"));
+            }
 
             if (!string.IsNullOrWhiteSpace(ChuoiChieuDaiCat))
                 parts.AddRange(ChuoiChieuDaiCat.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries));

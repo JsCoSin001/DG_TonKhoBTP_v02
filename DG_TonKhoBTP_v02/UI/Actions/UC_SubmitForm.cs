@@ -1557,7 +1557,7 @@ namespace DG_TonKhoBTP_v02.UI
                 List<string> loiInTem = new List<string>();
                 if (CanPrintDraftLabels())
                 {
-                    // CD5: giữ nguyên nội dung, số lượng và mã QR của tem cuộn cũ.
+                    // CD5: chỉ thay định dạng QR tem cuộn theo quy cách; giữ số lượng, tem LOT độc lập.
                     // Bắt lỗi ở ranh giới nhánh để tem LOT vẫn được thử in tiếp.
                     if (data.ShouldPrintThanhPham)
                     {
@@ -1737,7 +1737,7 @@ namespace DG_TonKhoBTP_v02.UI
                 LogDraftValidationErrors("BOM", bomErrors);
 
                 DialogResult confirm = MessageBox.Show(
-                    "Nguyên liệu chưa hợp lệ.\nBạn có muốn tiếp tục lưu tạm không?",
+                    "Nguyên liệu chưa hợp lệ.\nTiếp tục không?",
                     "XÁC NHẬN LƯU TẠM",
                     MessageBoxButtons.YesNo,
                     MessageBoxIcon.Warning,
@@ -1888,7 +1888,7 @@ namespace DG_TonKhoBTP_v02.UI
                 TenSP = tp.TenTP ?? string.Empty,
                 MaSP = tp.MaTP ?? string.Empty,
                 MaBin = maBin,
-                Lot = maBin + " - TEM TẠM",
+                Lot = maBin + " - NHÁP",
                 NgaySX = ca?.NgayBatDau.HasValue == true
                     ? ca.NgayBatDau.Value.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)
                     : string.Empty,
@@ -1934,6 +1934,12 @@ namespace DG_TonKhoBTP_v02.UI
             if (rows.Count == 0)
                 return;
 
+            // Kiểm tra cả đợt trước khi in bất kỳ tem cuộn nào để không in dở đợt.
+            // Chỉ áp dụng tem cuộn, không thay đổi in tem tạm LOT.
+            if (rows.Any(x => x.TongChieuDai <= 0))
+                throw new InvalidOperationException(
+                    "Không thể in QR tem cuộn: chiều dài một cuộn phải lớn hơn 0.");
+
             var printData = new SubmitFormData
             {
                 CongDoanId = draft.CongDoanId,
@@ -1956,7 +1962,12 @@ namespace DG_TonKhoBTP_v02.UI
                 for (int i = 0; i < row.SoCuon; i++)
                 {
                     soThuTu++;
-                    string qrValue = "cuontp;" + maBinGoc + ";" + timePart + soThuTu.ToString("D2", CultureInfo.InvariantCulture);
+                    // QR cuộn chẵn: loại; MaBin; chiều dài; mã tem riêng.
+                    // Không đăng ký QR tại thời điểm in; lần in lại tạo mã mới độc lập.
+                    string qrValue = "cuontp;" + maBinGoc + ";"
+                        + row.TongChieuDai.ToString(CultureInfo.InvariantCulture) + ";"
+                        + timePart + soThuTu.ToString("D2", CultureInfo.InvariantCulture)
+                        + Guid.NewGuid().ToString("N").Substring(0, 12);
                     QrParseResult qrParsed = QrCodeHelper.Parse(qrValue, QrCodeType.CuonTP);
 
                     PrinterModel printer = BuildThanhPhamPrinter(printData);

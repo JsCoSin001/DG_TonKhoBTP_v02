@@ -45,6 +45,8 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
         {
             public Dictionary<long, FullInventorySnapshot> FullByProduct { get; } =
                 new Dictionary<long, FullInventorySnapshot>();
+            public Dictionary<string, FullInventorySnapshot> FullByLength { get; } =
+                new Dictionary<string, FullInventorySnapshot>();
 
             public Dictionary<long, PartialInventorySnapshot> PartialById { get; } =
                 new Dictionary<long, PartialInventorySnapshot>();
@@ -203,13 +205,8 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
             EnsurePlanningSchema(conn);
 
             InventoryBatchSnapshot batch = LayKhoBatch(conn, excludePlanId);
-            Dictionary<long, FullInventorySnapshot> fullTheoNguon = LayTonCuonChanTheoTTThanhPhamBatch(
-                conn,
-                rows.Where(x => x != null &&
-                                x.LoaiDong == LapKeHoachCatDay_LoaiDong.CuonChan &&
-                                x.TTThanhPham_IDNguon.HasValue)
-                    .Select(x => x.TTThanhPham_IDNguon.Value),
-                batch.FullByProduct);
+            // Full reels must always be refreshed at product+length scope, not TP/MaBin aggregate.
+
 
             foreach (LapKeHoachCatDay_GridRow row in rows)
             {
@@ -218,12 +215,9 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
 
                 if (row.LoaiDong == LapKeHoachCatDay_LoaiDong.CuonChan)
                 {
-                    FullInventorySnapshot current = null;
-                    if (row.TTThanhPham_IDNguon.HasValue)
-                        fullTheoNguon.TryGetValue(row.TTThanhPham_IDNguon.Value, out current);
-
-                    if (current == null)
-                        batch.FullByProduct.TryGetValue(row.DanhSachMaSP_ID, out current);
+                    batch.FullByLength.TryGetValue(
+                        TaoRowKeyCuonChan(row.DanhSachMaSP_ID, row.ChieuDai1Cuon),
+                        out FullInventorySnapshot current);
 
                     if (current == null)
                     {
@@ -355,6 +349,32 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
                 }
             }
 
+            var quycachs = new Dictionary<long, List<(long Id, int Length, int Quantity, int Done)>>();
+            using (var cmd = new SQLiteCommand(@"
+                SELECT qc.id, qc.KeHoachHang_ID, qc.ChieuDai1Cuon, qc.SoLuongCuonCanLay,
+                       COALESCE((SELECT SUM(ls.SoLuong) FROM LichSuLayCuon ls
+                           WHERE ls.QuyCachCuonChan_ID=qc.id),0) AS Done
+                FROM KeHoachHangQuyCachCuonChan qc
+                JOIN KeHoachHang kh ON kh.id=qc.KeHoachHang_ID
+                WHERE kh.KeHoach_ID=@planId ORDER BY qc.ChieuDai1Cuon;", conn))
+            {
+                cmd.Parameters.AddWithValue("@planId", planId);
+                using var rd = cmd.ExecuteReader();
+                while (rd.Read())
+                {
+                    long hangId = Convert.ToInt64(rd["KeHoachHang_ID"], CultureInfo.InvariantCulture);
+                    if (!quycachs.TryGetValue(hangId, out var set))
+                    {
+                        set = new List<(long Id, int Length, int Quantity, int Done)>();
+                        quycachs.Add(hangId, set);
+                    }
+                    set.Add((Convert.ToInt64(rd["id"], CultureInfo.InvariantCulture),
+                        Convert.ToInt32(rd["ChieuDai1Cuon"], CultureInfo.InvariantCulture),
+                        Convert.ToInt32(rd["SoLuongCuonCanLay"], CultureInfo.InvariantCulture),
+                        Convert.ToInt32(rd["Done"], CultureInfo.InvariantCulture)));
+                }
+            }
+
             Dictionary<long, List<LapKeHoachCatDay_NhomCat>> groupsByHang =
                 LayNhomCatTheoKeHoach(conn, planId);
             Dictionary<long, int> soLuongDaLayByHang =
@@ -369,60 +389,54 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
                 groupsByHang.TryGetValue(kh.Id, out List<LapKeHoachCatDay_NhomCat> groups);
                 groups ??= new List<LapKeHoachCatDay_NhomCat>();
 
-                List<LapKeHoachCatDay_NhomCat> fullGroups = groups
-                    .Where(x => !x.TonCuonLe_ID.HasValue)
-                    .OrderBy(x => x.Id)
-                    .ToList();
-
-                soLuongDaLayByHang.TryGetValue(kh.Id, out int soLuongDaLay);
-
-                if (kh.SoLuong > 0 || fullGroups.Count > 0)
+                quycachs.TryGetValue(kh.Id, out var lengthSpecs);
+                foreach (var qc in lengthSpecs ?? new List<(long Id, int Length, int Quantity, int Done)>())
                 {
-                    if (!inventory.FullByProduct.TryGetValue(kh.ProductId, out FullInventorySnapshot ton))
+                    List<LapKeHoachCatDay_NhomCat> fullGroups = groups
+                        .Where(x => !x.TonCuonLe_ID.HasValue && x.QuyCachCuonChan_ID == qc.Id)
+                        .OrderBy(x => x.Id).ToList();
+                    // Nhóm đã chuyển thành cuộn lẻ phải còn thấy ở lịch sử nguồn cuộn chẵn,
+                    // dù số lượng lấy nguyên và các nhóm chưa khởi phát đều bằng 0.
+                    // Chỉ dùng chúng để hiển thị; không tính lại giữ chỗ cuộn chẵn.
+                    List<LapKeHoachCatDay_NhomCat> convertedGroups = groups
+                        .Where(x => x.TonCuonLe_ID.HasValue && x.QuyCachCuonChan_ID == qc.Id)
+                        .OrderBy(x => x.Id).ToList();
+                    if (qc.Quantity <= 0 && qc.Done <= 0 && fullGroups.Count == 0
+                        && convertedGroups.Count == 0) continue;
+                    if (!inventory.FullByLength.TryGetValue(
+                        TaoRowKeyCuonChan(kh.ProductId, qc.Length), out FullInventorySnapshot ton))
                     {
-                        ton = new FullInventorySnapshot
-                        {
-                            DanhSachMaSP_ID = kh.ProductId,
-                            TenSP = kh.Ten,
-                            TonThucTe = 0,
-                            DatTruoc = 0,
-                            ChieuDaiChuan = kh.Standard.GetValueOrDefault()
-                        };
+                        ton = new FullInventorySnapshot {
+                            DanhSachMaSP_ID = kh.ProductId, TenSP = kh.Ten,
+                            ChieuDaiChuan = qc.Length };
                     }
-
-                    int standard = kh.Standard.GetValueOrDefault() > 0
-                        ? kh.Standard.Value
-                        : ton.ChieuDaiChuan;
-
-                    var row = new LapKeHoachCatDay_GridRow
-                    {
-                        RowKey = TaoRowKeyCuonChan(kh.ProductId),
+                    var row = new LapKeHoachCatDay_GridRow {
+                        RowKey = TaoRowKeyCuonChan(kh.ProductId, qc.Length),
                         LoaiDong = LapKeHoachCatDay_LoaiDong.CuonChan,
-                        DanhSachMaSP_ID = kh.ProductId,
-                        KeHoachHang_ID = kh.Id,
-                        TenSP = kh.Ten,
-                        TonThucTe = ton.TonThucTe,
-                        DatTruoc = ton.DatTruoc,
-                        ChieuDai1Cuon = standard,
-                        ChieuDaiChuanKeHoach = standard > 0 ? (int?)standard : null,
-                        SoLuongCanLay = kh.SoLuong,
-                        SoLuongDaLay = soLuongDaLay,
+                        DanhSachMaSP_ID = kh.ProductId, KeHoachHang_ID = kh.Id,
+                        QuyCachCuonChan_ID = qc.Id, TenSP = kh.Ten,
+                        TonThucTe = ton.TonThucTe, DatTruoc = ton.DatTruoc,
+                        ChieuDai1Cuon = qc.Length, ChieuDaiChuanKeHoach = qc.Length,
+                        SoLuongCanLay = qc.Quantity, SoLuongDaLay = qc.Done,
                         DaTonTaiTrongDB = true,
-                        NhomCatDaLuu = fullGroups.Select(x => x.Clone()).ToList()
+                        NhomCatDaLuu = fullGroups.Select(x=>x.Clone()).ToList(),
+                        NhomCatNguonDaChuyenLe = convertedGroups.Select(x=>x.Clone()).ToList()
                     };
-
                     if (fullGroups.Count == 1)
-                    {
                         row.ChuoiChieuDaiCat = string.Join(";", fullGroups[0].ChiTiet
                             .Where(x => !x.DaThucHien)
                             .Select(x => x.ChieuDai.ToString(CultureInfo.InvariantCulture)));
-                    }
                     else if (fullGroups.Count > 1)
-                    {
-                        row.NhomCatPopup = fullGroups.Select(x => x.Clone()).ToList();
-                    }
-
+                        row.NhomCatPopup = fullGroups.Select(x=>x.Clone()).ToList();
                     GanTrangThaiCuonChan(row);
+                    // Không cho chỉnh/xóa dòng chỉ còn lịch sử chuyển lẻ; sửa các đoạn
+                    // chưa hoàn thành trên dòng TonCuonLe đang sở hữu nhóm đó.
+                    if (qc.Quantity <= qc.Done && fullGroups.Count == 0
+                        && convertedGroups.Count > 0)
+                    {
+                        row.CanEdit = false;
+                        row.CanDelete = false;
+                    }
                     result.Rows.Add(row);
                 }
 
@@ -615,23 +629,9 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
             error = string.Empty;
                 long productId = row.DanhSachMaSP_ID;
                 long? khId = LayKeHoachHangId(conn, tx, planId, productId);
-                int? standardSnapshot = khId.HasValue
-                    ? LayChieuDaiKeHoachHang(conn, tx, khId.Value)
-                    : (int?)null;
-
-                // ChieuDai1Cuon_KeHoach chỉ là snapshot của cuộn chẵn.
-                // Kế hoạch chỉ dùng cuộn lẻ được phép để NULL và không cần truy chiều dài chuẩn.
-                if (row.LoaiDong == LapKeHoachCatDay_LoaiDong.CuonChan &&
-                    (!standardSnapshot.HasValue || standardSnapshot.Value <= 0))
-                {
-                    if (!TryLayChieuDaiChuanSanPham(conn, productId, tx, out int resolvedStandard))
-                    {
-                        error = "Kiểm tra lại dữ liệu.";
-                        return false;
-                    }
-                    standardSnapshot = resolvedStandard;
-                }
-
+                // Per-length snapshot is carried by the row, never inferred from other full reels.
+                int? standardSnapshot = row.LoaiDong == LapKeHoachCatDay_LoaiDong.CuonChan
+                    ? (int?)row.ChieuDai1Cuon : null;
                 if (!khId.HasValue)
                 {
                     const string insertHang = @"
@@ -643,21 +643,10 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
                     using var cmd = new SQLiteCommand(insertHang, conn, tx);
                     cmd.Parameters.AddWithValue("@planId", planId);
                     cmd.Parameters.AddWithValue("@productId", productId);
-                    cmd.Parameters.AddWithValue("@standard", (object)standardSnapshot ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@standard", DBNull.Value);
                     cmd.ExecuteNonQuery();
                     khId = conn.LastInsertRowId;
                 }
-                else if (row.LoaiDong == LapKeHoachCatDay_LoaiDong.CuonChan &&
-                         standardSnapshot.HasValue &&
-                         !LayChieuDaiKeHoachHang(conn, tx, khId.Value).HasValue)
-                {
-                    using var cmd = new SQLiteCommand(
-                        "UPDATE KeHoachHang SET ChieuDai1Cuon_KeHoach = @standard WHERE id = @id;", conn, tx);
-                    cmd.Parameters.AddWithValue("@standard", standardSnapshot.Value);
-                    cmd.Parameters.AddWithValue("@id", khId.Value);
-                    cmd.ExecuteNonQuery();
-                }
-
                 string validationError;
                 bool stale;
                 if (row.LoaiDong == LapKeHoachCatDay_LoaiDong.CuonChan)
@@ -668,7 +657,8 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
                         return false;
                     }
 
-                    if (!LuuDongCuonChan(conn, tx, planId, khId.Value, standardSnapshot.Value, row, out validationError, out stale))
+                    if (!LuuDongCuonChan(conn, tx, planId, khId.Value, standardSnapshot.Value,
+                        LayHoacTaoQuyCachId(conn, tx, khId.Value, standardSnapshot.Value), row, out validationError, out stale))
                     {
                         error = validationError;
                         return false;
@@ -700,9 +690,11 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
 
             if (row.LoaiDong == LapKeHoachCatDay_LoaiDong.CuonChan)
             {
-                int planned = LaySoLuongKeHoachHang(conn, tx, khId.Value);
-                int executed = LaySoLuongDaLay(conn, khId.Value, tx);
-                int unstarted = DemNhomChuaBatDau(conn, tx, khId.Value);
+                long? qcId = LayQuyCachId(conn, tx, khId.Value, row.ChieuDai1Cuon);
+                if (!qcId.HasValue) { error = "Không tìm thấy quy cách cần xóa."; return false; }
+                int planned = LaySoLuongKeHoachQuyCach(conn, tx, qcId.Value);
+                int executed = LaySoLuongDaLayQuyCach(conn, tx, qcId.Value);
+                int unstarted = DemNhomChuaBatDauQuyCach(conn, tx, qcId.Value);
                 if (executed != row.SoLuongDaLay)
                 {
                     error = "Dữ liệu đã cũ, cần reload để cập nhật";
@@ -714,14 +706,14 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
                     return false;
                 }
                 using (var cmd = new SQLiteCommand(
-                    "UPDATE KeHoachHang SET SoLuongCuonCanLay = @qty WHERE id = @id;", conn, tx))
+                    "UPDATE KeHoachHangQuyCachCuonChan SET SoLuongCuonCanLay = @qty WHERE id = @id;", conn, tx))
                 {
                     cmd.Parameters.AddWithValue("@qty", executed);
-                    cmd.Parameters.AddWithValue("@id", khId.Value);
+                    cmd.Parameters.AddWithValue("@id", qcId.Value);
                     cmd.ExecuteNonQuery();
                 }
-                XoaChiTietChuaThucHienTheoCuonChan(conn, tx, khId.Value);
-                XoaNhomCuonChanChuaBatDau(conn, tx, khId.Value);
+                XoaChiTietChuaThucHienTheoCuonChan(conn, tx, khId.Value, qcId.Value);
+                XoaNhomCuonChanChuaBatDau(conn, tx, khId.Value, qcId.Value);
             }
             else
             {
@@ -828,24 +820,9 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
 
                 long productId = request.Row.DanhSachMaSP_ID;
                 long? khId = LayKeHoachHangId(conn, tx, planId, productId);
-                int? standardSnapshot = khId.HasValue
-                    ? LayChieuDaiKeHoachHang(conn, tx, khId.Value)
-                    : (int?)null;
-
-                // ChieuDai1Cuon_KeHoach chỉ là snapshot của cuộn chẵn.
-                // Kế hoạch chỉ dùng cuộn lẻ được phép để NULL và không cần truy chiều dài chuẩn.
-                if (request.Row.LoaiDong == LapKeHoachCatDay_LoaiDong.CuonChan &&
-                    (!standardSnapshot.HasValue || standardSnapshot.Value <= 0))
-                {
-                    if (!TryLayChieuDaiChuanSanPham(conn, productId, tx, out int resolvedStandard))
-                    {
-                        result.Loi = "Kiểm tra lại dữ liệu.";
-                        tx.Rollback();
-                        return result;
-                    }
-                    standardSnapshot = resolvedStandard;
-                }
-
+                // Per-length snapshot is carried by the row, never inferred from other full reels.
+                int? standardSnapshot = request.Row.LoaiDong == LapKeHoachCatDay_LoaiDong.CuonChan
+                    ? (int?)request.Row.ChieuDai1Cuon : null;
                 if (!khId.HasValue)
                 {
                     const string insertHang = @"
@@ -857,21 +834,10 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
                     using var cmd = new SQLiteCommand(insertHang, conn, tx);
                     cmd.Parameters.AddWithValue("@planId", planId);
                     cmd.Parameters.AddWithValue("@productId", productId);
-                    cmd.Parameters.AddWithValue("@standard", (object)standardSnapshot ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@standard", DBNull.Value);
                     cmd.ExecuteNonQuery();
                     khId = conn.LastInsertRowId;
                 }
-                else if (request.Row.LoaiDong == LapKeHoachCatDay_LoaiDong.CuonChan &&
-                         standardSnapshot.HasValue &&
-                         !LayChieuDaiKeHoachHang(conn, tx, khId.Value).HasValue)
-                {
-                    using var cmd = new SQLiteCommand(
-                        "UPDATE KeHoachHang SET ChieuDai1Cuon_KeHoach = @standard WHERE id = @id;", conn, tx);
-                    cmd.Parameters.AddWithValue("@standard", standardSnapshot.Value);
-                    cmd.Parameters.AddWithValue("@id", khId.Value);
-                    cmd.ExecuteNonQuery();
-                }
-
                 string validationError;
                 bool stale;
                 if (request.Row.LoaiDong == LapKeHoachCatDay_LoaiDong.CuonChan)
@@ -883,7 +849,8 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
                         return result;
                     }
 
-                    if (!LuuDongCuonChan(conn, tx, planId, khId.Value, standardSnapshot.Value, request.Row, out validationError, out stale))
+                    if (!LuuDongCuonChan(conn, tx, planId, khId.Value, standardSnapshot.Value,
+                        LayHoacTaoQuyCachId(conn, tx, khId.Value, standardSnapshot.Value), request.Row, out validationError, out stale))
                     {
                         result.DuLieuDaCu = stale;
                         result.Loi = validationError;
@@ -936,9 +903,11 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
 
             if (request.Row.LoaiDong == LapKeHoachCatDay_LoaiDong.CuonChan)
             {
-                int planned = LaySoLuongKeHoachHang(conn, null, khId.Value);
-                int executed = LaySoLuongDaLay(conn, khId.Value);
-                int unstartedGroups = DemNhomChuaBatDau(conn, null, khId.Value);
+                long? qcId = LayQuyCachId(conn, null, khId.Value, request.Row.ChieuDai1Cuon);
+                if (!qcId.HasValue) { result.Loi = "Quy cách không còn tồn tại."; return result; }
+                int planned = LaySoLuongKeHoachQuyCach(conn, null, qcId.Value);
+                int executed = LaySoLuongDaLayQuyCach(conn, null, qcId.Value);
+                int unstartedGroups = DemNhomChuaBatDauQuyCach(conn, null, qcId.Value);
                 result.CoTheXoa = planned > executed || unstartedGroups > 0;
                 result.CoThucHienMotPhan = executed > 0;
             }
@@ -993,16 +962,20 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
 
                 if (request.Row.LoaiDong == LapKeHoachCatDay_LoaiDong.CuonChan)
                 {
-                    int executed = LaySoLuongDaLay(conn, khId.Value, tx);
-                    const string updateQty = "UPDATE KeHoachHang SET SoLuongCuonCanLay = @qty WHERE id = @id;";
-                    using (var cmd = new SQLiteCommand(updateQty, conn, tx))
+                    long? qcId = LayQuyCachId(conn, tx, khId.Value, request.Row.ChieuDai1Cuon);
+                    if (!qcId.HasValue) { result.Loi = "Không tìm thấy quy cách."; tx.Rollback(); return result; }
+                    int executed = LaySoLuongDaLayQuyCach(conn, tx, qcId.Value);
+                    if (executed != request.Row.SoLuongDaLay)
+                    { result.Loi = "Dữ liệu đã cũ, cần reload để cập nhật"; tx.Rollback(); return result; }
+                    using (var cmd = new SQLiteCommand(@"UPDATE KeHoachHangQuyCachCuonChan
+                        SET SoLuongCuonCanLay=@qty WHERE id=@id;", conn, tx))
                     {
                         cmd.Parameters.AddWithValue("@qty", executed);
-                        cmd.Parameters.AddWithValue("@id", khId.Value);
+                        cmd.Parameters.AddWithValue("@id", qcId.Value);
                         cmd.ExecuteNonQuery();
                     }
-
-                    XoaNhomCuonChanChuaBatDau(conn, tx, khId.Value);
+                    XoaChiTietChuaThucHienTheoCuonChan(conn, tx, khId.Value, qcId.Value);
+                    XoaNhomCuonChanChuaBatDau(conn, tx, khId.Value, qcId.Value);
                 }
                 else
                 {
@@ -1115,7 +1088,7 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
 
             var rows = new List<LapKeHoachCatDay_GridRow>();
 
-            foreach (FullInventorySnapshot full in batch.FullByProduct.Values
+            foreach (FullInventorySnapshot full in batch.FullByLength.Values
                 .Where(x => x.TonThucTe > 0 && x.ChieuDaiChuan > 0)
                 .OrderBy(x => x.TenSP, StringComparer.CurrentCultureIgnoreCase)
                 .ThenBy(x => x.DanhSachMaSP_ID))
@@ -1140,12 +1113,10 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
             InventoryBatchSnapshot batch = LayKhoBatch(conn, excludePlanId, productId);
             var rows = new List<LapKeHoachCatDay_GridRow>();
 
-            if (batch.FullByProduct.TryGetValue(productId, out FullInventorySnapshot full) &&
-                full.TonThucTe > 0 &&
-                full.ChieuDaiChuan > 0)
-            {
+            foreach (FullInventorySnapshot full in batch.FullByLength.Values
+                .Where(x => x.DanhSachMaSP_ID == productId && x.TonThucTe > 0 && x.ChieuDaiChuan > 0)
+                .OrderBy(x => x.ChieuDaiChuan))
                 rows.Add(TaoDongCuonChanMoi(full));
-            }
 
             foreach (PartialInventorySnapshot partial in batch.PartialById.Values
                 .Where(x => x.DanhSachMaSP_ID == productId &&
@@ -1308,6 +1279,80 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
                         DatTruoc = Convert.ToInt32(reader["DatTruoc"], CultureInfo.InvariantCulture),
                         ChieuDaiChuan = Convert.ToInt32(reader["ChieuDaiChuan"], CultureInfo.InvariantCulture)
                     };
+                }
+            }
+
+            // Authoritative full-reel inventory: distinct (product, per-reel length) groups.
+            const string perLengthSql = @"
+                SELECT tp.DanhSachSP_ID AS ProductId, COALESCE(sp.Ten,'') AS TenSP,
+                       cd.id AS SourceId, cd.ChieuDai_1cuon AS L,
+                       cd.SoCuon AS Imported,
+                       COALESCE((SELECT SUM(ls.SoLuong) FROM LichSuLayCuon ls
+                           WHERE ls.TTCuonDay_ID=cd.id),0) AS Taken,
+                       COALESCE((SELECT COUNT(*) FROM TonCuonLe cl
+                           WHERE cl.TTCuonDay_ID=cd.id AND EXISTS (
+                           SELECT 1 FROM LichSuCat lc WHERE lc.TonCuonLe_ID=cl.id
+                               AND lc.LoaiNguon='CUON_CHAN')),0) AS Converted
+                FROM TTCuonDay cd
+                JOIN TTNhapKhoTP nk ON nk.id=cd.ThongTinNhapKho_ID
+                JOIN TTThanhPham tp ON tp.id=nk.TTThanhPham_ID
+                JOIN DanhSachMaSP sp ON sp.id=tp.DanhSachSP_ID
+                WHERE tp.NhapKho=1 AND tp.Temp=0
+                  AND cd.SoDau IS NULL AND cd.SoCuoi IS NULL
+                  AND cd.ChieuDai_1cuon>0 AND cd.SoCuon>0
+                  AND (@onlyProductId IS NULL OR tp.DanhSachSP_ID=@onlyProductId);";
+            using (var cmd = new SQLiteCommand(perLengthSql, conn, tx))
+            {
+                cmd.Parameters.AddWithValue("@onlyProductId", (object)onlyProductId ?? DBNull.Value);
+                using var rd = cmd.ExecuteReader();
+                while (rd.Read())
+                {
+                    long pid = Convert.ToInt64(rd["ProductId"], CultureInfo.InvariantCulture);
+                    int length = Convert.ToInt32(rd["L"], CultureInfo.InvariantCulture);
+                    string key = TaoRowKeyCuonChan(pid, length);
+                    if (!result.FullByLength.TryGetValue(key, out FullInventorySnapshot data))
+                    {
+                        data = new FullInventorySnapshot { DanhSachMaSP_ID = pid,
+                            TenSP = Convert.ToString(rd["TenSP"], CultureInfo.InvariantCulture) ?? string.Empty,
+                            ChieuDaiChuan = length };
+                        result.FullByLength.Add(key, data);
+                    }
+                    int imported = Convert.ToInt32(rd["Imported"], CultureInfo.InvariantCulture);
+                    int taken = Convert.ToInt32(rd["Taken"], CultureInfo.InvariantCulture);
+                    int converted = Convert.ToInt32(rd["Converted"], CultureInfo.InvariantCulture);
+                    if (taken < 0 || converted < 0 || taken + converted > imported)
+                        continue; // isolate malformed source; never invent stock
+                    data.TonThucTe += imported - taken - converted;
+                }
+            }
+            const string perLengthReservedSql = @"
+                SELECT qc.ChieuDai1Cuon AS L, kh.DanhSachMaSP_ID AS ProductId,
+                       COALESCE(MAX(0,qc.SoLuongCuonCanLay - COALESCE((
+                           SELECT SUM(ls.SoLuong) FROM LichSuLayCuon ls
+                           WHERE ls.QuyCachCuonChan_ID=qc.id),0)),0) AS Whole,
+                       (SELECT COUNT(*) FROM KeHoachCatNhom n
+                        WHERE n.QuyCachCuonChan_ID=qc.id AND n.TonCuonLe_ID IS NULL
+                          AND EXISTS(SELECT 1 FROM KeHoachCatChiTiet d
+                           LEFT JOIN LichSuCat lc ON lc.KeHoachCatChiTiet_ID=d.id
+                           WHERE d.KeHoachCatNhom_ID=n.id AND lc.id IS NULL)) AS Groups
+                FROM KeHoachHangQuyCachCuonChan qc
+                JOIN KeHoachHang kh ON kh.id=qc.KeHoachHang_ID
+                JOIN KeHoach k ON k.id=kh.KeHoach_ID
+                WHERE k.TrangThai='ACTIVE'
+                  AND (@excludePlanId IS NULL OR k.id<>@excludePlanId)
+                  AND (@onlyProductId IS NULL OR kh.DanhSachMaSP_ID=@onlyProductId);";
+            using (var cmd = new SQLiteCommand(perLengthReservedSql, conn, tx))
+            {
+                cmd.Parameters.AddWithValue("@excludePlanId", (object)excludePlanId ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@onlyProductId", (object)onlyProductId ?? DBNull.Value);
+                using var rd = cmd.ExecuteReader();
+                while (rd.Read())
+                {
+                    string key = TaoRowKeyCuonChan(Convert.ToInt64(rd["ProductId"], CultureInfo.InvariantCulture),
+                        Convert.ToInt32(rd["L"], CultureInfo.InvariantCulture));
+                    if (result.FullByLength.TryGetValue(key, out FullInventorySnapshot data))
+                        data.DatTruoc += Convert.ToInt32(rd["Whole"], CultureInfo.InvariantCulture)
+                            + Convert.ToInt32(rd["Groups"], CultureInfo.InvariantCulture);
                 }
             }
 
@@ -1482,7 +1527,7 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
             bool canEdit = ton.TonThucTe - ton.DatTruoc > 0 && ton.ChieuDaiChuan > 0;
             return new LapKeHoachCatDay_GridRow
             {
-                RowKey = TaoRowKeyCuonChan(ton.DanhSachMaSP_ID),
+                RowKey = TaoRowKeyCuonChan(ton.DanhSachMaSP_ID, ton.ChieuDaiChuan),
                 LoaiDong = LapKeHoachCatDay_LoaiDong.CuonChan,
                 DanhSachMaSP_ID = ton.DanhSachMaSP_ID,
                 TenSP = ton.TenSP,
@@ -1843,6 +1888,7 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
                 SELECT kh.id AS KeHoachHang_ID,
                        n.id AS Nhom_ID,
                        n.TonCuonLe_ID,
+                       n.QuyCachCuonChan_ID,
                        d.id AS ChiTiet_ID,
                        d.ChieuDaiCanCat,
                        CASE WHEN lc.id IS NULL THEN 0 ELSE 1 END AS DaThucHien
@@ -1877,7 +1923,10 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
                         Id = groupId,
                         TonCuonLe_ID = reader["TonCuonLe_ID"] == DBNull.Value
                             ? (long?)null
-                            : Convert.ToInt64(reader["TonCuonLe_ID"], CultureInfo.InvariantCulture)
+                            : Convert.ToInt64(reader["TonCuonLe_ID"], CultureInfo.InvariantCulture),
+                        QuyCachCuonChan_ID = reader["QuyCachCuonChan_ID"] == DBNull.Value
+                            ? (long?)null
+                            : Convert.ToInt64(reader["QuyCachCuonChan_ID"], CultureInfo.InvariantCulture)
                     };
                     map.Add(groupId, group);
                 }
@@ -1927,6 +1976,7 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
             const string sql = @"
                 SELECT n.id AS Nhom_ID,
                        n.TonCuonLe_ID,
+                       n.QuyCachCuonChan_ID,
                        d.id AS ChiTiet_ID,
                        d.ChieuDaiCanCat,
                        CASE WHEN lc.id IS NULL THEN 0 ELSE 1 END AS DaThucHien
@@ -1950,7 +2000,10 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
                         Id = groupId,
                         TonCuonLe_ID = reader["TonCuonLe_ID"] == DBNull.Value
                             ? (long?)null
-                            : Convert.ToInt64(reader["TonCuonLe_ID"], CultureInfo.InvariantCulture)
+                            : Convert.ToInt64(reader["TonCuonLe_ID"], CultureInfo.InvariantCulture),
+                        QuyCachCuonChan_ID = reader["QuyCachCuonChan_ID"] == DBNull.Value
+                            ? (long?)null
+                            : Convert.ToInt64(reader["QuyCachCuonChan_ID"], CultureInfo.InvariantCulture)
                     };
                     map.Add(groupId, group);
                 }
@@ -1970,21 +2023,32 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
         private static void GanTrangThaiCuonChan(LapKeHoachCatDay_GridRow row)
         {
             int conLay = Math.Max(0, row.SoLuongCanLay - row.SoLuongDaLay);
-            bool conNhom = row.NhomCatDaLuu.Any(x => x.ChiTiet.Any(d => !d.DaThucHien));
-            bool coThucHien = row.SoLuongDaLay > 0 || row.NhomCatDaLuu.Any(x => x.CoThucHien);
+            bool conNhomCuonChan = row.NhomCatDaLuu.Any(x => x.ChiTiet.Any(d => !d.DaThucHien));
+            bool conNhomChuyenLe = row.NhomCatNguonDaChuyenLe.Any(x => x.ChiTiet.Any(d => !d.DaThucHien));
+            bool conNhom = conNhomCuonChan || conNhomChuyenLe;
+            bool coThucHien = row.SoLuongDaLay > 0 || row.NhomCatDaLuu.Any(x => x.CoThucHien)
+                || row.NhomCatNguonDaChuyenLe.Any(x => x.CoThucHien);
             bool hoanThanh = row.DaTonTaiTrongDB && conLay == 0 && !conNhom;
 
+            // Tiến độ không bị ghi đè bởi tồn kho: đã làm một phần thì vẫn đang thực hiện.
             if (hoanThanh)
                 row.TrangThai = LapKeHoachCatDay_TrangThai.HoanThanh;
-            else if (row.TonThucTe <= 0)
-                row.TrangThai = LapKeHoachCatDay_TrangThai.HetTon;
             else if (coThucHien)
                 row.TrangThai = LapKeHoachCatDay_TrangThai.DangThucHien;
+            else if (row.TonThucTe <= 0)
+                row.TrangThai = LapKeHoachCatDay_TrangThai.HetTon;
             else
                 row.TrangThai = LapKeHoachCatDay_TrangThai.ChuaThucHien;
 
-            row.CanEdit = !hoanThanh;
-            row.CanDelete = !hoanThanh && (conLay > 0 || conNhom);
+            // Nhóm đã chuyển lẻ không cần một cuộn chẵn mới: chỉ cảnh báo hết tồn
+            // khi vẫn còn yêu cầu lấy nguyên/nhóm cắt chưa khởi phát của quy cách này.
+            row.CanhBaoHetTon = !hoanThanh && coThucHien && row.TonThucTe <= 0
+                && (conLay > 0 || conNhomCuonChan);
+            bool chiConLichSuChuyenLe = row.NhomCatNguonDaChuyenLe.Count > 0
+                && conLay == 0 && !conNhomCuonChan;
+            row.CanEdit = !hoanThanh && !chiConLichSuChuyenLe;
+            row.CanDelete = !hoanThanh && !chiConLichSuChuyenLe
+                && (conLay > 0 || conNhomCuonChan);
         }
 
         private static void GanTrangThaiCuonLe(LapKeHoachCatDay_GridRow row)
@@ -1997,13 +2061,14 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
 
             if (allDone)
                 row.TrangThai = LapKeHoachCatDay_TrangThai.HoanThanh;
-            else if (row.TonThucTe <= 0)
-                row.TrangThai = LapKeHoachCatDay_TrangThai.HetTon;
             else if (anyDone)
                 row.TrangThai = LapKeHoachCatDay_TrangThai.DangThucHien;
+            else if (row.TonThucTe <= 0)
+                row.TrangThai = LapKeHoachCatDay_TrangThai.HetTon;
             else
                 row.TrangThai = LapKeHoachCatDay_TrangThai.ChuaThucHien;
 
+            row.CanhBaoHetTon = !allDone && anyDone && anyUndone && row.TonThucTe <= 0;
             row.CanEdit = !allDone && anyUndone;
             row.CanDelete = !allDone && anyUndone;
         }
@@ -2016,6 +2081,7 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
             long planId,
             long khId,
             int standard,
+            long qcId,
             LapKeHoachCatDay_GridRow row,
             out string error,
             out bool stale)
@@ -2023,9 +2089,11 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
             error = string.Empty;
             stale = false;
 
-            FullInventorySnapshot current = row.TTThanhPham_IDNguon.HasValue
-                ? LayTonCuonChanTheoTTThanhPham(conn, row.TTThanhPham_IDNguon.Value, row.DanhSachMaSP_ID, planId, tx)
-                : LayTonCuonChan(conn, row.DanhSachMaSP_ID, planId, tx);
+            InventoryBatchSnapshot batch = LayKhoBatch(conn, planId, row.DanhSachMaSP_ID, tx);
+            batch.FullByLength.TryGetValue(TaoRowKeyCuonChan(row.DanhSachMaSP_ID, standard),
+                out FullInventorySnapshot current);
+            current ??= new FullInventorySnapshot { DanhSachMaSP_ID = row.DanhSachMaSP_ID,
+                ChieuDaiChuan = standard };
             if (current.TonThucTe != row.TonThucTe || current.DatTruoc != row.DatTruoc)
             {
                 stale = true;
@@ -2033,7 +2101,7 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
                 return false;
             }
 
-            int executedWhole = LaySoLuongDaLay(conn, khId, tx);
+            int executedWhole = LaySoLuongDaLayQuyCach(conn, tx, qcId);
             if (row.SoLuongCanLay < executedWhole)
             {
                 error = "Nội dung này đã được thực hiện và không thể chỉnh sửa.";
@@ -2047,9 +2115,10 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
             {
                 const string sqlGroup = @"
                     SELECT COUNT(*) FROM KeHoachCatNhom
-                    WHERE id = @group AND KeHoachHang_ID = @item AND TonCuonLe_ID IS NULL;";
+                    WHERE id = @group AND KeHoachHang_ID = @item
+                      AND QuyCachCuonChan_ID = @qcId AND TonCuonLe_ID IS NULL;";
                 if (ExecuteInt(conn, tx, sqlGroup, ("@group", (object)previous.Id.Value),
-                    ("@item", (object)khId)) != 1)
+                    ("@item", (object)khId), ("@qcId", (object)qcId)) != 1)
                 {
                     stale = true;
                     error = "Dữ liệu đã cũ, cần reload để cập nhật";
@@ -2078,9 +2147,9 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
                         .Select(x => x.ChieuDai).ToList();
                     if (values.Count == 0)
                         continue;
-                    if (values.Any(x => x <= 0) || values.Sum() > standard)
+                    if (values.Any(x => x <= 0) || values.Sum() >= standard)
                     {
-                        error = "Tổng chiều dài các đoạn cắt không hợp lệ";
+                        error = "Tổng chiều dài cắt phải nhỏ hơn chiều dài một cuộn; nếu bằng nhau hãy chọn lấy nguyên cuộn.";
                         return false;
                     }
                     long? retainedId = group.CoThucHien ? group.Id : null;
@@ -2103,9 +2172,9 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
                     error = LapKeHoachCatDay_ChieuDaiParser.TaoThongBaoLoi(invalid, syntax);
                     return false;
                 }
-                if (values.Count == 0 || values.Sum() > standard)
+                if (values.Count == 0 || values.Sum() >= standard)
                 {
-                    error = "Tổng chiều dài các đoạn cắt không hợp lệ";
+                    error = "Tổng chiều dài cắt phải nhỏ hơn chiều dài một cuộn; nếu bằng nhau hãy chọn lấy nguyên cuộn.";
                     return false;
                 }
                 // Mot nhom da cat mot phan phai giu nguyen ID nhom da thuc hien.
@@ -2139,19 +2208,19 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
             }
 
             using (var cmd = new SQLiteCommand(
-                "UPDATE KeHoachHang SET SoLuongCuonCanLay = @qty WHERE id = @id;", conn, tx))
+                "UPDATE KeHoachHangQuyCachCuonChan SET SoLuongCuonCanLay = @qty WHERE id = @id;", conn, tx))
             {
                 cmd.Parameters.AddWithValue("@qty", row.SoLuongCanLay);
-                cmd.Parameters.AddWithValue("@id", khId);
+                cmd.Parameters.AddWithValue("@id", qcId);
                 cmd.ExecuteNonQuery();
             }
 
             // Chi xoa detail chua thuc hien, giu toan bo LichSuCat cua B3.
-            XoaChiTietChuaThucHienTheoCuonChan(conn, tx, khId);
-            XoaNhomCuonChanChuaBatDau(conn, tx, khId);
+            XoaChiTietChuaThucHienTheoCuonChan(conn, tx, khId, qcId);
+            XoaNhomCuonChanChuaBatDau(conn, tx, khId, qcId);
             foreach (var group in desiredGroups)
             {
-                long groupId = group.GroupId ?? InsertNhom(conn, tx, khId, null);
+                long groupId = group.GroupId ?? InsertNhom(conn, tx, khId, null, qcId);
                 foreach (int length in group.Lengths)
                     InsertChiTiet(conn, tx, groupId, length);
             }
@@ -2244,14 +2313,15 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
             return true;
         }
 
-        private static long InsertNhom(SQLiteConnection conn, SQLiteTransaction tx, long khId, long? tonCuonLeId)
+        private static long InsertNhom(SQLiteConnection conn, SQLiteTransaction tx, long khId, long? tonCuonLeId, long? qcId = null)
         {
             const string sql = @"
-                INSERT INTO KeHoachCatNhom (KeHoachHang_ID, TonCuonLe_ID, GhiChu, DateInsert)
-                VALUES (@khId, @tonCuonLeId, '', CURRENT_TIMESTAMP);";
+                INSERT INTO KeHoachCatNhom (KeHoachHang_ID, TonCuonLe_ID, QuyCachCuonChan_ID, GhiChu, DateInsert)
+                VALUES (@khId, @tonCuonLeId, @qcId, '', CURRENT_TIMESTAMP);";
             using var cmd = new SQLiteCommand(sql, conn, tx);
             cmd.Parameters.AddWithValue("@khId", khId);
             cmd.Parameters.AddWithValue("@tonCuonLeId", (object)tonCuonLeId ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@qcId", (object)qcId ?? DBNull.Value);
             cmd.ExecuteNonQuery();
             return conn.LastInsertRowId;
         }
@@ -2269,12 +2339,13 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
 
         // ───────────────────────── Delete helpers ─────────────────────────
 
-        private static void XoaNhomCuonChanChuaBatDau(SQLiteConnection conn, SQLiteTransaction tx, long khId)
+        private static void XoaNhomCuonChanChuaBatDau(SQLiteConnection conn, SQLiteTransaction tx, long khId, long? qcId = null)
         {
             const string sql = @"
                 DELETE FROM KeHoachCatNhom
                 WHERE KeHoachHang_ID = @khId
                   AND TonCuonLe_ID IS NULL
+                  AND (@qcId IS NULL OR QuyCachCuonChan_ID = @qcId)
                   AND NOT EXISTS (
                       SELECT 1
                       FROM KeHoachCatChiTiet d
@@ -2283,11 +2354,12 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
                   );";
             using var cmd = new SQLiteCommand(sql, conn, tx);
             cmd.Parameters.AddWithValue("@khId", khId);
+            cmd.Parameters.AddWithValue("@qcId", (object)qcId ?? DBNull.Value);
             cmd.ExecuteNonQuery();
         }
 
         private static void XoaChiTietChuaThucHienTheoCuonChan(
-            SQLiteConnection conn, SQLiteTransaction tx, long khId)
+            SQLiteConnection conn, SQLiteTransaction tx, long khId, long? qcId = null)
         {
             const string sql = @"
                 DELETE FROM KeHoachCatChiTiet
@@ -2297,10 +2369,12 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
                     LEFT JOIN LichSuCat lc ON lc.KeHoachCatChiTiet_ID = d.id
                     WHERE n.KeHoachHang_ID = @khId
                       AND n.TonCuonLe_ID IS NULL
+                      AND (@qcId IS NULL OR n.QuyCachCuonChan_ID = @qcId)
                       AND lc.id IS NULL
                 );";
             using var cmd = new SQLiteCommand(sql, conn, tx);
             cmd.Parameters.AddWithValue("@khId", khId);
+            cmd.Parameters.AddWithValue("@qcId", (object)qcId ?? DBNull.Value);
             cmd.ExecuteNonQuery();
         }
 
@@ -2344,6 +2418,8 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
                 DELETE FROM KeHoachHang
                 WHERE id = @khId
                   AND SoLuongCuonCanLay = 0
+                  AND NOT EXISTS (SELECT 1 FROM KeHoachHangQuyCachCuonChan qc
+                      WHERE qc.KeHoachHang_ID=KeHoachHang.id AND qc.SoLuongCuonCanLay>0)
                   AND NOT EXISTS (SELECT 1 FROM KeHoachCatNhom n WHERE n.KeHoachHang_ID = KeHoachHang.id)
                   AND NOT EXISTS (SELECT 1 FROM LichSuLayCuon ls WHERE ls.KeHoachHang_ID = KeHoachHang.id);";
             using var cmd = new SQLiteCommand(sql, conn, tx);
@@ -2364,7 +2440,8 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
                 WHERE kh.KeHoach_ID = @planId
                   AND kh.id <> @khId
                   AND (
-                      kh.SoLuongCuonCanLay > 0
+                      EXISTS (SELECT 1 FROM KeHoachHangQuyCachCuonChan qc
+                              WHERE qc.KeHoachHang_ID=kh.id AND qc.SoLuongCuonCanLay>0)
                       OR EXISTS (SELECT 1 FROM KeHoachCatNhom n WHERE n.KeHoachHang_ID = kh.id)
                   );";
             if (ExecuteInt(conn, tx, otherKhSql,
@@ -2373,17 +2450,25 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
 
             if (row.LoaiDong == LapKeHoachCatDay_LoaiDong.CuonChan)
             {
-                const string partialSql = @"
-                    SELECT COUNT(*)
-                    FROM KeHoachCatNhom
-                    WHERE KeHoachHang_ID = @khId
-                      AND TonCuonLe_ID IS NOT NULL;";
-                return ExecuteInt(conn, tx, partialSql, ("@khId", (object)currentKhId)) > 0;
+                const string siblingSql = @"
+                    SELECT CASE WHEN
+                        EXISTS (SELECT 1 FROM KeHoachHangQuyCachCuonChan qc
+                            WHERE qc.KeHoachHang_ID=@khId AND qc.ChieuDai1Cuon<>@length
+                              AND qc.SoLuongCuonCanLay>0)
+                        OR EXISTS (SELECT 1 FROM KeHoachCatNhom n
+                            WHERE n.KeHoachHang_ID=@khId
+                              AND (n.TonCuonLe_ID IS NOT NULL OR
+                                   n.QuyCachCuonChan_ID<>(SELECT id FROM KeHoachHangQuyCachCuonChan
+                                       WHERE KeHoachHang_ID=@khId AND ChieuDai1Cuon=@length)))
+                        THEN 1 ELSE 0 END;";
+                return ExecuteInt(conn, tx, siblingSql, ("@khId", (object)currentKhId),
+                    ("@length", (object)row.ChieuDai1Cuon)) > 0;
             }
 
             const string remainingCurrentKh = @"
                 SELECT CASE
-                    WHEN kh.SoLuongCuonCanLay > 0 THEN 1
+                    WHEN EXISTS (SELECT 1 FROM KeHoachHangQuyCachCuonChan qc
+                              WHERE qc.KeHoachHang_ID=kh.id AND qc.SoLuongCuonCanLay>0) THEN 1
                     WHEN EXISTS (
                         SELECT 1 FROM KeHoachCatNhom n
                         WHERE n.KeHoachHang_ID = kh.id
@@ -2406,7 +2491,8 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
                 FROM KeHoachHang kh
                 WHERE kh.KeHoach_ID = @planId
                   AND (
-                      kh.SoLuongCuonCanLay > 0
+                      EXISTS (SELECT 1 FROM KeHoachHangQuyCachCuonChan qc
+                              WHERE qc.KeHoachHang_ID=kh.id AND qc.SoLuongCuonCanLay>0)
                       OR EXISTS (SELECT 1 FROM KeHoachCatNhom n WHERE n.KeHoachHang_ID = kh.id)
                       OR EXISTS (SELECT 1 FROM LichSuLayCuon ls WHERE ls.KeHoachHang_ID = kh.id)
                   );";
@@ -2458,6 +2544,37 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
             return obj == null || obj == DBNull.Value ? (long?)null : Convert.ToInt64(obj, CultureInfo.InvariantCulture);
         }
 
+        private static long? LayQuyCachId(SQLiteConnection conn, SQLiteTransaction tx, long khId, int standard)
+        {
+            using var cmd = new SQLiteCommand(@"SELECT id FROM KeHoachHangQuyCachCuonChan
+                WHERE KeHoachHang_ID=@khId AND ChieuDai1Cuon=@standard;", conn, tx);
+            cmd.Parameters.AddWithValue("@khId", khId);
+            cmd.Parameters.AddWithValue("@standard", standard);
+            object found = cmd.ExecuteScalar();
+            return found == null || found == DBNull.Value ? (long?)null
+                : Convert.ToInt64(found, CultureInfo.InvariantCulture);
+        }
+
+        private static long LayHoacTaoQuyCachId(SQLiteConnection conn, SQLiteTransaction tx, long khId, int standard)
+        {
+            if (standard <= 0) throw new ArgumentException("Chiều dài quy cách phải lớn hơn 0.");
+            long? existing = LayQuyCachId(conn, tx, khId, standard);
+            if (existing.HasValue) return existing.Value;
+            using var cmd = new SQLiteCommand(@"INSERT INTO KeHoachHangQuyCachCuonChan
+                (KeHoachHang_ID, ChieuDai1Cuon, SoLuongCuonCanLay)
+                VALUES (@khId, @standard, 0);", conn, tx);
+            cmd.Parameters.AddWithValue("@khId", khId);
+            cmd.Parameters.AddWithValue("@standard", standard);
+            cmd.ExecuteNonQuery();
+            return conn.LastInsertRowId;
+        }
+
+        private static int LaySoLuongDaLayQuyCach(SQLiteConnection conn, SQLiteTransaction tx, long qcId)
+        {
+            return ExecuteInt(conn, tx, @"SELECT COALESCE(SUM(SoLuong),0)
+                FROM LichSuLayCuon WHERE QuyCachCuonChan_ID=@qcId;", ("@qcId", (object)qcId));
+        }
+
         private static int? LayChieuDaiKeHoachHang(SQLiteConnection conn, SQLiteTransaction tx, long khId)
         {
             using var cmd = new SQLiteCommand(
@@ -2467,6 +2584,20 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
             return obj == null || obj == DBNull.Value
                 ? (int?)null
                 : Convert.ToInt32(obj, CultureInfo.InvariantCulture);
+        }
+
+        private static int LaySoLuongKeHoachQuyCach(SQLiteConnection conn, SQLiteTransaction tx, long qcId)
+        {
+            return ExecuteInt(conn, tx, @"SELECT SoLuongCuonCanLay
+                FROM KeHoachHangQuyCachCuonChan WHERE id=@id;", ("@id", (object)qcId));
+        }
+
+        private static int DemNhomChuaBatDauQuyCach(SQLiteConnection conn, SQLiteTransaction tx, long qcId)
+        {
+            return ExecuteInt(conn, tx, @"SELECT COUNT(*) FROM KeHoachCatNhom n
+                WHERE n.QuyCachCuonChan_ID=@id AND n.TonCuonLe_ID IS NULL
+                AND EXISTS(SELECT 1 FROM KeHoachCatChiTiet d WHERE d.KeHoachCatNhom_ID=n.id);",
+                ("@id", (object)qcId));
         }
 
         private static int LaySoLuongKeHoachHang(SQLiteConnection conn, SQLiteTransaction tx, long khId)
@@ -2552,14 +2683,15 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
             return obj == null || obj == DBNull.Value ? 0 : Convert.ToInt32(obj, CultureInfo.InvariantCulture);
         }
 
-        private static string TaoRowKeyCuonChan(long productId) => "FULL|" + productId.ToString(CultureInfo.InvariantCulture);
+        private static string TaoRowKeyCuonChan(long productId, int length) =>
+            "FULL|" + productId.ToString(CultureInfo.InvariantCulture) + "|" + length.ToString(CultureInfo.InvariantCulture);
         private static string TaoRowKeyCuonLe(long tonCuonLeId) => "PARTIAL|" + tonCuonLeId.ToString(CultureInfo.InvariantCulture);
 
         private static void EnsurePlanningSchema(SQLiteConnection conn)
         {
             string[] tables =
             {
-                "KeHoach", "KeHoachHang", "TonCuonLe", "KeHoachCatNhom",
+                "KeHoach", "KeHoachHang", "KeHoachHangQuyCachCuonChan", "TonCuonLe", "KeHoachCatNhom",
                 "KeHoachCatChiTiet", "LichSuLayCuon", "LichSuCat"
             };
 
@@ -2588,6 +2720,33 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
 
             if (!hasNguoiNhan)
                 throw new InvalidOperationException("Database chưa có cột KeHoach.NguoiNhan.");
+
+            // Schema migration được chạy thủ công: không tự ý thay đổi database khi B2 khởi động.
+            // Kiểm tra cả hai cột liên kết B3 để tránh lỗi SQL mơ hồ lúc lập kế hoạch.
+            var requiredColumns = new[]
+            {
+                (Table: "KeHoachCatNhom", Column: "QuyCachCuonChan_ID"),
+                (Table: "LichSuLayCuon", Column: "QuyCachCuonChan_ID")
+            };
+            foreach (var required in requiredColumns)
+            {
+                bool found = false;
+                using (var cmd = new SQLiteCommand("PRAGMA table_info(" + required.Table + ");", conn))
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        if (string.Equals(Convert.ToString(reader["name"], CultureInfo.InvariantCulture),
+                            required.Column, StringComparison.OrdinalIgnoreCase))
+                        {
+                            found = true;
+                            break;
+                        }
+                    }
+                }
+                if (!found)
+                    throw new InvalidOperationException("Database chưa có cột " + required.Table + "." + required.Column + ".");
+            }
         }
     }
 }

@@ -1,4 +1,4 @@
-using DG_TonKhoBTP_v02.Models.Kho.XuatKho;
+﻿using DG_TonKhoBTP_v02.Models.Kho.XuatKho;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -192,9 +192,9 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
             }
 
             int tong = values.Sum();
-            if (_chieuDai1Cuon <= 0 || tong > _chieuDai1Cuon)
+            if (_chieuDai1Cuon <= 0 || tong >= _chieuDai1Cuon)
             {
-                FrmWaiting.ShowGifAlert("Tổng chiều dài các đoạn cắt không hợp lệ");
+                FrmWaiting.ShowGifAlert("Tổng chiều dài cắt phải nhỏ hơn chiều dài một cuộn; nếu bằng nhau hãy chọn lấy nguyên cuộn.");
                 gridRow.Cells[cdCat.Index].Value = _giaTriTruocSua;
                 return;
             }
@@ -306,9 +306,9 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
                     return false;
                 }
 
-                if (_chieuDai1Cuon <= 0 || values.Sum() > _chieuDai1Cuon)
+                if (_chieuDai1Cuon <= 0 || values.Sum() >= _chieuDai1Cuon)
                 {
-                    FrmWaiting.ShowGifAlert("Tổng chiều dài các đoạn cắt không hợp lệ");
+                    FrmWaiting.ShowGifAlert("Tổng chiều dài cắt phải nhỏ hơn chiều dài một cuộn; nếu bằng nhau hãy chọn lấy nguyên cuộn.");
                     return false;
                 }
 

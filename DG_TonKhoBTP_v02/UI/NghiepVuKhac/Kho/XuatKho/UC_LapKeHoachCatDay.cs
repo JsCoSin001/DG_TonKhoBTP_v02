@@ -196,7 +196,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
             grvKetQuaTimKiem.Columns.Add(new DataGridViewTextBoxColumn
             {
                 Name = COL_SO_LUONG_LAY,
-                HeaderText = "Số lượng lấy",
+                HeaderText = "SL cuộn lấy",
                 Width = 100
             });
 
@@ -562,7 +562,10 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
         {
             row.Cells[COL_TEN_SP].Value = model.TenSP;
             row.Cells[COL_MA_NGUON].Value = model.LoaiDong == LapKeHoachCatDay_LoaiDong.CuonLe
-                ? model.MaNguon : string.Empty;
+                ? model.MaNguon
+                : (model.NhomCatNguonDaChuyenLe.Count > 0
+                    ? "Đã chuyển lẻ (" + model.NhomCatNguonDaChuyenLe.Count + " nhóm)"
+                    : string.Empty);
             row.Cells[COL_TON_THUC_TE].Value = model.LoaiDong == LapKeHoachCatDay_LoaiDong.CuonChan
                 ? model.TonThucTe + " cuộn"
                 : model.TonThucTe + " m";
@@ -574,7 +577,12 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
             row.Cells[COL_SO_CUOI].Value = model.SoCuoi.HasValue ? (object)model.SoCuoi.Value : string.Empty;
             row.Cells[COL_SO_LUONG_LAY].Value = model.SoLuongCanLay > 0 ? (object)model.SoLuongCanLay : string.Empty;
             row.Cells[COL_CD_CAT].Value = model.TaoChuoiHienThiChieuDaiCat();
-            row.Cells[COL_TRANG_THAI].Value = model.TrangThai;
+            row.Cells[COL_TRANG_THAI].Value = model.CanhBaoHetTon
+                ? model.TrangThai + " | Hết tồn"
+                : model.TrangThai;
+            row.Cells[COL_TRANG_THAI].ToolTipText = model.CanhBaoHetTon
+                ? "Tiến độ: " + model.TrangThai + ". Cảnh báo: Hết tồn kho."
+                : model.TrangThai;
 
             row.Cells[COL_CAT_LE].Value = model.NhomCatPopup.Count > 0
                 ? "Cắt lẻ (" + model.NhomCatPopup.Count + " cuộn)"
@@ -582,32 +590,76 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
             row.Cells[COL_XOA].Value = "Xóa";
         }
 
-        private void ApDungTrangThaiDong(DataGridViewRow row, LapKeHoachCatDay_GridRow model)
+        private void ApDungTrangThaiDong( DataGridViewRow row, LapKeHoachCatDay_GridRow model)
         {
             bool isFull = model.LoaiDong == LapKeHoachCatDay_LoaiDong.CuonChan;
             bool directCutEmpty = string.IsNullOrWhiteSpace(model.ChuoiChieuDaiCat);
 
+            // 1. Phân quyền nhập liệu
             row.Cells[COL_SO_LUONG_LAY].ReadOnly = !isFull || !model.CanEdit;
             row.Cells[COL_CD_CAT].ReadOnly = !model.CanEdit;
 
-            bool catLeEnabled = isFull && model.CanEdit && directCutEmpty;
-            StyleButtonCell(row.Cells[COL_CAT_LE], catLeEnabled, Color.FromArgb(255, 193, 7), Color.Black);
+            // 2. Tô màu xám ô "Số lượng lấy" đối với cuộn lẻ
+            // Giữ màu xám ngay cả khi người dùng chọn ô
+            row.Cells[COL_SO_LUONG_LAY].Style.BackColor =
+                isFull ? Color.Empty : MauDisabled;
 
+            row.Cells[COL_SO_LUONG_LAY].Style.SelectionBackColor =
+                isFull ? Color.Empty : MauDisabled;
+
+            row.Cells[COL_SO_LUONG_LAY].Style.SelectionForeColor =
+                isFull ? Color.Empty : Color.Black;
+
+            // 3. Nút Cắt lẻ
+            bool catLeEnabled = isFull && model.CanEdit && directCutEmpty;
+
+            StyleButtonCell(
+                row.Cells[COL_CAT_LE],
+                catLeEnabled,
+                Color.FromArgb(255, 193, 7),
+                Color.Black);
+
+            // 4. Nút Xóa
             bool deleteEnabled = !model.DaTonTaiTrongDB ||
                 (model.CanEdit && model.CanDelete);
-            StyleButtonCell(row.Cells[COL_XOA], deleteEnabled, MauXoa, Color.White);
 
-            if (string.Equals(model.TrangThai, LapKeHoachCatDay_TrangThai.HetTon, StringComparison.Ordinal))
+            StyleButtonCell(
+                row.Cells[COL_XOA],
+                deleteEnabled,
+                MauXoa,
+                Color.White);
+
+            // 5. Màu nền dòng theo tình trạng tồn kho
+            if (model.CanhBaoHetTon ||
+                string.Equals(
+                    model.TrangThai,
+                    LapKeHoachCatDay_TrangThai.HetTon,
+                    StringComparison.Ordinal))
+            {
                 row.DefaultCellStyle.BackColor = MauHetTon;
+            }
             else
+            {
                 row.DefaultCellStyle.BackColor = Color.White;
+            }
 
+            // 6. Khóa thao tác khi đã hoàn thành
             if (model.HoanThanh)
             {
                 row.Cells[COL_SO_LUONG_LAY].ReadOnly = true;
                 row.Cells[COL_CD_CAT].ReadOnly = true;
-                StyleButtonCell(row.Cells[COL_CAT_LE], false, MauDisabled, MauDisabledText);
-                StyleButtonCell(row.Cells[COL_XOA], false, MauDisabled, MauDisabledText);
+
+                StyleButtonCell(
+                    row.Cells[COL_CAT_LE],
+                    false,
+                    MauDisabled,
+                    MauDisabledText);
+
+                StyleButtonCell(
+                    row.Cells[COL_XOA],
+                    false,
+                    MauDisabled,
+                    MauDisabledText);
             }
         }
 
@@ -764,9 +816,9 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
                         FrmWaiting.ShowGifAlert("Không xác định được chiều dài cần cắt. Vui lòng kiểm tra lại dữ liệu đã nhập.");
                         model.ChuoiChieuDaiCat = _chuoiCatTruocEdit;
                     }
-                    else if (values.Sum() > model.ChieuDai1Cuon)
+                    else if (values.Sum() >= model.ChieuDai1Cuon)
                     {
-                        FrmWaiting.ShowGifAlert("Tổng chiều dài các đoạn cắt không hợp lệ");
+                        FrmWaiting.ShowGifAlert("Tổng chiều dài cắt phải nhỏ hơn chiều dài một cuộn; nếu bằng nhau hãy chọn lấy nguyên cuộn.");
                         model.ChuoiChieuDaiCat = _chuoiCatTruocEdit;
                     }
                     else

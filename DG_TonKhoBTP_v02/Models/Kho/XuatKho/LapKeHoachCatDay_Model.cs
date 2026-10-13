@@ -10,7 +10,8 @@ namespace DG_TonKhoBTP_v02.Models.Kho.XuatKho
         Lot = 1,
         TenSanPham = 2,
         KhachHang = 3,
-        TatCa = 4
+        TatCa = 4,
+        KetHop = 5
     }
 
     internal enum LapKeHoachCatDay_LoaiDong
@@ -203,6 +204,10 @@ namespace DG_TonKhoBTP_v02.Models.Kho.XuatKho
     {
         public LapKeHoachCatDay_SearchType SearchType { get; set; }
         public string SearchValue { get; set; } = string.Empty;
+        // Cac dieu kien co hieu luc duoc ket hop bang AND.
+        // Khach hang chua duoc su dung trong B2.
+        public string TenSanPham { get; set; } = string.Empty;
+        public string Lot { get; set; } = string.Empty;
         public int? ChieuDaiToiThieu { get; set; }
         public long? KeHoach_IDDangSua { get; set; }
     }

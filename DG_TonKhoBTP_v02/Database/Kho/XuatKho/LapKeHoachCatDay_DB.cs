@@ -58,108 +58,93 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
             CancellationToken ct)
         {
             keyword = (keyword ?? string.Empty).Trim();
-
             return Task.Run(() =>
             {
                 ct.ThrowIfCancellationRequested();
                 var dt = new DataTable();
                 dt.Columns.Add("GiaTri", typeof(string));
 
+                if (searchType != LapKeHoachCatDay_SearchType.Lot &&
+                    searchType != LapKeHoachCatDay_SearchType.TenSanPham)
+                    return dt;
+
                 using var conn = DB_Base.OpenConnection();
+                EnsurePlanningSchema(conn);
                 using var cmd = conn.CreateCommand();
 
                 if (searchType == LapKeHoachCatDay_SearchType.Lot)
                 {
-                    // MaCuon la dinh danh duy nhat cua cuon le, cuon chan khong co LOT.
+                    // Chi LOT cuon le da nhap kho, dang ACTIVE va con chieu dai.
                     cmd.CommandText = @"
-                        SELECT TRIM(tcl.MaCuon) AS GiaTri
+                        SELECT DISTINCT TRIM(tcl.MaCuon) AS GiaTri
                         FROM TonCuonLe tcl
-                        WHERE tcl.MaCuon IS NOT NULL
-                          AND TRIM(tcl.MaCuon) <> ''
+                        JOIN TTCuonDay cd ON cd.id = tcl.TTCuonDay_ID
+                        JOIN TTNhapKhoTP nk ON nk.id = cd.ThongTinNhapKho_ID
+                        JOIN TTThanhPham tp ON tp.id = nk.TTThanhPham_ID
+                                           AND tp.id = tcl.TTThanhPham_ID
+                        WHERE tcl.MaCuon IS NOT NULL AND TRIM(tcl.MaCuon) <> ''
                           AND tcl.MaCuon LIKE @kw
-                          AND COALESCE(NULLIF(TRIM(tcl.TrangThai), ''), 'ACTIVE') = 'ACTIVE' COLLATE NOCASE
-                          AND ABS(COALESCE(tcl.SoCuoi, 0) - COALESCE(tcl.SoDau, 0)) > 0
-                        ORDER BY GiaTri COLLATE NOCASE
-                        LIMIT 50;";
-                }
-                else if (searchType == LapKeHoachCatDay_SearchType.TenSanPham)
-                {
-                    cmd.CommandText = @"
-                        WITH
-                        Nhap AS (
-                            SELECT tp.DanhSachSP_ID AS ProductId,
-                                   COALESCE(SUM(
-                                       CASE
-                                           WHEN cd.SoDau IS NULL
-                                            AND cd.SoCuoi IS NULL
-                                            AND COALESCE(cd.SoCuon, 0) > 0
-                                               THEN cd.SoCuon
-                                           ELSE 0
-                                       END
-                                   ), 0) AS TongNhap
-                            FROM TTThanhPham tp
-                            JOIN TTNhapKhoTP nk ON nk.TTThanhPham_ID = tp.id
-                            JOIN TTCuonDay cd ON cd.ThongTinNhapKho_ID = nk.id
-                            GROUP BY tp.DanhSachSP_ID
-                        ),
-                        DaLay AS (
-                            SELECT tp.DanhSachSP_ID AS ProductId,
-                                   COALESCE(SUM(ls.SoLuong), 0) AS SoLuong
-                            FROM LichSuLayCuon ls
-                            JOIN TTCuonDay cd ON cd.id = ls.TTCuonDay_ID
-                            JOIN TTNhapKhoTP nk ON nk.id = cd.ThongTinNhapKho_ID
-                            JOIN TTThanhPham tp ON tp.id = nk.TTThanhPham_ID
-                            GROUP BY tp.DanhSachSP_ID
-                        ),
-                        DaChuyenLe AS (
-                            SELECT tp.DanhSachSP_ID AS ProductId,
-                                   COUNT(DISTINCT lc.TonCuonLe_ID) AS SoLuong
-                            FROM LichSuCat lc
-                            JOIN TonCuonLe tcl ON tcl.id = lc.TonCuonLe_ID
-                            JOIN TTThanhPham tp ON tp.id = tcl.TTThanhPham_ID
-                            WHERE lc.LoaiNguon = 'CUON_CHAN'
-                            GROUP BY tp.DanhSachSP_ID
-                        ),
-                        CoCuonLe AS (
-                            SELECT DISTINCT tp.DanhSachSP_ID AS ProductId
-                            FROM TonCuonLe tcl
-                            JOIN TTThanhPham tp ON tp.id = tcl.TTThanhPham_ID
-                            WHERE COALESCE(NULLIF(TRIM(tcl.TrangThai), ''), 'ACTIVE') = 'ACTIVE' COLLATE NOCASE
-                              AND ABS(COALESCE(tcl.SoCuoi, 0) - COALESCE(tcl.SoDau, 0)) > 0
-                        )
-                        SELECT DISTINCT TRIM(sp.Ten) AS GiaTri
-                        FROM DanhSachMaSP sp
-                        LEFT JOIN Nhap n ON n.ProductId = sp.id
-                        LEFT JOIN DaLay dl ON dl.ProductId = sp.id
-                        LEFT JOIN DaChuyenLe dc ON dc.ProductId = sp.id
-                        LEFT JOIN CoCuonLe cl ON cl.ProductId = sp.id
-                        WHERE sp.Ten IS NOT NULL
-                          AND TRIM(sp.Ten) <> ''
-                          AND sp.Ten LIKE @kw
-                          AND (
-                              COALESCE(n.TongNhap, 0)
-                              - COALESCE(dl.SoLuong, 0)
-                              - COALESCE(dc.SoLuong, 0) > 0
-                              OR cl.ProductId IS NOT NULL
-                          )
+                          AND TRIM(tcl.TrangThai) = 'ACTIVE' COLLATE NOCASE
+                          AND ABS(tcl.SoCuoi - tcl.SoDau) > 0
                         ORDER BY GiaTri COLLATE NOCASE
                         LIMIT 50;";
                 }
                 else
                 {
-                    return dt;
+                    // Goi y ten chi khi ID dau tien theo ten co ton B2 thuc te.
+                    // Cuon chan: phai co nhap kho theo quy cach va chua lay/chuyen le het.
+                    // Cuon le: phai co nguon TTCuonDay da nhap kho va con chieu dai.
+                    cmd.CommandText = @"
+                        WITH TonCoTheTim AS (
+                            SELECT tp.DanhSachSP_ID AS ProductId
+                            FROM TTNhapKhoTP nk
+                            JOIN TTThanhPham tp ON tp.id = nk.TTThanhPham_ID
+                            JOIN TTCuonDay cd ON cd.ThongTinNhapKho_ID = nk.id
+                            WHERE cd.SoDau IS NULL AND cd.SoCuoi IS NULL
+                              AND cd.ChieuDai_1cuon > 0 AND cd.SoCuon > 0
+                              AND COALESCE((SELECT SUM(ls.SoLuong)
+                                            FROM LichSuLayCuon ls
+                                            WHERE ls.TTCuonDay_ID = cd.id), 0) >= 0
+                              AND cd.SoCuon
+                                  - COALESCE((SELECT SUM(ls.SoLuong)
+                                              FROM LichSuLayCuon ls
+                                              WHERE ls.TTCuonDay_ID = cd.id), 0)
+                                  - (SELECT COUNT(*) FROM TonCuonLe cl
+                                     WHERE cl.TTCuonDay_ID = cd.id
+                                       AND EXISTS (SELECT 1 FROM LichSuCat lc
+                                                   WHERE lc.TonCuonLe_ID = cl.id
+                                                     AND lc.LoaiNguon = 'CUON_CHAN')) > 0
+                            UNION
+                            SELECT tp.DanhSachSP_ID AS ProductId
+                            FROM TonCuonLe tcl
+                            JOIN TTThanhPham tp ON tp.id = tcl.TTThanhPham_ID
+                            JOIN TTCuonDay cd ON cd.id = tcl.TTCuonDay_ID
+                            JOIN TTNhapKhoTP nk ON nk.id = cd.ThongTinNhapKho_ID
+                                                AND nk.TTThanhPham_ID = tp.id
+                            WHERE TRIM(tcl.TrangThai) = 'ACTIVE' COLLATE NOCASE
+                              AND ABS(tcl.SoCuoi - tcl.SoDau) > 0
+                        )
+                        SELECT DISTINCT TRIM(sp.Ten) AS GiaTri
+                        FROM TonCoTheTim tk
+                        JOIN DanhSachMaSP sp ON sp.id = tk.ProductId
+                        WHERE sp.Ten IS NOT NULL AND TRIM(sp.Ten) <> ''
+                          AND sp.Ten LIKE @kw
+                          AND sp.id = (
+                              SELECT MIN(sp2.id) FROM DanhSachMaSP sp2
+                              WHERE TRIM(sp2.Ten) = TRIM(sp.Ten) COLLATE NOCASE
+                          )
+                        ORDER BY GiaTri COLLATE NOCASE
+                        LIMIT 50;";
                 }
 
                 cmd.Parameters.AddWithValue("@kw", "%" + keyword + "%");
                 ct.ThrowIfCancellationRequested();
-
                 using var reader = cmd.ExecuteReader();
                 while (reader.Read())
                 {
                     ct.ThrowIfCancellationRequested();
                     dt.Rows.Add(Convert.ToString(reader["GiaTri"], CultureInfo.InvariantCulture));
                 }
-
                 return dt;
             }, ct);
         }
@@ -185,6 +170,9 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
 
                 case LapKeHoachCatDay_SearchType.TatCa:
                     return LayTatCaTon(conn, criteria.KeHoach_IDDangSua);
+
+                case LapKeHoachCatDay_SearchType.KetHop:
+                    return TimTheoDieuKien(conn, criteria);
 
                 case LapKeHoachCatDay_SearchType.KhachHang:
                     return TimTheoKhachHang(conn, criteria.SearchValue, criteria.KeHoach_IDDangSua);
@@ -1012,6 +1000,48 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
         }
 
         // ───────────────────────── Search ─────────────────────────
+
+        private static List<LapKeHoachCatDay_GridRow> TimTheoDieuKien(
+            SQLiteConnection conn, LapKeHoachCatDay_SearchCriteria criteria)
+        {
+            string ten = (criteria.TenSanPham ?? string.Empty).Trim();
+            string lot = (criteria.Lot ?? string.Empty).Trim();
+            int minLength = criteria.ChieuDaiToiThieu.GetValueOrDefault();
+            if (ten.Length == 0 && lot.Length == 0 && minLength <= 0)
+                return new List<LapKeHoachCatDay_GridRow>();
+
+            List<LapKeHoachCatDay_GridRow> result;
+            if (lot.Length > 0)
+            {
+                // Tiep tuc kiem tra MaCuon trung va ton kho bang ham B2 hien hanh.
+                result = TimTheoLot(conn, lot, criteria.KeHoach_IDDangSua);
+                if (ten.Length > 0)
+                {
+                    // Giu quyet dinh ten trung: chon ID dau tien theo code cu.
+                    var productIds = new HashSet<long>(TimTheoTenSanPham(
+                        conn, ten, criteria.KeHoach_IDDangSua)
+                        .Select(x => x.DanhSachMaSP_ID));
+                    result = result.Where(x => productIds.Contains(x.DanhSachMaSP_ID)).ToList();
+                }
+            }
+            else if (ten.Length > 0)
+            {
+                result = TimTheoTenSanPham(conn, ten, criteria.KeHoach_IDDangSua);
+            }
+            else
+            {
+                result = LayTatCaTon(conn, criteria.KeHoach_IDDangSua);
+            }
+
+            if (minLength > 0)
+            {
+                result = result.Where(x => x.LoaiDong == LapKeHoachCatDay_LoaiDong.CuonChan
+                    ? x.ChieuDai1Cuon >= minLength
+                    : x.TonThucTe >= minLength).ToList();
+            }
+            // Khach hang chua la dieu kien tim kiem.
+            return result;
+        }
 
         private static List<LapKeHoachCatDay_GridRow> TimTheoKhachHang(SQLiteConnection conn, string khachHang, long? excludePlanId)
         {

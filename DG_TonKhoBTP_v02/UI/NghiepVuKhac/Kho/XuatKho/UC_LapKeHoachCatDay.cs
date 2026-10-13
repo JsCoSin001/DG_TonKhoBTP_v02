@@ -37,8 +37,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
         private readonly Dictionary<string, LapKeHoachCatDay_GridRow> _rows =
             new Dictionary<string, LapKeHoachCatDay_GridRow>(StringComparer.OrdinalIgnoreCase);
 
-        private ComboBoxSearchHelper _searchHelper;
-        private LapKeHoachCatDay_SearchType _searchType = LapKeHoachCatDay_SearchType.ChieuDai;
+        private ComboBoxSearchHelper _tenSanPhamSearchHelper;
+        private ComboBoxSearchHelper _lotSearchHelper;
         private long? _keHoachId;
         private bool _editMode;
         private bool _loadingPlan;
@@ -69,8 +69,6 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
             KhoiTaoTimKiem();
             GanSuKien();
 
-            if (cbxKieuTimKiem.Items.Count > 0)
-                cbxKieuTimKiem.SelectedIndex = 0;
         }
 
         private void KhoiTaoGrid()
@@ -241,31 +239,41 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
 
         private void KhoiTaoTimKiem()
         {
-            _searchHelper = new ComboBoxSearchHelper(
-                cbxKey,
-                (keyword, ct) => LapKeHoachCatDay_DB.TimGoiYAsync(_searchType, keyword, ct))
+            // Hai helper rieng biet, khong thay doi ComboBoxSearchHelper dung chung.
+            // Chon goi y chi dien gia tri; KHONG tu tim kiem.
+            cbxTimTenSP.DropDownStyle = ComboBoxStyle.DropDown;
+            cbxTimLot.DropDownStyle = ComboBoxStyle.DropDown;
+
+            _tenSanPhamSearchHelper = new ComboBoxSearchHelper(
+                cbxTimTenSP,
+                (keyword, ct) => LapKeHoachCatDay_DB.TimGoiYAsync(
+                    LapKeHoachCatDay_SearchType.TenSanPham, keyword, ct))
             {
                 DisplayColumn = "GiaTri",
                 SelectedTextBehavior = ComboBoxSelectedTextBehavior.FillDisplayText,
-                DebounceMs = 350,
-                CanSearch = keyword =>
-                    _searchType == LapKeHoachCatDay_SearchType.Lot ||
-                    _searchType == LapKeHoachCatDay_SearchType.TenSanPham
+                DebounceMs = 350
             };
 
-            _searchHelper.ItemSelected += row =>
+            _lotSearchHelper = new ComboBoxSearchHelper(
+                cbxTimLot,
+                (keyword, ct) => LapKeHoachCatDay_DB.TimGoiYAsync(
+                    LapKeHoachCatDay_SearchType.Lot, keyword, ct))
             {
-                string value = Convert.ToString(row["GiaTri"], CultureInfo.InvariantCulture) ?? string.Empty;
-                _ = TimKiemVaThemAsync(value, false);
+                DisplayColumn = "GiaTri",
+                SelectedTextBehavior = ComboBoxSelectedTextBehavior.FillDisplayText,
+                DebounceMs = 350
             };
 
-            Disposed += (s, e) => _searchHelper?.Dispose();
+            Disposed += (s, e) =>
+            {
+                _tenSanPhamSearchHelper?.Dispose();
+                _lotSearchHelper?.Dispose();
+            };
         }
 
         private void GanSuKien()
         {
-            cbxKieuTimKiem.SelectedIndexChanged += CbxKieuTimKiem_SelectedIndexChanged;
-            cbxKey.KeyDown += CbxKey_KeyDown;
+            button1.Click += BtnTimKiem_Click;
             btnTimToanBo.Click += BtnTimToanBo_Click;
             btnLuuKeHoach.Click += btnLuuKeHoach_Click;
 
@@ -277,54 +285,14 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
             grvKetQuaTimKiem.CellEndEdit += GrvKetQuaTimKiem_CellEndEdit;
         }
 
-        private void CbxKieuTimKiem_SelectedIndexChanged(object sender, EventArgs e)
+        private async void BtnTimKiem_Click(object sender, EventArgs e)
         {
-            _searchType = cbxKieuTimKiem.SelectedIndex switch
-            {
-                0 => LapKeHoachCatDay_SearchType.ChieuDai,
-                1 => LapKeHoachCatDay_SearchType.Lot,
-                2 => LapKeHoachCatDay_SearchType.TenSanPham,
-                3 => LapKeHoachCatDay_SearchType.KhachHang,
-                _ => LapKeHoachCatDay_SearchType.ChieuDai
-            };
-
-            _searchHelper?.Reset();
-            cbxKey.DropDownStyle = ComboBoxStyle.DropDown;
-        }
-
-        private async void CbxKey_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode != Keys.Enter)
-                return;
-
-            e.Handled = true;
-            e.SuppressKeyPress = true;
-
-            if (_searchType == LapKeHoachCatDay_SearchType.KhachHang)
-            {
-                FrmWaiting.ShowGifAlert("Chức năng tìm kiếm theo khách hàng chưa được phát triển trong giai đoạn này.");
-                return;
-            }
-
-            if (_searchType == LapKeHoachCatDay_SearchType.ChieuDai)
-            {
-                if (!int.TryParse((cbxKey.Text ?? string.Empty).Trim(), out int cd) || cd <= 0)
-                {
-                    FrmWaiting.ShowGifAlert("Chiều dài tìm kiếm không hợp lệ");
-                    return;
-                }
-
-                await TimKiemVaThemAsync(cbxKey.Text, false);
-                return;
-            }
-
-            // Cho phép Enter trực tiếp nếu user đã nhập đúng giá trị nhưng không click item dropdown.
-            await TimKiemVaThemAsync(cbxKey.Text, false);
+            await TimKiemVaThemAsync(false);
         }
 
         private async void BtnTimToanBo_Click(object sender, EventArgs e)
         {
-            await TimKiemVaThemAsync(string.Empty, true);
+            await TimKiemVaThemAsync(true);
         }
 
         private async void TbLenhXuatHang_KeyDown(object sender, KeyEventArgs e)
@@ -429,51 +397,42 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
             }
         }
 
-        private async Task TimKiemVaThemAsync(string searchValue, bool layToanBo)
+        private async Task TimKiemVaThemAsync(bool layToanBo)
         {
-            if (_searchType == LapKeHoachCatDay_SearchType.KhachHang && !layToanBo)
-            {
-                FrmWaiting.ShowGifAlert("Chức năng tìm kiếm theo khách hàng chưa được phát triển trong giai đoạn này.");
-                return;
-            }
-
             LapKeHoachCatDay_SearchCriteria criteria;
             if (layToanBo)
             {
+                // Giu nguyen nghiep vu tim toan bo: bo qua cac o dieu kien.
                 criteria = new LapKeHoachCatDay_SearchCriteria
                 {
                     SearchType = LapKeHoachCatDay_SearchType.TatCa,
                     KeHoach_IDDangSua = _keHoachId
                 };
             }
-            else if (_searchType == LapKeHoachCatDay_SearchType.ChieuDai)
-            {
-                if (!int.TryParse((searchValue ?? string.Empty).Trim(), out int cd) || cd <= 0)
-                {
-                    FrmWaiting.ShowGifAlert("Chiều dài tìm kiếm không hợp lệ");
-                    return;
-                }
-
-                criteria = new LapKeHoachCatDay_SearchCriteria
-                {
-                    SearchType = _searchType,
-                    SearchValue = searchValue,
-                    ChieuDaiToiThieu = cd,
-                    KeHoach_IDDangSua = _keHoachId
-                };
-            }
             else
             {
-                if (string.IsNullOrWhiteSpace(searchValue))
+                string ten = (cbxTimTenSP.Text ?? string.Empty).Trim();
+                string lot = (cbxTimLot.Text ?? string.Empty).Trim();
+                // cbxTenKhachHang chua su dung: bat ke gia tri nao deu KHONG loc.
+                if (nbrTimSoLuong.Value > int.MaxValue)
                 {
-                    FrmWaiting.ShowGifAlert("Không tìm thấy dữ liệu phù hợp với điều kiện tìm kiếm.");
+                    FrmWaiting.ShowGifAlert("Chiều dài tìm kiếm vượt quá giới hạn cho phép.");
+                    return;
+                }
+
+                int minLength = decimal.ToInt32(nbrTimSoLuong.Value);
+                if (ten.Length == 0 && lot.Length == 0 && minLength == 0)
+                {
+                    FrmWaiting.ShowGifAlert("Vui lòng nhập điều kiện hoặc chọn Tìm toàn bộ.");
                     return;
                 }
 
                 criteria = new LapKeHoachCatDay_SearchCriteria
                 {
-                    SearchType = _searchType,
-                    SearchValue = searchValue.Trim(),
+                    SearchType = LapKeHoachCatDay_SearchType.KetHop,
+                    TenSanPham = ten,
+                    Lot = lot,
+                    ChieuDaiToiThieu = minLength > 0 ? (int?)minLength : null,
                     KeHoach_IDDangSua = _keHoachId
                 };
             }
@@ -486,7 +445,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
 
                 if (found == null || found.Count == 0)
                 {
-                    if (!layToanBo && _searchType == LapKeHoachCatDay_SearchType.Lot)
+                    if (!layToanBo && !string.IsNullOrWhiteSpace(criteria.Lot))
                         FrmWaiting.ShowGifAlert("Không tìm thấy LOT/Mã bin phù hợp.");
                     else
                         FrmWaiting.ShowGifAlert("Không tìm thấy dữ liệu phù hợp với điều kiện tìm kiếm.");
@@ -665,6 +624,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
 
         private static void StyleButtonCell(DataGridViewCell cell, bool enabled, Color enabledBackColor, Color enabledForeColor)
         {
+            // Tao khoang cach giua nut va vien o (trai/phai 6px, tren/duoi 4px).
+            cell.Style.Padding = new Padding(6, 4, 6, 4);
             cell.Style.BackColor = enabled ? enabledBackColor : MauDisabled;
             cell.Style.ForeColor = enabled ? enabledForeColor : MauDisabledText;
             cell.Style.SelectionBackColor = cell.Style.BackColor;
@@ -1156,9 +1117,11 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
                 (model.DaTonTaiTrongDB && (!model.CanEdit || !model.CanDelete)))
                 return;
 
-            string message = model.CoThucHienB3
-                ? "Dòng này đã thực hiện một phần. Chỉ loại bỏ phần chưa thực hiện khi lưu kế hoạch. Tiếp tục?"
-                : "Loại bỏ dòng này khỏi kế hoạch đang chỉnh sửa?";
+            string message = !model.DaTonTaiTrongDB
+                ? "Bạn muốn xoá sản phẩm này khỏi danh sách?"
+                : model.CoThucHienB3
+                    ? "Phần chưa thực hiện sẽ được xoá khỏi hệ thống?"
+                    : "Bạn muốn xoá sản phẩm này khỏi hệ thống?";
             if (MessageBox.Show(message, "Xác nhận", MessageBoxButtons.YesNo,
                 MessageBoxIcon.Question) != DialogResult.Yes)
                 return;
@@ -1205,10 +1168,10 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
         private void ResetVeTrangThaiMoi()
         {
             ChuyenSangTaoMoi(clearHeader: true);
-            _searchHelper?.Reset();
-            cbxKey.Text = string.Empty;
-            if (cbxKieuTimKiem.Items.Count > 0)
-                cbxKieuTimKiem.SelectedIndex = 0;
+            _tenSanPhamSearchHelper?.Reset();
+            _lotSearchHelper?.Reset();
+            cbxTenKhachHang.Text = string.Empty;
+            nbrTimSoLuong.Value = 0;
             tbLenhXuatHang.Focus();
         }
     }

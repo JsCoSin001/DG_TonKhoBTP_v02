@@ -465,7 +465,7 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
             }
         }
 
-        private static void VerifyInventorySnapshot(SQLiteConnection conn, SQLiteTransaction tx, List<TTNVL> items, ref bool conflict)
+        internal static void VerifyInventorySnapshot(SQLiteConnection conn, SQLiteTransaction tx, List<TTNVL> items, ref bool conflict)
         {
             foreach (var nvl in items ?? new List<TTNVL>())
             {
@@ -489,7 +489,7 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
 
         private static bool Same(double? a, double? b) => a.HasValue == b.HasValue && (!a.HasValue || Math.Abs(a.Value-b!.Value) < 0.0000001d);
 
-        private static void ApplyInventoryOnce(SQLiteConnection conn, SQLiteTransaction tx, long finalId, List<TTNVL> items)
+        internal static void ApplyInventoryOnce(SQLiteConnection conn, SQLiteTransaction tx, long finalId, List<TTNVL> items)
         {
             foreach (var nvl in items ?? new List<TTNVL>())
             {

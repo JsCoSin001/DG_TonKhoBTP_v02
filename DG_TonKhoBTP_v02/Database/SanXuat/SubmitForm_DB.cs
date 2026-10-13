@@ -793,6 +793,38 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
             List<DanhSachLoiDungMay_Model> danhSachLoiDungMay,
             out string errorMsg)
         {
+            bool ignoredConflict;
+            return SaveSanPhamNewCore(caLam, tp, nvl, chiTietCD, danhSachLoiNhapLieu,
+                danhSachLoiDungMay, false, out ignoredConflict, out errorMsg);
+        }
+
+        // Chỉ đường Lưu trực tiếp New/Copy trong danh sách gọi hàm này.
+        public static bool SaveDataSanPhamTrucTiepVoiKiemTraTon(
+            ThongTinCaLamViec caLam,
+            TTThanhPham tp,
+            List<TTNVL> nvl,
+            SubmitCongDoanData chiTietCD,
+            List<LoiNhapLieuData> danhSachLoiNhapLieu,
+            List<DanhSachLoiDungMay_Model> danhSachLoiDungMay,
+            out bool inventoryConflict,
+            out string errorMsg)
+        {
+            return SaveSanPhamNewCore(caLam, tp, nvl, chiTietCD, danhSachLoiNhapLieu,
+                danhSachLoiDungMay, true, out inventoryConflict, out errorMsg);
+        }
+
+        private static bool SaveSanPhamNewCore(
+            ThongTinCaLamViec caLam,
+            TTThanhPham tp,
+            List<TTNVL> nvl,
+            SubmitCongDoanData chiTietCD,
+            List<LoiNhapLieuData> danhSachLoiNhapLieu,
+            List<DanhSachLoiDungMay_Model> danhSachLoiDungMay,
+            bool verifyInventory,
+            out bool inventoryConflict,
+            out string errorMsg)
+        {
+            inventoryConflict = false;
             errorMsg = string.Empty;
 
             if (tp == null)
@@ -816,11 +848,25 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
                 conn = DB_Base.OpenConnection();
                 tx = conn.BeginTransaction();
 
+                if (verifyInventory)
+                {
+                    LuuTam_DB.VerifyInventorySnapshot(conn, tx, nvl, ref inventoryConflict);
+                    if (inventoryConflict)
+                    {
+                        tx.Rollback();
+                        errorMsg = "Tồn nguyên vật liệu đã thay đổi. Vui lòng quét/nhập lại toàn bộ nguyên vật liệu.";
+                        return false;
+                    }
+                }
+
                 long tpId = InsertTTThanhPham(conn, tx, tp, nvl);
                 SavePheLieu(conn, tx, tpId, tp.PheLieu);
                 InsertThongTinCaLamViec(conn, tx, caLam, tpId);
                 InsertTTNVL(conn, tx, tpId, nvl);
-                UpdateKL_CD_TTThanhPham(conn, tx, nvl, tpId);
+                if (verifyInventory)
+                    LuuTam_DB.ApplyInventoryOnce(conn, tx, tpId, nvl);
+                else
+                    UpdateKL_CD_TTThanhPham(conn, tx, nvl, tpId);
 
                 object congDoan = chiTietCD.ChiTietCongDoan;
 

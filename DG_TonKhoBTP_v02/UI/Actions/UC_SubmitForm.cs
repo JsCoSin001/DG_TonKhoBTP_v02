@@ -46,6 +46,18 @@ namespace DG_TonKhoBTP_v02.UI
                  DanhSachLoiNhapLieuSX.Loi_SoLuongBin,
             };
 
+        // Chỉ điều chỉnh danh sách này khi muốn bật/tắt quyền Lưu chính thức trực tiếp.
+        // Công đoạn không có trong danh sách vẫn phải Lưu tạm trước.
+        private static readonly HashSet<int> DanhSachCongDoanLuuTrucTiep = new HashSet<int>
+        {
+            0
+        };
+
+        private static bool CoDuocLuuTrucTiep(int congDoanId)
+        {
+            return DanhSachCongDoanLuuTrucTiep.Contains(congDoanId);
+        }
+
         private CongDoan _Cd;
         private readonly DraftContext _draftContext = new DraftContext();
         private DataLoadMode _loadMode = DataLoadMode.New;
@@ -163,8 +175,12 @@ namespace DG_TonKhoBTP_v02.UI
                     Debug.WriteLine($"Tổ trưởng xác nhận: {confirmedUsername}");
                 }
 
-                // Bản ghi mới bắt buộc phải qua Lưu tạm trước khi lên chính thức.
-                if (idEdit == 0 && !_draftContext.IsDraftLoaded)
+                // Chỉ New/Copy thuộc danh sách mới được bỏ bước Lưu tạm.
+                // Giữ chốt kiểm tra trong handler, không chỉ dựa vào trạng thái nút UI.
+                bool luuTrucTiep = idEdit == 0 && !_draftContext.IsDraftLoaded &&
+                    (_loadMode == DataLoadMode.New || _loadMode == DataLoadMode.Copy) &&
+                    CoDuocLuuTrucTiep(_Cd?.Id ?? -1);
+                if (idEdit == 0 && !_draftContext.IsDraftLoaded && !luuTrucTiep)
                 {
                     FrmWaiting.ShowGifAlert("Vui lòng LƯU TẠM trước khi lưu chính thức.");
                     return;
@@ -268,6 +284,10 @@ namespace DG_TonKhoBTP_v02.UI
                     DraftSubmitData draftData = ToDraftSubmitData(submitData, _draftContext.DraftId);
                     result = await Task.Run(() => ExecuteFinalizeDraft(
                         draftData, submitData.DanhSachLoiNhapLieu, submitData, out inventoryConflict));
+                }
+                else if (luuTrucTiep)
+                {
+                    result = await Task.Run(() => ExecuteSubmitTrucTiep(submitData, out inventoryConflict));
                 }
                 else
                 {
@@ -1242,6 +1262,64 @@ namespace DG_TonKhoBTP_v02.UI
             return result;
         }
 
+        // Tạo bản ghi chính thức ngay, dùng kiểm tra tồn của FinalizeDraft.
+        // Công đoạn 9 giữ đường lưu riêng (không dùng NVL).
+        private SubmitProcessResult ExecuteSubmitTrucTiep(SubmitFormData data, out bool inventoryConflict)
+        {
+            inventoryConflict = false;
+            var result = new SubmitProcessResult();
+            try
+            {
+                string error;
+                if (data.CongDoanId == 9)
+                {
+                    result.SaveSuccess = SubmitForm_DB.SaveDataCongDoan9(
+                        data.ThongTinCaLamViec,
+                        data.ThongTinThanhPham,
+                        data.DanhSachLoiDungMay,
+                        out error);
+                }
+                else
+                {
+                    result.SaveSuccess = SubmitForm_DB.SaveDataSanPhamTrucTiepVoiKiemTraTon(
+                        data.ThongTinCaLamViec,
+                        data.ThongTinThanhPham,
+                        data.NguyenVatLieu,
+                        data.CongDoan,
+                        data.DanhSachLoiNhapLieu,
+                        data.DanhSachLoiDungMay,
+                        out inventoryConflict,
+                        out error);
+                }
+
+                if (!result.SaveSuccess)
+                {
+                    result.SaveError = string.IsNullOrEmpty(error)
+                        ? "LƯU KHÔNG THÀNH CÔNG."
+                        : error;
+                    return result;
+                }
+
+                try { PrintLabels(data); }
+                catch (Exception exPrint)
+                {
+                    result.HasPrintError = true;
+                    result.PrintError = exPrint.Message;
+                }
+            }
+            catch (Exception ex)
+            {
+                if (!result.SaveSuccess)
+                    result.SaveError = "LỖI LƯU DỮ LIỆU: " + ex.Message;
+                else
+                {
+                    result.HasPrintError = true;
+                    result.PrintError = ex.Message;
+                }
+            }
+            return result;
+        }
+
         private static void SaveOrUpdate(
             SubmitFormData data,
             SubmitProcessResult result)
@@ -1685,7 +1763,9 @@ namespace DG_TonKhoBTP_v02.UI
         private void ApplySubmitMode(DataLoadMode mode)
         {
             if (btnLuu == null || btnLuuTam == null) return;
-            btnLuu.Enabled = mode == DataLoadMode.Draft || mode == DataLoadMode.OfficialEdit;
+            btnLuu.Enabled = mode == DataLoadMode.Draft || mode == DataLoadMode.OfficialEdit ||
+                ((mode == DataLoadMode.New || mode == DataLoadMode.Copy) &&
+                 CoDuocLuuTrucTiep(_Cd?.Id ?? -1));
             btnLuuTam.Enabled = mode == DataLoadMode.New || mode == DataLoadMode.Copy || mode == DataLoadMode.Draft;
         }
 

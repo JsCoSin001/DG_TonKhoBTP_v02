@@ -2760,8 +2760,84 @@ namespace DG_TonKhoBTP_v02.Database
             // Kết hợp câu truy vấn
             string query = sqlSelect + " ," + sqlLayChiTietCD + " ," + sqlTenNVL + sqlJoin + sqlDk1 + sqlDk2 + sqlDk3;
 
-            return GetData(query, key, "id");
+            DataTable result = GetData(query, key, "id");
+            if (kieuDL == 1)
+                LamMoiTonNVLKhiSaoChep(result);
+            return result;
         }
+
+        // Chỉ dành cho Copy: làm mới số tồn từ đúng nguồn đang được phép quét.
+        // Không bao giờ dùng snapshot lịch sử làm giá trị dự phòng khi nguồn không hợp lệ.
+        private static void LamMoiTonNVLKhiSaoChep(DataTable table)
+        {
+            if (table == null || table.Rows.Count == 0 || !table.Columns.Contains("BinNVL"))
+                return;
+
+            // Trùng quy tắc UC_TTNVL.LoadData: máy không được tái sử dụng
+            // sẽ không giữ lại NVL cũ, vì vậy cũng không cần truy vấn tồn.
+            string maBinThanhPham = Convert.ToString(table.Rows[0]["MaBin"]) ?? string.Empty;
+            string[] maBinParts = CoreHelper.CatMaBin(maBinThanhPham);
+            if (maBinParts.Length == 0 ||
+                !EnumStore.LaMayChoPhepTaiSuDungNVL(maBinParts[0]))
+                return;
+
+            table.Columns.Add("CopyNvlUnavailable", typeof(bool));
+            string sqlTonHienTai = CoreHelper.TaoSQL_LayDLTTThanhPham(false);
+            var tonTheoBin = new Dictionary<string, DataTable>(StringComparer.OrdinalIgnoreCase);
+            string[] truongTon = { "KlBatDau", "CdBatDau", "KlConLai", "CdConLai" };
+
+            foreach (DataRow row in table.Rows)
+            {
+                string bin = Convert.ToString(row["BinNVL"])?.Trim() ?? string.Empty;
+                if (bin.Length == 0)
+                    continue; // Công đoạn không có NVL.
+
+                if (!tonTheoBin.TryGetValue(bin, out DataTable ton))
+                {
+                    ton = GetNVL(sqlTonHienTai, new Dictionary<string, object> { { "ten", bin } });
+                    tonTheoBin.Add(bin, ton);
+                }
+
+                // Cùng một MaBin phải tìm đúng một nguồn Active, Temp=0 và còn tồn.
+                // Đồng thời không chấp nhận nguồn đã đổi đơn vị so với NVL được Copy.
+                string donViCu = table.Columns.Contains("DonViNVL")
+                    ? Convert.ToString(row["DonViNVL"])?.Trim() : string.Empty;
+                bool hopLe = ton != null && ton.Rows.Count == 1;
+                if (hopLe)
+                {
+                    DataRow hienTai = ton.Rows[0];
+                    string donViMoi = Convert.ToString(hienTai["DonViNVL"])?.Trim();
+                    double? tonTheoDonVi = null;
+                    if (string.Equals(donViCu, donViMoi, StringComparison.OrdinalIgnoreCase))
+                    {
+                        string cot = string.Equals(donViMoi, "KG", StringComparison.OrdinalIgnoreCase)
+                            ? "KlBatDau" : string.Equals(donViMoi, "M", StringComparison.OrdinalIgnoreCase)
+                                ? "CdBatDau" : null;
+                        if (cot != null && hienTai[cot] != DBNull.Value)
+                            tonTheoDonVi = Convert.ToDouble(hienTai[cot], CultureInfo.InvariantCulture);
+                    }
+                    hopLe = tonTheoDonVi.HasValue && tonTheoDonVi.Value > 0;
+                }
+
+                if (!hopLe)
+                {
+                    row["CopyNvlUnavailable"] = true;
+                    foreach (string cot in truongTon)
+                        if (table.Columns.Contains(cot)) row[cot] = DBNull.Value;
+                    continue;
+                }
+
+                // Snapshot mới luôn bằng tồn hiện tại; công thức của từng CD sẽ
+                // được UC_TTNVL chạy lại sau khi nạp thành phẩm.
+                foreach (string cot in truongTon)
+                {
+                    if (table.Columns.Contains(cot))
+                        row[cot] = ton.Rows[0][cot];
+                }
+                row["CopyNvlUnavailable"] = false;
+            }
+        }
+
         // Lấy báo cáo sản xuất
         public static DataTable GetDataBaoCaoSX(DateTime ngayBatDau, DateTime ngayKetThuc, List<CongDoan> selectedCongDoans)
         {

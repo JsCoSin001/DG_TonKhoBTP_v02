@@ -639,6 +639,15 @@ namespace DG_TonKhoBTP_v02.UI
                         if (kieuDL == 1 && !EnumStore.LaMayChoPhepTaiSuDungNVL(may))
                             return;
 
+                        // Copy không được dùng snapshot NVL lịch sử nếu dữ liệu
+                        // chưa qua bước làm mới tồn của DatabaseHelper.
+                        if (kieuDL == 1 && !HasColumn(dt, "CopyNvlUnavailable"))
+                        {
+                            FrmWaiting.ShowGifAlert(
+                                "Không đọc được tồn NVL hiện tại. Vui lòng quét/nhập lại NVL.");
+                            return;
+                        }
+
                         dtgTTNVL.SuspendLayout();
                         try
                         {
@@ -646,17 +655,41 @@ namespace DG_TonKhoBTP_v02.UI
 
                             ThanhPhamData thanhPham = GetThanhPhamData?.Invoke()
                                 ?? new ThanhPhamData();
+                            var binKhongHopLe = new List<string>();
 
                             foreach (DataRow src in dt.Rows)
                             {
+                                if (kieuDL == 1 && HasColumn(dt, "CopyNvlUnavailable") &&
+                                    src["CopyNvlUnavailable"] != DBNull.Value &&
+                                    Convert.ToBoolean(src["CopyNvlUnavailable"]))
+                                {
+                                    binKhongHopLe.Add(GetString(src, "BinNVL"));
+                                    continue;
+                                }
+
                                 TTNVLRow row = MapDataRowToNvlRow(src);
                                 ApplyBomToRow(row, thanhPham);
                                 _nvlRows.Add(row);
                             }
 
-                            // Lần load đầu của edit/tái sử dụng phải giữ nguyên KL/CD đã lưu.
-                            // Chỉ xác định trạng thái nhập tay để các trigger sau xử lý đúng.
+                            // Giữ nguyên giá trị đã lưu đối với Edit/Draft.
+                            // Riêng Copy sử dụng snapshot tồn mới và tính theo công thức CD.
                             _dangNhapTayToanBang = CoNguyenVatLieuNhapTay();
+                            if (kieuDL == 1)
+                            {
+                                _dangLoadDuLieuBanDau = false;
+                                CapNhatGiaTriConLaiToanBang(
+                                    thanhPham, LyDoCapNhatGiaTriConLai.ThemHoacXoaDong);
+                                _dangLoadDuLieuBanDau = true;
+                            }
+
+                            if (binKhongHopLe.Count > 0)
+                            {
+                                FrmWaiting.ShowGifAlert(
+                                    "NVL nguồn không còn hợp lệ/không còn tồn: " +
+                                    string.Join(", ", binKhongHopLe.Distinct()) +
+                                    ". Vui lòng quét/nhập lại các NVL này.");
+                            }
 
                             _nvlSource.ResetBindings(false);
                             SetColumnHeaders(dtgTTNVL, _columns);
@@ -1079,6 +1112,17 @@ namespace DG_TonKhoBTP_v02.UI
                     RefreshBomRowStyles();
                     dtgTTNVL.Refresh();
                     return;
+                }
+
+                // Copy: luôn tính từ snapshot mới thay vì trừ tiếp trên số còn lại
+                // của lần tính trước (có thể chạy lại khi Thành phẩm thay đổi).
+                if (isEdit.Value == 1)
+                {
+                    foreach (TTNVLRow nvl in _nvlRows)
+                    {
+                        nvl.KlConLai = nvl.KlBatDau;
+                        nvl.CdConLai = nvl.CdBatDau;
+                    }
                 }
 
                 TinhGiaTriConLaiTheoCongDoan(thanhPham);

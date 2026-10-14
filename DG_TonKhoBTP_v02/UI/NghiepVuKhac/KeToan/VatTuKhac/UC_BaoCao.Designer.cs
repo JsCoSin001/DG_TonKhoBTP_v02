@@ -60,7 +60,6 @@
             this.cbxKieu = new System.Windows.Forms.ComboBox();
             this.panel1 = new System.Windows.Forms.Panel();
             this.lblTieuDe = new System.Windows.Forms.Label();
-            this.fileSystemWatcher1 = new System.IO.FileSystemWatcher();
             this.panel3.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -68,7 +67,6 @@
             this.flowLayoutPanel2.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
             this.panel1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher1)).BeginInit();
             this.SuspendLayout();
             // 
             // pnBaoCao
@@ -137,7 +135,7 @@
             this.cbxdsKho.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbxdsKho.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbxdsKho.FormattingEnabled = true;
-            this.cbxdsKho.Location = new System.Drawing.Point(809, 9);
+            this.cbxdsKho.Location = new System.Drawing.Point(809, 11);
             this.cbxdsKho.Name = "cbxdsKho";
             this.cbxdsKho.Size = new System.Drawing.Size(106, 26);
             this.cbxdsKho.TabIndex = 6;
@@ -175,7 +173,7 @@
             "Chưa về",
             "Chưa hoàn thành",
             "Đã hoàn thành"});
-            this.cbxLoaiYC.Location = new System.Drawing.Point(1002, 9);
+            this.cbxLoaiYC.Location = new System.Drawing.Point(1002, 11);
             this.cbxLoaiYC.Name = "cbxLoaiYC";
             this.cbxLoaiYC.Size = new System.Drawing.Size(106, 26);
             this.cbxLoaiYC.TabIndex = 6;
@@ -404,7 +402,7 @@
             this.cbxNguoiThucHien.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbxNguoiThucHien.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbxNguoiThucHien.FormattingEnabled = true;
-            this.cbxNguoiThucHien.Location = new System.Drawing.Point(1230, 9);
+            this.cbxNguoiThucHien.Location = new System.Drawing.Point(1230, 11);
             this.cbxNguoiThucHien.Name = "cbxNguoiThucHien";
             this.cbxNguoiThucHien.Size = new System.Drawing.Size(106, 26);
             this.cbxNguoiThucHien.TabIndex = 6;
@@ -417,7 +415,7 @@
             this.cbxThoiGian.Items.AddRange(new object[] {
             "Không",
             "Theo khoảng thời gian"});
-            this.cbxThoiGian.Location = new System.Drawing.Point(223, 9);
+            this.cbxThoiGian.Location = new System.Drawing.Point(223, 11);
             this.cbxThoiGian.Name = "cbxThoiGian";
             this.cbxThoiGian.Size = new System.Drawing.Size(106, 26);
             this.cbxThoiGian.TabIndex = 6;
@@ -443,7 +441,7 @@
             "Đề Nghị",
             "Nhập Hàng",
             "Xuất Hàng"});
-            this.cbxKieu.Location = new System.Drawing.Point(3, 11);
+            this.cbxKieu.Location = new System.Drawing.Point(3, 9);
             this.cbxKieu.Name = "cbxKieu";
             this.cbxKieu.Size = new System.Drawing.Size(178, 26);
             this.cbxKieu.TabIndex = 7;
@@ -469,11 +467,6 @@
             this.lblTieuDe.Text = "BÁO CÁO";
             this.lblTieuDe.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
             // 
-            // fileSystemWatcher1
-            // 
-            this.fileSystemWatcher1.EnableRaisingEvents = true;
-            this.fileSystemWatcher1.SynchronizingObject = this;
-            // 
             // UC_BaoCao
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 18F);
@@ -497,7 +490,6 @@
             this.tableLayoutPanel2.ResumeLayout(false);
             this.tableLayoutPanel2.PerformLayout();
             this.panel1.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher1)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -535,6 +527,5 @@
         private System.Windows.Forms.CheckBox cbKhoaVatTu;
         private System.Windows.Forms.DateTimePicker dtNgayKhoaVatTu;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel2;
-        private System.IO.FileSystemWatcher fileSystemWatcher1;
     }
 }

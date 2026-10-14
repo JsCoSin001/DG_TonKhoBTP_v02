@@ -652,6 +652,7 @@
     </EmbeddedResource>
     <EmbeddedResource Include="UI\NghiepVuKhac\KeToan\VatTuKhac\UC_BaoCao.resx">
       <DependentUpon>UC_BaoCao.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="UI\NghiepVuKhac\KeToan\VatTuKhac\UC_MuaVatTu.resx">
       <DependentUpon>UC_MuaVatTu.cs</DependentUpon>

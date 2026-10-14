@@ -25,7 +25,7 @@ namespace DG_TonKhoBTP_v02.UI
 
         public void SetNguoiLam(string username)
         {
-            nguoiLam.Text = username ?? string.Empty;
+            tbxNguoiBatDau.Text = username ?? string.Empty;
         }
 
         public UC_TTCaLamViec()
@@ -45,28 +45,28 @@ namespace DG_TonKhoBTP_v02.UI
         private void WireModelChangedEvents()
         {
             ca.SelectedIndexChanged += ThongTinCaLamViec_ValueChanged;
-            nguoiLam.TextChanged += ThongTinCaLamViec_ValueChanged;
+            tbxNguoiBatDau.TextChanged += ThongTinCaLamViec_ValueChanged;
             tbNgayBatDau.TextChanged += ThongTinCaLamViec_ValueChanged;
             tbNgayBatDau.Leave += NgayTextBox_Leave;
-            dateTimePicker1.ValueChanged += ThongTinCaLamViec_ValueChanged;
-            textBox1.TextChanged += ThongTinCaLamViec_ValueChanged;
-            textBox1.Leave += NgayTextBox_Leave;
-            dateTimePicker2.ValueChanged += ThongTinCaLamViec_ValueChanged;
+            dtGioBatDau.ValueChanged += ThongTinCaLamViec_ValueChanged;
+            tbNgayKetThuc.TextChanged += ThongTinCaLamViec_ValueChanged;
+            tbNgayKetThuc.Leave += NgayTextBox_Leave;
+            dtGioKetThuc.ValueChanged += ThongTinCaLamViec_ValueChanged;
         }
 
         private void StartForm(string url, string tieuDe)
         {
             _URL = url;
             lblTieuDe.Text = ("báo cáo công đoạn " + tieuDe).ToUpper();
-            nguoiLam.ReadOnly = _CD.Id == 9;
+            tbxNguoiBatDau.ReadOnly = _CD.Id == 9;
 
             NapDanhSachMayTheoCongDoan();
 
             string caHienTai = CoreHelper.GetShiftValue();
             ca.SelectedItem = caHienTai;
 
-            if (string.IsNullOrWhiteSpace(textBox1.Text))
-                textBox1.Text = GetNgayHienTaiDeHienThi();
+            if (string.IsNullOrWhiteSpace(tbNgayKetThuc.Text))
+                tbNgayKetThuc.Text = GetNgayHienTaiDeHienThi();
         }
 
         private void NapDanhSachMayTheoCongDoan()
@@ -123,11 +123,11 @@ namespace DG_TonKhoBTP_v02.UI
                 May = cbMay?.Text ?? string.Empty,
                 DanhSachMayId = GetSelectedMayId(),
                 Ca = ca?.Text ?? string.Empty,
-                NguoiLam = nguoiLam?.Text ?? string.Empty,
+                NguoiLam = tbxNguoiBatDau?.Text ?? string.Empty,
                 NgayBatDau = ngayBatDau,
-                GioBatDau = dateTimePicker1?.Value.TimeOfDay,
-                NgayKetThuc = ParseNullableDate(textBox1?.Text),
-                GioKetThuc = dateTimePicker2?.Value.TimeOfDay,
+                GioBatDau = dtGioBatDau?.Value.TimeOfDay,
+                NgayKetThuc = ParseNullableDate(tbNgayKetThuc?.Text),
+                GioKetThuc = dtGioKetThuc?.Value.TimeOfDay,
                 ToTruong = null,
                 QuanDoc = null
             };
@@ -383,9 +383,9 @@ namespace DG_TonKhoBTP_v02.UI
                 cbMay.SelectedIndex = -1;
                 ca.SelectedIndex = -1;
                 ca.Text = CoreHelper.GetShiftValue();
-                nguoiLam.Clear();
+                tbxNguoiBatDau.Clear();
                 tbNgayBatDau.Clear();
-                textBox1.Text = GetNgayHienTaiDeHienThi();
+                tbNgayKetThuc.Text = GetNgayHienTaiDeHienThi();
             }
             finally
             {
@@ -411,26 +411,26 @@ namespace DG_TonKhoBTP_v02.UI
                 {
                     // Khi load dữ liệu cũ/draft, không giữ ngày kết thúc mặc định của form mới.
                     // Nếu DB chưa có NgayKetThuc thì để trống để phản ánh đúng dữ liệu nguồn.
-                    textBox1.Clear();
+                    tbNgayKetThuc.Clear();
 
                     CoreHelper.SetIfPresent(row, "Ca", val => ca.Text = Convert.ToString(val));
-                    CoreHelper.SetIfPresent(row, "NguoiLam", val => nguoiLam.Text = Convert.ToString(val));
+                    CoreHelper.SetIfPresent(row, "NguoiLam", val => tbxNguoiBatDau.Text = Convert.ToString(val));
                     CoreHelper.SetIfPresent(row, "NgayBatDau", val => tbNgayBatDau.Text = ChuanHoaNgayDeHienThi(val));
 
-                    CoreHelper.SetIfPresent(row, "NgayKetThuc", val => textBox1.Text = ChuanHoaNgayDeHienThi(val));
+                    CoreHelper.SetIfPresent(row, "NgayKetThuc", val => tbNgayKetThuc.Text = ChuanHoaNgayDeHienThi(val));
 
                     CoreHelper.SetIfPresent(row, "GioBatDau", val =>
                     {
                         TimeSpan parsed;
                         if (TimeSpan.TryParse(Convert.ToString(val), out parsed))
-                            dateTimePicker1.Value = DateTime.Today.Add(parsed);
+                            dtGioBatDau.Value = DateTime.Today.Add(parsed);
                     });
 
                     CoreHelper.SetIfPresent(row, "GioKetThuc", val =>
                     {
                         TimeSpan parsed;
                         if (TimeSpan.TryParse(Convert.ToString(val), out parsed))
-                            dateTimePicker2.Value = DateTime.Today.Add(parsed);
+                            dtGioKetThuc.Value = DateTime.Today.Add(parsed);
                     });
                 }
             }

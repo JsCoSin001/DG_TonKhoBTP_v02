@@ -32,15 +32,15 @@
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.label4 = new System.Windows.Forms.Label();
-            this.tbxNguoiBatDau = new System.Windows.Forms.TextBox();
-            this.tbNgayKetThuc = new System.Windows.Forms.TextBox();
-            this.dtGioKetThuc = new System.Windows.Forms.DateTimePicker();
+            this.tbxNguoiBD = new System.Windows.Forms.TextBox();
+            this.tbNgayKT = new System.Windows.Forms.TextBox();
+            this.dtGioKT = new System.Windows.Forms.DateTimePicker();
             this.label3 = new System.Windows.Forms.Label();
-            this.ca = new System.Windows.Forms.ComboBox();
+            this.caBD = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
-            this.tbNgayBatDau = new System.Windows.Forms.TextBox();
+            this.tbNgayBD = new System.Windows.Forms.TextBox();
             this.label5 = new System.Windows.Forms.Label();
-            this.dtGioBatDau = new System.Windows.Forms.DateTimePicker();
+            this.dtGioBD = new System.Windows.Forms.DateTimePicker();
             this.cbMay = new System.Windows.Forms.ComboBox();
             this.label2 = new System.Windows.Forms.Label();
             this.panel2 = new System.Windows.Forms.Panel();
@@ -49,7 +49,7 @@
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
             this.label8 = new System.Windows.Forms.Label();
-            this.tbxNguoiKetThuc = new System.Windows.Forms.TextBox();
+            this.tbxNguoiKT = new System.Windows.Forms.TextBox();
             this.label9 = new System.Windows.Forms.Label();
             this.label10 = new System.Windows.Forms.Label();
             this.label11 = new System.Windows.Forms.Label();
@@ -102,13 +102,13 @@
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 95F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel1.Controls.Add(this.label4, 8, 0);
-            this.tableLayoutPanel1.Controls.Add(this.tbxNguoiBatDau, 9, 0);
+            this.tableLayoutPanel1.Controls.Add(this.tbxNguoiBD, 9, 0);
             this.tableLayoutPanel1.Controls.Add(this.label3, 0, 0);
-            this.tableLayoutPanel1.Controls.Add(this.ca, 1, 0);
+            this.tableLayoutPanel1.Controls.Add(this.caBD, 1, 0);
             this.tableLayoutPanel1.Controls.Add(this.label1, 2, 0);
-            this.tableLayoutPanel1.Controls.Add(this.tbNgayBatDau, 3, 0);
+            this.tableLayoutPanel1.Controls.Add(this.tbNgayBD, 3, 0);
             this.tableLayoutPanel1.Controls.Add(this.label5, 4, 0);
-            this.tableLayoutPanel1.Controls.Add(this.dtGioBatDau, 5, 0);
+            this.tableLayoutPanel1.Controls.Add(this.dtGioBD, 5, 0);
             this.tableLayoutPanel1.Controls.Add(this.cbMay, 7, 0);
             this.tableLayoutPanel1.Controls.Add(this.label2, 6, 0);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -130,35 +130,35 @@
             this.label4.Text = "Người làm";
             this.label4.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
-            // tbxNguoiBatDau
+            // tbxNguoiBD
             // 
-            this.tbxNguoiBatDau.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.tbxNguoiBatDau.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.tbxNguoiBatDau.Location = new System.Drawing.Point(683, 5);
-            this.tbxNguoiBatDau.Name = "tbxNguoiBatDau";
-            this.tbxNguoiBatDau.Size = new System.Drawing.Size(306, 26);
-            this.tbxNguoiBatDau.TabIndex = 6;
+            this.tbxNguoiBD.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.tbxNguoiBD.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.tbxNguoiBD.Location = new System.Drawing.Point(683, 5);
+            this.tbxNguoiBD.Name = "tbxNguoiBD";
+            this.tbxNguoiBD.Size = new System.Drawing.Size(306, 26);
+            this.tbxNguoiBD.TabIndex = 6;
             // 
-            // tbNgayKetThuc
+            // tbNgayKT
             // 
-            this.tbNgayKetThuc.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.tbNgayKetThuc.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.tbNgayKetThuc.Location = new System.Drawing.Point(193, 5);
-            this.tbNgayKetThuc.Name = "tbNgayKetThuc";
-            this.tbNgayKetThuc.Size = new System.Drawing.Size(124, 26);
-            this.tbNgayKetThuc.TabIndex = 7;
+            this.tbNgayKT.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.tbNgayKT.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.tbNgayKT.Location = new System.Drawing.Point(193, 5);
+            this.tbNgayKT.Name = "tbNgayKT";
+            this.tbNgayKT.Size = new System.Drawing.Size(124, 26);
+            this.tbNgayKT.TabIndex = 7;
             // 
-            // dtGioKetThuc
+            // dtGioKT
             // 
-            this.dtGioKetThuc.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.dtGioKetThuc.CustomFormat = "HH:mm";
-            this.dtGioKetThuc.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.dtGioKetThuc.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
-            this.dtGioKetThuc.Location = new System.Drawing.Point(373, 5);
-            this.dtGioKetThuc.Name = "dtGioKetThuc";
-            this.dtGioKetThuc.ShowUpDown = true;
-            this.dtGioKetThuc.Size = new System.Drawing.Size(69, 26);
-            this.dtGioKetThuc.TabIndex = 8;
+            this.dtGioKT.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.dtGioKT.CustomFormat = "HH:mm";
+            this.dtGioKT.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.dtGioKT.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
+            this.dtGioKT.Location = new System.Drawing.Point(373, 5);
+            this.dtGioKT.Name = "dtGioKT";
+            this.dtGioKT.ShowUpDown = true;
+            this.dtGioKT.Size = new System.Drawing.Size(69, 26);
+            this.dtGioKT.TabIndex = 8;
             // 
             // label3
             // 
@@ -171,20 +171,20 @@
             this.label3.Text = "Ca";
             this.label3.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
-            // ca
+            // caBD
             // 
-            this.ca.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.ca.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.ca.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.ca.FormattingEnabled = true;
-            this.ca.Items.AddRange(new object[] {
+            this.caBD.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.caBD.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.caBD.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.caBD.FormattingEnabled = true;
+            this.caBD.Items.AddRange(new object[] {
             "1",
             "2",
             "3"});
-            this.ca.Location = new System.Drawing.Point(48, 5);
-            this.ca.Name = "ca";
-            this.ca.Size = new System.Drawing.Size(64, 26);
-            this.ca.TabIndex = 4;
+            this.caBD.Location = new System.Drawing.Point(48, 5);
+            this.caBD.Name = "caBD";
+            this.caBD.Size = new System.Drawing.Size(64, 26);
+            this.caBD.TabIndex = 4;
             // 
             // label1
             // 
@@ -197,14 +197,14 @@
             this.label1.Text = "Ngày";
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
-            // tbNgayBatDau
+            // tbNgayBD
             // 
-            this.tbNgayBatDau.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.tbNgayBatDau.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.tbNgayBatDau.Location = new System.Drawing.Point(171, 5);
-            this.tbNgayBatDau.Name = "tbNgayBatDau";
-            this.tbNgayBatDau.Size = new System.Drawing.Size(133, 26);
-            this.tbNgayBatDau.TabIndex = 1;
+            this.tbNgayBD.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.tbNgayBD.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.tbNgayBD.Location = new System.Drawing.Point(171, 5);
+            this.tbNgayBD.Name = "tbNgayBD";
+            this.tbNgayBD.Size = new System.Drawing.Size(133, 26);
+            this.tbNgayBD.TabIndex = 1;
             // 
             // label5
             // 
@@ -217,17 +217,17 @@
             this.label5.Text = "Giờ";
             this.label5.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
-            // dtGioBatDau
+            // dtGioBD
             // 
-            this.dtGioBatDau.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.dtGioBatDau.CustomFormat = "HH:mm";
-            this.dtGioBatDau.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.dtGioBatDau.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
-            this.dtGioBatDau.Location = new System.Drawing.Point(361, 5);
-            this.dtGioBatDau.Name = "dtGioBatDau";
-            this.dtGioBatDau.ShowUpDown = true;
-            this.dtGioBatDau.Size = new System.Drawing.Size(81, 26);
-            this.dtGioBatDau.TabIndex = 2;
+            this.dtGioBD.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.dtGioBD.CustomFormat = "HH:mm";
+            this.dtGioBD.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.dtGioBD.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
+            this.dtGioBD.Location = new System.Drawing.Point(361, 5);
+            this.dtGioBD.Name = "dtGioBD";
+            this.dtGioBD.ShowUpDown = true;
+            this.dtGioBD.Size = new System.Drawing.Size(81, 26);
+            this.dtGioBD.TabIndex = 2;
             // 
             // cbMay
             // 
@@ -315,11 +315,11 @@
             this.tableLayoutPanel3.Controls.Add(this.label11, 0, 0);
             this.tableLayoutPanel3.Controls.Add(this.cbxCaKT, 1, 0);
             this.tableLayoutPanel3.Controls.Add(this.label9, 2, 0);
-            this.tableLayoutPanel3.Controls.Add(this.tbNgayKetThuc, 3, 0);
+            this.tableLayoutPanel3.Controls.Add(this.tbNgayKT, 3, 0);
             this.tableLayoutPanel3.Controls.Add(this.label10, 4, 0);
             this.tableLayoutPanel3.Controls.Add(this.label8, 6, 0);
-            this.tableLayoutPanel3.Controls.Add(this.tbxNguoiKetThuc, 7, 0);
-            this.tableLayoutPanel3.Controls.Add(this.dtGioKetThuc, 5, 0);
+            this.tableLayoutPanel3.Controls.Add(this.tbxNguoiKT, 7, 0);
+            this.tableLayoutPanel3.Controls.Add(this.dtGioKT, 5, 0);
             this.tableLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel3.Location = new System.Drawing.Point(10, 26);
             this.tableLayoutPanel3.Name = "tableLayoutPanel3";
@@ -339,14 +339,14 @@
             this.label8.Text = "Người làm";
             this.label8.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
-            // tbxNguoiKetThuc
+            // tbxNguoiKT
             // 
-            this.tbxNguoiKetThuc.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.tbxNguoiKetThuc.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.tbxNguoiKetThuc.Location = new System.Drawing.Point(543, 5);
-            this.tbxNguoiKetThuc.Name = "tbxNguoiKetThuc";
-            this.tbxNguoiKetThuc.Size = new System.Drawing.Size(306, 26);
-            this.tbxNguoiKetThuc.TabIndex = 6;
+            this.tbxNguoiKT.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.tbxNguoiKT.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.tbxNguoiKT.Location = new System.Drawing.Point(543, 5);
+            this.tbxNguoiKT.Name = "tbxNguoiKT";
+            this.tbxNguoiKT.Size = new System.Drawing.Size(306, 26);
+            this.tbxNguoiKT.TabIndex = 6;
             // 
             // label9
             // 
@@ -425,16 +425,16 @@
         private System.Windows.Forms.Label lblTieuDe;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
-        private System.Windows.Forms.ComboBox ca;
+        private System.Windows.Forms.ComboBox caBD;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.ComboBox cbMay;
-        private System.Windows.Forms.TextBox tbxNguoiBatDau;
+        private System.Windows.Forms.TextBox tbxNguoiBD;
         private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.TextBox tbNgayBatDau;
-        private System.Windows.Forms.DateTimePicker dtGioBatDau;
+        private System.Windows.Forms.TextBox tbNgayBD;
+        private System.Windows.Forms.DateTimePicker dtGioBD;
         private System.Windows.Forms.Label label5;
-        private System.Windows.Forms.TextBox tbNgayKetThuc;
-        private System.Windows.Forms.DateTimePicker dtGioKetThuc;
+        private System.Windows.Forms.TextBox tbNgayKT;
+        private System.Windows.Forms.DateTimePicker dtGioKT;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Panel panel2;
@@ -443,7 +443,7 @@
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel3;
         private System.Windows.Forms.Label label8;
-        private System.Windows.Forms.TextBox tbxNguoiKetThuc;
+        private System.Windows.Forms.TextBox tbxNguoiKT;
         private System.Windows.Forms.Label label11;
         private System.Windows.Forms.ComboBox cbxCaKT;
         private System.Windows.Forms.Label label9;

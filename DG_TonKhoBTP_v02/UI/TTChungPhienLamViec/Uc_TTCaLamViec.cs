@@ -25,7 +25,7 @@ namespace DG_TonKhoBTP_v02.UI
 
         public void SetNguoiLam(string username)
         {
-            tbxNguoiBatDau.Text = username ?? string.Empty;
+            tbxNguoiBD.Text = username ?? string.Empty;
         }
 
         public UC_TTCaLamViec()
@@ -44,29 +44,29 @@ namespace DG_TonKhoBTP_v02.UI
 
         private void WireModelChangedEvents()
         {
-            ca.SelectedIndexChanged += ThongTinCaLamViec_ValueChanged;
-            tbxNguoiBatDau.TextChanged += ThongTinCaLamViec_ValueChanged;
-            tbNgayBatDau.TextChanged += ThongTinCaLamViec_ValueChanged;
-            tbNgayBatDau.Leave += NgayTextBox_Leave;
-            dtGioBatDau.ValueChanged += ThongTinCaLamViec_ValueChanged;
-            tbNgayKetThuc.TextChanged += ThongTinCaLamViec_ValueChanged;
-            tbNgayKetThuc.Leave += NgayTextBox_Leave;
-            dtGioKetThuc.ValueChanged += ThongTinCaLamViec_ValueChanged;
+            caBD.SelectedIndexChanged += ThongTinCaLamViec_ValueChanged;
+            tbxNguoiBD.TextChanged += ThongTinCaLamViec_ValueChanged;
+            tbNgayBD.TextChanged += ThongTinCaLamViec_ValueChanged;
+            tbNgayBD.Leave += NgayTextBox_Leave;
+            dtGioBD.ValueChanged += ThongTinCaLamViec_ValueChanged;
+            tbNgayKT.TextChanged += ThongTinCaLamViec_ValueChanged;
+            tbNgayKT.Leave += NgayTextBox_Leave;
+            dtGioKT.ValueChanged += ThongTinCaLamViec_ValueChanged;
         }
 
         private void StartForm(string url, string tieuDe)
         {
             _URL = url;
             lblTieuDe.Text = ("báo cáo công đoạn " + tieuDe).ToUpper();
-            tbxNguoiBatDau.ReadOnly = _CD.Id == 9;
+            tbxNguoiBD.ReadOnly = _CD.Id == 9;
 
             NapDanhSachMayTheoCongDoan();
 
             string caHienTai = CoreHelper.GetShiftValue();
-            ca.SelectedItem = caHienTai;
+            caBD.SelectedItem = caHienTai;
 
-            if (string.IsNullOrWhiteSpace(tbNgayKetThuc.Text))
-                tbNgayKetThuc.Text = GetNgayHienTaiDeHienThi();
+            if (string.IsNullOrWhiteSpace(tbNgayKT.Text))
+                tbNgayKT.Text = GetNgayHienTaiDeHienThi();
         }
 
         private void NapDanhSachMayTheoCongDoan()
@@ -115,19 +115,19 @@ namespace DG_TonKhoBTP_v02.UI
 
         public ThongTinCaLamViec GetThongTinCaLamViec()
         {
-            DateTime? ngayBatDau = ParseNullableDate(tbNgayBatDau?.Text);
+            DateTime? ngayBatDau = ParseNullableDate(tbNgayBD?.Text);
 
             return new ThongTinCaLamViec
             {
                 Id = _CD?.Id ?? 0,
                 May = cbMay?.Text ?? string.Empty,
                 DanhSachMayId = GetSelectedMayId(),
-                Ca = ca?.Text ?? string.Empty,
-                NguoiLam = tbxNguoiBatDau?.Text ?? string.Empty,
+                Ca = caBD?.Text ?? string.Empty,
+                NguoiLam = tbxNguoiBD?.Text ?? string.Empty,
                 NgayBatDau = ngayBatDau,
-                GioBatDau = dtGioBatDau?.Value.TimeOfDay,
-                NgayKetThuc = ParseNullableDate(tbNgayKetThuc?.Text),
-                GioKetThuc = dtGioKetThuc?.Value.TimeOfDay,
+                GioBatDau = dtGioBD?.Value.TimeOfDay,
+                NgayKetThuc = ParseNullableDate(tbNgayKT?.Text),
+                GioKetThuc = dtGioKT?.Value.TimeOfDay,
                 ToTruong = null,
                 QuanDoc = null
             };
@@ -161,7 +161,7 @@ namespace DG_TonKhoBTP_v02.UI
             DateTime ngay;
             if (!TryParseNgayNguoiDung(value, out ngay))
             {
-                string tenTruong = textBox == tbNgayBatDau
+                string tenTruong = textBox == tbNgayBD
                     ? "Ngày bắt đầu"
                     : "Ngày kết thúc";
 
@@ -381,11 +381,11 @@ namespace DG_TonKhoBTP_v02.UI
             {
                 cbMay.Enabled = true;
                 cbMay.SelectedIndex = -1;
-                ca.SelectedIndex = -1;
-                ca.Text = CoreHelper.GetShiftValue();
-                tbxNguoiBatDau.Clear();
-                tbNgayBatDau.Clear();
-                tbNgayKetThuc.Text = GetNgayHienTaiDeHienThi();
+                caBD.SelectedIndex = -1;
+                caBD.Text = CoreHelper.GetShiftValue();
+                tbxNguoiBD.Clear();
+                tbNgayBD.Clear();
+                tbNgayKT.Text = GetNgayHienTaiDeHienThi();
             }
             finally
             {
@@ -411,26 +411,26 @@ namespace DG_TonKhoBTP_v02.UI
                 {
                     // Khi load dữ liệu cũ/draft, không giữ ngày kết thúc mặc định của form mới.
                     // Nếu DB chưa có NgayKetThuc thì để trống để phản ánh đúng dữ liệu nguồn.
-                    tbNgayKetThuc.Clear();
+                    tbNgayKT.Clear();
 
-                    CoreHelper.SetIfPresent(row, "Ca", val => ca.Text = Convert.ToString(val));
-                    CoreHelper.SetIfPresent(row, "NguoiLam", val => tbxNguoiBatDau.Text = Convert.ToString(val));
-                    CoreHelper.SetIfPresent(row, "NgayBatDau", val => tbNgayBatDau.Text = ChuanHoaNgayDeHienThi(val));
+                    CoreHelper.SetIfPresent(row, "Ca", val => caBD.Text = Convert.ToString(val));
+                    CoreHelper.SetIfPresent(row, "NguoiLam", val => tbxNguoiBD.Text = Convert.ToString(val));
+                    CoreHelper.SetIfPresent(row, "NgayBatDau", val => tbNgayBD.Text = ChuanHoaNgayDeHienThi(val));
 
-                    CoreHelper.SetIfPresent(row, "NgayKetThuc", val => tbNgayKetThuc.Text = ChuanHoaNgayDeHienThi(val));
+                    CoreHelper.SetIfPresent(row, "NgayKetThuc", val => tbNgayKT.Text = ChuanHoaNgayDeHienThi(val));
 
                     CoreHelper.SetIfPresent(row, "GioBatDau", val =>
                     {
                         TimeSpan parsed;
                         if (TimeSpan.TryParse(Convert.ToString(val), out parsed))
-                            dtGioBatDau.Value = DateTime.Today.Add(parsed);
+                            dtGioBD.Value = DateTime.Today.Add(parsed);
                     });
 
                     CoreHelper.SetIfPresent(row, "GioKetThuc", val =>
                     {
                         TimeSpan parsed;
                         if (TimeSpan.TryParse(Convert.ToString(val), out parsed))
-                            dtGioKetThuc.Value = DateTime.Today.Add(parsed);
+                            dtGioKT.Value = DateTime.Today.Add(parsed);
                     });
                 }
             }

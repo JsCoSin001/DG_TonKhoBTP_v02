@@ -381,6 +381,12 @@
     <Compile Include="UI\NghiepVuKhac\SanXuat\Frm_ToTruongXacNhan.Designer.cs">
       <DependentUpon>Frm_ToTruongXacNhan.cs</DependentUpon>
     </Compile>
+    <Compile Include="UI\NghiepVuKhac\SanXuat\UC_BaoCaoDungMay.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\NghiepVuKhac\SanXuat\UC_BaoCaoDungMay.Designer.cs">
+      <DependentUpon>UC_BaoCaoDungMay.cs</DependentUpon>
+    </Compile>
     <Compile Include="UI\NghiepVuKhac\SanXuat\UC_HaLo.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -671,6 +677,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="UI\NghiepVuKhac\SanXuat\Frm_ToTruongXacNhan.resx">
       <DependentUpon>Frm_ToTruongXacNhan.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\NghiepVuKhac\SanXuat\UC_BaoCaoDungMay.resx">
+      <DependentUpon>UC_BaoCaoDungMay.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UI\NghiepVuKhac\SanXuat\UC_HaLo.resx">
       <DependentUpon>UC_HaLo.cs</DependentUpon>

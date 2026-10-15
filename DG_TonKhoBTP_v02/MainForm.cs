@@ -1776,5 +1776,14 @@ namespace DG_TonKhoBTP_v02
         {
             ShowHomePage();
         }
+
+        private void btnDungMay_Click(object sender, EventArgs e)
+        {
+            _ui.InitCustomUI(
+                clickedButton: (Button)sender,
+                errorMessagePrefix: "báo cáo dừng máy",
+                createControl: () => new UC_BaoCaoDungMay()
+            );
+        }
     }
 }

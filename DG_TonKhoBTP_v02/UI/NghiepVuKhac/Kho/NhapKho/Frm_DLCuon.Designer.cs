@@ -32,17 +32,17 @@
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.btnLuuTTCuonDay = new System.Windows.Forms.Button();
             this.grvThongTinCuonDay = new System.Windows.Forms.DataGridView();
+            this.dataGridViewTextBoxColumn1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.dataGridViewTextBoxColumn2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.dataGridViewTextBoxColumn3 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.dataGridViewTextBoxColumn4 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.dataGridViewTextBoxColumn5 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.loai = new System.Windows.Forms.DataGridViewComboBoxColumn();
             this.slCuon = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.tongChieuDai = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.soDau = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.soCuoi = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.ghiChu = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.dataGridViewTextBoxColumn1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.dataGridViewTextBoxColumn2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.dataGridViewTextBoxColumn3 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.dataGridViewTextBoxColumn4 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.dataGridViewTextBoxColumn5 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.tableLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.grvThongTinCuonDay)).BeginInit();
             this.SuspendLayout();
@@ -106,46 +106,6 @@
             this.grvThongTinCuonDay.Size = new System.Drawing.Size(850, 280);
             this.grvThongTinCuonDay.TabIndex = 2;
             // 
-            // loai
-            // 
-            this.loai.HeaderText = "Loại đóng gói";
-            this.loai.Name = "loai";
-            this.loai.Width = 130;
-            // 
-            // slCuon
-            // 
-            this.slCuon.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.ColumnHeader;
-            this.slCuon.HeaderText = "Số lượng";
-            this.slCuon.Name = "slCuon";
-            this.slCuon.Width = 89;
-            // 
-            // tongChieuDai
-            // 
-            this.tongChieuDai.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.ColumnHeader;
-            this.tongChieuDai.HeaderText = "CD 1 cuộn";
-            this.tongChieuDai.Name = "tongChieuDai";
-            this.tongChieuDai.Width = 101;
-            // 
-            // soDau
-            // 
-            this.soDau.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.ColumnHeader;
-            this.soDau.HeaderText = "Số đầu";
-            this.soDau.Name = "soDau";
-            this.soDau.Width = 79;
-            // 
-            // soCuoi
-            // 
-            this.soCuoi.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.ColumnHeader;
-            this.soCuoi.HeaderText = "Số cuối";
-            this.soCuoi.Name = "soCuoi";
-            this.soCuoi.Width = 79;
-            // 
-            // ghiChu
-            // 
-            this.ghiChu.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.ghiChu.HeaderText = "Ghi chú";
-            this.ghiChu.Name = "ghiChu";
-            // 
             // dataGridViewTextBoxColumn1
             // 
             this.dataGridViewTextBoxColumn1.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.ColumnHeader;
@@ -176,6 +136,46 @@
             this.dataGridViewTextBoxColumn5.HeaderText = "Ghi chú";
             this.dataGridViewTextBoxColumn5.Name = "dataGridViewTextBoxColumn5";
             // 
+            // loai
+            // 
+            this.loai.HeaderText = "Loại đóng gói";
+            this.loai.Name = "loai";
+            this.loai.Width = 130;
+            // 
+            // slCuon
+            // 
+            this.slCuon.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.ColumnHeader;
+            this.slCuon.HeaderText = "Số Lô/Cuộn";
+            this.slCuon.Name = "slCuon";
+            this.slCuon.Width = 108;
+            // 
+            // tongChieuDai
+            // 
+            this.tongChieuDai.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.ColumnHeader;
+            this.tongChieuDai.HeaderText = "CD 1 cuộn";
+            this.tongChieuDai.Name = "tongChieuDai";
+            this.tongChieuDai.Width = 101;
+            // 
+            // soDau
+            // 
+            this.soDau.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.ColumnHeader;
+            this.soDau.HeaderText = "Số đầu";
+            this.soDau.Name = "soDau";
+            this.soDau.Width = 79;
+            // 
+            // soCuoi
+            // 
+            this.soCuoi.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.ColumnHeader;
+            this.soCuoi.HeaderText = "Số cuối";
+            this.soCuoi.Name = "soCuoi";
+            this.soCuoi.Width = 79;
+            // 
+            // ghiChu
+            // 
+            this.ghiChu.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.ghiChu.HeaderText = "Ghi chú";
+            this.ghiChu.Name = "ghiChu";
+            // 
             // Frm_DLCuon
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 18F);
@@ -202,16 +202,16 @@
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
         private System.Windows.Forms.Button btnLuuTTCuonDay;
         private System.Windows.Forms.DataGridView grvThongTinCuonDay;
+        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn1;
+        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn2;
+        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn3;
+        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn4;
+        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn5;
         private System.Windows.Forms.DataGridViewComboBoxColumn loai;
         private System.Windows.Forms.DataGridViewTextBoxColumn slCuon;
         private System.Windows.Forms.DataGridViewTextBoxColumn tongChieuDai;
         private System.Windows.Forms.DataGridViewTextBoxColumn soDau;
         private System.Windows.Forms.DataGridViewTextBoxColumn soCuoi;
         private System.Windows.Forms.DataGridViewTextBoxColumn ghiChu;
-        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn1;
-        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn2;
-        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn3;
-        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn4;
-        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn5;
     }
 }

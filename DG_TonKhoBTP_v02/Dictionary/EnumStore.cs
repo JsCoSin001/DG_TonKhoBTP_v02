@@ -174,7 +174,7 @@ public static class EnumStore
     new HashSet<string>(StringComparer.OrdinalIgnoreCase)
     {
         "B10", "B13", "B14", "B15",
-        "B16", "MD16A4", "R10", "R12"
+        "B16", "MD16A4", "R9","R10", "R12"
     };
 
     public static bool LaMayChoPhepTaiSuDungNVL(string may)

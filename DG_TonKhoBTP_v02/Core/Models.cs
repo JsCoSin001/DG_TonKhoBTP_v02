@@ -194,6 +194,8 @@ namespace DG_TonKhoBTP_v02.Core
 
         public string Ca { get; set; } = string.Empty;
         public string NguoiLam { get; set; } = string.Empty;
+        public string? NguoiKetThuc { get; set; }
+        public string? CaKetThuc { get; set; }
 
         public DateTime? NgayBatDau { get; set; }
         public TimeSpan? GioBatDau { get; set; }

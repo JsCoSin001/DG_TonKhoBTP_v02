@@ -3333,10 +3333,10 @@ namespace DG_TonKhoBTP_v02.Database
             const string sql = @"
             INSERT INTO ThongTinCaLamViec
                 (TTThanhPham_id, May, DanhSachMay_ID, Ca, NguoiLam, ToTruong, QuanDoc,
-                 NgayBatDau, GioBatDau, NgayKetThuc, GioKetThuc)
+                 NgayBatDau, GioBatDau, NgayKetThuc, GioKetThuc, NguoiKetThuc, CaKetThuc)
             VALUES
                 (@TTThanhPham_id, @May, @DanhSachMay_ID, @Ca, @NguoiLam, @ToTruong, @QuanDoc,
-                 @NgayBatDau, @GioBatDau, @NgayKetThuc, @GioKetThuc);
+                 @NgayBatDau, @GioBatDau, @NgayKetThuc, @GioKetThuc, @NguoiKetThuc, @CaKetThuc);
             SELECT last_insert_rowid();";
 
             using var cmd = new SQLiteCommand(sql, conn, tx);
@@ -3345,6 +3345,8 @@ namespace DG_TonKhoBTP_v02.Database
             cmd.Parameters.AddWithValue("@DanhSachMay_ID", m.DanhSachMayId > 0 ? (object)m.DanhSachMayId : DBNull.Value);
             cmd.Parameters.AddWithValue("@Ca", m.Ca ?? string.Empty);
             cmd.Parameters.AddWithValue("@NguoiLam", m.NguoiLam ?? string.Empty);
+            cmd.Parameters.AddWithValue("@NguoiKetThuc", string.IsNullOrWhiteSpace(m.NguoiKetThuc) ? (object)DBNull.Value : m.NguoiKetThuc.Trim());
+            cmd.Parameters.AddWithValue("@CaKetThuc", string.IsNullOrWhiteSpace(m.CaKetThuc) ? (object)DBNull.Value : m.CaKetThuc.Trim());
             cmd.Parameters.AddWithValue("@ToTruong", (object?)m.ToTruong ?? DBNull.Value);
             cmd.Parameters.AddWithValue("@QuanDoc", (object?)m.QuanDoc ?? DBNull.Value);
             cmd.Parameters.AddWithValue(

@@ -233,7 +233,9 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
                         NgayBatDau,
                         GioBatDau,
                         NgayKetThuc,
-                        GioKetThuc
+                        GioKetThuc,
+                        NguoiKetThuc,
+                        CaKetThuc
                     )
                     VALUES
                     (
@@ -247,7 +249,9 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
                         @NgayBatDau,
                         @GioBatDau,
                         @NgayKetThuc,
-                        @GioKetThuc
+                        @GioKetThuc,
+                        @NguoiKetThuc,
+                        @CaKetThuc
                     );";
 
                 using (var cmd = new SQLiteCommand(
@@ -505,7 +509,9 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
                         NgayBatDau = @NgayBatDau,
                         GioBatDau = @GioBatDau,
                         NgayKetThuc = @NgayKetThuc,
-                        GioKetThuc = @GioKetThuc
+                        GioKetThuc = @GioKetThuc,
+                        NguoiKetThuc = @NguoiKetThuc,
+                        CaKetThuc = @CaKetThuc
                     WHERE TTThanhPham_id = @TTThanhPham_id;";
 
                 int caLamAffected;
@@ -567,7 +573,9 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
                             NgayBatDau,
                             GioBatDau,
                             NgayKetThuc,
-                            GioKetThuc
+                            GioKetThuc,
+                            NguoiKetThuc,
+                            CaKetThuc
                         )
                         VALUES
                         (
@@ -581,7 +589,9 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
                             @NgayBatDau,
                             @GioBatDau,
                             @NgayKetThuc,
-                            @GioKetThuc
+                            @GioKetThuc,
+                            @NguoiKetThuc,
+                            @CaKetThuc
                         );";
 
                     using var cmd = new SQLiteCommand(
@@ -1407,7 +1417,9 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
                             NgayBatDau = @NgayBatDau,
                             GioBatDau = @GioBatDau,
                             NgayKetThuc = @NgayKetThuc,
-                            GioKetThuc = @GioKetThuc
+                            GioKetThuc = @GioKetThuc,
+                            NguoiKetThuc = @NguoiKetThuc,
+                            CaKetThuc = @CaKetThuc
                         WHERE TTThanhPham_id = @id";
 
             using (var cmd = new SQLiteCommand(sqlUpdate, conn, tx))
@@ -2204,6 +2216,9 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
             if (cmd == null) throw new ArgumentNullException(nameof(cmd));
             if (m == null) throw new ArgumentNullException(nameof(m));
 
+            cmd.Parameters.AddWithValue("@NguoiKetThuc", string.IsNullOrWhiteSpace(m.NguoiKetThuc) ? (object)DBNull.Value : m.NguoiKetThuc.Trim());
+            cmd.Parameters.AddWithValue("@CaKetThuc", string.IsNullOrWhiteSpace(m.CaKetThuc) ? (object)DBNull.Value : m.CaKetThuc.Trim());
+
             cmd.Parameters.AddWithValue(
                 "@NgayBatDau",
                 m.NgayBatDau.HasValue
@@ -2235,10 +2250,10 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
             const string sql = @"
             INSERT INTO ThongTinCaLamViec
                 (TTThanhPham_id, May, DanhSachMay_ID, Ca, NguoiLam, ToTruong, QuanDoc,
-                 NgayBatDau, GioBatDau, NgayKetThuc, GioKetThuc)
+                 NgayBatDau, GioBatDau, NgayKetThuc, GioKetThuc, NguoiKetThuc, CaKetThuc)
             VALUES
                 (@TTThanhPham_id, @May, @DanhSachMay_ID, @Ca, @NguoiLam, @ToTruong, @QuanDoc,
-                 @NgayBatDau, @GioBatDau, @NgayKetThuc, @GioKetThuc);
+                 @NgayBatDau, @GioBatDau, @NgayKetThuc, @GioKetThuc, @NguoiKetThuc, @CaKetThuc);
             SELECT last_insert_rowid();";
 
             using var cmd = new SQLiteCommand(sql, conn, tx);

@@ -362,7 +362,7 @@ namespace DG_TonKhoBTP_v02.Helper
               tclv.NgayKetThuc AS Ngay, tclv.Ca, tclv.May, tclv.DanhSachMay_ID,
               tclv.NgayBatDau, tclv.GioBatDau, tclv.NgayKetThuc, tclv.GioKetThuc, nvl.QC,
               ttp.MaBin as MaBin, ds.Ten AS Ten, ds.Ma AS Ma,ds.DonVi,ds.ChuyenDoi, ds.id AS DanhSachMaSP_ID,
-              tclv.NguoiLam, tclv.ToTruong, tclv.QuanDoc,
+              tclv.NguoiLam, tclv.NguoiKetThuc, tclv.CaKetThuc, tclv.ToTruong, tclv.QuanDoc,
               ttp.KhoiLuongTruoc AS KhoiLuongTruoc, ttp.KhoiLuongSau as KhoiLuongSau,
               ttp.ChieuDaiTruoc as ChieuDaiTruoc, ttp.ChieuDaiSau as ChieuDaiSau,ds_nvl.DonVi AS DonViNVL,
               IFNULL(pl.DayPhe_NL, 0) AS DayPhe_NL,

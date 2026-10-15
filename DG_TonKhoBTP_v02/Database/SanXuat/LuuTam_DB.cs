@@ -284,8 +284,8 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
             if (m == null || !HasCaData(m)) return;
             using var cmd = new SQLiteCommand(@"
                 INSERT INTO ThongTinCaLamViec
-                (TTThanhPham_id,NgayBatDau,May,Ca,NguoiLam,ToTruong,QuanDoc,NgayKetThuc,GioBatDau,GioKetThuc,DanhSachMay_ID)
-                VALUES (@Id,@NBD,@May,@Ca,@NL,@TT,@QD,@NKT,@GBD,@GKT,@MayId);", conn, tx);
+                (TTThanhPham_id,NgayBatDau,May,Ca,NguoiLam,ToTruong,QuanDoc,NgayKetThuc,GioBatDau,GioKetThuc,DanhSachMay_ID,NguoiKetThuc,CaKetThuc)
+                VALUES (@Id,@NBD,@May,@Ca,@NL,@TT,@QD,@NKT,@GBD,@GKT,@MayId,@NguoiKetThuc,@CaKetThuc);", conn, tx);
             cmd.Parameters.AddWithValue("@Id", id);
             cmd.Parameters.AddWithValue("@NBD", Db(m.NgayBatDau?.ToString("yyyy-MM-dd")));
             cmd.Parameters.AddWithValue("@May", Db(m.May));
@@ -297,13 +297,16 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
             cmd.Parameters.AddWithValue("@GBD", Db(m.GioBatDau?.ToString()));
             cmd.Parameters.AddWithValue("@GKT", Db(m.GioKetThuc?.ToString()));
             cmd.Parameters.AddWithValue("@MayId", m.DanhSachMayId > 0 ? (object)m.DanhSachMayId : DBNull.Value);
+            cmd.Parameters.AddWithValue("@NguoiKetThuc", Db(m.NguoiKetThuc));
+            cmd.Parameters.AddWithValue("@CaKetThuc", Db(m.CaKetThuc));
             cmd.ExecuteNonQuery();
         }
 
         private static bool HasCaData(ThongTinCaLamViec m) =>
             m.NgayBatDau.HasValue || m.NgayKetThuc.HasValue || m.GioBatDau.HasValue || m.GioKetThuc.HasValue ||
             m.DanhSachMayId > 0 || !string.IsNullOrWhiteSpace(m.May) || !string.IsNullOrWhiteSpace(m.Ca) ||
-            !string.IsNullOrWhiteSpace(m.NguoiLam) || !string.IsNullOrWhiteSpace(m.ToTruong) || !string.IsNullOrWhiteSpace(m.QuanDoc);
+            !string.IsNullOrWhiteSpace(m.NguoiLam) || !string.IsNullOrWhiteSpace(m.NguoiKetThuc) ||
+            !string.IsNullOrWhiteSpace(m.CaKetThuc) || !string.IsNullOrWhiteSpace(m.ToTruong) || !string.IsNullOrWhiteSpace(m.QuanDoc);
 
         private static void ReplacePheLieu(SQLiteConnection conn, SQLiteTransaction tx, long id, PheLieuData? p)
         {

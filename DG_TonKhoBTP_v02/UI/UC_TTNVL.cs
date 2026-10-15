@@ -1101,16 +1101,27 @@ namespace DG_TonKhoBTP_v02.UI
 
                 _dangNhapTayToanBang = false;
 
-                // Với các công đoạn phải tính KL/CD còn lại dựa trên số liệu Thành phẩm,
-                // nếu KL/CD Thành phẩm chưa được nhập thì giữ nguyên giá trị tồn hiện tại
-                // vừa đọc từ DB. Không dùng giá trị 0 để tính giả mức tiêu hao.
-                // Khi người dùng nhập KL/CD sau đó, OnThanhPhamSoLieuChanged() sẽ gọi lại
-                // hàm này và phép tính sẽ được thực hiện theo logic hiện có.
+                // Khi Sao chép thiếu KL/CD Thành phẩm hợp lệ, NVL tính tự động
+                // quay về snapshot tồn nguồn (KlBatDau/CdBatDau), không giữ lại
+                // mức tiêu hao từ giá trị thành phẩm đã bị xóa.
+                // Những chế độ khác vẫn giữ nguyên hành vi cũ.
                 if (!CoDuSoLieuThanhPhamDeTinhGiaTriConLai(thanhPham))
                 {
-                    ApDungQuyenNhapTayChoTatCaDong();
-                    RefreshBomRowStyles();
-                    dtgTTNVL.Refresh();
+                    if (isEdit.Value == 1)
+                    {
+                        foreach (TTNVLRow nvl in _nvlRows)
+                        {
+                            nvl.KlConLai = nvl.KlBatDau;
+                            nvl.CdConLai = nvl.CdBatDau;
+                        }
+                        LamMoiSauKhiCapNhatGiaTriConLai();
+                    }
+                    else
+                    {
+                        ApDungQuyenNhapTayChoTatCaDong();
+                        RefreshBomRowStyles();
+                        dtgTTNVL.Refresh();
+                    }
                     return;
                 }
 

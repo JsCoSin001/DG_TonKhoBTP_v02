@@ -52,6 +52,8 @@ namespace DG_TonKhoBTP_v02.UI
             tbNgayKT.TextChanged += ThongTinCaLamViec_ValueChanged;
             tbNgayKT.Leave += NgayTextBox_Leave;
             dtGioKT.ValueChanged += ThongTinCaLamViec_ValueChanged;
+            tbxNguoiKT.TextChanged += ThongTinCaLamViec_ValueChanged;
+            cbxCaKT.SelectedIndexChanged += ThongTinCaLamViec_ValueChanged;
         }
 
         private void StartForm(string url, string tieuDe)
@@ -124,6 +126,8 @@ namespace DG_TonKhoBTP_v02.UI
                 DanhSachMayId = GetSelectedMayId(),
                 Ca = caBD?.Text ?? string.Empty,
                 NguoiLam = tbxNguoiBD?.Text ?? string.Empty,
+                NguoiKetThuc = string.IsNullOrWhiteSpace(tbxNguoiKT?.Text) ? null : tbxNguoiKT.Text.Trim(),
+                CaKetThuc = string.IsNullOrWhiteSpace(cbxCaKT?.Text) ? null : cbxCaKT.Text.Trim(),
                 NgayBatDau = ngayBatDau,
                 GioBatDau = dtGioBD?.Value.TimeOfDay,
                 NgayKetThuc = ParseNullableDate(tbNgayKT?.Text),
@@ -384,6 +388,8 @@ namespace DG_TonKhoBTP_v02.UI
                 caBD.SelectedIndex = -1;
                 caBD.Text = CoreHelper.GetShiftValue();
                 tbxNguoiBD.Clear();
+                tbxNguoiKT.Clear();
+                cbxCaKT.SelectedIndex = -1;
                 tbNgayBD.Clear();
                 tbNgayKT.Text = GetNgayHienTaiDeHienThi();
             }
@@ -415,6 +421,8 @@ namespace DG_TonKhoBTP_v02.UI
 
                     CoreHelper.SetIfPresent(row, "Ca", val => caBD.Text = Convert.ToString(val));
                     CoreHelper.SetIfPresent(row, "NguoiLam", val => tbxNguoiBD.Text = Convert.ToString(val));
+                    CoreHelper.SetIfPresent(row, "NguoiKetThuc", val => tbxNguoiKT.Text = Convert.ToString(val));
+                    CoreHelper.SetIfPresent(row, "CaKetThuc", val => cbxCaKT.SelectedItem = Convert.ToString(val));
                     CoreHelper.SetIfPresent(row, "NgayBatDau", val => tbNgayBD.Text = ChuanHoaNgayDeHienThi(val));
 
                     CoreHelper.SetIfPresent(row, "NgayKetThuc", val => tbNgayKT.Text = ChuanHoaNgayDeHienThi(val));

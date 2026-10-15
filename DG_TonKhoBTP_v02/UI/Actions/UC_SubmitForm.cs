@@ -1635,6 +1635,11 @@ namespace DG_TonKhoBTP_v02.UI
                 List<string> loiInTem = new List<string>();
                 if (CanPrintDraftLabels())
                 {
+                    // DISABLED_ROLL_LABEL_PRINT_CD5_20261014
+                    // Vô hiệu hóa nhánh in tem cuộn CD5, bao gồm popup in thêm và Frm_DLCuon.
+                    // Giữ nguyên mã nguồn để có thể khôi phục sau này.
+                    // Nhánh in tem LOT tạm phía dưới vẫn hoạt động bình thường.
+                    /*
                     // CD5: chỉ thay định dạng QR tem cuộn theo quy cách; giữ số lượng, tem LOT độc lập.
                     // Bắt lỗi ở ranh giới nhánh để tem LOT vẫn được thử in tiếp.
                     if (data.ShouldPrintThanhPham)
@@ -1674,6 +1679,7 @@ namespace DG_TonKhoBTP_v02.UI
                             loiInTem.Add("Tem cuộn: " + ex.Message);
                         }
                     }
+                    */
 
                     // Tất cả công đoạn (kể cả CD5) có một tem tạm/LOT độc lập.
                     // In lại dùng MaBin cũ nhưng lấy dữ liệu mới vừa commit.

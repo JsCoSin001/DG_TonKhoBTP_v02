@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using CoreHelper = DG_TonKhoBTP_v02.Helper.Helper;
 using System.Data;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -27,6 +28,11 @@ namespace DG_TonKhoBTP_v02.UI
         private bool _suppressTextChange = false;
         private bool _dangLoadDuLieuBanDau;
         private bool _dangTaiThanhPham;
+        // Chỉ tại chế độ Sao chép: ô số có thể để trống nhưng dữ liệu tính toán là 0.
+        private bool _laBanSaoDangNhap;
+        private bool _dangDongBoTextSaoChep;
+        private decimal _giaTriKhoiLuongSaoChep;
+        private decimal _giaTriChieuDaiSaoChep;
         public string tenCongDoan { get; set; }
         public CongDoan congDoan;
         private List<BomComponentData> _bomComponents;
@@ -65,14 +71,85 @@ namespace DG_TonKhoBTP_v02.UI
                 MaTP = ma.Text,
                 TenTP = ten.Text,
                 DonVi = donVi.Text,
-                KhoiLuong = khoiLuong.Value,
-                ChieuDai = chieuDai.Value,
+                KhoiLuong = LayKhoiLuongHienTai(),
+                ChieuDai = LayChieuDaiHienTai(),
                 ChuyenDoi = nbrChuyenDoi.Value,
                 GhiChu = GhiChu?.Text ?? string.Empty,
                 SoLOT = soLOT?.Text ?? string.Empty,
                 TenMay = LayTenMayTuSoLOT(),
                 BomComponents = CloneBomComponents(_bomComponents)
             };
+        }
+
+        private decimal LayKhoiLuongHienTai() => LayGiaTriSoLieuHienTai(khoiLuong);
+
+        private decimal LayChieuDaiHienTai() => LayGiaTriSoLieuHienTai(chieuDai);
+
+        private decimal LayGiaTriSoLieuHienTai(NumericUpDown control)
+        {
+            if (!_laBanSaoDangNhap)
+                return control.Value;
+
+            // NumericUpDown.Value không tự chuyển về 0 khi người dùng xóa hết Text.
+            // Đọc Text hợp lệ để lấy đúng số đang gõ, kể cả trước khi mất focus.
+            if (string.IsNullOrWhiteSpace(control.Text))
+                return 0m;
+
+            if (decimal.TryParse(control.Text, NumberStyles.Number,
+                    CultureInfo.CurrentCulture, out decimal giaTri) &&
+                giaTri >= control.Minimum && giaTri <= control.Maximum)
+                return giaTri;
+
+            return control.Value;
+        }
+
+        private void SoLieuSaoChep_TextChanged(object sender, EventArgs e)
+        {
+            if (_dangLoadDuLieuBanDau || !_laBanSaoDangNhap || _dangDongBoTextSaoChep)
+                return;
+
+            var control = sender as NumericUpDown;
+            if (control == null)
+                return;
+
+            decimal giaTriMoi;
+            if (string.IsNullOrWhiteSpace(control.Text))
+            {
+                giaTriMoi = 0m;
+                _dangDongBoTextSaoChep = true;
+                try
+                {
+                    // Chuyển Value thành 0 nhưng giữ Text rỗng cho trạng thái chưa nhập.
+                    control.Value = 0m;
+                    control.Text = string.Empty;
+                }
+                finally
+                {
+                    _dangDongBoTextSaoChep = false;
+                }
+            }
+            else if (!decimal.TryParse(control.Text, NumberStyles.Number,
+                         CultureInfo.CurrentCulture, out giaTriMoi) ||
+                     giaTriMoi < control.Minimum || giaTriMoi > control.Maximum)
+            {
+                // Không phát tính toán đối với trạng thái nhập số chưa hợp lệ.
+                return;
+            }
+
+            if (ReferenceEquals(control, khoiLuong))
+            {
+                if (_giaTriKhoiLuongSaoChep == giaTriMoi)
+                    return;
+                _giaTriKhoiLuongSaoChep = giaTriMoi;
+            }
+            else
+            {
+                if (_giaTriChieuDaiSaoChep == giaTriMoi)
+                    return;
+                _giaTriChieuDaiSaoChep = giaTriMoi;
+            }
+
+            RaiseThanhPhamSoLieuChanged();
         }
 
         private static List<BomComponentData> CloneBomComponents(
@@ -190,6 +267,8 @@ namespace DG_TonKhoBTP_v02.UI
         public UC_TTThanhPham(CongDoan cd)
         {
             InitializeComponent();
+            khoiLuong.TextChanged += SoLieuSaoChep_TextChanged;
+            chieuDai.TextChanged += SoLieuSaoChep_TextChanged;
 
             SetTenCongDoan(cd.TenCongDoan);
             congDoan = cd;
@@ -273,6 +352,8 @@ namespace DG_TonKhoBTP_v02.UI
                 DanhSachMayId = source.DanhSachMayId,
                 Ca = source.Ca,
                 NguoiLam = source.NguoiLam,
+                NguoiKetThuc = source.NguoiKetThuc,
+                CaKetThuc = source.CaKetThuc,
                 NgayBatDau = source.NgayBatDau,
                 GioBatDau = source.GioBatDau,
                 NgayKetThuc = source.NgayKetThuc,
@@ -380,10 +461,10 @@ namespace DG_TonKhoBTP_v02.UI
                 DonVi = donVi.Text,
                 CongDoan = congDoan,
                 MaBin = soLOT?.Text ?? string.Empty,
-                KhoiLuongTruoc = (double)khoiLuong.Value,
-                KhoiLuongSau = (double)khoiLuong.Value,
-                ChieuDaiTruoc = (double)chieuDai.Value,
-                ChieuDaiSau = (double)chieuDai.Value,
+                KhoiLuongTruoc = (double)LayKhoiLuongHienTai(),
+                KhoiLuongSau = (double)LayKhoiLuongHienTai(),
+                ChieuDaiTruoc = (double)LayChieuDaiHienTai(),
+                ChieuDaiSau = (double)LayChieuDaiHienTai(),
                 GhiChu = GhiChu?.Text ?? string.Empty,
                 DateInsert = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
                 BomComponents = CloneBomComponents(_bomComponents),
@@ -396,6 +477,9 @@ namespace DG_TonKhoBTP_v02.UI
             SetMaBinComponentsLocked(false);
             bool trangThaiLoadTruocDo = _dangLoadDuLieuBanDau;
             _dangLoadDuLieuBanDau = true;
+            _laBanSaoDangNhap = false;
+            _giaTriKhoiLuongSaoChep = 0m;
+            _giaTriChieuDaiSaoChep = 0m;
             try
             {
                 _searchCts?.Cancel();
@@ -781,6 +865,7 @@ namespace DG_TonKhoBTP_v02.UI
         public void LoadData(DataTable dt, int kieuDL)
         {
             _dangLoadDuLieuBanDau = true;
+            _laBanSaoDangNhap = kieuDL == (int)DataLoadMode.Copy;
             try
             {
                 ResetController_TimTenSP();
@@ -864,6 +949,8 @@ namespace DG_TonKhoBTP_v02.UI
             }
             finally
             {
+                _giaTriKhoiLuongSaoChep = khoiLuong.Value;
+                _giaTriChieuDaiSaoChep = chieuDai.Value;
                 _dangLoadDuLieuBanDau = false;
             }
         }
@@ -928,6 +1015,16 @@ namespace DG_TonKhoBTP_v02.UI
 
         private void khoiLuong_ValueChanged(object sender, EventArgs e)
         {
+            if (_dangDongBoTextSaoChep)
+                return;
+            if (_laBanSaoDangNhap)
+            {
+                // Bổ sung đường cập nhật khi dùng nút tăng/giảm.
+                // TextChanged và bộ nhớ giá trị đã tính loại bỏ tính lặp.
+                if (!string.IsNullOrWhiteSpace(khoiLuong.Text))
+                    SoLieuSaoChep_TextChanged(sender, e);
+                return;
+            }
             RaiseThanhPhamSoLieuChanged();
         }
 
@@ -938,6 +1035,14 @@ namespace DG_TonKhoBTP_v02.UI
 
         private void chieuDai_ValueChanged(object sender, EventArgs e)
         {
+            if (_dangDongBoTextSaoChep)
+                return;
+            if (_laBanSaoDangNhap)
+            {
+                if (!string.IsNullOrWhiteSpace(chieuDai.Text))
+                    SoLieuSaoChep_TextChanged(sender, e);
+                return;
+            }
             RaiseThanhPhamSoLieuChanged();
         }
 

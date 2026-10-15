@@ -642,13 +642,17 @@ namespace DG_TonKhoBTP_v02.Database
                     NgayBatDau=@NgayBatDau,
                     GioBatDau=@GioBatDau,
                     NgayKetThuc=@NgayKetThuc,
-                    GioKetThuc=@GioKetThuc
+                    GioKetThuc=@GioKetThuc,
+                    NguoiKetThuc=@NguoiKetThuc,
+                    CaKetThuc=@CaKetThuc
                 WHERE TTThanhPham_id=@id;";
             using var cmd = new SQLiteCommand(sql, conn, tx);
             cmd.Parameters.AddWithValue("@May", m.May);
             cmd.Parameters.AddWithValue("@DanhSachMay_ID", m.DanhSachMayId > 0 ? (object)m.DanhSachMayId : DBNull.Value);
             cmd.Parameters.AddWithValue("@Ca", m.Ca);
             cmd.Parameters.AddWithValue("@NguoiLam", m.NguoiLam);
+            cmd.Parameters.AddWithValue("@NguoiKetThuc", string.IsNullOrWhiteSpace(m.NguoiKetThuc) ? (object)DBNull.Value : m.NguoiKetThuc.Trim());
+            cmd.Parameters.AddWithValue("@CaKetThuc", string.IsNullOrWhiteSpace(m.CaKetThuc) ? (object)DBNull.Value : m.CaKetThuc.Trim());
             cmd.Parameters.AddWithValue("@ToTruong", (object?)m.ToTruong ?? DBNull.Value);
             cmd.Parameters.AddWithValue("@QuanDoc", (object?)m.QuanDoc ?? DBNull.Value);
             cmd.Parameters.AddWithValue("@NgayBatDau", m.NgayBatDau.HasValue ? (object)m.NgayBatDau.Value.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) : DBNull.Value);

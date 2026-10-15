@@ -243,9 +243,6 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
             ReplacePheLieu(conn, tx, id, data.ThongTinThanhPham.PheLieu);
             ReplaceCongDoan(conn, tx, id, data.CongDoan);
 
-            LoiDungMay_DB.DongBoDanhSachTheoTTThanhPham(
-                conn, tx, id, data.DanhSachLoiDungMay ?? new List<DanhSachLoiDungMay_Model>());
-
             // 33A: tuyệt đối không ghi DanhSachLoiNhapLieuSX khi lưu tạm.
         }
 

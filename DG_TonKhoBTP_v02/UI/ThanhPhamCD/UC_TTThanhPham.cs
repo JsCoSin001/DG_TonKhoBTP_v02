@@ -38,10 +38,6 @@ namespace DG_TonKhoBTP_v02.UI
         private List<BomComponentData> _bomComponents;
         private int _bomLoadVersion;
         private PheLieuData _pheLieuDraft = new PheLieuData();
-        private List<DanhSachLoiDungMay_Model> _loiDungMayDraft =
-            new List<DanhSachLoiDungMay_Model>();
-        private ThongTinCaLamViec _thongTinCaLamViec;
-        private long _currentTTThanhPhamId;
 
         public void SetTenCongDoan(string value) => tenCongDoan = value;
 
@@ -275,9 +271,7 @@ namespace DG_TonKhoBTP_v02.UI
 
             timTenTPCongDoan.KeyDown += timNVL_KeyDown;
             btnNhapPhe.Click += btnNhapPhe_Click;
-            btnBCDungMay.Click += btnBCDungMay_Click;
             UpdatePheLieuButtonState();
-            UpdateLoiDungMayButtonState();
         }
 
         public void CapNhatGhiChuDongGoi(string ghiChu)
@@ -300,122 +294,10 @@ namespace DG_TonKhoBTP_v02.UI
         public void SetThongTinCaLamViec(ThongTinCaLamViec value)
         {
             if (value == null)
-            {
-                _thongTinCaLamViec = null;
                 return;
-            }
 
-            int oldMayId = _thongTinCaLamViec?.DanhSachMayId ?? 0;
-            int newMayId = value.DanhSachMayId;
-
-            if (oldMayId > 0 && newMayId > 0 && oldMayId != newMayId && HasLoiDungMayData)
-            {
-                _loiDungMayDraft = new List<DanhSachLoiDungMay_Model>();
-                UpdateLoiDungMayButtonState();
-            }
-
-            _thongTinCaLamViec = CloneThongTinCaLamViec(value);
-            ChonMay(_thongTinCaLamViec.May);
-        }
-
-        public IReadOnlyList<DanhSachLoiDungMay_Model> GetLoiDungMayDraft()
-        {
-            return CloneLoiDungMay(_loiDungMayDraft);
-        }
-
-        public long CurrentTTThanhPhamId => _currentTTThanhPhamId;
-
-        public bool HasLoiDungMayData =>
-            _loiDungMayDraft != null && _loiDungMayDraft.Count > 0;
-
-        private void UpdateLoiDungMayButtonState()
-        {
-            if (btnBCDungMay == null) return;
-
-            bool hasData = HasLoiDungMayData;
-            btnBCDungMay.Text = hasData ? "Đã nhập" : "Chưa nhập";
-            btnBCDungMay.UseVisualStyleBackColor = false;
-            btnBCDungMay.BackColor = hasData
-                ? System.Drawing.Color.LightGreen
-                : System.Drawing.Color.LightYellow;
-        }
-
-        private static ThongTinCaLamViec CloneThongTinCaLamViec(ThongTinCaLamViec source)
-        {
-            if (source == null) return null;
-
-            return new ThongTinCaLamViec
-            {
-                Id = source.Id,
-                TTThanhPham_id = source.TTThanhPham_id,
-                May = source.May,
-                DanhSachMayId = source.DanhSachMayId,
-                Ca = source.Ca,
-                NguoiLam = source.NguoiLam,
-                NguoiKetThuc = source.NguoiKetThuc,
-                CaKetThuc = source.CaKetThuc,
-                NgayBatDau = source.NgayBatDau,
-                GioBatDau = source.GioBatDau,
-                NgayKetThuc = source.NgayKetThuc,
-                GioKetThuc = source.GioKetThuc,
-                ToTruong = source.ToTruong,
-                QuanDoc = source.QuanDoc
-            };
-        }
-
-        private static List<DanhSachLoiDungMay_Model> CloneLoiDungMay(
-            IEnumerable<DanhSachLoiDungMay_Model> source)
-        {
-            if (source == null)
-                return new List<DanhSachLoiDungMay_Model>();
-
-            return source.Where(x => x != null).Select(x => new DanhSachLoiDungMay_Model
-            {
-                Id = x.Id,
-                TenLoiDungMayId = x.TenLoiDungMayId,
-                TenLoi = x.TenLoi,
-                DanhSachMayId = x.DanhSachMayId,
-                ThoiGianBatDau = x.ThoiGianBatDau,
-                ThoiGianKetThuc = x.ThoiGianKetThuc,
-                ThoiGianDung = x.ThoiGianDung,
-                NgayDung = x.NgayDung,
-                GhiChu = x.GhiChu,
-                MaCongDoan = x.MaCongDoan,
-                TTThanhPhamId = x.TTThanhPhamId
-            }).ToList();
-        }
-
-        public void OpenBCDungMayForm()
-        {
-            if (_thongTinCaLamViec == null || _thongTinCaLamViec.DanhSachMayId <= 0)
-            {
-                FrmWaiting.ShowGifAlert(
-                    "Chọn máy trước.",
-                    "THIẾU DỮ LIỆU",
-                    EnumStore.Icon.Warning);
-                return;
-            }
-
-            using (var frm = new Frm_BCDungMay(
-                CloneThongTinCaLamViec(_thongTinCaLamViec),
-                CloneLoiDungMay(_loiDungMayDraft)))
-            {
-                Form owner = FindForm();
-                DialogResult result = owner != null
-                    ? frm.ShowDialog(owner)
-                    : frm.ShowDialog();
-
-                if (result == DialogResult.OK)
-                {
-                    _loiDungMayDraft = CloneLoiDungMay(frm.DanhSachLoiDungMay);
-                    UpdateLoiDungMayButtonState();
-                }
-            }
-        }
-
-        private void btnBCDungMay_Click(object sender, EventArgs e)
-        {
-            OpenBCDungMayForm();
+            // Giữ đồng bộ tên máy từ MainForm; không còn giữ draft báo cáo dừng máy.
+            ChonMay(value.May);
         }
 
         private void CapNhatSoLot()
@@ -501,10 +383,6 @@ namespace DG_TonKhoBTP_v02.UI
                 chieuDai.Value = chieuDai.Minimum;
                 _pheLieuDraft = new PheLieuData();
                 UpdatePheLieuButtonState();
-                _loiDungMayDraft = new List<DanhSachLoiDungMay_Model>();
-                _currentTTThanhPhamId = 0;
-                _thongTinCaLamViec = null;
-                UpdateLoiDungMayButtonState();
                 GhiChu.Text = string.Empty;
             }
             finally
@@ -871,42 +749,11 @@ namespace DG_TonKhoBTP_v02.UI
                 ResetController_TimTenSP();
                 _pheLieuDraft = new PheLieuData();
                 UpdatePheLieuButtonState();
-                _loiDungMayDraft = new List<DanhSachLoiDungMay_Model>();
-                _currentTTThanhPhamId = 0;
-                UpdateLoiDungMayButtonState();
 
                 if (dt == null || dt.Rows.Count == 0) return;
 
                 var row = dt.Rows[0];
                 string bin = row["MaBin"]?.ToString() ?? string.Empty;
-
-                if (kieuDL == (int)DataLoadMode.OfficialEdit || kieuDL == (int)DataLoadMode.Draft)
-                {
-                    CoreHelper.SetIfPresent(row, "STT", val =>
-                        _currentTTThanhPhamId = Convert.ToInt64(val));
-
-                    if (dt.ExtendedProperties.ContainsKey("LoiDungMay_Loaded") &&
-                        Convert.ToBoolean(dt.ExtendedProperties["LoiDungMay_Loaded"]))
-                    {
-                        _loiDungMayDraft = CloneLoiDungMay(
-                            dt.ExtendedProperties["LoiDungMay_Items"]
-                                as IEnumerable<DanhSachLoiDungMay_Model>);
-                    }
-                    else if (_currentTTThanhPhamId > 0)
-                    {
-                        _loiDungMayDraft = CloneLoiDungMay(
-                            LoiDungMay_DB.GetDanhSachDaLuuTheoTTThanhPhamId(
-                                _currentTTThanhPhamId));
-                    }
-                }
-                else
-                {
-                    // Tạo mới và Sao chép đều phải nhập dừng máy thủ công từ đầu.
-                    _loiDungMayDraft = new List<DanhSachLoiDungMay_Model>();
-                    _currentTTThanhPhamId = 0;
-                }
-
-                UpdateLoiDungMayButtonState();
 
                 _bomComponents = null;
                 if (dt.ExtendedProperties.ContainsKey(BomDataTableProperties.Loaded) &&

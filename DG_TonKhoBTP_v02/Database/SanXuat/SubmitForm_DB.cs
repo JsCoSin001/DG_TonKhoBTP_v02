@@ -89,19 +89,6 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
             TTThanhPham thanhPham,
             out string error)
         {
-            return SaveDataCongDoan9(
-                caLamViec,
-                thanhPham,
-                null,
-                out error);
-        }
-
-        public static bool SaveDataCongDoan9(
-            ThongTinCaLamViec caLamViec,
-            TTThanhPham thanhPham,
-            List<DanhSachLoiDungMay_Model> danhSachLoiDungMay,
-            out string error)
-        {
             error = string.Empty;
 
             if (caLamViec == null)
@@ -300,14 +287,6 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
                     }
                 }
 
-                if (danhSachLoiDungMay != null)
-                {
-                    LoiDungMay_DB.DongBoDanhSachTheoTTThanhPham(
-                        conn,
-                        tx,
-                        thanhPhamId,
-                        danhSachLoiDungMay);
-                }
 
                 tx.Commit();
                 return true;
@@ -359,23 +338,6 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
             int idEdit,
             ThongTinCaLamViec caLamViec,
             TTThanhPham thanhPham,
-            string confirmedUsername,
-            out string error)
-        {
-            return UpdateDataCongDoan9(
-                idEdit,
-                caLamViec,
-                thanhPham,
-                null,
-                confirmedUsername,
-                out error);
-        }
-
-        public static bool UpdateDataCongDoan9(
-            int idEdit,
-            ThongTinCaLamViec caLamViec,
-            TTThanhPham thanhPham,
-            List<DanhSachLoiDungMay_Model> danhSachLoiDungMay,
             string confirmedUsername,
             out string error)
         {
@@ -645,14 +607,6 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
                     idEdit,
                     confirmedUsername);
 
-                if (danhSachLoiDungMay != null)
-                {
-                    LoiDungMay_DB.DongBoDanhSachTheoTTThanhPham(
-                        conn,
-                        tx,
-                        idEdit,
-                        danhSachLoiDungMay);
-                }
 
                 tx.Commit();
                 return true;
@@ -784,28 +738,9 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
             List<LoiNhapLieuData> danhSachLoiNhapLieu,
             out string errorMsg)
         {
-            return SaveDataSanPhamVoiDanhSachLoiNhapLieu(
-                caLam,
-                tp,
-                nvl,
-                chiTietCD,
-                danhSachLoiNhapLieu,
-                null,
-                out errorMsg);
-        }
-
-        public static bool SaveDataSanPhamVoiDanhSachLoiNhapLieu(
-            ThongTinCaLamViec caLam,
-            TTThanhPham tp,
-            List<TTNVL> nvl,
-            SubmitCongDoanData chiTietCD,
-            List<LoiNhapLieuData> danhSachLoiNhapLieu,
-            List<DanhSachLoiDungMay_Model> danhSachLoiDungMay,
-            out string errorMsg)
-        {
             bool ignoredConflict;
             return SaveSanPhamNewCore(caLam, tp, nvl, chiTietCD, danhSachLoiNhapLieu,
-                danhSachLoiDungMay, false, out ignoredConflict, out errorMsg);
+                false, out ignoredConflict, out errorMsg);
         }
 
         // Chỉ đường Lưu trực tiếp New/Copy trong danh sách gọi hàm này.
@@ -815,12 +750,11 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
             List<TTNVL> nvl,
             SubmitCongDoanData chiTietCD,
             List<LoiNhapLieuData> danhSachLoiNhapLieu,
-            List<DanhSachLoiDungMay_Model> danhSachLoiDungMay,
             out bool inventoryConflict,
             out string errorMsg)
         {
             return SaveSanPhamNewCore(caLam, tp, nvl, chiTietCD, danhSachLoiNhapLieu,
-                danhSachLoiDungMay, true, out inventoryConflict, out errorMsg);
+                true, out inventoryConflict, out errorMsg);
         }
 
         private static bool SaveSanPhamNewCore(
@@ -829,7 +763,6 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
             List<TTNVL> nvl,
             SubmitCongDoanData chiTietCD,
             List<LoiNhapLieuData> danhSachLoiNhapLieu,
-            List<DanhSachLoiDungMay_Model> danhSachLoiDungMay,
             bool verifyInventory,
             out bool inventoryConflict,
             out string errorMsg)
@@ -926,14 +859,6 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
                     tpId,
                     danhSachLoiNhapLieu);
 
-                if (danhSachLoiDungMay != null)
-                {
-                    LoiDungMay_DB.DongBoDanhSachTheoTTThanhPham(
-                        conn,
-                        tx,
-                        tpId,
-                        danhSachLoiDungMay);
-                }
 
                 tx.Commit();
                 return true;
@@ -1077,29 +1002,6 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
             string confirmedUsername,
             out string errorMsg)
         {
-            return UpdateDataSanPhamVoiDanhSachLoiNhapLieu(
-                tpId,
-                caLam,
-                tp,
-                nvl,
-                chiTietCD,
-                danhSachLoiNhapLieu,
-                null,
-                confirmedUsername,
-                out errorMsg);
-        }
-
-        public static bool UpdateDataSanPhamVoiDanhSachLoiNhapLieu(
-            int tpId,
-            ThongTinCaLamViec caLam,
-            TTThanhPham tp,
-            List<TTNVL> nvl,
-            SubmitCongDoanData chiTietCD,
-            List<LoiNhapLieuData> danhSachLoiNhapLieu,
-            List<DanhSachLoiDungMay_Model> danhSachLoiDungMay,
-            string confirmedUsername,
-            out string errorMsg)
-        {
             errorMsg = string.Empty;
 
             if (tp == null)
@@ -1188,14 +1090,6 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
                     tpId,
                     danhSachLoiNhapLieu);
 
-                if (danhSachLoiDungMay != null)
-                {
-                    LoiDungMay_DB.DongBoDanhSachTheoTTThanhPham(
-                        conn,
-                        tx,
-                        tpId,
-                        danhSachLoiDungMay);
-                }
 
                 InsertChapNhanSuaDLByToTruong(
                     conn,

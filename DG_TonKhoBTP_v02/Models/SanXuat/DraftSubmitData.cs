@@ -30,12 +30,6 @@ namespace DG_TonKhoBTP_v02.Models.SanXuat
         /// </summary>
         public SubmitCongDoanData? CongDoan { get; set; }
 
-        /// <summary>
-        /// Dữ liệu dừng máy do người dùng nhập phải được giữ cùng draft.
-        /// </summary>
-        public List<DanhSachLoiDungMay_Model> DanhSachLoiDungMay { get; set; } =
-            new List<DanhSachLoiDungMay_Model>();
-
         public bool ShouldPrintThanhPham { get; set; }
         public bool ShouldPrintNguyenVatLieu { get; set; }
 

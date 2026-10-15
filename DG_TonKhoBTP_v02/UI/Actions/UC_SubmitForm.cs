@@ -214,45 +214,6 @@ namespace DG_TonKhoBTP_v02.UI
                 if (submitData == null)
                     return;
 
-                // Báo cáo dừng máy được giữ dạng draft trong UC_TTThanhPham,
-                // tương tự _pheLieuDraft. Form frm_BCDungMay không ghi DB trực tiếp.
-                submitData.DanhSachLoiDungMay = CaptureLoiDungMayDraft(host, waiting);
-                if (submitData.DanhSachLoiDungMay == null)
-                    return;
-
-                // Lưu chính thức: ngày dừng bắt buộc. Ngày lịch sử được giữ nguyên
-                // khi chỉnh sửa thì được miễn giới hạn một tháng.
-                DateTime homNay = DateTime.Today;
-                Dictionary<int, DateTime?> ngayCuTheoId = idEdit > 0
-                    ? LoiDungMay_DB.GetDanhSachDaLuuTheoTTThanhPhamId(idEdit)
-                        .ToDictionary(x => x.Id, x => x.NgayDung)
-                    : new Dictionary<int, DateTime?>();
-                for (int i = 0; i < submitData.DanhSachLoiDungMay.Count; i++)
-                {
-                    DanhSachLoiDungMay_Model item = submitData.DanhSachLoiDungMay[i];
-                    if (item == null || !item.NgayDung.HasValue)
-                    {
-                        CloseWaitingSafe(waiting);
-                        waiting = null;
-                        MessageBox.Show(host, string.Format("Dòng {0} của báo cáo dừng máy chưa nhập Ngày dừng.", i + 1),
-                            "KHÔNG THỂ LƯU CHÍNH THỨC", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        return;
-                    }
-                    DateTime ngay = item.NgayDung.Value.Date;
-                    DateTime? ngayCu;
-                    bool giuNgayLichSu = idEdit > 0 && item.Id > 0 &&
-                        ngayCuTheoId.TryGetValue(item.Id, out ngayCu) && ngayCu.HasValue &&
-                        ngayCu.Value.Date == ngay;
-                    if (!giuNgayLichSu && (ngay < homNay.AddMonths(-1) || ngay > homNay))
-                    {
-                        CloseWaitingSafe(waiting);
-                        waiting = null;
-                        MessageBox.Show(host, string.Format("Dòng {0}: Ngày dừng phải thuộc khoảng một tháng trở lại tính đến hôm nay.", i + 1),
-                            "KHÔNG THỂ LƯU CHÍNH THỨC", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        return;
-                    }
-                }
-
                 // Sau khi các validation bắt buộc đã hợp lệ, kiểm tra phế liệu.
                 // Nếu chưa có giá trị phế, người dùng có thể chọn:
                 // - No: hủy lần submit này và mở Frm_PheLieu để bổ sung.
@@ -1073,33 +1034,6 @@ namespace DG_TonKhoBTP_v02.UI
         }
 
         /// <summary>
-        /// Chụp draft lỗi dừng máy từ UC_TTThanhPham tại thời điểm submit.
-        /// Tạo mới và sao chép bắt đầu với draft rỗng; chỉnh sửa đã load draft theo TTThanhPham_ID.
-        /// </summary>
-        private List<DanhSachLoiDungMay_Model> CaptureLoiDungMayDraft(
-            Form host,
-            FrmWaiting waiting)
-        {
-            UC_TTThanhPham ucThanhPham =
-                CoreHelper.FindControlRecursive<UC_TTThanhPham>(host);
-
-            if (ucThanhPham == null)
-            {
-                ShowStructureError(
-                    waiting,
-                    "Không tìm thấy UC_TTThanhPham để lấy dữ liệu báo cáo dừng máy.");
-                return null;
-            }
-
-            IReadOnlyList<DanhSachLoiDungMay_Model> draft =
-                ucThanhPham.GetLoiDungMayDraft();
-
-            return draft == null
-                ? new List<DanhSachLoiDungMay_Model>()
-                : draft.ToList();
-        }
-
-        /// <summary>
         /// Cảnh báo khi cả 6 giá trị phế bằng 0.
         /// No: dừng submit và tự mở Frm_PheLieu để người dùng bổ sung.
         /// Yes: tiếp tục lưu. SavePheLieu sẽ không tạo row khi không có số liệu phế.
@@ -1276,7 +1210,6 @@ namespace DG_TonKhoBTP_v02.UI
                     result.SaveSuccess = SubmitForm_DB.SaveDataCongDoan9(
                         data.ThongTinCaLamViec,
                         data.ThongTinThanhPham,
-                        data.DanhSachLoiDungMay,
                         out error);
                 }
                 else
@@ -1287,7 +1220,6 @@ namespace DG_TonKhoBTP_v02.UI
                         data.NguyenVatLieu,
                         data.CongDoan,
                         data.DanhSachLoiNhapLieu,
-                        data.DanhSachLoiDungMay,
                         out inventoryConflict,
                         out error);
                 }
@@ -1335,7 +1267,6 @@ namespace DG_TonKhoBTP_v02.UI
                 result.SaveSuccess = SubmitForm_DB.SaveDataCongDoan9(
                     data.ThongTinCaLamViec,
                     data.ThongTinThanhPham,
-                    data.DanhSachLoiDungMay,
                     out error);
 
                 Debug.WriteLine(
@@ -1347,7 +1278,6 @@ namespace DG_TonKhoBTP_v02.UI
                     data.IdEdit,
                     data.ThongTinCaLamViec,
                     data.ThongTinThanhPham,
-                    data.DanhSachLoiDungMay,
                     data.ConfirmedUsername,
                     out error);
 
@@ -1362,7 +1292,6 @@ namespace DG_TonKhoBTP_v02.UI
                     data.NguyenVatLieu,
                     data.CongDoan,
                     data.DanhSachLoiNhapLieu,
-                    data.DanhSachLoiDungMay,
                     out error);
 
                 Debug.WriteLine(
@@ -1377,7 +1306,6 @@ namespace DG_TonKhoBTP_v02.UI
                     data.NguyenVatLieu,
                     data.CongDoan,
                     data.DanhSachLoiNhapLieu,
-                    data.DanhSachLoiDungMay,
                     data.ConfirmedUsername,
                     out error);
 
@@ -1857,7 +1785,6 @@ namespace DG_TonKhoBTP_v02.UI
                 NguyenVatLieuRows = rows,
                 NguyenVatLieu = cd9 ? new List<TTNVL>() : rows.Select(x => x.ToTTNVL()).ToList(),
                 CongDoan = draftCongDoan,
-                DanhSachLoiDungMay = CaptureLoiDungMayDraft(host, waiting) ?? new List<DanhSachLoiDungMay_Model>(),
 
                 // Quy tắc mới chỉ áp dụng cho LƯU TẠM:
                 // công đoạn 5 + có máy in + cbInTem + có ít nhất một dòng Cuộn (TTLo_ID = null).
@@ -1916,7 +1843,7 @@ namespace DG_TonKhoBTP_v02.UI
             DraftId = draftId, CongDoanId = data.CongDoanId,
             ThongTinCaLamViec = data.ThongTinCaLamViec, ThongTinThanhPham = data.ThongTinThanhPham,
             NguyenVatLieuRows = data.NguyenVatLieuRows, NguyenVatLieu = data.NguyenVatLieu,
-            CongDoan = data.CongDoan, DanhSachLoiDungMay = data.DanhSachLoiDungMay,
+            CongDoan = data.CongDoan,
             ShouldPrintThanhPham = data.ShouldPrintThanhPham, ShouldPrintNguyenVatLieu = data.ShouldPrintNguyenVatLieu
         };
 

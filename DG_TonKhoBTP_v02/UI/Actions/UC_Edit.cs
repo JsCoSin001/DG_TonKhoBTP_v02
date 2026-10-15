@@ -108,14 +108,6 @@ namespace DG_TonKhoBTP_v02.UI
                                 bomComponents;
                         }
 
-                        long ttThanhPhamId = ReadTTThanhPhamId(loaded.Rows[0]);
-                        loaded.ExtendedProperties["LoiDungMay_TTThanhPhamId"] = ttThanhPhamId;
-                        loaded.ExtendedProperties["LoiDungMay_Loaded"] = true;
-                        loaded.ExtendedProperties["LoiDungMay_Items"] =
-                            kieuEdit == 2
-                                ? LoiDungMay_DB.GetDanhSachDaLuuTheoTTThanhPhamId(ttThanhPhamId)
-                                : new List<DanhSachLoiDungMay_Model>();
-
                         return loaded;
                     }),
                     "ĐANG TÌM KIẾM, VUI LÒNG ĐỢI...");
@@ -206,9 +198,7 @@ namespace DG_TonKhoBTP_v02.UI
                         loaded.ExtendedProperties[BomDataTableProperties.Components] = bomComponents ?? new List<BomComponentData>();
                         loaded.ExtendedProperties["DraftId"] = lookup.Id;
                         loaded.ExtendedProperties["DraftMaBin"] = lookup.MaBin;
-                        loaded.ExtendedProperties["LoiDungMay_TTThanhPhamId"] = lookup.Id;
-                        loaded.ExtendedProperties["LoiDungMay_Loaded"] = true;
-                        loaded.ExtendedProperties["LoiDungMay_Items"] = LoiDungMay_DB.GetDanhSachDaLuuTheoTTThanhPhamId(lookup.Id);
+
                         return loaded;
                     }),
                     "ĐANG TẢI DỮ LIỆU LƯU TẠM...");
@@ -230,27 +220,6 @@ namespace DG_TonKhoBTP_v02.UI
             {
                 cbxTimQr.Enabled = true;
             }
-        }
-
-        private static long ReadTTThanhPhamId(DataRow row)
-        {
-            if (row?.Table == null)
-                throw new InvalidOperationException("Không xác định được TTThanhPham_ID.");
-
-            DataColumn column = row.Table.Columns.Cast<DataColumn>()
-                .FirstOrDefault(x => string.Equals(
-                    x.ColumnName,
-                    "STT",
-                    StringComparison.OrdinalIgnoreCase));
-
-            if (column == null || row[column] == DBNull.Value)
-                throw new InvalidOperationException("Không xác định được TTThanhPham_ID.");
-
-            long id = Convert.ToInt64(row[column]);
-            if (id <= 0)
-                throw new InvalidOperationException("TTThanhPham_ID không hợp lệ.");
-
-            return id;
         }
 
         private static int ReadProductId(DataRow row)

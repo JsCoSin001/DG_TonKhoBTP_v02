@@ -50,6 +50,11 @@ namespace DG_TonKhoBTP_v02.UI
         private bool _dangXuLyQuet;
         private bool _dangCapNhatGiaTriConLai;
         private bool _dangNhapTayToanBang;
+        private readonly Dictionary<string, TTNVLRow> _nvlCuKhiSua =
+            new Dictionary<string, TTNVLRow>(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, DataRow> _dongNVLCuKhiSua =
+            new Dictionary<string, DataRow>(StringComparer.OrdinalIgnoreCase);
+        private bool _soLieuThanhPhamDaThayDoi;
 
         private enum LyDoCapNhatGiaTriConLai
         {
@@ -669,6 +674,17 @@ namespace DG_TonKhoBTP_v02.UI
 
                                 TTNVLRow row = MapDataRowToNvlRow(src);
                                 ApplyBomToRow(row, thanhPham);
+                                if (kieuDL == (int)DataLoadMode.OfficialEdit)
+                                {
+                                    _dongNVLCuKhiSua[row.BinNVL] = src;
+                                    _nvlCuKhiSua[row.BinNVL] = new TTNVLRow
+                                    {
+                                        KlBatDau = row.KlBatDau,
+                                        CdBatDau = row.CdBatDau,
+                                        KlConLai = row.KlConLai,
+                                        CdConLai = row.CdConLai
+                                    };
+                                }
                                 _nvlRows.Add(row);
                             }
 
@@ -834,6 +850,9 @@ namespace DG_TonKhoBTP_v02.UI
         {
             ResetNvlState();
             _dangNhapTayToanBang = false;
+            _nvlCuKhiSua.Clear();
+            _dongNVLCuKhiSua.Clear();
+            _soLieuThanhPhamDaThayDoi = false;
             _nvlRows.Clear();
             _nvlSource.ResetBindings(false);
         }
@@ -906,6 +925,10 @@ namespace DG_TonKhoBTP_v02.UI
                 string[] isNgocKhanh = keyword.Split(';');
                 keyword = isNgocKhanh.Count() == 26 ? isNgocKhanh[7] : keyword;
 
+                // Bin cũ có thể đã hết tồn; không bắt nó qua bộ lọc quét NVL mới.
+                if (ThuThemLaiNVLCu(keyword, thanhPham))
+                    return;
+
                 var parameters = new Dictionary<string, object>
                 {
                     { "ten", keyword }
@@ -946,6 +969,18 @@ namespace DG_TonKhoBTP_v02.UI
             }
         }
 
+        private bool ThuThemLaiNVLCu(string bin, ThanhPhamData thanhPham)
+        {
+            if (isEdit.Value != (int)DataLoadMode.OfficialEdit ||
+                !_dongNVLCuKhiSua.TryGetValue(bin, out DataRow dongCu))
+                return false;
+
+            using var source = dongCu.Table.Clone();
+            source.ImportRow(dongCu);
+            AddRowsToGrid(source, thanhPham);
+            return true;
+        }
+
         private void AddRowsToGrid(DataTable source, ThanhPhamData thanhPham)
         {
             if (source == null || source.Rows.Count == 0) return;
@@ -955,6 +990,15 @@ namespace DG_TonKhoBTP_v02.UI
             foreach (DataRow src in source.Rows)
             {
                 TTNVLRow newItem = MapDataRowToNvlRow(src);
+                // Xóa rồi quét lại cùng bin vẫn là dòng cũ của phiếu sửa.
+                if (isEdit.Value == (int)DataLoadMode.OfficialEdit &&
+                    _nvlCuKhiSua.TryGetValue(newItem.BinNVL, out TTNVLRow nvlCu))
+                {
+                    newItem.KlBatDau = nvlCu.KlBatDau;
+                    newItem.CdBatDau = nvlCu.CdBatDau;
+                    newItem.KlConLai = nvlCu.KlConLai;
+                    newItem.CdConLai = nvlCu.CdConLai;
+                }
                 ApplyBomToRow(newItem, thanhPham);
                 string key = newItem.Id?.ToString() ?? string.Empty;
 
@@ -1067,6 +1111,10 @@ namespace DG_TonKhoBTP_v02.UI
             _dangCapNhatGiaTriConLai = true;
             try
             {
+                if (isEdit.Value == (int)DataLoadMode.OfficialEdit &&
+                    lyDo != LyDoCapNhatGiaTriConLai.ThemHoacXoaDong)
+                    _soLieuThanhPhamDaThayDoi = true;
+
                 if (_nvlRows.Count == 0)
                 {
                     _dangNhapTayToanBang = false;
@@ -1101,19 +1149,21 @@ namespace DG_TonKhoBTP_v02.UI
 
                 _dangNhapTayToanBang = false;
 
-                // Khi Sao chép thiếu KL/CD Thành phẩm hợp lệ, NVL tính tự động
-                // quay về snapshot tồn nguồn (KlBatDau/CdBatDau), không giữ lại
-                // mức tiêu hao từ giá trị thành phẩm đã bị xóa.
-                // Những chế độ khác vẫn giữ nguyên hành vi cũ.
+                bool tinhTuMocBatDau = isEdit.Value == (int)DataLoadMode.New ||
+                    isEdit.Value == (int)DataLoadMode.Copy ||
+                    isEdit.Value == (int)DataLoadMode.OfficialEdit;
+
+                // Thiếu số liệu bắt buộc: không giữ tiêu hao từ số vừa bị xóa.
                 if (!CoDuSoLieuThanhPhamDeTinhGiaTriConLai(thanhPham))
                 {
-                    if (isEdit.Value == 1)
+                    if (tinhTuMocBatDau)
                     {
                         foreach (TTNVLRow nvl in _nvlRows)
                         {
                             nvl.KlConLai = nvl.KlBatDau;
                             nvl.CdConLai = nvl.CdBatDau;
                         }
+                        KhoiPhucSoLieuNVLCuChuaThayDoi();
                         LamMoiSauKhiCapNhatGiaTriConLai();
                     }
                     else
@@ -1125,9 +1175,8 @@ namespace DG_TonKhoBTP_v02.UI
                     return;
                 }
 
-                // Copy: luôn tính từ snapshot mới thay vì trừ tiếp trên số còn lại
-                // của lần tính trước (có thể chạy lại khi Thành phẩm thay đổi).
-                if (isEdit.Value == 1)
+                // Giữ nguyên công thức; chỉ đổi mốc đầu vào để không trừ lặp.
+                if (tinhTuMocBatDau)
                 {
                     foreach (TTNVLRow nvl in _nvlRows)
                     {
@@ -1137,6 +1186,7 @@ namespace DG_TonKhoBTP_v02.UI
                 }
 
                 TinhGiaTriConLaiTheoCongDoan(thanhPham);
+                KhoiPhucSoLieuNVLCuChuaThayDoi();
                 LamMoiSauKhiCapNhatGiaTriConLai();
             }
             finally
@@ -1145,6 +1195,20 @@ namespace DG_TonKhoBTP_v02.UI
             }
         }
 
+
+        // Thêm/xóa NVL không tự sửa kết quả lịch sử của các dòng cũ.
+        private void KhoiPhucSoLieuNVLCuChuaThayDoi()
+        {
+            if (isEdit.Value != (int)DataLoadMode.OfficialEdit || _soLieuThanhPhamDaThayDoi)
+                return;
+            foreach (TTNVLRow nvl in _nvlRows)
+            {
+                if (!_nvlCuKhiSua.TryGetValue(nvl.BinNVL, out TTNVLRow nvlCu))
+                    continue;
+                nvl.KlConLai = nvlCu.KlConLai;
+                nvl.CdConLai = nvlCu.CdConLai;
+            }
+        }
 
         /// <summary>
         /// Xác định đã có đủ số liệu Thành phẩm để chạy công thức tính KL/CD còn lại hay chưa.

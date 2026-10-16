@@ -28,9 +28,13 @@ namespace DG_TonKhoBTP_v02.UI
         private bool _suppressTextChange = false;
         private bool _dangLoadDuLieuBanDau;
         private bool _dangTaiThanhPham;
-        // Chỉ tại chế độ Sao chép: ô số có thể để trống nhưng dữ liệu tính toán là 0.
+        // Giữ cơ chế nhập của Sao chép; áp dụng thêm cho Tạo mới và Sửa.
         private bool _laBanSaoDangNhap;
         private bool _dangDongBoTextSaoChep;
+        private DataLoadMode _cheDoNhap = DataLoadMode.New;
+        private bool _khoaMaBinDoDaSuDung;
+        private bool DongBoSoLieuKhiNhap => _laBanSaoDangNhap ||
+            _cheDoNhap == DataLoadMode.New || _cheDoNhap == DataLoadMode.OfficialEdit;
         private decimal _giaTriKhoiLuongSaoChep;
         private decimal _giaTriChieuDaiSaoChep;
         public string tenCongDoan { get; set; }
@@ -83,7 +87,7 @@ namespace DG_TonKhoBTP_v02.UI
 
         private decimal LayGiaTriSoLieuHienTai(NumericUpDown control)
         {
-            if (!_laBanSaoDangNhap)
+            if (!DongBoSoLieuKhiNhap)
                 return control.Value;
 
             // NumericUpDown.Value không tự chuyển về 0 khi người dùng xóa hết Text.
@@ -101,7 +105,7 @@ namespace DG_TonKhoBTP_v02.UI
 
         private void SoLieuSaoChep_TextChanged(object sender, EventArgs e)
         {
-            if (_dangLoadDuLieuBanDau || !_laBanSaoDangNhap || _dangDongBoTextSaoChep)
+            if (_dangLoadDuLieuBanDau || !DongBoSoLieuKhiNhap || _dangDongBoTextSaoChep)
                 return;
 
             var control = sender as NumericUpDown;
@@ -302,6 +306,8 @@ namespace DG_TonKhoBTP_v02.UI
 
         private void CapNhatSoLot()
         {
+            if (_khoaMaBinDoDaSuDung && !_dangLoadDuLieuBanDau)
+                return;
             soLOT.Text = CoreHelper.LOTGenerated(may, maHanhTrinh, sttCongDoan, sttLo, soBin);
 
             SoLOTChanged?.Invoke(SoLOTValue, may.Text);
@@ -356,6 +362,8 @@ namespace DG_TonKhoBTP_v02.UI
 
         public void ClearInputs()
         {
+            _khoaMaBinDoDaSuDung = false;
+            _cheDoNhap = DataLoadMode.New;
             SetMaBinComponentsLocked(false);
             bool trangThaiLoadTruocDo = _dangLoadDuLieuBanDau;
             _dangLoadDuLieuBanDau = true;
@@ -743,6 +751,8 @@ namespace DG_TonKhoBTP_v02.UI
         public void LoadData(DataTable dt, int kieuDL)
         {
             _dangLoadDuLieuBanDau = true;
+            _cheDoNhap = (DataLoadMode)kieuDL;
+            _khoaMaBinDoDaSuDung = false;
             _laBanSaoDangNhap = kieuDL == (int)DataLoadMode.Copy;
             try
             {
@@ -753,6 +763,10 @@ namespace DG_TonKhoBTP_v02.UI
                 if (dt == null || dt.Rows.Count == 0) return;
 
                 var row = dt.Rows[0];
+                _khoaMaBinDoDaSuDung = kieuDL == (int)DataLoadMode.OfficialEdit &&
+                    row.Table.Columns.Contains("ThanhPhamDaDuocSuDung") &&
+                    row["ThanhPhamDaDuocSuDung"] != DBNull.Value &&
+                    Convert.ToBoolean(row["ThanhPhamDaDuocSuDung"]);
                 string bin = row["MaBin"]?.ToString() ?? string.Empty;
 
                 _bomComponents = null;
@@ -792,7 +806,8 @@ namespace DG_TonKhoBTP_v02.UI
                 }
 
                 soLOT.Text = bin;
-                SetMaBinComponentsLocked(kieuDL == (int)DataLoadMode.Draft);
+                SetMaBinComponentsLocked(kieuDL == (int)DataLoadMode.Draft ||
+                    _khoaMaBinDoDaSuDung);
             }
             finally
             {
@@ -864,7 +879,7 @@ namespace DG_TonKhoBTP_v02.UI
         {
             if (_dangDongBoTextSaoChep)
                 return;
-            if (_laBanSaoDangNhap)
+            if (DongBoSoLieuKhiNhap)
             {
                 // Bổ sung đường cập nhật khi dùng nút tăng/giảm.
                 // TextChanged và bộ nhớ giá trị đã tính loại bỏ tính lặp.
@@ -884,7 +899,7 @@ namespace DG_TonKhoBTP_v02.UI
         {
             if (_dangDongBoTextSaoChep)
                 return;
-            if (_laBanSaoDangNhap)
+            if (DongBoSoLieuKhiNhap)
             {
                 if (!string.IsNullOrWhiteSpace(chieuDai.Text))
                     SoLieuSaoChep_TextChanged(sender, e);

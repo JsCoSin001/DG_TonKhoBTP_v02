@@ -389,6 +389,10 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
 
                 thanhPham.HanNoi = 1;
 
+                bool giuTonHienTai = ThanhPhamDaDuocSuDung(conn, tx, idEdit, out string maBinCu);
+                if (giuTonHienTai && !string.Equals(maBinCu, thanhPham.MaBin, StringComparison.Ordinal))
+                    throw new InvalidOperationException("LOT/Mã bin đã được sử dụng, không thể đổi mã.");
+
                 const string updateThanhPhamSql = @"
                     UPDATE TTThanhPham
                     SET
@@ -396,13 +400,13 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
                         QC = @QC,
                         MaBin = @MaBin,
                         KhoiLuongTruoc = @KhoiLuongTruoc,
-                        KhoiLuongSau = @KhoiLuongSau,
+                        KhoiLuongSau = CASE WHEN @giuTon = 1 THEN KhoiLuongSau ELSE @KhoiLuongSau END,
                         ChieuDaiTruoc = @ChieuDaiTruoc,
-                        ChieuDaiSau = @ChieuDaiSau,
+                        ChieuDaiSau = CASE WHEN @giuTon = 1 THEN ChieuDaiSau ELSE @ChieuDaiSau END,
                         CongDoan = 9,
                         GhiChu = @GhiChu,
                         HanNoi = 1,
-                        LastEdit_ID = NULL,
+                        LastEdit_ID = CASE WHEN @giuTon = 1 THEN LastEdit_ID ELSE NULL END,
                         Temp = 0
                     WHERE id = @id
                       AND CongDoan = 9
@@ -413,6 +417,7 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
                     conn,
                     tx))
                 {
+                    cmd.Parameters.AddWithValue("@giuTon", giuTonHienTai ? 1 : 0);
                     cmd.Parameters.AddWithValue(
                         "@DanhSachSP_ID",
                         thanhPham.DanhSachSP_ID);
@@ -921,7 +926,6 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
                 UpdateThongTinCaLamViec(conn, tx, caLam, tpId);
                 UpdateTTThanhPham(conn, tx, tp, tpId, nvl);
                 SavePheLieu(conn, tx, tpId, tp.PheLieu);
-                RestoreFromNVL(conn, tx, tpId);
                 UpdateKhoiLuongConLai_TTThanhPham(conn, tx, nvl, tpId);
                 Del_InsertTTNVL(conn, tx, tpId, nvl);
 
@@ -1043,7 +1047,6 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
                 UpdateThongTinCaLamViec(conn, tx, caLam, tpId);
                 UpdateTTThanhPham(conn, tx, tp, tpId, nvl);
                 SavePheLieu(conn, tx, tpId, tp.PheLieu);
-                RestoreFromNVL(conn, tx, tpId);
                 UpdateKhoiLuongConLai_TTThanhPham(conn, tx, nvl, tpId);
                 Del_InsertTTNVL(conn, tx, tpId, nvl);
 
@@ -1338,15 +1341,39 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
             }
         }
 
+        private static bool ThanhPhamDaDuocSuDung(
+            SQLiteConnection conn, SQLiteTransaction tx, long id, out string maBinCu)
+        {
+            const string sql = @"
+                SELECT tp.MaBin,
+                       CASE WHEN COALESCE(tp.LastEdit_id, 0) <> 0 OR EXISTS (
+                           SELECT 1 FROM TTNVL n
+                           JOIN TTThanhPham lanDung ON lanDung.id = n.TTThanhPham_ID
+                           WHERE n.BinNVL = tp.MaBin AND lanDung.Temp = 0
+                       ) THEN 1 ELSE 0 END AS DaSuDung
+                FROM TTThanhPham tp WHERE tp.id = @id AND tp.Temp = 0;";
+            using var cmd = new SQLiteCommand(sql, conn, tx);
+            cmd.Parameters.AddWithValue("@id", id);
+            using var reader = cmd.ExecuteReader();
+            if (!reader.Read())
+                throw new InvalidOperationException("Không tìm thấy thành phẩm cần sửa.");
+            maBinCu = Convert.ToString(reader["MaBin"]);
+            return Convert.ToInt32(reader["DaSuDung"]) != 0;
+        }
+
         private static void UpdateTTThanhPham(SQLiteConnection conn, SQLiteTransaction tx, TTThanhPham m, int thongTinCaLamViecId, List<TTNVL> nvl)
         {
+            bool giuTonHienTai = ThanhPhamDaDuocSuDung(conn, tx, thongTinCaLamViecId, out string maBinCu);
+            if (giuTonHienTai && !string.Equals(maBinCu, m.MaBin, StringComparison.Ordinal))
+                throw new InvalidOperationException("LOT/Mã bin đã được sử dụng, không thể đổi mã.");
+
             string sqlUpdate = @"UPDATE TTThanhPham 
                                 SET DanhSachSP_ID = @DanhSachSP_ID,
                                     MaBin = @MaBin,
                                     KhoiLuongTruoc = @KhoiLuongTruoc,
-                                    KhoiLuongSau = @KhoiLuongSau,
+                                    KhoiLuongSau = CASE WHEN @giuTon = 1 THEN KhoiLuongSau ELSE @KhoiLuongSau END,
                                     ChieuDaiTruoc = @ChieuDaiTruoc,
-                                    ChieuDaiSau = @ChieuDaiSau,
+                                    ChieuDaiSau = CASE WHEN @giuTon = 1 THEN ChieuDaiSau ELSE @ChieuDaiSau END,
                                     HanNoi = @HanNoi,
                                     GhiChu = @GhiChu,
                                     Temp = 0
@@ -1356,6 +1383,7 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
 
             using (var cmd = new SQLiteCommand(sqlUpdate, conn, tx))
             {
+                cmd.Parameters.AddWithValue("@giuTon", giuTonHienTai ? 1 : 0);
                 cmd.Parameters.AddWithValue("@DanhSachSP_ID", m.DanhSachSP_ID);
                 cmd.Parameters.AddWithValue("@MaBin", m.MaBin);
                 cmd.Parameters.AddWithValue("@KhoiLuongTruoc", m.KhoiLuongTruoc);
@@ -1396,7 +1424,54 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
         {
             if (conn == null) throw new ArgumentNullException(nameof(conn));
             if (tx == null) throw new ArgumentNullException(nameof(tx));
-            if (nvlList == null || nvlList.Count == 0) return;
+            if (nvlList == null) throw new ArgumentNullException(nameof(nvlList));
+
+            // Chụp trạng thái TRƯỚC khi hoàn tồn: RestoreFromNVL sẽ xóa LastEdit_id.
+            var binCu = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            var binPhaiGiuTon = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            using (var oldCmd = new SQLiteCommand(@"
+                SELECT n.BinNVL, s.LastEdit_id
+                FROM TTNVL n
+                LEFT JOIN TTThanhPham s ON s.MaBin = n.BinNVL AND s.Temp = 0
+                WHERE n.TTThanhPham_ID = @id;", conn, tx))
+            {
+                oldCmd.Parameters.AddWithValue("@id", thongTinSpId);
+                using var reader = oldCmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    string bin = Convert.ToString(reader["BinNVL"]);
+                    binCu.Add(bin);
+                    if (reader["LastEdit_id"] == DBNull.Value ||
+                        Convert.ToInt64(reader["LastEdit_id"]) != thongTinSpId)
+                        binPhaiGiuTon.Add(bin);
+                }
+            }
+
+            // Bin thực sự thêm mới phải còn đúng tồn đã lấy lúc quét.
+            // Không áp dụng điều kiện "đã dùng tiếp" của bin cũ cho bin mới.
+            foreach (TTNVL nvl in nvlList)
+            {
+                if (nvl == null || string.IsNullOrWhiteSpace(nvl.BinNVL) || binCu.Contains(nvl.BinNVL.Trim()))
+                    continue;
+                using var check = new SQLiteCommand(@"
+                    SELECT KhoiLuongSau, ChieuDaiSau FROM TTThanhPham
+                    WHERE MaBin = @bin AND Temp = 0 AND Active = 1;", conn, tx);
+                check.Parameters.AddWithValue("@bin", nvl.BinNVL.Trim());
+                using var reader = check.ExecuteReader();
+                if (!reader.Read())
+                    throw new InvalidOperationException($"NVL {nvl.BinNVL} không còn hợp lệ. Vui lòng quét lại.");
+
+                bool klDaDoi = nvl.KlBatDau.HasValue && nvl.KlBatDau.Value >= 0 &&
+                    (reader["KhoiLuongSau"] == DBNull.Value ||
+                     Math.Abs(Convert.ToDouble(reader["KhoiLuongSau"]) - nvl.KlBatDau.Value) > 0.00001);
+                bool cdDaDoi = nvl.CdBatDau.HasValue && nvl.CdBatDau.Value >= 0 &&
+                    (reader["ChieuDaiSau"] == DBNull.Value ||
+                     Math.Abs(Convert.ToDouble(reader["ChieuDaiSau"]) - nvl.CdBatDau.Value) > 0.00001);
+                if (klDaDoi || cdDaDoi)
+                    throw new InvalidOperationException($"Tồn NVL {nvl.BinNVL} đã thay đổi. Vui lòng quét lại trước khi lưu.");
+            }
+
+            RestoreFromNVL(conn, tx, thongTinSpId);
 
             using var cmd = new SQLiteCommand(@"
             UPDATE TTThanhPham
@@ -1417,6 +1492,8 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
             foreach (var nvl in nvlList)
             {
                 if (nvl == null || string.IsNullOrWhiteSpace(nvl.BinNVL))
+                    continue;
+                if (binPhaiGiuTon.Contains(nvl.BinNVL.Trim()))
                     continue;
 
                 pKL.Value = DbValueOrNull(nvl.KlConLai);

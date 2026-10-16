@@ -2735,6 +2735,14 @@ namespace DG_TonKhoBTP_v02.Database
         {
             // Tạo select
             string sqlSelect = CoreHelper.TaoSqL_LayThongTinBaoCaoChung_Edit();
+            if (kieuDL == (int)DataLoadMode.OfficialEdit)
+            {
+                sqlSelect += @", CASE WHEN COALESCE(ttp.LastEdit_id, 0) <> 0 OR EXISTS (
+                    SELECT 1 FROM TTNVL daDung
+                    JOIN TTThanhPham lanDung ON lanDung.id = daDung.TTThanhPham_ID
+                    WHERE daDung.BinNVL = ttp.MaBin AND lanDung.Temp = 0
+                ) THEN 1 ELSE 0 END AS ThanhPhamDaDuocSuDung";
+            }
 
             // Lấy thông tin chi tiết công đoạn
             string sqlLayChiTietCD = CoreHelper.TaoSQL_LayChiTiet_1CD(cd.Id);

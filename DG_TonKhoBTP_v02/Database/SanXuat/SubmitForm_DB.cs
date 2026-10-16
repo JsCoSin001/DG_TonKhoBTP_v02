@@ -103,7 +103,7 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
                 return false;
             }
 
-            if (string.IsNullOrWhiteSpace(DatabaseHelper.GetStringConnector))
+            if (string.IsNullOrWhiteSpace(DB_Base.GetStringConnector))
             {
                 error = "Chưa thiết lập kết nối cơ sở dữ liệu.";
                 return false;
@@ -369,7 +369,7 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
 
             confirmedUsername = confirmedUsername.Trim();
 
-            if (string.IsNullOrWhiteSpace(DatabaseHelper.GetStringConnector))
+            if (string.IsNullOrWhiteSpace(DB_Base.GetStringConnector))
             {
                 error = "Chưa thiết lập kết nối cơ sở dữ liệu.";
                 return false;

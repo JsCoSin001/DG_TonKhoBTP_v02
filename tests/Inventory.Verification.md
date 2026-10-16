@@ -1,21 +1,22 @@
 # Kết quả kiểm thử nghiệp vụ tồn NVL và thành phẩm
 
-Ngày: 16/10/2026. Phạm vi: các quyết định đã thống nhất cho tạo mới, edit và sao chép.
+Ngày: 16/10/2026. Phạm vi: các quyết định đã thống nhất cho tạo mới, edit và sao chép; chuyển phần đọc cấu hình dùng chung và kiểm tra kết nối công đoạn 9 sang DB_Base.
 
 ## Kết quả
 
 | Hạng mục | Debug / Any CPU | Release / Any CPU |
 |---|---:|---:|
-| Rebuild toàn bộ solution | 0 lỗi, 1.189 cảnh báo | 0 lỗi, 1.189 cảnh báo |
+| Build toàn bộ solution | 0 lỗi, 1.189 cảnh báo | 0 lỗi, 1.189 cảnh báo |
+| DB_Base.Config.Tests.ps1 | 8 đạt | 8 đạt |
 | Inventory.NewEdit.Tests.ps1 | 34 đạt | 34 đạt |
-| Inventory.SaveFlow.Tests.ps1 | 17 đạt | 17 đạt |
+| Inventory.SaveFlow.Tests.ps1 | 18 đạt | 18 đạt |
 | UC_BaoCaoDungMay.ComboBox.Tests.ps1 | 4 đạt | 4 đạt |
 | UC_TTCaLamViec.Ending.Tests.ps1 | 32 đạt | 32 đạt |
 | UC_TTCaLamViec.ShiftHours.Tests.ps1 | 50 đạt | 50 đạt |
 | UC_TTCaLamViec.StartDate.Tests.ps1 | 16 đạt | 16 đạt |
-| **Tổng kiểm thử** | **153 đạt, 0 thất bại** | **153 đạt, 0 thất bại** |
+| **Tổng kiểm thử** | **162 đạt, 0 thất bại** | **162 đạt, 0 thất bại** |
 
-Tổng cộng 306 lượt chạy cho 153 ca trên hai cấu hình. Số cảnh báo biên dịch bằng mức đã có trước thay đổi nghiệp vụ; lượt kiểm thử này không xử lý các cảnh báo đó.
+Tổng cộng 324 lượt chạy cho 162 ca trên hai cấu hình. Số cảnh báo biên dịch bằng mức đã có trước thay đổi nghiệp vụ; lượt kiểm thử này không xử lý các cảnh báo đó.
 
 ## Đối chiếu quyết định
 
@@ -35,6 +36,8 @@ Tổng cộng 306 lượt chạy cho 153 ca trên hai cấu hình. Số cảnh b
 | Kiểm tra trạng thái ngay lúc lưu | Thêm lần sử dụng sau khi đã tạo snapshot form, rồi xác nhận tồn mới vẫn được bảo toàn | Đạt |
 | Khoá đổi LOT/Mã bin đã sử dụng, vẫn cho sửa số lượng | Kiểm tra control, thay đổi máy bằng code và chặn đổi mã tại giao dịch lưu; thành phẩm chưa dùng vẫn đổi mã được | Đạt |
 | Công đoạn 9 giữ chính sách riêng | Bảo toàn tồn thành phẩm đã sử dụng, chặn đổi mã và không thay đổi TTNVL | Đạt |
+| Cấu hình dùng chung được đọc qua DB_Base | Chọn ID mới nhất, giữ cách xử lý null và bảng rỗng; gọi helper thực tế với cấu hình cho phép/khóa khi DatabaseHelper chưa thiết lập kết nối | Đạt |
+| Công đoạn 9 kiểm tra đúng kết nối đang sử dụng | Lưu mới và edit thành công khi chỉ cấu hình DB_Base; trả lỗi khi DB_Base chưa cấu hình dù DatabaseHelper đã có kết nối | Đạt |
 | Sao chép giữ hành vi hiện tại | Máy không cho tái sử dụng có bảng NVL trống; máy cho phép dùng snapshot tồn hiện tại; lưu thành phiếu mới | Đạt |
 | Giữ nguyên công thức công đoạn | Đối chiếu nguyên văn 10 hàm công thức, điều phối và điều kiện tính với HEAD; kiểm tra kết quả CD/KL | Đạt |
 
@@ -45,13 +48,14 @@ Tổng cộng 306 lượt chạy cho 153 ca trên hai cấu hình. Số cảnh b
 - Ca thực tế: sửa phiếu 56771 vẫn giữ tồn nguồn ID 56073 ở 8.930 m và LastEdit_id = 56799.
 - SHA-256 database nguồn giống nhau trước và sau lượt kiểm tra cuối: `33D28E3A06EF0610704B28DA49841244C46036C0DAB4D6C5905CEFAE23DB3E2E`.
 - Các control WinForms và hàm giao dịch lưu thật đã được gọi bằng code. Chưa thao tác thủ công toàn bộ cửa sổ ứng dụng, hộp xác nhận tổ trưởng và in tem.
-- Lượt kiểm thử này chỉ bổ sung test; không sửa thêm code nghiệp vụ.
+- Thay đổi lần này bổ sung DB_Base.GetConfig(), đổi Helper.TaoThongBao() sang hàm này và đổi hai chỗ kiểm tra kết nối công đoạn 9 sang DB_Base.GetStringConnector. DatabaseHelper và code UC_BCTonKho được giữ nguyên; cơ chế cho phép/khóa lưu dùng chung đã được kiểm tra bằng hàm thật. Chưa thao tác thủ công toàn bộ màn hình UC_BCTonKho.
 
 ## Chạy lại
 
 Dùng Windows PowerShell ở chế độ STA sau khi build:
 
 ```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -STA -File tests/DB_Base.Config.Tests.ps1
 powershell -NoProfile -ExecutionPolicy Bypass -STA -File tests/Inventory.NewEdit.Tests.ps1 -ReadOnlyDatabasePath D:/Database/QLSX_v02.db
 powershell -NoProfile -ExecutionPolicy Bypass -STA -File tests/Inventory.SaveFlow.Tests.ps1 -ReadOnlyDatabasePath D:/Database/QLSX_v02.db
 ```

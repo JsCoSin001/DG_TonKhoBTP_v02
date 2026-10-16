@@ -1,5 +1,6 @@
 ﻿using System.Data;
 using System.Data.SQLite;
+using DG_TonKhoBTP_v02.Models;
 
 namespace DG_TonKhoBTP_v02.Database
 {
@@ -60,6 +61,25 @@ namespace DG_TonKhoBTP_v02.Database
         }
 
         // ── Helper nội bộ dùng trong nhiều file ─────────────────────────────
+
+        /// <summary>Đọc cấu hình khóa thao tác mới nhất; trả về null khi chưa có cấu hình.</summary>
+        public static KhoaDatabase? GetConfig()
+        {
+            using var conn = OpenConnection();
+            using var cmd = new SQLiteCommand(
+                "SELECT Active,Author, Message FROM KhoaDatabase ORDER BY ID DESC LIMIT 1", conn);
+            using var reader = cmd.ExecuteReader();
+
+            if (!reader.Read())
+                return null;
+
+            return new KhoaDatabase
+            {
+                Active = !reader.IsDBNull(0) && reader.GetBoolean(0),
+                Author = reader.IsDBNull(1) ? null! : reader.GetString(1),
+                Message = reader.IsDBNull(2) ? null! : reader.GetString(2)
+            };
+        }
 
         /// <summary>
         /// Thực thi SQL trả về DataTable.

@@ -266,10 +266,26 @@ try {
         param($conn)
         $state=State $conn 56498; $state.Product.ChieuDaiTruoc=5; $state.Product.ChieuDaiSau=5
         $rows=Scalar $conn 'SELECT count(*) FROM TTNVL'
+        [DG_TonKhoBTP_v02.Database.DatabaseHelper]::_connStr=$null
         Assert-Saved (Save $state -Stage9)
         Assert-Equal 5 (Scalar $conn 'SELECT ChieuDaiTruoc FROM TTThanhPham WHERE id=56498') 'Stage 9 original output'
         Assert-Equal 0 (Scalar $conn 'SELECT ChieuDaiSau FROM TTThanhPham WHERE id=56498') 'Stage 9 current stock'
         Assert-Equal 56503 (Scalar $conn 'SELECT LastEdit_id FROM TTThanhPham WHERE id=56498') 'Stage 9 marker'
+        Assert-Equal $rows (Scalar $conn 'SELECT count(*) FROM TTNVL') 'Stage 9 still ignores NVL'
+    }
+
+    Test-Save 'Stage 9 new save needs only the DB_Base connection' {
+        param($conn)
+        $state=State $conn 56498
+        $state.Product.MaBin='VERIFICATION-STAGE9-NEW'
+        $rows=Scalar $conn 'SELECT count(*) FROM TTNVL'
+        [DG_TonKhoBTP_v02.Database.DatabaseHelper]::_connStr=$null
+        [object[]]$arguments=@($state.Shift.PSObject.BaseObject,$state.Product.PSObject.BaseObject,$null)
+        $success=$dbType.GetMethod('SaveDataCongDoan9').Invoke($null,$arguments)
+        Assert-Saved ([pscustomobject]@{Success=$success;Error=$arguments[2]})
+        $newId=Scalar $conn "SELECT id FROM TTThanhPham WHERE MaBin='VERIFICATION-STAGE9-NEW' AND Temp=0 AND HanNoi=1 AND CongDoan=9"
+        if($null -eq $newId -or $newId -eq [DBNull]::Value) { throw 'No official stage 9 product created' }
+        Assert-Equal 1 (Scalar $conn "SELECT count(*) FROM ThongTinCaLamViec WHERE TTThanhPham_id=$newId") 'Shift saved'
         Assert-Equal $rows (Scalar $conn 'SELECT count(*) FROM TTNVL') 'Stage 9 still ignores NVL'
     }
 

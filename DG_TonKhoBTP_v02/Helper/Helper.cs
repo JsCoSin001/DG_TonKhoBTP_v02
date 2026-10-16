@@ -211,7 +211,7 @@ namespace DG_TonKhoBTP_v02.Helper
 
         public static string TaoThongBao(Label lb = null)
         {
-            KhoaDatabase KhoaDatabase = DatabaseHelper.GetConfig();
+            KhoaDatabase? KhoaDatabase = DB_Base.GetConfig();
 
             // Nếu Active == true ⇒ chỉ ẩn label và thoát
             if (KhoaDatabase  == null || KhoaDatabase.Active)

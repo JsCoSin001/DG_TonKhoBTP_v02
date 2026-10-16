@@ -70,11 +70,14 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.SanXuat
             {
                 if (grvDsLoiDungMay.IsCurrentCellDirty &&
                     grvDsLoiDungMay.CurrentCell is DataGridViewComboBoxCell)
-                    grvDsLoiDungMay.CommitEdit(DataGridViewDataErrorContexts.Commit);
+                    DanhDauDaSua();
             };
             grvDsLoiDungMay.EditingControlShowing += Grv_EditingControlShowing;
             grvDsLoiDungMay.DataError += (s, e) => { e.ThrowException = false; };
         }
+
+
+
 
         private void Grv_EditingControlShowing(object sender, DataGridViewEditingControlShowingEventArgs e)
         {
@@ -185,7 +188,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.SanXuat
         private void GanNguonComboTenLoi()
         {
             var column = (DataGridViewComboBoxColumn)grvDsLoiDungMay.Columns[ColTenLoi];
-            column.DataSource = null;
+            // Gán trực tiếp danh sách mới: DataSource = null sẽ xóa DisplayMember/ValueMember,
+            // khiến tên lỗi không chuyển được về ID khi người dùng chọn trong ComboBox.
             column.DataSource = _loiHienThi.ToList();
         }
 
@@ -289,7 +293,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.SanXuat
                 dateTimePicker1.Value.Date, CaDaChon(), CongDoanDaChon(), MayDaChon());
             if (found.Count > 1)
                 throw new InvalidOperationException(
-                    "Đã có nhiều báo cáo trùng Ca, Ngày, Công đoạn và Máy. Cần xử lý dữ liệu trùng trước khi chỉnh sửa.");
+                    "Dữ liệu bị trùng.");
             if (found.Count == 0) return;
 
             ThongTinDungMay_Model baoCao = found[0];
@@ -373,7 +377,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.SanXuat
                 });
             }
             if (result.Count == 0)
-                throw new InvalidOperationException("Báo cáo phải có ít nhất một dòng lỗi. Muốn xóa toàn bộ báo cáo đã lưu, hãy dùng nút Xóa.");
+                throw new InvalidOperationException("Cần ít nhất 1 dòng.");
             return result;
         }
 
@@ -402,30 +406,26 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.SanXuat
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Không thể lưu",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                FrmWaiting.ShowGifAlert("Không thể lưu");
                 return;
             }
 
-            // Transaction đã COMMIT; lỗi khi refresh không được báo nhầm là lỗi lưu.
+            // Transaction đã COMMIT; lỗi khi reset giao diện không được báo nhầm là lỗi lưu.
             _baoCaoId = daLuuId;
             _coThayDoiChuaLuu = false;
             try
             {
                 _dangNap = true;
-                NapBaoCaoTheoKhoa();
-                GhiNhoKhoa();
+                DatLaiTrangThaiBanDau();
             }
             catch (Exception ex)
             {
                 btnLuu.Enabled = false;
-                MessageBox.Show("Báo cáo đã lưu vào database, nhưng không tải lại được giao diện: " + ex.Message,
-                    "Đã lưu – lỗi làm mới", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                FrmWaiting.ShowGifAlert("Lưu thành công. Đặt lại giao diện thất bại: " + ex.Message);
                 return;
             }
             finally { _dangNap = false; }
-            MessageBox.Show("Đã lưu báo cáo dừng máy thành công.",
-                "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            FrmWaiting.ShowGifAlert("Lưu báo cáo dừng máy thành công.", myIcon: EnumStore.Icon.Success);
         }
 
         private void Grv_CellContentClick(object sender, DataGridViewCellEventArgs e)
@@ -434,7 +434,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.SanXuat
                 grvDsLoiDungMay.Columns[e.ColumnIndex].Name != ColXoa) return;
             DataGridViewRow row = grvDsLoiDungMay.Rows[e.RowIndex];
             if (row.IsNewRow) return;
-            if (MessageBox.Show("Bạn có chắc chắn muốn xóa dòng lỗi này? Dữ liệu database chỉ thay đổi sau khi nhấn Lưu.",
+            if (
+                MessageBox.Show("Bạn có muốn xóa dòng này?",
                 "Xác nhận xóa dòng", MessageBoxButtons.YesNo, MessageBoxIcon.Question,
                 MessageBoxDefaultButton.Button2) == DialogResult.Yes)
                 grvDsLoiDungMay.Rows.RemoveAt(e.RowIndex);
@@ -444,7 +445,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.SanXuat
         {
             if (_baoCaoId <= 0) return;
             if (MessageBox.Show(
-                "Bạn có chắc chắn muốn xóa toàn bộ báo cáo này và tất cả dòng lỗi trong database không?",
+                "Bạn có muốn xoá báo cáo này?",
                 "Xác nhận xóa báo cáo", MessageBoxButtons.YesNo,
                 MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) != DialogResult.Yes)
                 return;
@@ -454,13 +455,11 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.SanXuat
                 _dangNap = true;
                 try { DatLaiTrangThaiBanDau(); }
                 finally { _dangNap = false; }
-                MessageBox.Show("Đã xóa toàn bộ báo cáo dừng máy.",
-                    "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                FrmWaiting.ShowGifAlert("Đã xóa báo cáo dừng máy thành công.", myIcon: EnumStore.Icon.Success);
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Không thể xóa",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                FrmWaiting.ShowGifAlert("Không thể xoá.");
             }
         }
 

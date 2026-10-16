@@ -55,8 +55,8 @@ namespace DG_TonKhoBTP_v02.Helper
         }
 
         /// <summary>
-        /// Ngày và Ca bắt đầu là dữ liệu bắt buộc khi Lưu tạm, bất kể có in tem hay không.
-        /// Không yêu cầu Giờ, Máy hoặc Người làm cho bản lưu tạm.
+        /// Ngày, Ca và Giờ bắt đầu hợp lệ là bắt buộc khi Lưu tạm, bất kể có in tem hay không.
+        /// Không yêu cầu Máy hoặc Người làm cho bản lưu tạm.
         /// </summary>
         public static List<string> LayDanhSachLoiCaLamViec(ThongTinCaLamViec ca)
         {
@@ -66,8 +66,13 @@ namespace DG_TonKhoBTP_v02.Helper
                 ca.NgayBatDau.Value.Date <= DateTime.MinValue.Date)
                 errors.Add("Chưa nhập Ngày bắt đầu hợp lệ.");
 
-            if (string.IsNullOrWhiteSpace(ca?.Ca))
-                errors.Add("Chưa chọn Ca bắt đầu.");
+            string loiGioBatDau = CaLamViecPolicy.LayLoiGioBatDau(ca?.Ca, ca?.GioBatDau);
+            if (!string.IsNullOrEmpty(loiGioBatDau))
+                errors.Add(loiGioBatDau);
+
+            string loiKetThuc = CaLamViecPolicy.LayLoiKetThuc(ca, out _);
+            if (!string.IsNullOrEmpty(loiKetThuc))
+                errors.Add(loiKetThuc);
 
             return ChuanHoa(errors);
         }

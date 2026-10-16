@@ -102,7 +102,9 @@ public static class EnumStore
         { 1, "Máy chưa được chọn" },
         { 2, "Người thực hiện đang bị trống" },
         { 3, "Người thực hiện phải là tổ trưởng" },
-        { 4, "Ngày sản xuất chưa được chọn" }
+        { 4, "Ngày sản xuất chưa được chọn" },
+        { 5, "Ca hoặc Giờ bắt đầu không hợp lệ" },
+        { 6, "Thông tin kết thúc không hợp lệ" }
     };
 
     public static readonly Dictionary<string, List<string>> MayTheoCongDoan =

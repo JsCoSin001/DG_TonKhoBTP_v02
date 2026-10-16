@@ -29,12 +29,12 @@
         private void InitializeComponent()
         {
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
-            this.label3 = new System.Windows.Forms.Label();
             this.inAn = new System.Windows.Forms.ComboBox();
             this.dayVoTB = new System.Windows.Forms.NumericUpDown();
-            this.btnDongGoi = new System.Windows.Forms.Button();
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
+            this.label3 = new System.Windows.Forms.Label();
+            this.btnDongGoi = new System.Windows.Forms.Button();
             this.cbxDongGoi = new System.Windows.Forms.CheckBox();
             this.label4 = new System.Windows.Forms.Label();
             this.tableLayoutPanel1.SuspendLayout();
@@ -55,10 +55,10 @@
             this.tableLayoutPanel1.Controls.Add(this.dayVoTB, 1, 1);
             this.tableLayoutPanel1.Controls.Add(this.label2, 1, 0);
             this.tableLayoutPanel1.Controls.Add(this.label1, 0, 0);
-            this.tableLayoutPanel1.Controls.Add(this.label3, 2, 0);
-            this.tableLayoutPanel1.Controls.Add(this.btnDongGoi, 3, 1);
-            this.tableLayoutPanel1.Controls.Add(this.cbxDongGoi, 2, 1);
-            this.tableLayoutPanel1.Controls.Add(this.label4, 3, 0);
+            this.tableLayoutPanel1.Controls.Add(this.btnDongGoi, 2, 1);
+            this.tableLayoutPanel1.Controls.Add(this.label4, 2, 0);
+            this.tableLayoutPanel1.Controls.Add(this.label3, 3, 0);
+            this.tableLayoutPanel1.Controls.Add(this.cbxDongGoi, 3, 1);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
@@ -68,19 +68,6 @@
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.Size = new System.Drawing.Size(635, 51);
             this.tableLayoutPanel1.TabIndex = 0;
-            // 
-            // label3
-            // 
-            this.label3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.label3.AutoSize = true;
-            this.label3.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label3.Location = new System.Drawing.Point(257, 0);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(121, 16);
-            this.label3.TabIndex = 18;
-            this.label3.Text = "Kiểu đóng gói";
-            this.label3.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
             // 
             // inAn
             // 
@@ -118,20 +105,6 @@
             this.dayVoTB.Size = new System.Drawing.Size(121, 26);
             this.dayVoTB.TabIndex = 16;
             // 
-            // btnDongGoi
-            // 
-            this.btnDongGoi.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnDongGoi.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnDongGoi.Location = new System.Drawing.Point(384, 19);
-            this.btnDongGoi.Name = "btnDongGoi";
-            this.btnDongGoi.Size = new System.Drawing.Size(121, 29);
-            this.btnDongGoi.TabIndex = 19;
-            this.btnDongGoi.Text = "Nhập";
-            this.btnDongGoi.UseVisualStyleBackColor = true;
-            this.btnDongGoi.Click += new System.EventHandler(this.btnDongGoi_Click);
-            // 
             // label2
             // 
             this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
@@ -158,17 +131,46 @@
             this.label1.Text = "In ấn";
             this.label1.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
             // 
+            // label3
+            // 
+            this.label3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.label3.AutoSize = true;
+            this.label3.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label3.Location = new System.Drawing.Point(384, 0);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(121, 16);
+            this.label3.TabIndex = 18;
+            this.label3.Text = "Kiểu đóng gói";
+            this.label3.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
+            this.label3.Visible = false;
+            // 
+            // btnDongGoi
+            // 
+            this.btnDongGoi.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnDongGoi.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnDongGoi.Location = new System.Drawing.Point(257, 19);
+            this.btnDongGoi.Name = "btnDongGoi";
+            this.btnDongGoi.Size = new System.Drawing.Size(121, 29);
+            this.btnDongGoi.TabIndex = 19;
+            this.btnDongGoi.Text = "Nhập";
+            this.btnDongGoi.UseVisualStyleBackColor = true;
+            this.btnDongGoi.Click += new System.EventHandler(this.btnDongGoi_Click);
+            // 
             // cbxDongGoi
             // 
             this.cbxDongGoi.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.cbxDongGoi.AutoSize = true;
-            this.cbxDongGoi.Location = new System.Drawing.Point(257, 19);
+            this.cbxDongGoi.Location = new System.Drawing.Point(384, 19);
             this.cbxDongGoi.Name = "cbxDongGoi";
             this.cbxDongGoi.Size = new System.Drawing.Size(121, 22);
             this.cbxDongGoi.TabIndex = 20;
             this.cbxDongGoi.Text = "Đóng tải";
             this.cbxDongGoi.UseVisualStyleBackColor = true;
+            this.cbxDongGoi.Visible = false;
             // 
             // label4
             // 
@@ -176,7 +178,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.label4.AutoSize = true;
             this.label4.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label4.Location = new System.Drawing.Point(384, 0);
+            this.label4.Location = new System.Drawing.Point(257, 0);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(121, 16);
             this.label4.TabIndex = 18;

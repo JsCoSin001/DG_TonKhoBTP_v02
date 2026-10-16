@@ -52,8 +52,6 @@
             this.label7 = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
             this.btnNhapPhe = new System.Windows.Forms.Button();
-            this.label10 = new System.Windows.Forms.Label();
-            this.btnBCDungMay = new System.Windows.Forms.Button();
             this.panel3 = new System.Windows.Forms.Panel();
             this.tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
             this.ten = new System.Windows.Forms.TextBox();
@@ -109,7 +107,7 @@
             // 
             // tableLayoutPanel1
             // 
-            this.tableLayoutPanel1.ColumnCount = 13;
+            this.tableLayoutPanel1.ColumnCount = 12;
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 80F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 90F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 70F));
@@ -120,13 +118,11 @@
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 110F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 110F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 90F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 110F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 63F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.tableLayoutPanel1.Controls.Add(this.label2, 0, 0);
             this.tableLayoutPanel1.Controls.Add(this.may, 0, 1);
-            this.tableLayoutPanel1.Controls.Add(this.label15, 11, 0);
             this.tableLayoutPanel1.Controls.Add(this.maHanhTrinh, 1, 1);
             this.tableLayoutPanel1.Controls.Add(this.sttCongDoan, 2, 1);
             this.tableLayoutPanel1.Controls.Add(this.sttLo, 3, 1);
@@ -139,13 +135,12 @@
             this.tableLayoutPanel1.Controls.Add(this.label1, 5, 0);
             this.tableLayoutPanel1.Controls.Add(this.khoiLuong, 7, 1);
             this.tableLayoutPanel1.Controls.Add(this.chieuDai, 8, 1);
-            this.tableLayoutPanel1.Controls.Add(this.GhiChu, 12, 0);
+            this.tableLayoutPanel1.Controls.Add(this.GhiChu, 11, 0);
             this.tableLayoutPanel1.Controls.Add(this.label6, 7, 0);
             this.tableLayoutPanel1.Controls.Add(this.label7, 8, 0);
             this.tableLayoutPanel1.Controls.Add(this.label8, 9, 0);
             this.tableLayoutPanel1.Controls.Add(this.btnNhapPhe, 9, 1);
-            this.tableLayoutPanel1.Controls.Add(this.label10, 10, 0);
-            this.tableLayoutPanel1.Controls.Add(this.btnBCDungMay, 10, 1);
+            this.tableLayoutPanel1.Controls.Add(this.label15, 10, 0);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
@@ -184,9 +179,9 @@
             this.label15.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.label15.AutoSize = true;
             this.label15.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label15.Location = new System.Drawing.Point(1033, 1);
+            this.label15.Location = new System.Drawing.Point(923, 1);
             this.label15.Name = "label15";
-            this.label15.Size = new System.Drawing.Size(51, 16);
+            this.label15.Size = new System.Drawing.Size(57, 16);
             this.label15.TabIndex = 38;
             this.label15.Text = "Ghi chú";
             this.label15.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
@@ -362,10 +357,10 @@
             // 
             this.GhiChu.Dock = System.Windows.Forms.DockStyle.Fill;
             this.GhiChu.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.GhiChu.Location = new System.Drawing.Point(1090, 3);
+            this.GhiChu.Location = new System.Drawing.Point(986, 3);
             this.GhiChu.Name = "GhiChu";
             this.tableLayoutPanel1.SetRowSpan(this.GhiChu, 2);
-            this.GhiChu.Size = new System.Drawing.Size(250, 57);
+            this.GhiChu.Size = new System.Drawing.Size(354, 57);
             this.GhiChu.TabIndex = 10;
             this.GhiChu.Text = "";
             // 
@@ -416,30 +411,6 @@
             this.btnNhapPhe.TabIndex = 39;
             this.btnNhapPhe.Text = "Chưa nhập";
             this.btnNhapPhe.UseVisualStyleBackColor = true;
-            // 
-            // label10
-            // 
-            this.label10.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.label10.AutoSize = true;
-            this.label10.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label10.Location = new System.Drawing.Point(923, 1);
-            this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(104, 16);
-            this.label10.TabIndex = 38;
-            this.label10.Text = "BC dừng máy";
-            this.label10.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
-            // 
-            // btnBCDungMay
-            // 
-            this.btnBCDungMay.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnBCDungMay.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnBCDungMay.Location = new System.Drawing.Point(923, 22);
-            this.btnBCDungMay.Name = "btnBCDungMay";
-            this.btnBCDungMay.Size = new System.Drawing.Size(104, 32);
-            this.btnBCDungMay.TabIndex = 39;
-            this.btnBCDungMay.Text = "Chưa nhập";
-            this.btnBCDungMay.UseVisualStyleBackColor = true;
             // 
             // panel3
             // 
@@ -660,7 +631,5 @@
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Button btnNhapPhe;
-        private System.Windows.Forms.Label label10;
-        private System.Windows.Forms.Button btnBCDungMay;
     }
 }

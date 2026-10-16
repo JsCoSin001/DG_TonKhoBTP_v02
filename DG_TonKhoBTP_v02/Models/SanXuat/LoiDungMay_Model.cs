@@ -1,3 +1,4 @@
+
 using System;
 
 namespace DG_TonKhoBTP_v02.Models.SanXuat
@@ -23,6 +24,13 @@ namespace DG_TonKhoBTP_v02.Models.SanXuat
         public string TenLoi { get; set; } = string.Empty;
         public string MoTaLoi { get; set; } = string.Empty;
         public int MaCongDoan { get; set; }
+
+        // Hiển thị tên lỗi khi ComboBox cần
+        // biểu diễn trực tiếp đối tượng.
+        public override string ToString()
+        {
+            return TenLoi ?? string.Empty;
+        }
     }
 
     // Bản ghi cha trong ThongTinDungMay.
@@ -36,7 +44,8 @@ namespace DG_TonKhoBTP_v02.Models.SanXuat
         public string NguoiLam { get; set; } = string.Empty;
     }
 
-    // Bản ghi con trong DSLoiDungMay (khác DanhSachLoiDungMay cũ).
+    // Bản ghi con trong DSLoiDungMay
+    // (khác DanhSachLoiDungMay cũ).
     internal sealed class DSLoiDungMay_Model
     {
         public long Id { get; set; }

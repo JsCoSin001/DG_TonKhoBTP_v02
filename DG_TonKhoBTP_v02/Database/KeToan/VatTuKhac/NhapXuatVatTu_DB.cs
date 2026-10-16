@@ -624,7 +624,7 @@ namespace DG_TonKhoBTP_v02.Database
                     dms.Ten,
                     dms.Ma,
                     dms.DonVi
-                ROUND(SUM(lsxn.SoLuong), 2) > 0
+                HAVING ROUND(SUM(lsxn.SoLuong), 2) > 0
                 ORDER BY dms.Ten
                 LIMIT @limit;
             ";

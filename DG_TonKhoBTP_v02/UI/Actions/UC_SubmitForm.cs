@@ -1733,12 +1733,12 @@ namespace DG_TonKhoBTP_v02.UI
                 return null;
             }
 
-            // Kiểm tra Ngày/Ca ngay trước khi ghi DB, không phụ thuộc cbInTem.
+            // Kiểm tra Ngày/Ca/Giờ ngay trước khi ghi DB, không phụ thuộc cbInTem.
             List<string> caErrors = LuuTamValidator.LayDanhSachLoiCaLamViec(ca);
             if (caErrors.Count > 0)
             {
-                LogDraftValidationErrors("NGÀY/CA", caErrors);
-                ShowValidationError(waiting, "Ngày/Ca bắt đầu chưa hợp lệ\n" + string.Join("\n", caErrors));
+                LogDraftValidationErrors("NGÀY/CA/GIỜ", caErrors);
+                ShowValidationError(waiting, "Ngày/Ca/Giờ bắt đầu chưa hợp lệ\n" + string.Join("\n", caErrors));
                 return null;
             }
 

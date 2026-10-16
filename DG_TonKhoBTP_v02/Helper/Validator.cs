@@ -21,6 +21,12 @@ namespace DG_TonKhoBTP_v02.Helper
             if (string.IsNullOrWhiteSpace(data.NguoiLam))
                 return 2;
 
+            if (!CaLamViecPolicy.GioBatDauHopLe(data.Ca, data.GioBatDau))
+                return 5;
+
+            if (!string.IsNullOrEmpty(CaLamViecPolicy.LayLoiKetThuc(data, out _)))
+                return 6;
+
             return 0;
         }
 
@@ -36,6 +42,14 @@ namespace DG_TonKhoBTP_v02.Helper
 
             if (data == null || string.IsNullOrWhiteSpace(data.NguoiLam))
                 result.Add(EnumStore.ErrorCaLamViec[2]);
+
+            string loiGioBatDau = CaLamViecPolicy.LayLoiGioBatDau(data?.Ca, data?.GioBatDau);
+            if (!string.IsNullOrEmpty(loiGioBatDau))
+                result.Add(loiGioBatDau);
+
+            string loiKetThuc = CaLamViecPolicy.LayLoiKetThuc(data, out _);
+            if (!string.IsNullOrEmpty(loiKetThuc))
+                result.Add(loiKetThuc);
 
             return result;
         }
@@ -587,6 +601,99 @@ namespace DG_TonKhoBTP_v02.Helper
     public static class CaLamViecPolicy
     {
         public static readonly DateTime NgayChuaChon = new DateTime(1753, 1, 1);
+
+        public static TimeSpan? GioDauCa(string ca)
+        {
+            switch (ca)
+            {
+                case "1": return TimeSpan.FromHours(6);
+                case "2": return TimeSpan.FromHours(14);
+                case "3": return TimeSpan.FromHours(22);
+                default: return null;
+            }
+        }
+
+        public static bool GioBatDauHopLe(string ca, TimeSpan? gio)
+        {
+            if (!gio.HasValue || gio.Value < TimeSpan.Zero || gio.Value >= TimeSpan.FromDays(1))
+                return false;
+
+            switch (ca)
+            {
+                case "1":
+                    return gio.Value >= TimeSpan.FromHours(6) && gio.Value <= TimeSpan.FromHours(18);
+                case "2":
+                    return gio.Value >= TimeSpan.FromHours(14) || gio.Value <= TimeSpan.FromHours(6);
+                case "3":
+                    return gio.Value >= TimeSpan.FromHours(22) || gio.Value <= TimeSpan.FromHours(6);
+                default:
+                    return false;
+            }
+        }
+
+        public static string LayLoiGioBatDau(string ca, TimeSpan? gio)
+        {
+            if (!GioDauCa(ca).HasValue)
+                return "Chọn ca bắt đầu (1, 2 hoặc 3).";
+            if (!gio.HasValue)
+                return "Chọn giờ bắt đầu.";
+            if (GioBatDauHopLe(ca, gio))
+                return string.Empty;
+
+            switch (ca)
+            {
+                case "1": return "Thời gian của ca 1 không hợp lệ.";
+                case "2": return "Thời gian của ca 2 không hợp lệ.";
+                default: return "Thời gian của ca 3 không hợp lệ.";
+            }
+        }
+
+        public static string LayLoiKetThuc(ThongTinCaLamViec data, out string truong)
+        {
+            truong = nameof(ThongTinCaLamViec.NgayKetThuc);
+            if (data == null)
+                return string.Empty;
+
+            bool coHaiNgay = !LaNgayChuaChon(data.NgayBatDau) && !LaNgayChuaChon(data.NgayKetThuc);
+            if (coHaiNgay && data.NgayKetThuc.Value.Date < data.NgayBatDau.Value.Date)
+                return "Ngày kết thúc phải nhỏ hơn ngày bắt đầu.";
+
+            truong = nameof(ThongTinCaLamViec.CaKetThuc);
+            bool coCaKetThuc = !string.IsNullOrWhiteSpace(data.CaKetThuc);
+            if (coCaKetThuc && !GioDauCa(data.CaKetThuc).HasValue)
+                return "Chọn ca kết thúc (1, 2 hoặc 3).";
+
+            truong = nameof(ThongTinCaLamViec.GioKetThuc);
+            // Thiếu thành phần kết thúc thì bỏ qua phép kiểm tra cần thành phần đó.
+            if (coCaKetThuc && data.GioKetThuc.HasValue &&
+                !GioBatDauHopLe(data.CaKetThuc, data.GioKetThuc))
+                return LayLoiGioBatDau(data.CaKetThuc, data.GioKetThuc);
+
+            if (!coHaiNgay || data.NgayKetThuc.Value.Date > data.NgayBatDau.Value.Date ||
+                !coCaKetThuc || !GioDauCa(data.Ca).HasValue)
+                return string.Empty;
+
+            int caBatDau = int.Parse(data.Ca);
+            int caKetThuc = int.Parse(data.CaKetThuc);
+            truong = nameof(ThongTinCaLamViec.CaKetThuc);
+            if (caKetThuc < caBatDau)
+                return "Ca kết thúc phải từ ca bắt đầu.";
+
+            truong = nameof(ThongTinCaLamViec.GioKetThuc);
+            if (caKetThuc == caBatDau && data.GioKetThuc.HasValue &&
+                GioBatDauHopLe(data.Ca, data.GioBatDau) &&
+                ThuTuGioTrongCa(data.Ca, data.GioBatDau.Value) > ThuTuGioTrongCa(data.CaKetThuc, data.GioKetThuc.Value))
+                return "Giờ kết thúc phải từ giờ bắt đầu.";
+
+            return string.Empty;
+        }
+
+        private static TimeSpan ThuTuGioTrongCa(string ca, TimeSpan gio)
+        {
+            // Trong ca qua đêm: 23:00 < 00:00 < 01:00 ... < 06:00.
+            return (ca == "2" || ca == "3") && gio <= TimeSpan.FromHours(6)
+                ? gio.Add(TimeSpan.FromDays(1)) : gio;
+        }
 
         public static bool LaNgayChuaChon(DateTime? ngay)
         {

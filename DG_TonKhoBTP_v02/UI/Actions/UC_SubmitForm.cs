@@ -50,9 +50,9 @@ namespace DG_TonKhoBTP_v02.UI
         // Công đoạn không có trong danh sách vẫn phải Lưu tạm trước.
         private static readonly HashSet<int> DanhSachCongDoanLuuTrucTiep = new HashSet<int>
         {
-            0
+            0,1,2,3,4,5,6,7,8,9,10,11
         };
-
+        
         private static bool CoDuocLuuTrucTiep(int congDoanId)
         {
             return DanhSachCongDoanLuuTrucTiep.Contains(congDoanId);

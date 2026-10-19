@@ -52,6 +52,67 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
                 new Dictionary<long, PartialInventorySnapshot>();
         }
 
+        public static Task<DataTable> TimGoiYNguoiCatAsync(string keyword, CancellationToken ct)
+        {
+            string pattern = "%" + (keyword ?? string.Empty).Trim()
+                .Replace("\\", "\\\\").Replace("%", "\\%").Replace("_", "\\_") + "%";
+            return Task.Run(() =>
+            {
+                ct.ThrowIfCancellationRequested();
+                using var conn = DB_Base.OpenConnection();
+                using var cmd = new SQLiteCommand(@"
+                    SELECT u.user_id, u.username
+                    FROM users u
+                    WHERE u.is_active = 1
+                      AND u.username LIKE @keyword ESCAPE '\' COLLATE NOCASE
+                      AND EXISTS (SELECT 1 FROM user_roles ur
+                                  JOIN roles r ON r.role_id = ur.role_id
+                                  WHERE ur.user_id = u.user_id AND r.role_name = 'Worker_WH')
+                    ORDER BY u.username COLLATE NOCASE
+                    LIMIT 50;", conn);
+                cmd.Parameters.AddWithValue("@keyword", pattern);
+                using var reader = cmd.ExecuteReader();
+                var table = new DataTable();
+                table.Load(reader);
+                ct.ThrowIfCancellationRequested();
+                return table;
+            }, ct);
+        }
+
+        // Resolve inside the save transaction; only the current assignment may bypass eligibility.
+        private static bool TryLayNguoiCatId(SQLiteConnection conn, SQLiteTransaction tx,
+            string username, long? planId, out long userId, out string error)
+        {
+            userId = 0;
+            error = string.Empty;
+            if (string.IsNullOrWhiteSpace(username))
+            {
+                error = "Vui lòng nhập người cắt trước khi lưu.";
+                return false;
+            }
+            using var cmd = new SQLiteCommand(@"
+                SELECT u.user_id
+                FROM users u
+                WHERE u.username = @username COLLATE NOCASE
+                  AND ((u.is_active = 1 AND EXISTS (
+                          SELECT 1 FROM user_roles ur JOIN roles r ON r.role_id = ur.role_id
+                          WHERE ur.user_id = u.user_id AND r.role_name = 'Worker_WH'))
+                       OR EXISTS (SELECT 1 FROM KeHoach k
+                                  WHERE k.id = @planId AND k.Users_id = u.user_id))
+                ORDER BY u.username = @username COLLATE BINARY DESC
+                LIMIT 1;", conn, tx);
+            cmd.Parameters.AddWithValue("@username", username.Trim());
+            cmd.Parameters.AddWithValue("@planId", (object)planId ?? DBNull.Value);
+            object value = cmd.ExecuteScalar();
+            if (value == null || value == DBNull.Value)
+            {
+                error = "Người cắt không tồn tại hoặc không phải tài khoản đang hoạt động có vai trò Worker_WH.";
+                return false;
+            }
+            userId = Convert.ToInt64(value, CultureInfo.InvariantCulture);
+            return true;
+        }
+
         public static Task<DataTable> TimGoiYAsync(
             LapKeHoachCatDay_SearchType searchType,
             string keyword,
@@ -281,7 +342,9 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
                 SELECT id, MaKeHoach, NgayKeHoach, TrangThai,
                        COALESCE(NguoiNhan, '') AS NguoiNhan,
                        COALESCE(GhiChu, '') AS GhiChu,
-                       COALESCE(NguoiTao, '') AS NguoiTao
+                       COALESCE(NguoiTao, '') AS NguoiTao,
+                       Users_id,
+                       COALESCE((SELECT u.username FROM users u WHERE u.user_id = KeHoach.Users_id), '') AS NguoiCat
                 FROM KeHoach
                 WHERE TRIM(MaKeHoach) = TRIM(@ma) COLLATE NOCASE
                 LIMIT 1;";
@@ -296,6 +359,8 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
                 result.TonTai = true;
                 result.Header = new LapKeHoachCatDay_KeHoachHeader
                 {
+                    UsersId = reader["Users_id"] == DBNull.Value ? (long?)null : Convert.ToInt64(reader["Users_id"], CultureInfo.InvariantCulture),
+                    NguoiCat = Convert.ToString(reader["NguoiCat"], CultureInfo.InvariantCulture) ?? string.Empty,
                     Id = Convert.ToInt64(reader["id"], CultureInfo.InvariantCulture),
                     MaKeHoach = Convert.ToString(reader["MaKeHoach"], CultureInfo.InvariantCulture) ?? string.Empty,
                     NgayKeHoach = Convert.ToString(reader["NgayKeHoach"], CultureInfo.InvariantCulture) ?? string.Empty,
@@ -514,6 +579,13 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
                     return result;
                 }
 
+                if (!TryLayNguoiCatId(conn, tx, request.NguoiCat, found, out long nguoiCatId, out string nguoiCatError))
+                {
+                    result.Loi = nguoiCatError;
+                    tx.Rollback();
+                    return result;
+                }
+
                 bool create = !found.HasValue;
                 long planId;
                 if (create)
@@ -526,8 +598,9 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
                     }
                     using var cmd = new SQLiteCommand(@"
                         INSERT INTO KeHoach
-                            (MaKeHoach, NgayKeHoach, TrangThai, NguoiNhan, GhiChu, NguoiTao, DateInsert)
-                        VALUES (@ma, @ngay, 'ACTIVE', @nhan, @ghichu, @tao, CURRENT_TIMESTAMP);", conn, tx);
+                            (MaKeHoach, NgayKeHoach, TrangThai, NguoiNhan, GhiChu, NguoiTao, DateInsert, Users_id)
+                        VALUES (@ma, @ngay, 'ACTIVE', @nhan, @ghichu, @tao, CURRENT_TIMESTAMP, @nguoiCatId);", conn, tx);
+                    cmd.Parameters.AddWithValue("@nguoiCatId", nguoiCatId);
                     cmd.Parameters.AddWithValue("@ma", request.MaKeHoach.Trim());
                     cmd.Parameters.AddWithValue("@ngay", DateTime.Now.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
                     cmd.Parameters.AddWithValue("@nhan", (request.NguoiNhan ?? "").Trim());
@@ -552,7 +625,8 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
                         }
                     }
                     using var cmd = new SQLiteCommand(
-                        "UPDATE KeHoach SET NguoiNhan = @nhan, GhiChu = @ghichu WHERE id = @id;", conn, tx);
+                        "UPDATE KeHoach SET NguoiNhan = @nhan, GhiChu = @ghichu, Users_id = @nguoiCatId WHERE id = @id;", conn, tx);
+                    cmd.Parameters.AddWithValue("@nguoiCatId", nguoiCatId);
                     cmd.Parameters.AddWithValue("@nhan", (request.NguoiNhan ?? "").Trim());
                     cmd.Parameters.AddWithValue("@ghichu", request.GhiChu ?? "");
                     cmd.Parameters.AddWithValue("@id", planId);
@@ -770,6 +844,13 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
                     return result;
                 }
 
+                if (!TryLayNguoiCatId(conn, tx, request.NguoiCat, planIdInDb, out long nguoiCatId, out string nguoiCatError))
+                {
+                    result.Loi = nguoiCatError;
+                    tx.Rollback();
+                    return result;
+                }
+
                 bool taoMoi = !planIdInDb.HasValue;
                 long planId;
 
@@ -777,11 +858,12 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
                 {
                     const string insertPlan = @"
                         INSERT INTO KeHoach
-                            (MaKeHoach, NgayKeHoach, TrangThai, NguoiNhan, GhiChu, NguoiTao, DateInsert)
+                            (MaKeHoach, NgayKeHoach, TrangThai, NguoiNhan, GhiChu, NguoiTao, DateInsert, Users_id)
                         VALUES
-                            (@ma, @ngay, 'ACTIVE', @nguoiNhan, @ghiChu, @nguoiTao, CURRENT_TIMESTAMP);";
+                            (@ma, @ngay, 'ACTIVE', @nguoiNhan, @ghiChu, @nguoiTao, CURRENT_TIMESTAMP, @nguoiCatId);";
 
                     using var cmd = new SQLiteCommand(insertPlan, conn, tx);
+                    cmd.Parameters.AddWithValue("@nguoiCatId", nguoiCatId);
                     cmd.Parameters.AddWithValue("@ma", maKeHoach);
                     cmd.Parameters.AddWithValue("@ngay", DateTime.Now.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
                     cmd.Parameters.AddWithValue("@nguoiNhan", (request.NguoiNhan ?? string.Empty).Trim());
@@ -793,13 +875,25 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
                 else
                 {
                     planId = planIdInDb.Value;
+                    using (var check = new SQLiteCommand("SELECT TrangThai FROM KeHoach WHERE id = @id;", conn, tx))
+                    {
+                        check.Parameters.AddWithValue("@id", planId);
+                        if (!string.Equals(Convert.ToString(check.ExecuteScalar(), CultureInfo.InvariantCulture), "ACTIVE", StringComparison.OrdinalIgnoreCase))
+                        {
+                            result.Loi = "Kế hoạch không còn hoạt động, không thể chỉnh sửa.";
+                            tx.Rollback();
+                            return result;
+                        }
+                    }
                     const string updatePlan = @"
                         UPDATE KeHoach
                         SET NguoiNhan = @nguoiNhan,
-                            GhiChu = @ghiChu
+                            GhiChu = @ghiChu,
+                            Users_id = @nguoiCatId
                         WHERE id = @id;";
 
                     using var cmd = new SQLiteCommand(updatePlan, conn, tx);
+                    cmd.Parameters.AddWithValue("@nguoiCatId", nguoiCatId);
                     cmd.Parameters.AddWithValue("@nguoiNhan", (request.NguoiNhan ?? string.Empty).Trim());
                     cmd.Parameters.AddWithValue("@ghiChu", request.GhiChu ?? string.Empty);
                     cmd.Parameters.AddWithValue("@id", planId);
@@ -2755,6 +2849,7 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
             // Kiểm tra cả hai cột liên kết B3 để tránh lỗi SQL mơ hồ lúc lập kế hoạch.
             var requiredColumns = new[]
             {
+                (Table: "KeHoach", Column: "Users_id"),
                 (Table: "KeHoachCatNhom", Column: "QuyCachCuonChan_ID"),
                 (Table: "LichSuLayCuon", Column: "QuyCachCuonChan_ID")
             };

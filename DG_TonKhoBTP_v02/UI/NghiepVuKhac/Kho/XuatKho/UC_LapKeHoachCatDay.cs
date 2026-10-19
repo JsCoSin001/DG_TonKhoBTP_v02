@@ -39,6 +39,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
 
         private ComboBoxSearchHelper _tenSanPhamSearchHelper;
         private ComboBoxSearchHelper _lotSearchHelper;
+        private ComboBoxSearchHelper _nguoiCatSearchHelper;
+        private string _nguoiCatGoc = string.Empty;
         private long? _keHoachId;
         private bool _editMode;
         private bool _loadingPlan;
@@ -243,6 +245,15 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
             // Chon goi y chi dien gia tri; KHONG tu tim kiem.
             cbxTimTenSP.DropDownStyle = ComboBoxStyle.DropDown;
             cbxTimLot.DropDownStyle = ComboBoxStyle.DropDown;
+            cbxNguoiCat.DropDownStyle = ComboBoxStyle.DropDown;
+
+            _nguoiCatSearchHelper = new ComboBoxSearchHelper(
+                cbxNguoiCat, LapKeHoachCatDay_DB.TimGoiYNguoiCatAsync)
+            {
+                DisplayColumn = "username",
+                SelectedTextBehavior = ComboBoxSelectedTextBehavior.FillDisplayText,
+                DebounceMs = 350
+            };
 
             _tenSanPhamSearchHelper = new ComboBoxSearchHelper(
                 cbxTimTenSP,
@@ -268,6 +279,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
             {
                 _tenSanPhamSearchHelper?.Dispose();
                 _lotSearchHelper?.Dispose();
+                _nguoiCatSearchHelper?.Dispose();
             };
         }
 
@@ -358,6 +370,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
                 _dongGoc.Clear();
                 _maKeHoachDaNap = ma;
 
+                _nguoiCatSearchHelper.Reset();
                 if (!context.TonTai)
                 {
                     _editMode = false;
@@ -372,6 +385,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
                 _keHoachId = context.Header.Id;
                 tbLenhXuatHang.Text = context.Header.MaKeHoach;
                 cbxNguoiNhan.Text = context.Header.NguoiNhan;
+                cbxNguoiCat.Text = context.Header.NguoiCat;
                 tbGhiChu.Text = context.Header.GhiChu;
 
                 bool keHoachDangHoatDong = string.Equals(
@@ -917,6 +931,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
             foreach (LapKeHoachCatDay_GridRow row in _rows.Values.Where(x => x.DaTonTaiTrongDB))
                 _dongGoc[row.RowKey] = TaoDauVanTay(row);
             _nguoiNhanGoc = cbxNguoiNhan.Text ?? string.Empty;
+            _nguoiCatGoc = cbxNguoiCat.Text ?? string.Empty;
             _ghiChuGoc = tbGhiChu.Text ?? string.Empty;
         }
 
@@ -932,6 +947,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
                 || _rows.Values.Any(row => row.DaTonTaiTrongDB
                     ? DongBiSua(row) : CoNoiDungNhap(row))
                 || !string.Equals(_nguoiNhanGoc, cbxNguoiNhan.Text ?? "", StringComparison.Ordinal)
+                || !string.Equals(_nguoiCatGoc, cbxNguoiCat.Text ?? "", StringComparison.Ordinal)
                 || !string.Equals(_ghiChuGoc, tbGhiChu.Text ?? "", StringComparison.Ordinal);
         }
 
@@ -940,6 +956,12 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
             if (_dangLuu || _loadingPlan)
                 return;
             grvKetQuaTimKiem.EndEdit();
+            if (string.IsNullOrWhiteSpace(cbxNguoiCat.Text))
+            {
+                FrmWaiting.ShowGifAlert("Vui lòng nhập người cắt trước khi lưu.");
+                cbxNguoiCat.Focus();
+                return;
+            }
             string ma = (tbLenhXuatHang.Text ?? string.Empty).Trim();
             if (string.IsNullOrWhiteSpace(ma))
             {
@@ -985,6 +1007,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
 
             bool headerChanged = _keHoachId.HasValue &&
                 (!string.Equals(_nguoiNhanGoc, cbxNguoiNhan.Text ?? "", StringComparison.Ordinal)
+                 || !string.Equals(_nguoiCatGoc, cbxNguoiCat.Text ?? "", StringComparison.Ordinal)
                  || !string.Equals(_ghiChuGoc, tbGhiChu.Text ?? "", StringComparison.Ordinal));
             if (!_keHoachId.HasValue && toSave.Count == 0)
             {
@@ -1002,6 +1025,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
                 KeHoach_IDDuKien = _keHoachId,
                 MaKeHoach = ma,
                 NguoiNhan = cbxNguoiNhan.Text ?? string.Empty,
+                NguoiCat = cbxNguoiCat.Text ?? string.Empty,
                 GhiChu = tbGhiChu.Text ?? string.Empty,
                 NguoiTao = UserContext.UserName ?? string.Empty,
                 DongCanLuu = toSave,
@@ -1155,8 +1179,10 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
             _dongGoc.Clear();
             _choXoa.Clear();
             _nguoiNhanGoc = string.Empty;
+            _nguoiCatGoc = string.Empty;
             _ghiChuGoc = string.Empty;
 
+            _nguoiCatSearchHelper?.Reset();
             if (clearHeader)
             {
                 tbLenhXuatHang.Clear();

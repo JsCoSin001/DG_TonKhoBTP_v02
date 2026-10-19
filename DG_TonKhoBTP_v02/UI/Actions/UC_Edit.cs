@@ -83,7 +83,10 @@ namespace DG_TonKhoBTP_v02.UI
                     {
                         RaiseClearOtherSections();
                         ClearInputs();
-                        FrmWaiting.ShowGifAlert("LOT đã nhập kho, không thể sửa.");
+                        FrmWaiting.ShowGifAlert(
+                           nhapKho == null
+                               ? "Không tìm thấy dữ liệu chính thức hoặc LOT đang lưu tạm. Vui lòng kiểm tra lại STT."
+                               : "LOT đã nhập kho, không thể sửa.");
                         return;
                     }
                 }

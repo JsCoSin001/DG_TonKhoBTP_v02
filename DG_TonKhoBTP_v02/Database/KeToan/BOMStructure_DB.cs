@@ -49,7 +49,7 @@ namespace DG_TonKhoBTP_v02.Database.KeToan
                           OR Ma           LIKE @keyword COLLATE NOCASE)";
 
                 if (onlyBtp)
-                    sql += " AND KieuSP = 'BTP'";
+                    sql += " AND (KieuSP = 'BTP' OR KieuSP = 'NVL') ";
 
                 sql += @"
                     ORDER BY Ten

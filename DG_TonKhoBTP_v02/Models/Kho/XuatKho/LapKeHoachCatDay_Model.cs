@@ -32,6 +32,8 @@ namespace DG_TonKhoBTP_v02.Models.Kho.XuatKho
 
     internal sealed class LapKeHoachCatDay_KeHoachHeader
     {
+        public long? UsersId { get; set; }
+        public string NguoiCat { get; set; } = string.Empty;
         public long Id { get; set; }
         public string MaKeHoach { get; set; } = string.Empty;
         public string NgayKeHoach { get; set; } = string.Empty;
@@ -214,6 +216,7 @@ namespace DG_TonKhoBTP_v02.Models.Kho.XuatKho
 
     internal sealed class LapKeHoachCatDay_SaveRequest
     {
+        public string NguoiCat { get; set; } = string.Empty;
         public long? KeHoach_IDDuKien { get; set; }
         public string MaKeHoach { get; set; } = string.Empty;
         public string NguoiNhan { get; set; } = string.Empty;
@@ -225,6 +228,7 @@ namespace DG_TonKhoBTP_v02.Models.Kho.XuatKho
     // Luu mot ke hoach tron ven trong mot transaction, khong luu tung dong.
     internal sealed class LapKeHoachCatDay_BatchSaveRequest
     {
+        public string NguoiCat { get; set; } = string.Empty;
         public long? KeHoach_IDDuKien { get; set; }
         public string MaKeHoach { get; set; } = string.Empty;
         public string NguoiNhan { get; set; } = string.Empty;

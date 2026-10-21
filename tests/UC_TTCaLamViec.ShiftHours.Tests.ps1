@@ -53,6 +53,20 @@ function Set-Time($control, [string]$time) {
     (Input-Control $control 'dtGioBD').Value = $today.Add([TimeSpan]::Parse($time))
 }
 
+function Select-ShiftNow($control, [string]$shift) {
+    $before = [DateTime]::Now
+    $before = $before.AddTicks(-($before.Ticks % [TimeSpan]::TicksPerMinute))
+    (Input-Control $control 'caBD').SelectedItem = $shift
+    $after = [DateTime]::Now
+    $actual = (Input-Control $control 'dtGioBD').Value
+    if ($actual -lt $before -or $actual -gt $after) { throw "Shift change must use current time, got $actual" }
+    Assert-Equal 0 $actual.Second 'No hidden seconds'
+    Assert-Equal $true (Input-Control $control 'dtGioBD').Checked 'Current time is selected'
+    $expectedDate = $actual.Date
+    if ($shift -ne '1' -and $actual.Hour -lt 6) { $expectedDate = $expectedDate.AddDays(-1) }
+    Assert-Equal $expectedDate ($control.GetThongTinCaLamViec().NgayBatDau) 'Date after shift change'
+}
+
 function Leave-Time($control) {
     $onValidating = [System.Windows.Forms.Control].GetMethod('OnValidating', $flags)
     $cancelArgs = [System.ComponentModel.CancelEventArgs]::new()
@@ -98,6 +112,7 @@ foreach ($case in $cases) {
         $model.NgayKetThuc = $today
         $model.May = 'Test machine'
         $model.NguoiLam = 'Test operator'
+        $model.NguoiKetThuc = 'Test operator'
         if ($null -ne $case[1]) { $model.GioBatDau = [TimeSpan]::Parse($case[1]) }
         $official = [DG_TonKhoBTP_v02.Helper.Validator]::LayDanhSachLoiTTCaLamViec($model)
         $draft = [DG_TonKhoBTP_v02.Helper.LuuTamValidator]::LayDanhSachLoiCaLamViec($model)
@@ -122,24 +137,22 @@ Test-Case 'Time input is disabled until a shift is selected and after reset' {
 }
 
 foreach ($case in @(@('1', '23:00:00', '06:00:00'), @('2', '12:00:00', '14:00:00'), @('3', '12:00:00', '22:00:00'))) {
-    Test-Case "Selecting shift $($case[0]) replaces an invalid time with $($case[2])" {
+    Test-Case "Selecting shift $($case[0]) replaces previous time with current time" {
         $control = [Activator]::CreateInstance($controlType)
         try {
             Set-Time $control $case[1]
-            (Input-Control $control 'caBD').SelectedItem = $case[0]
-            Assert-Equal ([TimeSpan]::Parse($case[2])) (Input-Control $control 'dtGioBD').Value.TimeOfDay 'Default shift start'
+            Select-ShiftNow $control $case[0]
         }
         finally { $control.Dispose() }
     }
 }
 
-Test-Case 'Changing shifts preserves a time that is valid in both shifts' {
+Test-Case 'Changing shifts refreshes even a time that is valid in both shifts' {
     $control = [Activator]::CreateInstance($controlType)
     try {
         (Input-Control $control 'caBD').SelectedItem = '1'
         Set-Time $control '16:00:00'
-        (Input-Control $control 'caBD').SelectedItem = '2'
-        Assert-Equal ([TimeSpan]::FromHours(16)) (Input-Control $control 'dtGioBD').Value.TimeOfDay 'Overlapping valid time'
+        Select-ShiftNow $control '2'
     }
     finally { $control.Dispose() }
 }
@@ -186,12 +199,11 @@ Test-Case 'Editing HH:mm removes hidden seconds so the displayed 18:00 is valid'
     finally { $control.Dispose() }
 }
 
-Test-Case 'Selecting shift 1 retains displayed 18:00 even with hidden seconds' {
+Test-Case 'Selecting shift 1 refreshes displayed time with hidden seconds' {
     $control = [Activator]::CreateInstance($controlType)
     try {
         Set-Time $control '18:00:37'
-        (Input-Control $control 'caBD').SelectedItem = '1'
-        Assert-Equal ([TimeSpan]::FromHours(18)) ($control.GetThongTinCaLamViec().GioBatDau) 'Visible valid time is retained'
+        Select-ShiftNow $control '1'
     }
     finally { $control.Dispose() }
 }
@@ -226,6 +238,7 @@ foreach ($mode in @(2, 3)) {
             $model.NgayKetThuc = $today
             $model.May = 'Test machine'
             $model.NguoiLam = 'Test operator'
+            $model.NguoiKetThuc = 'Test operator'
             Assert-Equal 0 ([DG_TonKhoBTP_v02.Helper.Validator]::LayDanhSachLoiTTCaLamViec($model).Count) 'Official validation accepts correction'
             Assert-Equal 0 ([DG_TonKhoBTP_v02.Helper.LuuTamValidator]::LayDanhSachLoiCaLamViec($model).Count) 'Draft validation accepts correction'
         }
@@ -242,15 +255,15 @@ foreach ($mode in @(2, 3)) {
             $model.NgayKetThuc = $today
             $model.May = 'Test machine'
             $model.NguoiLam = 'Test operator'
+            $model.NguoiKetThuc = 'Test operator'
             Assert-Equal 1 ([DG_TonKhoBTP_v02.Helper.Validator]::LayDanhSachLoiTTCaLamViec($model).Count) 'Official validation rejects only the invalid saved time'
             Assert-Equal 1 ([DG_TonKhoBTP_v02.Helper.LuuTamValidator]::LayDanhSachLoiCaLamViec($model).Count) 'Draft validation rejects only the invalid saved time'
             Leave-Time $control
             $provider = Input-Control $control '_loiGioBatDau'
             Assert-Equal $false ([string]::IsNullOrWhiteSpace($provider.GetError((Input-Control $control 'dtGioBD')))) 'Loaded invalid time is marked on interaction'
-            (Input-Control $control 'caBD').SelectedItem = '2'
-            Assert-Equal ([TimeSpan]::FromHours(23)) (Input-Control $control 'dtGioBD').Value.TimeOfDay 'Valid time retained when changing shift'
+            Select-ShiftNow $control '2'
             Set-Time $control '01:00:00'
-            Assert-Equal ([DateTime]::new(2001, 2, 3)) ($control.GetThongTinCaLamViec().NgayBatDau) 'Saved date survives interaction'
+            Assert-Equal ($today.AddDays(-1)) ($control.GetThongTinCaLamViec().NgayBatDau) 'Date follows selected time after shift change'
         }
         finally { $control.Dispose() }
     }
@@ -271,14 +284,13 @@ foreach ($mode in @(2, 3)) {
                 $model.NgayKetThuc = $today
                 $model.May = 'Test machine'
                 $model.NguoiLam = 'Test operator'
+                $model.NguoiKetThuc = 'Test operator'
                 Assert-Equal 1 ([DG_TonKhoBTP_v02.Helper.Validator]::LayDanhSachLoiTTCaLamViec($model).Count) 'Official save requires a time'
                 Assert-Equal 1 ([DG_TonKhoBTP_v02.Helper.LuuTamValidator]::LayDanhSachLoiCaLamViec($model).Count) 'Draft save requires a time'
                 Leave-Time $control
                 $provider = Input-Control $control '_loiGioBatDau'
                 Assert-Equal $false ([string]::IsNullOrWhiteSpace($provider.GetError((Input-Control $control 'dtGioBD')))) 'Unset time is marked on interaction'
-                (Input-Control $control 'caBD').SelectedItem = '2'
-                Assert-Equal ([TimeSpan]::FromHours(14)) ($control.GetThongTinCaLamViec().GioBatDau) 'Explicit shift correction supplies its start time'
-                Assert-Equal ([DateTime]::new(2001, 2, 3)) ($control.GetThongTinCaLamViec().NgayBatDau) 'Correction preserves the saved date'
+                Select-ShiftNow $control '2'
             }
             finally { $control.Dispose() }
         }

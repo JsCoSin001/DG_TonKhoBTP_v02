@@ -9,12 +9,16 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using DG_TonKhoBTP_v02.UI.Helper.AutoSearchWithCombobox;
 
 namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
 {
     public partial class Frm_NhapKhoTP_TheoNgay : Form
     {
         private bool _dangDongBoCbxAll;
+
+        private ComboBoxSearchHelper _tenSanPhamSearchHelper;
+        private long? _sanPhamIdDaChon;
 
         private const string CChon = "col_Chon";
         private const string CTTThanhPhamId = "col_TTThanhPham_ID";
@@ -46,7 +50,37 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
 
             KhoiTaoGrid();
             GanSuKien();
+            KhoiTaoTimKiemTenSanPham();
             ResetMacDinh();
+        }
+
+        private void KhoiTaoTimKiemTenSanPham()
+        {
+            cbxTimTenSp.DropDownStyle = ComboBoxStyle.DropDown;
+
+            _tenSanPhamSearchHelper = new ComboBoxSearchHelper(
+                cbxTimTenSp,
+                NhapKho_DB.TimGoiYTenSanPhamNhapKhoAsync)
+            {
+                DisplayColumn = "Ten",
+                SelectedTextBehavior =
+                    ComboBoxSelectedTextBehavior.FillDisplayText,
+                DebounceMs = 350
+            };
+
+            _tenSanPhamSearchHelper.ItemSelected += row =>
+                _sanPhamIdDaChon = Convert.ToInt64(row["id"]);
+
+            _tenSanPhamSearchHelper.Cleared += () =>
+                _sanPhamIdDaChon = null;
+
+            // Người dùng sửa nội dung thì hủy ID đã chọn.
+            // Phải chọn lại item trong danh sách gợi ý.
+            cbxTimTenSp.TextUpdate += (s, e) =>
+                _sanPhamIdDaChon = null;
+
+            Disposed += (s, e) =>
+                _tenSanPhamSearchHelper?.Dispose();
         }
 
         private void KhoiTaoGrid()
@@ -102,6 +136,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
 
         private void ResetMacDinh()
         {
+            _sanPhamIdDaChon = null;
+            _tenSanPhamSearchHelper?.Reset();
             dtNgayBD.Value = DateTime.Today.AddDays(-1);
             dtNgayKT.Value = DateTime.Today;
             cbxCa.SelectedItem = "Toàn bộ";
@@ -124,11 +160,26 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
             DateTime kt = dtNgayKT.Value.Date;
             string ca = cbxCa.Text;
 
+
+            if (!string.IsNullOrWhiteSpace(cbxTimTenSp.Text) && !_sanPhamIdDaChon.HasValue)
+            {
+                FrmWaiting.ShowGifAlert(
+                    "Cần chọn lại tên sản phẩm.");
+                return;
+            }
+
+            long? sanPhamId = string.IsNullOrWhiteSpace(cbxTimTenSp.Text)
+                ? (long?)null
+                : _sanPhamIdDaChon;
+
             try
             {
-                NhapKhoTheoNgaySearchResult result = await WaitingHelper.RunWithWaiting(
-                    () => Task.Run(() => NhapKho_DB.TimKiemNhapKhoTheoNgay(bd, kt, ca)),
-                    "ĐANG TÌM DỮ LIỆU NHẬP KHO...");
+                NhapKhoTheoNgaySearchResult result =
+                    await WaitingHelper.RunWithWaiting(
+                        () => Task.Run(() =>
+                            NhapKho_DB.TimKiemNhapKhoTheoNgay(
+                                bd, kt, ca, sanPhamId)),
+                        "ĐANG TÌM DỮ LIỆU NHẬP KHO...");
 
                 NapGrid(result.Items);
 
@@ -140,7 +191,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
                 }
                 else if (result.Items.Count == 0)
                 {
-                    FrmWaiting.ShowGifAlert("Không tìm thấy Mã Bin còn dữ liệu phù hợp với điều kiện tìm kiếm.");
+                    FrmWaiting.ShowGifAlert("Không tìm thấy dữ liệu phù hợp.");
                 }
             }
             catch (Exception ex)

@@ -52,13 +52,14 @@
             this.cbxNguoiNhan = new System.Windows.Forms.ComboBox();
             this.tbGhiChu = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
+            this.label9 = new System.Windows.Forms.Label();
+            this.cbxNguoiCat = new System.Windows.Forms.ComboBox();
             this.btnLuuKeHoach = new System.Windows.Forms.Button();
             this.panel4 = new System.Windows.Forms.Panel();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.grvKetQuaTimKiem = new System.Windows.Forms.DataGridView();
             this.panel5 = new System.Windows.Forms.Panel();
-            this.label9 = new System.Windows.Forms.Label();
-            this.cbxNguoiCat = new System.Windows.Forms.ComboBox();
+            this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
             this.panel1.SuspendLayout();
             this.panel3.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -71,6 +72,7 @@
             this.groupBox3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.grvKetQuaTimKiem)).BeginInit();
             this.panel5.SuspendLayout();
+            this.tableLayoutPanel3.SuspendLayout();
             this.SuspendLayout();
             // 
             // label1
@@ -123,7 +125,7 @@
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 146F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 147F));
             this.tableLayoutPanel1.Controls.Add(this.label5, 0, 0);
             this.tableLayoutPanel1.Controls.Add(this.cbxTimTenSP, 0, 1);
             this.tableLayoutPanel1.Controls.Add(this.cbxTenKhachHang, 1, 1);
@@ -283,7 +285,7 @@
             this.tableLayoutPanel2.ColumnCount = 3;
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 172F));
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 206F));
-            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 155F));
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 279F));
             this.tableLayoutPanel2.Controls.Add(this.label4, 0, 0);
             this.tableLayoutPanel2.Controls.Add(this.tbLenhXuatHang, 0, 1);
             this.tableLayoutPanel2.Controls.Add(this.label2, 1, 0);
@@ -369,15 +371,37 @@
             this.label3.TabIndex = 4;
             this.label3.Text = "Ghi chú";
             // 
+            // label9
+            // 
+            this.label9.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(381, 0);
+            this.label9.Name = "label9";
+            this.label9.Padding = new System.Windows.Forms.Padding(0, 0, 0, 5);
+            this.label9.Size = new System.Drawing.Size(273, 23);
+            this.label9.TabIndex = 4;
+            this.label9.Text = "Người cắt";
+            // 
+            // cbxNguoiCat
+            // 
+            this.cbxNguoiCat.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.cbxNguoiCat.FormattingEnabled = true;
+            this.cbxNguoiCat.Location = new System.Drawing.Point(381, 26);
+            this.cbxNguoiCat.Name = "cbxNguoiCat";
+            this.cbxNguoiCat.Size = new System.Drawing.Size(273, 26);
+            this.cbxNguoiCat.TabIndex = 6;
+            // 
             // btnLuuKeHoach
             // 
             this.btnLuuKeHoach.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.btnLuuKeHoach.BackColor = System.Drawing.Color.Navy;
+            this.btnLuuKeHoach.BackColor = System.Drawing.Color.Crimson;
             this.btnLuuKeHoach.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnLuuKeHoach.ForeColor = System.Drawing.SystemColors.Control;
-            this.btnLuuKeHoach.Location = new System.Drawing.Point(769, 29);
+            this.btnLuuKeHoach.Location = new System.Drawing.Point(756, 14);
             this.btnLuuKeHoach.Name = "btnLuuKeHoach";
-            this.btnLuuKeHoach.Size = new System.Drawing.Size(112, 46);
+            this.btnLuuKeHoach.Size = new System.Drawing.Size(128, 61);
             this.btnLuuKeHoach.TabIndex = 0;
             this.btnLuuKeHoach.Text = "Lưu kế hoạch";
             this.btnLuuKeHoach.UseVisualStyleBackColor = false;
@@ -414,34 +438,27 @@
             // 
             // panel5
             // 
-            this.panel5.Controls.Add(this.btnLuuKeHoach);
+            this.panel5.Controls.Add(this.tableLayoutPanel3);
             this.panel5.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.panel5.Location = new System.Drawing.Point(0, 763);
             this.panel5.Name = "panel5";
             this.panel5.Size = new System.Drawing.Size(1641, 89);
             this.panel5.TabIndex = 1;
             // 
-            // label9
+            // tableLayoutPanel3
             // 
-            this.label9.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(381, 0);
-            this.label9.Name = "label9";
-            this.label9.Padding = new System.Windows.Forms.Padding(0, 0, 0, 5);
-            this.label9.Size = new System.Drawing.Size(273, 23);
-            this.label9.TabIndex = 4;
-            this.label9.Text = "Người cắt";
-            // 
-            // cbxNguoiCat
-            // 
-            this.cbxNguoiCat.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.cbxNguoiCat.FormattingEnabled = true;
-            this.cbxNguoiCat.Location = new System.Drawing.Point(381, 26);
-            this.cbxNguoiCat.Name = "cbxNguoiCat";
-            this.cbxNguoiCat.Size = new System.Drawing.Size(273, 26);
-            this.cbxNguoiCat.TabIndex = 6;
+            this.tableLayoutPanel3.ColumnCount = 3;
+            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 152F));
+            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel3.Controls.Add(this.btnLuuKeHoach, 1, 0);
+            this.tableLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanel3.Location = new System.Drawing.Point(0, 0);
+            this.tableLayoutPanel3.Name = "tableLayoutPanel3";
+            this.tableLayoutPanel3.RowCount = 1;
+            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel3.Size = new System.Drawing.Size(1641, 89);
+            this.tableLayoutPanel3.TabIndex = 0;
             // 
             // UC_LapKeHoachCatDay
             // 
@@ -469,6 +486,7 @@
             this.groupBox3.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.grvKetQuaTimKiem)).EndInit();
             this.panel5.ResumeLayout(false);
+            this.tableLayoutPanel3.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -506,5 +524,6 @@
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.ComboBox cbxNguoiCat;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel3;
     }
 }

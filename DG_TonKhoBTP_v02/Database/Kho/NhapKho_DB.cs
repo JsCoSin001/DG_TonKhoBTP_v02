@@ -50,6 +50,47 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
 
 
         /// <summary>
+        /// Gợi ý sản phẩm loại TP theo Ten_KhongDau.
+        /// Không lọc trạng thái Active.
+        /// Trả về id và Ten để lựa chọn và lọc chính xác.
+        /// </summary>
+        public static Task<DataTable> TimGoiYTenSanPhamNhapKhoAsync(
+            string keyword, CancellationToken ct)
+        {
+            return Task.Run(() =>
+            {
+                ct.ThrowIfCancellationRequested();
+
+                const string sql = @"
+                    SELECT id, Ten
+                    FROM DanhSachMaSP
+                    WHERE KieuSP = 'TP'
+                      AND Ten_KhongDau LIKE @keyword COLLATE NOCASE
+                    ORDER BY Ten COLLATE NOCASE
+                    LIMIT 50;";
+
+                string keywordKhongDau =
+                    DG_TonKhoBTP_v02.Helper.Helper.BoDauTiengViet(
+                        (keyword ?? string.Empty).Trim());
+
+                var dt = new DataTable();
+
+                using var conn = DB_Base.OpenConnection();
+                using var cmd = new SQLiteCommand(sql, conn);
+
+                cmd.Parameters.AddWithValue(
+                    "@keyword", "%" + keywordKhongDau + "%");
+
+                ct.ThrowIfCancellationRequested();
+
+                using var adapter = new SQLiteDataAdapter(cmd);
+                adapter.Fill(dt);
+
+                return dt;
+            }, ct);
+        }
+
+        /// <summary>
         /// Tìm các TTCuonDay_CD còn lại theo Ngày/Ca để nhập kho hàng loạt.
         /// Chỉ trả MaBin có CongDoan=5, ChieuDaiSau>0 và tổng mét chi tiết còn lại
         /// khớp ChieuDaiSau. MaBin lệch dữ liệu được đưa vào MaBinBatThuong và không trả item.
@@ -57,7 +98,8 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
         public static DG_TonKhoBTP_v02.Models.NhapKhoTheoNgaySearchResult TimKiemNhapKhoTheoNgay(
             DateTime ngayBatDau,
             DateTime ngayKetThuc,
-            string ca)
+            string ca,
+            long? danhSachSpId = null)
         {
             if (ngayBatDau.Date > ngayKetThuc.Date)
                 throw new ArgumentException("Ngày bắt đầu không được lớn hơn ngày kết thúc.");
@@ -123,6 +165,7 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                   AND tp.ChieuDaiSau>0
                   AND date(" + normalizedNgay + @") BETWEEN date(@NgayBD) AND date(@NgayKT)
                   AND (@ToanBoCa=1 OR clv.Ca=@Ca)
+                  AND (@DanhSachSpId IS NULL OR tp.DanhSachSP_ID = @DanhSachSpId)
                 GROUP BY tp.id,tp.MaBin,sp.Ma,sp.Ten,tp.ChieuDaiSau,clv.NgayKetThuc,clv.Ca
                 ORDER BY clv.NgayKetThuc,tp.MaBin;";
 
@@ -134,6 +177,12 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                 cmd.Parameters.AddWithValue("@NgayKT", ngayKetThuc.Date.ToString("yyyy-MM-dd"));
                 cmd.Parameters.AddWithValue("@ToanBoCa", toanBoCa ? 1 : 0);
                 cmd.Parameters.AddWithValue("@Ca", caFilter);
+
+                cmd.Parameters.AddWithValue(
+                    "@DanhSachSpId",
+                    danhSachSpId.HasValue
+                        ? (object)danhSachSpId.Value
+                        : DBNull.Value);
 
                 using SQLiteDataReader reader = cmd.ExecuteReader();
                 while (reader.Read())
@@ -186,6 +235,7 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                   AND tp.id IN (" + string.Join(",", paramNames) + @")
                   AND date(" + normalizedNgay + @") BETWEEN date(@NgayBD) AND date(@NgayKT)
                   AND (@ToanBoCa=1 OR clv.Ca=@Ca)
+                  AND (@DanhSachSpId IS NULL OR tp.DanhSachSP_ID = @DanhSachSpId)
                 ORDER BY clv.NgayKetThuc,tp.MaBin,sr.TTCuonDay_CD_ID;";
 
             using (var conn = DB_Base.OpenConnection())
@@ -195,6 +245,13 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                 cmd.Parameters.AddWithValue("@NgayKT", ngayKetThuc.Date.ToString("yyyy-MM-dd"));
                 cmd.Parameters.AddWithValue("@ToanBoCa", toanBoCa ? 1 : 0);
                 cmd.Parameters.AddWithValue("@Ca", caFilter);
+
+                cmd.Parameters.AddWithValue(
+                    "@DanhSachSpId",
+                    danhSachSpId.HasValue
+                        ? (object)danhSachSpId.Value
+                        : DBNull.Value);
+
                 int i = 0;
                 foreach (long id in validIds)
                     cmd.Parameters.AddWithValue("@id" + i++, id);

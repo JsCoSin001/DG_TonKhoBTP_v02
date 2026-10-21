@@ -249,10 +249,11 @@ namespace DG_TonKhoBTP_v02.UI
             try
             {
                 dtGioBD.Enabled = gioDauCa.HasValue;
-                if (caThayDoi && gioDauCa.HasValue && !dtGioBD.Checked)
+                if (caThayDoi && gioDauCa.HasValue)
                 {
-                    dtGioBD.Value = dtGioBD.Value.Date.Add(gioDauCa.Value);
+                    dtGioBD.Value = DateTime.Now;
                     dtGioBD.Checked = true;
+                    _giuNgayBatDauDaLuu = false;
                 }
                 dtGioBD.ShowCheckBox = !dtGioBD.Checked;
                 // Ô giờ chỉ hiển thị HH:mm; bỏ giây ẩn khi thao tác để giờ lưu khớp giờ hiển thị.
@@ -260,9 +261,6 @@ namespace DG_TonKhoBTP_v02.UI
                     .AddHours(dtGioBD.Value.Hour).AddMinutes(dtGioBD.Value.Minute);
                 if (dtGioBD.Value != gioHienThi)
                     dtGioBD.Value = gioHienThi;
-                if (caThayDoi && gioDauCa.HasValue &&
-                    !CaLamViecPolicy.GioBatDauHopLe(caBD.Text, dtGioBD.Value.TimeOfDay))
-                    dtGioBD.Value = dtGioBD.Value.Date.Add(gioDauCa.Value);
                 if (caThayDoi)
                     _loiGioBatDau.SetError(dtGioBD, string.Empty);
             }
@@ -310,7 +308,7 @@ namespace DG_TonKhoBTP_v02.UI
 
         private void CapNhatNgayBatDauTheoCa()
         {
-            // Báo cáo cũ/draft giữ nguyên ngày nguồn, kể cả khi đổi ca hoặc giờ.
+            // Giữ ngày nguồn khi nạp báo cáo/draft, cho đến khi người dùng đổi ca.
             if (_giuNgayBatDauDaLuu)
                 return;
 

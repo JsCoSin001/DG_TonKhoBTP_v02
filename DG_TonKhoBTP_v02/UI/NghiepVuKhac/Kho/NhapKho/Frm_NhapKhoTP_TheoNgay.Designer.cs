@@ -40,6 +40,8 @@
             this.dtNgayBD = new System.Windows.Forms.DateTimePicker();
             this.dtNgayKT = new System.Windows.Forms.DateTimePicker();
             this.cbxCa = new System.Windows.Forms.ComboBox();
+            this.label5 = new System.Windows.Forms.Label();
+            this.cbxTimTenSp = new System.Windows.Forms.ComboBox();
             this.cbxAll = new System.Windows.Forms.CheckBox();
             this.btnNhapKho = new System.Windows.Forms.Button();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
@@ -49,8 +51,6 @@
             this.panel5 = new System.Windows.Forms.Panel();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
-            this.label5 = new System.Windows.Forms.Label();
-            this.cbxTimTenSp = new System.Windows.Forms.ComboBox();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.groupBox4.SuspendLayout();
@@ -115,7 +115,7 @@
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 150F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 150F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 141F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 176F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 286F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel1.Controls.Add(this.btnTimKiem, 4, 1);
             this.tableLayoutPanel1.Controls.Add(this.label2, 0, 0);
@@ -139,7 +139,7 @@
             // btnTimKiem
             // 
             this.btnTimKiem.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.btnTimKiem.Location = new System.Drawing.Point(620, 39);
+            this.btnTimKiem.Location = new System.Drawing.Point(730, 39);
             this.btnTimKiem.Name = "btnTimKiem";
             this.btnTimKiem.Size = new System.Drawing.Size(126, 41);
             this.btnTimKiem.TabIndex = 1;
@@ -220,6 +220,26 @@
             this.cbxCa.Name = "cbxCa";
             this.cbxCa.Size = new System.Drawing.Size(135, 26);
             this.cbxCa.TabIndex = 2;
+            // 
+            // label5
+            // 
+            this.label5.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(444, 10);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(280, 18);
+            this.label5.TabIndex = 0;
+            this.label5.Text = "Tên sản phẩm";
+            // 
+            // cbxTimTenSp
+            // 
+            this.cbxTimTenSp.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.cbxTimTenSp.FormattingEnabled = true;
+            this.cbxTimTenSp.Location = new System.Drawing.Point(444, 46);
+            this.cbxTimTenSp.Name = "cbxTimTenSp";
+            this.cbxTimTenSp.Size = new System.Drawing.Size(280, 26);
+            this.cbxTimTenSp.TabIndex = 3;
             // 
             // cbxAll
             // 
@@ -320,26 +340,6 @@
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel2.Size = new System.Drawing.Size(253, 91);
             this.tableLayoutPanel2.TabIndex = 0;
-            // 
-            // label5
-            // 
-            this.label5.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(444, 10);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(170, 18);
-            this.label5.TabIndex = 0;
-            this.label5.Text = "Tên sản phẩm";
-            // 
-            // cbxTimTenSp
-            // 
-            this.cbxTimTenSp.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.cbxTimTenSp.FormattingEnabled = true;
-            this.cbxTimTenSp.Location = new System.Drawing.Point(444, 49);
-            this.cbxTimTenSp.Name = "cbxTimTenSp";
-            this.cbxTimTenSp.Size = new System.Drawing.Size(170, 26);
-            this.cbxTimTenSp.TabIndex = 3;
             // 
             // Frm_NhapKhoTP_TheoNgay
             // 

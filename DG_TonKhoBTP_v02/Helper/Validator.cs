@@ -43,6 +43,10 @@ namespace DG_TonKhoBTP_v02.Helper
             if (data == null || string.IsNullOrWhiteSpace(data.NguoiLam))
                 result.Add(EnumStore.ErrorCaLamViec[2]);
 
+            // BỔ SUNG: Bắt buộc nhập Người kết thúc ca làm việc
+            if (data == null || string.IsNullOrWhiteSpace(data.NguoiKetThuc))
+                result.Add("Vui lòng nhập Người kết thúc ca làm việc.");
+
             string loiGioBatDau = CaLamViecPolicy.LayLoiGioBatDau(data?.Ca, data?.GioBatDau);
             if (!string.IsNullOrEmpty(loiGioBatDau))
                 result.Add(loiGioBatDau);

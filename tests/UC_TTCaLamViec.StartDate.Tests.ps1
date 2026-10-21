@@ -72,8 +72,8 @@ Test-Control 'New form has no shift, today as start date, and a disabled date in
 foreach ($time in @('00:00:00', '05:59:59')) {
     Test-Control "Shift 3 at $time uses yesterday" {
         param($control)
-        Set-StartTime $control $time
         (Input-Control $control 'caBD').SelectedItem = '3'
+        Set-StartTime $control $time
         Assert-Date $control ($today.AddDays(-1))
     }
 }
@@ -81,8 +81,8 @@ foreach ($time in @('00:00:00', '05:59:59')) {
 foreach ($time in @('06:00:00', '22:00:00', '23:59:59')) {
     Test-Control "Shift 3 at $time uses today" {
         param($control)
-        Set-StartTime $control $time
         (Input-Control $control 'caBD').SelectedItem = '3'
+        Set-StartTime $control $time
         Assert-Date $control $today
     }
 }
@@ -117,7 +117,24 @@ Test-Control 'Changing time updates the date across midnight and 06:00' {
     Assert-Date $control ($today.AddDays(-1))
 }
 
-Test-Control 'Subscribers receive one notification with the recalculated date' {
+Test-Control 'Subscribers receive one notification per time change with the recalculated date' {
+    param($control)
+    (Input-Control $control 'caBD').SelectedItem = '3'
+    $script:notifications = New-Object 'System.Collections.Generic.List[object]'
+    $handler = [Action[DG_TonKhoBTP_v02.Core.ThongTinCaLamViec]] {
+        param($model)
+        $script:notifications.Add($model)
+    }
+    $control.add_Event_ThongTinCaLamViecChanged($handler)
+    Set-StartTime $control '01:00:00'
+    Assert-Equal 1 $script:notifications.Count 'Time change notification count'
+    Assert-Equal ($today.AddDays(-1)) $script:notifications[0].NgayBatDau 'Notified start date'
+    Set-StartTime $control '06:00:00'
+    Assert-Equal 2 $script:notifications.Count 'Time change notification count'
+    Assert-Equal $today $script:notifications[1].NgayBatDau 'Notified date at 06:00'
+}
+
+Test-Control 'Changing shift sends one notification containing current time and date' {
     param($control)
     Set-StartTime $control '01:00:00'
     $script:notifications = New-Object 'System.Collections.Generic.List[object]'
@@ -126,33 +143,48 @@ Test-Control 'Subscribers receive one notification with the recalculated date' {
         $script:notifications.Add($model)
     }
     $control.add_Event_ThongTinCaLamViecChanged($handler)
-    (Input-Control $control 'caBD').SelectedItem = '3'
+    $before = [DateTime]::Now
+    (Input-Control $control 'caBD').SelectedItem = '1'
+    $after = [DateTime]::Now
     Assert-Equal 1 $script:notifications.Count 'Shift change notification count'
-    Assert-Equal ($today.AddDays(-1)) $script:notifications[0].NgayBatDau 'Notified start date'
-    Set-StartTime $control '06:00:00'
-    Assert-Equal 2 $script:notifications.Count 'Time change notification count'
-    Assert-Equal $today $script:notifications[1].NgayBatDau 'Notified date at 06:00'
+    Assert-Equal $today $script:notifications[0].NgayBatDau 'Shift 1 date'
+    $actual = (Input-Control $control 'dtGioBD').Value
+    if ($actual -lt $before.AddTicks(-($before.Ticks % [TimeSpan]::TicksPerMinute)) -or $actual -gt $after) {
+        throw 'Shift change notification must contain current time'
+    }
+    Assert-Equal $actual.TimeOfDay $script:notifications[0].GioBatDau 'Notified time'
+}
+
+foreach ($time in @('00:00:00', '05:59:59', '06:00:00', '23:59:59')) {
+    Test-Control "Shift 1 at $time always uses today" {
+        param($control)
+        (Input-Control $control 'caBD').SelectedItem = '1'
+        Set-StartTime $control $time
+        Assert-Date $control $today
+    }
 }
 
 foreach ($mode in @(2, 3)) {
-    Test-Control "Saved report/draft (mode $mode) retains date when shift and time change" {
+    Test-Control "Saved report/draft (mode $mode) refreshes date after user changes shift" {
         param($control)
         $control.LoadData((New-SavedReport), $mode)
         Assert-Equal '3' (Input-Control $control 'caBD').Text 'Loaded shift'
         Assert-Date $control ([DateTime]::new(2001, 2, 3))
         (Input-Control $control 'caBD').SelectedItem = '1'
+        Assert-Date $control $today
         Set-StartTime $control '23:00:00'
         (Input-Control $control 'caBD').SelectedItem = '3'
         Set-StartTime $control '00:00:00'
-        Assert-Date $control ([DateTime]::new(2001, 2, 3))
+        Assert-Date $control ($today.AddDays(-1))
     }
-    Test-Control "Saved report/draft (mode $mode) preserves an empty start date" {
+    Test-Control "Saved report/draft (mode $mode) preserves empty date until user changes shift" {
         param($control)
         $control.LoadData((New-SavedReport ([DBNull]::Value)), $mode)
         Set-StartTime $control '00:00:00'
-        (Input-Control $control 'caBD').SelectedItem = '1'
         Assert-Equal '' (Input-Control $control 'tbNgayBD').Text 'Empty stored date must stay empty'
         Assert-Equal $null ($control.GetThongTinCaLamViec().NgayBatDau) 'Collected empty date'
+        (Input-Control $control 'caBD').SelectedItem = '1'
+        Assert-Date $control $today
     }
 }
 
@@ -162,8 +194,8 @@ Test-Control 'Reset clears the shift and restores automatic dates after loading 
     $control.ClearInputs()
     Assert-Equal -1 (Input-Control $control 'caBD').SelectedIndex 'Shift after reset'
     Assert-Date $control $today
-    Set-StartTime $control '01:00:00'
     (Input-Control $control 'caBD').SelectedItem = '3'
+    Set-StartTime $control '01:00:00'
     Assert-Date $control ($today.AddDays(-1))
 }
 

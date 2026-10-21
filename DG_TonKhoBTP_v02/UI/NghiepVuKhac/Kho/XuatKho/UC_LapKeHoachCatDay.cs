@@ -20,6 +20,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
         private const string COL_MA_NGUON = "colMaNguon";
         private const string COL_TON_THUC_TE = "colTonThucTe";
         private const string COL_DAT_TRUOC = "colDatTruoc";
+        private const string COL_TON_CON_LAI = "colTonConLai";
         private const string COL_CD_1C = "colChieuDai1Cuon";
         private const string COL_SO_DAU = "colSoDau";
         private const string COL_SO_CUOI = "colSoCuoi";
@@ -142,8 +143,17 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
             grvKetQuaTimKiem.Columns.Add(new DataGridViewTextBoxColumn
             {
                 Name = COL_MA_NGUON,
-                HeaderText = "Lot",
+                HeaderText = "Lot cuộn lẻ",
                 Width = 175,
+                ReadOnly = true
+            });
+
+            // Chiều dài một cuộn
+            grvKetQuaTimKiem.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                Name = COL_CD_1C,
+                HeaderText = "1C đơn vị",
+                Width = 125,
                 ReadOnly = true
             });
 
@@ -165,12 +175,12 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
                 ReadOnly = true
             });
 
-            // Chiều dài một cuộn
+            // Tồn còn lại
             grvKetQuaTimKiem.Columns.Add(new DataGridViewTextBoxColumn
             {
-                Name = COL_CD_1C,
-                HeaderText = "1C đơn vị",
-                Width = 125,
+                Name = COL_TON_CON_LAI,
+                HeaderText = "Tồn còn lại",
+                Width = 105,
                 ReadOnly = true
             });
 
@@ -546,6 +556,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
                 ? model.DatTruoc + " cuộn"
                 : model.DatTruoc + " m";
             row.Cells[COL_CD_1C].Value = model.ChieuDai1Cuon;
+            row.Cells[COL_TON_CON_LAI].Value = (model.TonThucTe - model.DatTruoc)
+                + (model.LoaiDong == LapKeHoachCatDay_LoaiDong.CuonChan ? " cuộn" : " m");
             row.Cells[COL_SO_DAU].Value = model.SoDau.HasValue ? (object)model.SoDau.Value : string.Empty;
             row.Cells[COL_SO_CUOI].Value = model.SoCuoi.HasValue ? (object)model.SoCuoi.Value : string.Empty;
             row.Cells[COL_SO_LUONG_LAY].Value = model.SoLuongCanLay > 0 ? (object)model.SoLuongCanLay : string.Empty;

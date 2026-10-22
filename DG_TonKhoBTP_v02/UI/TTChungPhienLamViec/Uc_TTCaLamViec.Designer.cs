@@ -179,7 +179,6 @@
             // tbNgayBD
             // 
             this.tbNgayBD.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.tbNgayBD.Enabled = false;
             this.tbNgayBD.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.tbNgayBD.Location = new System.Drawing.Point(171, 5);
             this.tbNgayBD.Name = "tbNgayBD";

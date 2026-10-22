@@ -610,7 +610,7 @@ namespace DG_TonKhoBTP_v02.UI
                 _loiGioBatDau.SetError(tbNgayKT, string.Empty);
                 _loiGioBatDau.SetError(cbxCaKT, string.Empty);
                 _loiGioBatDau.SetError(dtGioKT, string.Empty);
-                tbNgayBD.Enabled = false;
+                //tbNgayBD.Enabled = false;
                 tbNgayBD.Text = DateTime.Today.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture);
                 tbNgayKT.Text = GetNgayHienTaiDeHienThi();
             }

@@ -460,6 +460,7 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
                        d.id AS ChiTiet_ID,
                        d.ChieuDaiCanCat,
                        n.TonCuonLe_ID,
+                       n.QuyCachCuonChan_ID,
                        COALESCE(tcl.MaCuon, '') AS MaCuon,
                        lc.id AS LichSuCat_ID,
                        COALESCE(lc.ThoiGianThucHien, '') AS ThoiGianThucHien,
@@ -519,6 +520,7 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
                             TrangThai = LapKeHoachCatDay_TrangThai.DaThucHien,
                             // TTCuonDay_ID la ID nguon, khong khang dinh la ma cuon vat ly.
                             MaNhomCuon = "Nguồn TTCuonDay #" + Convert.ToString(reader["TTCuonDay_ID"], CultureInfo.InvariantCulture),
+                            GhiChu = "Lấy cả cuộn chẵn",
                             ThoiGian = Convert.ToString(reader["ThoiGianThucHien"], CultureInfo.InvariantCulture) ?? string.Empty,
                             NguoiThucHien = Convert.ToString(reader["NguoiThucHien"], CultureInfo.InvariantCulture) ?? string.Empty
                         });
@@ -531,7 +533,8 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
                         ChieuDai = chieuDai,
                         SoLuong = soLuongKeHoach - daLay,
                         TrangThai = LapKeHoachCatDay_TrangThai.ChuaThucHien,
-                        MaNhomCuon = "Quy cách #" + quyCachCuonChanId.Value.ToString(CultureInfo.InvariantCulture)
+                        MaNhomCuon = "Quy cách #" + quyCachCuonChanId.Value.ToString(CultureInfo.InvariantCulture),
+                        GhiChu = string.Empty
                     });
                 }
             }
@@ -551,6 +554,10 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
                     string maNhom = "Nhóm #" + Convert.ToString(reader["Nhom_ID"], CultureInfo.InvariantCulture);
                     if (!string.IsNullOrWhiteSpace(maCuon)) maNhom += " / " + maCuon;
                     bool daCat = reader["LichSuCat_ID"] != DBNull.Value;
+                    // Quy cach duoc giu lai khi nhom cuon chan da chuyen thanh cuon le.
+                    bool tuCuonChan = reader["QuyCachCuonChan_ID"] != DBNull.Value;
+                    // Hien thi nguyen ma/lot cua cuon thuc te, ke ca khi cat tu cuon chan.
+                    string maNguon = maCuon;
                     result.Add(new LapKeHoachCatDay_ChiTietThucHien
                     {
                         ChieuDai = Convert.ToInt32(reader["ChieuDaiCanCat"], CultureInfo.InvariantCulture),
@@ -558,6 +565,9 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
                         TrangThai = daCat ? LapKeHoachCatDay_TrangThai.DaThucHien
                             : LapKeHoachCatDay_TrangThai.ChuaThucHien,
                         MaNhomCuon = maNhom,
+                        GhiChu = daCat
+                            ? (tuCuonChan ? "Cắt lẻ từ cuộn chẵn: " : "Cắt lẻ từ cuộn lẻ: ") + maNguon
+                            : string.Empty,
                         ThoiGian = daCat ? Convert.ToString(reader["ThoiGianThucHien"], CultureInfo.InvariantCulture) ?? string.Empty : string.Empty,
                         NguoiThucHien = daCat ? Convert.ToString(reader["NguoiThucHien"], CultureInfo.InvariantCulture) ?? string.Empty : string.Empty
                     });

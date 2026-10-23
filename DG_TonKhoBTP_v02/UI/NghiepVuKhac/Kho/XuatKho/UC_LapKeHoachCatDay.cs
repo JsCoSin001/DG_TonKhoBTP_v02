@@ -631,6 +631,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
 
         private void ApDungTrangThaiDong( DataGridViewRow row, LapKeHoachCatDay_GridRow model)
         {
+            ToMauTrangThai(row.Cells[COL_TRANG_THAI], model.TrangThai);
             bool isFull = model.LoaiDong == LapKeHoachCatDay_LoaiDong.CuonChan;
             bool directCutEmpty = string.IsNullOrWhiteSpace(model.ChuoiChieuDaiCat);
 
@@ -705,6 +706,41 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
                     MauDisabled,
                     MauDisabledText);
             }
+        }
+
+        private static void ToMauTrangThai(DataGridViewCell cell, string trangThai)
+        {
+            Color backColor;
+            Color foreColor;
+            switch (trangThai)
+            {
+                case LapKeHoachCatDay_TrangThai.ChuaThucHien:
+                    backColor = Color.FromArgb(255, 237, 213);
+                    foreColor = Color.FromArgb(156, 64, 0);
+                    break;
+                case LapKeHoachCatDay_TrangThai.DangThucHien:
+                    backColor = Color.FromArgb(219, 234, 254);
+                    foreColor = Color.FromArgb(0, 76, 163);
+                    break;
+                case LapKeHoachCatDay_TrangThai.HoanThanh:
+                case LapKeHoachCatDay_TrangThai.DaThucHien:
+                    backColor = Color.FromArgb(220, 252, 231);
+                    foreColor = Color.FromArgb(0, 100, 47);
+                    break;
+                case LapKeHoachCatDay_TrangThai.HetTon:
+                    backColor = Color.FromArgb(254, 226, 226);
+                    foreColor = Color.FromArgb(166, 24, 34);
+                    break;
+                default:
+                    backColor = Color.FromArgb(233, 236, 239);
+                    foreColor = Color.FromArgb(73, 80, 87);
+                    break;
+            }
+
+            cell.Style.BackColor = backColor;
+            cell.Style.ForeColor = foreColor;
+            cell.Style.SelectionBackColor = backColor;
+            cell.Style.SelectionForeColor = foreColor;
         }
 
         private static void StyleButtonCell(DataGridViewCell cell, bool enabled, Color enabledBackColor, Color enabledForeColor)
@@ -1062,6 +1098,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
                 Size = new Size(1090, 530);
                 MinimumSize = new Size(850, 370);
                 Font = new Font("Tahoma", 10F);
+                Padding = new Padding(5);
 
                 // ============================
                 // TIÊU ĐỀ CỬA SỔ
@@ -1074,7 +1111,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
                     Dock = DockStyle.Top,
                     Height = 50,
                     AutoEllipsis = true,
-                    Padding = new Padding(10, 10, 10, 4),
+                    Padding = new Padding(5),
                     Font = new Font(
                         "Tahoma", 12F, FontStyle.Bold)
                 };
@@ -1115,6 +1152,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
                 // Font dữ liệu
                 grid.DefaultCellStyle.Font =
                     new Font("Tahoma", 10F);
+                grid.DefaultCellStyle.Padding = new Padding(5);
+                grid.ColumnHeadersDefaultCellStyle.Padding = new Padding(5);
 
                 // Font tiêu đề các cột
                 grid.ColumnHeadersDefaultCellStyle.Font =
@@ -1134,13 +1173,6 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
                 grid.Columns.Add(
                     new DataGridViewTextBoxColumn
                     {
-                        HeaderText = "Chiều dài",
-                        Width = 100
-                    });
-
-                grid.Columns.Add(
-                    new DataGridViewTextBoxColumn
-                    {
                         HeaderText = "Số lượng",
                         Width = 95
                     });
@@ -1148,17 +1180,15 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
                 grid.Columns.Add(
                     new DataGridViewTextBoxColumn
                     {
-                        HeaderText = "Trạng thái",
-                        Width = 140
+                        HeaderText = "Chiều dài",
+                        Width = 100
                     });
 
                 grid.Columns.Add(
                     new DataGridViewTextBoxColumn
                     {
-                        HeaderText = "Mã nhóm/cuộn",
-                        AutoSizeMode =
-                            DataGridViewAutoSizeColumnMode.Fill,
-                        FillWeight = 120
+                        HeaderText = "Trạng thái",
+                        Width = 140
                     });
 
                 grid.Columns.Add(
@@ -1175,21 +1205,29 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
                         Width = 155
                     });
 
+                grid.Columns.Add(
+                    new DataGridViewTextBoxColumn
+                    {
+                        HeaderText = "Ghi chú",
+                        AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
+                        MinimumWidth = 180,
+                        FillWeight = 120
+                    });
+
                 // ============================
                 // HIỂN THỊ DỮ LIỆU
                 // ============================
                 foreach (var d in details)
                 {
-                    grid.Rows.Add(
-                        d.ChieuDai,
+                    int index = grid.Rows.Add(
                         d.SoLuong,
+                        d.ChieuDai,
                         d.TrangThai,
-                        d.MaNhomCuon,
-                        string.IsNullOrWhiteSpace(d.ThoiGian)
-                            ? "—" : d.ThoiGian,
-                        string.IsNullOrWhiteSpace(d.NguoiThucHien)
-                            ? "—" : d.NguoiThucHien
+                        d.ThoiGian,
+                        d.NguoiThucHien,
+                        d.GhiChu
                     );
+                    ToMauTrangThai(grid.Rows[index].Cells[2], d.TrangThai);
                 }
 
                 // ============================
@@ -1198,7 +1236,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
                 var bottom = new Panel
                 {
                     Dock = DockStyle.Bottom,
-                    Height = 50
+                    Height = 50,
+                    Padding = new Padding(5)
                 };
 
                 var close = new Button

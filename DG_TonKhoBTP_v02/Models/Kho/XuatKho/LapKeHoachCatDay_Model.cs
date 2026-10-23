@@ -50,6 +50,7 @@ namespace DG_TonKhoBTP_v02.Models.Kho.XuatKho
         public int SoLuong { get; set; }
         public string TrangThai { get; set; } = string.Empty;
         public string MaNhomCuon { get; set; } = string.Empty;
+        public string GhiChu { get; set; } = string.Empty;
         public string ThoiGian { get; set; } = string.Empty;
         public string NguoiThucHien { get; set; } = string.Empty;
     }

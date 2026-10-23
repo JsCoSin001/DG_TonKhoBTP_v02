@@ -19,6 +19,24 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
 
         private ComboBoxSearchHelper _tenSanPhamSearchHelper;
         private long? _sanPhamIdDaChon;
+        // Lưu bộ lọc đã thực sự chạy, không đọc lại điều khiển có thể đã bị đổi khi refresh.
+        private BoLocNhapKhoTheoNgay? _boLocDaTim;
+
+        private sealed class BoLocNhapKhoTheoNgay
+        {
+            public DateTime? NgayBatDau { get; set; }
+            public DateTime? NgayKetThuc { get; set; }
+            public DateTime? GioiHanHienTai { get; set; }
+            public string Ca { get; set; } = string.Empty;
+            public long? SanPhamId { get; set; }
+        }
+
+        private static NhapKhoTheoNgaySearchResult TimKiemTheoBoLoc(BoLocNhapKhoTheoNgay boLoc)
+        {
+            return NhapKho_DB.TimKiemNhapKhoTheoNgay(
+                boLoc.NgayBatDau, boLoc.NgayKetThuc, boLoc.Ca,
+                boLoc.SanPhamId, boLoc.GioiHanHienTai);
+        }
 
         private const string CChon = "col_Chon";
         private const string CTTThanhPhamId = "col_TTThanhPham_ID";
@@ -126,6 +144,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
         private void GanSuKien()
         {
             btnTimKiem.Click += btnTimKiem_Click;
+            cbxNgayBD.CheckedChanged += (s, e) => dtNgayBD.Enabled = cbxNgayBD.Checked;
+            cbxNgayKT.CheckedChanged += (s, e) => dtNgayKT.Enabled = cbxNgayKT.Checked;
             btnNhapKho.Click += btnNhapKho_Click;
             cbxAll.CheckedChanged += cbxAll_CheckedChanged;
             dsNhapKho.CellContentClick += dsNhapKho_CellContentClick;
@@ -136,6 +156,11 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
 
         private void ResetMacDinh()
         {
+            _boLocDaTim = null;
+            cbxNgayBD.Checked = true;
+            cbxNgayKT.Checked = true;
+            dtNgayBD.Enabled = cbxNgayBD.Checked;
+            dtNgayKT.Enabled = cbxNgayKT.Checked;
             _sanPhamIdDaChon = null;
             _tenSanPhamSearchHelper?.Reset();
             dtNgayBD.Value = DateTime.Today.AddDays(-1);
@@ -150,21 +175,24 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
 
         private async void btnTimKiem_Click(object sender, EventArgs e)
         {
-            if (dtNgayBD.Value.Date > dtNgayKT.Value.Date)
+            // Hai checkbox độc lập. Chỉ ràng buộc thứ tự ngày khi cả hai được bật.
+            DateTime now = DateTime.Now;
+            DateTime? bd = cbxNgayBD.Checked ? dtNgayBD.Value.Date : (DateTime?)null;
+            DateTime? kt = cbxNgayKT.Checked ? dtNgayKT.Value.Date : (DateTime?)null;
+            if (bd.HasValue && kt.HasValue && bd.Value > kt.Value)
             {
                 FrmWaiting.ShowGifAlert("Ngày bắt đầu không được lớn hơn ngày kết thúc.");
                 return;
             }
-
-            DateTime bd = dtNgayBD.Value.Date;
-            DateTime kt = dtNgayKT.Value.Date;
-            string ca = cbxCa.Text;
-
+            if (bd.HasValue && !kt.HasValue && bd.Value > now)
+            {
+                FrmWaiting.ShowGifAlert("Ngày bắt đầu không được ở tương lai.");
+                return;
+            }
 
             if (!string.IsNullOrWhiteSpace(cbxTimTenSp.Text) && !_sanPhamIdDaChon.HasValue)
             {
-                FrmWaiting.ShowGifAlert(
-                    "Cần chọn lại tên sản phẩm.");
+                FrmWaiting.ShowGifAlert("Cần chọn lại tên sản phẩm.");
                 return;
             }
 
@@ -172,15 +200,23 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
                 ? (long?)null
                 : _sanPhamIdDaChon;
 
+            var boLoc = new BoLocNhapKhoTheoNgay
+            {
+                NgayBatDau = bd,
+                NgayKetThuc = kt,
+                GioiHanHienTai = bd.HasValue && !kt.HasValue ? now : (DateTime?)null,
+                Ca = cbxCa.Text,
+                SanPhamId = sanPhamId
+            };
+
             try
             {
                 NhapKhoTheoNgaySearchResult result =
                     await WaitingHelper.RunWithWaiting(
-                        () => Task.Run(() =>
-                            NhapKho_DB.TimKiemNhapKhoTheoNgay(
-                                bd, kt, ca, sanPhamId)),
+                        () => Task.Run(() => TimKiemTheoBoLoc(boLoc)),
                         "ĐANG TÌM DỮ LIỆU NHẬP KHO...");
 
+                _boLocDaTim = boLoc;
                 NapGrid(result.Items);
 
                 if (result.MaBinBatThuong.Count > 0)
@@ -422,7 +458,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
 
             if (failed.Count == 0)
             {
-                ResetMacDinh();
+                await RefreshDanhSachSauNhapKho();
             }
             else
             {
@@ -510,17 +546,41 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
             return results;
         }
 
+        private async Task RefreshDanhSachSauNhapKho()
+        {
+            // Đọc lại kết quả với đúng bộ lọc của lần tìm kiếm đã thành công.
+            // Không ResetMacDinh: giữ ngày, ca, tên SP và trạng thái checkbox trên màn hình.
+            BoLocNhapKhoTheoNgay? boLoc = _boLocDaTim;
+            if (boLoc == null)
+            {
+                NapGrid(Enumerable.Empty<NhapKhoTheoNgayDong>());
+                return;
+            }
+            try
+            {
+                NhapKhoTheoNgaySearchResult fresh = await WaitingHelper.RunWithWaiting(
+                    () => Task.Run(() => TimKiemTheoBoLoc(boLoc)),
+                    "ĐANG CẬP NHẬT DANH SÁCH NHẬP KHO...");
+                NapGrid(fresh.Items);
+            }
+            catch (Exception ex)
+            {
+                // Không giữ snapshot đã nhập kho để tránh thao tác nhập kho hai lần.
+                NapGrid(Enumerable.Empty<NhapKhoTheoNgayDong>());
+                FrmWaiting.ShowGifAlert($"Đã nhập kho, nhưng không tải lại được danh sách: {ex.Message}", "LỖI");
+            }
+        }
+
         private async Task RefreshMaBinLoi(HashSet<long> failedIds)
         {
-            DateTime bd = dtNgayBD.Value.Date;
-            DateTime kt = dtNgayKT.Value.Date;
-            string ca = cbxCa.Text;
+            BoLocNhapKhoTheoNgay? boLoc = _boLocDaTim;
+            if (boLoc == null) return;
 
             NhapKhoTheoNgaySearchResult fresh;
             try
             {
                 fresh = await WaitingHelper.RunWithWaiting(
-                    () => Task.Run(() => NhapKho_DB.TimKiemNhapKhoTheoNgay(bd, kt, ca)),
+                    () => Task.Run(() => TimKiemTheoBoLoc(boLoc)),
                     "ĐANG CẬP NHẬT LẠI CÁC MÃ BIN LỖI...");
             }
             catch

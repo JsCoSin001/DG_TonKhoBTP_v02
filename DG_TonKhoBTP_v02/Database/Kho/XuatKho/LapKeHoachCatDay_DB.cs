@@ -414,6 +414,158 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
             }
         }
 
+        /// <summary>
+        /// Doc moi khi click Chi tiet. Chi truyen ID da luu trong DB;
+        /// khong su dung snapshot _rows, khong ghi/tu suy dien lich su.
+        /// </summary>
+        public static List<LapKeHoachCatDay_ChiTietThucHien> LayChiTietThucHien(
+            long keHoachId, long keHoachHangId, long? quyCachCuonChanId, long? tonCuonLeId)
+        {
+            var result = new List<LapKeHoachCatDay_ChiTietThucHien>();
+            if (keHoachId <= 0 || keHoachHangId <= 0 ||
+                (quyCachCuonChanId.HasValue == tonCuonLeId.HasValue))
+                return result;
+
+            using var conn = DB_Base.OpenConnection();
+            // Khong tu gan MaCuon cho nguon TTCuonDay: bang TTCuonDay chi co khoa id.
+            const string chiTietQuyCachSql = @"
+                SELECT qc.ChieuDai1Cuon, qc.SoLuongCuonCanLay
+                FROM KeHoachHangQuyCachCuonChan qc
+                JOIN KeHoachHang kh ON kh.id = qc.KeHoachHang_ID
+                WHERE kh.KeHoach_ID = @planId
+                  AND qc.KeHoachHang_ID = @hangId
+                  AND qc.id = @qcId;";
+
+            const string chiTietLayCuonSql = @"
+                SELECT ls.SoLuong, ls.TTCuonDay_ID,
+                       ls.NguoiThucHien, ls.ThoiGianThucHien
+                FROM LichSuLayCuon ls
+                JOIN KeHoachHangQuyCachCuonChan qc ON qc.id = ls.QuyCachCuonChan_ID
+                JOIN KeHoachHang kh ON kh.id = qc.KeHoachHang_ID
+                WHERE kh.KeHoach_ID = @planId
+                  AND ls.KeHoachHang_ID = @hangId
+                  AND qc.id = @qcId
+                ORDER BY ls.ThoiGianThucHien, ls.id;";
+
+            // Khong duoc tu chia lich su cuon nguyen khong co QuyCachCuonChan_ID.
+            const string chiTietLayCuonKhongQuyCachSql = @"
+                SELECT COUNT(*)
+                FROM LichSuLayCuon ls
+                JOIN KeHoachHang kh ON kh.id = ls.KeHoachHang_ID
+                WHERE kh.KeHoach_ID = @planId AND ls.KeHoachHang_ID = @hangId
+                  AND ls.QuyCachCuonChan_ID IS NULL;";
+
+            const string chiTietCatSql = @"
+                SELECT n.id AS Nhom_ID,
+                       d.id AS ChiTiet_ID,
+                       d.ChieuDaiCanCat,
+                       n.TonCuonLe_ID,
+                       COALESCE(tcl.MaCuon, '') AS MaCuon,
+                       lc.id AS LichSuCat_ID,
+                       COALESCE(lc.ThoiGianThucHien, '') AS ThoiGianThucHien,
+                       COALESCE(lc.NguoiThucHien, '') AS NguoiThucHien
+                FROM KeHoachCatNhom n
+                JOIN KeHoachHang kh ON kh.id = n.KeHoachHang_ID
+                JOIN KeHoachCatChiTiet d ON d.KeHoachCatNhom_ID = n.id
+                LEFT JOIN LichSuCat lc ON lc.KeHoachCatChiTiet_ID = d.id
+                LEFT JOIN TonCuonLe tcl ON tcl.id = COALESCE(lc.TonCuonLe_ID, n.TonCuonLe_ID)
+                WHERE kh.KeHoach_ID = @planId
+                  AND n.KeHoachHang_ID = @hangId
+                  AND ((@qcId IS NOT NULL AND n.QuyCachCuonChan_ID = @qcId)
+                    OR (@leId IS NOT NULL AND n.TonCuonLe_ID = @leId))
+                ORDER BY n.id, d.id;";
+
+            if (quyCachCuonChanId.HasValue)
+            {
+                int chieuDai, soLuongKeHoach;
+                using (var cmd = new SQLiteCommand(chiTietQuyCachSql, conn))
+                {
+                    cmd.Parameters.AddWithValue("@planId", keHoachId);
+                    cmd.Parameters.AddWithValue("@hangId", keHoachHangId);
+                    cmd.Parameters.AddWithValue("@qcId", quyCachCuonChanId.Value);
+                    using var reader = cmd.ExecuteReader();
+                    if (!reader.Read()) return result;
+                    chieuDai = Convert.ToInt32(reader["ChieuDai1Cuon"], CultureInfo.InvariantCulture);
+                    soLuongKeHoach = Convert.ToInt32(reader["SoLuongCuonCanLay"], CultureInfo.InvariantCulture);
+                }
+
+                // Cot QuyCachCuonChan_ID la nullable trong schema: neu thieu thi
+                // khong co can cu quy lich su vao bat ky quy cach nao cua hang.
+                using (var cmd = new SQLiteCommand(chiTietLayCuonKhongQuyCachSql, conn))
+                {
+                    cmd.Parameters.AddWithValue("@planId", keHoachId);
+                    cmd.Parameters.AddWithValue("@hangId", keHoachHangId);
+                    if (Convert.ToInt64(cmd.ExecuteScalar(), CultureInfo.InvariantCulture) > 0)
+                        throw new InvalidOperationException(
+                            "Lịch sử lấy cuộn của dòng này thiếu ID quy cách. " +
+                            "Không thể xác định tiến độ chính xác; cần kiểm tra dữ liệu thực hiện.");
+                }
+
+                int daLay = 0;
+                using (var cmd = new SQLiteCommand(chiTietLayCuonSql, conn))
+                {
+                    cmd.Parameters.AddWithValue("@planId", keHoachId);
+                    cmd.Parameters.AddWithValue("@hangId", keHoachHangId);
+                    cmd.Parameters.AddWithValue("@qcId", quyCachCuonChanId.Value);
+                    using var reader = cmd.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        int soLuong = Convert.ToInt32(reader["SoLuong"], CultureInfo.InvariantCulture);
+                        daLay += soLuong;
+                        result.Add(new LapKeHoachCatDay_ChiTietThucHien
+                        {
+                            ChieuDai = chieuDai,
+                            SoLuong = soLuong,
+                            TrangThai = LapKeHoachCatDay_TrangThai.DaThucHien,
+                            // TTCuonDay_ID la ID nguon, khong khang dinh la ma cuon vat ly.
+                            MaNhomCuon = "Nguồn TTCuonDay #" + Convert.ToString(reader["TTCuonDay_ID"], CultureInfo.InvariantCulture),
+                            ThoiGian = Convert.ToString(reader["ThoiGianThucHien"], CultureInfo.InvariantCulture) ?? string.Empty,
+                            NguoiThucHien = Convert.ToString(reader["NguoiThucHien"], CultureInfo.InvariantCulture) ?? string.Empty
+                        });
+                    }
+                }
+                if (soLuongKeHoach > daLay)
+                {
+                    result.Add(new LapKeHoachCatDay_ChiTietThucHien
+                    {
+                        ChieuDai = chieuDai,
+                        SoLuong = soLuongKeHoach - daLay,
+                        TrangThai = LapKeHoachCatDay_TrangThai.ChuaThucHien,
+                        MaNhomCuon = "Quy cách #" + quyCachCuonChanId.Value.ToString(CultureInfo.InvariantCulture)
+                    });
+                }
+            }
+
+            using (var cmd = new SQLiteCommand(chiTietCatSql, conn))
+            {
+                cmd.Parameters.AddWithValue("@planId", keHoachId);
+                cmd.Parameters.AddWithValue("@hangId", keHoachHangId);
+                cmd.Parameters.AddWithValue("@qcId", quyCachCuonChanId.HasValue
+                    ? (object)quyCachCuonChanId.Value : DBNull.Value);
+                cmd.Parameters.AddWithValue("@leId", tonCuonLeId.HasValue
+                    ? (object)tonCuonLeId.Value : DBNull.Value);
+                using var reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    string maCuon = Convert.ToString(reader["MaCuon"], CultureInfo.InvariantCulture) ?? string.Empty;
+                    string maNhom = "Nhóm #" + Convert.ToString(reader["Nhom_ID"], CultureInfo.InvariantCulture);
+                    if (!string.IsNullOrWhiteSpace(maCuon)) maNhom += " / " + maCuon;
+                    bool daCat = reader["LichSuCat_ID"] != DBNull.Value;
+                    result.Add(new LapKeHoachCatDay_ChiTietThucHien
+                    {
+                        ChieuDai = Convert.ToInt32(reader["ChieuDaiCanCat"], CultureInfo.InvariantCulture),
+                        SoLuong = 1, // Mot KeHoachCatChiTiet = mot doan cat.
+                        TrangThai = daCat ? LapKeHoachCatDay_TrangThai.DaThucHien
+                            : LapKeHoachCatDay_TrangThai.ChuaThucHien,
+                        MaNhomCuon = maNhom,
+                        ThoiGian = daCat ? Convert.ToString(reader["ThoiGianThucHien"], CultureInfo.InvariantCulture) ?? string.Empty : string.Empty,
+                        NguoiThucHien = daCat ? Convert.ToString(reader["NguoiThucHien"], CultureInfo.InvariantCulture) ?? string.Empty : string.Empty
+                    });
+                }
+            }
+            return result;
+        }
+
         public static LapKeHoachCatDay_KeHoachContext LayKeHoachTheoMa(string maKeHoach)
         {
             var result = new LapKeHoachCatDay_KeHoachContext();

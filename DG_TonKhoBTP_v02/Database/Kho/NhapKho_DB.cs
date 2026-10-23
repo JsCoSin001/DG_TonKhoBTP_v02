@@ -91,18 +91,33 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
         }
 
         /// <summary>
-        /// Tìm các TTCuonDay_CD còn lại theo Ngày/Ca để nhập kho hàng loạt.
+        /// Tìm các TTCuonDay_CD còn lại theo bộ lọc ngày tùy chọn/ca/sản phẩm để nhập kho hàng loạt.
         /// Chỉ trả MaBin có CongDoan=5, ChieuDaiSau>0 và tổng mét chi tiết còn lại
         /// khớp ChieuDaiSau. MaBin lệch dữ liệu được đưa vào MaBinBatThuong và không trả item.
         /// </summary>
         public static DG_TonKhoBTP_v02.Models.NhapKhoTheoNgaySearchResult TimKiemNhapKhoTheoNgay(
-            DateTime ngayBatDau,
-            DateTime ngayKetThuc,
+            DateTime? ngayBatDau,
+            DateTime? ngayKetThuc,
             string ca,
-            long? danhSachSpId = null)
+            long? danhSachSpId = null,
+            DateTime? gioiHanHienTai = null)
         {
-            if (ngayBatDau.Date > ngayKetThuc.Date)
+            if (ngayBatDau.HasValue && ngayKetThuc.HasValue
+                && ngayBatDau.Value.Date > ngayKetThuc.Value.Date)
                 throw new ArgumentException("Ngày bắt đầu không được lớn hơn ngày kết thúc.");
+
+            // Trường hợp chỉ chọn ngày bắt đầu: giới hạn đến thời điểm tìm kiếm.
+            // UI truyền chính xác thời điểm click để những lần refresh giữ cùng mốc.
+            if (ngayBatDau.HasValue && !ngayKetThuc.HasValue)
+            {
+                gioiHanHienTai ??= DateTime.Now;
+                if (ngayBatDau.Value.Date > gioiHanHienTai.Value)
+                    throw new ArgumentException("Ngày bắt đầu không được ở tương lai.");
+            }
+            else
+            {
+                gioiHanHienTai = null;
+            }
 
             string caFilter = (ca ?? string.Empty).Trim();
             bool toanBoCa = string.IsNullOrWhiteSpace(caFilter)
@@ -116,6 +131,23 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                     THEN substr(clv.NgayKetThuc, 7, 4) || '-' || substr(clv.NgayKetThuc, 4, 2) || '-' || substr(clv.NgayKetThuc, 1, 2)
                 ELSE substr(clv.NgayKetThuc, 1, 10)
             END";
+
+            // Dùng cùng một biểu thức cho summary và detail để hai tập dữ liệu không lệch nhau.
+            // Ngày kết thúc được so sánh theo ngày lịch; chỉ chế độ BĐ-only mới xét cả giờ.
+            // GioKetThuc null/không hợp lệ trong ngày hôm nay bị loại vì không xác định
+            // được bản ghi đó đã xảy ra trước thời điểm nhấn Tìm kiếm hay chưa.
+            string ngayFilter = $@"
+                  AND (@NgayBD IS NULL OR date({normalizedNgay}) >= date(@NgayBD))
+                  AND (@NgayKT IS NULL OR date({normalizedNgay}) <= date(@NgayKT))
+                  AND (
+                      @GioiHanHienTai IS NULL
+                      OR date({normalizedNgay}) < date(@GioiHanHienTai)
+                      OR (
+                          date({normalizedNgay}) = date(@GioiHanHienTai)
+                          AND time(clv.GioKetThuc) IS NOT NULL
+                          AND time(clv.GioKetThuc) <= time(@GioiHanHienTai)
+                      )
+                  )";
 
             string sourceCte = @"
                 WITH source_remaining AS (
@@ -163,7 +195,7 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                 WHERE tp.Temp=0
                   AND tp.CongDoan=5
                   AND tp.ChieuDaiSau>0
-                  AND date(" + normalizedNgay + @") BETWEEN date(@NgayBD) AND date(@NgayKT)
+" + ngayFilter + @"
                   AND (@ToanBoCa=1 OR clv.Ca=@Ca)
                   AND (@DanhSachSpId IS NULL OR tp.DanhSachSP_ID = @DanhSachSpId)
                 GROUP BY tp.id,tp.MaBin,sp.Ma,sp.Ten,tp.ChieuDaiSau,clv.NgayKetThuc,clv.Ca
@@ -173,8 +205,14 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
             using (var conn = DB_Base.OpenConnection())
             using (var cmd = new SQLiteCommand(summarySql, conn))
             {
-                cmd.Parameters.AddWithValue("@NgayBD", ngayBatDau.Date.ToString("yyyy-MM-dd"));
-                cmd.Parameters.AddWithValue("@NgayKT", ngayKetThuc.Date.ToString("yyyy-MM-dd"));
+                cmd.Parameters.AddWithValue("@NgayBD",
+                    ngayBatDau.HasValue ? (object)ngayBatDau.Value.Date.ToString("yyyy-MM-dd") : DBNull.Value);
+                cmd.Parameters.AddWithValue("@NgayKT",
+                    ngayKetThuc.HasValue ? (object)ngayKetThuc.Value.Date.ToString("yyyy-MM-dd") : DBNull.Value);
+                cmd.Parameters.AddWithValue("@GioiHanHienTai",
+                    gioiHanHienTai.HasValue
+                        ? (object)gioiHanHienTai.Value.ToString("yyyy-MM-dd HH:mm:ss")
+                        : DBNull.Value);
                 cmd.Parameters.AddWithValue("@ToanBoCa", toanBoCa ? 1 : 0);
                 cmd.Parameters.AddWithValue("@Ca", caFilter);
 
@@ -233,7 +271,7 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                 INNER JOIN source_remaining sr ON sr.TTThanhPham_ID=tp.id AND sr.SoLuongCon>0
                 WHERE tp.Temp=0
                   AND tp.id IN (" + string.Join(",", paramNames) + @")
-                  AND date(" + normalizedNgay + @") BETWEEN date(@NgayBD) AND date(@NgayKT)
+" + ngayFilter + @"
                   AND (@ToanBoCa=1 OR clv.Ca=@Ca)
                   AND (@DanhSachSpId IS NULL OR tp.DanhSachSP_ID = @DanhSachSpId)
                 ORDER BY clv.NgayKetThuc,tp.MaBin,sr.TTCuonDay_CD_ID;";
@@ -241,8 +279,14 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
             using (var conn = DB_Base.OpenConnection())
             using (var cmd = new SQLiteCommand(detailSql, conn))
             {
-                cmd.Parameters.AddWithValue("@NgayBD", ngayBatDau.Date.ToString("yyyy-MM-dd"));
-                cmd.Parameters.AddWithValue("@NgayKT", ngayKetThuc.Date.ToString("yyyy-MM-dd"));
+                cmd.Parameters.AddWithValue("@NgayBD",
+                    ngayBatDau.HasValue ? (object)ngayBatDau.Value.Date.ToString("yyyy-MM-dd") : DBNull.Value);
+                cmd.Parameters.AddWithValue("@NgayKT",
+                    ngayKetThuc.HasValue ? (object)ngayKetThuc.Value.Date.ToString("yyyy-MM-dd") : DBNull.Value);
+                cmd.Parameters.AddWithValue("@GioiHanHienTai",
+                    gioiHanHienTai.HasValue
+                        ? (object)gioiHanHienTai.Value.ToString("yyyy-MM-dd HH:mm:ss")
+                        : DBNull.Value);
                 cmd.Parameters.AddWithValue("@ToanBoCa", toanBoCa ? 1 : 0);
                 cmd.Parameters.AddWithValue("@Ca", caFilter);
 

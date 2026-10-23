@@ -43,6 +43,17 @@ namespace DG_TonKhoBTP_v02.Models.Kho.XuatKho
         public string NguoiTao { get; set; } = string.Empty;
     }
 
+    // Mot dong hien thi trong cua so xem tien do, doc truc tiep tu lich su B3.
+    internal sealed class LapKeHoachCatDay_ChiTietThucHien
+    {
+        public int ChieuDai { get; set; }
+        public int SoLuong { get; set; }
+        public string TrangThai { get; set; } = string.Empty;
+        public string MaNhomCuon { get; set; } = string.Empty;
+        public string ThoiGian { get; set; } = string.Empty;
+        public string NguoiThucHien { get; set; } = string.Empty;
+    }
+
     internal sealed class LapKeHoachCatDay_ChiTietCat
     {
         public long? Id { get; set; }

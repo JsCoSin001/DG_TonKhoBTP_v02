@@ -135,35 +135,61 @@ namespace DG_TonKhoBTP_v02.UI
             }
 
             if (sender == cbxCaKT || sender == dtGioKT)
-                CapNhatKetThucTheoCa();
+                CapNhatKetThucTheoCa(sender == cbxCaKT);
             CapNhatLoiKetThuc(out _);
             RaiseThongTinCaLamViecChanged();
             if (sender == cbxCaKT)
                 KiemTraKetThuc(cbxCaKT, null);
         }
 
-        private void CapNhatKetThucTheoCa()
+        private void CapNhatKetThucTheoCa(bool caThayDoi)
         {
             bool oldState = _dangCapNhatNoiBo;
             _dangCapNhatNoiBo = true;
+
             try
             {
-                dtGioKT.Enabled = CaLamViecPolicy.GioDauCa(cbxCaKT.Text).HasValue;
+                dtGioKT.Enabled =
+                    CaLamViecPolicy.GioDauCa(cbxCaKT.Text).HasValue;
+
+                // Khi chọn ca kết thúc, tự động lấy giờ hiện tại.
+                if (caThayDoi && dtGioKT.Enabled)
+                {
+                    dtGioKT.Value = DateTime.Now;
+                    dtGioKT.Checked = true;
+                }
+
                 dtGioKT.ShowCheckBox = !dtGioKT.Checked;
-                DateTime gioHienThi = dtGioKT.Value.Date.AddHours(dtGioKT.Value.Hour).AddMinutes(dtGioKT.Value.Minute);
+
+                // Chỉ giữ giờ và phút, loại bỏ giây ẩn.
+                DateTime gioHienThi = dtGioKT.Value.Date
+                    .AddHours(dtGioKT.Value.Hour)
+                    .AddMinutes(dtGioKT.Value.Minute);
+
                 if (dtGioKT.Value != gioHienThi)
                     dtGioKT.Value = gioHienThi;
-                // Không tự sửa giờ sai khi đổi ca kết thúc: người dùng phải nhập lại.
+
+                // Tự động cập nhật ngày kết thúc nếu chưa sửa tay.
                 if (!_ngayKetThucDaSuaTay)
                 {
                     DateTime ngay = DateTime.Today;
-                    if ((cbxCaKT.Text == "2" || cbxCaKT.Text == "3") && dtGioKT.Checked &&
-                        dtGioKT.Value.TimeOfDay < TimeSpan.FromHours(6))
+
+                    if ((cbxCaKT.Text == "2" || cbxCaKT.Text == "3")
+                        && dtGioKT.Checked
+                        && dtGioKT.Value.TimeOfDay < TimeSpan.FromHours(6))
+                    {
                         ngay = ngay.AddDays(-1);
-                    tbNgayKT.Text = ngay.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture);
+                    }
+
+                    tbNgayKT.Text = ngay.ToString(
+                        "dd/MM/yyyy",
+                        CultureInfo.InvariantCulture);
                 }
             }
-            finally { _dangCapNhatNoiBo = oldState; }
+            finally
+            {
+                _dangCapNhatNoiBo = oldState;
+            }
         }
 
         private string LayLoiKetThuc(out Control controlLoi)

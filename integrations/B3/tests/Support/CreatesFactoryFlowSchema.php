@@ -62,5 +62,14 @@ trait CreatesFactoryFlowSchema
             $t->integer('SoDauTruoc'); $t->integer('SoCuoiTruoc'); $t->integer('SoDauCat'); $t->integer('SoCuoiCat'); $t->integer('SoDauSau'); $t->integer('SoCuoiSau'); $t->integer('HeSoChieu'); $t->string('MaQuetThucTe'); $t->string('NguoiThucHien'); $t->string('GhiChu')->nullable();
             $t->text('DieuChinhThongSo')->nullable();
         });
+        Schema::table('LichSuCat', function (Blueprint $t) {
+            $t->timestamp('ThoiGianThucHien')->useCurrent();
+        });
+        Schema::table('LichSuLayCuon', function (Blueprint $t) {
+            $t->timestamp('ThoiGianThucHien')->useCurrent();
+        });
+        \Illuminate\Support\Facades\DB::unprepared(file_get_contents(
+            dirname(__DIR__, 4).'/database/Migration_B2B3_ExecutionEdit_20261026.sql'
+        ));
     }
 }

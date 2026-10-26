@@ -128,10 +128,14 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Xml" />
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Models\Kho\XuatKho\ExecutionEdit_Model.cs" />
+    <Compile Include="Database\Kho\XuatKho\ExecutionEditAudit.cs" />
+    <Compile Include="Database\Kho\XuatKho\ExecutionEdit_DB.cs" />
     <Compile Include="Core\ControlCleaner.cs" />
     <Compile Include="Core\DataLoadMode.cs" />
     <Compile Include="Core\FormSnapshotBuilder.cs" />

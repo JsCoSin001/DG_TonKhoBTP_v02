@@ -39,6 +39,21 @@ function New-EEObject([string]$name, [object[]]$arguments=@()) {
 }
 function Invoke-EE([string]$method, [object[]]$arguments=@()) {
     $type=$script:EEAssembly.GetType('DG_TonKhoBTP_v02.Database.Kho.XuatKho.ExecutionEdit_DB',$true)
-    try { return $type.GetMethod($method,[Reflection.BindingFlags]'Static,Public,NonPublic').Invoke($null,$arguments) }
+    try { return $type.GetMethod($method,[Reflection.BindingFlags]'Static,Public').Invoke($null,$arguments) }
     catch { if($_.Exception.InnerException) { throw $_.Exception.InnerException }; throw }
+}
+function Invoke-EEB3([string]$path,[string]$action,[hashtable]$payload) {
+    $jsonPath=$path+'.json'
+    try {
+        [IO.File]::WriteAllText($jsonPath,($payload | ConvertTo-Json -Depth 15),(New-Object Text.UTF8Encoding($false)))
+        $ini=Join-Path $PSScriptRoot '../.superpowers/sdd/2026-10-26-b2-b3-execution-edit/php.ini'
+        $output=& php -c $ini (Join-Path $PSScriptRoot 'fixtures/execution-edit/b3-bridge.php') --db $path --action $action --payload $jsonPath
+        if($LASTEXITCODE -ne 0) { throw "PHP bridge failed: $output" }
+        return ($output | ConvertFrom-Json)
+    } finally { Remove-Item -LiteralPath $jsonPath -ErrorAction SilentlyContinue }
+}
+function Add-EETestCut([string]$path,[int]$detail=60,[string]$token='11111111-1111-4111-8111-111111111111') {
+    $r=Invoke-EEB3 $path 'cut' @{raw_qr='LE-001';ke_hoach_id=1;ke_hoach_hang_id=40;group_id=50;detail_id=$detail;operation_token=$token}
+    Assert-EE $r.ok "B3 cut fixture: $($r.message)"
+    return $r
 }

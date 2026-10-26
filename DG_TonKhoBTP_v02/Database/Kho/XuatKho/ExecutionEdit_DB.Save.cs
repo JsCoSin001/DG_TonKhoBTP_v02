@@ -120,12 +120,15 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
                     {
                         if (T(previous.Rows[0], "DauVanTayYeuCau") != fingerprint || N(previous.Rows[0], "NguoiSua_ID") != actorId)
                             throw new ExecutionEditException("request", "Mã lần lưu đã được dùng cho nội dung hoặc tài khoản khác.");
+                        if (Table(conn, tx, "SELECT MaLanLuu FROM B2DieuChinhKetQua WHERE MaLanLuu=@id", "@id", request.ChangeId.ToString("D")).Rows.Count != 1)
+                            throw new ExecutionEditException("audit", "Thiếu kết quả nhật ký của lần lưu; không được suy đoán trạng thái thành công.");
                         var retry = new ExecutionEditResult { Success = true, ChangedPlanIds = new List<long> { request.Query.PlanId } };
                         try { retry.NewSnapshot = Load(conn, tx, request.Query); } catch (InvalidOperationException) { }
                         tx.Commit(); return retry;
                     }
                     var s = ValidateRequest(conn, tx, request);
                     var undoPlan = ExecutionUndoPlanner.Build(request, UndoContext(conn, tx, s));
+                    var effects = CaptureAffectedEntities(conn, tx, request, s, undoPlan);
                     Exec(conn, tx, @"INSERT INTO B2DieuChinhLanLuu
                         (MaLanLuu,DauVanTayYeuCau,KeHoach_ID,NguoiSua_ID,NguoiSua,KetQuaJson)
                         VALUES(@id,@hash,@plan,@actorId,@actor,@result)",
@@ -135,7 +138,11 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
                     ApplyCorrections(conn, tx, request, s);
                     ApplyUndo(conn, tx, request, undoPlan);
                     ValidateInventory(conn, tx, s, request, undoPlan);
-                    var result = new ExecutionEditResult { Success = true, NewSnapshot = Load(conn, tx, request.Query),
+                    CompleteBatchAudit(conn, tx, request, s.Versions, effects);
+                    // A conversion undo intentionally removes the generated partial's scope.
+                    bool removedScope = request.Query.PartialReelId.HasValue && undoPlan.ReelRestores.Any(x =>
+                        x.Remove && x.ReelId == request.Query.PartialReelId.Value);
+                    var result = new ExecutionEditResult { Success = true, NewSnapshot = removedScope ? null : Load(conn, tx, request.Query),
                         ChangedPlanIds = new List<long> { request.Query.PlanId }, ChangedReelIds = request.ReelEdits.Select(x => x.ReelId)
                             .Concat(undoPlan.ReelRestores.Select(x => x.ReelId)).Distinct().ToList() };
                     tx.Commit(); return result;
@@ -150,6 +157,7 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
                 }
                 catch (InvalidOperationException ex) { return Error("data", ex.Message); }
                 catch (OverflowException) { return Error("markers", "Mốc số vượt giới hạn cho phép."); }
+                catch (ArgumentException) { return Error("audit", "Nhật ký nguồn không hợp lệ; không được suy đoán để sửa."); }
             }
             return Error("database", "Cơ sở dữ liệu đang bận. Vui lòng thử lại.");
         }

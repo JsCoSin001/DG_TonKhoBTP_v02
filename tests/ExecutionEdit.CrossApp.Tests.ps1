@@ -31,7 +31,7 @@ try {
     $p.operation_token='33333333-3333-4333-8333-333333333333'
     Assert-EE (Invoke-EEB3 $path cut $p).ok 'A genuinely new B3 operation can execute after undo'
     $s=Invoke-EE 'Load' @($q);$r=New-EERequest $s;$m=New-EEObject 'ReelMarkerEdit';$m.ReelId=70;$m.NewEnd=2650;$m.NewDirection=1;$m.Reason='MARKERS';$r.ReelEdits.Add($m)
-    $ini=(Resolve-Path "$PSScriptRoot/../.superpowers/sdd/2026-10-26-b2-b3-execution-edit/php.ini").Path
+    $ini=$path+'.php.ini'
     $bridge=(Resolve-Path "$PSScriptRoot/fixtures/execution-edit/b3-bridge.php").Path
     $locker=Start-Process -FilePath (Get-Command php).Source -WindowStyle Hidden -PassThru -ArgumentList @('-c',"`"$ini`"","`"$bridge`"",'--db',"`"$path`"",'--action','hold')
     $deadline=[DateTime]::UtcNow.AddSeconds(10)

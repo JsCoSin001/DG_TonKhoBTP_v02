@@ -1,7 +1,9 @@
+param([string]$TestAssemblyPath)
 $ErrorActionPreference = 'Stop'
 Add-Type -AssemblyName System.Windows.Forms
-$script:EEAssembly = [Reflection.Assembly]::LoadFrom((Join-Path $PSScriptRoot '../DG_TonKhoBTP_v02/bin/Debug/DG_TonKhoBTP_v02.exe'))
-$null = [Reflection.Assembly]::LoadFrom((Join-Path $PSScriptRoot '../DG_TonKhoBTP_v02/bin/Debug/System.Data.SQLite.dll'))
+if(-not $TestAssemblyPath){$TestAssemblyPath=Join-Path $PSScriptRoot '../DG_TonKhoBTP_v02/bin/Debug/DG_TonKhoBTP_v02.exe'}
+$script:EEAssembly = [Reflection.Assembly]::LoadFrom($TestAssemblyPath)
+$null = [Reflection.Assembly]::LoadFrom((Join-Path (Split-Path $TestAssemblyPath) 'System.Data.SQLite.dll'))
 $script:EEOriginalConnection = [DG_TonKhoBTP_v02.Database.DB_Base]::_connStr
 function Assert-EE($condition, [string]$message) { if (-not $condition) { throw "ASSERT: $message" } }
 function Invoke-EESql([string]$sql) {
@@ -14,6 +16,10 @@ function Get-EEScalar([string]$sql) {
 }
 function New-ExecutionEditFixture([switch]$WithoutMigration) {
     $path=Join-Path ([IO.Path]::GetTempPath()) ('ExecutionEdit.'+[Guid]::NewGuid().ToString('N')+'.db')
+    $extensionDir=(Join-Path (Split-Path (Get-Command php -ErrorAction Stop).Source) 'ext').Replace('\','/')
+    $settings=@(('extension_dir="'+$extensionDir+'"'),'memory_limit=512M','date.timezone=Asia/Ho_Chi_Minh')
+    foreach($extension in @('openssl','curl','fileinfo','mbstring','pdo_sqlite','sqlite3','zip')) {$settings+=('extension='+$extension)}
+    [IO.File]::WriteAllText(($path+'.php.ini'),($settings -join [Environment]::NewLine),(New-Object Text.UTF8Encoding($false)))
     [DG_TonKhoBTP_v02.Database.DB_Base]::SetDatabasePath($path)
     Invoke-EESql ([IO.File]::ReadAllText((Join-Path $PSScriptRoot 'fixtures/execution-edit/base-schema.sql')))
     Invoke-EESql ([IO.File]::ReadAllText((Join-Path $PSScriptRoot 'fixtures/execution-edit/seed.sql')))
@@ -31,7 +37,10 @@ function Apply-ExecutionEditMigration([string]$path) {
 function Close-ExecutionEditFixture([string]$path) {
     [DG_TonKhoBTP_v02.Database.DB_Base]::_connStr=$script:EEOriginalConnection
     [System.Data.SQLite.SQLiteConnection]::ClearAllPools()
-    if($path -and (Split-Path $path -Leaf) -like 'ExecutionEdit.*.db') { Remove-Item -LiteralPath $path -ErrorAction SilentlyContinue }
+    if($path -and (Split-Path $path -Leaf) -like 'ExecutionEdit.*.db') {
+        Remove-Item -LiteralPath $path -ErrorAction SilentlyContinue
+        Remove-Item -LiteralPath ($path+'.php.ini') -ErrorAction SilentlyContinue
+    }
 }
 function New-EEObject([string]$name, [object[]]$arguments=@()) {
     $type=$script:EEAssembly.GetType('DG_TonKhoBTP_v02.Models.Kho.XuatKho.'+$name,$true)
@@ -39,14 +48,14 @@ function New-EEObject([string]$name, [object[]]$arguments=@()) {
 }
 function Invoke-EE([string]$method, [object[]]$arguments=@()) {
     $type=$script:EEAssembly.GetType('DG_TonKhoBTP_v02.Database.Kho.XuatKho.ExecutionEdit_DB',$true)
-    try { return $type.GetMethod($method,[Reflection.BindingFlags]'Static,Public').Invoke($null,$arguments) }
+    try { return ,$type.GetMethod($method,[Reflection.BindingFlags]'Static,Public').Invoke($null,$arguments) }
     catch { if($_.Exception.InnerException) { throw $_.Exception.InnerException }; throw }
 }
 function Invoke-EEB3([string]$path,[string]$action,[hashtable]$payload) {
     $jsonPath=$path+'.json'
     try {
         [IO.File]::WriteAllText($jsonPath,($payload | ConvertTo-Json -Depth 15),(New-Object Text.UTF8Encoding($false)))
-        $ini=Join-Path $PSScriptRoot '../.superpowers/sdd/2026-10-26-b2-b3-execution-edit/php.ini'
+        $ini=$path+'.php.ini'
         $output=& php -c $ini (Join-Path $PSScriptRoot 'fixtures/execution-edit/b3-bridge.php') --db $path --action $action --payload $jsonPath
         if($LASTEXITCODE -ne 0) { throw "PHP bridge failed: $output" }
         return ($output | ConvertFrom-Json)

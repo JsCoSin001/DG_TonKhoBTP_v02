@@ -39,6 +39,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
         private Guid _changeId = Guid.NewGuid();
         private int _generation;
         private int _validatedGeneration = -1;
+        private string _batchImpact = "";
         private readonly Button _reload = new Button { Name = "btnDoiChieuDuLieuMoi", Text = "Tải mới để đối chiếu", AutoSize = true, Visible = false };
         private bool _binding, _saving;
         public ExecutionEditResult? LastSaveResult { get; private set; }
@@ -82,6 +83,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
             markerLayout.Controls.Add(markerReason, 0, 2); markerLayout.SetColumnSpan(markerReason, 3); _markers.Controls.Add(markerLayout);
             detail.Controls.Add(_markers, 0, 4); detail.SetColumnSpan(_markers, 2);
             detail.Controls.Add(_impact, 0, 5); detail.SetColumnSpan(_impact, 2); info.Controls.Add(detail);
+            detail.SizeChanged += (s, e) => _impact.MaximumSize = new Size(Math.Max(200, detail.ClientSize.Width - 16), 0);
             detail.SizeChanged += (s, e) => _impact.MaximumSize = new Size(Math.Max(200, detail.ClientSize.Width - 20), 0);
             var bottom = new FlowLayoutPanel { Dock = DockStyle.Fill, FlowDirection = FlowDirection.RightToLeft, WrapContents = false, Padding = new Padding(3) };
             bottom.Controls.AddRange(new Control[] { _close, _save, _discard, _reload, _count }); layout.Controls.Add(bottom, 0, 3);
@@ -178,7 +180,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
                     _end.Enabled = _direction.Enabled = !_saving && _snapshot.EditingEnabled && reel.Length > 0 && reel.Status == "ACTIVE" && !undoing;
                     _markerReason.Enabled = _end.Enabled && marker != null;
                 }
-                _impact.Text = !_snapshot.EditingEnabled ? (_snapshot.PlanStatus == "HUY" ? "Kế hoạch đã hủy — chỉ xem." : "Chức năng sửa chưa bật sau cập nhật B2/B3 — chỉ xem.") :
+                _impact.Text = _draft.HasChanges && _batchImpact.Length > 0 ? _batchImpact :
+                    !_snapshot.EditingEnabled ? (_snapshot.PlanStatus == "HUY" ? "Kế hoạch đã hủy — chỉ xem." : "Chức năng sửa chưa bật sau cập nhật B2/B3 — chỉ xem.") :
                     "Chọn trạng thái ngay trên bảng hoặc sửa người / mốc cuộn tại đây.";
             }
             finally { _binding = false; }
@@ -226,7 +229,12 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
             foreach (DataGridViewRow r in _grid.Rows)
                 r.DefaultCellStyle.BackColor = _draft.RowEdits.ContainsKey(((ExecutionDetailRow)r.Tag).OperationToken) ? Color.LightGoldenrodYellow : _grid.DefaultCellStyle.BackColor;
         }
-        private void Changed() { _generation++; UpdateDraftState(); _previewTimer.Stop(); if (_draft.HasChanges) _previewTimer.Start(); }
+        private void Changed()
+        {
+            _generation++; _batchImpact = _draft.HasChanges ? "Đang kiểm tra tác động của toàn bộ thay đổi…" : "";
+            if (_draft.HasChanges) _impact.Text = _batchImpact;
+            UpdateDraftState(); _previewTimer.Stop(); if (_draft.HasChanges) _previewTimer.Start();
+        }
         private async Task PreviewAsync()
         {
             if (_saving || !_draft.HasChanges || IsDisposed) return;
@@ -238,8 +246,9 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
             _validatedGeneration = preview.Valid ? generation : -1;
             _reload.Visible = !preview.Valid && preview.Message.Contains("đã thay đổi");
             UpdateDraftState();
-            _impact.Text = preview.Valid ? string.Join(Environment.NewLine, preview.ImpactByRowKey.Values.Concat(preview.ImpactByReelId.Values)) : preview.Message;
-            if (preview.Valid && _impact.Text.Length == 0) _impact.Text = "Sửa người thực hiện; giữ nguyên tồn và thời gian. Tài khoản người sửa được lưu riêng.";
+            _batchImpact = preview.Valid ? string.Join(Environment.NewLine, preview.ImpactByRowKey.Values.Concat(preview.ImpactByReelId.Values)) : preview.Message;
+            if (preview.Valid && _batchImpact.Length == 0) _batchImpact = "Sửa người thực hiện; giữ nguyên tồn và thời gian. Tài khoản người sửa được lưu riêng.";
+            _impact.Text = _batchImpact;
         }
         private async Task<bool> SaveAsync()
         {

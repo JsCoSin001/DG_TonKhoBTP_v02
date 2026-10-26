@@ -123,6 +123,11 @@ namespace DG_TonKhoBTP_v02.Models.Kho.XuatKho
         public long ReelId { get; set; }
         public string BasisToken { get; set; } = "";
         public string AfterJson { get; set; } = "";
+        public string BeforeJson { get; set; } = "";
+        public long PlanId { get; set; }
+        public string PlanCode { get; set; } = "";
+        public string Editor { get; set; } = "";
+        public string EditedAt { get; set; } = "";
     }
     internal sealed class ExecutionGroupLink
     {

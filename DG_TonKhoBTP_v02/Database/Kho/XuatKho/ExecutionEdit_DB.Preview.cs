@@ -32,11 +32,14 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
                 foreach (DataRow row in Table(conn, tx, @"SELECT n.id,h.KeHoach_ID FROM KeHoachCatNhom n
                     JOIN KeHoachHang h ON h.id=n.KeHoachHang_ID WHERE n.TonCuonLe_ID=@id", "@id", reel).Rows)
                     context.Groups.Add(new ExecutionGroupLink { GroupId = N(row, "id"), PlanId = N(row, "KeHoach_ID"), ReelId = reel });
-                foreach (DataRow row in Table(conn, tx, @"SELECT s.* FROM B2DieuChinhSuKien s WHERE s.Loai='DOI_MOC'
+                foreach (DataRow row in Table(conn, tx, @"SELECT s.*,b.KeHoach_ID,b.NguoiSua,b.ThoiGianSua,k.MaKeHoach
+                    FROM B2DieuChinhSuKien s JOIN B2DieuChinhLanLuu b ON b.MaLanLuu=s.MaLanLuu
+                    LEFT JOIN KeHoach k ON k.id=b.KeHoach_ID WHERE s.Loai='DOI_MOC'
                     AND s.DoiTuong='REEL' AND s.DoiTuong_ID=@id AND NOT EXISTS
                     (SELECT 1 FROM B2DieuChinhSuKien h WHERE h.Loai='HET_HIEU_LUC_MOC' AND h.SuKienMoc_ID=s.id)", "@id", reel).Rows)
                     context.MarkerEvents.Add(new ExecutionMarkerEvent { Id = N(row, "id"), ReelId = reel,
-                        BasisToken = T(row, "MaThaoTacCoSo"), AfterJson = T(row, "SauJson") });
+                        BasisToken = T(row, "MaThaoTacCoSo"), AfterJson = T(row, "SauJson"), BeforeJson = T(row, "TruocJson"),
+                        PlanId = N(row, "KeHoach_ID"), PlanCode = T(row, "MaKeHoach"), Editor = T(row, "NguoiSua"), EditedAt = T(row, "ThoiGianSua") });
             }
             foreach (var op in context.Operations.Where(x => x.Kind == "TAKE"))
             {
@@ -62,7 +65,14 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
                         "Khôi phục mốc " + restore.Start + " → " + restore.End + "; tồn " + Math.Abs((long)restore.End - restore.Start) + " m.";
                     int superseded = plan.MarkerEventsToSupersede.Count(x => x.ReelId == restore.ReelId);
                     if (superseded > 0) impact += " Có " + superseded + " lần sửa mốc phụ thuộc không còn áp dụng (vẫn giữ nhật ký).";
-                    preview.ImpactByReelId[restore.ReelId] = impact;
+                    foreach (var marker in plan.MarkerEventsToSupersede.Where(x => x.ReelId == restore.ReelId))
+                    {
+                        var before = ExecutionEditAudit.Parse(marker.BeforeJson); var after = ExecutionEditAudit.Parse(marker.AfterJson);
+                        impact += Environment.NewLine + "Sửa mốc #" + marker.Id + " · " + (marker.PlanCode.Length > 0 ? marker.PlanCode : "Kế hoạch #" + marker.PlanId) +
+                            " · " + marker.Editor + " · " + marker.EditedAt + ": " + ExecutionEditAudit.Number(before, "SoDau") + " → " + ExecutionEditAudit.Number(before, "SoCuoi") +
+                            " thành " + ExecutionEditAudit.Number(after, "SoDau") + " → " + ExecutionEditAudit.Number(after, "SoCuoi") + " sẽ hết hiệu lực.";
+                    }
+                    preview.ImpactByReelId[restore.ReelId] = "Cuộn " + snapshot.Reels[restore.ReelId].Code + ": " + impact;
                 }
                 foreach (var op in plan.UndoOperations)
                     preview.ImpactByRowKey[snapshot.Rows.Single(x => x.OperationToken == op.Token).RowKey] =

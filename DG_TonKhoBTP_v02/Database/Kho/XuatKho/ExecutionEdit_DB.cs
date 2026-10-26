@@ -123,8 +123,10 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
             using var conn = DB_Base.OpenConnection(); EnsureSchema(conn, null);
             return Table(conn, null, @"SELECT s.*,b.NguoiSua,b.NguoiSua_ID,b.ThoiGianSua FROM B2DieuChinhSuKien s
                 JOIN B2DieuChinhLanLuu b ON b.MaLanLuu=s.MaLanLuu
-                WHERE b.KeHoach_ID=@plan AND ((@reel IS NOT NULL AND s.DoiTuong='REEL' AND s.DoiTuong_ID=@reel)
-                  OR (@token<>'' AND s.MaThaoTac=@token) OR (@reel IS NULL AND @token='')) ORDER BY s.id DESC",
+                WHERE (@reel IS NOT NULL AND ((s.DoiTuong='REEL' AND s.DoiTuong_ID=@reel) OR EXISTS
+                    (SELECT 1 FROM B3ThaoTac op WHERE op.MaThaoTac=s.MaThaoTac AND op.TonCuonLe_ID=@reel)))
+                  OR (b.KeHoach_ID=@plan AND ((@token<>'' AND s.MaThaoTac=@token) OR (@reel IS NULL AND @token='')))
+                ORDER BY s.id DESC",
                 "@plan", planId, "@reel", (object?)reelId ?? DBNull.Value, "@token", operationToken ?? "");
         }
         public static long ReadPlanRevision(long planId)

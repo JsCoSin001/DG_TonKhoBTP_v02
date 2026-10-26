@@ -1159,6 +1159,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
                 if (_choXoa.TryGetValue(fresh.RowKey, out var deleted))
                 {
                     if (ExecutionFacts(deleted) != ExecutionFacts(fresh)) _executionDraftReview.Add(fresh.RowKey);
+                    PreservePlanningInput(fresh, deleted);
                     _choXoa[fresh.RowKey] = fresh;
                     continue;
                 }
@@ -1166,9 +1167,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
                 if (dirty)
                 {
                     if (ExecutionFacts(old) != ExecutionFacts(fresh)) _executionDraftReview.Add(fresh.RowKey);
-                    fresh.SoLuongCanLay = old.SoLuongCanLay;
-                    fresh.ChuoiChieuDaiCat = old.ChuoiChieuDaiCat;
-                    fresh.NhomCatPopup = old.NhomCatPopup.Select(x => x.Clone()).ToList();
+                    PreservePlanningInput(fresh, old);
                     if (_executionDraftReview.Contains(fresh.RowKey)) fresh.CanEdit = active;
                 }
                 else _dongGoc[fresh.RowKey] = TaoDauVanTay(fresh);
@@ -1183,10 +1182,29 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
             }
             foreach (var old in _rows.Values.Where(x => x.DaTonTaiTrongDB && !freshRows.ContainsKey(x.RowKey)).ToList())
             {
-                if (DongBiSua(old)) { _executionDraftReview.Add(old.RowKey); old.CanEdit = false; }
+                if (DongBiSua(old))
+                {
+                    _executionDraftReview.Add(old.RowKey);
+                    // Keep the input for comparison, but deletion now only discards a local
+                    // obsolete draft; it must never delete the surviving source plan group.
+                    old.DaTonTaiTrongDB = false; old.CanEdit = false; old.CanDelete = true;
+                    var gridRow = TimGridRowTheoKey(old.RowKey);
+                    if (gridRow != null)
+                    {
+                        GanGiaTriDong(gridRow, old); ApDungTrangThaiDong(gridRow, old);
+                        gridRow.Cells[COL_TRANG_THAI].Value = "Nguồn đã hoàn tác | Xóa để bỏ bản nháp dòng này";
+                    }
+                }
                 else { var gridRow = TimGridRowTheoKey(old.RowKey); if (gridRow != null) grvKetQuaTimKiem.Rows.Remove(gridRow); _rows.Remove(old.RowKey); }
             }
             _executionRevision = context.ExecutionRevision;
+        }
+
+        private static void PreservePlanningInput(LapKeHoachCatDay_GridRow target, LapKeHoachCatDay_GridRow draft)
+        {
+            target.SoLuongCanLay = draft.SoLuongCanLay;
+            target.ChuoiChieuDaiCat = draft.ChuoiChieuDaiCat;
+            target.NhomCatPopup = draft.NhomCatPopup.Select(x => x.Clone()).ToList();
         }
 
         private void ConfirmExecutionDraftReview(LapKeHoachCatDay_GridRow row)
@@ -1456,8 +1474,13 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
                 MessageBoxIcon.Question) != DialogResult.Yes)
                 return;
 
-            if (model.DaTonTaiTrongDB)
-                _choXoa[model.RowKey] = model;
+            RemovePlanningRow(model);
+        }
+
+        private void RemovePlanningRow(LapKeHoachCatDay_GridRow model)
+        {
+            if (model.DaTonTaiTrongDB) _choXoa[model.RowKey] = model;
+            _executionDraftReview.Remove(model.RowKey);
             _rows.Remove(model.RowKey);
             DataGridViewRow gridRow = TimGridRowTheoKey(model.RowKey);
             if (gridRow != null)

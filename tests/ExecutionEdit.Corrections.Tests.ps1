@@ -40,5 +40,8 @@ try {
     Invoke-EESql "CREATE TRIGGER TestAuditFailure BEFORE INSERT ON B2DieuChinhSuKien BEGIN SELECT RAISE(ABORT,'test_audit_failure'); END;"
     Assert-EE (-not (Invoke-EE 'Save' @($fresh)).Success) 'Audit insert failure rejects the transaction'
     Assert-EE ((Get-EEScalar 'SELECT NguoiThucHien FROM LichSuCat WHERE id=1') -eq 'inactive') 'Audit failure rolls performer back'
+    Invoke-EESql "DROP TRIGGER TestAuditFailure; CREATE TABLE KhoaDatabase(ID INTEGER PRIMARY KEY,Active INTEGER,Author TEXT,Message TEXT); INSERT INTO KhoaDatabase VALUES(1,0,'maintenance','locked');"
+    $fresh.ChangeId=[Guid]::NewGuid()
+    Assert-EE (-not (Invoke-EE 'Save' @($fresh)).Success) 'Existing maintenance lock blocks execution corrections'
     Write-Output 'PASS: performer/editor identity, immutable time, marker invariants, idempotency, stale and rollback'
 } finally { Close-ExecutionEditFixture $path }

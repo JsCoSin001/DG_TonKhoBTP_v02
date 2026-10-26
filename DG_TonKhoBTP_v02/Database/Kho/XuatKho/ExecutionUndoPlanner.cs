@@ -29,7 +29,7 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
                     Require(Same(original, live[op.HistoryId], key), op.Token, "Lịch sử thực hiện đã thay đổi ngoài phạm vi được sửa.");
                 if (op.Kind == "TAKE")
                 {
-                    Require(Number(live[op.HistoryId], "SoLuong") == 1 && context.QrUsages.Any(x =>
+                    Require(Number(live[op.HistoryId], "SoLuong") == 1 && context.QrUsages.Count(x => Number(x, "LichSuLayCuon_ID") == op.HistoryId) == 1 && context.QrUsages.Any(x =>
                         Number(x, "LichSuLayCuon_ID") == op.HistoryId && Same(x, new Dictionary<string, object> { ["RawQr"] = op.Qr }, "RawQr")),
                         op.Token, "Không xác định được QR duy nhất của lần lấy cuộn.");
                 }
@@ -59,11 +59,14 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
                 long groupId = initialGroup == null ? 0 : Number(initialGroup, "id");
                 if (before == null)
                 {
+                    Require(first.Before.ContainsKey("reel") && ExecutionEditAudit.Number(first.Before, "version") == 1 &&
+                        Convert.ToString(ExecutionEditAudit.Object(first.After, "history")!["LoaiNguon"]) == "CUON_CHAN",
+                        first.Token, "Thiếu bản gốc hợp lệ trước khi chuyển cuộn chẵn thành lẻ.");
                     Require(initialGroup != null && Number(initialGroup, "TonCuonLe_ID") == 0 && groupId > 0,
                         first.Token, "Thiếu trạng thái nhóm trước chuyển cuộn chẵn thành lẻ.");
                     Require(context.Groups.Where(x => x.ReelId == reelId).All(x => x.GroupId == groupId),
                         first.Token, "Cuộn lẻ phát sinh còn được nhóm/kế hoạch khác sử dụng hoặc đặt trước.");
-                    Require(context.QrUsages.Any(x => Number(x, "TonCuonLe_ID") == reelId &&
+                    Require(context.QrUsages.Count(x => Number(x, "TonCuonLe_ID") == reelId) == 1 && context.QrUsages.Any(x => Number(x, "TonCuonLe_ID") == reelId &&
                         Convert.ToString(x["RawQr"]) == first.Qr), first.Token, "QR chuyển lẻ không còn khớp cuộn.");
                 }
                 int start = before == null ? 0 : checked((int)Number(before, "SoDau"));

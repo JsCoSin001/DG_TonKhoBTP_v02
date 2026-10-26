@@ -36,10 +36,18 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
             return BitConverter.ToString(hash.ComputeHash(Encoding.UTF8.GetBytes(ExecutionEditAudit.Json(payload)))).Replace("-", "");
         }
         internal static void ValidateActor(SQLiteConnection conn, SQLiteTransaction tx)
+            => ValidateActor(conn, tx, UserContext.UserId, UserContext.UserName, UserContext.IsAuthenticated);
+        private static void ValidateActor(SQLiteConnection conn, SQLiteTransaction tx, int actorId, string actorName, bool authenticated)
         {
-            if (!UserContext.IsAuthenticated || Table(conn, tx, @"SELECT user_id FROM users
-                WHERE user_id=@id AND username=@name AND is_active=1", "@id", UserContext.UserId, "@name", UserContext.UserName).Rows.Count != 1)
+            if (!authenticated || Table(conn, tx, @"SELECT user_id FROM users
+                WHERE user_id=@id AND username=@name AND is_active=1", "@id", actorId, "@name", actorName).Rows.Count != 1)
                 throw new ExecutionEditException("actor", "Phiên đăng nhập không hợp lệ. Vui lòng đăng nhập lại.");
+            if (Table(conn, tx, "SELECT name FROM sqlite_master WHERE type='table' AND name='KhoaDatabase'").Rows.Count != 0)
+            {
+                var config = Table(conn, tx, "SELECT Active FROM KhoaDatabase ORDER BY ID DESC LIMIT 1");
+                if (config.Rows.Count != 0 && N(config.Rows[0], "Active") == 0)
+                    throw new ExecutionEditException("maintenance", "Dữ liệu đang được khóa theo cấu hình hệ thống.");
+            }
         }
         internal static ExecutionDetailSnapshot ValidateRequest(SQLiteConnection conn, SQLiteTransaction tx, ExecutionEditRequest r)
         {
@@ -96,34 +104,40 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
         {
             if (request == null || request.Query == null || request.ChangeId == Guid.Empty)
                 return Error("request", "Yêu cầu lưu không hợp lệ.");
+            int actorId = UserContext.UserId;
+            string actorName = UserContext.UserName;
+            bool authenticated = UserContext.IsAuthenticated;
             for (int attempt = 0; attempt < 3; attempt++)
             {
                 try
                 {
                     using var conn = DB_Base.OpenConnection(); conn.DefaultTimeout = 2;
                     using var tx = conn.BeginTransaction(false);
-                    EnsureSchema(conn, tx); ValidateActor(conn, tx);
+                    EnsureSchema(conn, tx); ValidateActor(conn, tx, actorId, actorName, authenticated);
                     string fingerprint = Fingerprint(request);
                     var previous = Table(conn, tx, "SELECT * FROM B2DieuChinhLanLuu WHERE MaLanLuu=@id", "@id", request.ChangeId.ToString("D"));
                     if (previous.Rows.Count != 0)
                     {
-                        if (T(previous.Rows[0], "DauVanTayYeuCau") != fingerprint || N(previous.Rows[0], "NguoiSua_ID") != UserContext.UserId)
+                        if (T(previous.Rows[0], "DauVanTayYeuCau") != fingerprint || N(previous.Rows[0], "NguoiSua_ID") != actorId)
                             throw new ExecutionEditException("request", "Mã lần lưu đã được dùng cho nội dung hoặc tài khoản khác.");
                         var retry = new ExecutionEditResult { Success = true, ChangedPlanIds = new List<long> { request.Query.PlanId } };
                         try { retry.NewSnapshot = Load(conn, tx, request.Query); } catch (InvalidOperationException) { }
                         tx.Commit(); return retry;
                     }
                     var s = ValidateRequest(conn, tx, request);
-                    if (request.RowEdits.Any(x => x.Undo)) throw new ExecutionEditException("undo", "Chưa thể xử lý yêu cầu hoàn tác này.");
+                    var undoPlan = ExecutionUndoPlanner.Build(request, UndoContext(conn, tx, s));
                     Exec(conn, tx, @"INSERT INTO B2DieuChinhLanLuu
                         (MaLanLuu,DauVanTayYeuCau,KeHoach_ID,NguoiSua_ID,NguoiSua,KetQuaJson)
                         VALUES(@id,@hash,@plan,@actorId,@actor,@result)",
                         "@id", request.ChangeId.ToString("D"), "@hash", fingerprint, "@plan", request.Query.PlanId,
-                        "@actorId", UserContext.UserId, "@actor", UserContext.UserName,
+                        "@actorId", actorId, "@actor", actorName,
                         "@result", ExecutionEditAudit.Json(new { version = 1, plan_id = request.Query.PlanId, success = true }));
                     ApplyCorrections(conn, tx, request, s);
+                    ApplyUndo(conn, tx, request, undoPlan);
+                    ValidateInventory(conn, tx, s, request, undoPlan);
                     var result = new ExecutionEditResult { Success = true, NewSnapshot = Load(conn, tx, request.Query),
-                        ChangedPlanIds = new List<long> { request.Query.PlanId }, ChangedReelIds = request.ReelEdits.Select(x => x.ReelId).Distinct().ToList() };
+                        ChangedPlanIds = new List<long> { request.Query.PlanId }, ChangedReelIds = request.ReelEdits.Select(x => x.ReelId)
+                            .Concat(undoPlan.ReelRestores.Select(x => x.ReelId)).Distinct().ToList() };
                     tx.Commit(); return result;
                 }
                 catch (ExecutionEditException ex) { return Error(ex.Key, ex.Message, ex.Conflict); }

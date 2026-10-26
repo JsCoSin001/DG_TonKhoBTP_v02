@@ -576,6 +576,20 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
             return result;
         }
 
+        public static LapKeHoachCatDay_KeHoachContext LayKeHoachTheoMaVoiPhienBan(string maKeHoach)
+        {
+            // The existing projection uses several connections; accept it only if no writer
+            // changed the shared data during the complete read (including ABA changes).
+            for (int attempt = 0; attempt < 3; attempt++)
+            {
+                long before = ExecutionEdit_DB.ReadPlanRevision(0);
+                var context = LayKeHoachTheoMa(maKeHoach);
+                long after = ExecutionEdit_DB.ReadPlanRevision(0);
+                if (before == after) { context.ExecutionRevision = after; return context; }
+            }
+            throw new InvalidOperationException("Tiến độ đang thay đổi. Vui lòng tải lại kế hoạch.");
+        }
+
         public static LapKeHoachCatDay_KeHoachContext LayKeHoachTheoMa(string maKeHoach)
         {
             var result = new LapKeHoachCatDay_KeHoachContext();
@@ -823,6 +837,15 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
                 {
                     result.DuLieuDaCu = true;
                     result.Loi = "Dữ liệu đã cũ, cần reload để cập nhật";
+                    tx.Rollback();
+                    return result;
+                }
+
+                if (found.HasValue && ExecutionEdit_DB.PlanningRevisionRequired(conn, tx)
+                    && request.ExpectedExecutionRevision != ExecutionEdit_DB.ReadRevision(conn, tx))
+                {
+                    result.DuLieuDaCu = true;
+                    result.Loi = "Tiến độ hoặc tồn kho đã thay đổi. Bản nháp vẫn được giữ; hãy tải tiến độ mới và đối chiếu trước khi lưu.";
                     tx.Rollback();
                     return result;
                 }

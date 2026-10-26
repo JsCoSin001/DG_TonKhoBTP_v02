@@ -58,6 +58,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
         private string _ghiChuGoc = string.Empty;
         private bool _dangLuu;
         private bool _dangXemChiTiet;
+        private long? _executionRevision;
+        private readonly HashSet<string> _executionDraftReview = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
         private LapKeHoachCatDay_GridRow _rowDangEditChieuDai;
         private string _chuoiCatTruocEdit = string.Empty;
@@ -414,13 +416,15 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
             try
             {
                 LapKeHoachCatDay_KeHoachContext context = await WaitingHelper.RunWithWaiting(
-                    () => Task.Run(() => LapKeHoachCatDay_DB.LayKeHoachTheoMa(ma)),
+                    () => Task.Run(() => LapKeHoachCatDay_DB.LayKeHoachTheoMaVoiPhienBan(ma)),
                     "ĐANG TẢI KẾ HOẠCH...");
 
                 _rows.Clear();
                 grvKetQuaTimKiem.Rows.Clear();
                 _choXoa.Clear();
                 _dongGoc.Clear();
+                _executionRevision = context.ExecutionRevision;
+                _executionDraftReview.Clear();
                 _maKeHoachDaNap = ma;
 
                 _nguoiCatSearchHelper.Reset();
@@ -564,6 +568,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
             {
                 model = recovered;
                 _choXoa.Remove(model.RowKey);
+                _executionDraftReview.Remove(model.RowKey);
             }
 
             if (_rows.TryGetValue(model.RowKey, out _))
@@ -689,7 +694,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
             }
 
             // 6. Khóa thao tác khi đã hoàn thành
-            if (model.HoanThanh)
+            if (model.HoanThanh && !_executionDraftReview.Contains(model.RowKey))
             {
                 row.Cells[COL_SO_LUONG_LAY].ReadOnly = true;
                 row.Cells[COL_CD_CAT].ReadOnly = true;
@@ -919,6 +924,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
                 }
 
                 gridRow.Cells[COL_SO_LUONG_LAY].Value = model.SoLuongCanLay > 0 ? (object)model.SoLuongCanLay : string.Empty;
+                if (string.IsNullOrWhiteSpace(raw) || raw.Trim() == model.SoLuongCanLay.ToString(CultureInfo.InvariantCulture))
+                    ConfirmExecutionDraftReview(model);
                 return;
             }
 
@@ -958,6 +965,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
                     gridRow.Cells[COL_CD_CAT].Value = model.ChuoiChieuDaiCat;
                     ApDungTrangThaiDong(gridRow, model);
                     _rowDangEditChieuDai = null;
+                    ConfirmExecutionDraftReview(model);
                     return;
                 }
 
@@ -1024,6 +1032,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
                 gridRow.Cells[COL_CD_CAT].Value = model.ChuoiChieuDaiCat;
                 ApDungTrangThaiDong(gridRow, model);
                 _rowDangEditChieuDai = null;
+                if (LapKeHoachCatDay_ChieuDaiParser.TryNormalize(raw, out string reviewed, out _, out _, out _)
+                    && reviewed == model.ChuoiChieuDaiCat) ConfirmExecutionDraftReview(model);
             }
         }
 
@@ -1072,7 +1082,11 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
                 ExecutionDetailSnapshot snapshot = await WaitingHelper.RunWithWaiting(
                     () => Task.Run(() => ExecutionEdit_DB.Load(query)), "ĐANG TẢI CHI TIẾT THỰC HIỆN...");
                 using (var frm = new FrmChiTietThucHien(query, model.TenSP, snapshot))
+                {
                     frm.ShowDialog(FindForm());
+                    if (frm.LastSaveResult?.Success == true)
+                        RefreshExecutionFactsPreservingDraft(frm.LastSaveResult);
+                }
             }
             catch (InvalidOperationException ex)
             {
@@ -1121,7 +1135,68 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
 
             gridRow.Cells[COL_CD_CAT].Value = model.ChuoiChieuDaiCat;
             gridRow.Cells[COL_CAT_LE].Value = TaoNhanNutCatLe(model);
+            _executionDraftReview.Remove(model.RowKey);
             ApDungTrangThaiDong(gridRow, model);
+        }
+
+        private static string ExecutionFacts(LapKeHoachCatDay_GridRow row)
+        {
+            return row.TonThucTe + ":" + row.DatTruoc + ":" + row.SoLuongDaLay + ":" +
+                string.Join("|", row.NhomCatDaLuu.Concat(row.NhomCatNguonDaChuyenLe).Select(g =>
+                    g.Id + ":" + g.TonCuonLe_ID + ":" + string.Join(",", g.ChiTiet.Select(d => d.Id + ":" + d.ChieuDai + ":" + d.DaThucHien))));
+        }
+
+        internal void RefreshExecutionFactsPreservingDraft(ExecutionEditResult result)
+        {
+            if (!result.Success || !_keHoachId.HasValue) return;
+            var context = LapKeHoachCatDay_DB.LayKeHoachTheoMaVoiPhienBan(_maKeHoachDaNap);
+            if (!context.TonTai || context.Header.Id != _keHoachId.Value)
+                throw new InvalidOperationException("Kế hoạch đã thay đổi. Bản nháp được giữ để đối chiếu.");
+            bool active = context.Header.TrangThai == "ACTIVE";
+            var freshRows = context.Rows.ToDictionary(x => x.RowKey, StringComparer.OrdinalIgnoreCase);
+            foreach (var fresh in context.Rows)
+            {
+                if (_choXoa.TryGetValue(fresh.RowKey, out var deleted))
+                {
+                    if (ExecutionFacts(deleted) != ExecutionFacts(fresh)) _executionDraftReview.Add(fresh.RowKey);
+                    _choXoa[fresh.RowKey] = fresh;
+                    continue;
+                }
+                bool dirty = _rows.TryGetValue(fresh.RowKey, out var old) && (old.DaTonTaiTrongDB ? DongBiSua(old) : CoNoiDungNhap(old));
+                if (dirty)
+                {
+                    if (ExecutionFacts(old) != ExecutionFacts(fresh)) _executionDraftReview.Add(fresh.RowKey);
+                    fresh.SoLuongCanLay = old.SoLuongCanLay;
+                    fresh.ChuoiChieuDaiCat = old.ChuoiChieuDaiCat;
+                    fresh.NhomCatPopup = old.NhomCatPopup.Select(x => x.Clone()).ToList();
+                    if (_executionDraftReview.Contains(fresh.RowKey)) fresh.CanEdit = active;
+                }
+                else _dongGoc[fresh.RowKey] = TaoDauVanTay(fresh);
+                if (!active) { fresh.CanEdit = false; fresh.CanDelete = false; }
+                ThemHoacCapNhatDongGrid(fresh, true);
+                if (_executionDraftReview.Contains(fresh.RowKey))
+                {
+                    var gridRow = TimGridRowTheoKey(fresh.RowKey);
+                    gridRow.Cells[COL_TRANG_THAI].Value = fresh.TrangThai + " | Đối chiếu bản nháp";
+                    gridRow.Cells[COL_TRANG_THAI].ToolTipText = "Tiến độ đã thay đổi. Kiểm tra lại chiều dài / số lượng đang nhập rồi kết thúc sửa ô để xác nhận.";
+                }
+            }
+            foreach (var old in _rows.Values.Where(x => x.DaTonTaiTrongDB && !freshRows.ContainsKey(x.RowKey)).ToList())
+            {
+                if (DongBiSua(old)) { _executionDraftReview.Add(old.RowKey); old.CanEdit = false; }
+                else { var gridRow = TimGridRowTheoKey(old.RowKey); if (gridRow != null) grvKetQuaTimKiem.Rows.Remove(gridRow); _rows.Remove(old.RowKey); }
+            }
+            _executionRevision = context.ExecutionRevision;
+        }
+
+        private void ConfirmExecutionDraftReview(LapKeHoachCatDay_GridRow row)
+        {
+            if (_executionDraftReview.Contains(row.RowKey) && row.CanEdit && KiemTraDuLieuDongTruocKhiLuu(row))
+            {
+                _executionDraftReview.Remove(row.RowKey);
+                var gridRow = TimGridRowTheoKey(row.RowKey);
+                if (gridRow != null) { GanGiaTriDong(gridRow, row); ApDungTrangThaiDong(gridRow, row); }
+            }
         }
 
         private async void btnLuuKeHoach_Click(object sender, EventArgs e)
@@ -1179,6 +1254,11 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
             if (_dangLuu || _loadingPlan)
                 return;
             grvKetQuaTimKiem.EndEdit();
+            if (_executionDraftReview.Count > 0)
+            {
+                FrmWaiting.ShowGifAlert("Tiến độ đã thay đổi. Hãy đối chiếu các dòng có cảnh báo và kết thúc sửa ô số lượng / chiều dài; dòng chờ xóa cần tìm lại để kiểm tra trước khi xóa lại.");
+                return;
+            }
             if (string.IsNullOrWhiteSpace(cbxNguoiCat.Text))
             {
                 FrmWaiting.ShowGifAlert("Người cắt không được trống.");
@@ -1246,6 +1326,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
             var request = new LapKeHoachCatDay_BatchSaveRequest
             {
                 KeHoach_IDDuKien = _keHoachId,
+                ExpectedExecutionRevision = _executionRevision,
                 MaKeHoach = ma,
                 NguoiNhan = cbxNguoiNhan.Text ?? string.Empty,
                 NguoiCat = cbxNguoiCat.Text ?? string.Empty,
@@ -1263,6 +1344,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
                     "ĐANG LƯU TOÀN BỘ KẾ HOẠCH...");
                 if (!result.ThanhCong)
                 {
+                    if (result.DuLieuDaCu && _keHoachId.HasValue)
+                        RefreshExecutionFactsPreservingDraft(new ExecutionEditResult { Success = true });
                     FrmWaiting.ShowGifAlert(string.IsNullOrWhiteSpace(result.Loi)
                         ? "Không thể lưu kế hoạch. Không có thay đổi nào được ghi." : result.Loi);
                     return;
@@ -1401,6 +1484,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
             grvKetQuaTimKiem.Rows.Clear();
             _dongGoc.Clear();
             _choXoa.Clear();
+            _executionRevision = null;
+            _executionDraftReview.Clear();
             _nguoiNhanGoc = string.Empty;
             _nguoiCatGoc = string.Empty;
             _ghiChuGoc = string.Empty;

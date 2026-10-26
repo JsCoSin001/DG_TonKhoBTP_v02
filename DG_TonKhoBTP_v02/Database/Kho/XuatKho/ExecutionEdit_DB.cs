@@ -133,5 +133,13 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
             if (Table(conn, null, "SELECT name FROM sqlite_master WHERE name='B3PhienBanDuLieu' AND type='table'").Rows.Count == 0) return 0;
             return N(Table(conn, null, "SELECT GiaTri FROM B3PhienBanDuLieu WHERE Khoa='FACTORY'").Rows[0], "GiaTri");
         }
+        internal static long ReadRevision(SQLiteConnection conn, SQLiteTransaction tx)
+            => N(Table(conn, tx, "SELECT GiaTri FROM B3PhienBanDuLieu WHERE Khoa='FACTORY'").Rows[0], "GiaTri");
+        internal static bool PlanningRevisionRequired(SQLiteConnection conn, SQLiteTransaction tx)
+        {
+            if (Table(conn, tx, "SELECT name FROM sqlite_master WHERE name='B3TinhNangDuLieu' AND type='table'").Rows.Count == 0) return false;
+            var rows = Table(conn, tx, "SELECT ChoPhepSua FROM B3TinhNangDuLieu WHERE Ten='EXECUTION_EDIT'").Rows;
+            return rows.Count == 1 && N(rows[0], "ChoPhepSua") == 1;
+        }
     }
 }

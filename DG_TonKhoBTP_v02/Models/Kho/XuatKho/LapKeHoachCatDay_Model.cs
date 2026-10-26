@@ -209,6 +209,7 @@ namespace DG_TonKhoBTP_v02.Models.Kho.XuatKho
 
     internal sealed class LapKeHoachCatDay_KeHoachContext
     {
+        public long? ExecutionRevision { get; set; }
         public bool TonTai { get; set; }
         public LapKeHoachCatDay_KeHoachHeader Header { get; set; }
         public List<LapKeHoachCatDay_GridRow> Rows { get; set; } = new List<LapKeHoachCatDay_GridRow>();
@@ -240,6 +241,7 @@ namespace DG_TonKhoBTP_v02.Models.Kho.XuatKho
     // Luu mot ke hoach tron ven trong mot transaction, khong luu tung dong.
     internal sealed class LapKeHoachCatDay_BatchSaveRequest
     {
+        public long? ExpectedExecutionRevision { get; set; }
         public string NguoiCat { get; set; } = string.Empty;
         public long? KeHoach_IDDuKien { get; set; }
         public string MaKeHoach { get; set; } = string.Empty;

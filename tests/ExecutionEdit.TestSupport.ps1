@@ -57,3 +57,9 @@ function Add-EETestCut([string]$path,[int]$detail=60,[string]$token='11111111-11
     Assert-EE $r.ok "B3 cut fixture: $($r.message)"
     return $r
 }
+function New-EERequest($snapshot) {
+    $request=New-EEObject 'ExecutionEditRequest'
+    $request.Query=$snapshot.Query
+    foreach($key in $snapshot.Versions.Keys) { $request.ExpectedVersions.Add($key,$snapshot.Versions[$key]) }
+    return $request
+}

@@ -211,7 +211,7 @@ class ContinuousCutSessionTest extends TestCase
         $state = $this->scan();
         DB::table('KeHoachCatChiTiet')->where('id', 60)->update(['ChieuDaiCanCat' => 125]);
         $this->postJson('/api/b3/execute/cut', $this->payload($state, 60, ['expected_cut_length' => 100]))
-            ->assertStatus(409)->assertJsonPath('error_code', 'STALE_DATA');
+            ->assertStatus(409)->assertJsonPath('error_code', 'SOURCE_STATE_CHANGED');
         $this->assertSame(0, DB::table('LichSuCat')->count());
     }
 }

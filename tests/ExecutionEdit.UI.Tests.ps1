@@ -24,7 +24,19 @@ try {
     Assert-EE (-not $save.Enabled) 'Save starts disabled without changes'
     Assert-EE ($form.Controls.Find('btnDieuChinh',$true).Count -eq 0) 'No adjustment-mode button or intermediate popup'
     $person.SelectedValue='inactive'
-    Assert-EE $save.Enabled 'Performer can be edited immediately without switching mode'
+    Assert-EE ($person.SelectedValue -eq 'inactive') 'Performer can be edited immediately without switching mode'
+    Assert-EE (-not $save.Enabled) 'Save waits for complete reasons and a current validated impact preview'
+    $reason=$form.Controls.Find('cbxLyDoSuaDong',$true)[0]
+    $reason.SelectedValue='INFO'
+    $deadline=[DateTime]::UtcNow.AddSeconds(6)
+    while(-not $save.Enabled -and [DateTime]::UtcNow -lt $deadline) { [Windows.Forms.Application]::DoEvents();Start-Sleep -Milliseconds 30 }
+    Assert-EE $save.Enabled 'Valid latest preview enables one-click save'
+    $refresh=$form.Controls.Find('btnDoiChieuDuLieuMoi',$true)[0]
+    Assert-EE ($null -ne $refresh) 'Stale snapshots have an explicit reload-and-compare action'
+    Invoke-EESql "UPDATE LichSuCat SET NguoiThucHien='editor' WHERE KeHoachCatChiTiet_ID=60;"
+    $reload=$formType.GetMethod('ReloadPreservingDraft',[Reflection.BindingFlags]'Instance,NonPublic')
+    $null=$reload.Invoke($form,@())
+    Assert-EE ($person.SelectedValue -eq 'inactive') 'Reloading latest facts preserves the intended performer correction'
     $end=$form.Controls.Find('numSoCuoiHienTai',$true)[0]
     $end.Value=1650
     $start=$form.Controls.Find('txtSoDauHienTai',$true)[0]

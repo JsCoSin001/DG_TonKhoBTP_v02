@@ -1,9 +1,11 @@
 <?php
 namespace Tests\Unit\B3;
-use App\Repositories\B3\InventoryRepository;use App\Services\B3\QrResolver;use App\Support\B3\B3Exception;use PHPUnit\Framework\TestCase;
+use App\Repositories\B3\InventoryRepository;use App\Services\B3\QrResolver;use App\Support\B3\B3Exception;use Tests\TestCase;use Tests\Support\CreatesFactoryFlowSchema;
 class QrResolverTest extends TestCase
 {
- public function test_structured_parsing_preserves_raw():void{$repo=$this->createMock(InventoryRepository::class);$q=new QrResolver($repo);$r=$q->parse('cuontp;MB001;QR-A');$this->assertSame('MB001',$r['ma_bin']);$this->assertSame('cuontp;MB001;QR-A',$r['raw']);}
+ use CreatesFactoryFlowSchema;
+ protected function setUp():void { parent::setUp(); $this->createFactoryFlowSchema(); }
+ public function test_structured_parsing_preserves_raw():void{$repo=$this->createMock(InventoryRepository::class);$q=new QrResolver($repo);$r=$q->parse('cuontp;MB001;100;QR-A');$this->assertSame('MB001',$r['ma_bin']);$this->assertSame('cuontp;MB001;100;QR-A',$r['raw']);}
  public function test_structured_full_requires_physical_suffix():void{$repo=$this->createMock(InventoryRepository::class);$this->expectException(B3Exception::class);(new QrResolver($repo))->parse('cuontp;MB001');}
  public function test_exact_partial_wins_over_structured_full():void{$repo=$this->createMock(InventoryRepository::class);$repo->method('partialByExactCode')->willReturn(['id'=>9,'MaCuon'=>'cuontp;MB001;QR-A','TTThanhPham_ID'=>2,'TTCuonDay_ID'=>3,'SoDau'=>0,'SoCuoi'=>500,'TrangThai'=>'ACTIVE','product_id'=>4,'ma_bin'=>'MB001','nhap_kho'=>1,'temp'=>0,'source_ttc_id'=>3,'source_nhap_kho_id'=>7,'source_tt_thanh_pham_id'=>2,'source_product_id'=>4,'source_nhap_kho'=>1,'source_temp'=>0,'source_so_dau'=>null,'source_so_cuoi'=>null]);$repo->expects($this->never())->method('fullByMaBin');$r=(new QrResolver($repo))->resolve('cuontp;MB001;QR-A');$this->assertSame('CUON_LE',$r['source_type']);}
  public function test_plain_full_is_rejected():void{$repo=$this->createMock(InventoryRepository::class);$repo->method('partialByExactCode')->willReturn(null);$repo->method('fullByMaBin')->willReturn(['actual'=>1]);$this->expectException(B3Exception::class);$this->expectExceptionMessage('Mã quét không hợp lệ cho cuộn chẵn.');(new QrResolver($repo))->resolve('MB001');}

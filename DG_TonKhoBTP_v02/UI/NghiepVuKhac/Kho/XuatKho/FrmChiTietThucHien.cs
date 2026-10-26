@@ -38,6 +38,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
         private ExecutionEditDraft _draft;
         private Guid _changeId = Guid.NewGuid();
         private int _generation;
+        private int _validatedGeneration = -1;
+        private readonly Button _reload = new Button { Name = "btnDoiChieuDuLieuMoi", Text = "Tải mới để đối chiếu", AutoSize = true, Visible = false };
         private bool _binding, _saving;
         public ExecutionEditResult? LastSaveResult { get; private set; }
 
@@ -82,7 +84,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
             detail.Controls.Add(_impact, 0, 5); detail.SetColumnSpan(_impact, 2); info.Controls.Add(detail);
             detail.SizeChanged += (s, e) => _impact.MaximumSize = new Size(Math.Max(200, detail.ClientSize.Width - 20), 0);
             var bottom = new FlowLayoutPanel { Dock = DockStyle.Fill, FlowDirection = FlowDirection.RightToLeft, WrapContents = false, Padding = new Padding(3) };
-            bottom.Controls.AddRange(new Control[] { _close, _save, _discard, _count }); layout.Controls.Add(bottom, 0, 3);
+            bottom.Controls.AddRange(new Control[] { _close, _save, _discard, _reload, _count }); layout.Controls.Add(bottom, 0, 3);
             Controls.Add(layout);
             _grid.Columns.Add(new DataGridViewTextBoxColumn { Name = "colSoLuong", HeaderText = "Số lượng", Width = 95, ReadOnly = true });
             _grid.Columns.Add(new DataGridViewTextBoxColumn { Name = "colChieuDai", HeaderText = "Chiều dài (m)", Width = 110, ReadOnly = true });
@@ -94,7 +96,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
             _grid.RowTemplate.MinimumHeight = 35; _grid.DefaultCellStyle.Padding = new Padding(4);
             _grid.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing; _grid.ColumnHeadersHeight = 44;
             _grid.DefaultCellStyle.WrapMode = DataGridViewTriState.True; _grid.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
-            _grid.SelectionChanged += (s, e) => { if (!_binding) BindSelected(); };
+            // SelectionChanged can fire before CurrentRow moves to the clicked row.
+            _grid.CurrentCellChanged += (s, e) => { if (!_binding) BindSelected(); };
             _grid.CurrentCellDirtyStateChanged += (s, e) => { if (_grid.IsCurrentCellDirty) _grid.CommitEdit(DataGridViewDataErrorContexts.Commit); };
             _grid.CellValueChanged += StatusChanged;
             _grid.DataError += (s, e) => { e.ThrowException = false; _impact.Text = "Giá trị ô không hợp lệ."; };
@@ -104,6 +107,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
             _markerReason.SelectedValueChanged += (s, e) => MarkersChanged();
             _previewTimer.Tick += async (s, e) => { _previewTimer.Stop(); await PreviewAsync(); };
             _save.Click += async (s, e) => await SaveAsync();
+            _reload.Click += (s, e) => ReloadPreservingDraft();
             _discard.Click += (s, e) => { _draft.Reset(); _generation++; _changeId = Guid.NewGuid(); BindAll(); };
             _close.Click += (s, e) => Close(); FormClosing += ClosingWithDraft;
             tabs.SelectedIndexChanged += (s, e) => {
@@ -158,14 +162,15 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
                 _time.Text = row?.PerformedAt ?? ""; _qr.Text = row?.RawQr ?? "";
                 _source.Text = row?.ReelId is long rid && _snapshot.Reels.ContainsKey(rid) ? _snapshot.Reels[rid].SourceLabel :
                     !string.IsNullOrEmpty(row?.SourceLabel) ? row!.SourceLabel : "—";
-                _history.Text = row?.Kind == "CUT" && row.Done ? "Trước cắt: " + row.BeforeStart + " → " + row.BeforeEnd +
-                    "     |     Đoạn cắt: " + row.CutStart + " → " + row.CutEnd + "     |     Sau cắt: " + row.AfterStart + " → " + row.AfterEnd : "—";
+                _history.Text = (row?.Kind == "CUT" && row.Done ? "Trước cắt: " + row.BeforeStart + " → " + row.BeforeEnd +
+                    "     |     Đoạn cắt: " + row.CutStart + " → " + row.CutEnd + "     |     Sau cắt: " + row.AfterStart + " → " + row.AfterEnd : "—") +
+                    (row?.Done == true ? "     |     Người đang lưu: " + row.PerformerUsername : "");
                 _reason.SelectedValue = edit?.Reason ?? ""; _reason.Enabled = editable && edit != null;
                 _markers.Visible = row?.ReelId != null;
                 if (row?.ReelId is long reelId && _snapshot.Reels.TryGetValue(reelId, out var reel))
                 {
                     _draft.ReelEdits.TryGetValue(reelId, out var marker);
-                    _reelTitle.Text = "Cuộn " + reel.Code + " · Tồn hiện tại " + reel.Length + " m";
+                    _reelTitle.Text = "Cuộn " + reel.Code + " · Tồn hiện tại " + reel.Length + " m · Mốc đang lưu " + reel.Start + " → " + reel.End;
                     _end.Value = marker?.NewEnd ?? reel.End; _direction.SelectedValue = marker?.NewDirection ?? reel.Direction;
                     long start = (long)_end.Value - (marker?.NewDirection ?? reel.Direction) * reel.Length;
                     _start.Text = start.ToString(); _markerReason.SelectedValue = marker?.Reason ?? "";
@@ -215,7 +220,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
         }
         private void UpdateDraftState()
         {
-            _save.Enabled = !_saving && _snapshot.EditingEnabled && _draft.HasChanges;
+            _save.Enabled = !_saving && _snapshot.EditingEnabled && _draft.HasChanges && _validatedGeneration == _generation;
             _discard.Enabled = !_saving && _draft.HasChanges;
             _count.Text = _draft.HasChanges ? (_draft.RowEdits.Count + " dòng, " + _draft.ReelEdits.Count + " cuộn có thay đổi · Chưa lưu") : "Chưa có thay đổi";
             foreach (DataGridViewRow r in _grid.Rows)
@@ -226,17 +231,25 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
         {
             if (_saving || !_draft.HasChanges || IsDisposed) return;
             int generation = _generation; var request = _draft.BuildRequest(_changeId);
-            var preview = await Task.Run(() => ExecutionEdit_DB.Preview(request));
+            ExecutionEditPreview preview;
+            try { preview = await Task.Run(() => ExecutionEdit_DB.Preview(request)); }
+            catch (Exception) { if (!IsDisposed) _impact.Text = "Không thể kiểm tra dữ liệu. Bản nháp vẫn được giữ."; return; }
             if (IsDisposed || generation != _generation || _saving) return;
+            _validatedGeneration = preview.Valid ? generation : -1;
+            _reload.Visible = !preview.Valid && preview.Message.Contains("đã thay đổi");
+            UpdateDraftState();
             _impact.Text = preview.Valid ? string.Join(Environment.NewLine, preview.ImpactByRowKey.Values.Concat(preview.ImpactByReelId.Values)) : preview.Message;
             if (preview.Valid && _impact.Text.Length == 0) _impact.Text = "Sửa người thực hiện; giữ nguyên tồn và thời gian. Tài khoản người sửa được lưu riêng.";
         }
         private async Task<bool> SaveAsync()
         {
             if (_saving || !_draft.HasChanges) return !_draft.HasChanges;
+            if (_validatedGeneration != _generation) { await PreviewAsync(); return false; }
             _previewTimer.Stop(); _generation++; _saving = true; _grid.Enabled = false; BindSelected(); UpdateDraftState();
             _impact.Text = "Đang kiểm tra và lưu toàn bộ thay đổi…";
-            var result = await Task.Run(() => ExecutionEdit_DB.Save(_draft.BuildRequest(_changeId)));
+            ExecutionEditResult result;
+            try { result = await Task.Run(() => ExecutionEdit_DB.Save(_draft.BuildRequest(_changeId))); }
+            catch (Exception) { result = new ExecutionEditResult { ErrorsByKey = new Dictionary<string, string> { ["database"] = "Không thể lưu thay đổi. Bản nháp vẫn được giữ; vui lòng kiểm tra dữ liệu rồi thử lại." } }; }
             if (IsDisposed) return false;
             _saving = false; _grid.Enabled = true;
             if (result.Success)
@@ -246,8 +259,25 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
                 else { _draft.Reset(); Close(); }
                 _impact.Text = "Đã lưu thay đổi. Tài khoản người sửa: " + UserContext.UserName;
             }
-            else { BindSelected(); UpdateDraftState(); _impact.Text = result.Message; }
+            else { _validatedGeneration = -1; BindSelected(); Changed(); _reload.Visible = result.Conflict; _impact.Text = result.Message; }
             return result.Success;
+        }
+        private void ReloadPreservingDraft()
+        {
+            if (_saving) return;
+            try
+            {
+                var latest = ExecutionEdit_DB.Load(_snapshot.Query);
+                if (_draft.RowEdits.Keys.Any(t => !latest.Rows.Any(r => r.Done && r.OperationToken == t)) ||
+                    _draft.ReelEdits.Keys.Any(id => !latest.Reels.ContainsKey(id)))
+                { _impact.Text = "Dòng hoặc cuộn đang sửa không còn hiệu lực. Bản nháp vẫn được giữ; bỏ thay đổi này trước khi tải mới."; return; }
+                var draft = new ExecutionEditDraft(latest);
+                foreach (var edit in _draft.RowEdits.Values) draft.SetRowEdit(edit);
+                foreach (var edit in _draft.ReelEdits.Values) draft.SetReelEdit(edit);
+                _snapshot = latest; _draft = draft; _changeId = Guid.NewGuid(); _reload.Visible = false;
+                BindAll(); Changed();
+            }
+            catch (Exception) { _impact.Text = "Không thể tải dữ liệu mới. Bản nháp vẫn được giữ."; }
         }
         private async void ClosingWithDraft(object sender, FormClosingEventArgs e)
         {

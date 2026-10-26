@@ -24,6 +24,12 @@ try {
         Assert-EE $grid.IsHandleCreated 'Preview requires a fully laid out grid handle'
         $row=@($grid.Rows|Where-Object {$_.Tag.Done -and $(if($case -eq 'whole'){$_.Tag.Kind -eq 'TAKE'}else{$_.Tag.Kind -eq 'CUT'})})[0]
         $grid.CurrentCell=$row.Cells[0]
+        $person=$form.Controls.Find('cbxNguoiThucHien',$true)[0]
+        Assert-EE ($person.SelectedValue -eq 'worker') 'Selecting an executed row updates its detail fields even when the first row is pending'
+        if($case -eq 'convert') {
+            $end=$form.Controls.Find('numSoCuoiHienTai',$true)[0]
+            Assert-EE ($end.Visible -and $end.Value -eq 800) 'Converted reel selection exposes its current marker editor'
+        }
         $bitmap=New-Object Drawing.Bitmap($form.Width,$form.Height)
         try { $form.DrawToBitmap($bitmap,(New-Object Drawing.Rectangle(0,0,$form.Width,$form.Height)));$bitmap.Save((Join-Path $output ($case+'.png')),[Drawing.Imaging.ImageFormat]::Png) } finally {$bitmap.Dispose()}
         $form.Dispose();$form=$null

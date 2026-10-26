@@ -18,8 +18,8 @@ class ScanResolveProductInventoryTest extends TestCase
         DB::table('users')->insert(['user_id' => 1, 'username' => 'worker', 'password_hash' => 'x', 'is_active' => 1]);
         DB::table('DanhSachMaSP')->insert(['id' => 1, 'Ten' => 'SP A', 'Ma' => 'A']);
         DB::table('TTThanhPham')->insert([
-            ['id' => 10, 'DanhSachSP_ID' => 1, 'MaBin' => 'X', 'NhapKho' => 1, 'Temp' => 0],
-            ['id' => 11, 'DanhSachSP_ID' => 1, 'MaBin' => 'Y', 'NhapKho' => 1, 'Temp' => 0],
+            ['id' => 10, 'DanhSachSP_ID' => 1, 'MaBin' => 'E7-X/4-01', 'NhapKho' => 1, 'Temp' => 0],
+            ['id' => 11, 'DanhSachSP_ID' => 1, 'MaBin' => 'E7-Y/4-01', 'NhapKho' => 1, 'Temp' => 0],
         ]);
         DB::table('TTNhapKhoTP')->insert([['id' => 20, 'TTThanhPham_ID' => 10], ['id' => 21, 'TTThanhPham_ID' => 11]]);
         DB::table('TTCuonDay')->insert([
@@ -28,7 +28,8 @@ class ScanResolveProductInventoryTest extends TestCase
         ]);
         DB::table('KeHoach')->insert(['id' => 1, 'Users_id' => 1, 'MaKeHoach' => 'KH-A', 'NgayKeHoach' => '2026-10-01', 'TrangThai' => 'ACTIVE']);
         DB::table('KeHoachHang')->insert(['id' => 40, 'KeHoach_ID' => 1, 'DanhSachMaSP_ID' => 1, 'SoLuongCuonCanLay' => 1, 'ChieuDai1Cuon_KeHoach' => 100]);
-        DB::table('KeHoachCatNhom')->insert(['id' => 50, 'KeHoachHang_ID' => 40]);
+        DB::table('KeHoachHangQuyCachCuonChan')->insert(['id'=>40,'KeHoachHang_ID'=>40,'ChieuDai1Cuon'=>100,'SoLuongCuonCanLay'=>1]);
+        DB::table('KeHoachCatNhom')->insert(['id' => 50, 'KeHoachHang_ID' => 40, 'QuyCachCuonChan_ID'=>40]);
         DB::table('KeHoachCatChiTiet')->insert(['id' => 60, 'KeHoachCatNhom_ID' => 50, 'ChieuDaiCanCat' => 40]);
         DB::table('KeHoach')->insert(['id' => 2, 'Users_id' => 1, 'MaKeHoach' => 'KH-OLD', 'NgayKeHoach' => '2026-01-01', 'TrangThai' => 'HUY']);
         DB::table('KeHoachHang')->insert(['id' => 41, 'KeHoach_ID' => 2, 'DanhSachMaSP_ID' => 1, 'SoLuongCuonCanLay' => 1]);
@@ -42,28 +43,26 @@ class ScanResolveProductInventoryTest extends TestCase
         ]);
     }
 
-    public function test_exhausted_scanned_mabin_displays_take_but_not_cut(): void
+    public function test_exhausted_scanned_mabin_cannot_use_unrelated_product_stock(): void
     {
-        $response = $this->scan('cuontp;X;QR-A')->assertOk();
-        $this->assertSame(['TAKE_WHOLE_REEL'], $response->json('selected_context.available_actions'));
-        $this->assertSame(1, $response->json('source.product_id'));
+        $this->scan('cuontp;X;100;QR-A')->assertStatus(422)->assertJsonPath('error_code','NO_AVAILABLE_ACTION');
     }
 
     public function test_cut_action_stays_bound_to_scanned_mabin_and_standard(): void
     {
-        DB::table('KeHoachHang')->where('id', 40)->update(['ChieuDai1Cuon_KeHoach' => 200]);
-        $response = $this->scan('cuontp;Y;QR-B')->assertOk();
+        DB::table('KeHoachHangQuyCachCuonChan')->where('id',40)->update(['ChieuDai1Cuon'=>200]);
+        $response = $this->scan('cuontp;Y;200;QR-B')->assertOk();
         $this->assertSame(['TAKE_WHOLE_REEL', 'CUT_FULL_REEL'], $response->json('selected_context.available_actions'));
     }
 
     public function test_plain_full_qr_remains_disallowed(): void
     {
-        $this->scan('X')->assertStatus(422)->assertJsonPath('error_code', 'PLAIN_QR_IS_FULL_REEL');
+        $this->scan('E7-X/4-01')->assertStatus(422)->assertJsonPath('error_code', 'PLAIN_QR_IS_FULL_REEL');
     }
 
     public function test_when_product_empty_no_take_is_offered(): void
     {
         DB::table('TTCuonDay')->where('id', 31)->update(['SoCuon' => 0]);
-        $this->scan('cuontp;X;QR-A')->assertStatus(422)->assertJsonPath('error_code', 'NO_AVAILABLE_ACTION');
+        $this->scan('cuontp;X;100;QR-A')->assertStatus(422)->assertJsonPath('error_code', 'NO_AVAILABLE_ACTION');
     }
 }

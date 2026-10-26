@@ -101,4 +101,68 @@ namespace DG_TonKhoBTP_v02.Models.Kho.XuatKho
         public List<long> ChangedReelIds { get; set; } = new List<long>();
         public string Message => string.Join(Environment.NewLine, ErrorsByKey.Values);
     }
+    internal sealed class ExecutionOperation
+    {
+        public long Sequence { get; set; }
+        public string Token { get; set; } = "";
+        public string Kind { get; set; } = "";
+        public long HistoryId { get; set; }
+        public long PlanId { get; set; }
+        public long ItemId { get; set; }
+        public long? ReelId { get; set; }
+        public long SourceId { get; set; }
+        public string Qr { get; set; } = "";
+        public Dictionary<string, object> Before { get; set; } = new Dictionary<string, object>();
+        public Dictionary<string, object> After { get; set; } = new Dictionary<string, object>();
+    }
+    internal sealed class ExecutionMarkerEvent
+    {
+        public long Id { get; set; }
+        public long ReelId { get; set; }
+        public string BasisToken { get; set; } = "";
+        public string AfterJson { get; set; } = "";
+    }
+    internal sealed class ExecutionGroupLink
+    {
+        public long GroupId { get; set; }
+        public long PlanId { get; set; }
+        public long ReelId { get; set; }
+    }
+    internal sealed class ExecutionUndoContext
+    {
+        public ExecutionDetailSnapshot Snapshot { get; set; } = null!;
+        public List<ExecutionOperation> Operations { get; set; } = new List<ExecutionOperation>();
+        public Dictionary<long, Dictionary<string, object>> CurrentReels { get; set; } = new Dictionary<long, Dictionary<string, object>>();
+        public Dictionary<long, Dictionary<string, object>> LiveCuts { get; set; } = new Dictionary<long, Dictionary<string, object>>();
+        public Dictionary<long, Dictionary<string, object>> LiveTakes { get; set; } = new Dictionary<long, Dictionary<string, object>>();
+        public List<Dictionary<string, object>> QrUsages { get; set; } = new List<Dictionary<string, object>>();
+        public List<ExecutionGroupLink> Groups { get; set; } = new List<ExecutionGroupLink>();
+        public List<ExecutionMarkerEvent> MarkerEvents { get; set; } = new List<ExecutionMarkerEvent>();
+    }
+    internal sealed class ExecutionReelRestore
+    {
+        public long ReelId { get; set; }
+        public bool Remove { get; set; }
+        public long GroupId { get; set; }
+        public int Start { get; set; }
+        public int End { get; set; }
+        public string Status { get; set; } = "";
+        public string FirstToken { get; set; } = "";
+    }
+    internal sealed class ExecutionUndoPlan
+    {
+        public List<ExecutionOperation> UndoOperations { get; set; } = new List<ExecutionOperation>();
+        public List<ExecutionReelRestore> ReelRestores { get; set; } = new List<ExecutionReelRestore>();
+        public List<ExecutionMarkerEvent> MarkerEventsToSupersede { get; set; } = new List<ExecutionMarkerEvent>();
+    }
+    internal sealed class ExecutionEditPreview
+    {
+        public bool Valid { get; set; }
+        public Dictionary<string, string> ErrorsByKey { get; set; } = new Dictionary<string, string>();
+        public ExecutionUndoPlan UndoPlan { get; set; } = new ExecutionUndoPlan();
+        public Dictionary<string, string> ImpactByRowKey { get; set; } = new Dictionary<string, string>();
+        public Dictionary<long, string> ImpactByReelId { get; set; } = new Dictionary<long, string>();
+        public List<ExecutionMarkerEvent> MarkerEventsToSupersede => UndoPlan.MarkerEventsToSupersede;
+        public string Message => string.Join(Environment.NewLine, ErrorsByKey.Values);
+    }
 }

@@ -63,3 +63,7 @@ function New-EERequest($snapshot) {
     foreach($key in $snapshot.Versions.Keys) { $request.ExpectedVersions.Add($key,$snapshot.Versions[$key]) }
     return $request
 }
+function Add-EEUndo($request,[string]$token) {
+    $edit=New-EEObject 'ExecutionRowEdit'; $edit.OperationToken=$token; $edit.Undo=$true; $edit.Reason='MISTAKE'
+    $request.RowEdits.Add($edit)
+}

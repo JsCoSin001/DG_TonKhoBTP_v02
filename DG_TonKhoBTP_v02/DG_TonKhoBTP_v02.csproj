@@ -137,6 +137,8 @@
     <Compile Include="Database\Kho\XuatKho\ExecutionEditAudit.cs" />
     <Compile Include="Database\Kho\XuatKho\ExecutionEdit_DB.cs" />
     <Compile Include="Database\Kho\XuatKho\ExecutionEdit_DB.Save.cs" />
+    <Compile Include="Database\Kho\XuatKho\ExecutionUndoPlanner.cs" />
+    <Compile Include="Database\Kho\XuatKho\ExecutionEdit_DB.Preview.cs" />
     <Compile Include="Core\ControlCleaner.cs" />
     <Compile Include="Core\DataLoadMode.cs" />
     <Compile Include="Core\FormSnapshotBuilder.cs" />

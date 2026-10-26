@@ -1,0 +1,14 @@
+INSERT INTO users(user_id,username,is_active) VALUES(1,'worker',1),(2,'editor',1),(3,'inactive',0);
+INSERT INTO roles VALUES(1,'Worker_WH','worker');
+INSERT INTO user_roles VALUES(1,1),(3,1);
+INSERT INTO DanhSachMaSP(id,Ten,Ma) VALUES(1,'Cap CV 1x6','CV6');
+INSERT INTO TTThanhPham(id,DanhSachSP_ID,MaBin) VALUES(10,1,'E7-MB001/4-01-00');
+INSERT INTO TTNhapKhoTP(id,TTThanhPham_ID,NgayNhapKho) VALUES(20,10,'2026-10-01');
+INSERT INTO TTCuonDay(id,ThongTinNhapKho_ID,SoCuon,ChieuDai_1cuon) VALUES(30,20,10,1000);
+INSERT INTO TTCuonDay(id,ThongTinNhapKho_ID,SoCuon,ChieuDai_1cuon,SoDau,SoCuoi) VALUES(31,20,1,800,0,800);
+INSERT INTO KeHoach(id,MaKeHoach,NgayKeHoach,Users_id) VALUES(1,'KH-TEST','2026-10-26',1);
+INSERT INTO KeHoachHang(id,KeHoach_ID,DanhSachMaSP_ID,SoLuongCuonCanLay) VALUES(40,1,1,2);
+INSERT INTO KeHoachHangQuyCachCuonChan(id,KeHoachHang_ID,ChieuDai1Cuon,SoLuongCuonCanLay) VALUES(80,40,1000,2);
+INSERT INTO TonCuonLe(id,MaCuon,TTThanhPham_ID,TTCuonDay_ID,SoDau,SoCuoi) VALUES(70,'LE-001',10,31,0,800);
+INSERT INTO KeHoachCatNhom(id,KeHoachHang_ID,TonCuonLe_ID,QuyCachCuonChan_ID) VALUES(50,40,70,NULL),(51,40,NULL,80);
+INSERT INTO KeHoachCatChiTiet(id,KeHoachCatNhom_ID,ChieuDaiCanCat) VALUES(60,50,150),(61,50,100),(62,51,200),(63,51,150);

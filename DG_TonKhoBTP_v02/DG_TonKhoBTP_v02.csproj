@@ -140,6 +140,8 @@
     <Compile Include="Database\Kho\XuatKho\ExecutionUndoPlanner.cs" />
     <Compile Include="Database\Kho\XuatKho\ExecutionEdit_DB.Preview.cs" />
     <Compile Include="Database\Kho\XuatKho\ExecutionEdit_DB.Undo.cs" />
+    <Compile Include="UI\NghiepVuKhac\Kho\XuatKho\ExecutionEditDraft.cs" />
+    <Compile Include="UI\NghiepVuKhac\Kho\XuatKho\FrmChiTietThucHien.cs" />
     <Compile Include="Core\ControlCleaner.cs" />
     <Compile Include="Core\DataLoadMode.cs" />
     <Compile Include="Core\FormSnapshotBuilder.cs" />

@@ -58,8 +58,9 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
                 var qc = Table(conn, tx, "SELECT * FROM KeHoachHangQuyCachCuonChan WHERE id=@qc AND KeHoachHang_ID=@item",
                     "@qc", query.SpecificationId.Value, "@item", query.ItemId);
                 if (qc.Rows.Count != 1) throw new InvalidOperationException("Quy cách không còn thuộc dòng kế hoạch.");
-                var takes = Table(conn, tx, @"SELECT h.*,o.MaThaoTac,o.RawQr FROM LichSuLayCuon h
+                var takes = Table(conn, tx, @"SELECT h.*,o.MaThaoTac,o.RawQr,p.MaBin AS SourceLabel FROM LichSuLayCuon h
                     LEFT JOIN B3ThaoTac o ON o.Loai='TAKE' AND o.LichSu_ID=h.id AND o.TrangThai='ACTIVE'
+                    JOIN TTCuonDay c ON c.id=h.TTCuonDay_ID JOIN TTNhapKhoTP n ON n.id=c.ThongTinNhapKho_ID JOIN TTThanhPham p ON p.id=n.TTThanhPham_ID
                     WHERE h.QuyCachCuonChan_ID=@qc AND h.KeHoachHang_ID=@item ORDER BY h.id",
                     "@qc", query.SpecificationId.Value, "@item", query.ItemId);
                 int taken = 0;
@@ -69,7 +70,7 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
                     s.Rows.Add(new ExecutionDetailRow { RowKey = "TAKE:" + N(r, "id"), Kind = "TAKE", Done = true,
                         OperationToken = T(r, "MaThaoTac"), HistoryId = N(r, "id"), Quantity = count,
                         Length = checked((int)N(qc.Rows[0], "ChieuDai1Cuon")), PerformerUsername = T(r, "NguoiThucHien"),
-                        PerformedAt = T(r, "ThoiGianThucHien"), RawQr = T(r, "RawQr"), SourceId = N(r, "TTCuonDay_ID") });
+                        PerformedAt = T(r, "ThoiGianThucHien"), RawQr = T(r, "RawQr"), SourceId = N(r, "TTCuonDay_ID"), SourceLabel = T(r, "SourceLabel") });
                 }
                 int pending = checked((int)N(qc.Rows[0], "SoLuongCuonCanLay")) - taken;
                 if (pending > 0) s.Rows.Add(new ExecutionDetailRow { RowKey = "PENDING_TAKE", Kind = "TAKE", Quantity = pending,
@@ -97,16 +98,17 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
                     DetailId = N(r, "DetailId"), GroupId = N(r, "GroupId"), ReelId = reel, HistoryId = done ? N(r, "id") : 0,
                     OperationToken = T(r, "MaThaoTac"), Quantity = 1, Length = checked((int)N(r, "ChieuDaiCanCat")),
                     PerformerUsername = T(r, "NguoiThucHien"), PerformedAt = T(r, "ThoiGianThucHien"),
-                    RawQr = done ? T(r, "MaQuetThucTe") : T(r, "MaCuon"), SourceKind = T(r, "LoaiNguon"),
+                    RawQr = done ? T(r, "MaQuetThucTe") : T(r, "MaCuon"), SourceKind = done ? T(r, "LoaiNguon") : reel.HasValue ? "CUON_LE" : "CUON_CHAN",
                     BeforeStart = checked((int)N(r, "SoDauTruoc")), BeforeEnd = checked((int)N(r, "SoCuoiTruoc")),
                     CutStart = checked((int)N(r, "SoDauCat")), CutEnd = checked((int)N(r, "SoCuoiCat")),
                     AfterStart = checked((int)N(r, "SoDauSau")), AfterEnd = checked((int)N(r, "SoCuoiSau")) });
                 if (reel.HasValue && !s.Reels.ContainsKey(reel.Value))
                 {
-                    var current = Table(conn, tx, "SELECT * FROM TonCuonLe WHERE id=@id", "@id", reel.Value);
+                    var current = Table(conn, tx, @"SELECT t.*,p.MaBin AS SourceLabel FROM TonCuonLe t
+                        JOIN TTThanhPham p ON p.id=t.TTThanhPham_ID WHERE t.id=@id", "@id", reel.Value);
                     if (current.Rows.Count != 1) throw new InvalidOperationException("Cuộn thực tế đã thay đổi. Vui lòng tải lại.");
                     var cr = current.Rows[0];
-                    s.Reels.Add(reel.Value, new ExecutionReelState { ReelId = reel.Value, Code = T(cr, "MaCuon"), SourceId = N(cr, "TTCuonDay_ID"),
+                    s.Reels.Add(reel.Value, new ExecutionReelState { ReelId = reel.Value, Code = T(cr, "MaCuon"), SourceId = N(cr, "TTCuonDay_ID"), SourceLabel = T(cr, "SourceLabel"),
                         Start = checked((int)N(cr, "SoDau")), End = checked((int)N(cr, "SoCuoi")), Status = T(cr, "TrangThai") });
                 }
             }

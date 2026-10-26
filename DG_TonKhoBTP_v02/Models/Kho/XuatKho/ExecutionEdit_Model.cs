@@ -46,6 +46,7 @@ namespace DG_TonKhoBTP_v02.Models.Kho.XuatKho
         public string RawQr { get; set; } = "";
         public string SourceKind { get; set; } = "";
         public long SourceId { get; set; }
+        public string SourceLabel { get; set; } = "";
         public int BeforeStart { get; set; }
         public int BeforeEnd { get; set; }
         public int CutStart { get; set; }
@@ -61,6 +62,7 @@ namespace DG_TonKhoBTP_v02.Models.Kho.XuatKho
         public long ReelId { get; set; }
         public string Code { get; set; } = "";
         public long SourceId { get; set; }
+        public string SourceLabel { get; set; } = "";
         public int Start { get; set; }
         public int End { get; set; }
         public string Status { get; set; } = "";

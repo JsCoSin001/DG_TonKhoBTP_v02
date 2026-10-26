@@ -48,20 +48,7 @@ INSERT INTO LichSuCat VALUES(1,30,1,'worker','2026-10-23'),(2,20,2,'worker','202
     Write-Output 'PASS: notes for whole, partial, converted and unassigned sources'
 
     $uiType = $assembly.GetType('DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho.UC_LapKeHoachCatDay', $true)
-    $popupType = $uiType.GetNestedType('FrmChiTietThucHien', [Reflection.BindingFlags]::NonPublic)
-    $popup = [Activator]::CreateInstance($popupType, [object[]]@('Test', $full))
-    try {
-        $grid = @($popup.Controls | Where-Object { $_ -is [Windows.Forms.DataGridView] })[0]
-        $headers = ($grid.Columns | ForEach-Object { $_.HeaderText }) -join '|'
-        Assert-True ($headers -eq 'Số lượng|Chiều dài|Trạng thái|Thời gian|Người thực hiện|Ghi chú') 'Detail column order'
-        Assert-True ($popup.Padding.All -eq 5 -and $grid.DefaultCellStyle.Padding.All -eq 5) 'Content padding'
-        Assert-True ($grid.Rows[0].Cells[0].Value -eq 1 -and $grid.Rows[0].Cells[1].Value -eq 100) 'Values must follow column order'
-        Assert-True ($grid.Rows[2].Cells[5].Value -eq $full[2].GhiChu) 'Notes must appear in the final column'
-        foreach ($index in @(1,3)) {
-            foreach ($column in @(3,4,5)) {
-                Assert-True ([string]::IsNullOrEmpty([string]$grid.Rows[$index].Cells[$column].Value)) 'Pending execution fields must be blank'
-            }
-        }
+    # New inline form behavior is exercised by ExecutionEdit.UI.Tests.ps1.
         $paint = $uiType.GetMethod('ToMauTrangThai', [Reflection.BindingFlags]'NonPublic,Static')
         $colors = @{}
         foreach ($status in @('Chưa lưu','Chưa thực hiện','Đang thực hiện','Hoàn thành','Đã thực hiện','Hết tồn')) {
@@ -75,8 +62,7 @@ INSERT INTO LichSuCat VALUES(1,30,1,'worker','2026-10-23'),(2,20,2,'worker','202
         }
         Assert-True ($colors['Hoàn thành'] -eq $colors['Đã thực hiện']) 'Completed states share a color'
         Assert-True (@($colors.Values | Select-Object -Unique).Count -eq 5) 'Five distinct status colors'
-        Write-Output 'PASS: detail layout, padding, values and status colors'
-    } finally { $popup.Dispose() }
+        Write-Output 'PASS: legacy detail projection and status colors (inline UI covered separately)'
 } finally {
     if ($conn) { $conn.Dispose() }
     [DG_TonKhoBTP_v02.Database.DB_Base]::_connStr = $oldConnection

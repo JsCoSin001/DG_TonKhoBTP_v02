@@ -1,4 +1,4 @@
-﻿using DG_TonKhoBTP_v02.Database.Kho.XuatKho;
+using DG_TonKhoBTP_v02.Database.Kho.XuatKho;
 using DG_TonKhoBTP_v02.Models;
 using DG_TonKhoBTP_v02.Models.Kho.XuatKho;
 using DG_TonKhoBTP_v02.UI.Helper;
@@ -1068,10 +1068,10 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
             {
                 long keHoachId = _keHoachId.Value;
                 long hangId = model.KeHoachHang_ID.Value;
-                List<LapKeHoachCatDay_ChiTietThucHien> rows = await WaitingHelper.RunWithWaiting(
-                    () => Task.Run(() => LapKeHoachCatDay_DB.LayChiTietThucHien(
-                        keHoachId, hangId, qcId, leId)), "ĐANG TẢI CHI TIẾT THỰC HIỆN...");
-                using (var frm = new FrmChiTietThucHien(model.TenSP, rows))
+                var query = new ExecutionDetailQuery(keHoachId, hangId, qcId, leId);
+                ExecutionDetailSnapshot snapshot = await WaitingHelper.RunWithWaiting(
+                    () => Task.Run(() => ExecutionEdit_DB.Load(query)), "ĐANG TẢI CHI TIẾT THỰC HIỆN...");
+                using (var frm = new FrmChiTietThucHien(query, model.TenSP, snapshot))
                     frm.ShowDialog(FindForm());
             }
             catch (InvalidOperationException ex)
@@ -1083,188 +1083,6 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
                 FrmWaiting.ShowGifAlert("Không thể tải chi tiết thực hiện kế hoạch. Vui lòng kiểm tra kết nối và dữ liệu.");
             }
             finally { _dangXemChiTiet = false; }
-        }
-
-        // Popup chi xem, xay dung bang code de khong can them Designer/csproj.
-        private sealed class FrmChiTietThucHien : Form
-        {
-
-            public FrmChiTietThucHien(
-                string tenSanPham,
-                List<LapKeHoachCatDay_ChiTietThucHien> details)
-            {
-                Text = "Chi tiết thực hiện kế hoạch";
-                StartPosition = FormStartPosition.CenterParent;
-                Size = new Size(1090, 530);
-                MinimumSize = new Size(850, 370);
-                Font = new Font("Tahoma", 10F);
-                Padding = new Padding(5);
-
-                // ============================
-                // TIÊU ĐỀ CỬA SỔ
-                // ============================
-                var title = new Label
-                {
-                    Text = "Chi tiết thực hiện: "
-                        + (tenSanPham ?? string.Empty),
-
-                    Dock = DockStyle.Top,
-                    Height = 50,
-                    AutoEllipsis = true,
-                    Padding = new Padding(5),
-                    Font = new Font(
-                        "Tahoma", 12F, FontStyle.Bold)
-                };
-
-                // ============================
-                // KHỞI TẠO DATAGRIDVIEW
-                // ============================
-                var grid = new DataGridView
-                {
-                    Dock = DockStyle.Fill,
-                    ReadOnly = true,
-                    AllowUserToAddRows = false,
-                    AllowUserToDeleteRows = false,
-                    AutoGenerateColumns = false,
-                    RowHeadersVisible = false,
-
-
-                    // Tự điều chỉnh chiều cao theo nội dung
-                    AutoSizeRowsMode =
-                        DataGridViewAutoSizeRowsMode.AllCells,
-
-                    AllowUserToResizeRows = false,
-
-                    // Cho phép tùy chỉnh font tiêu đề
-                    EnableHeadersVisualStyles = false,
-
-                    // Chiều cao tiêu đề cột
-                    ColumnHeadersHeightSizeMode =
-                        DataGridViewColumnHeadersHeightSizeMode.DisableResizing,
-
-                    ColumnHeadersHeight = 32
-                };
-
-                // ============================
-                // FONT VÀ CHIỀU CAO DÒNG
-                // ============================
-
-                // Font dữ liệu
-                grid.DefaultCellStyle.Font =
-                    new Font("Tahoma", 10F);
-                grid.DefaultCellStyle.Padding = new Padding(5);
-                grid.ColumnHeadersDefaultCellStyle.Padding = new Padding(5);
-
-                // Font tiêu đề các cột
-                grid.ColumnHeadersDefaultCellStyle.Font =
-                    new Font(
-                        "Tahoma", 10F, FontStyle.Bold);
-
-                // Chiều cao tối thiểu 45px
-                grid.RowTemplate.MinimumHeight = 32;
-
-                // Cho phép xuống dòng khi nội dung dài
-                grid.DefaultCellStyle.WrapMode =
-                    DataGridViewTriState.True;
-
-                // ============================
-                // KHAI BÁO 6 CỘT
-                // ============================
-                grid.Columns.Add(
-                    new DataGridViewTextBoxColumn
-                    {
-                        HeaderText = "Số lượng",
-                        Width = 95
-                    });
-
-                grid.Columns.Add(
-                    new DataGridViewTextBoxColumn
-                    {
-                        HeaderText = "Chiều dài",
-                        Width = 100
-                    });
-
-                grid.Columns.Add(
-                    new DataGridViewTextBoxColumn
-                    {
-                        HeaderText = "Trạng thái",
-                        Width = 140
-                    });
-
-                grid.Columns.Add(
-                    new DataGridViewTextBoxColumn
-                    {
-                        HeaderText = "Thời gian",
-                        Width = 175
-                    });
-
-                grid.Columns.Add(
-                    new DataGridViewTextBoxColumn
-                    {
-                        HeaderText = "Người thực hiện",
-                        Width = 155
-                    });
-
-                grid.Columns.Add(
-                    new DataGridViewTextBoxColumn
-                    {
-                        HeaderText = "Ghi chú",
-                        AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
-                        MinimumWidth = 180,
-                        FillWeight = 120
-                    });
-
-                // ============================
-                // HIỂN THỊ DỮ LIỆU
-                // ============================
-                foreach (var d in details)
-                {
-                    int index = grid.Rows.Add(
-                        d.SoLuong,
-                        d.ChieuDai,
-                        d.TrangThai,
-                        d.ThoiGian,
-                        d.NguoiThucHien,
-                        d.GhiChu
-                    );
-                    ToMauTrangThai(grid.Rows[index].Cells[2], d.TrangThai);
-                }
-
-                // ============================
-                // PANEL NÚT ĐÓNG
-                // ============================
-                var bottom = new Panel
-                {
-                    Dock = DockStyle.Bottom,
-                    Height = 50,
-                    Padding = new Padding(5)
-                };
-
-                var close = new Button
-                {
-                    Text = "Đóng",
-                    DialogResult = DialogResult.OK,
-                    Width = 105,
-                    Height = 34,
-                    Anchor =
-                        AnchorStyles.Right | AnchorStyles.Top,
-                    Left = 950,
-                    Top = 7
-                };
-
-                bottom.Controls.Add(close);
-
-                AcceptButton = close;
-                CancelButton = close;
-
-                // ============================
-                // THÊM CONTROL VÀO FORM
-                // ============================
-                Controls.Add(grid);
-                Controls.Add(bottom);
-                Controls.Add(title);
-            }
-
         }
 
         private void MoPopupCatLe(DataGridViewRow gridRow, LapKeHoachCatDay_GridRow model)

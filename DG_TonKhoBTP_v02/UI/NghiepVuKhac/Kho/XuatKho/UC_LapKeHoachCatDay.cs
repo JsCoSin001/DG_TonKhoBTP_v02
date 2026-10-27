@@ -1081,7 +1081,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
                 var query = new ExecutionDetailQuery(keHoachId, hangId, qcId, leId);
                 ExecutionDetailSnapshot snapshot = await WaitingHelper.RunWithWaiting(
                     () => Task.Run(() => ExecutionEdit_DB.Load(query)), "ĐANG TẢI CHI TIẾT THỰC HIỆN...");
-                using (var frm = new FrmChiTietThucHien(query, model.TenSP, snapshot))
+                using (var frm = new Frm_ChiTietThucHienKeHoach(query, model.TenSP, snapshot))
                 {
                     frm.ShowDialog(FindForm());
                     if (frm.LastSaveResult?.Success == true)

@@ -46,6 +46,11 @@ function New-EEObject([string]$name, [object[]]$arguments=@()) {
     $type=$script:EEAssembly.GetType('DG_TonKhoBTP_v02.Models.Kho.XuatKho.'+$name,$true)
     return [Activator]::CreateInstance($type,$arguments)
 }
+function New-EEForm($query,[string]$productName) {
+    $formType=$script:EEAssembly.GetType('DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho.Frm_ChiTietThucHienKeHoach',$true)
+    $constructor=$formType.GetConstructor([Reflection.BindingFlags]'Instance,Public,NonPublic',$null,[type[]]@($query.GetType(),[string]),$null)
+    return $constructor.Invoke([object[]]@($query,$productName))
+}
 function Invoke-EE([string]$method, [object[]]$arguments=@()) {
     $type=$script:EEAssembly.GetType('DG_TonKhoBTP_v02.Database.Kho.XuatKho.ExecutionEdit_DB',$true)
     try { return ,$type.GetMethod($method,[Reflection.BindingFlags]'Static,Public').Invoke($null,$arguments) }

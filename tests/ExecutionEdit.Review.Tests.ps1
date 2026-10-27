@@ -80,16 +80,19 @@ foreach($name in @('Conversion','PendingDelete','Orphan','MarkerPreview','Previe
         }
         elseif($name -eq 'PreviewSelection') {
             $null=Add-EETestCut $path
-            $type=$script:EEAssembly.GetType('DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho.FrmChiTietThucHien',$true)
-            $form=[Activator]::CreateInstance($type,[object[]]@($q,'Review'));$form.CreateControl()
+            $type=$script:EEAssembly.GetType('DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho.Frm_ChiTietThucHienKeHoach',$true)
+            $form=New-EEForm $q 'Review';$form.CreateControl()
             $form.Controls.Find('cbxNguoiThucHien',$true)[0].SelectedValue='inactive'
-            $form.Controls.Find('cbxLyDoSuaDong',$true)[0].SelectedValue='INFO'
-            $save=$form.Controls.Find('btnLuuThayDoi',$true)[0];$deadline=[DateTime]::UtcNow.AddSeconds(6)
-            while(-not $save.Enabled -and [DateTime]::UtcNow -lt $deadline){[Windows.Forms.Application]::DoEvents();Start-Sleep -Milliseconds 30}
-            Assert-EE $save.Enabled 'Valid preview ready'
-            $impact=$type.GetField('_impact',$flags).GetValue($form);$text=$impact.Text
-            $grid=$form.Controls.Find('grvChiTietThucHien',$true)[0];$grid.CurrentCell=$grid.Rows[1].Cells[0]
-            Assert-EE ($impact.Text -eq $text) 'Selection changes preserve validated whole-batch impact'
+            $form.Controls.Find('rtbLyDoSua',$true)[0].Text='Correct performer'
+            $save=$form.Controls.Find('btnLuuThayDoi',$true)[0]
+            Assert-EE $save.Enabled 'Save validates the current whole draft when clicked'
+            $request=$type.GetMethod('BuildRequest',$flags).Invoke($form,@())
+            $preview=Invoke-EE 'Preview' @($request)
+            Assert-EE $preview.Valid 'Whole-batch preview is valid'
+            $text=$type.GetMethod('ConfirmationText',$flags).Invoke($form,@($request,$preview))
+            Assert-EE ($text.Length -gt 0) 'Whole-batch impact is prepared for the save confirmation'
+            $grid=$form.Controls.Find('grvDsChiTietCuon',$true)[0];$grid.CurrentCell=$grid.Rows[1].Cells[0]
+            Assert-EE ($type.GetMethod('ConfirmationText',$flags).Invoke($form,@($request,$preview)) -eq $text) 'Selection changes preserve validated whole-batch impact'
         }
         elseif($name -eq 'AuditEffects') {
             $id=Convert-ReviewReel $path

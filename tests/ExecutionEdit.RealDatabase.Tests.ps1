@@ -29,12 +29,12 @@ function Cut([long]$detail,[string]$token,[string]$raw=$script:partialCode,[long
     return Invoke-EEB3 $path cut $payload
 }
 function Draw-Detail($query,[string]$name,[string]$kind='CUT') {
-    $type=$script:EEAssembly.GetType('DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho.FrmChiTietThucHien',$true)
-    $form=[Activator]::CreateInstance($type,[object[]]@($query,'Kiem thu ban sao QLSX_v02'))
+    $type=$script:EEAssembly.GetType('DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho.Frm_ChiTietThucHienKeHoach',$true)
+    $form=New-EEForm $query 'Kiem thu ban sao QLSX_v02'
     try {
         $form.ShowInTaskbar=$false;$form.StartPosition=[Windows.Forms.FormStartPosition]::Manual;$form.Location=New-Object Drawing.Point(-30000,-30000);$form.Opacity=0
         $form.Show();[Windows.Forms.Application]::DoEvents()
-        $grid=$form.Controls.Find('grvChiTietThucHien',$true)[0]
+        $grid=$form.Controls.Find('grvDsChiTietCuon',$true)[0]
         $row=@($grid.Rows|Where-Object {$_.Tag.Done -and $_.Tag.Kind -eq $kind})[0]
         $grid.CurrentCell=$row.Cells[0]
         Check ($form.Controls.Find('cbxNguoiThucHien',$true)[0].SelectedValue -ne $null) ('Actual UI binds selected '+$name+' execution')
@@ -71,10 +71,10 @@ try {
     $legacyFullQuery=New-EEObject 'ExecutionDetailQuery' @([long]1,[long]2,[long]1,$null)
     $legacyFull=Invoke-EE 'Load' @($legacyFullQuery)
     Check (@($legacyFull.Rows|Where-Object Done).Count -eq 5 -and @($legacyFull.Rows|Where-Object {$_.Done -and $_.OperationToken.Length -gt 0}).Count -eq 0) 'Original full-reel scope displays three takes and two conversion cuts without inventing ledger identity'
-    $legacyFormType=$script:EEAssembly.GetType('DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho.FrmChiTietThucHien',$true)
-    $legacyForm=[Activator]::CreateInstance($legacyFormType,[object[]]@($legacyFullQuery,'Existing QLSX data'))
+    $legacyFormType=$script:EEAssembly.GetType('DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho.Frm_ChiTietThucHienKeHoach',$true)
+    $legacyForm=New-EEForm $legacyFullQuery 'Existing QLSX data'
     try {
-        $legacyGrid=$legacyForm.Controls.Find('grvChiTietThucHien',$true)[0]
+        $legacyGrid=$legacyForm.Controls.Find('grvDsChiTietCuon',$true)[0]
         Check (-not $legacyForm.Controls.Find('btnLuuThayDoi',$true)[0].Enabled -and @($legacyGrid.Rows|Where-Object {$_.Tag.Done -and -not $_.Cells['colTrangThai'].ReadOnly}).Count -eq 0) 'Actual detail form safely shows existing history with editing disabled'
     } finally {$legacyForm.Dispose()}
     # Reserve new positive IDs rather than replacing any source records.

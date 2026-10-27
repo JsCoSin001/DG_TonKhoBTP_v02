@@ -45,12 +45,12 @@
 - `SaveAsync()` trả `Task<bool>`; `ReloadPreservingDraft()` giữ mục đích và kiểm tra đối tượng hiện có. Gắn sự kiện vào các control đã thiết kế, không dựng lại layout bằng code.
 
 - [x] Resolve control lỗi với người dùng: dùng `lblTacDong` như Label động; không thêm RichTextBox.
-- [ ] Write failing tests: form hiển thị đủ dòng; Label.Text trước và sau binding giống nhau; không có control bị loại; thời gian khóa; pending không thực hiện mới; người ngừng hoạt động chọn được; một cuộn một bản nháp; số cuối sai không ghi; lý do giữ khi chuyển dòng; lỗi lưu giữ bản nháp.
-- [ ] Run new tests against current Debug binary and confirm failure because target form has no business binding.
-- [ ] Implement binding and event handlers using existing snapshot/draft and six grid columns. `tbxSoCuoi_Sua` parses integer safely; `_start = end - direction * currentLength` with bounds. Keep historical three fields independent. Date picker shows stored timestamp only; pending shows no date.
-- [ ] Implement save: end current cell edit; validate reason/input; build one request with unchanged internal reason codes and shared text Note; Preview latest request; show validation errors in error control. For undo/marker edits, confirm complete impact before Save. Cancel never writes; Save rechecks versions atomically. Do not show timer-driven modal dialogs.
-- [ ] Implement conflict prompt -> existing preserve-draft reload, keep reason and valid intended edits. Do not reload without user's choice. Existing Close uses Save/Discard/Cancel; save failure prevents close. Stop and dispose timer safely without adding a second Dispose override to the Designer partial class.
-- [ ] Run new tests and updated UI / review tests; use temporary fixture DB only. Expected: all relevant cases pass.
+- [x] Write failing tests: form hiển thị đủ dòng; Label.Text trước và sau binding giống nhau; không có control bị loại; thời gian khóa; pending không thực hiện mới; người ngừng hoạt động chọn được; một cuộn một bản nháp; số cuối sai không ghi; lý do giữ khi chuyển dòng; lỗi lưu giữ bản nháp.
+- [x] Run new tests against current Debug binary and confirm failure because target form has no business binding.
+- [x] Implement binding and event handlers using existing snapshot/draft and six grid columns. `tbxSoCuoi_Sua` parses integer safely; `_start = end - direction * currentLength` with bounds. Keep historical three fields independent. Date picker shows stored timestamp only; pending shows no date.
+- [x] Implement save: end current cell edit; validate reason/input; build one request with unchanged internal reason codes and shared text Note; Preview latest request; show validation errors in error control. For undo/marker edits, confirm complete impact before Save. Cancel never writes; Save rechecks versions atomically. Do not show timer-driven modal dialogs.
+- [x] Implement conflict prompt -> existing preserve-draft reload, keep reason and valid intended edits. Do not reload without user's choice. Existing Close uses Save/Discard/Cancel; save failure prevents close. Stop and dispose timer safely without adding a second Dispose override to the Designer partial class.
+- [x] Run new tests and updated UI / review tests; use temporary fixture DB only. Expected: all relevant cases pass.
 
 ### Task 2: Chuyển điểm mở và kiểm tra hồi quy
 
@@ -59,11 +59,12 @@
 - Produce point of entry that opens only `Frm_ChiTietThucHienKeHoach` and refreshes execution facts while retaining parent planning drafts.
 
 - [x] Verify the one-line parent opener substitution by diff, and run actual new-form integration/render tests rather than adding a source-text assertion that mirrors the implementation.
-- [ ] Switch form creation at parent call site; retain current query, loading indicator, error handling and post-save refresh.
-- [ ] Remove obsolete duplicate implementation only after replacing every test / production reference; preserve regression coverage rather than keeping tests passing against an unused form.
-- [ ] Build Debug and Release with Visual Studio MSBuild; run `ExecutionEdit.*.Tests.ps1` on appropriate fresh binaries, skipping optional real DB test unless a path is explicitly provided. Expected: feature suites pass; distinguish known unrelated baseline failures if broader checks are run.
-- [ ] Render actual partial / conversion / whole-reel forms using `ExecutionEdit.Preview.Tests.ps1`, inspect images for all three cases and unchanged Label captions, and inspect layout of actual error control.
-- [ ] Verify git diff: no implementation changes to Designer captions, B3, SQL, DB service or user DB; record results in verification doc. Update plan checkboxes and report any remaining limitations.
+- [x] Switch form creation at parent call site; retain current query, loading indicator, error handling and post-save refresh.
+- [x] Remove obsolete duplicate implementation only after replacing every test / production reference; preserve regression coverage rather than keeping tests passing against an unused form.
+- [x] Build Debug and Release with Visual Studio MSBuild; run `ExecutionEdit.*.Tests.ps1` on appropriate fresh binaries, skipping optional real DB test unless a path is explicitly provided. Expected: feature suites pass; distinguish known unrelated baseline failures if broader checks are run.
+- [x] Render actual partial / conversion / whole-reel forms using `ExecutionEdit.Preview.Tests.ps1`, inspect images for all three cases and unchanged Label captions, and inspect layout of actual error control.
+- [x] Verify git diff: no implementation changes to Designer captions, B3, SQL, DB service or user DB; record results in verification doc. Update plan checkboxes and report any remaining limitations.
+- [x] Independent final review and one verified fix pass: identical-marker reload drops phantom dirty state; confirmation-race test proves Save reaches version validation. Both regression assertions observed RED then GREEN; entire feature suite green after fixes.
 
 ## Self-review
 

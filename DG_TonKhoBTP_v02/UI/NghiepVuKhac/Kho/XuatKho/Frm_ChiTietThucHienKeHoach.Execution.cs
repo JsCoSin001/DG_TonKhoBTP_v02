@@ -301,11 +301,18 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
                 if (_draft.RowEdits.Keys.Any(t => !latest.Rows.Any(r => r.Done && r.OperationToken == t)) || _markerInputs.Keys.Any(id => !latest.Reels.ContainsKey(id)))
                 { ShowError("Dòng hoặc cuộn đang sửa không còn hiệu lực. Bản nháp vẫn được giữ; đóng không lưu nếu muốn bỏ thay đổi."); return; }
                 var draft = new ExecutionEditDraft(latest);
+                var unchangedInputs = new List<long>();
                 foreach (var edit in _draft.RowEdits.Values) draft.SetRowEdit(edit);
                 foreach (var pair in _markerInputs)
                     if (TryMarker(latest.Reels[pair.Key], pair.Value.End, pair.Value.Direction, out int end, out _))
+                    {
                         draft.SetReelEdit(new ReelMarkerEdit { ReelId = pair.Key, NewEnd = end, NewDirection = pair.Value.Direction, Reason = "MARKERS" });
-                _snapshot = latest; _draft = draft; _changeId = Guid.NewGuid(); BindAll(); Changed();
+                        if (end == latest.Reels[pair.Key].End && pair.Value.Direction == latest.Reels[pair.Key].Direction)
+                            unchangedInputs.Add(pair.Key);
+                    }
+                _snapshot = latest; _draft = draft; _changeId = Guid.NewGuid();
+                foreach (long id in unchangedInputs) _markerInputs.Remove(id);
+                BindAll(); Changed();
             }
             catch (Exception) { ShowError("Không thể tải dữ liệu mới. Bản nháp vẫn được giữ."); }
         }

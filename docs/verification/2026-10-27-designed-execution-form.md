@@ -16,7 +16,7 @@ Ngày: 27/10/2026. Phạm vi: chuyển giao diện chi tiết thực hiện từ
 
 - Debug build: đạt; Release build: đạt, còn các cảnh báo có sẵn của dự án.
 - Toàn bộ 14 script `ExecutionEdit.*.Tests.ps1`: 13 script đạt, 1 script kiểm tra database thật bỏ qua vì không truyền đường dẫn. Tất cả dữ liệu kiểm thử là fixture SQLite tạm.
-- Bộ mới `ExecutionEdit.DesignedForm.Tests.ps1`: 11 trường hợp đạt: binding/nhãn tĩnh, đầu vào số, lưu người và lý do, từ chối xác nhận/xung đột trong lúc xác nhận, lưu mốc, tải lại giữ bản nháp, hoàn tác lẻ, hoàn tác chuyển chẵn thành lẻ từ phạm vi cuộn phát sinh, hoàn tác lấy nguyên cuộn, đóng và lỗi nhật ký rollback.
+- Bộ mới `ExecutionEdit.DesignedForm.Tests.ps1`: 12 trường hợp đạt: binding/nhãn tĩnh, đầu vào số, lưu người và lý do, từ chối xác nhận/xung đột trong lúc xác nhận, lưu mốc, tải lại giữ bản nháp, tải lại mốc trùng với dữ liệu người khác đã lưu, hoàn tác lẻ, hoàn tác chuyển chẵn thành lẻ từ phạm vi cuộn phát sinh, hoàn tác lấy nguyên cuộn, đóng và lỗi nhật ký rollback.
 - Bộ UI/review/preview đã chuyển sang kiểm tra đúng form mới, không giữ kiểm tra trên form cũ không còn sử dụng.
 - Render và xem ba cửa sổ WinForms thật: `artifacts/execution-edit/partial.png`, `convert.png`, `whole.png`. Label và bố cục giữ theo thiết kế người dùng; các ô mốc không áp dụng được ẩn khi lấy nguyên cuộn.
 - RED trước triển khai: form mới không có constructor nhận truy vấn / binding, test Binding thất bại đúng điều kiện này. GREEN sau triển khai kiểm tra cả ghi dữ liệu qua dịch vụ thật.
@@ -62,3 +62,14 @@ Danh sách đầy đủ 13 lỗi Ending hiện tại:
 11. Selecting an end shift retains invalid time, alerts and requires correction
 12. Native focus returns to invalid ending time with only one alert
 13. End date defaults follow end shift/time and manual changes survive until reset
+
+## Rà soát độc lập và sửa sau rà soát
+
+Một reviewer độc lập đọc range `6900707..87c6101`, xác nhận việc giữ dữ liệu lịch sử / hiện tại riêng, kiểm tra số trước ghi, đóng băng thao tác lúc lưu và gọi nguyên dịch vụ giao dịch cũ. Không phát hiện lỗi Critical/Important theo phân loại ban đầu; có hai điểm được tác giả đánh giá cần sửa trước khi kết thúc vì ảnh hưởng luồng lưu và bằng chứng kiểm tra:
+
+1. Nếu người khác đã lưu cùng số cuối / chiều, tải mới phải loại cả bản nháp số lẫn đầu vào văn bản trùng. Trước sửa: nút Lưu còn bật, báo chưa có thay đổi và đóng vẫn hỏi lưu. Test `IdenticalReload` tái hiện RED; sau sửa GREEN, các đầu vào sai hoặc thực sự khác vẫn giữ nguyên.
+2. Callback test xác nhận phải trả câu trả lời chụp trước khi chạy hành động mô phỏng dữ liệu đổi. Trước sửa test vô tình từ chối xác nhận, không tới giao dịch. Thêm kiểm tra số hộp thoại để chứng minh RED; sau sửa `MarkerConfirm` GREEN, thực sự đồng ý xác nhận, đi vào kiểm tra phiên bản và hiện hộp thoại xung đột. Dịch vụ lưu không thay đổi.
+
+Sau một lượt sửa: build Debug/Release đạt; chạy lại toàn bộ 14 script ExecutionEdit: 13 đạt, 1 bỏ qua database thật; 12/12 trường hợp của bộ form mới đạt. Không chạy thêm reviewer thứ hai. Không còn finding trong phạm vi chuyển form bị hoãn.
+
+Reviewer đặt ngoài phạm vi: triển khai B2/B3 trước range này; nhãn mẫu / bố cục / khoảng trắng Designer theo yêu cầu người dùng; lỗi giờ ca không liên quan; database gốc; xác minh lại bằng chạy test độc lập; các checkbox kế hoạch đang được tác giả cập nhật. Tác giả đã chạy test, ghi đầy đủ lỗi ngoài phạm vi và giữ nguyên database gốc. Nhật ký quyết định đầy đủ được lưu trong `2026-10-27-designed-execution-form-decisions.md`.

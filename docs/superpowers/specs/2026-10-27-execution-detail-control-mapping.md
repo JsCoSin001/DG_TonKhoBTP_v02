@@ -1,6 +1,6 @@
 # Ánh xạ control sang Frm_ChiTietThucHienKeHoach
 
-Ngày: 27/10/2026. Trạng thái: **ĐÃ CHỐT PHƯƠNG ÁN, ĐANG TRIỂN KHAI.** Dùng `lblTacDong` kiểu Label hiện có để hiển thị lỗi; không cần RichTextBox. Người dùng đã làm rõ đây là Label hiển thị thông báo động, được cập nhật nội dung lỗi; các Label mô tả khác giữ nguyên.
+Ngày: 27/10/2026. Trạng thái: **ĐÃ TRIỂN KHAI VÀ KIỂM TRA PHẠM VI CHUYỂN FORM.** Dùng `lblTacDong` kiểu Label hiện có để hiển thị lỗi; không cần RichTextBox. Người dùng đã làm rõ đây là Label hiển thị thông báo động, được cập nhật nội dung lỗi; các Label mô tả khác giữ nguyên. Kết quả và giới hạn kiểm tra nằm trong `docs/verification/2026-10-27-designed-execution-form.md`.
 
 ## Phạm vi và cơ sở đối chiếu
 

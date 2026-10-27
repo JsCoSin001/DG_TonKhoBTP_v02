@@ -25,7 +25,7 @@ function Save-Form {
     return $task.GetAwaiter().GetResult()
 }
 $failed=0
-foreach($name in @('Binding','Input','ReasonSave','MarkerConfirm','MarkerSave','Conflict','Undo','Conversion','Whole','Closing','Rollback')) {
+foreach($name in @('Binding','Input','ReasonSave','MarkerConfirm','MarkerSave','Conflict','IdenticalReload','Undo','Conversion','Whole','Closing','Rollback')) {
     if($Case -ne 'All' -and $Case -ne $name){continue}
     $path=$null;$form=$null;$empty=$null
     try {
@@ -59,8 +59,9 @@ foreach($name in @('Binding','Input','ReasonSave','MarkerConfirm','MarkerSave','
         $prompt=[Func[string,Windows.Forms.MessageBoxButtons,Windows.Forms.DialogResult]]{
             param($message,$buttons)
             $script:Dialogs.Add($message)
+            $currentAnswer=$script:DialogAnswer
             if($script:DialogAction){& $script:DialogAction}
-            return $script:DialogAnswer
+            return $currentAnswer
         }
         $type.GetProperty('DialogPrompt',$flags).SetValue($form,$prompt)
         $grid=Control 'grvDsChiTietCuon';$person=Control 'cbxNguoiThucHien';$reason=Control 'rtbLyDoSua';$errorLabel=Control 'lblTacDong';$end=Control 'tbxSoCuoi_Sua'
@@ -112,6 +113,7 @@ foreach($name in @('Binding','Input','ReasonSave','MarkerConfirm','MarkerSave','
             $script:DialogAnswer=[Windows.Forms.DialogResult]::Yes
             $script:DialogAction={Invoke-EESql "UPDATE B3PhienBanDuLieu SET GiaTri=GiaTri+1 WHERE Khoa='FACTORY';";$script:DialogAction=$null;$script:DialogAnswer=[Windows.Forms.DialogResult]::No}
             Assert-EE (-not (Save-Form)) 'Data changed during confirmation is refused by existing version check'
+            Assert-EE ($script:Dialogs.Count -eq 3) 'Accepted stale confirmation must reach Save and produce a separate reload prompt'
             Assert-EE ((Get-EEScalar 'SELECT SoCuoi FROM TonCuonLe WHERE id=70') -eq 650) 'Stale confirmation cannot write'
         }
         elseif($name -eq 'Conflict') {
@@ -131,6 +133,18 @@ foreach($name in @('Binding','Input','ReasonSave','MarkerConfirm','MarkerSave','
             Assert-EE (Save-Form) 'Confirmed marker correction saves through the new form'
             Assert-EE ((Get-EEScalar 'SELECT SoDau FROM TonCuonLe WHERE id=70') -eq 1000 -and (Get-EEScalar 'SELECT SoCuoi FROM TonCuonLe WHERE id=70') -eq 1650) 'Marker correction preserves 650m of stock'
             Assert-EE ((Get-EEScalar "SELECT COUNT(*) FROM B2DieuChinhSuKien WHERE Loai='DOI_MOC'") -eq 1 -and (Get-EEScalar "SELECT GhiChu FROM B2DieuChinhSuKien WHERE Loai='DOI_MOC'") -eq 'Real reel marks confirmed') 'One physical reel has one audited correction with the typed reason'
+        }
+        elseif($name -eq 'IdenticalReload') {
+            $end.Text='1650';$reason.Text='Same correction as the other editor'
+            $other=New-EERequest (Invoke-EE 'Load' @($q));$otherMarker=New-EEObject 'ReelMarkerEdit'
+            $otherMarker.ReelId=70;$otherMarker.NewEnd=1650;$otherMarker.NewDirection=1;$otherMarker.Reason='MARKERS';$other.ReelEdits.Add($otherMarker)
+            Assert-EE (Invoke-EE 'Save' @($other)).Success 'Another editor already applies the identical marker correction'
+            Assert-EE (-not (Save-Form)) 'Conflict reload does not implicitly write'
+            Assert-EE (-not (Control 'btnLuuThayDoi').Enabled -and -not $type.GetProperty('HasChanges',$flags).GetValue($form)) 'Identical latest marker values leave no phantom unsaved draft'
+            $closeArgs=[Windows.Forms.FormClosingEventArgs]::new([Windows.Forms.CloseReason]::UserClosing,$false)
+            $beforeDialogs=$script:Dialogs.Count
+            $type.GetMethod('ClosingWithDraft',$flags).Invoke($form,[object[]]@($form,$closeArgs))
+            Assert-EE (-not $closeArgs.Cancel -and $script:Dialogs.Count -eq $beforeDialogs) 'Closing an identical reloaded state does not ask to save nonexistent changes'
         }
         elseif($name -eq 'Undo') {
             $grid.Rows[0].Cells['colTrangThai'].Value='Chưa thực hiện';$reason.Text='Mistaken execution, no physical cut'

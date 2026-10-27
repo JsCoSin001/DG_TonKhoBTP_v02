@@ -53,6 +53,8 @@ def main():
         if "B3/storage/logs/.gitignore" not in archive.namelist():
             archive.writestr("B3/storage/logs/.gitignore", "*\n!.gitignore\n")
         archive.write(MIGRATION, "B3/database/sql/" + MIGRATION.name)
+        gui_migration = MIGRATION.with_name(MIGRATION.stem + "_DBBrowser.sql")
+        archive.write(gui_migration, "B3/database/sql/" + gui_migration.name)
         guide = "Trong gói này, SQL cập nhật nằm ở `B3/database/sql/" + MIGRATION.name + "`.\n\n"
         guide += (ROOT / "docs/deployment/b2-b3-execution-edit.md").read_text(encoding="utf-8")
         archive.writestr("HUONG-DAN-CAP-NHAT.md", guide)

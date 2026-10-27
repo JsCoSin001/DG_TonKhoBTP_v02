@@ -7,6 +7,7 @@ Chức năng sửa trực tiếp người thực hiện, mốc hiện tại và 
 - B2: build solution `DG_TonKhoBTP_v02.sln`, cấu hình `Release`, nền tảng `Any CPU`. Phân phối toàn bộ thư mục đầu ra, gồm thư viện SQLite và thư mục native x86/x64; giữ cấu hình đường dẫn DB của môi trường đích.
 - B3: nguồn tại `integrations/B3`, phụ thuộc cố định trong `composer.lock`. Cài bằng `composer install --no-dev --optimize-autoloader` ở môi trường đích; giữ `.env`, APP_KEY và cấu hình đăng nhập của môi trường đó. Không sao chép cấu hình kiểm thử.
 - SQLite: `database/Migration_B2B3_ExecutionEdit_20261026.sql`. Chỉ áp dụng thủ công có kiểm soát. B2/B3 không tự chạy migration này.
+- Nếu chạy trong DB Browser for SQLite, dùng `database/Migration_B2B3_ExecutionEdit_20261026_DBBrowser.sql`. Bản này dùng `SAVEPOINT` để tương thích với giao dịch do trình biên tập mở sẵn; các bảng, dữ liệu cấu hình, chỉ mục và trigger giống bản chính.
 
 ## Trình tự cập nhật
 
@@ -17,6 +18,17 @@ Chức năng sửa trực tiếp người thực hiện, mốc hiện tại và 
 5. Thử ba luồng trên dữ liệu thử: cắt cuộn lẻ, chuyển chẵn thành lẻ, lấy toàn cuộn. Mỗi thao tác B3 phải có dòng `B3ThaoTac` và phiên bản dữ liệu tăng. Kiểm tra thực hiện mới vẫn hoạt động khi cờ sửa đang tắt.
 6. Bật sửa trên bản thử bằng câu SQL dưới đây. Kiểm tra B2 sửa người thực hiện, mốc giữ nguyên chiều dài, hoàn tác ghi nhận nhầm, nhật ký tài khoản người sửa và B3 từ chối gửi lại mã đã HUY.
 7. Khi thử đạt, lặp lại quy trình đã kiểm chứng trên DB đích trong thời gian dừng ghi. Mở lại B2/B3 sau khi cùng tương thích và bật cờ theo quyết định vận hành.
+
+### Chạy trong DB Browser và xử lý lỗi giao dịch lồng
+
+DB Browser có thể mở giao dịch trước khi chạy SQL, gây lỗi `cannot start a transaction within a transaction` tại `BEGIN IMMEDIATE` của bản chính. Dùng bản `_DBBrowser.sql` để tránh lồng `BEGIN`.
+
+1. Xử lý các chỉnh sửa khác đang chờ theo ý định của người vận hành. Nếu chỉ vừa thử file cập nhật và gặp lỗi, dùng **Revert Changes** để bỏ lần thử lỗi; thao tác này cũng bỏ mọi thay đổi chưa lưu khác nếu có.
+2. Trong **Execute SQL**, thay toàn bộ nội dung bằng bản `_DBBrowser.sql`, chọn tất cả và chạy.
+3. Chỉ khi toàn bộ file chạy thành công, nhấn **Write Changes** nếu nút đang bật. Sau đó chạy các kiểm tra toàn vẹn/khóa ngoại/phiên bản như trên.
+4. Nếu lỗi giữa chừng, không nhấn Write Changes. Quay lui phần migration bằng `ROLLBACK TO SAVEPOINT B2B3_ExecutionEdit_Migration; RELEASE SAVEPOINT B2B3_ExecutionEdit_Migration;` nếu savepoint còn tồn tại; hoặc dùng Revert Changes khi không có thay đổi khác cần giữ.
+
+Bản chính vẫn dùng cho công cụ chạy SQL độc lập, không có giao dịch mở sẵn. Không chạy hai bản nối tiếp nhau để khắc phục cùng một lần lỗi; chọn bản phù hợp với công cụ.
 
 ```sql
 UPDATE B3TinhNangDuLieu SET ChoPhepSua=1

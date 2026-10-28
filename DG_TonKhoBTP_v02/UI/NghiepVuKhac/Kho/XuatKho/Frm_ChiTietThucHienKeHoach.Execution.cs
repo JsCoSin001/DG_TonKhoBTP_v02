@@ -308,7 +308,15 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
                             if (result.Success)
                             {
                                 LastSaveResult = result; success = true; _draft.Reset(); _markerInputs.Clear(); rtbLyDoSua.Clear(); _generation++; _changeId = Guid.NewGuid();
-                                if (result.NewSnapshot != null) { _snapshot = result.NewSnapshot; _draft = new ExecutionEditDraft(_snapshot); BindAll(); }
+                                if (result.NewSnapshot != null && result.NewSnapshot.Rows.Count == 0)
+                                {
+                                    FrmWaiting.ShowGifAlert("Không có dữ liệu");
+                                    closeAfterSave = true;
+                                }
+                                else if (result.NewSnapshot != null)
+                                {
+                                    _snapshot = result.NewSnapshot; _draft = new ExecutionEditDraft(_snapshot); BindAll();
+                                }
                                 else closeAfterSave = true;
                             }
                             else { ShowError(result.Message); conflict = result.Conflict; }
@@ -335,6 +343,18 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
                 var latest = ExecutionEdit_DB.Load(_snapshot.Query);
                 if (_draft.RowEdits.Keys.Any(t => !latest.Rows.Any(r => r.Done && r.OperationToken == t)) || _markerInputs.Keys.Any(id => !latest.Reels.ContainsKey(id)))
                 { ShowError("Dòng hoặc cuộn đang sửa không còn hiệu lực. Bản nháp vẫn được giữ; đóng không lưu nếu muốn bỏ thay đổi."); return; }
+                if (latest.Rows.Count == 0)
+                {
+                    if (HasChanges)
+                    {
+                        ShowError("Không có dữ liệu trong phạm vi này. Bản nháp vẫn được giữ; đóng không lưu nếu muốn bỏ thay đổi.");
+                        return;
+                    }
+                    FrmWaiting.ShowGifAlert("Không có dữ liệu");
+                    _allowClose = true;
+                    Close();
+                    return;
+                }
                 var draft = new ExecutionEditDraft(latest);
                 var unchangedInputs = new List<long>();
                 foreach (var edit in _draft.RowEdits.Values) draft.SetRowEdit(edit);

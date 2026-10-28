@@ -80,13 +80,27 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
                 "@item", query.ItemId, "@reel", query.PartialReelId!.Value).Rows.Count == 0)
                 throw new InvalidOperationException("Cuộn không còn thuộc nhóm kế hoạch đang xem.");
 
+            // A converted group is displayed by its partial-reel row, not by the full-reel row.
+            // Check its physical reel first: filtering must not conceal a broken conversion link.
+            if (query.SpecificationId.HasValue)
+            {
+                var orphanConvertedGroups = Table(conn, tx, @"SELECT n.id FROM KeHoachCatNhom n
+                    LEFT JOIN TonCuonLe t ON t.id=n.TonCuonLe_ID
+                    LEFT JOIN TTThanhPham p ON p.id=t.TTThanhPham_ID
+                    WHERE n.KeHoachHang_ID=@item AND n.QuyCachCuonChan_ID=@qc
+                      AND n.TonCuonLe_ID IS NOT NULL AND (t.id IS NULL OR p.id IS NULL) LIMIT 1",
+                    "@item", query.ItemId, "@qc", query.SpecificationId.Value);
+                if (orphanConvertedGroups.Rows.Count > 0)
+                    throw new InvalidOperationException("Nhóm cắt đã chuyển lẻ nhưng không tìm thấy cuộn lẻ tương ứng. Vui lòng kiểm tra dữ liệu.");
+            }
+
             var cuts = Table(conn, tx, @"SELECT d.id AS DetailId,n.id AS GroupId,n.TonCuonLe_ID AS PlannedReel,
                 d.ChieuDaiCanCat,h.*,o.MaThaoTac,t.MaCuon
                 FROM KeHoachCatNhom n JOIN KeHoachCatChiTiet d ON d.KeHoachCatNhom_ID=n.id
                 LEFT JOIN LichSuCat h ON h.KeHoachCatChiTiet_ID=d.id
                 LEFT JOIN B3ThaoTac o ON o.Loai='CUT' AND o.LichSu_ID=h.id AND o.TrangThai='ACTIVE'
                 LEFT JOIN TonCuonLe t ON t.id=COALESCE(h.TonCuonLe_ID,n.TonCuonLe_ID)
-                WHERE n.KeHoachHang_ID=@item AND ((@qc IS NOT NULL AND n.QuyCachCuonChan_ID=@qc)
+                WHERE n.KeHoachHang_ID=@item AND ((@qc IS NOT NULL AND n.QuyCachCuonChan_ID=@qc AND n.TonCuonLe_ID IS NULL)
                     OR (@reel IS NOT NULL AND n.TonCuonLe_ID=@reel)) ORDER BY n.id,d.id",
                 "@item", query.ItemId, "@qc", (object?)query.SpecificationId ?? DBNull.Value,
                 "@reel", (object?)query.PartialReelId ?? DBNull.Value);

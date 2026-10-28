@@ -1,4 +1,4 @@
-using DG_TonKhoBTP_v02.Database.Kho.XuatKho;
+﻿using DG_TonKhoBTP_v02.Database.Kho.XuatKho;
 using DG_TonKhoBTP_v02.Models;
 using DG_TonKhoBTP_v02.Models.Kho.XuatKho;
 using DG_TonKhoBTP_v02.UI.Helper;
@@ -18,6 +18,9 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
     public partial class UC_LapKeHoachCatDay : UserControl
     {
         private const int BUTTON_RADIUS = 6;
+
+        // Giới hạn bề rộng Tên SP, không phụ thuộc kích thước Grid.
+        private const int BE_RONG_TEN_SP_TOI_DA = 240;
 
         private const string COL_TEN_SP = "colTenSP";
         private const string COL_MA_NGUON = "colMaNguon";
@@ -59,6 +62,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
         private bool _dangLuu;
         private bool _dangXemChiTiet;
         private long? _executionRevision;
+        private int _hoverRow = -1;
+        private int _hoverColumn = -1;
         private readonly HashSet<string> _executionDraftReview = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
         private LapKeHoachCatDay_GridRow _rowDangEditChieuDai;
@@ -146,16 +151,16 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
             // 4. CHIỀU CAO DÒNG DỮ LIỆU
             // ==============================
 
-            // Tự tăng chiều cao nếu nội dung dài
+            // Một dòng cố định, không xuống dòng khi nội dung dài.
             grvKetQuaTimKiem.AutoSizeRowsMode =
-                DataGridViewAutoSizeRowsMode.AllCells;
-
-            // Chiều cao tối thiểu 40 px
+                DataGridViewAutoSizeRowsMode.None;
             grvKetQuaTimKiem.RowTemplate.MinimumHeight = 40;
-
-            // Cho phép nội dung xuống dòng
+            grvKetQuaTimKiem.RowTemplate.Height = 40;
+            grvKetQuaTimKiem.AllowUserToResizeRows = false;
             grvKetQuaTimKiem.DefaultCellStyle.WrapMode =
-                DataGridViewTriState.True;
+                DataGridViewTriState.False;
+            grvKetQuaTimKiem.ColumnHeadersDefaultCellStyle.WrapMode =
+                DataGridViewTriState.False;
 
             // ==============================
             // 5. KHỞI TẠO CÁC CỘT
@@ -168,8 +173,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
             {
                 Name = COL_TEN_SP,
                 HeaderText = "Tên SP",
-                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
-                FillWeight = 160,
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
+                MinimumWidth = 60,
                 ReadOnly = true
             });
 
@@ -178,7 +183,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
             {
                 Name = COL_MA_NGUON,
                 HeaderText = "Lot cuộn lẻ",
-                Width = 175,
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
+                MinimumWidth = 90,
                 ReadOnly = true
             });
 
@@ -187,7 +193,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
             {
                 Name = COL_CD_1C,
                 HeaderText = "1C đơn vị",
-                Width = 125,
+                Width = 81,
                 ReadOnly = true
             });
 
@@ -257,6 +263,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
             {
                 Name = COL_CAT_LE,
                 HeaderText = "Cắt lẻ",
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
+                MinimumWidth = 65,
                 Width = 115,
                 Text = "Cắt lẻ",
                 UseColumnTextForButtonValue = false,
@@ -268,7 +276,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
             {
                 Name = COL_TRANG_THAI,
                 HeaderText = "Trạng thái",
-                Width = 150,
+                Width = 120,
                 ReadOnly = true
             });
 
@@ -291,6 +299,96 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
                 UseColumnTextForButtonValue = false,
                 FlatStyle = FlatStyle.Flat
             });
+
+            CapNhatBeRongTheoNoiDung();
+        }
+
+        // Chỉ đo sau khi nạp/thay đổi danh sách, không đo lại mỗi khi chuột di chuyển.
+        // Mỗi cột có một độ rộng chung, lấy theo nội dung dài nhất của các dòng đang hiển thị.
+        private void CapNhatBeRongTheoNoiDung()
+        {
+            if (!grvKetQuaTimKiem.Columns.Contains(COL_TEN_SP) ||
+                !grvKetQuaTimKiem.Columns.Contains(COL_CAT_LE))
+                return;
+
+            DataGridViewColumn cotTen = grvKetQuaTimKiem.Columns[COL_TEN_SP];
+            DataGridViewColumn cotCatLe = grvKetQuaTimKiem.Columns[COL_CAT_LE];
+            Font font = grvKetQuaTimKiem.DefaultCellStyle.Font ?? grvKetQuaTimKiem.Font;
+            Font fontTieuDe = grvKetQuaTimKiem.ColumnHeadersDefaultCellStyle.Font ?? font;
+            int doRongTen = Math.Max(cotTen.MinimumWidth,
+                TextRenderer.MeasureText("Tên SP", fontTieuDe).Width + 10);
+            int doRongCatLe = Math.Max(cotCatLe.MinimumWidth,
+                TextRenderer.MeasureText("Cắt lẻ", fontTieuDe).Width + 16);
+
+            foreach (DataGridViewRow row in grvKetQuaTimKiem.Rows)
+            {
+                if (row.IsNewRow) continue;
+                if (doRongTen < BE_RONG_TEN_SP_TOI_DA)
+                {
+                    string ten = Convert.ToString(row.Cells[COL_TEN_SP].Value) ?? string.Empty;
+                    if (ten.Length > 0)
+                        doRongTen = Math.Max(doRongTen, TextRenderer.MeasureText(ten, font).Width + 10);
+                }
+
+                string nhanNut = Convert.ToString(row.Cells[COL_CAT_LE].Value) ?? string.Empty;
+                if (nhanNut.Length > 0)
+                    doRongCatLe = Math.Max(doRongCatLe,
+                        TextRenderer.MeasureText(nhanNut, font).Width + 20);
+            }
+
+            int tenMoi = Math.Min(BE_RONG_TEN_SP_TOI_DA, doRongTen);
+            if (cotTen.Width != tenMoi) cotTen.Width = tenMoi;
+            if (cotCatLe.Width != doRongCatLe) cotCatLe.Width = doRongCatLe;
+        }
+
+        private static bool LaCotNutThaoTac(string cot)
+        {
+            return cot == COL_CAT_LE || cot == COL_CHI_TIET || cot == COL_XOA;
+        }
+
+        // Chỉ làm mới ô cũ và ô mới khi con trỏ chuyển trạng thái hover.
+        private void CapNhatNutDangHover(int rowIndex, int columnIndex)
+        {
+            bool dangHover = rowIndex >= 0 && columnIndex >= 0;
+            Cursor cursorMoi = dangHover ? Cursors.Hand : Cursors.Default;
+            if (grvKetQuaTimKiem.Cursor != cursorMoi)
+                grvKetQuaTimKiem.Cursor = cursorMoi;
+            if (_hoverRow == rowIndex && _hoverColumn == columnIndex) return;
+
+            int oldRow = _hoverRow;
+            int oldColumn = _hoverColumn;
+            _hoverRow = rowIndex;
+            _hoverColumn = columnIndex;
+            if (oldRow >= 0 && oldRow < grvKetQuaTimKiem.RowCount &&
+                oldColumn >= 0 && oldColumn < grvKetQuaTimKiem.ColumnCount)
+                grvKetQuaTimKiem.InvalidateCell(oldColumn, oldRow);
+            if (dangHover && rowIndex < grvKetQuaTimKiem.RowCount &&
+                columnIndex < grvKetQuaTimKiem.ColumnCount)
+                grvKetQuaTimKiem.InvalidateCell(columnIndex, rowIndex);
+        }
+
+        private void GrvKetQuaTimKiem_CellMouseMove(object sender, DataGridViewCellMouseEventArgs e)
+        {
+            if (e.RowIndex < 0 || e.RowIndex >= grvKetQuaTimKiem.RowCount ||
+                e.ColumnIndex < 0 || e.ColumnIndex >= grvKetQuaTimKiem.ColumnCount ||
+                !LaCotNutThaoTac(grvKetQuaTimKiem.Columns[e.ColumnIndex].Name))
+            {
+                CapNhatNutDangHover(-1, -1);
+                return;
+            }
+
+            DataGridViewCell cell = grvKetQuaTimKiem.Rows[e.RowIndex].Cells[e.ColumnIndex];
+            Padding pad = cell.Style.Padding;
+            bool trenNut = !cell.ReadOnly && cell.Tag is ButtonAppearance &&
+                e.X >= pad.Left && e.X < cell.Size.Width - pad.Right &&
+                e.Y >= pad.Top && e.Y < cell.Size.Height - pad.Bottom;
+            CapNhatNutDangHover(trenNut ? e.RowIndex : -1, trenNut ? e.ColumnIndex : -1);
+        }
+
+        private void GrvKetQuaTimKiem_CellMouseLeave(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex == _hoverRow && e.ColumnIndex == _hoverColumn)
+                CapNhatNutDangHover(-1, -1);
         }
 
         private void KhoiTaoTimKiem()
@@ -347,6 +445,10 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
             tbLenhXuatHang.Leave += TbLenhXuatHang_Leave;
 
             grvKetQuaTimKiem.CellPainting += GrvKetQuaTimKiem_CellPainting;
+            grvKetQuaTimKiem.CellMouseMove += GrvKetQuaTimKiem_CellMouseMove;
+            grvKetQuaTimKiem.CellMouseLeave += GrvKetQuaTimKiem_CellMouseLeave;
+            grvKetQuaTimKiem.MouseLeave += (s, e) => CapNhatNutDangHover(-1, -1);
+            grvKetQuaTimKiem.Scroll += (s, e) => CapNhatNutDangHover(-1, -1);
             grvKetQuaTimKiem.CellContentClick += GrvKetQuaTimKiem_CellContentClick;
             grvKetQuaTimKiem.CellBeginEdit += GrvKetQuaTimKiem_CellBeginEdit;
             grvKetQuaTimKiem.CellEndEdit += GrvKetQuaTimKiem_CellEndEdit;
@@ -421,6 +523,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
 
                 _rows.Clear();
                 grvKetQuaTimKiem.Rows.Clear();
+                CapNhatNutDangHover(-1, -1);
+                CapNhatBeRongTheoNoiDung();
                 _choXoa.Clear();
                 _dongGoc.Clear();
                 _executionRevision = context.ExecutionRevision;
@@ -456,6 +560,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
                     }
                     ThemHoacCapNhatDongGrid(row, false);
                 }
+                CapNhatBeRongTheoNoiDung();
                 GhiNhanBanGoc();
             }
             catch (Exception)
@@ -536,6 +641,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
 
                     ThemHoacCapNhatDongGrid(row, false);
                 }
+                CapNhatBeRongTheoNoiDung();
 
                 if (coTrung)
                 {
@@ -773,6 +879,49 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
                 return;
 
             string columnName = grvKetQuaTimKiem.Columns[e.ColumnIndex].Name;
+            if (grvKetQuaTimKiem.Columns[e.ColumnIndex] is DataGridViewTextBoxColumn)
+            {
+                // Chỉ vẽ lại chữ: giữ nguyên nền, trạng thái chọn ô và viền mặc định.
+                e.Paint(e.CellBounds, e.PaintParts & ~DataGridViewPaintParts.ContentForeground);
+                Rectangle textBounds = new Rectangle(
+                    e.CellBounds.Left + 4 + e.CellStyle.Padding.Left,
+                    e.CellBounds.Top + 1 + e.CellStyle.Padding.Top,
+                    Math.Max(0, e.CellBounds.Width - 8 - e.CellStyle.Padding.Horizontal),
+                    Math.Max(0, e.CellBounds.Height - 2 - e.CellStyle.Padding.Vertical));
+                if (textBounds.Width > 0 && textBounds.Height > 0)
+                {
+                    bool duocChon = (e.State & DataGridViewElementStates.Selected) != 0;
+                    Color mauChu = duocChon ? e.CellStyle.SelectionForeColor : e.CellStyle.ForeColor;
+                    if (mauChu.IsEmpty)
+                        mauChu = grvKetQuaTimKiem.ForeColor;
+
+                    TextFormatFlags canLe = TextFormatFlags.Left;
+                    switch (e.CellStyle.Alignment)
+                    {
+                        case DataGridViewContentAlignment.TopRight:
+                        case DataGridViewContentAlignment.MiddleRight:
+                        case DataGridViewContentAlignment.BottomRight:
+                            canLe = TextFormatFlags.Right;
+                            break;
+                        case DataGridViewContentAlignment.TopCenter:
+                        case DataGridViewContentAlignment.MiddleCenter:
+                        case DataGridViewContentAlignment.BottomCenter:
+                            canLe = TextFormatFlags.HorizontalCenter;
+                            break;
+                    }
+                    TextRenderer.DrawText(e.Graphics,
+                        Convert.ToString(e.FormattedValue, CultureInfo.CurrentCulture) ?? string.Empty,
+                        e.CellStyle.Font ?? grvKetQuaTimKiem.Font,
+                        textBounds,
+                        mauChu,
+                        canLe | TextFormatFlags.VerticalCenter |
+                        TextFormatFlags.SingleLine | TextFormatFlags.EndEllipsis |
+                        TextFormatFlags.NoPrefix);
+                }
+                e.Handled = true;
+                return;
+            }
+
             if (columnName != COL_CAT_LE && columnName != COL_XOA && columnName != COL_CHI_TIET)
                 return;
 
@@ -806,13 +955,15 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
                     buttonBounds.Width - 1, buttonBounds.Height - 1);
                 using (GraphicsPath path = CreateRoundedButtonPath(borderBounds))
                 {
+                    Color mauNenNut = _hoverRow == e.RowIndex && _hoverColumn == e.ColumnIndex &&
+                        !cell.ReadOnly ? ControlPaint.Light(appearance.BackColor, 0.20f) : appearance.BackColor;
                     SmoothingMode previousMode = e.Graphics.SmoothingMode;
                     try
                     {
                         e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
-                        using (SolidBrush buttonBrush = new SolidBrush(appearance.BackColor))
+                        using (SolidBrush buttonBrush = new SolidBrush(mauNenNut))
                             e.Graphics.FillPath(buttonBrush, path);
-                        using (Pen borderPen = new Pen(ControlPaint.Dark(appearance.BackColor)))
+                        using (Pen borderPen = new Pen(ControlPaint.Dark(mauNenNut)))
                             e.Graphics.DrawPath(borderPen, path);
                     }
                     finally
@@ -832,7 +983,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
                         textBounds,
                         appearance.ForeColor,
                         TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter |
-                        TextFormatFlags.WordBreak | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
+                        TextFormatFlags.SingleLine | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
                 }
             }
 
@@ -957,6 +1108,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
 
                     model.NhomCatPopup.Clear();
                     gridRow.Cells[COL_CAT_LE].Value = "Cắt lẻ";
+                    CapNhatBeRongTheoNoiDung();
                 }
 
                 if (string.IsNullOrWhiteSpace(raw))
@@ -1081,6 +1233,11 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
                 var query = new ExecutionDetailQuery(keHoachId, hangId, qcId, leId);
                 ExecutionDetailSnapshot snapshot = await WaitingHelper.RunWithWaiting(
                     () => Task.Run(() => ExecutionEdit_DB.Load(query)), "ĐANG TẢI CHI TIẾT THỰC HIỆN...");
+                if (snapshot.Rows.Count == 0)
+                {
+                    FrmWaiting.ShowGifAlert("Không có dữ liệu");
+                    return;
+                }
                 using (var frm = new Frm_ChiTietThucHienKeHoach(query, model.TenSP, snapshot))
                 {
                     frm.ShowDialog(FindForm());
@@ -1135,6 +1292,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
 
             gridRow.Cells[COL_CD_CAT].Value = model.ChuoiChieuDaiCat;
             gridRow.Cells[COL_CAT_LE].Value = TaoNhanNutCatLe(model);
+            CapNhatBeRongTheoNoiDung();
             _executionDraftReview.Remove(model.RowKey);
             ApDungTrangThaiDong(gridRow, model);
         }
@@ -1198,6 +1356,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
                 else { var gridRow = TimGridRowTheoKey(old.RowKey); if (gridRow != null) grvKetQuaTimKiem.Rows.Remove(gridRow); _rows.Remove(old.RowKey); }
             }
             _executionRevision = context.ExecutionRevision;
+            CapNhatBeRongTheoNoiDung();
         }
 
         private static void PreservePlanningInput(LapKeHoachCatDay_GridRow target, LapKeHoachCatDay_GridRow draft)
@@ -1485,6 +1644,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
             DataGridViewRow gridRow = TimGridRowTheoKey(model.RowKey);
             if (gridRow != null)
                 grvKetQuaTimKiem.Rows.Remove(gridRow);
+            CapNhatNutDangHover(-1, -1);
+            CapNhatBeRongTheoNoiDung();
         }
 
         private DataGridViewRow TimGridRowTheoKey(string rowKey)
@@ -1505,6 +1666,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
             _maKeHoachDaNap = string.Empty;
             _rows.Clear();
             grvKetQuaTimKiem.Rows.Clear();
+            CapNhatNutDangHover(-1, -1);
+            CapNhatBeRongTheoNoiDung();
             _dongGoc.Clear();
             _choXoa.Clear();
             _executionRevision = null;

@@ -12,7 +12,7 @@ Ngày: 27/10/2026. Trạng thái: **ĐÃ TRIỂN KHAI VÀ KIỂM TRA PHẠM VI C
 
 Yêu cầu của người dùng: chuyển toàn bộ chức năng sang form được thiết kế sẵn, giữ nguyên toàn bộ logic; liệt kê control thiếu để người dùng bổ sung trong Designer; chỉ code sau khi duyệt ánh xạ.
 
-**Ràng buộc bổ sung của người dùng:** không thay đổi nội dung các Label; chỉ cập nhật control hiển thị dữ liệu hoặc nhận dữ liệu người dùng nhập. Rút lại các đề xuất đổi nhãn trong bản trước. Không tự đổi tiêu đề form, GroupBox, TabPage hay nội dung nút hiện có. Giữ nguyên cả `lblTenSP`, `lblThongTinSP`, `lblTenNhomNghiepVu`; chưa có ngoại lệ cho các Label này. Không bổ sung `rtbThongTinThucHien`, không tự thêm control vào Designer.
+**Ràng buộc bổ sung của người dùng:** giữ nguyên các nhãn mô tả, tiêu đề form, GroupBox, TabPage và chú thích nút; không tự thêm control. Các ngoại lệ hiển thị dữ liệu động đã được người dùng làm rõ: `lblTacDong` báo lỗi; `lblTenSP` hiển thị sản phẩm của dòng nhấn Chi tiết; `lblThongTinSP` hiển thị thông tin cuộn và tiến độ trong phạm vi dòng đó. `lblTenNhomNghiepVu` và các nhãn mô tả khác vẫn giữ nguyên. Không bổ sung `rtbThongTinThucHien`.
 
 ## Phương án đề xuất để duyệt
 
@@ -34,8 +34,8 @@ Không dựng form cũ bên trong form mới, vì cách đó bỏ qua bố cục
 | --- | --- | --- |
 | Form `Frm_ChiTietThucHienKeHoach` | `FrmChiTietThucHien` | Giữ tiêu đề thiết kế; mở theo đúng kế hoạch, hàng, quy cách cuộn chẵn hoặc cuộn lẻ đang chọn. Giữ kết quả `LastSaveResult` trả về form cha. |
 | `groupBox1` | Khu vực bảng thực hiện | Giữ nguyên tiêu đề thiết kế “Danh sách cắt cuộn”. |
-| `lblTenSP` | Label hiện có | Giữ nguyên nội dung thiết kế; không bổ sung vùng tên sản phẩm thay thế. Phạm vi dữ liệu vẫn theo truy vấn từ form cha. |
-| `lblThongTinSP` | Label hiện có | Giữ nguyên nội dung thiết kế; không tạo vùng thông tin tổng hợp thay thế. |
+| `lblTenSP` | Tiêu đề sản phẩm của dòng cha | Gán tên sản phẩm được truyền từ đúng dòng nhấn Chi tiết; không đổi theo từng đoạn cắt bên trong form. |
+| `lblThongTinSP` | Thông tin phạm vi dòng cha | Cuộn lẻ: mã cuộn, tồn hiện tại và số đoạn đã thực hiện / tổng số đoạn. Cuộn chẵn: chiều dài quy cách khi có dòng lấy nguyên, số cuộn đã lấy / số cuộn kế hoạch và tiến độ đoạn cắt. Chỉ dùng snapshot đang xem, cập nhật sau lưu và tải mới; không lấy bản nháp chưa lưu của form cha làm số liệu đã thực hiện. |
 | `grvDsChiTietCuon` | `_grid` | Các dòng thực hiện và dòng đang chờ trong cùng phạm vi. Chỉ cột trạng thái được sửa trực tiếp theo điều kiện nghiệp vụ. Chọn dòng cập nhật chi tiết bên phải; chuyển dòng giữ bản nháp. |
 | `groupBox2` | Khu vực chi tiết | Giữ tiêu đề “Chi tiết”. |
 | `tabControl1` | Hai thẻ thông tin và nhật ký | Giữ hai thẻ, tải nhật ký theo phạm vi dòng/cuộn đang chọn như hiện tại. |
@@ -158,7 +158,7 @@ Ba ô lịch sử cắt hiện “—”; khóa / ẩn các ô sửa mốc khôn
 
 - Ánh xạ control và sáu cột danh sách như trên.
 - Người dùng đã đồng ý không thêm hai nút, dùng xử lý thay thế đã mô tả, bỏ vùng thông tin tổng hợp, dùng control thông báo hiển thị lỗi khi lưu.
-- Giữ nguyên nội dung Label, tên thẻ, tiêu đề và bố cục; không tự thêm hoặc di chuyển control.
+- Giữ nguyên nhãn mô tả, tên thẻ, tiêu đề và bố cục; không tự thêm hoặc di chuyển control. Ba Label dữ liệu động được cập nhật theo yêu cầu sau cùng: `lblTenSP`, `lblThongTinSP`, `lblTacDong`.
 - `rtbLyDoSua` nhập và lưu lý do; mã phân loại giữ nguyên, văn bản lưu qua `Note/GhiChu` hiện có.
 - Đã thống nhất dùng Label `lblTacDong` hiển thị lỗi, không thêm RichTextBox.
 

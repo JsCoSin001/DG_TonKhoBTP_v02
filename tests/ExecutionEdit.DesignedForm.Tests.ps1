@@ -47,7 +47,7 @@ foreach($name in @('Binding','Input','ReasonSave','MarkerConfirm','MarkerSave','
         Assert-EE ($null -ne $constructor) 'Designed form must accept the existing execution query and bind actual business data'
         $empty=[Activator]::CreateInstance($type);$captions=@{}
         $pendingControls=New-Object Collections.Queue;$pendingControls.Enqueue($empty)
-        while($pendingControls.Count){$parent=$pendingControls.Dequeue();foreach($c in $parent.Controls){if($c -is [Windows.Forms.Label] -and $c.Name -ne 'lblTacDong'){$captions[$c.Name]=$c.Text};$pendingControls.Enqueue($c)}}
+        while($pendingControls.Count){$parent=$pendingControls.Dequeue();foreach($c in $parent.Controls){if($c -is [Windows.Forms.Label] -and $c.Name -notin @('lblTacDong','lblTenSP','lblThongTinSP')){$captions[$c.Name]=$c.Text};$pendingControls.Enqueue($c)}}
         $empty.Dispose();$empty=$null
         $form=$constructor.Invoke(@($q,'Actual product'))
         $form.ShowInTaskbar=$false;$form.StartPosition=[Windows.Forms.FormStartPosition]::Manual
@@ -67,6 +67,9 @@ foreach($name in @('Binding','Input','ReasonSave','MarkerConfirm','MarkerSave','
         $grid=Control 'grvDsChiTietCuon';$person=Control 'cbxNguoiThucHien';$reason=Control 'rtbLyDoSua';$errorLabel=Control 'lblTacDong';$end=Control 'tbxSoCuoi_Sua'
         $executed=@($grid.Rows|Where-Object {$_.Tag.Done})[0];$grid.CurrentCell=$executed.Cells[0]
         if($name -eq 'Binding') {
+            Assert-EE ((Control 'lblTenSP').Text -eq 'Actual product') 'Header shows the product passed from the clicked planning row'
+            $scopeHeader=(Control 'lblThongTinSP').Text
+            Assert-EE ($scopeHeader.Contains('LE-001') -and $scopeHeader.Contains('650') -and $scopeHeader.Contains('1/2')) 'Header identifies the selected partial reel, current stock and scoped execution progress'
             Assert-EE ($grid.Rows.Count -eq 2 -and $grid.Columns.Count -eq 6) 'Designer grid shows all execution rows and six existing columns'
             foreach($key in $captions.Keys){Assert-EE ((Control $key).Text -eq $captions[$key]) ('Static label unchanged: '+$key)}
             Assert-EE ($person.SelectedValue -eq 'worker') 'Selected executed row binds performer'
@@ -76,6 +79,7 @@ foreach($name in @('Binding','Input','ReasonSave','MarkerConfirm','MarkerSave','
             Assert-EE (-not (Control 'btnLuuThayDoi').Enabled) 'No changes starts with Save disabled'
             foreach($removed in @('rtbThongTinThucHien','btnBoThayDoi','btnDoiChieuDuLieuMoi','cbxLyDoSuaDong','cbxLyDoSuaMoc')){Assert-EE ($form.Controls.Find($removed,$true).Count -eq 0) ('Removed control must not be created: '+$removed)}
             $reason.Text='Shared explanation';$grid.CurrentCell=$grid.Rows[1].Cells[0]
+            Assert-EE ((Control 'lblTenSP').Text -eq 'Actual product' -and (Control 'lblThongTinSP').Text -eq $scopeHeader) 'Selecting a segment does not replace the clicked parent row header'
             Assert-EE ($reason.Text -eq 'Shared explanation' -and (Control 'dtNgayThucHien').CustomFormat -eq "'—'") 'Pending row has no invented timestamp and selection keeps explanation'
             $grid.CurrentCell=$grid.Rows[0].Cells[0]
             Assert-EE ($end.Text -eq '650' -and (Control 'tbxSoDau_SoCuoi_ConLai_DB').Text.Contains('650')) 'Current and historical markers bind independently'
@@ -151,6 +155,7 @@ foreach($name in @('Binding','Input','ReasonSave','MarkerConfirm','MarkerSave','
             Assert-EE (Save-Form) 'Existing operation can be undone through the new grid'
             Assert-EE ($script:Dialogs.Count -eq 1 -and $script:Dialogs[0].Contains('800')) 'Undo restoration impact is confirmed before writing'
             Assert-EE ((Get-EEScalar 'SELECT COUNT(*) FROM LichSuCat') -eq 0 -and (Get-EEScalar 'SELECT SoCuoi FROM TonCuonLe WHERE id=70') -eq 800) 'Undo restores stock and history atomically'
+            Assert-EE ((Control 'lblThongTinSP').Text.Contains('800') -and (Control 'lblThongTinSP').Text.Contains('0/2')) 'Header refreshes stock and progress after the scoped execution is undone'
         }
         elseif($name -eq 'Closing') {
             $person.SelectedValue='inactive';$reason.Text='Keep while deciding';$script:DialogAnswer=[Windows.Forms.DialogResult]::Cancel
@@ -169,6 +174,7 @@ foreach($name in @('Binding','Input','ReasonSave','MarkerConfirm','MarkerSave','
             Assert-EE ((Get-EEScalar 'SELECT COUNT(*) FROM KeHoachCatNhom WHERE id=51 AND TonCuonLe_ID IS NULL') -eq 1) 'Conversion group returns to full reel planning'
         }
         elseif($name -eq 'Whole') {
+            Assert-EE ((Control 'lblThongTinSP').Text.Contains('1000') -and (Control 'lblThongTinSP').Text.Contains('1/2')) 'Whole reel header identifies the standard length and executed/planned take quantity'
             Assert-EE (-not $end.Visible -and (Control 'tbxSoDau_SoCuoi_DB').Text -eq ([string][char]0x2014)) 'Whole take has no editable markers or fabricated cut history'
             $executed.Cells['colTrangThai'].Value='Chưa thực hiện';$reason.Text='No actual whole reel was taken'
             Assert-EE (Save-Form) 'Whole take can be undone using existing status edit'

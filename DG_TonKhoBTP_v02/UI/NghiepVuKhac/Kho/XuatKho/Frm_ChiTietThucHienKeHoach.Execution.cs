@@ -20,6 +20,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
         }
         private ExecutionDetailSnapshot _snapshot = null!;
         private ExecutionEditDraft _draft = null!;
+        private readonly string _productName = "";
         private readonly Dictionary<long, MarkerInput> _markerInputs = new Dictionary<long, MarkerInput>();
         private Timer _previewTimer = null!;
         private Guid _changeId = Guid.NewGuid();
@@ -37,6 +38,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
             : this()
         {
             _snapshot = snapshot; _draft = new ExecutionEditDraft(snapshot);
+            _productName = productName?.Trim() ?? "";
             BindingContext = new BindingContext(); StartPosition = FormStartPosition.CenterParent;
             components ??= new Container();
             _previewTimer = new Timer(components) { Interval = 350 };
@@ -71,9 +73,14 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
             grid.Columns.Add(new DataGridViewTextBoxColumn { Name = "colNhom", HeaderText = "Nhóm / đoạn", Width = 85, ReadOnly = true });
             grid.Columns.Add(new DataGridViewComboBoxColumn { Name = "colTrangThai", HeaderText = "Trạng thái", Width = 135,
                 DataSource = new[] { "Đã thực hiện", "Chưa thực hiện" }, FlatStyle = FlatStyle.Flat });
-            grid.Columns.Add(new DataGridViewTextBoxColumn { Name = "colMaCuon", HeaderText = "QR / Mã cuộn", Width = 160, ReadOnly = true });
-            grid.DefaultCellStyle.WrapMode = DataGridViewTriState.True; grid.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
-            grid.RowTemplate.MinimumHeight = 35;
+            grid.Columns.Add(new DataGridViewTextBoxColumn { Name = "colMaCuon", HeaderText = "QR / Mã cuộn", AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill, ReadOnly = true });
+            // Single-line text cells use native end ellipsis without shortening their stored values.
+            grid.DefaultCellStyle.WrapMode = DataGridViewTriState.False;
+            grid.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.None;
+            grid.AllowUserToResizeRows = false;
+            grid.RowTemplate.MinimumHeight = 32;
+            grid.RowTemplate.Height = 32;
+            grid.ShowCellToolTips = true;
             cbxNguoiThucHien.DropDownStyle = cbxChieu.DropDownStyle = ComboBoxStyle.DropDownList;
             dtNgayThucHien.Enabled = false;
             tbxQr.ReadOnly = tbxNguonNhap.ReadOnly = tbxSoDau_Sua.ReadOnly = true;
@@ -106,7 +113,35 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
                 if (grvDsChiTietCuon.CurrentCell == null && grvDsChiTietCuon.Rows.Count > 0) grvDsChiTietCuon.CurrentCell = grvDsChiTietCuon.Rows[0].Cells[0];
             }
             finally { _binding = false; }
-            BindSelected(); UpdateDraftState();
+            BindHeader(); BindSelected(); UpdateDraftState();
+        }
+
+        private void BindHeader()
+        {
+            lblTenSP.Text = _productName.Length > 0 ? _productName : "—";
+            var details = new List<string>();
+            if (_snapshot.Query.PartialReelId is long reelId)
+            {
+                details.Add("Cuộn lẻ");
+                if (_snapshot.Reels.TryGetValue(reelId, out var reel))
+                {
+                    details.Add(reel.Code);
+                    details.Add("Tồn hiện tại: " + reel.Length + " m");
+                }
+            }
+            else
+            {
+                details.Add("Cuộn chẵn");
+                var takes = _snapshot.Rows.Where(x => x.Kind == "TAKE").ToList();
+                if (takes.Count > 0)
+                {
+                    details.Add(takes[0].Length + " m/cuộn");
+                    details.Add("Lấy nguyên: " + takes.Where(x => x.Done).Sum(x => (long)x.Quantity) + "/" + takes.Sum(x => (long)x.Quantity) + " cuộn");
+                }
+            }
+            var cuts = _snapshot.Rows.Where(x => x.Kind == "CUT").ToList();
+            if (cuts.Count > 0) details.Add("Cắt: " + cuts.Count(x => x.Done) + "/" + cuts.Count + " đoạn");
+            lblThongTinSP.Text = string.Join(" · ", details);
         }
 
         private void BindSelected()

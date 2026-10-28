@@ -143,6 +143,7 @@
     <Compile Include="UI\NghiepVuKhac\Kho\XuatKho\ExecutionEditDraft.cs" />
     <Compile Include="UI\NghiepVuKhac\Kho\XuatKho\Frm_ChiTietThucHienKeHoach.Execution.cs">
       <DependentUpon>Frm_ChiTietThucHienKeHoach.cs</DependentUpon>
+      <SubType>Form</SubType>
     </Compile>
     <Compile Include="Core\ControlCleaner.cs" />
     <Compile Include="Core\DataLoadMode.cs" />

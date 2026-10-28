@@ -12,7 +12,7 @@
 
 ## Global Constraints
 
-- Không thay đổi nội dung Label, tiêu đề, tên thẻ, chú thích nút hoặc bố cục Designer của người dùng.
+- Không thay đổi nhãn mô tả, tiêu đề, tên thẻ, chú thích nút hoặc bố cục Designer. Theo yêu cầu bổ sung sau khi chuyển form: `lblTenSP`, `lblThongTinSP` là Label dữ liệu động của dòng cha; cùng `lblTacDong` báo lỗi là các ngoại lệ cập nhật nội dung.
 - Không thêm `rtbThongTinThucHien`, hai nút bổ sung, hai ComboBox lý do hoặc Label động.
 - Dùng tên thực tế `rtbLyDoSua`; lý do chung cho một lần lưu, bắt buộc không trống khi lưu. Giữ mã phân loại qua `Reason`, lưu nội dung qua `Note` hiện có.
 - Không thay đổi lớp database, schema SQLite hoặc B3; không chạm database gốc.

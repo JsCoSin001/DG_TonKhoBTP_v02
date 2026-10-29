@@ -53,7 +53,7 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
         {
             var s = Load(conn, tx, r.Query);
             if (!s.EditingEnabled) throw new ExecutionEditException("plan", s.PlanStatus == "HUY" ?
-                "Kế hoạch đã hủy chỉ được xem." : "Chức năng sửa chưa được bật sau khi cập nhật B2/B3.");
+                "Kế hoạch đã hủy chỉ được xem." : "Kế hoạch không ở trạng thái cho phép chỉnh sửa.");
             if (!r.ExpectedVersions.TryGetValue("FACTORY", out long version) || version != s.Versions["FACTORY"])
                 throw new ExecutionEditException("version", "Dữ liệu đã thay đổi. Bản nháp được giữ lại; vui lòng đối chiếu dữ liệu mới.", true);
             if (r.RowEdits.Count == 0 && r.ReelEdits.Count == 0) throw new ExecutionEditException("request", "Chưa có thay đổi để lưu.");
@@ -113,7 +113,7 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
                 {
                     using var conn = DB_Base.OpenConnection(); conn.DefaultTimeout = 2;
                     using var tx = conn.BeginTransaction(false);
-                    EnsureSchema(conn, tx); ValidateActor(conn, tx, actorId, actorName, authenticated);
+                    ValidateActor(conn, tx, actorId, actorName, authenticated);
                     string fingerprint = Fingerprint(request);
                     var previous = Table(conn, tx, "SELECT * FROM B2DieuChinhLanLuu WHERE MaLanLuu=@id", "@id", request.ChangeId.ToString("D"));
                     if (previous.Rows.Count != 0)

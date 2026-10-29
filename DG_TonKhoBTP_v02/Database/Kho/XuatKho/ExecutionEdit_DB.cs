@@ -30,12 +30,6 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
         internal static long N(DataRow row, string name) => row[name] == DBNull.Value ? 0 : Convert.ToInt64(row[name], CultureInfo.InvariantCulture);
         internal static string T(DataRow row, string name) => row[name] == DBNull.Value ? "" : Convert.ToString(row[name], CultureInfo.InvariantCulture) ?? "";
         internal static long? NullableId(DataRow row, string name) => row[name] == DBNull.Value ? (long?)null : N(row, name);
-        internal static void EnsureSchema(SQLiteConnection conn, SQLiteTransaction? tx)
-        {
-            if (Table(conn, tx, "SELECT name FROM sqlite_master WHERE type='table' AND name='B3TinhNangDuLieu'").Rows.Count == 0 ||
-                Table(conn, tx, "SELECT PhienBan FROM B3TinhNangDuLieu WHERE Ten='EXECUTION_EDIT' AND PhienBan=1").Rows.Count != 1)
-                throw new InvalidOperationException("Cần cập nhật cấu trúc dữ liệu B2/B3 trước khi sửa chi tiết.");
-        }
         public static ExecutionDetailSnapshot Load(ExecutionDetailQuery query)
         {
             using var conn = DB_Base.OpenConnection();
@@ -44,15 +38,13 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
         }
         internal static ExecutionDetailSnapshot Load(SQLiteConnection conn, SQLiteTransaction tx, ExecutionDetailQuery query)
         {
-            EnsureSchema(conn, tx);
             if (query == null || query.PlanId <= 0 || query.ItemId <= 0 || query.SpecificationId.HasValue == query.PartialReelId.HasValue)
                 throw new InvalidOperationException("Phạm vi xem chi tiết không hợp lệ.");
             var plan = Table(conn, tx, @"SELECT k.TrangThai FROM KeHoach k JOIN KeHoachHang h ON h.KeHoach_ID=k.id
                 WHERE k.id=@plan AND h.id=@item", "@plan", query.PlanId, "@item", query.ItemId);
             if (plan.Rows.Count != 1) throw new InvalidOperationException("Dòng không còn thuộc kế hoạch đang xem.");
             var s = new ExecutionDetailSnapshot { Query = query, PlanStatus = T(plan.Rows[0], "TrangThai") };
-            s.EditingEnabled = s.PlanStatus == "ACTIVE" && N(Table(conn, tx,
-                "SELECT ChoPhepSua FROM B3TinhNangDuLieu WHERE Ten='EXECUTION_EDIT'").Rows[0], "ChoPhepSua") == 1;
+            s.EditingEnabled = s.PlanStatus == "ACTIVE";
             if (query.SpecificationId.HasValue)
             {
                 var qc = Table(conn, tx, "SELECT * FROM KeHoachHangQuyCachCuonChan WHERE id=@qc AND KeHoachHang_ID=@item",
@@ -134,7 +126,7 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
         }
         public static DataTable LoadAudit(long planId, long? reelId, string operationToken)
         {
-            using var conn = DB_Base.OpenConnection(); EnsureSchema(conn, null);
+            using var conn = DB_Base.OpenConnection();
             return Table(conn, null, @"SELECT s.*,b.NguoiSua,b.NguoiSua_ID,b.ThoiGianSua FROM B2DieuChinhSuKien s
                 JOIN B2DieuChinhLanLuu b ON b.MaLanLuu=s.MaLanLuu
                 WHERE (@reel IS NOT NULL AND ((s.DoiTuong='REEL' AND s.DoiTuong_ID=@reel) OR EXISTS
@@ -146,16 +138,9 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
         public static long ReadPlanRevision(long planId)
         {
             using var conn = DB_Base.OpenConnection();
-            if (Table(conn, null, "SELECT name FROM sqlite_master WHERE name='B3PhienBanDuLieu' AND type='table'").Rows.Count == 0) return 0;
             return N(Table(conn, null, "SELECT GiaTri FROM B3PhienBanDuLieu WHERE Khoa='FACTORY'").Rows[0], "GiaTri");
         }
         internal static long ReadRevision(SQLiteConnection conn, SQLiteTransaction tx)
             => N(Table(conn, tx, "SELECT GiaTri FROM B3PhienBanDuLieu WHERE Khoa='FACTORY'").Rows[0], "GiaTri");
-        internal static bool PlanningRevisionRequired(SQLiteConnection conn, SQLiteTransaction tx)
-        {
-            if (Table(conn, tx, "SELECT name FROM sqlite_master WHERE name='B3TinhNangDuLieu' AND type='table'").Rows.Count == 0) return false;
-            var rows = Table(conn, tx, "SELECT ChoPhepSua FROM B3TinhNangDuLieu WHERE Ten='EXECUTION_EDIT'").Rows;
-            return rows.Count == 1 && N(rows[0], "ChoPhepSua") == 1;
-        }
     }
 }

@@ -55,7 +55,7 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
             try
             {
                 using var conn = DB_Base.OpenConnection(); using var tx = conn.BeginTransaction(true);
-                EnsureSchema(conn, tx); ValidateActor(conn, tx);
+                ValidateActor(conn, tx);
                 var snapshot = ValidateRequest(conn, tx, request);
                 var plan = ExecutionUndoPlanner.Build(request, UndoContext(conn, tx, snapshot));
                 var preview = new ExecutionEditPreview { Valid = true, UndoPlan = plan };

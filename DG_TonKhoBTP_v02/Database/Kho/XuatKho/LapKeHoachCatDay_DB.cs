@@ -841,8 +841,7 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
                     return result;
                 }
 
-                if (found.HasValue && ExecutionEdit_DB.PlanningRevisionRequired(conn, tx)
-                    && request.ExpectedExecutionRevision != ExecutionEdit_DB.ReadRevision(conn, tx))
+                if (found.HasValue && request.ExpectedExecutionRevision != ExecutionEdit_DB.ReadRevision(conn, tx))
                 {
                     result.DuLieuDaCu = true;
                     result.Loi = "Tiến độ hoặc tồn kho đã thay đổi. Bản nháp vẫn được giữ; hãy tải tiến độ mới và đối chiếu trước khi lưu.";
@@ -2452,12 +2451,13 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
         private static void GanTrangThaiCuonChan(LapKeHoachCatDay_GridRow row)
         {
             int conLay = Math.Max(0, row.SoLuongCanLay - row.SoLuongDaLay);
+            // Tiến độ dòng cuộn chẵn chỉ phụ thuộc vào công việc trực tiếp của dòng.
+            // Nhóm đã chuyển sang cuộn lẻ được theo dõi trên dòng cuộn lẻ tương ứng;
+            // vẫn giữ lịch sử chuyển lẻ để nhận biết công việc đã bắt đầu.
             bool conNhomCuonChan = row.NhomCatDaLuu.Any(x => x.ChiTiet.Any(d => !d.DaThucHien));
-            bool conNhomChuyenLe = row.NhomCatNguonDaChuyenLe.Any(x => x.ChiTiet.Any(d => !d.DaThucHien));
-            bool conNhom = conNhomCuonChan || conNhomChuyenLe;
             bool coThucHien = row.SoLuongDaLay > 0 || row.NhomCatDaLuu.Any(x => x.CoThucHien)
                 || row.NhomCatNguonDaChuyenLe.Any(x => x.CoThucHien);
-            bool hoanThanh = row.DaTonTaiTrongDB && conLay == 0 && !conNhom;
+            bool hoanThanh = row.DaTonTaiTrongDB && conLay == 0 && !conNhomCuonChan;
 
             // Tiến độ không bị ghi đè bởi tồn kho: đã làm một phần thì vẫn đang thực hiện.
             if (hoanThanh)

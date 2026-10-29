@@ -89,7 +89,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
             KhoiTaoGrid();
             KhoiTaoTimKiem();
             GanSuKien();
-
+            CapNhatTrangThaiNutCapNhat();
         }
 
         private static GraphicsPath CreateRoundedButtonPath(Rectangle bounds)
@@ -439,6 +439,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
         {
             btnTimKiem.Click += BtnTimKiem_Click;
             btnTimToanBo.Click += BtnTimToanBo_Click;
+            btnCapNhat.Click += BtnCapNhat_Click;
             btnLuuKeHoach.Click += btnLuuKeHoach_Click;
 
             tbLenhXuatHang.KeyDown += TbLenhXuatHang_KeyDown;
@@ -464,6 +465,30 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
             await TimKiemVaThemAsync(true);
         }
 
+        private void CapNhatTrangThaiNutCapNhat()
+        {
+            btnCapNhat.Enabled = _editMode && _keHoachId.HasValue && !_loadingPlan;
+        }
+
+        private async void BtnCapNhat_Click(object sender, EventArgs e)
+        {
+            if (!_editMode || !_keHoachId.HasValue || _loadingPlan || _dangLuu)
+                return;
+
+            grvKetQuaTimKiem.EndEdit();
+            // Ke ca dong vua tim kiem chua nhap so luong cung se bi mat khi tai lai.
+            if (CoThayDoiChuaLuu() || _rows.Values.Any(row => !row.DaTonTaiTrongDB))
+            {
+                DialogResult answer = MessageBox.Show(
+                    "Dữ liệu chưa được lưu, bạn muốn tiếp tục?",
+                    "Xác nhận", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                if (answer != DialogResult.Yes)
+                    return;
+            }
+
+            await NapKeHoachTheoMaAsync(forceReload: true);
+        }
+
         private async void TbLenhXuatHang_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode != Keys.Enter)
@@ -479,13 +504,13 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
             await NapKeHoachTheoMaAsync();
         }
 
-        private async Task NapKeHoachTheoMaAsync()
+        private async Task NapKeHoachTheoMaAsync(bool forceReload = false)
         {
             if (_loadingPlan)
                 return;
 
-            string ma = (tbLenhXuatHang.Text ?? string.Empty).Trim();
-            if (string.Equals(ma, _maKeHoachDaNap, StringComparison.OrdinalIgnoreCase))
+            string ma = forceReload ? _maKeHoachDaNap : (tbLenhXuatHang.Text ?? string.Empty).Trim();
+            if (!forceReload && string.Equals(ma, _maKeHoachDaNap, StringComparison.OrdinalIgnoreCase))
                 return;
 
             // Chua tai ma nao: gan ma cho ban nhap moi, khong xoa cac dong dang nhap.
@@ -496,7 +521,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
                 return;
             }
 
-            if (CoThayDoiChuaLuu())
+            if (!forceReload && CoThayDoiChuaLuu())
             {
                 DialogResult answer = MessageBox.Show(
                     "Dữ liệu kế hoạch đang có thay đổi chưa lưu. Tiếp tục sẽ bỏ các thay đổi này. Bạn có muốn chuyển kế hoạch?",
@@ -515,11 +540,15 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
             }
 
             _loadingPlan = true;
+            CapNhatTrangThaiNutCapNhat();
             try
             {
                 LapKeHoachCatDay_KeHoachContext context = await WaitingHelper.RunWithWaiting(
                     () => Task.Run(() => LapKeHoachCatDay_DB.LayKeHoachTheoMaVoiPhienBan(ma)),
                     "ĐANG TẢI KẾ HOẠCH...");
+
+                if (forceReload && !context.TonTai)
+                    throw new InvalidOperationException("Kế hoạch không còn tồn tại.");
 
                 _rows.Clear();
                 grvKetQuaTimKiem.Rows.Clear();
@@ -570,6 +599,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
             finally
             {
                 _loadingPlan = false;
+                CapNhatTrangThaiNutCapNhat();
             }
         }
 
@@ -1663,6 +1693,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
         {
             _editMode = false;
             _keHoachId = null;
+            CapNhatTrangThaiNutCapNhat();
             _maKeHoachDaNap = string.Empty;
             _rows.Clear();
             grvKetQuaTimKiem.Rows.Clear();

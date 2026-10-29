@@ -73,6 +73,8 @@
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.grvShowBaoCao = new System.Windows.Forms.DataGridView();
             this.panel4 = new System.Windows.Forms.Panel();
+            this.label9 = new System.Windows.Forms.Label();
+            this.btnTimKiem = new System.Windows.Forms.ComboBox();
             this.groupBox1.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.klConLai)).BeginInit();
@@ -284,7 +286,7 @@
             // 
             this.cbxTimMaBin.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbxTimMaBin.FormattingEnabled = true;
-            this.cbxTimMaBin.Location = new System.Drawing.Point(103, 9);
+            this.cbxTimMaBin.Location = new System.Drawing.Point(103, 6);
             this.cbxTimMaBin.Name = "cbxTimMaBin";
             this.cbxTimMaBin.Size = new System.Drawing.Size(434, 28);
             this.cbxTimMaBin.TabIndex = 3;
@@ -587,7 +589,7 @@
             this.panel5.Dock = System.Windows.Forms.DockStyle.Top;
             this.panel5.Location = new System.Drawing.Point(0, 218);
             this.panel5.Name = "panel5";
-            this.panel5.Size = new System.Drawing.Size(550, 109);
+            this.panel5.Size = new System.Drawing.Size(550, 122);
             this.panel5.TabIndex = 2;
             // 
             // groupBox3
@@ -598,49 +600,53 @@
             this.groupBox3.Location = new System.Drawing.Point(0, 0);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Padding = new System.Windows.Forms.Padding(5);
-            this.groupBox3.Size = new System.Drawing.Size(550, 109);
+            this.groupBox3.Size = new System.Drawing.Size(550, 122);
             this.groupBox3.TabIndex = 0;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Tồn kho TP";
             // 
             // tableLayoutPanel3
             // 
-            this.tableLayoutPanel3.ColumnCount = 2;
-            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
-            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
-            this.tableLayoutPanel3.Controls.Add(this.btnTaoBC_Khach, 0, 0);
-            this.tableLayoutPanel3.Controls.Add(this.btnXemTonKho, 1, 0);
+            this.tableLayoutPanel3.ColumnCount = 4;
+            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 140F));
+            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 140F));
+            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel3.Controls.Add(this.btnXemTonKho, 2, 1);
+            this.tableLayoutPanel3.Controls.Add(this.btnTaoBC_Khach, 1, 1);
+            this.tableLayoutPanel3.Controls.Add(this.label9, 0, 0);
+            this.tableLayoutPanel3.Controls.Add(this.btnTimKiem, 1, 0);
             this.tableLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel3.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.tableLayoutPanel3.Location = new System.Drawing.Point(5, 20);
             this.tableLayoutPanel3.Name = "tableLayoutPanel3";
-            this.tableLayoutPanel3.RowCount = 1;
+            this.tableLayoutPanel3.RowCount = 2;
+            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 84F));
-            this.tableLayoutPanel3.Size = new System.Drawing.Size(540, 84);
+            this.tableLayoutPanel3.Size = new System.Drawing.Size(540, 97);
             this.tableLayoutPanel3.TabIndex = 0;
             // 
             // btnTaoBC_Khach
             // 
-            this.btnTaoBC_Khach.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.btnTaoBC_Khach.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnTaoBC_Khach.Location = new System.Drawing.Point(3, 3);
+            this.btnTaoBC_Khach.Location = new System.Drawing.Point(133, 41);
             this.btnTaoBC_Khach.Name = "btnTaoBC_Khach";
-            this.btnTaoBC_Khach.Size = new System.Drawing.Size(264, 65);
+            this.btnTaoBC_Khach.Size = new System.Drawing.Size(134, 53);
             this.btnTaoBC_Khach.TabIndex = 0;
-            this.btnTaoBC_Khach.Text = "Tồn kho Theo Lô (word)";
+            this.btnTaoBC_Khach.Text = "Báo cáo tồn (Xuất file word)";
             this.btnTaoBC_Khach.UseVisualStyleBackColor = true;
             this.btnTaoBC_Khach.Click += new System.EventHandler(this.btnTaoBC_Khach_Click);
             // 
             // btnXemTonKho
             // 
-            this.btnXemTonKho.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.btnXemTonKho.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnXemTonKho.Location = new System.Drawing.Point(273, 3);
+            this.btnXemTonKho.Location = new System.Drawing.Point(273, 41);
             this.btnXemTonKho.Name = "btnXemTonKho";
-            this.btnXemTonKho.Size = new System.Drawing.Size(264, 65);
+            this.btnXemTonKho.Size = new System.Drawing.Size(134, 53);
             this.btnXemTonKho.TabIndex = 0;
-            this.btnXemTonKho.Text = "Xem Tồn kho (Excel)";
+            this.btnXemTonKho.Text = "Báo cáo tồn (Xuất file Excel)";
             this.btnXemTonKho.TextImageRelation = System.Windows.Forms.TextImageRelation.TextAboveImage;
             this.btnXemTonKho.UseVisualStyleBackColor = true;
             this.btnXemTonKho.Click += new System.EventHandler(this.btnXemTonKho_Click);
@@ -687,6 +693,28 @@
             this.panel4.Size = new System.Drawing.Size(549, 740);
             this.panel4.TabIndex = 5;
             // 
+            // label9
+            // 
+            this.label9.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.label9.AutoSize = true;
+            this.label9.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label9.Location = new System.Drawing.Point(3, 4);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(124, 18);
+            this.label9.TabIndex = 14;
+            this.label9.Text = "Tìm kiếm";
+            this.label9.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // btnTimKiem
+            // 
+            this.btnTimKiem.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.tableLayoutPanel3.SetColumnSpan(this.btnTimKiem, 3);
+            this.btnTimKiem.FormattingEnabled = true;
+            this.btnTimKiem.Location = new System.Drawing.Point(133, 3);
+            this.btnTimKiem.Name = "btnTimKiem";
+            this.btnTimKiem.Size = new System.Drawing.Size(404, 26);
+            this.btnTimKiem.TabIndex = 15;
+            // 
             // UC_BCTonKho
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -712,6 +740,7 @@
             this.panel5.ResumeLayout(false);
             this.groupBox3.ResumeLayout(false);
             this.tableLayoutPanel3.ResumeLayout(false);
+            this.tableLayoutPanel3.PerformLayout();
             this.panel2.ResumeLayout(false);
             this.flowLayoutPanel1.ResumeLayout(false);
             this.flowLayoutPanel1.PerformLayout();
@@ -768,5 +797,7 @@
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel3;
         private System.Windows.Forms.Button btnTaoBC_Khach;
         private System.Windows.Forms.Button btnXemTonKho;
+        private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.ComboBox btnTimKiem;
     }
 }

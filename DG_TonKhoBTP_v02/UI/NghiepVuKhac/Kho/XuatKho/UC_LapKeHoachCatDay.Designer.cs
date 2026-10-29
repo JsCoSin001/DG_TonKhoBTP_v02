@@ -41,7 +41,7 @@
             this.label8 = new System.Windows.Forms.Label();
             this.cbxTimLot = new System.Windows.Forms.ComboBox();
             this.nbrTimSoLuong = new System.Windows.Forms.NumericUpDown();
-            this.button1 = new System.Windows.Forms.Button();
+            this.btnTimKiem = new System.Windows.Forms.Button();
             this.btnTimToanBo = new System.Windows.Forms.Button();
             this.panel2 = new System.Windows.Forms.Panel();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
@@ -60,6 +60,8 @@
             this.grvKetQuaTimKiem = new System.Windows.Forms.DataGridView();
             this.panel5 = new System.Windows.Forms.Panel();
             this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
+            this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
+            this.btnCapNhat = new System.Windows.Forms.Button();
             this.panel1.SuspendLayout();
             this.panel3.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -73,6 +75,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.grvKetQuaTimKiem)).BeginInit();
             this.panel5.SuspendLayout();
             this.tableLayoutPanel3.SuspendLayout();
+            this.flowLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // label1
@@ -135,8 +138,7 @@
             this.tableLayoutPanel1.Controls.Add(this.label8, 3, 0);
             this.tableLayoutPanel1.Controls.Add(this.cbxTimLot, 2, 1);
             this.tableLayoutPanel1.Controls.Add(this.nbrTimSoLuong, 3, 1);
-            this.tableLayoutPanel1.Controls.Add(this.button1, 1, 2);
-            this.tableLayoutPanel1.Controls.Add(this.btnTimToanBo, 2, 2);
+            this.tableLayoutPanel1.Controls.Add(this.flowLayoutPanel1, 1, 2);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.tableLayoutPanel1.Location = new System.Drawing.Point(3, 23);
@@ -240,24 +242,28 @@
             this.nbrTimSoLuong.Size = new System.Drawing.Size(141, 26);
             this.nbrTimSoLuong.TabIndex = 12;
             // 
-            // button1
+            // btnTimKiem
             // 
-            this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.button1.Location = new System.Drawing.Point(411, 63);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(120, 52);
-            this.button1.TabIndex = 13;
-            this.button1.Text = "Tìm kiếm";
-            this.button1.UseVisualStyleBackColor = true;
+            this.btnTimKiem.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnTimKiem.BackColor = System.Drawing.Color.Green;
+            this.btnTimKiem.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
+            this.btnTimKiem.Location = new System.Drawing.Point(3, 3);
+            this.btnTimKiem.Name = "btnTimKiem";
+            this.btnTimKiem.Size = new System.Drawing.Size(120, 46);
+            this.btnTimKiem.TabIndex = 13;
+            this.btnTimKiem.Text = "Tìm kiếm";
+            this.btnTimKiem.UseVisualStyleBackColor = false;
             // 
             // btnTimToanBo
             // 
-            this.btnTimToanBo.Location = new System.Drawing.Point(537, 63);
+            this.btnTimToanBo.BackColor = System.Drawing.Color.Brown;
+            this.btnTimToanBo.ForeColor = System.Drawing.SystemColors.Control;
+            this.btnTimToanBo.Location = new System.Drawing.Point(129, 3);
             this.btnTimToanBo.Name = "btnTimToanBo";
-            this.btnTimToanBo.Size = new System.Drawing.Size(112, 52);
+            this.btnTimToanBo.Size = new System.Drawing.Size(112, 46);
             this.btnTimToanBo.TabIndex = 0;
             this.btnTimToanBo.Text = "Tìm toàn bộ";
-            this.btnTimToanBo.UseVisualStyleBackColor = true;
+            this.btnTimToanBo.UseVisualStyleBackColor = false;
             // 
             // panel2
             // 
@@ -461,6 +467,27 @@
             this.tableLayoutPanel3.Size = new System.Drawing.Size(1641, 89);
             this.tableLayoutPanel3.TabIndex = 0;
             // 
+            // flowLayoutPanel1
+            // 
+            this.tableLayoutPanel1.SetColumnSpan(this.flowLayoutPanel1, 2);
+            this.flowLayoutPanel1.Controls.Add(this.btnTimKiem);
+            this.flowLayoutPanel1.Controls.Add(this.btnTimToanBo);
+            this.flowLayoutPanel1.Controls.Add(this.btnCapNhat);
+            this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.flowLayoutPanel1.Location = new System.Drawing.Point(270, 63);
+            this.flowLayoutPanel1.Name = "flowLayoutPanel1";
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(528, 54);
+            this.flowLayoutPanel1.TabIndex = 14;
+            // 
+            // btnCapNhat
+            // 
+            this.btnCapNhat.Location = new System.Drawing.Point(247, 3);
+            this.btnCapNhat.Name = "btnCapNhat";
+            this.btnCapNhat.Size = new System.Drawing.Size(114, 45);
+            this.btnCapNhat.TabIndex = 14;
+            this.btnCapNhat.Text = "Cập nhật";
+            this.btnCapNhat.UseVisualStyleBackColor = true;
+            // 
             // UC_LapKeHoachCatDay
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 16F);
@@ -488,6 +515,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.grvKetQuaTimKiem)).EndInit();
             this.panel5.ResumeLayout(false);
             this.tableLayoutPanel3.ResumeLayout(false);
+            this.flowLayoutPanel1.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -522,9 +550,11 @@
         private System.Windows.Forms.ComboBox cbxTimLot;
         private System.Windows.Forms.Panel panel5;
         private System.Windows.Forms.NumericUpDown nbrTimSoLuong;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button btnTimKiem;
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.ComboBox cbxNguoiCat;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel3;
+        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
+        private System.Windows.Forms.Button btnCapNhat;
     }
 }

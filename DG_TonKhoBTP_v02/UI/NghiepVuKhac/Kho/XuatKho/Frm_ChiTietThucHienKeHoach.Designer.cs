@@ -70,6 +70,7 @@
             this.tbxNguonNhap = new System.Windows.Forms.TextBox();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.dataGridView2 = new System.Windows.Forms.DataGridView();
+            this.tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
             this.panel1.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -82,6 +83,7 @@
             this.tableLayoutPanel2.SuspendLayout();
             this.tabPage2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView2)).BeginInit();
+            this.tableLayoutPanel4.SuspendLayout();
             this.SuspendLayout();
             // 
             // panel1
@@ -169,6 +171,7 @@
             // panel2
             // 
             this.panel2.Controls.Add(this.tabControl1);
+            this.panel2.Controls.Add(this.tableLayoutPanel4);
             this.panel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel2.Location = new System.Drawing.Point(898, 9);
             this.panel2.Margin = new System.Windows.Forms.Padding(4);
@@ -185,7 +188,7 @@
             this.tabControl1.Location = new System.Drawing.Point(7, 7);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(605, 721);
+            this.tabControl1.Size = new System.Drawing.Size(605, 537);
             this.tabControl1.TabIndex = 3;
             // 
             // tabPage1
@@ -195,7 +198,7 @@
             this.tabPage1.Location = new System.Drawing.Point(4, 25);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(597, 692);
+            this.tabPage1.Size = new System.Drawing.Size(597, 508);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Thông tin cuộn";
             this.tabPage1.UseVisualStyleBackColor = true;
@@ -203,7 +206,7 @@
             // tableLayoutPanel3
             // 
             this.tableLayoutPanel3.ColumnCount = 3;
-            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
+            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33332F));
             this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33334F));
             this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33334F));
             this.tableLayoutPanel3.Controls.Add(this.label5, 0, 1);
@@ -222,14 +225,11 @@
             this.tableLayoutPanel3.Controls.Add(this.label12, 0, 6);
             this.tableLayoutPanel3.Controls.Add(this.rtbLyDoSua, 0, 7);
             this.tableLayoutPanel3.Controls.Add(this.label13, 0, 0);
-            this.tableLayoutPanel3.Controls.Add(this.btnLuuThayDoi, 1, 9);
-            this.tableLayoutPanel3.Controls.Add(this.btnĐóng, 2, 9);
-            this.tableLayoutPanel3.Controls.Add(this.lblTacDong, 0, 8);
             this.tableLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Top;
             this.tableLayoutPanel3.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.tableLayoutPanel3.Location = new System.Drawing.Point(3, 184);
             this.tableLayoutPanel3.Name = "tableLayoutPanel3";
-            this.tableLayoutPanel3.RowCount = 10;
+            this.tableLayoutPanel3.RowCount = 8;
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 35F));
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 31F));
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle());
@@ -239,8 +239,8 @@
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 26F));
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 52F));
-            this.tableLayoutPanel3.Size = new System.Drawing.Size(591, 360);
+            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tableLayoutPanel3.Size = new System.Drawing.Size(591, 322);
             this.tableLayoutPanel3.TabIndex = 1;
             // 
             // label5
@@ -392,7 +392,7 @@
             this.rtbLyDoSua.Dock = System.Windows.Forms.DockStyle.Fill;
             this.rtbLyDoSua.Location = new System.Drawing.Point(3, 224);
             this.rtbLyDoSua.Name = "rtbLyDoSua";
-            this.rtbLyDoSua.Size = new System.Drawing.Size(585, 61);
+            this.rtbLyDoSua.Size = new System.Drawing.Size(585, 95);
             this.rtbLyDoSua.TabIndex = 5;
             this.rtbLyDoSua.Text = "";
             // 
@@ -411,18 +411,18 @@
             // btnLuuThayDoi
             // 
             this.btnLuuThayDoi.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnLuuThayDoi.Location = new System.Drawing.Point(270, 311);
+            this.btnLuuThayDoi.Location = new System.Drawing.Point(185, 30);
             this.btnLuuThayDoi.Name = "btnLuuThayDoi";
-            this.btnLuuThayDoi.Size = new System.Drawing.Size(120, 46);
+            this.btnLuuThayDoi.Size = new System.Drawing.Size(114, 46);
             this.btnLuuThayDoi.TabIndex = 6;
             this.btnLuuThayDoi.Text = "Lưu thay đổi";
             this.btnLuuThayDoi.UseVisualStyleBackColor = true;
             // 
             // btnĐóng
             // 
-            this.btnĐóng.Location = new System.Drawing.Point(396, 311);
+            this.btnĐóng.Location = new System.Drawing.Point(305, 30);
             this.btnĐóng.Name = "btnĐóng";
-            this.btnĐóng.Size = new System.Drawing.Size(120, 46);
+            this.btnĐóng.Size = new System.Drawing.Size(114, 46);
             this.btnĐóng.TabIndex = 6;
             this.btnĐóng.Text = "Đóng";
             this.btnĐóng.UseVisualStyleBackColor = true;
@@ -431,11 +431,11 @@
             // 
             this.lblTacDong.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.lblTacDong.AutoSize = true;
-            this.tableLayoutPanel3.SetColumnSpan(this.lblTacDong, 3);
+            this.tableLayoutPanel3.SetColumnSpan(this.lblTacDong, 4);
             this.lblTacDong.ForeColor = System.Drawing.Color.DarkRed;
-            this.lblTacDong.Location = new System.Drawing.Point(3, 290);
+            this.lblTacDong.Location = new System.Drawing.Point(3, 11);
             this.lblTacDong.Name = "lblTacDong";
-            this.lblTacDong.Size = new System.Drawing.Size(79, 18);
+            this.lblTacDong.Size = new System.Drawing.Size(68, 16);
             this.lblTacDong.TabIndex = 1;
             this.lblTacDong.Text = "Thông báo";
             // 
@@ -562,7 +562,7 @@
             this.tabPage2.Location = new System.Drawing.Point(4, 25);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(587, 673);
+            this.tabPage2.Size = new System.Drawing.Size(597, 508);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Lịch sử thay đổi";
             this.tabPage2.UseVisualStyleBackColor = true;
@@ -573,8 +573,27 @@
             this.dataGridView2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dataGridView2.Location = new System.Drawing.Point(3, 3);
             this.dataGridView2.Name = "dataGridView2";
-            this.dataGridView2.Size = new System.Drawing.Size(581, 667);
+            this.dataGridView2.Size = new System.Drawing.Size(591, 502);
             this.dataGridView2.TabIndex = 0;
+            // 
+            // tableLayoutPanel4
+            // 
+            this.tableLayoutPanel4.ColumnCount = 4;
+            this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 120F));
+            this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 120F));
+            this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel4.Controls.Add(this.lblTacDong, 0, 0);
+            this.tableLayoutPanel4.Controls.Add(this.btnLuuThayDoi, 1, 1);
+            this.tableLayoutPanel4.Controls.Add(this.btnĐóng, 2, 1);
+            this.tableLayoutPanel4.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.tableLayoutPanel4.Location = new System.Drawing.Point(7, 544);
+            this.tableLayoutPanel4.Name = "tableLayoutPanel4";
+            this.tableLayoutPanel4.RowCount = 2;
+            this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 14.67391F));
+            this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 85.32609F));
+            this.tableLayoutPanel4.Size = new System.Drawing.Size(605, 184);
+            this.tableLayoutPanel4.TabIndex = 4;
             // 
             // Frm_ChiTietThucHienKeHoach
             // 
@@ -603,6 +622,8 @@
             this.tableLayoutPanel2.PerformLayout();
             this.tabPage2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView2)).EndInit();
+            this.tableLayoutPanel4.ResumeLayout(false);
+            this.tableLayoutPanel4.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -651,5 +672,6 @@
         private System.Windows.Forms.Button btnĐóng;
         private System.Windows.Forms.DataGridView dataGridView2;
         private System.Windows.Forms.Label lblTacDong;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel4;
     }
 }

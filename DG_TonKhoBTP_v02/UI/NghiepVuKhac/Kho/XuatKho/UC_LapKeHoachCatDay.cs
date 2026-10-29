@@ -437,7 +437,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
 
         private void GanSuKien()
         {
-            button1.Click += BtnTimKiem_Click;
+            btnTimKiem.Click += BtnTimKiem_Click;
             btnTimToanBo.Click += BtnTimToanBo_Click;
             btnLuuKeHoach.Click += btnLuuKeHoach_Click;
 

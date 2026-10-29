@@ -233,7 +233,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
             foreach (var pair in _markerInputs)
                 if (!_snapshot.Reels.TryGetValue(pair.Key, out var reel) || !TryMarker(reel, pair.Value.End, pair.Value.Direction, out _, out _))
                     return "Mốc cuộn " + (_snapshot.Reels.TryGetValue(pair.Key, out var r) ? r.Code : pair.Key.ToString()) +
-                        " không hợp lệ. Số cuối phải là số nguyên không âm; số đầu tự tính phải trong giới hạn cho phép.";
+                        " không hợp lệ.";
             return string.IsNullOrWhiteSpace(rtbLyDoSua.Text) ? "Vui lòng nhập lý do sửa trước khi lưu." : "";
         }
         private void UpdateDraftState()
@@ -299,7 +299,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
                 {
                     _batchImpact = ConfirmationText(request, preview);
                     bool confirm = request.ReelEdits.Count > 0 || request.RowEdits.Any(x => x.Undo);
-                    if (!confirm || Ask(_batchImpact + Environment.NewLine + "Lưu các thay đổi này?", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                    if (!confirm || Ask("Bạn thực sự muốn lưu?",MessageBoxButtons.YesNo) == DialogResult.Yes)
                     {
                         if (generation != _generation) ShowError("Nội dung đã thay đổi. Vui lòng kiểm tra và lưu lại.");
                         else
@@ -324,7 +324,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
                     }
                 }
             }
-            catch (Exception) { ShowError("Không thể lưu thay đổi. Bản nháp vẫn được giữ; vui lòng kiểm tra dữ liệu rồi thử lại."); }
+            catch (Exception) { ShowError("Lưu thất bại."); }
             finally
             {
                 _saving = false;

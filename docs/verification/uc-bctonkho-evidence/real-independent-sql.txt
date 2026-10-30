@@ -1,0 +1,253 @@
+﻿PRAGMA table_info('TTThanhPham')
+
+cid name           type     notnull dflt_value pk
+--- ----           ----     ------- ---------- --
+  0 id             INTEGER        1             1
+  1 DanhSachSP_ID  INTEGER        1             0
+  2 MaBin          TEXT           1             0
+  3 KhoiLuongTruoc REAL           0 0           0
+  4 KhoiLuongSau   REAL           0 0           0
+  5 ChieuDaiTruoc  REAL           0             0
+  6 ChieuDaiSau    REAL           0             0
+  7 Phe            REAL           0 0           0
+  8 GhiChu         TEXT           0             0
+  9 LastEdit_id    INTEGER        0 0           0
+ 10 DateInsert     DATETIME       0             0
+ 11 CongDoan       TEXT           0             0
+ 12 KLBanTran      REAL           0 0           0
+ 13 HanNoi         REAL           0 0           0
+ 14 NhapKho        INTEGER        0 0           0
+ 15 QC             TEXT           0             0
+ 16 Active         INTEGER        0 1           0
+ 17 Temp           INTEGER        0 1           0
+
+
+
+PRAGMA table_info('DanhSachMaSP')
+
+cid name         type     notnull dflt_value pk
+--- ----         ----     ------- ---------- --
+  0 id           INTEGER        1             1
+  1 Ten          TEXT           1             0
+  2 Ten_KhongDau TEXT           0             0
+  3 Ma           TEXT           1             0
+  4 DonVi        TEXT           1             0
+  5 KieuSP       TEXT           1             0
+  6 DateInsert   DATETIME       0             0
+  7 ChuyenDoi    REAL           1 1           0
+  8 Active       INTEGER        0 1           0
+
+
+
+PRAGMA table_info('TTNhapKhoTP')
+
+cid name           type    notnull dflt_value                                        pk
+--- ----           ----    ------- ----------                                        --
+  0 id             INTEGER       1                                                    1
+  1 NgayNhapKho    TEXT          0                                                    0
+  2 SoBB           INTEGER       0                                                    0
+  3 TTThanhPham_ID INTEGER       0                                                    0
+  4 TenSP          TEXT          1                                                    0
+  5 TongChieuDai   REAL          1                                                    0
+  6 GhiChu         TEXT          1                                                    0
+  7 NguoiLam       TEXT          1                                                    0
+  8 DateInsert     TEXT          0 strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime')  0
+
+
+
+PRAGMA table_info('TTCuonDay')
+
+cid name               type    notnull dflt_value                   pk
+--- ----               ----    ------- ----------                   --
+  0 id                 INTEGER       1                               1
+  1 SoCuon             INTEGER       0                               0
+  2 ChieuDai_1cuon     INTEGER       1                               0
+  3 SoDau              INTEGER       0                               0
+  4 SoCuoi             INTEGER       0                               0
+  5 GhiChu             TEXT          0                               0
+  6 ThongTinNhapKho_ID INTEGER       1                               0
+  7 LoaiDon            TEXT          0                               0
+  8 KhachHang          TEXT          0                               0
+  9 TenDuAn            TEXT          0                               0
+ 10 TTLo_ID            INTEGER       0                               0
+ 11 DateInsert         TEXT          0 datetime('now', 'localtime')  0
+ 12 Ngay               TEXT          0                               0
+ 13 TTCuonDay_CD_ID    INTEGER       0                               0
+ 14 KhachHang_KhongDau TEXT          0                               0
+ 15 Lot_Day            TEXT          0                               0
+
+
+
+PRAGMA table_info('TonCuonLe')
+
+cid name           type    notnull dflt_value                                        pk
+--- ----           ----    ------- ----------                                        --
+  0 id             INTEGER       1                                                    1
+  1 MaCuon         TEXT          1                                                    0
+  2 TTThanhPham_ID INTEGER       1                                                    0
+  3 TTCuonDay_ID   INTEGER       1                                                    0
+  4 SoDau          INTEGER       1                                                    0
+  5 SoCuoi         INTEGER       1                                                    0
+  6 TrangThai      TEXT          1 'ACTIVE'                                           0
+  7 GhiChu         TEXT          0                                                    0
+  8 DateInsert     TEXT          1 strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime')  0
+
+
+
+PRAGMA table_info('LichSuCat')
+
+cid name                 type    notnull dflt_value                                        pk
+--- ----                 ----    ------- ----------                                        --
+  0 id                   INTEGER       1                                                    1
+  1 KeHoachCatChiTiet_ID INTEGER       1                                                    0
+  2 TonCuonLe_ID         INTEGER       1                                                    0
+  3 LoaiNguon            TEXT          1                                                    0
+  4 ChieuDaiCat          INTEGER       1                                                    0
+  5 SoDauTruoc           INTEGER       1                                                    0
+  6 SoCuoiTruoc          INTEGER       1                                                    0
+  7 SoDauCat             INTEGER       1                                                    0
+  8 SoCuoiCat            INTEGER       1                                                    0
+  9 SoDauSau             INTEGER       1                                                    0
+ 10 SoCuoiSau            INTEGER       1                                                    0
+ 11 HeSoChieu            INTEGER       1                                                    0
+ 12 MaQuetThucTe         TEXT          1                                                    0
+ 13 NguoiThucHien        TEXT          1                                                    0
+ 14 ThoiGianThucHien     TEXT          1 strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime')  0
+ 15 GhiChu               TEXT          0                                                    0
+ 16 DieuChinhThongSo     TEXT          0 NULL                                               0
+
+
+
+PRAGMA table_info('LichSuLayCuon')
+
+cid name               type    notnull dflt_value                                        pk
+--- ----               ----    ------- ----------                                        --
+  0 id                 INTEGER       1                                                    1
+  1 KeHoachHang_ID     INTEGER       1                                                    0
+  2 TTCuonDay_ID       INTEGER       1                                                    0
+  3 SoLuong            INTEGER       1                                                    0
+  4 NguoiThucHien      TEXT          1                                                    0
+  5 ThoiGianThucHien   TEXT          1 strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime')  0
+  6 GhiChu             TEXT          0                                                    0
+  7 QuyCachCuonChan_ID INTEGER       0                                                    0
+
+
+
+PRAGMA table_info('KeHoach')
+
+cid name        type    notnull dflt_value                                        pk
+--- ----        ----    ------- ----------                                        --
+  0 id          INTEGER       1                                                    1
+  1 MaKeHoach   TEXT          1                                                    0
+  2 NgayKeHoach TEXT          1                                                    0
+  3 NguoiNhan   TEXT          0                                                    0
+  4 TrangThai   TEXT          1 'ACTIVE'                                           0
+  5 GhiChu      TEXT          0                                                    0
+  6 NguoiTao    TEXT          0                                                    0
+  7 DateInsert  TEXT          1 strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime')  0
+  8 Users_id    INTEGER       0                                                    0
+
+
+
+PRAGMA table_info('KeHoachHang')
+
+cid name                  type    notnull dflt_value                                        pk
+--- ----                  ----    ------- ----------                                        --
+  0 id                    INTEGER       1                                                    1
+  1 KeHoach_ID            INTEGER       1                                                    0
+  2 DanhSachMaSP_ID       INTEGER       1                                                    0
+  3 SoLuongCuonCanLay     INTEGER       1 0                                                  0
+  4 ChieuDai1Cuon_KeHoach INTEGER       0                                                    0
+  5 GhiChu                TEXT          0                                                    0
+  6 DateInsert            TEXT          1 strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime')  0
+
+
+
+PRAGMA table_info('KeHoachHangQuyCachCuonChan')
+
+cid name              type    notnull dflt_value        pk
+--- ----              ----    ------- ----------        --
+  0 id                INTEGER       0                    1
+  1 KeHoachHang_ID    INTEGER       1                    0
+  2 ChieuDai1Cuon     INTEGER       1                    0
+  3 SoLuongCuonCanLay INTEGER       1 0                  0
+  4 DateInsert        TEXT          1 CURRENT_TIMESTAMP  0
+
+
+
+PRAGMA table_info('KeHoachCatNhom')
+
+cid name               type    notnull dflt_value                                        pk
+--- ----               ----    ------- ----------                                        --
+  0 id                 INTEGER       1                                                    1
+  1 KeHoachHang_ID     INTEGER       1                                                    0
+  2 TonCuonLe_ID       INTEGER       0                                                    0
+  3 GhiChu             TEXT          0                                                    0
+  4 DateInsert         TEXT          1 strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime')  0
+  5 QuyCachCuonChan_ID INTEGER       0                                                    0
+
+
+
+PRAGMA table_info('KeHoachCatChiTiet')
+
+cid name              type    notnull dflt_value                                        pk
+--- ----              ----    ------- ----------                                        --
+  0 id                INTEGER       1                                                    1
+  1 KeHoachCatNhom_ID INTEGER       1                                                    0
+  2 ChieuDaiCanCat    INTEGER       1                                                    0
+  3 GhiChu            TEXT          0                                                    0
+  4 DateInsert        TEXT          1 strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime')  0
+
+
+
+SELECT tp.id AS BinId,tp.MaBin,sp.Ten,cd.id AS SourceId,cd.SoCuon,cd.ChieuDai_1cuon FROM TTThanhPham tp JOIN DanhSachMaSP sp ON sp.id=tp.DanhSachSP_ID JOIN TTNhapKhoTP nk ON nk.TTThanhPham_ID=tp.id JOIN TTCuonDay cd ON cd.ThongTinNhapKho_ID=nk.id WHERE tp.MaBin='E1-265081/5-03-00'
+
+BinId MaBin             Ten               SourceId SoCuon ChieuDai_1cuon
+----- -----             ---               -------- ------ --------------
+57956 E1-265081/5-03-00 CXV 2x2.5R2-0.6-B        1     10            200
+
+
+
+SELECT (SELECT SoCuon FROM TTCuonDay WHERE id=1) AS Imported, (SELECT SUM(SoLuong) FROM LichSuLayCuon WHERE TTCuonDay_ID=1) AS Taken,(SELECT COUNT(*) FROM TonCuonLe p WHERE p.TTCuonDay_ID=1 AND EXISTS(SELECT 1 FROM LichSuCat h WHERE h.TonCuonLe_ID=p.id AND h.LoaiNguon='CUON_CHAN')) AS Converted
+
+Imported Taken Converted
+-------- ----- ---------
+      10     2         2
+
+
+
+SELECT id,MaCuon,SoDau,SoCuoi,ABS(SoCuoi-SoDau) AS Remaining FROM TonCuonLe WHERE TTThanhPham_ID=57956 ORDER BY id
+
+id MaCuon                                         SoDau SoCuoi Remaining
+-- ------                                         ----- ------ ---------
+ 5 cuontp;265081;200;20261029;202610290857050002;   900    800       100
+ 6 cuontp;265081;200;20261029;202610290857050001;   600    620        20
+
+
+
+SELECT id,SoDau,SoCuoi,ABS(SoCuoi-SoDau) AS Remaining FROM TonCuonLe WHERE SoDau=996 AND SoCuoi=600
+
+id SoDau SoCuoi Remaining
+-- ----- ------ ---------
+ 1   996    600       396
+
+
+
+SELECT DISTINCT tp.id FROM TTThanhPham tp JOIN TTNhapKhoTP nk ON nk.TTThanhPham_ID=tp.id JOIN DanhSachMaSP sp ON sp.id=tp.DanhSachSP_ID WHERE tp.NhapKho=1 AND tp.Temp=0 AND TRIM(sp.Ten)=TRIM('CXV 2x2.5R2-0.6-B') AND EXISTS(SELECT 1 FROM TTCuonDay cd WHERE cd.ThongTinNhapKho_ID=nk.id)
+
+   id
+   --
+57956
+
+
+
+SELECT id,SoDau,SoCuoi,ABS(SoCuoi-SoDau) AS Remaining FROM TonCuonLe ORDER BY id
+
+id SoDau SoCuoi Remaining
+-- ----- ------ ---------
+ 1   996    600       396
+ 5   900    800       100
+ 6   600    620        20
+
+
+

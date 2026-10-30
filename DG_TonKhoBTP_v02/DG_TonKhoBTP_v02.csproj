@@ -175,6 +175,7 @@
     <Compile Include="Database\DB_SanXuat.cs" />
     <Compile Include="Database\DB_XuatNhapKho.cs" />
     <Compile Include="Database\Kho\TonKhoExcelReport_DB.cs" />
+    <Compile Include="Database\Kho\TonKho\BC_TonKho_DB.cs" />
     <Compile Include="Database\Kho\XuatKho\CatDay_DB.cs" />
     <Compile Include="Database\Kho\XuatKho\LapKeHoachCatDay_DB.cs" />
     <Compile Include="Database\Kho\XuatKho_DB.cs" />
@@ -226,6 +227,7 @@
     <Compile Include="Models\KeToan\VatTuKhac\NhapXuatVatTu_Model.cs" />
     <Compile Include="Models\Kho\LotCode.cs" />
     <Compile Include="Models\Kho\TonKhoLoReportModels.cs" />
+    <Compile Include="Models\Kho\TonKho\BCTonKho_Model.cs" />
     <Compile Include="Models\Kho\XuatKho\CatDay_Model.cs" />
     <Compile Include="Models\Kho\XuatKho\LapKeHoachCatDay_Model.cs" />
     <Compile Include="Models\Kho\XuatKho_Model.cs" />

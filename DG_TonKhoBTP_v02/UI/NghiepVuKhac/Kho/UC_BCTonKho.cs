@@ -1,6 +1,9 @@
 ﻿using DG_TonKhoBTP_v02.Core;
 using DG_TonKhoBTP_v02.Database;
 using DG_TonKhoBTP_v02.Database.Kho;
+using DG_TonKhoBTP_v02.Database.Kho.TonKho;
+using DG_TonKhoBTP_v02.Models.Kho.TonKho;
+using DG_TonKhoBTP_v02.UI.Helper.AutoSearchWithCombobox;
 using DG_TonKhoBTP_v02.Dictionary;
 using DG_TonKhoBTP_v02.Helper;
 using DG_TonKhoBTP_v02.Models;
@@ -25,6 +28,12 @@ namespace DG_TonKhoBTP_v02.UI
     {
 
         private CancellationTokenSource _searchCts;
+        private ComboBoxSearchHelper _tonKhoSearchHelper;
+        private CancellationTokenSource _tonKhoLoadCts;
+        private int _tonKhoVersion;
+        private BCTonKho_GoiY _tonKhoSelection;
+        private bool _showingInventory;
+
         public UC_BCTonKho()
         {
             InitializeComponent();
@@ -36,6 +45,169 @@ namespace DG_TonKhoBTP_v02.UI
             cbxBocLot.Tag = ThongTinChungCongDoan.BocLot;
             cbxQuanBang.Tag = ThongTinChungCongDoan.QuanBang;
             cbxBocTP.Tag = ThongTinChungCongDoan.BocVo;
+            InitializeTonKhoSearch();
+        }
+
+        private void InitializeTonKhoSearch()
+        {
+            _tonKhoSearchHelper = new ComboBoxSearchHelper(btnTimKiem,
+                (keyword, token) => BC_TonKho_DB.TimGoiYAsync(keyword, cbxKieuTon.Checked, token))
+            {
+                DisplayColumn = "GiaTri",
+                SelectedTextBehavior = ComboBoxSelectedTextBehavior.FillDisplayText,
+                DebounceMs = 400
+            };
+            _tonKhoSearchHelper.ItemSelected += OnTonKhoItemSelected;
+            _tonKhoSearchHelper.Cleared += OnTonKhoCleared;
+            btnTimKiem.TextUpdate += OnTonKhoTextUpdate;
+            cbxKieuTon.CheckedChanged += OnTonKhoFilterChanged;
+            Disposed += OnTonKhoDisposed;
+        }
+
+        private void CancelTonKhoRequest()
+        {
+            unchecked { _tonKhoVersion++; }
+            _tonKhoLoadCts?.Cancel();
+            // Không Dispose CTS trước khi callback truy vấn cũ hoàn tất.
+            _tonKhoLoadCts = null;
+        }
+
+        private void OnTonKhoTextUpdate(object sender, EventArgs e)
+        {
+            _tonKhoSelection = null;
+            CancelTonKhoRequest();
+            if (_showingInventory) ClearTonKhoGrid();
+        }
+
+        private void OnTonKhoCleared()
+        {
+            _tonKhoSelection = null;
+            CancelTonKhoRequest();
+            if (_showingInventory) ClearTonKhoGrid();
+        }
+
+        private async void OnTonKhoItemSelected(DataRowView row)
+        {
+            if (row == null) return;
+            _tonKhoSelection = new BCTonKho_GoiY
+            {
+                Loai = (BCTonKho_LoaiTimKiem)Convert.ToInt32(row["Loai"]),
+                Id = row["Id"] == DBNull.Value ? (long?)null : Convert.ToInt64(row["Id"]),
+                GiaTri = Convert.ToString(row["GiaTri"]) ?? string.Empty
+            };
+            await ReloadTonKhoAsync();
+        }
+
+        private async void OnTonKhoFilterChanged(object sender, EventArgs e)
+        {
+            CancelTonKhoRequest();
+            if (_tonKhoSelection != null)
+                await ReloadTonKhoAsync();
+            // Nếu chưa chọn, tìm kiếm tiếp sẽ dùng giá trị checkbox mới.
+        }
+
+        private async Task ReloadTonKhoAsync()
+        {
+            if (_tonKhoSelection == null || IsDisposed || Disposing) return;
+            CancelTonKhoRequest();
+            int version = _tonKhoVersion;
+            var choice = _tonKhoSelection;
+            bool includeDepleted = cbxKieuTon.Checked;
+            var cts = new CancellationTokenSource();
+            _tonKhoLoadCts = cts;
+            try
+            {
+                var result = await WaitingHelper.RunWithWaiting(() =>
+                    BC_TonKho_DB.LayChiTietTonAsync(choice.Loai, choice.Id, choice.GiaTri,
+                        includeDepleted, cts.Token), "ĐANG TẢI TỒN KHO...");
+                if (cts.IsCancellationRequested || version != _tonKhoVersion ||
+                    IsDisposed || Disposing || _tonKhoSelection != choice || cbxKieuTon.Checked != includeDepleted)
+                    return;
+                RenderTonKho(result);
+                if (result.CoBatThuong)
+                    FrmWaiting.ShowGifAlert("Có dữ liệu bất thường.", "THÔNG BÁO", EnumStore.Icon.Warning);
+            }
+            catch (OperationCanceledException) { /* Lựa chọn mới thay thế truy vấn cũ. */ }
+            catch (Exception ex)
+            {
+                if (version == _tonKhoVersion && !IsDisposed && !Disposing)
+                    FrmWaiting.ShowGifAlert("Không thể tải tồn kho: " + ex.Message, "LỖI", EnumStore.Icon.Warning);
+            }
+            finally
+            {
+                if (_tonKhoLoadCts == cts) _tonKhoLoadCts = null;
+                cts.Dispose();
+            }
+        }
+
+        private void ClearTonKhoGrid()
+        {
+            if (!_showingInventory) return;
+            grvShowBaoCao.DataSource = null;
+            grvShowBaoCao.Rows.Clear();
+            grvShowBaoCao.Columns.Clear();
+            _showingInventory = false;
+        }
+
+        private void RenderTonKho(BCTonKho_KetQua result)
+        {
+            grvShowBaoCao.DataSource = null;
+            grvShowBaoCao.Columns.Clear();
+            grvShowBaoCao.AutoGenerateColumns = false;
+            grvShowBaoCao.AllowUserToAddRows = false;
+            grvShowBaoCao.ReadOnly = true;
+            grvShowBaoCao.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.DisplayedCells;
+            grvShowBaoCao.Columns.Add("TenSanPham", "Tên sản phẩm");
+            grvShowBaoCao.Columns.Add("MaBinLot", "Mã Bin/LOT");
+            grvShowBaoCao.Columns.Add("SoLuong", "Số lượng");
+            grvShowBaoCao.Columns.Add("Kieu", "Kiểu");
+            grvShowBaoCao.Columns.Add("SoDau", "Số đầu");
+            grvShowBaoCao.Columns.Add("SoCuoi", "Số cuối");
+            grvShowBaoCao.Columns.Add("ChieuDaiBanDau", "Chiều dài ban đầu");
+            grvShowBaoCao.Columns.Add("ChieuDaiConLai", "Chiều dài còn lại");
+            grvShowBaoCao.Columns.Add("DatCho", "Đặt chỗ");
+            grvShowBaoCao.Columns.Add(new DataGridViewButtonColumn
+            {
+                Name = "LichSu", HeaderText = "Lịch sử", Text = "Xem", UseColumnTextForButtonValue = true
+            });
+            foreach (var item in result.Dong)
+            {
+                var displayReservation = item.DatCho.ToString("N0") + " " + item.DonViDatCho
+                    + (item.DatChoDuKien && item.DatCho != 0 ? " (dự kiến)" : "");
+                int index = grvShowBaoCao.Rows.Add(item.TenSanPham, item.MaHienThi,
+                    item.SoLuong, item.Kieu == BCTonKho_KieuDong.CuonChan ? "Cuộn chẵn" : "Cuộn lẻ",
+                    item.SoDau.HasValue ? item.SoDau.Value.ToString("N0") : "",
+                    item.SoCuoi.HasValue ? item.SoCuoi.Value.ToString("N0") : "",
+                    item.ChieuDaiBanDau.HasValue ? item.ChieuDaiBanDau.Value.ToString("N0") : "",
+                    item.ChieuDaiConLai.HasValue ? item.ChieuDaiConLai.Value.ToString("N0") : "",
+                    displayReservation, "Xem");
+                var gridRow = grvShowBaoCao.Rows[index];
+                gridRow.Tag = item; // ID nguồn để sau này phát triển nút Xem.
+                if (item.LaBatThuong)
+                {
+                    var danger = System.Drawing.Color.FromArgb(177, 48, 59);
+                    gridRow.DefaultCellStyle.BackColor = danger;
+                    gridRow.DefaultCellStyle.ForeColor = System.Drawing.Color.White;
+                    gridRow.DefaultCellStyle.SelectionBackColor = danger;
+                    gridRow.DefaultCellStyle.SelectionForeColor = System.Drawing.Color.White;
+                    foreach (DataGridViewCell cell in gridRow.Cells) cell.ToolTipText = item.LyDoBatThuong;
+                }
+            }
+            _showingInventory = true;
+        }
+
+        private void OnTonKhoDisposed(object sender, EventArgs e)
+        {
+            CancelTonKhoRequest();
+            if (_tonKhoSearchHelper != null)
+            {
+                _tonKhoSearchHelper.ItemSelected -= OnTonKhoItemSelected;
+                _tonKhoSearchHelper.Cleared -= OnTonKhoCleared;
+                _tonKhoSearchHelper.Dispose();
+                _tonKhoSearchHelper = null;
+            }
+            btnTimKiem.TextUpdate -= OnTonKhoTextUpdate;
+            cbxKieuTon.CheckedChanged -= OnTonKhoFilterChanged;
         }
 
         private async Task ShowDanhSachLuaChon(string keyword, CancellationToken ct)
@@ -226,6 +398,7 @@ namespace DG_TonKhoBTP_v02.UI
 
         private async void btnBCSX_Click(object sender, EventArgs e)
         {
+            CancelTonKhoRequest();
             DateTime batDau = dtBatDau.Value;
             DateTime ketThuc = dtKetThuc.Value;
 
@@ -294,6 +467,10 @@ namespace DG_TonKhoBTP_v02.UI
 
         private void ShowResult(DataTable master)
         {
+            CancelTonKhoRequest();
+            _tonKhoSelection = null;
+            _tonKhoSearchHelper?.Reset();
+            ClearTonKhoGrid();
             grvShowBaoCao.AutoGenerateColumns = true;
             grvShowBaoCao.DataSource = master;
             grvShowBaoCao.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.DisplayedCells;
@@ -311,6 +488,10 @@ namespace DG_TonKhoBTP_v02.UI
 
         private async void btnTonDong_Click(object sender, EventArgs e)
         {
+            CancelTonKhoRequest();
+            _tonKhoSelection = null;
+            _tonKhoSearchHelper?.Reset();
+            ClearTonKhoGrid();
             grvShowBaoCao.DataSource = null;
 
             string query = @"

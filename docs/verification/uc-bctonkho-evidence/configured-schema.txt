@@ -1,0 +1,474 @@
+
+name : DanhSachMaSP
+sql  : CREATE TABLE "DanhSachMaSP" (
+       	"id"	INTEGER NOT NULL UNIQUE,
+       	"Ten"	TEXT NOT NULL,
+       	"Ten_KhongDau"	TEXT,
+       	"Ma"	TEXT NOT NULL UNIQUE,
+       	"DonVi"	TEXT NOT NULL,
+       	"KieuSP"	TEXT NOT NULL,
+       	"DateInsert"	DATETIME,
+       	"ChuyenDoi"	REAL NOT NULL DEFAULT 1,
+       	"Active"	INTEGER DEFAULT 1,
+       	PRIMARY KEY("id")
+       )
+
+name : KeHoach
+sql  : CREATE TABLE "KeHoach" (
+       	"id"	INTEGER NOT NULL,
+       	"MaKeHoach"	TEXT NOT NULL UNIQUE,
+       	"NgayKeHoach"	TEXT NOT NULL,
+       	"NguoiNhan"	TEXT,
+       	"TrangThai"	TEXT NOT NULL DEFAULT 'ACTIVE' CHECK("TrangThai" IN ('ACTIVE', 'HUY')),
+       	"GhiChu"	TEXT,
+       	"NguoiTao"	TEXT,
+       	"DateInsert"	TEXT NOT NULL DEFAULT (strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime')),
+       	"Users_id"	INTEGER,
+       	PRIMARY KEY("id" AUTOINCREMENT)
+       )
+
+name : KeHoachCatChiTiet
+sql  : CREATE TABLE "KeHoachCatChiTiet"
+       
+       (
+       
+           "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+       
+       
+       
+           "KeHoachCatNhom_ID" INTEGER NOT NULL,
+       
+       
+       
+           "ChieuDaiCanCat" INTEGER NOT NULL
+       
+               CHECK ("ChieuDaiCanCat" > 0),
+       
+       
+       
+           "GhiChu" TEXT,
+       
+       
+       
+           "DateInsert" TEXT NOT NULL
+       
+               DEFAULT (strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime')),
+       
+       
+       
+           FOREIGN KEY ("KeHoachCatNhom_ID")
+       
+               REFERENCES "KeHoachCatNhom"("id")
+       
+               ON UPDATE CASCADE
+       
+               ON DELETE CASCADE
+       
+       )
+
+name : KeHoachCatNhom
+sql  : CREATE TABLE "KeHoachCatNhom"
+       
+       (
+       
+           "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+       
+       
+       
+           "KeHoachHang_ID" INTEGER NOT NULL,
+       
+       
+       
+           "TonCuonLe_ID" INTEGER,
+       
+       
+       
+           "GhiChu" TEXT,
+       
+       
+       
+           "DateInsert" TEXT NOT NULL
+       
+               DEFAULT (strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime')), QuyCachCuonChan_ID INTEGER
+       REFERENCES KeHoachHangQuyCachCuonChan(id),
+       
+       
+       
+           FOREIGN KEY ("KeHoachHang_ID")
+       
+               REFERENCES "KeHoachHang"("id")
+       
+               ON UPDATE CASCADE
+       
+               ON DELETE CASCADE,
+       
+       
+       
+           FOREIGN KEY ("TonCuonLe_ID")
+       
+               REFERENCES "TonCuonLe"("id")
+       
+               ON UPDATE CASCADE
+       
+               ON DELETE CASCADE
+       
+       )
+
+name : KeHoachHang
+sql  : CREATE TABLE "KeHoachHang" (
+       	"id"	INTEGER NOT NULL,
+       	"KeHoach_ID"	INTEGER NOT NULL,
+       	"DanhSachMaSP_ID"	INTEGER NOT NULL,
+       	"SoLuongCuonCanLay"	INTEGER NOT NULL DEFAULT 0 CHECK("SoLuongCuonCanLay" >= 0),
+       	"ChieuDai1Cuon_KeHoach"	INTEGER CHECK("ChieuDai1Cuon_KeHoach" > 0),
+       	"GhiChu"	TEXT,
+       	"DateInsert"	TEXT NOT NULL DEFAULT (strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime')),
+       	CONSTRAINT "UQ_KeHoachHang_KeHoach_DanhSachMaSP" UNIQUE("KeHoach_ID","DanhSachMaSP_ID"),
+       	PRIMARY KEY("id" AUTOINCREMENT),
+       	FOREIGN KEY("DanhSachMaSP_ID") REFERENCES "DanhSachMaSP"("id") ON UPDATE CASCADE ON DELETE CASCADE,
+       	FOREIGN KEY("KeHoach_ID") REFERENCES "KeHoach"("id") ON UPDATE CASCADE ON DELETE CASCADE
+       )
+
+name : KeHoachHangQuyCachCuonChan
+sql  : CREATE TABLE KeHoachHangQuyCachCuonChan (
+           id INTEGER PRIMARY KEY,
+           KeHoachHang_ID INTEGER NOT NULL
+               REFERENCES KeHoachHang(id) ON DELETE CASCADE,
+           ChieuDai1Cuon INTEGER NOT NULL
+               CHECK (ChieuDai1Cuon > 0),
+           SoLuongCuonCanLay INTEGER NOT NULL DEFAULT 0
+               CHECK (SoLuongCuonCanLay >= 0),
+           DateInsert TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+           UNIQUE (KeHoachHang_ID, ChieuDai1Cuon)
+       )
+
+name : LichSuCat
+sql  : CREATE TABLE "LichSuCat"
+       
+       (
+       
+           "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+       
+       
+       
+           "KeHoachCatChiTiet_ID" INTEGER NOT NULL UNIQUE,
+       
+       
+       
+           -- Luôn trỏ tới cuộn lẻ thực tế.
+       
+           -- Với CUON_CHAN, đây là TonCuonLe vừa được tạo
+       
+           -- trong cùng transaction.
+       
+           "TonCuonLe_ID" INTEGER NOT NULL,
+       
+       
+       
+           "LoaiNguon" TEXT NOT NULL
+       
+               CHECK ("LoaiNguon" IN ('CUON_CHAN', 'CUON_LE')),
+       
+       
+       
+           -- Theo nghiệp vụ hiện tại:
+       
+           -- chiều dài thực tế phải bằng chiều dài kế hoạch.
+       
+           "ChieuDaiCat" INTEGER NOT NULL
+       
+               CHECK ("ChieuDaiCat" > 0),
+       
+       
+       
+           -- Trạng thái cuộn trước khi cắt
+       
+           "SoDauTruoc" INTEGER NOT NULL,
+       
+           "SoCuoiTruoc" INTEGER NOT NULL,
+       
+       
+       
+           -- Mốc của chính đoạn đã cắt
+       
+           "SoDauCat" INTEGER NOT NULL,
+       
+           "SoCuoiCat" INTEGER NOT NULL,
+       
+       
+       
+           -- Trạng thái phần cuộn còn lại sau khi cắt
+       
+           "SoDauSau" INTEGER NOT NULL,
+       
+           "SoCuoiSau" INTEGER NOT NULL,
+       
+       
+       
+           -- +1 hoặc -1
+       
+           "HeSoChieu" INTEGER NOT NULL
+       
+               CHECK ("HeSoChieu" IN (-1, 1)),
+       
+       
+       
+           -- Nội dung tem/mã thực tế người lao động quét tại B3.
+       
+           -- Dùng để audit, không thay cho khóa TonCuonLe_ID.
+       
+           "MaQuetThucTe" TEXT NOT NULL,
+       
+       
+       
+           "NguoiThucHien" TEXT NOT NULL,
+       
+       
+       
+           "ThoiGianThucHien" TEXT NOT NULL
+       
+               DEFAULT (strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime')),
+       
+       
+       
+           "GhiChu" TEXT, "DieuChinhThongSo" TEXT DEFAULT NULL,
+       
+       
+       
+           FOREIGN KEY ("KeHoachCatChiTiet_ID")
+       
+               REFERENCES "KeHoachCatChiTiet"("id")
+       
+               ON UPDATE CASCADE
+       
+               ON DELETE CASCADE,
+       
+       
+       
+           FOREIGN KEY ("TonCuonLe_ID")
+       
+               REFERENCES "TonCuonLe"("id")
+       
+               ON UPDATE CASCADE
+       
+               ON DELETE CASCADE
+       
+       )
+
+name : LichSuLayCuon
+sql  : CREATE TABLE "LichSuLayCuon"
+       
+       (
+       
+           "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+       
+       
+       
+           "KeHoachHang_ID" INTEGER NOT NULL,
+       
+       
+       
+           -- Dòng tồn cuộn chẵn nguồn trong TTCuonDay.
+       
+           "TTCuonDay_ID" INTEGER NOT NULL,
+       
+       
+       
+           "SoLuong" INTEGER NOT NULL
+       
+               CHECK ("SoLuong" > 0),
+       
+       
+       
+           "NguoiThucHien" TEXT NOT NULL,
+       
+       
+       
+           "ThoiGianThucHien" TEXT NOT NULL
+       
+               DEFAULT (strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime')),
+       
+       
+       
+           "GhiChu" TEXT, QuyCachCuonChan_ID INTEGER
+       REFERENCES KeHoachHangQuyCachCuonChan(id),
+       
+       
+       
+           FOREIGN KEY ("KeHoachHang_ID")
+       
+               REFERENCES "KeHoachHang"("id")
+       
+               ON UPDATE CASCADE
+       
+               ON DELETE CASCADE,
+       
+       
+       
+           FOREIGN KEY ("TTCuonDay_ID")
+       
+               REFERENCES "TTCuonDay"("id")
+       
+               ON UPDATE CASCADE
+       
+               ON DELETE CASCADE
+       
+       )
+
+name : TTCuonDay
+sql  : CREATE TABLE "TTCuonDay" (
+           "id" INTEGER NOT NULL,
+           "SoCuon" INTEGER,
+           "ChieuDai_1cuon" INTEGER NOT NULL,
+           "SoDau" INTEGER,
+           "SoCuoi" INTEGER,
+           "GhiChu" TEXT,
+           "ThongTinNhapKho_ID" INTEGER NOT NULL,
+           "LoaiDon" TEXT,
+           "KhachHang" TEXT,
+           "TenDuAn" TEXT,
+           "TTLo_ID" INTEGER,
+           "DateInsert" TEXT DEFAULT (datetime('now', 'localtime')),
+           "Ngay" TEXT,
+           "TTCuonDay_CD_ID" INTEGER,
+           "KhachHang_KhongDau" TEXT,
+           "Lot_Day" TEXT,
+       
+           PRIMARY KEY("id"),
+       
+           FOREIGN KEY("TTCuonDay_CD_ID")
+               REFERENCES "TTCuonDay_CD"("id")
+               ON UPDATE NO ACTION ON DELETE NO ACTION,
+       
+           FOREIGN KEY("TTLo_ID")
+               REFERENCES "TTLo"("id")
+               ON UPDATE NO ACTION ON DELETE NO ACTION,
+       
+           FOREIGN KEY("ThongTinNhapKho_ID")
+               REFERENCES "TTNhapKhoTP"("id")
+               ON UPDATE CASCADE ON DELETE CASCADE
+       )
+
+name : TTNhapKhoTP
+sql  : CREATE TABLE "TTNhapKhoTP" (
+       	"id"	INTEGER NOT NULL,
+       	"NgayNhapKho"	TEXT,
+       	"SoBB"	INTEGER,
+       	"TTThanhPham_ID"	INTEGER,
+       	"TenSP"	TEXT NOT NULL,
+       	"TongChieuDai"	REAL NOT NULL,
+       	"GhiChu"	TEXT NOT NULL,
+       	"NguoiLam"	TEXT NOT NULL,
+       	"DateInsert"	TEXT DEFAULT (strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime')),
+       	PRIMARY KEY("id"),
+       	FOREIGN KEY("TTThanhPham_ID") REFERENCES "TTThanhPham"("id") ON UPDATE CASCADE ON DELETE CASCADE
+       )
+
+name : TTThanhPham
+sql  : CREATE TABLE "TTThanhPham" (
+       	"id"	INTEGER NOT NULL UNIQUE,
+       	"DanhSachSP_ID"	INTEGER NOT NULL,
+       	"MaBin"	TEXT NOT NULL UNIQUE,
+       	"KhoiLuongTruoc"	REAL DEFAULT 0,
+       	"KhoiLuongSau"	REAL DEFAULT 0,
+       	"ChieuDaiTruoc"	REAL,
+       	"ChieuDaiSau"	REAL,
+       	"Phe"	REAL DEFAULT 0,
+       	"GhiChu"	TEXT,
+       	"LastEdit_id"	INTEGER DEFAULT 0,
+       	"DateInsert"	DATETIME,
+       	"CongDoan"	TEXT,
+       	"KLBanTran"	REAL DEFAULT 0,
+       	"HanNoi"	REAL DEFAULT 0,
+       	"NhapKho"	INTEGER DEFAULT 0,
+       	"QC"	TEXT,
+       	"Active"	INTEGER DEFAULT 1,
+       	"Temp"	INTEGER DEFAULT 1,
+       	PRIMARY KEY("id" AUTOINCREMENT),
+       	FOREIGN KEY("DanhSachSP_ID") REFERENCES "DanhSachMaSP"("id") ON UPDATE CASCADE ON DELETE CASCADE
+       )
+
+name : TonCuonLe
+sql  : CREATE TABLE "TonCuonLe"
+       
+       (
+       
+           "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+       
+       
+       
+           -- Mã nhận diện duy nhất của cuộn vật lý khi đã trở thành cuộn lẻ.
+       
+           "MaCuon" TEXT NOT NULL UNIQUE,
+       
+       
+       
+           -- TTThanhPham tương ứng với MaBin/nghiệp vụ của cuộn.
+       
+           -- Không UNIQUE vì có thể nhiều cuộn vật lý cùng liên quan
+       
+           -- tới một TTThanhPham trong trường hợp cuộn chẵn.
+       
+           "TTThanhPham_ID" INTEGER NOT NULL,
+       
+       
+       
+           -- Dòng TTCuonDay nguồn.
+       
+           -- Với cuộn lẻ nhập kho: TTCuonDay đã tạo ra cuộn lẻ này.
+       
+           -- Với cuộn chẵn -> lẻ: TTCuonDay chứa tồn cuộn chẵn nguồn.
+       
+           "TTCuonDay_ID" INTEGER NOT NULL,
+       
+       
+       
+           -- Trạng thái hiện tại của cuộn lẻ.
+       
+           "SoDau" INTEGER NOT NULL,
+       
+           "SoCuoi" INTEGER NOT NULL,
+       
+       
+       
+           -- ACTIVE: còn chiều dài
+       
+           -- HET:    đã sử dụng hết
+       
+           "TrangThai" TEXT NOT NULL DEFAULT 'ACTIVE'
+       
+               CHECK ("TrangThai" IN ('ACTIVE', 'HET')),
+       
+       
+       
+           "GhiChu" TEXT,
+       
+       
+       
+           "DateInsert" TEXT NOT NULL
+       
+               DEFAULT (strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime')),
+       
+       
+       
+           FOREIGN KEY ("TTThanhPham_ID")
+       
+               REFERENCES "TTThanhPham"("id")
+       
+               ON UPDATE CASCADE
+       
+               ON DELETE CASCADE,
+       
+       
+       
+           FOREIGN KEY ("TTCuonDay_ID")
+       
+               REFERENCES "TTCuonDay"("id")
+       
+               ON UPDATE CASCADE
+       
+               ON DELETE CASCADE
+       
+       )
+
+

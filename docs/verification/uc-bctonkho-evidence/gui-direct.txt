@@ -1,0 +1,5 @@
+GUI trực tiếp: BLOCKED.
+Đã khởi tạo @oai/sky và list_apps tìm được đúng cửa sổ UC_BCTonKho - isolated QA fixture.
+Bước get_window_state trả: Computer Use app approval timed out.
+Không thực hiện click, gõ hoặc SaveFileDialog; không có ảnh chụp desktop.
+Control WinForms thật đã được kiểm thử bằng harness STA và DrawToBitmap; bằng chứng này được ghi riêng.

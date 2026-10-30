@@ -1,0 +1,16 @@
+﻿FIXTURE 02-08.db
+SELECT COUNT(*) FROM TTCuonDay
+=> 8
+
+FIXTURE 04-01.db
+WITH taken AS(SELECT SUM(SoLuong) n FROM LichSuLayCuon WHERE TTCuonDay_ID=201),converted AS(SELECT COUNT(*) n FROM TonCuonLe cl WHERE cl.TTCuonDay_ID=201 AND EXISTS(SELECT 1 FROM LichSuCat h WHERE h.TonCuonLe_ID=cl.id AND h.LoaiNguon='CUON_CHAN')) SELECT 10-taken.n-converted.n FROM taken,converted
+=> 6
+
+FIXTURE 05-01.db
+SELECT ABS(SoCuoi-SoDau) FROM TonCuonLe WHERE id=303
+=> 396
+
+FIXTURE 14-03.db
+SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name IN('TTThanhPham','DanhSachMaSP','TTNhapKhoTP','TTCuonDay','TonCuonLe','LichSuCat','LichSuLayCuon','KeHoach','KeHoachHang','KeHoachHangQuyCachCuonChan','KeHoachCatNhom','KeHoachCatChiTiet')
+=> 12
+

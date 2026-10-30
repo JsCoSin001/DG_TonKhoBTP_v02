@@ -1,0 +1,27 @@
+[
+  {
+    "Path": "D:\\Personal_Project\\DG_TonKhoBTP_v02_Main\\DG_TonKhoBTP_v02\\DG_TonKhoBTP_v02.csproj",
+    "Unchanged": true,
+    "SHA256": "793A1809CFD990A0B64259ABC554F7347D2496715012165EBF3B9308DDF5837A"
+  },
+  {
+    "Path": "D:\\Personal_Project\\DG_TonKhoBTP_v02_Main\\DG_TonKhoBTP_v02\\UI\\NghiepVuKhac\\Kho\\UC_BCTonKho.cs",
+    "Unchanged": true,
+    "SHA256": "980DCE40C6AB9B98DE85577D4C3DF40CF701BA63685AB01639B79E9E1F48385E"
+  },
+  {
+    "Path": "D:\\Personal_Project\\DG_TonKhoBTP_v02_Main\\DG_TonKhoBTP_v02\\UI\\NghiepVuKhac\\Kho\\UC_BCTonKho.Designer.cs",
+    "Unchanged": true,
+    "SHA256": "64B4455CC6E568CF9F8313DACD05AFC8B06FCCB9EBAF72089F2ADAE90585F6C4"
+  },
+  {
+    "Path": "D:\\Personal_Project\\DG_TonKhoBTP_v02_Main\\DG_TonKhoBTP_v02\\Database\\Kho\\TonKho\\BC_TonKho_DB.cs",
+    "Unchanged": true,
+    "SHA256": "A9641C8E0C56A2C235D9348A719CC60C4A9D5F8E9DC7DDF93F9DEA4A1EBB5A34"
+  },
+  {
+    "Path": "D:\\Personal_Project\\DG_TonKhoBTP_v02_Main\\DG_TonKhoBTP_v02\\Models\\Kho\\TonKho\\BCTonKho_Model.cs",
+    "Unchanged": true,
+    "SHA256": "3BEE1617FD588F0D1ADDF885581AE4F112B0BA3A5D1ABE7831E39E253C6F41F7"
+  }
+]

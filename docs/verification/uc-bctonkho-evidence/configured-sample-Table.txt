@@ -1,0 +1,6 @@
+
+   id MaBin             DanhSachSP_ID Ten               NhapId NgayNhapKho SourceId SoCuon ChieuDai_1cuon SoDau
+   -- -----             ------------- ---               ------ ----------- -------- ------ -------------- -----
+57956 E1-265081/5-03-00          4164 CXV 2x2.5R2-0.6-B      1 2026-10-22         1     10            200 
+
+

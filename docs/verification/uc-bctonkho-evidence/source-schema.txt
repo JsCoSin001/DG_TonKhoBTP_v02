@@ -1,0 +1,13 @@
+
+name : DanhSachMaSP
+sql  : CREATE TABLE "DanhSachMaSP" (
+       	"id"	INTEGER NOT NULL UNIQUE,
+       	"Ten"	TEXT NOT NULL,
+       	"Ma"	TEXT NOT NULL,
+       	"DonVi"	BOOLEAN NOT NULL,
+       	"KieuSP"	TEXT NOT NULL,
+       	"DateInsert"	DATETIME,
+       	PRIMARY KEY("id")
+       )
+
+

@@ -1,0 +1,17 @@
+[
+  {
+    "Path": "DG_TonKhoBTP_v02/UI/NghiepVuKhac/Kho/XuatKho/Frm_ChiTietThucHienKeHoach.Execution.cs",
+    "Current": "ab8bc28e66f7c1b8cf3f964110ae1ecded92fd02",
+    "HEAD": "ab8bc28e66f7c1b8cf3f964110ae1ecded92fd02"
+  },
+  {
+    "Path": "DG_TonKhoBTP_v02/Database/Kho/XuatKho/ExecutionEdit_DB.Save.cs",
+    "Current": "6190e3d701f49d2b74543f01c98bc68890299799",
+    "HEAD": "6190e3d701f49d2b74543f01c98bc68890299799"
+  },
+  {
+    "Path": "DG_TonKhoBTP_v02/Database/Kho/XuatKho/LapKeHoachCatDay_DB.cs",
+    "Current": "57e40bec1b45fdce5ed99918180c766bc2428398",
+    "HEAD": "57e40bec1b45fdce5ed99918180c766bc2428398"
+  }
+]

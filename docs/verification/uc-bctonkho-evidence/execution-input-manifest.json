@@ -1,0 +1,178 @@
+[
+  {
+    "Relative": "DG_TonKhoBTP_v02/Database/Kho/TonKho/BC_TonKho_DB.cs",
+    "Hash": "A9641C8E0C56A2C235D9348A719CC60C4A9D5F8E9DC7DDF93F9DEA4A1EBB5A34"
+  },
+  {
+    "Relative": "DG_TonKhoBTP_v02/DG_TonKhoBTP_v02.csproj",
+    "Hash": "793A1809CFD990A0B64259ABC554F7347D2496715012165EBF3B9308DDF5837A"
+  },
+  {
+    "Relative": "DG_TonKhoBTP_v02/Models/Kho/TonKho/BCTonKho_Model.cs",
+    "Hash": "3BEE1617FD588F0D1ADDF885581AE4F112B0BA3A5D1ABE7831E39E253C6F41F7"
+  },
+  {
+    "Relative": "DG_TonKhoBTP_v02/UI/NghiepVuKhac/Kho/UC_BCTonKho.cs",
+    "Hash": "980DCE40C6AB9B98DE85577D4C3DF40CF701BA63685AB01639B79E9E1F48385E"
+  },
+  {
+    "Relative": "DG_TonKhoBTP_v02/UI/NghiepVuKhac/Kho/UC_BCTonKho.Designer.cs",
+    "Hash": "64B4455CC6E568CF9F8313DACD05AFC8B06FCCB9EBAF72089F2ADAE90585F6C4"
+  },
+  {
+    "Relative": "docs/superpowers/plans/2026-10-30-uc-bctonkho-fixes.md",
+    "Hash": "2110EBACBEAD6B42476535BB745E2A4E00B7F7E3217EE8127A844E8B690677A2"
+  },
+  {
+    "Relative": "docs/superpowers/specs/2026-10-30-uc-bctonkho-fixes-design.md",
+    "Hash": "41D000942A175B92206F85631B7B4EBC2841F43221C23BD5739D969FCF4CEED2"
+  },
+  {
+    "Relative": "docs/verification/UC_BCTonKho_Test_Report.md",
+    "Hash": "6C62ECA439C3880DB15B1ECCAD4FE93C3C182BEC0244A089807C54CD312C140D"
+  },
+  {
+    "Relative": "docs/verification/uc-bctonkho-evidence/.gitignore",
+    "Hash": "6DE713FB9FCB2376250C8705CB6F151E7D1CCF56F9F3D62CD6346DF6AC41569C"
+  },
+  {
+    "Relative": "docs/verification/uc-bctonkho-evidence/acceptance.tsv",
+    "Hash": "9082F558C16DFE966C4401D63B9EC22EA31B09AD9A40D5698E82B5598B507A3A"
+  },
+  {
+    "Relative": "docs/verification/uc-bctonkho-evidence/application-source-after.json",
+    "Hash": "CB9408014488B3873990CF714AF9D9B9B0CDD3EFC90327BAFB4BBEF1F80286FF"
+  },
+  {
+    "Relative": "docs/verification/uc-bctonkho-evidence/application-source-before.json",
+    "Hash": "816D4EC7E0CE63B1AB6A9B876D70127FA03D66EC11148307B6EA9C613E915A48"
+  },
+  {
+    "Relative": "docs/verification/uc-bctonkho-evidence/configured-db-before.json",
+    "Hash": "588A0677D9EC0B4B92852A0040501F0739789B5F566D0589345C6601D18D9F91"
+  },
+  {
+    "Relative": "docs/verification/uc-bctonkho-evidence/configured-sample-Table.txt",
+    "Hash": "AADE16C664C3EC9D3575A5E3293DE66B7A87007780C8298DEFE4AC2BABD488AB"
+  },
+  {
+    "Relative": "docs/verification/uc-bctonkho-evidence/configured-sample-Table1.txt",
+    "Hash": "87A60F735CA1354AB2C09F92F2E0CACF95CECCCA143301AD9BC8ABF72897106F"
+  },
+  {
+    "Relative": "docs/verification/uc-bctonkho-evidence/configured-schema.txt",
+    "Hash": "D30067CFC6C199EDE3AD68DC8F1C585AC825239E24035A9822D58EAAF7164ED0"
+  },
+  {
+    "Relative": "docs/verification/uc-bctonkho-evidence/danger-grid.png",
+    "Hash": "EB850D3AB044AD74A77F678C89B365480BC7E9E6C59AD02C0B57234C56217715"
+  },
+  {
+    "Relative": "docs/verification/uc-bctonkho-evidence/environment.json",
+    "Hash": "5199C38EDB7AF939A6FCE64ED16BA8A58D1BC7EF37F638564D2C556017B297B3"
+  },
+  {
+    "Relative": "docs/verification/uc-bctonkho-evidence/gui-direct.txt",
+    "Hash": "0284FF1362FB418A627145898E86306BC45CECB387D0EB41D39823833A1C8D09"
+  },
+  {
+    "Relative": "docs/verification/uc-bctonkho-evidence/independent-sql.txt",
+    "Hash": "F6F5BE36369119F2A69E25757B28AC646A0978703D2D8E0E3A91B730F5458C9C"
+  },
+  {
+    "Relative": "docs/verification/uc-bctonkho-evidence/legacy-report.docx",
+    "Hash": "62C6B922C9A0AB0C4E25E82F16DE350230FD895F2C4F69B035A20C1D2FEEEC2B"
+  },
+  {
+    "Relative": "docs/verification/uc-bctonkho-evidence/legacy-report.xlsx",
+    "Hash": "8A2E30093F21AC7292A43A9F3045471DB852CC1C22312F2056EF799272656700"
+  },
+  {
+    "Relative": "docs/verification/uc-bctonkho-evidence/NguoiCat.Diagnostic.ps1",
+    "Hash": "27761D9E4EFE0F027F8829E290B004A4182FD78EDFF4819F308DEA9DD88855DC"
+  },
+  {
+    "Relative": "docs/verification/uc-bctonkho-evidence/real-independent-sql.txt",
+    "Hash": "0D5C9AB4A05009E18AE8DED423EBAEAA70C61FC5502547AE8CD41B89968A70FF"
+  },
+  {
+    "Relative": "docs/verification/uc-bctonkho-evidence/real-sample-api.json",
+    "Hash": "26473BA940ECB656078CC67C1D97B151E2AD02807EE7C9E5AC3F0DCCAFE0B335"
+  },
+  {
+    "Relative": "docs/verification/uc-bctonkho-evidence/real-sample-grid.png",
+    "Hash": "655C82A0F3A746CC14AD69EC6EDC763CC40AFCCD5838E485151ED36C14F60343"
+  },
+  {
+    "Relative": "docs/verification/uc-bctonkho-evidence/real-snapshot.tsv",
+    "Hash": "9A43AE3F0F4359B3D042447CE82D3FAEA6982405D64C771A53541F062770504D"
+  },
+  {
+    "Relative": "docs/verification/uc-bctonkho-evidence/regression-assessment.tsv",
+    "Hash": "46290E0FF86EDC4693AB40C077646EDF455F36FB2493E73EEADEBC0B485C211C"
+  },
+  {
+    "Relative": "docs/verification/uc-bctonkho-evidence/regression-source-hashes.json",
+    "Hash": "9B2A993628B78D7CFDA5DDDD92595569652966E8EA816903DB0BCFDFDCB1D822"
+  },
+  {
+    "Relative": "docs/verification/uc-bctonkho-evidence/regression.json",
+    "Hash": "0D57E9285A5F6F124081CF10CA17786630587872A2BB6DBE94C3D2AF32F91717"
+  },
+  {
+    "Relative": "docs/verification/uc-bctonkho-evidence/safety-verification.json",
+    "Hash": "C3363BAB4C6347345C1F19F6C5011BF026D1C43F20C7DC73C4664A5D47B40C92"
+  },
+  {
+    "Relative": "docs/verification/uc-bctonkho-evidence/saveflow-precondition.txt",
+    "Hash": "AC73C90EAE463CB270DDD1D4A780595EA15D700561F99AEE5EA0EE6CDBE5E3E7"
+  },
+  {
+    "Relative": "docs/verification/uc-bctonkho-evidence/source-db-after.json",
+    "Hash": "2A1E3A172E7DEF8B0FB9D634FAF16A865F514AC4451505A5CBD934270DAEB489"
+  },
+  {
+    "Relative": "docs/verification/uc-bctonkho-evidence/source-db-before.json",
+    "Hash": "B8A2DBED5F8640D1C689DE9111CCBF4005300C4DC16FFFAA213BF607A8B5142E"
+  },
+  {
+    "Relative": "docs/verification/uc-bctonkho-evidence/source-sample.txt",
+    "Hash": "7EB70257593DA06F682A3DDDA54A9D260D4FC514F645237F5CA74B08F8DA61A6"
+  },
+  {
+    "Relative": "docs/verification/uc-bctonkho-evidence/source-schema.txt",
+    "Hash": "89D6E452A6B296F14EA9C3C958F813F333BA456F4EE99CCCEDF9850BAD55351E"
+  },
+  {
+    "Relative": "docs/verification/uc-bctonkho-evidence/static.json",
+    "Hash": "43DC3C7C13B0AAEDC5014C2F3290744F5FC8B4EB6373A6C9BD14AAE8B41B3009"
+  },
+  {
+    "Relative": "docs/verification/uc-bctonkho-evidence/summary.json",
+    "Hash": "5E05C5DD5382C955A2C734C3CE2C6C747D4386D2245A60803E3959295B6CF58A"
+  },
+  {
+    "Relative": "tests/UC_BCTonKho.Acceptance.cs",
+    "Hash": "49A8EFC145DB574D1167B08DFF541C8953E26CB70E7E844B3B3EA6708DD4CB5D"
+  },
+  {
+    "Relative": "tests/UC_BCTonKho.Acceptance.ps1",
+    "Hash": "C0113BCED6138A981EAEF8E028F9E8F2D536CB7C1BA3003ED1510D1317527AAD"
+  },
+  {
+    "Relative": "tests/UC_BCTonKho.Acceptance.seed.sql",
+    "Hash": "E8AE7822BDC2CC8A7D7AB724BEE404F769220D8DD3A784ABC1275DE31907E786"
+  },
+  {
+    "Relative": "tests/UC_BCTonKho.RealSnapshot.ps1",
+    "Hash": "369453FC6A297CF9DDCAD84B17D0EA5608A68D12448B79A3A7E43BB705A77926"
+  },
+  {
+    "Relative": "tests/UC_BCTonKho.Report.ps1",
+    "Hash": "3DA985508FA421C0491A801FBF7652AF4EA861E8FEFD45E47431CCA140D30738"
+  },
+  {
+    "Relative": "tests/UC_BCTonKho.Static.ps1",
+    "Hash": "FE5134EA0DDB8597FEF424D96D22C041991022FE82E2191C1DFE802C3763B7B3"
+  }
+]

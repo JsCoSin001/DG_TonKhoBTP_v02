@@ -1,0 +1,62 @@
+[
+  {
+    "Test": "Inventory.NewEdit.Tests.ps1",
+    "ExitCode": 0,
+    "Log": "docs\\verification\\uc-bctonkho-evidence\\Inventory.NewEdit.Tests.ps1.log"
+  },
+  {
+    "Test": "DB_Base.Config.Tests.ps1",
+    "ExitCode": 0,
+    "Log": "docs\\verification\\uc-bctonkho-evidence\\DB_Base.Config.Tests.ps1.log"
+  },
+  {
+    "Test": "LapKeHoachCatDay.ChiTiet.Tests.ps1",
+    "ExitCode": 0,
+    "Log": "docs\\verification\\uc-bctonkho-evidence\\LapKeHoachCatDay.ChiTiet.Tests.ps1.log"
+  },
+  {
+    "Test": "UC_BaoCaoDungMay.ComboBox.Tests.ps1",
+    "ExitCode": 0,
+    "Log": "docs\\verification\\uc-bctonkho-evidence\\UC_BaoCaoDungMay.ComboBox.Tests.ps1.log"
+  },
+  {
+    "Test": "ExecutionEdit.Read.Tests.ps1",
+    "ExitCode": 0,
+    "Log": "docs\\verification\\uc-bctonkho-evidence\\ExecutionEdit.Read.Tests.ps1.log"
+  },
+  {
+    "Test": "ExecutionEdit.Corrections.Tests.ps1",
+    "ExitCode": 0,
+    "Log": "docs\\verification\\uc-bctonkho-evidence\\ExecutionEdit.Corrections.Tests.ps1.log"
+  },
+  {
+    "Test": "ExecutionEdit.Undo.Tests.ps1",
+    "ExitCode": 1,
+    "Log": "docs\\verification\\uc-bctonkho-evidence\\ExecutionEdit.Undo.Tests.ps1.log"
+  },
+  {
+    "Test": "ExecutionEdit.UndoPlan.Tests.ps1",
+    "ExitCode": 0,
+    "Log": "docs\\verification\\uc-bctonkho-evidence\\ExecutionEdit.UndoPlan.Tests.ps1.log"
+  },
+  {
+    "Test": "ExecutionEdit.Integrity.Tests.ps1",
+    "ExitCode": 0,
+    "Log": "docs\\verification\\uc-bctonkho-evidence\\ExecutionEdit.Integrity.Tests.ps1.log"
+  },
+  {
+    "Test": "ExecutionEdit.DesignedForm.Tests.ps1",
+    "ExitCode": 1,
+    "Log": "docs\\verification\\uc-bctonkho-evidence\\ExecutionEdit.DesignedForm.Tests.ps1.log"
+  },
+  {
+    "Test": "ExecutionEdit.ParentDraft.Tests.ps1",
+    "ExitCode": 0,
+    "Log": "docs\\verification\\uc-bctonkho-evidence\\ExecutionEdit.ParentDraft.Tests.ps1.log"
+  },
+  {
+    "Test": "ExecutionEdit.CrossApp.Tests.ps1",
+    "ExitCode": 0,
+    "Log": "docs\\verification\\uc-bctonkho-evidence\\ExecutionEdit.CrossApp.Tests.ps1.log"
+  }
+]

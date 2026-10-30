@@ -1,0 +1,85 @@
+﻿ID	Title	Expected	Actual	Status
+01-02	Designer construction, controls and API signatures	True	True	PASS
+02-01	Partial Bin LIKE	E1-265081/5-03-00	E1-265081/5-03-00	PASS
+02-02	Partial product accent search	Dây điện thử	Dây điện thử	PASS
+02-03	Non-accent search	Dây điện thử	Dây điện thử	PASS
+02-04	Partial reel identifier	QA-LE20	QA-LE20	PASS
+02-05	No match	0	0	PASS
+02-06	Whitespace trim	Dây điện thử	Dây điện thử	PASS
+02-07	Literal percent underscore quote slash	1,1,1,1	1,1,1,1	PASS
+02-08	SQL injection payload does not broaden or write	0,8	0,8	PASS
+02-09	Max 50 suggestions	50	50	PASS
+02-10	Duplicate names across product IDs deduplicated	1	1	PASS
+02-11	Suggestion item contains single field	True	True	PASS
+03-01	Bin keeps exact source rows	201,203,201,201	201,203,201,201	PASS
+03-02	Product name includes both product IDs	101,102,103	101,102,103	PASS
+03-03	Reel choice exactly one reel	302	302	PASS
+03-04	Reload reads latest committed stock	6,5	6,5	PASS
+04-01	Imported 10 minus taken 2 minus converted 2	6=6	6=6	PASS
+04-02	Distinct converted reel despite repeated conversion history	6	6	PASS
+04-03	Multiple import lines and lengths kept separate	6/200,2/400	6/200,2/400	PASS
+04-04	Reservation leaves physical stock unchanged	6,6	6,6	PASS
+05-01	Descending markers 996 to 600	396=396	396=396	PASS
+05-02	Valid descending markers no false alarm	False	False	PASS
+05-03	Direct partial initial length from import	396	396	PASS
+05-04	Converted partial initial length blank	True	True	PASS
+05-05	Individual generated reel lengths	QA-LE100/100,QA-LE20/20	QA-LE100/100,QA-LE20/20	PASS
+06-01	Repeated cuts update current marker only once	6,95	6,95	PASS
+06-02	Cut from current start	346	346	PASS
+06-03	Cut from current end	346	346	PASS
+06-04	Exhausted partial hidden unless include all	0,0,False	0,0,False	PASS
+06-05	Marker rebase preserves absolute remaining length	396	396	PASS
+07-01	FIFO pending 8 allocates A6 B2	6,2	6,2	PASS
+07-02	FIFO pending 2 allocates A2 B0	2,0	2,0	PASS
+07-03	FIFO stable source ID tie breaker	6,2	6,2	PASS
+07-04	Over-reservation reported	True,6,3	True,6,3	PASS
+07-05	Cancelled plan not reserved	0	0	PASS
+07-06	Unstarted cutting group adds one whole reservation	6,3	6,3	PASS
+07-07	Reservation API does not persist allocation	True	True	PASS
+08-01	Partial 396 physical with 150m reserved	396,150	396,150	PASS
+08-02	Executed detail excluded; pending details summed once	40	40	PASS
+08-03	Partial over-reservation flagged	True,396	True,396	PASS
+09-01	Valid exhausted whole filtered both dropdown and detail	0,0,1,1	0,0,1,1	PASS
+09-02	Negative anomaly kept when include all is false	-1,True,1	-1,True,1	PASS
+10-01	Converted quantity greater than imported flagged	-1,True	-1,True	PASS
+10-02	Missing start marker is visible and flagged	True,True	True,True	PASS
+10-03	ACTIVE zero length anomaly kept	True,0	True,0	PASS
+10-04	HET positive length anomaly kept	True,396	True,396	PASS
+10-05	Missing current partial row flagged	True	True	PASS
+10-06	Orphan partial with imported header visible	True	True	PASS
+10-07	Mismatched source link flagged	True	True	PASS
+10-08	Orphan partial without any import header remains discoverable	1,1	0,0	FAIL
+10-09	Generated partial missing conversion history flagged	True	False	FAIL
+10-12	Missing conversion history must not silently inflate physical inventory	6,True,True	7,False,False	FAIL
+10-13	Direct partial code differing from original Bin flagged	True	False	FAIL
+10-14	Missing end marker visible and flagged	True,True	True,True	PASS
+10-10	Source-less reservation flagged at product scope without assigning it to unrelated Bin	True,False	True,False	PASS
+11-01	Rendered WinForms grid has exact ten columns	Tên sản phẩm|Mã Bin/LOT|Số lượng|Kiểu|Số đầu|Số cuối|Chiều dài ban đầu|Chiều dài còn lại|Đặt chỗ|Lịch sử	Tên sản phẩm|Mã Bin/LOT|Số lượng|Kiểu|Số đầu|Số cuối|Chiều dài ban đầu|Chiều dài còn lại|Đặt chỗ|Lịch sử	PASS
+11-02	Reservation display, source Tag and Xem button	6 cuộn (dự kiến),True,Xem	6 cuộn (dự kiến),True,Xem	PASS
+11-03	History cell event does not crash or change fixture	True	True	PASS
+10-11	Danger entire row white text reason tooltip and bitmap	177/48/59,White,True	177/48/59,White,True	PASS
+10-16	Rendered history button participates in danger row background	177/48/59	253/253/253	FAIL
+03-05	Clear selection removes inventory grid	0,True	0,True	PASS
+02-12	Helper selecting item preserves single display text	QA-B	QA-B	PASS
+09-03	Checkbox reloads selected depleted Bin	0,1	0,1	PASS
+09-04	Checkbox refreshes already displayed suggestions	1,0	1,1	FAIL
+12-03	Rapid selections newest result wins and Waiting closes	QA-DIRECT,0	QA-DIRECT,0	PASS
+12-04	Typing debounces without Waiting form	0,True	0,True	PASS
+12-05	Dispose during detail load no surviving Waiting	0	0	PASS
+10-15	Exactly one correctly worded abnormal alert per load	Có dữ liệu bất thường.|1|0	Có dữ liệu bất thường.|1|0	PASS
+12-06	Unavailable fixture reports one error and closes Waiting	True,1,0	True,1,0	PASS
+12-07	Empty detail finishes with empty grid and no Waiting	0,0	0,0	PASS
+12-08	Checkbox change while loading follows latest filter	1,0	1,0	PASS
+13-01	Switch inventory to old report and back clears columns/styles	1,10,False	1,10,False	PASS
+13-02	btnTonDong executes actual query after inventory view	1,MaBin,True	1,MaBin,True	PASS
+13-05	btnBCSX inventory branch loads real snapshot and removes inventory columns	True,True,False	True,True,False	PASS
+13-06	btnBCSX date branch loads real snapshot	True,0	True,0	PASS
+11-04	Real sample renders 6 whole and 100m20m partial rows	6,100,20	6,100,20	PASS
+13-03	Excel report API and exporter preserve legacy Lo250m Cuon3	250,3,True	250,3,True	PASS
+13-04	Word customer report API and writer retain lot250m	250,True	250,True	PASS
+12-01	Pre-cancelled suggestions task	OperationCanceled	OperationCanceled	PASS
+12-02	Pre-cancelled detail task	OperationCanceled	OperationCanceled	PASS
+14-01	APIs work with enforced read-only connection and unchanged bytes	True	True	PASS
+14-02	Non imported and temporary source excluded	0,0	0,0	PASS
+14-03	All required tables and columns on controlled fixture	12	12	PASS
+14-04	Concurrent writer between detail SELECTs keeps a single snapshot	6,396|5,346|1	6,396|5,346|1	PASS

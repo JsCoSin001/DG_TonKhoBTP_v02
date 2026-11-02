@@ -40,6 +40,8 @@
             this.cbxCa = new System.Windows.Forms.ComboBox();
             this.label5 = new System.Windows.Forms.Label();
             this.cbxTimTenSp = new System.Windows.Forms.ComboBox();
+            this.cbxNgayBD = new System.Windows.Forms.CheckBox();
+            this.cbxNgayKT = new System.Windows.Forms.CheckBox();
             this.cbxAll = new System.Windows.Forms.CheckBox();
             this.btnNhapKho = new System.Windows.Forms.Button();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
@@ -49,8 +51,8 @@
             this.panel5 = new System.Windows.Forms.Panel();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
-            this.cbxNgayBD = new System.Windows.Forms.CheckBox();
-            this.cbxNgayKT = new System.Windows.Forms.CheckBox();
+            this.label2 = new System.Windows.Forms.Label();
+            this.cbxLOT = new System.Windows.Forms.ComboBox();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.groupBox4.SuspendLayout();
@@ -111,13 +113,14 @@
             // 
             // tableLayoutPanel1
             // 
-            this.tableLayoutPanel1.ColumnCount = 5;
+            this.tableLayoutPanel1.ColumnCount = 6;
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 150F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 150F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 141F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 286F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 200F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel1.Controls.Add(this.btnTimKiem, 4, 1);
+            this.tableLayoutPanel1.Controls.Add(this.btnTimKiem, 5, 1);
             this.tableLayoutPanel1.Controls.Add(this.label4, 2, 0);
             this.tableLayoutPanel1.Controls.Add(this.dtNgayBD, 0, 1);
             this.tableLayoutPanel1.Controls.Add(this.dtNgayKT, 1, 1);
@@ -126,6 +129,8 @@
             this.tableLayoutPanel1.Controls.Add(this.cbxTimTenSp, 3, 1);
             this.tableLayoutPanel1.Controls.Add(this.cbxNgayBD, 0, 0);
             this.tableLayoutPanel1.Controls.Add(this.cbxNgayKT, 1, 0);
+            this.tableLayoutPanel1.Controls.Add(this.label2, 4, 0);
+            this.tableLayoutPanel1.Controls.Add(this.cbxLOT, 4, 1);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.tableLayoutPanel1.Location = new System.Drawing.Point(3, 19);
@@ -138,9 +143,9 @@
             // 
             // btnTimKiem
             // 
-            this.btnTimKiem.Location = new System.Drawing.Point(730, 31);
+            this.btnTimKiem.Location = new System.Drawing.Point(930, 31);
             this.btnTimKiem.Name = "btnTimKiem";
-            this.btnTimKiem.Size = new System.Drawing.Size(126, 40);
+            this.btnTimKiem.Size = new System.Drawing.Size(100, 40);
             this.btnTimKiem.TabIndex = 1;
             this.btnTimKiem.Text = "Tìm kiếm";
             this.btnTimKiem.UseVisualStyleBackColor = true;
@@ -217,6 +222,30 @@
             this.cbxTimTenSp.Name = "cbxTimTenSp";
             this.cbxTimTenSp.Size = new System.Drawing.Size(280, 26);
             this.cbxTimTenSp.TabIndex = 3;
+            // 
+            // cbxNgayBD
+            // 
+            this.cbxNgayBD.AutoSize = true;
+            this.cbxNgayBD.Checked = true;
+            this.cbxNgayBD.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.cbxNgayBD.Location = new System.Drawing.Point(3, 3);
+            this.cbxNgayBD.Name = "cbxNgayBD";
+            this.cbxNgayBD.Size = new System.Drawing.Size(117, 22);
+            this.cbxNgayBD.TabIndex = 4;
+            this.cbxNgayBD.Text = "Ngày bắt đầu";
+            this.cbxNgayBD.UseVisualStyleBackColor = true;
+            // 
+            // cbxNgayKT
+            // 
+            this.cbxNgayKT.AutoSize = true;
+            this.cbxNgayKT.Checked = true;
+            this.cbxNgayKT.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.cbxNgayKT.Location = new System.Drawing.Point(153, 3);
+            this.cbxNgayKT.Name = "cbxNgayKT";
+            this.cbxNgayKT.Size = new System.Drawing.Size(119, 22);
+            this.cbxNgayKT.TabIndex = 4;
+            this.cbxNgayKT.Text = "Ngày kết thúc";
+            this.cbxNgayKT.UseVisualStyleBackColor = true;
             // 
             // cbxAll
             // 
@@ -318,29 +347,25 @@
             this.tableLayoutPanel2.Size = new System.Drawing.Size(253, 74);
             this.tableLayoutPanel2.TabIndex = 0;
             // 
-            // cbxNgayBD
+            // label2
             // 
-            this.cbxNgayBD.AutoSize = true;
-            this.cbxNgayBD.Checked = true;
-            this.cbxNgayBD.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.cbxNgayBD.Location = new System.Drawing.Point(3, 3);
-            this.cbxNgayBD.Name = "cbxNgayBD";
-            this.cbxNgayBD.Size = new System.Drawing.Size(117, 22);
-            this.cbxNgayBD.TabIndex = 4;
-            this.cbxNgayBD.Text = "Ngày bắt đầu";
-            this.cbxNgayBD.UseVisualStyleBackColor = true;
+            this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(730, 5);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(194, 18);
+            this.label2.TabIndex = 0;
+            this.label2.Text = "LOT";
             // 
-            // cbxNgayKT
+            // cbxLOT
             // 
-            this.cbxNgayKT.AutoSize = true;
-            this.cbxNgayKT.Checked = true;
-            this.cbxNgayKT.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.cbxNgayKT.Location = new System.Drawing.Point(153, 3);
-            this.cbxNgayKT.Name = "cbxNgayKT";
-            this.cbxNgayKT.Size = new System.Drawing.Size(119, 22);
-            this.cbxNgayKT.TabIndex = 4;
-            this.cbxNgayKT.Text = "Ngày kết thúc";
-            this.cbxNgayKT.UseVisualStyleBackColor = true;
+            this.cbxLOT.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.cbxLOT.FormattingEnabled = true;
+            this.cbxLOT.Location = new System.Drawing.Point(730, 31);
+            this.cbxLOT.Name = "cbxLOT";
+            this.cbxLOT.Size = new System.Drawing.Size(194, 26);
+            this.cbxLOT.TabIndex = 3;
             // 
             // Frm_NhapKhoTP_TheoNgay
             // 
@@ -397,5 +422,7 @@
         private System.Windows.Forms.ComboBox cbxTimTenSp;
         private System.Windows.Forms.CheckBox cbxNgayBD;
         private System.Windows.Forms.CheckBox cbxNgayKT;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.ComboBox cbxLOT;
     }
 }

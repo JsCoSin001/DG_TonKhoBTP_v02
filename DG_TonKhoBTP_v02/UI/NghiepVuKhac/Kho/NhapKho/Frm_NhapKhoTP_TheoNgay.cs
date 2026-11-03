@@ -82,11 +82,14 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
         private const string CDao = "col_DaoChieu";
         private const string CXoa = "col_Xoa";
 
+        private const string CotLotQcExcel = "LOT - QC";
+
         // Thứ tự và tên cột xuất Excel lấy từ những cột nghiệp vụ đang hiển thị.
         // Loại trừ Chọn, SL còn, nút Đảo/Xóa và tất cả cột kỹ thuật ẩn.
         private static readonly string[] CotXuatExcel = {
-            CNgay, CCa, CMaBin, CMaSP, CTenSP, CLoai,
-            CSoLuongNhap, CChieuDai, CSoDau, CSoCuoi, CTongNhap, CGhiChu
+            CNgay, CCa, CMaBin, CotLotQcExcel, CMaSP, CTenSP, CLoai,
+            CSoLuongNhap, CChieuDai, CSoDau, CSoCuoi,
+            CTongNhap, CGhiChu
         };
         private const string CotIdXuatNoiBo = "TTThanhPham_ID";
 
@@ -815,19 +818,47 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
             }
         }
 
+        // Lấy chuỗi trước dấu '-' cuối cùng của Mã Bin
+        private static string LayLotQcTuMaBin(string maBin)
+        {
+            int viTriDauGachCuoi = maBin.LastIndexOf('-');
+
+            return viTriDauGachCuoi >= 0
+                ? maBin.Substring(0, viTriDauGachCuoi)
+                : maBin;
+        }
+
         private DataTable TaoBangXuatExcel(IEnumerable<DataGridViewRow> selected)
         {
             var bang = new DataTable();
             foreach (string name in CotXuatExcel)
-                bang.Columns.Add(dsNhapKho.Columns[name].HeaderText, typeof(string));
+            {
+                bang.Columns.Add(
+                    name == CotLotQcExcel
+                        ? CotLotQcExcel
+                        : dsNhapKho.Columns[name].HeaderText,
+                    typeof(string)
+                );
+            }
             // ID chỉ sử dụng để lọc nhóm đã lưu; không bao giờ đưa vào file.
             bang.Columns.Add(CotIdXuatNoiBo, typeof(long));
 
             foreach (DataGridViewRow row in selected)
             {
                 DataRow dong = bang.NewRow();
+
+                string maBin = Convert.ToString(
+                    row.Cells[CMaBin].Value
+                ) ?? string.Empty;
+
                 for (int i = 0; i < CotXuatExcel.Length; i++)
-                    dong[i] = Convert.ToString(row.Cells[CotXuatExcel[i]].Value) ?? string.Empty;
+                {
+                    dong[i] = CotXuatExcel[i] == CotLotQcExcel
+                        ? LayLotQcTuMaBin(maBin)
+                        : (Convert.ToString(
+                            row.Cells[CotXuatExcel[i]].Value
+                          ) ?? string.Empty);
+                }
                 dong[CotIdXuatNoiBo] = ParseLong(row.Cells[CTTThanhPhamId].Value);
                 bang.Rows.Add(dong);
             }

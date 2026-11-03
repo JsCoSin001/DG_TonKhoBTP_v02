@@ -42,6 +42,8 @@
             this.cbxTimTenSp = new System.Windows.Forms.ComboBox();
             this.cbxNgayBD = new System.Windows.Forms.CheckBox();
             this.cbxNgayKT = new System.Windows.Forms.CheckBox();
+            this.label2 = new System.Windows.Forms.Label();
+            this.cbxLOT = new System.Windows.Forms.ComboBox();
             this.cbxAll = new System.Windows.Forms.CheckBox();
             this.btnNhapKho = new System.Windows.Forms.Button();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
@@ -51,8 +53,6 @@
             this.panel5 = new System.Windows.Forms.Panel();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
-            this.label2 = new System.Windows.Forms.Label();
-            this.cbxLOT = new System.Windows.Forms.ComboBox();
             this.cbxXuatExcel = new System.Windows.Forms.CheckBox();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
@@ -97,7 +97,7 @@
             this.panel2.Location = new System.Drawing.Point(3, 3);
             this.panel2.Name = "panel2";
             this.panel2.Padding = new System.Windows.Forms.Padding(0, 0, 5, 0);
-            this.panel2.Size = new System.Drawing.Size(1180, 96);
+            this.panel2.Size = new System.Drawing.Size(1126, 96);
             this.panel2.TabIndex = 1;
             // 
             // groupBox4
@@ -107,7 +107,7 @@
             this.groupBox4.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.groupBox4.Location = new System.Drawing.Point(0, 0);
             this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Size = new System.Drawing.Size(1175, 96);
+            this.groupBox4.Size = new System.Drawing.Size(1121, 96);
             this.groupBox4.TabIndex = 2;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Tìm kiếm";
@@ -139,7 +139,7 @@
             this.tableLayoutPanel1.RowCount = 2;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 28F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(1169, 74);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(1115, 74);
             this.tableLayoutPanel1.TabIndex = 0;
             // 
             // btnTimKiem
@@ -164,12 +164,11 @@
             // 
             // dtNgayBD
             // 
-            this.dtNgayBD.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.dtNgayBD.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.dtNgayBD.CustomFormat = "dd/MM/yyyy";
             this.dtNgayBD.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.dtNgayBD.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
-            this.dtNgayBD.Location = new System.Drawing.Point(3, 31);
+            this.dtNgayBD.Location = new System.Drawing.Point(3, 38);
             this.dtNgayBD.Name = "dtNgayBD";
             this.dtNgayBD.Size = new System.Drawing.Size(144, 26);
             this.dtNgayBD.TabIndex = 1;
@@ -177,12 +176,11 @@
             // 
             // dtNgayKT
             // 
-            this.dtNgayKT.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.dtNgayKT.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.dtNgayKT.CustomFormat = "dd/MM/yyyy";
             this.dtNgayKT.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.dtNgayKT.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
-            this.dtNgayKT.Location = new System.Drawing.Point(153, 31);
+            this.dtNgayKT.Location = new System.Drawing.Point(153, 38);
             this.dtNgayKT.Name = "dtNgayKT";
             this.dtNgayKT.Size = new System.Drawing.Size(144, 26);
             this.dtNgayKT.TabIndex = 1;
@@ -190,8 +188,7 @@
             // 
             // cbxCa
             // 
-            this.cbxCa.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.cbxCa.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbxCa.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cbxCa.FormattingEnabled = true;
             this.cbxCa.Items.AddRange(new object[] {
@@ -199,7 +196,7 @@
             "1",
             "2",
             "3"});
-            this.cbxCa.Location = new System.Drawing.Point(303, 31);
+            this.cbxCa.Location = new System.Drawing.Point(303, 38);
             this.cbxCa.Name = "cbxCa";
             this.cbxCa.Size = new System.Drawing.Size(135, 26);
             this.cbxCa.TabIndex = 2;
@@ -216,10 +213,9 @@
             // 
             // cbxTimTenSp
             // 
-            this.cbxTimTenSp.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.cbxTimTenSp.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbxTimTenSp.FormattingEnabled = true;
-            this.cbxTimTenSp.Location = new System.Drawing.Point(444, 31);
+            this.cbxTimTenSp.Location = new System.Drawing.Point(444, 38);
             this.cbxTimTenSp.Name = "cbxTimTenSp";
             this.cbxTimTenSp.Size = new System.Drawing.Size(280, 26);
             this.cbxTimTenSp.TabIndex = 3;
@@ -248,6 +244,26 @@
             this.cbxNgayKT.Text = "Ngày kết thúc";
             this.cbxNgayKT.UseVisualStyleBackColor = true;
             // 
+            // label2
+            // 
+            this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(730, 5);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(194, 18);
+            this.label2.TabIndex = 0;
+            this.label2.Text = "LOT";
+            this.label2.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
+            // 
+            // cbxLOT
+            // 
+            this.cbxLOT.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.cbxLOT.FormattingEnabled = true;
+            this.cbxLOT.Location = new System.Drawing.Point(730, 38);
+            this.cbxLOT.Name = "cbxLOT";
+            this.cbxLOT.Size = new System.Drawing.Size(194, 26);
+            this.cbxLOT.TabIndex = 3;
+            // 
             // cbxAll
             // 
             this.cbxAll.Anchor = System.Windows.Forms.AnchorStyles.Left;
@@ -264,7 +280,7 @@
             this.btnNhapKho.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.btnNhapKho.Location = new System.Drawing.Point(263, 16);
             this.btnNhapKho.Name = "btnNhapKho";
-            this.btnNhapKho.Size = new System.Drawing.Size(71, 41);
+            this.btnNhapKho.Size = new System.Drawing.Size(117, 41);
             this.btnNhapKho.TabIndex = 0;
             this.btnNhapKho.Text = "Nhập kho";
             this.btnNhapKho.UseVisualStyleBackColor = true;
@@ -315,10 +331,10 @@
             // 
             this.panel5.Controls.Add(this.groupBox3);
             this.panel5.Dock = System.Windows.Forms.DockStyle.Right;
-            this.panel5.Location = new System.Drawing.Point(1183, 3);
+            this.panel5.Location = new System.Drawing.Point(1129, 3);
             this.panel5.Name = "panel5";
             this.panel5.Padding = new System.Windows.Forms.Padding(5, 0, 0, 0);
-            this.panel5.Size = new System.Drawing.Size(348, 96);
+            this.panel5.Size = new System.Drawing.Size(402, 96);
             this.panel5.TabIndex = 2;
             // 
             // groupBox3
@@ -327,7 +343,7 @@
             this.groupBox3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.groupBox3.Location = new System.Drawing.Point(5, 0);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(343, 96);
+            this.groupBox3.Size = new System.Drawing.Size(397, 96);
             this.groupBox3.TabIndex = 1;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Xử lý dữ liệu";
@@ -347,28 +363,8 @@
             this.tableLayoutPanel2.Name = "tableLayoutPanel2";
             this.tableLayoutPanel2.RowCount = 1;
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel2.Size = new System.Drawing.Size(337, 74);
+            this.tableLayoutPanel2.Size = new System.Drawing.Size(391, 74);
             this.tableLayoutPanel2.TabIndex = 0;
-            // 
-            // label2
-            // 
-            this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(730, 5);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(194, 18);
-            this.label2.TabIndex = 0;
-            this.label2.Text = "LOT";
-            // 
-            // cbxLOT
-            // 
-            this.cbxLOT.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.cbxLOT.FormattingEnabled = true;
-            this.cbxLOT.Location = new System.Drawing.Point(730, 31);
-            this.cbxLOT.Name = "cbxLOT";
-            this.cbxLOT.Size = new System.Drawing.Size(194, 26);
-            this.cbxLOT.TabIndex = 3;
             // 
             // cbxXuatExcel
             // 

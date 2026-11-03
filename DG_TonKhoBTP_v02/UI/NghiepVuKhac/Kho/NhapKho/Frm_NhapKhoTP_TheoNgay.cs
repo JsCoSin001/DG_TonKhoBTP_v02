@@ -1,5 +1,6 @@
 ﻿using DG_TonKhoBTP_v02.Database.ChatLuong;
 using DG_TonKhoBTP_v02.Models;
+using DG_TonKhoBTP_v02.Helper;
 using DG_TonKhoBTP_v02.UI.Helper;
 using System;
 using System.Collections.Generic;
@@ -7,6 +8,7 @@ using System.Data;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using DG_TonKhoBTP_v02.UI.Helper.AutoSearchWithCombobox;
@@ -19,8 +21,21 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
 
         private ComboBoxSearchHelper _tenSanPhamSearchHelper;
         private long? _sanPhamIdDaChon;
+        private ComboBoxSearchHelper _lotSearchHelper;
+        private long? _ttThanhPhamIdDaChon;
         // Lưu bộ lọc đã thực sự chạy, không đọc lại điều khiển có thể đã bị đổi khi refresh.
         private BoLocNhapKhoTheoNgay? _boLocDaTim;
+        // Mỗi Mã Bin có thể đến từ một lần tìm nhanh khác nhau.
+        private readonly Dictionary<long, BoLocNhapKhoTheoNgay> _boLocNguonTheoMaBin =
+            new Dictionary<long, BoLocNhapKhoTheoNgay>();
+        private readonly SemaphoreSlim _khoaGrid = new SemaphoreSlim(1, 1);
+        private int _theHeGrid;
+        private bool _dangThayTheGrid;
+        private bool _dangNhapKho;
+        private bool _dangResetMacDinh;
+        private bool _daCanhBaoNgayGoiYKhongHopLe;
+        // Dấu vết chỉ bao gồm các giá trị thực sự tham gia lọc gợi ý.
+        private string _dauVetBoLocGoiY = string.Empty;
 
         private sealed class BoLocNhapKhoTheoNgay
         {
@@ -29,13 +44,21 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
             public DateTime? GioiHanHienTai { get; set; }
             public string Ca { get; set; } = string.Empty;
             public long? SanPhamId { get; set; }
+            public long? TTThanhPhamId { get; set; }
+
+            public BoLocNhapKhoTheoNgay Copy() => new BoLocNhapKhoTheoNgay
+            {
+                NgayBatDau = NgayBatDau, NgayKetThuc = NgayKetThuc,
+                GioiHanHienTai = GioiHanHienTai, Ca = Ca,
+                SanPhamId = SanPhamId, TTThanhPhamId = TTThanhPhamId
+            };
         }
 
         private static NhapKhoTheoNgaySearchResult TimKiemTheoBoLoc(BoLocNhapKhoTheoNgay boLoc)
         {
             return NhapKho_DB.TimKiemNhapKhoTheoNgay(
                 boLoc.NgayBatDau, boLoc.NgayKetThuc, boLoc.Ca,
-                boLoc.SanPhamId, boLoc.GioiHanHienTai);
+                boLoc.SanPhamId, boLoc.GioiHanHienTai, boLoc.TTThanhPhamId);
         }
 
         private const string CChon = "col_Chon";
@@ -59,6 +82,14 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
         private const string CDao = "col_DaoChieu";
         private const string CXoa = "col_Xoa";
 
+        // Thứ tự và tên cột xuất Excel lấy từ những cột nghiệp vụ đang hiển thị.
+        // Loại trừ Chọn, SL còn, nút Đảo/Xóa và tất cả cột kỹ thuật ẩn.
+        private static readonly string[] CotXuatExcel = {
+            CNgay, CCa, CMaBin, CMaSP, CTenSP, CLoai,
+            CSoLuongNhap, CChieuDai, CSoDau, CSoCuoi, CTongNhap, CGhiChu
+        };
+        private const string CotIdXuatNoiBo = "TTThanhPham_ID";
+
         public Frm_NhapKhoTP_TheoNgay()
         {
             InitializeComponent();
@@ -69,6 +100,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
             KhoiTaoGrid();
             GanSuKien();
             KhoiTaoTimKiemTenSanPham();
+            KhoiTaoTimKiemLot();
             ResetMacDinh();
         }
 
@@ -78,7 +110,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
 
             _tenSanPhamSearchHelper = new ComboBoxSearchHelper(
                 cbxTimTenSp,
-                NhapKho_DB.TimGoiYTenSanPhamNhapKhoAsync)
+                TimGoiYTenSanPhamTheoBoLocAsync)
             {
                 DisplayColumn = "Ten",
                 SelectedTextBehavior =
@@ -86,8 +118,11 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
                 DebounceMs = 350
             };
 
-            _tenSanPhamSearchHelper.ItemSelected += row =>
+            _tenSanPhamSearchHelper.ItemSelected += async row =>
+            {
                 _sanPhamIdDaChon = Convert.ToInt64(row["id"]);
+                await TimKiemNhanhVaNoiTiepAsync(_sanPhamIdDaChon, null, cbxTimTenSp);
+            };
 
             _tenSanPhamSearchHelper.Cleared += () =>
                 _sanPhamIdDaChon = null;
@@ -95,10 +130,43 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
             // Người dùng sửa nội dung thì hủy ID đã chọn.
             // Phải chọn lại item trong danh sách gợi ý.
             cbxTimTenSp.TextUpdate += (s, e) =>
+            {
                 _sanPhamIdDaChon = null;
+                // Hủy truy vấn cũ cả khi người dùng xóa sạch từ khóa.
+                if (string.IsNullOrWhiteSpace(cbxTimTenSp.Text))
+                    _tenSanPhamSearchHelper?.Reset();
+            };
 
             Disposed += (s, e) =>
                 _tenSanPhamSearchHelper?.Dispose();
+        }
+
+        private void KhoiTaoTimKiemLot()
+        {
+            cbxLOT.DropDownStyle = ComboBoxStyle.DropDown;
+            _lotSearchHelper = new ComboBoxSearchHelper(
+                cbxLOT,
+                TimGoiYLotTheoBoLocAsync)
+            {
+                DisplayColumn = "MaBin",
+                SelectedTextBehavior = ComboBoxSelectedTextBehavior.FillDisplayText,
+                DebounceMs = 350
+            };
+
+            _lotSearchHelper.ItemSelected += async row =>
+            {
+                _ttThanhPhamIdDaChon = Convert.ToInt64(row["id"]);
+                await TimKiemNhanhVaNoiTiepAsync(null, _ttThanhPhamIdDaChon, cbxLOT);
+            };
+            _lotSearchHelper.Cleared += () => _ttThanhPhamIdDaChon = null;
+            // Chỉ ID của mục chọn từ dropdown là hợp lệ; sửa text phải chọn lại.
+            cbxLOT.TextUpdate += (s, e) =>
+            {
+                _ttThanhPhamIdDaChon = null;
+                if (string.IsNullOrWhiteSpace(cbxLOT.Text))
+                    _lotSearchHelper?.Reset();
+            };
+            Disposed += (s, e) => _lotSearchHelper?.Dispose();
         }
 
         private void KhoiTaoGrid()
@@ -144,8 +212,27 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
         private void GanSuKien()
         {
             btnTimKiem.Click += btnTimKiem_Click;
-            cbxNgayBD.CheckedChanged += (s, e) => dtNgayBD.Enabled = cbxNgayBD.Checked;
-            cbxNgayKT.CheckedChanged += (s, e) => dtNgayKT.Enabled = cbxNgayKT.Checked;
+            cbxNgayBD.CheckedChanged += (s, e) =>
+            {
+                dtNgayBD.Enabled = cbxNgayBD.Checked;
+                KhiThayDoiBoLocGoiY();
+            };
+            cbxNgayKT.CheckedChanged += (s, e) =>
+            {
+                dtNgayKT.Enabled = cbxNgayKT.Checked;
+                KhiThayDoiBoLocGoiY();
+            };
+            dtNgayBD.ValueChanged += (s, e) =>
+            {
+                if (cbxNgayBD.Checked) KhiThayDoiBoLocGoiY();
+            };
+            dtNgayKT.ValueChanged += (s, e) =>
+            {
+                if (cbxNgayKT.Checked) KhiThayDoiBoLocGoiY();
+            };
+            cbxCa.SelectedIndexChanged += (s, e) => KhiThayDoiBoLocGoiY();
+            // ComboBox Ca vẫn cho phép nhập text bằng tay.
+            cbxCa.TextUpdate += (s, e) => KhiThayDoiBoLocGoiY();
             btnNhapKho.Click += btnNhapKho_Click;
             cbxAll.CheckedChanged += cbxAll_CheckedChanged;
             dsNhapKho.CellContentClick += dsNhapKho_CellContentClick;
@@ -154,86 +241,288 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
             dsNhapKho.CellValidating += dsNhapKho_CellValidating;
         }
 
-        private void ResetMacDinh()
+        private string TaoDauVetBoLocGoiY()
         {
-            _boLocDaTim = null;
-            cbxNgayBD.Checked = true;
-            cbxNgayKT.Checked = true;
-            dtNgayBD.Enabled = cbxNgayBD.Checked;
-            dtNgayKT.Enabled = cbxNgayKT.Checked;
-            _sanPhamIdDaChon = null;
-            _tenSanPhamSearchHelper?.Reset();
-            dtNgayBD.Value = DateTime.Today.AddDays(-1);
-            dtNgayKT.Value = DateTime.Today;
-            cbxCa.SelectedItem = "Toàn bộ";
-            if (cbxCa.SelectedIndex < 0 && cbxCa.Items.Count > 0) cbxCa.SelectedIndex = 0;
-            _dangDongBoCbxAll = true;
-            cbxAll.Checked = false;
-            _dangDongBoCbxAll = false;
-            dsNhapKho.Rows.Clear();
+            string bd = cbxNgayBD.Checked
+                ? dtNgayBD.Value.Date.ToString("yyyy-MM-dd") : "*";
+            string kt = cbxNgayKT.Checked
+                ? dtNgayKT.Value.Date.ToString("yyyy-MM-dd") : "*";
+            return bd + "|" + kt + "|" + (cbxCa.Text ?? string.Empty).Trim();
         }
 
-        private async void btnTimKiem_Click(object sender, EventArgs e)
+        private void KhiThayDoiBoLocGoiY()
         {
-            // Hai checkbox độc lập. Chỉ ràng buộc thứ tự ngày khi cả hai được bật.
+            if (_dangResetMacDinh || IsDisposed) return;
+            string dauVetMoi = TaoDauVetBoLocGoiY();
+            if (string.Equals(dauVetMoi, _dauVetBoLocGoiY, StringComparison.Ordinal))
+                return;
+
+            _dauVetBoLocGoiY = dauVetMoi;
+            // Chỉ cho phép cảnh báo lại khi bộ lọc đã trở về hợp lệ.
+            if (TryDocBoLocGoiY(out _, out _))
+                _daCanhBaoNgayGoiYKhongHopLe = false;
+            ResetHaiComboBoxKhiDoiBoLoc();
+        }
+
+        private void ResetHaiComboBoxKhiDoiBoLoc()
+        {
+            // Hủy truy vấn gợi ý đang chờ, đóng popup và xóa ID lựa chọn cũ.
+            // Tuyệt đối không can thiệp các dòng đang điền trong dsNhapKho.
+            _sanPhamIdDaChon = null;
+            _ttThanhPhamIdDaChon = null;
+            _tenSanPhamSearchHelper?.Reset();
+            _lotSearchHelper?.Reset();
+        }
+
+        private void ResetMacDinh()
+        {
+            _dangResetMacDinh = true;
+            try
+            {
+                _boLocDaTim = null;
+                _boLocNguonTheoMaBin.Clear();
+                _theHeGrid++;
+                cbxNgayBD.Checked = true;
+                cbxNgayKT.Checked = true;
+                dtNgayBD.Enabled = cbxNgayBD.Checked;
+                dtNgayKT.Enabled = cbxNgayKT.Checked;
+                _sanPhamIdDaChon = null;
+                _tenSanPhamSearchHelper?.Reset();
+                _ttThanhPhamIdDaChon = null;
+                _lotSearchHelper?.Reset();
+                dtNgayBD.Value = DateTime.Today.AddDays(-1);
+                dtNgayKT.Value = DateTime.Today;
+                cbxCa.SelectedItem = "Toàn bộ";
+                if (cbxCa.SelectedIndex < 0 && cbxCa.Items.Count > 0)
+                    cbxCa.SelectedIndex = 0;
+                _dangDongBoCbxAll = true;
+                cbxAll.Checked = false;
+                _dangDongBoCbxAll = false;
+                dsNhapKho.Rows.Clear();
+                _daCanhBaoNgayGoiYKhongHopLe = false;
+            }
+            finally
+            {
+                _dangResetMacDinh = false;
+                _dauVetBoLocGoiY = TaoDauVetBoLocGoiY();
+            }
+        }
+
+        private bool TryTaoBoLoc(long? sanPhamId, long? ttThanhPhamId,
+            out BoLocNhapKhoTheoNgay boLoc, out string loi)
+        {
             DateTime now = DateTime.Now;
             DateTime? bd = cbxNgayBD.Checked ? dtNgayBD.Value.Date : (DateTime?)null;
             DateTime? kt = cbxNgayKT.Checked ? dtNgayKT.Value.Date : (DateTime?)null;
+            boLoc = null;
+            loi = null;
             if (bd.HasValue && kt.HasValue && bd.Value > kt.Value)
             {
-                FrmWaiting.ShowGifAlert("Ngày bắt đầu không được lớn hơn ngày kết thúc.");
-                return;
+                loi = "Ngày bắt đầu không được lớn hơn ngày kết thúc.";
+                return false;
             }
             if (bd.HasValue && !kt.HasValue && bd.Value > now)
             {
-                FrmWaiting.ShowGifAlert("Ngày bắt đầu không được ở tương lai.");
-                return;
+                loi = "Ngày bắt đầu không được ở tương lai.";
+                return false;
             }
-
-            if (!string.IsNullOrWhiteSpace(cbxTimTenSp.Text) && !_sanPhamIdDaChon.HasValue)
-            {
-                FrmWaiting.ShowGifAlert("Cần chọn lại tên sản phẩm.");
-                return;
-            }
-
-            long? sanPhamId = string.IsNullOrWhiteSpace(cbxTimTenSp.Text)
-                ? (long?)null
-                : _sanPhamIdDaChon;
-
-            var boLoc = new BoLocNhapKhoTheoNgay
+            boLoc = new BoLocNhapKhoTheoNgay
             {
                 NgayBatDau = bd,
                 NgayKetThuc = kt,
                 GioiHanHienTai = bd.HasValue && !kt.HasValue ? now : (DateTime?)null,
                 Ca = cbxCa.Text,
-                SanPhamId = sanPhamId
+                SanPhamId = sanPhamId,
+                TTThanhPhamId = ttThanhPhamId
             };
+            return true;
+        }
 
+        private bool TryDocBoLocGoiY(out BoLocNhapKhoTheoNgay boLoc, out string loi)
+            => TryTaoBoLoc(null, null, out boLoc, out loi);
+
+        private bool TaoBoLoc(long? sanPhamId, long? ttThanhPhamId,
+            out BoLocNhapKhoTheoNgay boLoc)
+        {
+            if (TryTaoBoLoc(sanPhamId, ttThanhPhamId, out boLoc, out string loi))
+                return true;
+            FrmWaiting.ShowGifAlert(loi);
+            return false;
+        }
+
+        // Các delegate này được helper gọi từ UI thread sau 350 ms. Bộ lọc được
+        // chụp một lần trước khi chuyển sang truy vấn DB nền; không đọc UI trong Task.Run.
+        private Task<DataTable> TimGoiYTenSanPhamTheoBoLocAsync(string keyword, CancellationToken ct)
+        {
+            if (ct.IsCancellationRequested || IsDisposed)
+                return Task.FromCanceled<DataTable>(new CancellationToken(true));
+            if (!TryDocBoLocGoiY(out BoLocNhapKhoTheoNgay boLoc, out string loi))
+            {
+                ThongBaoNgayGoiYKhongHopLe(loi);
+                return Task.FromResult(new DataTable());
+            }
+            return NhapKho_DB.TimGoiYTenSanPhamNhapKhoAsync(keyword,
+                boLoc.NgayBatDau, boLoc.NgayKetThuc, boLoc.Ca,
+                boLoc.GioiHanHienTai, ct);
+        }
+
+        private Task<DataTable> TimGoiYLotTheoBoLocAsync(string keyword, CancellationToken ct)
+        {
+            if (ct.IsCancellationRequested || IsDisposed)
+                return Task.FromCanceled<DataTable>(new CancellationToken(true));
+            if (!TryDocBoLocGoiY(out BoLocNhapKhoTheoNgay boLoc, out string loi))
+            {
+                ThongBaoNgayGoiYKhongHopLe(loi);
+                return Task.FromResult(new DataTable());
+            }
+            return NhapKho_DB.TimGoiYLotNhapKhoAsync(keyword,
+                boLoc.NgayBatDau, boLoc.NgayKetThuc, boLoc.Ca,
+                boLoc.GioiHanHienTai, ct);
+        }
+
+        private void ThongBaoNgayGoiYKhongHopLe(string loi)
+        {
+            if (_daCanhBaoNgayGoiYKhongHopLe || IsDisposed) return;
+            _daCanhBaoNgayGoiYKhongHopLe = true;
+            FrmWaiting.ShowGifAlert(loi);
+        }
+
+        private async Task TimKiemNhanhVaNoiTiepAsync(long? sanPhamId,
+            long? ttThanhPhamId, ComboBox cbx)
+        {
+            // Helper đã điền text; bôi đen ngay để người dùng gõ mục kế tiếp.
+            cbx.SelectionStart = 0;
+            cbx.SelectionLength = cbx.Text.Length;
+            if (_dangThayTheGrid || _dangNhapKho || IsDisposed) return;
+            if (!TaoBoLoc(sanPhamId, ttThanhPhamId, out BoLocNhapKhoTheoNgay boLoc)) return;
+            int theHe = _theHeGrid;
+            await _khoaGrid.WaitAsync();
             try
             {
-                NhapKhoTheoNgaySearchResult result =
-                    await WaitingHelper.RunWithWaiting(
-                        () => Task.Run(() => TimKiemTheoBoLoc(boLoc)),
-                        "ĐANG TÌM DỮ LIỆU NHẬP KHO...");
-
-                _boLocDaTim = boLoc;
-                NapGrid(result.Items);
-
+                if (theHe != _theHeGrid || _dangThayTheGrid || _dangNhapKho || IsDisposed) return;
+                if (!dsNhapKho.EndEdit()) return;
+                dsNhapKho.Enabled = false;
+                NhapKhoTheoNgaySearchResult result = await WaitingHelper.RunWithWaiting(
+                    () => Task.Run(() => TimKiemTheoBoLoc(boLoc)),
+                    "ĐANG TÌM DỮ LIỆU NHẬP KHO...");
+                if (theHe != _theHeGrid || IsDisposed) return;
+                NoiTiepGrid(result.Items, boLoc);
                 if (result.MaBinBatThuong.Count > 0)
-                {
-                    FrmWaiting.ShowGifAlert( "Một số LOT bị loại do lỗi" );
-
-                    Console.WriteLine(string.Join(", ", result.MaBinBatThuong));
-                }
+                    FrmWaiting.ShowGifAlert("Một số LOT bị loại do lỗi");
                 else if (result.Items.Count == 0)
-                {
                     FrmWaiting.ShowGifAlert("Không tìm thấy dữ liệu phù hợp.");
-                }
             }
             catch (Exception ex)
             {
-                FrmWaiting.ShowGifAlert($"Lỗi khi tìm dữ liệu nhập kho theo ngày:\n{ex.Message}", "LỖI");
+                if (!IsDisposed)
+                    FrmWaiting.ShowGifAlert($"Lỗi khi tìm nhanh dữ liệu nhập kho:\n{ex.Message}", "LỖI");
             }
+            finally
+            {
+                if (!IsDisposed) dsNhapKho.Enabled = true;
+                _khoaGrid.Release();
+            }
+        }
+
+        private async void btnTimKiem_Click(object sender, EventArgs e)
+        {
+            if (_dangThayTheGrid || _dangNhapKho) return;
+            if (!dsNhapKho.EndEdit()) return;
+            if (!string.IsNullOrWhiteSpace(cbxTimTenSp.Text) && !_sanPhamIdDaChon.HasValue)
+            {
+                FrmWaiting.ShowGifAlert("Cần chọn lại tên sản phẩm.");
+                return;
+            }
+            if (!string.IsNullOrWhiteSpace(cbxLOT.Text) && !_ttThanhPhamIdDaChon.HasValue)
+            {
+                FrmWaiting.ShowGifAlert("Cần chọn lại LOT.");
+                return;
+            }
+            long? sanPhamId = string.IsNullOrWhiteSpace(cbxTimTenSp.Text)
+                ? (long?)null : _sanPhamIdDaChon;
+            long? ttThanhPhamId = string.IsNullOrWhiteSpace(cbxLOT.Text)
+                ? (long?)null : _ttThanhPhamIdDaChon;
+            if (!TaoBoLoc(sanPhamId, ttThanhPhamId, out BoLocNhapKhoTheoNgay boLoc)) return;
+
+            if (dsNhapKho.Rows.Count > 0)
+            {
+                DialogResult xacNhan = MessageBox.Show(this,
+                    "Dữ liệu sẽ bị xoá nếu bạn nhấn Yes", "Xác nhận tìm kiếm",
+                    MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                if (xacNhan != DialogResult.Yes) return;
+            }
+
+            // Hủy hiệu lực mọi lượt nối tiếp đã chạy trước khi người dùng xác nhận Yes.
+            _dangThayTheGrid = true;
+            _theHeGrid++;
+            cbxTimTenSp.Enabled = false;
+            cbxLOT.Enabled = false;
+            btnNhapKho.Enabled = false;
+            await _khoaGrid.WaitAsync();
+            try
+            {
+                dsNhapKho.Enabled = false;
+                NhapKhoTheoNgaySearchResult result = await WaitingHelper.RunWithWaiting(
+                    () => Task.Run(() => TimKiemTheoBoLoc(boLoc)),
+                    "ĐANG TÌM DỮ LIỆU NHẬP KHO...");
+                if (IsDisposed) return;
+                NapGridVaLuuBoLoc(result.Items, boLoc);
+                if (result.MaBinBatThuong.Count > 0)
+                    FrmWaiting.ShowGifAlert("Một số LOT bị loại do lỗi");
+                else if (result.Items.Count == 0)
+                    FrmWaiting.ShowGifAlert("Không tìm thấy dữ liệu phù hợp.");
+            }
+            catch (Exception ex)
+            {
+                if (!IsDisposed)
+                    FrmWaiting.ShowGifAlert($"Lỗi khi tìm dữ liệu nhập kho theo ngày:\n{ex.Message}", "LỖI");
+            }
+            finally
+            {
+                _khoaGrid.Release();
+                _dangThayTheGrid = false;
+                if (!IsDisposed)
+                {
+                    dsNhapKho.Enabled = true;
+                    cbxTimTenSp.Enabled = true;
+                    cbxLOT.Enabled = true;
+                    btnNhapKho.Enabled = true;
+                }
+            }
+        }
+
+        private static Tuple<long, long, int?> KhoaChiTiet(NhapKhoTheoNgayDong item)
+            => Tuple.Create(item.TTThanhPham_ID, item.TTCuonDay_CD_ID, item.TTLo_ID);
+
+        private static Tuple<long, long, int?> KhoaChiTiet(DataGridViewRow row)
+            => Tuple.Create(ParseLong(row.Cells[CTTThanhPhamId].Value),
+                ParseLong(row.Cells[CSourceId].Value), ParseNullableInt(row.Cells[CTTLoId].Value));
+
+        private void NoiTiepGrid(IEnumerable<NhapKhoTheoNgayDong> items,
+            BoLocNhapKhoTheoNgay boLoc)
+        {
+            var keys = new HashSet<Tuple<long, long, int?>>(dsNhapKho.Rows
+                .Cast<DataGridViewRow>().Select(KhoaChiTiet));
+            foreach (NhapKhoTheoNgayDong item in items ?? Enumerable.Empty<NhapKhoTheoNgayDong>())
+            {
+                var key = KhoaChiTiet(item);
+                if (!keys.Add(key))
+                    continue;
+                ThemDong(item, false);
+                if (!_boLocNguonTheoMaBin.ContainsKey(item.TTThanhPham_ID))
+                    _boLocNguonTheoMaBin[item.TTThanhPham_ID] = boLoc.Copy();
+            }
+            DongBoCbxAllTuGrid();
+        }
+
+        private void NapGridVaLuuBoLoc(IEnumerable<NhapKhoTheoNgayDong> items,
+            BoLocNhapKhoTheoNgay boLoc)
+        {
+            _boLocDaTim = boLoc.Copy();
+            _boLocNguonTheoMaBin.Clear();
+            // Dedupe luôn cả kết quả từ nhiều nguồn ca trước khi nạp lại.
+            NapGrid(Enumerable.Empty<NhapKhoTheoNgayDong>());
+            NoiTiepGrid(items, boLoc);
         }
 
         private void NapGrid(IEnumerable<NhapKhoTheoNgayDong> items)
@@ -330,7 +619,11 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
 
             if (name == CXoa)
             {
+                long maBinId = ParseLong(row.Cells[CTTThanhPhamId].Value);
                 dsNhapKho.Rows.RemoveAt(e.RowIndex);
+                if (!dsNhapKho.Rows.Cast<DataGridViewRow>()
+                    .Any(r => ParseLong(r.Cells[CTTThanhPhamId].Value) == maBinId))
+                    _boLocNguonTheoMaBin.Remove(maBinId);
                 DongBoCbxAllTuGrid();
                 return;
             }
@@ -401,12 +694,25 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
 
         private async void btnNhapKho_Click(object sender, EventArgs e)
         {
+            if (_dangNhapKho || _dangThayTheGrid) return;
             if (!UserContext.IsAuthenticated
                 || (!UserContext.HasRole(RoleNames.Wh) && !UserContext.HasRole(RoleNames.Admin)))
             {
                 FrmWaiting.ShowGifAlert("Bạn cần cấp quyền để thực hiện yêu cầu này.");
                 return;
             }
+            _dangNhapKho = true;
+            btnNhapKho.Enabled = false;
+            btnTimKiem.Enabled = false;
+            cbxTimTenSp.Enabled = false;
+            cbxLOT.Enabled = false;
+            await _khoaGrid.WaitAsync();
+            try
+            {
+            // Xác nhận ô đang sửa trước khi đọc checkbox và số lượng nhập.
+            if (!dsNhapKho.EndEdit()) return;
+            dsNhapKho.Enabled = false;
+            bool canXuatExcel = cbxXuatExcel.Checked;
 
             List<DataGridViewRow> selected = dsNhapKho.Rows.Cast<DataGridViewRow>()
                 .Where(r => Convert.ToBoolean(r.Cells[CChon].Value ?? false))
@@ -440,6 +746,9 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
                 .Select(g => TaoBatchGroup(g.Key, g.ToList(), username))
                 .ToList();
 
+            // Bản sao tách khỏi DataGridView: grid sẽ được làm mới sau khi Commit.
+            DataTable? excelSnapshot = canXuatExcel ? TaoBangXuatExcel(selected) : null;
+
             List<BatchResult> results;
             try
             {
@@ -455,20 +764,15 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
 
             int success = results.Count(x => x.Success);
             List<BatchResult> failed = results.Where(x => !x.Success).ToList();
+            HashSet<long> successIds = new HashSet<long>(
+                results.Where(x => x.Success).Select(x => x.TTThanhPhamId));
+            DataTable? excelDaNhap = excelSnapshot == null
+                ? null
+                : LocDongXuatThanhCong(excelSnapshot, successIds);
 
-            if (failed.Count == 0)
-            {
-                await RefreshDanhSachSauNhapKho();
-            }
-            else
-            {
-                HashSet<long> successIds = new HashSet<long>(results.Where(x => x.Success).Select(x => x.TTThanhPhamId));
-                for (int i = dsNhapKho.Rows.Count - 1; i >= 0; i--)
-                    if (successIds.Contains(ParseLong(dsNhapKho.Rows[i].Cells[CTTThanhPhamId].Value)))
-                        dsNhapKho.Rows.RemoveAt(i);
-
-                await RefreshMaBinLoi(new HashSet<long>(failed.Select(x => x.TTThanhPhamId)));
-            }
+            await RefreshNhomDaXuLyAsync(successIds,
+                new HashSet<long>(failed.Select(x => x.TTThanhPhamId)),
+                new HashSet<Tuple<long, long, int?>>(selected.Select(KhoaChiTiet)));
 
             string message;
             string icon;
@@ -490,6 +794,108 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
                 failed.Count == 0 ? "HOÀN TẤT" : "KẾT QUẢ",
                 icon
                 );
+
+            // Chỉ xuất các dòng thuộc nhóm đã Commit thành công;
+            // lỗi/hủy Excel không ảnh hưởng nghiệp vụ nhập kho đã thực hiện.
+            if (excelDaNhap != null && excelDaNhap.Rows.Count > 0)
+                XuatExcelSauNhapKho(excelDaNhap);
+            }
+            finally
+            {
+                _khoaGrid.Release();
+                _dangNhapKho = false;
+                if (!IsDisposed)
+                {
+                    dsNhapKho.Enabled = true;
+                    btnNhapKho.Enabled = true;
+                    btnTimKiem.Enabled = true;
+                    cbxTimTenSp.Enabled = true;
+                    cbxLOT.Enabled = true;
+                }
+            }
+        }
+
+        private DataTable TaoBangXuatExcel(IEnumerable<DataGridViewRow> selected)
+        {
+            var bang = new DataTable();
+            foreach (string name in CotXuatExcel)
+                bang.Columns.Add(dsNhapKho.Columns[name].HeaderText, typeof(string));
+            // ID chỉ sử dụng để lọc nhóm đã lưu; không bao giờ đưa vào file.
+            bang.Columns.Add(CotIdXuatNoiBo, typeof(long));
+
+            foreach (DataGridViewRow row in selected)
+            {
+                DataRow dong = bang.NewRow();
+                for (int i = 0; i < CotXuatExcel.Length; i++)
+                    dong[i] = Convert.ToString(row.Cells[CotXuatExcel[i]].Value) ?? string.Empty;
+                dong[CotIdXuatNoiBo] = ParseLong(row.Cells[CTTThanhPhamId].Value);
+                bang.Rows.Add(dong);
+            }
+            return bang;
+        }
+
+        private static DataTable LocDongXuatThanhCong(DataTable snapshot, HashSet<long> successIds)
+        {
+            // Tạo DataTable mới KHÔNG chứa cột ID nội bộ.
+            DataTable daNhap = snapshot.Clone();
+            daNhap.Columns.Remove(CotIdXuatNoiBo);
+            foreach (DataRow dong in snapshot.Rows)
+            {
+                if (!successIds.Contains(Convert.ToInt64(dong[CotIdXuatNoiBo])))
+                    continue;
+                DataRow moi = daNhap.NewRow();
+                for (int i = 0; i < CotXuatExcel.Length; i++)
+                    moi[i] = dong[i];
+                daNhap.Rows.Add(moi);
+            }
+            return daNhap;
+        }
+
+        private void XuatExcelSauNhapKho(DataTable daNhap)
+        {
+            using var sfd = new SaveFileDialog
+            {
+                Title = "Xuất báo cáo nhập kho thành phẩm",
+                Filter = "Excel Workbook (*.xlsx)|*.xlsx",
+                DefaultExt = "xlsx",
+                AddExtension = true,
+                FileName = $"NhapKhoTP_{DateTime.Now:yyyyMMdd_HHmm}"
+            };
+
+            while (true)
+            {
+                // Hủy chọn đường dẫn là yêu cầu của người dùng, không phải lỗi ghi file.
+                if (sfd.ShowDialog(this) != DialogResult.OK)
+                {
+                    cbxXuatExcel.Checked = false;
+                    return;
+                }
+
+                try
+                {
+                    ExcelExporter.ExportToPath(daNhap, sfd.FileName);
+                }
+                catch (Exception)
+                {
+                    DialogResult traLoi = MessageBox.Show(
+                        this,
+                        "Lưu thất bại. Bạn có muốn lưu file excel ở nơi khác hoặc tên khác không?",
+                        "Xuất Excel",
+                        MessageBoxButtons.YesNo,
+                        MessageBoxIcon.Warning);
+                    if (traLoi != DialogResult.Yes)
+                    {
+                        cbxXuatExcel.Checked = false;
+                        return;
+                    }
+                    // Lặp lại hộp chọn tên/nơi lưu, chỉ xuất lại từ bảng đã lưu.
+                    continue;
+                }
+
+                cbxXuatExcel.Checked = false;
+                FrmWaiting.ShowGifAlert("Đã xuất Excel thành công!", "Export", EnumStore.Icon.Success);
+                return;
+            }
         }
 
         private BatchGroup TaoBatchGroup(long ttThanhPhamId, List<DataGridViewRow> rows, string username)
@@ -546,84 +952,106 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
             return results;
         }
 
-        private async Task RefreshDanhSachSauNhapKho()
+        private async Task RefreshNhomDaXuLyAsync(HashSet<long> successIds,
+            HashSet<long> failedIds, HashSet<Tuple<long, long, int?>> selectedKeys)
         {
-            // Đọc lại kết quả với đúng bộ lọc của lần tìm kiếm đã thành công.
-            // Không ResetMacDinh: giữ ngày, ca, tên SP và trạng thái checkbox trên màn hình.
-            BoLocNhapKhoTheoNgay? boLoc = _boLocDaTim;
-            if (boLoc == null)
-            {
-                NapGrid(Enumerable.Empty<NhapKhoTheoNgayDong>());
-                return;
-            }
-            try
-            {
-                NhapKhoTheoNgaySearchResult fresh = await WaitingHelper.RunWithWaiting(
-                    () => Task.Run(() => TimKiemTheoBoLoc(boLoc)),
-                    "ĐANG CẬP NHẬT DANH SÁCH NHẬP KHO...");
-                NapGrid(fresh.Items);
-            }
-            catch (Exception ex)
-            {
-                // Không giữ snapshot đã nhập kho để tránh thao tác nhập kho hai lần.
-                NapGrid(Enumerable.Empty<NhapKhoTheoNgayDong>());
-                FrmWaiting.ShowGifAlert($"Đã nhập kho, nhưng không tải lại được danh sách: {ex.Message}", "LỖI");
-            }
-        }
-
-        private async Task RefreshMaBinLoi(HashSet<long> failedIds)
-        {
-            BoLocNhapKhoTheoNgay? boLoc = _boLocDaTim;
-            if (boLoc == null) return;
-
-            NhapKhoTheoNgaySearchResult fresh;
-            try
-            {
-                fresh = await WaitingHelper.RunWithWaiting(
-                    () => Task.Run(() => TimKiemTheoBoLoc(boLoc)),
-                    "ĐANG CẬP NHẬT LẠI CÁC MÃ BIN LỖI...");
-            }
-            catch
-            {
-                // Nếu không refresh được, giữ snapshot lỗi cũ; không reset điều kiện tìm kiếm.
-                foreach (DataGridViewRow row in dsNhapKho.Rows)
-                    if (failedIds.Contains(ParseLong(row.Cells[CTTThanhPhamId].Value)))
-                        row.Cells[CChon].Value = false;
-                DongBoCbxAllTuGrid();
-                return;
-            }
-
-            // Xóa snapshot cũ của Mã Bin lỗi, nhưng giữ nguyên các dòng chưa chọn của Mã Bin khác.
+            // Chỉ thay nhóm đã nhập kho, giữ nguyên mọi dòng khác và số lượng đã chỉnh.
+            var handled = new HashSet<long>(successIds);
+            handled.UnionWith(failedIds);
             var oldById = dsNhapKho.Rows.Cast<DataGridViewRow>()
-                .Where(r => failedIds.Contains(ParseLong(r.Cells[CTTThanhPhamId].Value)))
+                .Where(r => handled.Contains(ParseLong(r.Cells[CTTThanhPhamId].Value)))
                 .GroupBy(r => ParseLong(r.Cells[CTTThanhPhamId].Value))
-                .ToDictionary(g => g.Key, g => g.Select(CloneDisplay).ToList());
+                .ToDictionary(g => g.Key, g => g.ToList());
+            var warnings = new List<string>();
 
-            for (int i = dsNhapKho.Rows.Count - 1; i >= 0; i--)
-                if (failedIds.Contains(ParseLong(dsNhapKho.Rows[i].Cells[CTTThanhPhamId].Value)))
-                    dsNhapKho.Rows.RemoveAt(i);
-
-            foreach (long id in failedIds)
+            foreach (long id in handled)
             {
-                List<NhapKhoTheoNgayDong> freshRows = fresh.Items.Where(x => x.TTThanhPham_ID == id).ToList();
-                if (freshRows.Count > 0)
+                if (!oldById.TryGetValue(id, out List<DataGridViewRow> oldRows))
+                    continue;
+                // Nạp lại theo điều kiện gốc của nhóm, không lấy điều kiện trên form hiện tại.
+                var boLoc = _boLocNguonTheoMaBin.TryGetValue(id, out BoLocNhapKhoTheoNgay saved)
+                    ? saved.Copy()
+                    : (_boLocDaTim?.Copy() ?? new BoLocNhapKhoTheoNgay { Ca = "Toàn bộ" });
+                boLoc.TTThanhPhamId = id;
+                List<NhapKhoTheoNgayDong> freshRows;
+                try
                 {
-                    foreach (var item in freshRows) ThemDong(item, false);
+                    NhapKhoTheoNgaySearchResult fresh = await WaitingHelper.RunWithWaiting(
+                        () => Task.Run(() => TimKiemTheoBoLoc(boLoc)),
+                        "ĐANG CẬP NHẬT DANH SÁCH NHẬP KHO...");
+                    freshRows = fresh.Items.Where(x => x.TTThanhPham_ID == id)
+                        .GroupBy(KhoaChiTiet).Select(g => g.First()).ToList();
                 }
-                else if (oldById.TryGetValue(id, out List<NhapKhoTheoNgayDong> oldRows))
+                catch (Exception ex)
                 {
-                    // DB không còn trả MaBin này (ví dụ đã hết hàng/đã trở thành bất thường).
-                    // Giữ để người dùng thấy Mã Bin lỗi, nhưng vô hiệu số lượng nhập.
-                    foreach (var item in oldRows)
+                    if (successIds.Contains(id))
                     {
-                        item.SoLuongCon = 0;
-                        ThemDong(item, false);
-                        dsNhapKho.Rows[dsNhapKho.Rows.Count - 1].Cells[CSoLuongNhap].Value = 0;
-                        CapNhatTongDong(dsNhapKho.Rows[dsNhapKho.Rows.Count - 1]);
+                        // Dòng đã Commit không được phép xuất hiện lại để nhập trùng.
+                        foreach (var row in oldRows) dsNhapKho.Rows.Remove(row);
+                        _boLocNguonTheoMaBin.Remove(id);
+                    }
+                    else
+                    {
+                        foreach (var row in oldRows) row.Cells[CChon].Value = false;
+                    }
+                    warnings.Add($"Mã Bin ID {id}: không tải lại được ({ex.Message}).");
+                    continue;
+                }
+
+                var oldByKey = oldRows.ToDictionary(KhoaChiTiet);
+                // Giữ ảnh chụp cho trường hợp nhóm lỗi không còn trả về từ DB.
+                List<NhapKhoTheoNgayDong> oldItems = failedIds.Contains(id) && freshRows.Count == 0
+                    ? oldRows.Select(CloneDisplay).ToList()
+                    : new List<NhapKhoTheoNgayDong>();
+                // Chỉ xóa các dòng thuộc Mã Bin đang xử lý.
+                foreach (var row in oldRows) dsNhapKho.Rows.Remove(row);
+
+                if (failedIds.Contains(id) && freshRows.Count == 0)
+                {
+                    foreach (var oldItem in oldItems)
+                    {
+                        oldItem.SoLuongCon = 0;
+                        ThemDong(oldItem, false);
+                        DataGridViewRow blocked = dsNhapKho.Rows[dsNhapKho.Rows.Count - 1];
+                        blocked.Cells[CSoLuongNhap].Value = 0;
+                        CapNhatTongDong(blocked);
+                    }
+                    warnings.Add($"Mã Bin ID {id}: không còn dữ liệu hợp lệ, cần kiểm tra lại.");
+                    continue;
+                }
+
+                foreach (var fresh in freshRows)
+                {
+                    ThemDong(fresh, false);
+                    DataGridViewRow newRow = dsNhapKho.Rows[dsNhapKho.Rows.Count - 1];
+                    var key = KhoaChiTiet(fresh);
+                    // Chỉ giữ chỉnh sửa chưa được nhập nếu vẫn còn hợp lệ.
+                    if ((!successIds.Contains(id) || !selectedKeys.Contains(key)) &&
+                        oldByKey.TryGetValue(key, out DataGridViewRow old))
+                    {
+                        int oldQty = ParseNullableInt(old.Cells[CSoLuongNhap].Value) ?? 0;
+                        int validQty = Math.Max(0, Math.Min(oldQty, fresh.SoLuongCon));
+                        newRow.Cells[CSoLuongNhap].Value = validQty;
+                        int? dau = ParseNullableInt(old.Cells[CSoDau].Value);
+                        int? cuoi = ParseNullableInt(old.Cells[CSoCuoi].Value);
+                        if (!fresh.TTLo_ID.HasValue ||
+                            (dau.HasValue && cuoi.HasValue &&
+                             Math.Abs((long)dau.Value - cuoi.Value) == fresh.ChieuDai1Cuon))
+                        {
+                            newRow.Cells[CSoDau].Value = dau;
+                            newRow.Cells[CSoCuoi].Value = cuoi;
+                        }
+                        CapNhatTongDong(newRow);
+                        if (oldQty > fresh.SoLuongCon)
+                            warnings.Add($"Mã Bin ID {id}: số lượng đã sửa vượt số còn, cần kiểm tra lại.");
                     }
                 }
+                if (freshRows.Count == 0)
+                    _boLocNguonTheoMaBin.Remove(id);
             }
             DongBoCbxAllTuGrid();
+            if (warnings.Count > 0)
+                FrmWaiting.ShowGifAlert(string.Join("\n", warnings), "KIỂM TRA LẠI");
         }
 
         private NhapKhoTheoNgayDong CloneDisplay(DataGridViewRow row)
@@ -636,6 +1064,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
                 MaBin = Convert.ToString(row.Cells[CMaBin].Value) ?? string.Empty,
                 MaSP = Convert.ToString(row.Cells[CMaSP].Value) ?? string.Empty,
                 TenSP = Convert.ToString(row.Cells[CTenSP].Value) ?? string.Empty,
+                KichThuocLo = (Convert.ToString(row.Cells[CLoai].Value) ?? string.Empty).StartsWith("Lô ")
+                    ? (Convert.ToString(row.Cells[CLoai].Value) ?? string.Empty).Substring(3) : string.Empty,
                 ChieuDaiSauSnapshot = ParseDouble(row.Cells[CSnapshot].Value),
                 TTCuonDay_CD_ID = ParseLong(row.Cells[CSourceId].Value),
                 TTLo_ID = ParseNullableInt(row.Cells[CTTLoId].Value),

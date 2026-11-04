@@ -2,7 +2,8 @@
 using DG_TonKhoBTP_v02.Database.KeToan;
 using DG_TonKhoBTP_v02.Helper;
 using DG_TonKhoBTP_v02.Helper.Reuseable;
-using DG_TonKhoBTP_v02.Models;
+using UserContext = DG_TonKhoBTP_v02.Models.UserContext;
+using PrinterModel = DG_TonKhoBTP_v02.Models.PrinterModel;
 using KiemKeModel = DG_TonKhoBTP_v02.Models.KeToan.KiemKe;
 using DanhSachBinModel = DG_TonKhoBTP_v02.Models.KeToan.DanhSachBin;
 using DG_TonKhoBTP_v02.Printer;
@@ -41,10 +42,21 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
         {
             InitializeComponent();
 
+            // Nút cập nhật tồn kho chỉ dành cho tài khoản có vai trò Admin.
+            // Kiểm tra lại khi control được hiển thị (ví dụ: sau đăng nhập/đổi tài khoản).
+            RefreshCapNhatDuLieuPermission();
+            VisibleChanged += (sender, args) => RefreshCapNhatDuLieuPermission();
+
             _isInitializing = true;
             InitAutoCompleteSanPham();
             InitComboBox();
             _isInitializing = false;
+        }
+
+        private void RefreshCapNhatDuLieuPermission()
+        {
+            btnCapNhatDuLieu.Enabled = UserContext.IsAuthenticated
+                && UserContext.HasRole(RoleNames.Admin);
         }
 
         private void InitComboBox()
@@ -754,77 +766,73 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.KeToan
 
         private async void btnCapNhatDuLieu_Click(object sender, EventArgs e)
         {
-            if (!UserContext.IsAuthenticated)
+            if (!UserContext.IsAuthenticated || !UserContext.HasRole(RoleNames.Admin))
             {
-                FrmWaiting.ShowGifAlert($"Bạn cần cấp quyền để thực hiện yêu cầu này.");
+                RefreshCapNhatDuLieuPermission();
+                FrmWaiting.ShowGifAlert("Chỉ tài khoản có quyền Admin mới được cập nhật dữ liệu kiểm kê.");
                 return;
             }
-
             if (_isBusy) return;
 
             dsKiemKe.EndEdit();
-
-            var items = new List<KiemKeModel>();
-
+            var selectedIds = new List<long>();
             foreach (DataGridViewRow row in dsKiemKe.Rows)
             {
                 if (row == null || row.IsNewRow) continue;
-
                 bool isChecked = row.Cells["colCheck"]?.Value != null
-                                 && row.Cells["colCheck"].Value != DBNull.Value
-                                 && Convert.ToBoolean(row.Cells["colCheck"].Value);
-
+                    && row.Cells["colCheck"].Value != DBNull.Value
+                    && Convert.ToBoolean(row.Cells["colCheck"].Value);
                 if (!isChecked) continue;
 
-                if (!long.TryParse(row.Cells["DanhSachSP_ID"]?.Value?.ToString(), out long danhSachSpId))
-                    continue;
-
-                string maBin = row.Cells["MaBin"]?.Value?.ToString()?.Trim();
-                if (string.IsNullOrWhiteSpace(maBin))
-                    continue;
-
-                decimal? chieuDai = TryGetDecimalFromCell(row.Cells["ChieuDai"]);
-                decimal? khoiLuong = TryGetDecimalFromCell(row.Cells["KhoiLuong"]);
-                string ghiChu = row.Cells["GhiChu"]?.Value?.ToString();
-
-                items.Add(new KiemKeModel
+                if (!long.TryParse(row.Cells["id"]?.Value?.ToString(), out long id) || id <= 0)
                 {
-                    id = row.Cells["id"]?.Value != null && row.Cells["id"].Value != DBNull.Value
-                            ? (long?)Convert.ToInt64(row.Cells["id"].Value)
-                            : null,
-                    DanhSachSP_ID = danhSachSpId,
-                    MaBin = maBin,
-                    ChieuDai = chieuDai,
-                    KhoiLuong = khoiLuong,
-                    GhiChu = string.IsNullOrWhiteSpace(ghiChu) ? null : ghiChu.Trim(),
-                    DateInsert = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
-                });
+                    FrmWaiting.ShowGifAlert("Một phiếu được tích chọn không có ID hợp lệ. Không cập nhật dữ liệu.");
+                    return;
+                }
+                selectedIds.Add(id);
             }
 
-            if (items.Count == 0)
+            if (selectedIds.Count == 0)
             {
-                FrmWaiting.ShowGifAlert("Vui lòng chọn ít nhất 1 dòng hợp lệ.");
+                FrmWaiting.ShowGifAlert("Vui lòng tích chọn ít nhất một phiếu kiểm kê.");
                 return;
             }
 
             _isBusy = true;
             try
             {
+                // Phải kiểm tra toàn bộ trước khi hỏi reset hoặc thay đổi dữ liệu.
+                await WaitingHelper.RunWithWaiting(
+                    () => Task.Run(() => KiemKe_DB.ValidateCapNhatTTThanhPham(selectedIds)),
+                    "ĐANG KIỂM TRA DỮ LIỆU KIỂM KÊ...");
+
+                DialogResult resetChoice = MessageBox.Show(
+                    "Bạn có muốn reset database không?\n\n" +
+                    "Nếu chọn Có, KhoiLuongSau và ChieuDaiSau của TTThanhPham " +
+                    "(chỉ các bản ghi CongDoan khác 5, kể cả NULL và bản ghi tạm) sẽ về 0 " +
+                    "trước khi cập nhật các phiếu đã tích chọn.\n" +
+                    "Nếu chọn Không, chương trình chỉ cập nhật các phiếu đã chọn.\n\n" +
+                    "Dữ liệu được cập nhật từ các phiếu KIỂM KÊ ĐÃ LƯU trong database.",
+                    "XÁC NHẬN RESET DATABASE",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Warning,
+                    MessageBoxDefaultButton.Button2);
+                bool resetAll = resetChoice == DialogResult.Yes;
+
                 int affected = await WaitingHelper.RunWithWaiting(
-                    () => System.Threading.Tasks.Task.Run(() =>
-                        KiemKe_DB.UpsertTTThanhPhamByMaBin(items)),
+                    () => Task.Run(() => KiemKe_DB.CapNhatTTThanhPhamTheoKiemKe(selectedIds, resetAll)),
                     "ĐANG CẬP NHẬT DỮ LIỆU...");
 
+                await LoadDataKiemKeAsync(GetSelectedNguoiKKFilter());
                 FrmWaiting.ShowGifAlert(
-                    affected > 0
-                        ? $"Cập nhật thành công."
-                        : "Không có dòng nào được cập nhật.",
-                    affected > 0 ? "THÀNH CÔNG" : "THÔNG BÁO",
-                    affected > 0 ? EnumStore.Icon.Success : EnumStore.Icon.Warning);
+                    $"Đã cập nhật thành công {affected} phiếu kiểm kê." +
+                    (resetAll ? " Đã reset tồn kho các công đoạn khác 5." : " Không reset tồn kho."),
+                    "THÀNH CÔNG", EnumStore.Icon.Success);
             }
             catch (Exception ex)
             {
-                FrmWaiting.ShowGifAlert(CoreHelper.ShowErrorDatabase(ex, "UPSERT TTTHANHPHAM"));
+                FrmWaiting.ShowGifAlert("Không cập nhật dữ liệu. Mọi thay đổi trong lần xử lý này đã được hoàn tác (nếu có).\n" +
+                    ex.Message, "LỖI", EnumStore.Icon.Warning);
             }
             finally
             {

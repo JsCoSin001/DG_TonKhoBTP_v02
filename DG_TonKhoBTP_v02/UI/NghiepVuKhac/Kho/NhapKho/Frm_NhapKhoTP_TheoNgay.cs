@@ -32,6 +32,18 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
         private int _theHeGrid;
         private bool _dangThayTheGrid;
         private bool _dangNhapKho;
+
+        private bool _dangApDungLamMoi;
+        private const int WM_SETREDRAW = 0x000B;
+
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        private static extern IntPtr SendMessage(
+            IntPtr hWnd,
+            int msg,
+            IntPtr wParam,
+            IntPtr lParam);
+
+
         private bool _dangResetMacDinh;
         private bool _daCanhBaoNgayGoiYKhongHopLe;
         // Dấu vết chỉ bao gồm các giá trị thực sự tham gia lọc gợi ý.
@@ -82,15 +94,24 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
         private const string CDao = "col_DaoChieu";
         private const string CXoa = "col_Xoa";
 
-        private const string CotLotQcExcel = "LOT - QC";
+        private const string CotLotQcExcel = "lot_QC";
 
-        // Thứ tự và tên cột xuất Excel lấy từ những cột nghiệp vụ đang hiển thị.
-        // Loại trừ Chọn, SL còn, nút Đảo/Xóa và tất cả cột kỹ thuật ẩn.
-        private static readonly string[] CotXuatExcel = {
-            CNgay, CCa, CMaBin, CotLotQcExcel, CMaSP, CTenSP, CLoai,
-            CSoLuongNhap, CChieuDai, CSoDau, CSoCuoi,
-            CTongNhap, CGhiChu
+        private static readonly string[] CotXuatExcel =
+        {
+            CNgay,
+            CCa,
+            CLoai,
+            CTenSP,
+            CMaBin,
+            CotLotQcExcel,
+            CTongNhap,
+            CSoLuongNhap,
+            CChieuDai,
+            CSoDau,
+            CSoCuoi,
+            CGhiChu
         };
+
         private const string CotIdXuatNoiBo = "TTThanhPham_ID";
 
         public Frm_NhapKhoTP_TheoNgay()
@@ -588,13 +609,25 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
                 dsNhapKho.CommitEdit(DataGridViewDataErrorContexts.Commit);
         }
 
-        private void dsNhapKho_CellValueChanged(object sender, DataGridViewCellEventArgs e)
+
+        private void dsNhapKho_CellValueChanged(
+            object sender,
+            DataGridViewCellEventArgs e)
         {
-            if (e.RowIndex < 0 || e.ColumnIndex < 0) return;
+            if (_dangApDungLamMoi ||
+                e.RowIndex < 0 ||
+                e.ColumnIndex < 0)
+                return;
+
             string name = dsNhapKho.Columns[e.ColumnIndex].Name;
-            if (name == CChon && !_dangDongBoCbxAll) DongBoCbxAllTuGrid();
-            if (name == CSoLuongNhap) CapNhatTongDong(dsNhapKho.Rows[e.RowIndex]);
+
+            if (name == CChon && !_dangDongBoCbxAll)
+                DongBoCbxAllTuGrid();
+
+            if (name == CSoLuongNhap)
+                CapNhatTongDong(dsNhapKho.Rows[e.RowIndex]);
         }
+
 
         private void DongBoCbxAllTuGrid()
         {
@@ -983,129 +1016,485 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
             return results;
         }
 
-        private async Task RefreshNhomDaXuLyAsync(HashSet<long> successIds,
-            HashSet<long> failedIds, HashSet<Tuple<long, long, int?>> selectedKeys)
+
+        private sealed class KetQuaTaiLaiMaBin
         {
-            // Chỉ thay nhóm đã nhập kho, giữ nguyên mọi dòng khác và số lượng đã chỉnh.
-            var handled = new HashSet<long>(successIds);
-            handled.UnionWith(failedIds);
-            var oldById = dsNhapKho.Rows.Cast<DataGridViewRow>()
-                .Where(r => handled.Contains(ParseLong(r.Cells[CTTThanhPhamId].Value)))
-                .GroupBy(r => ParseLong(r.Cells[CTTThanhPhamId].Value))
-                .ToDictionary(g => g.Key, g => g.ToList());
-            var warnings = new List<string>();
+            public long MaBinId { get; set; }
 
-            foreach (long id in handled)
-            {
-                if (!oldById.TryGetValue(id, out List<DataGridViewRow> oldRows))
-                    continue;
-                // Nạp lại theo điều kiện gốc của nhóm, không lấy điều kiện trên form hiện tại.
-                var boLoc = _boLocNguonTheoMaBin.TryGetValue(id, out BoLocNhapKhoTheoNgay saved)
-                    ? saved.Copy()
-                    : (_boLocDaTim?.Copy() ?? new BoLocNhapKhoTheoNgay { Ca = "Toàn bộ" });
-                boLoc.TTThanhPhamId = id;
-                List<NhapKhoTheoNgayDong> freshRows;
-                try
-                {
-                    NhapKhoTheoNgaySearchResult fresh = await WaitingHelper.RunWithWaiting(
-                        () => Task.Run(() => TimKiemTheoBoLoc(boLoc)),
-                        "ĐANG CẬP NHẬT DANH SÁCH NHẬP KHO...");
-                    freshRows = fresh.Items.Where(x => x.TTThanhPham_ID == id)
-                        .GroupBy(KhoaChiTiet).Select(g => g.First()).ToList();
-                }
-                catch (Exception ex)
-                {
-                    if (successIds.Contains(id))
-                    {
-                        // Dòng đã Commit không được phép xuất hiện lại để nhập trùng.
-                        foreach (var row in oldRows) dsNhapKho.Rows.Remove(row);
-                        _boLocNguonTheoMaBin.Remove(id);
-                    }
-                    else
-                    {
-                        foreach (var row in oldRows) row.Cells[CChon].Value = false;
-                    }
-                    warnings.Add($"Mã Bin ID {id}: không tải lại được ({ex.Message}).");
-                    continue;
-                }
+            public List<NhapKhoTheoNgayDong> Items { get; set; }
+                = new List<NhapKhoTheoNgayDong>();
 
-                var oldByKey = oldRows.ToDictionary(KhoaChiTiet);
-                // Giữ ảnh chụp cho trường hợp nhóm lỗi không còn trả về từ DB.
-                List<NhapKhoTheoNgayDong> oldItems = failedIds.Contains(id) && freshRows.Count == 0
-                    ? oldRows.Select(CloneDisplay).ToList()
-                    : new List<NhapKhoTheoNgayDong>();
-                // Chỉ xóa các dòng thuộc Mã Bin đang xử lý.
-                foreach (var row in oldRows) dsNhapKho.Rows.Remove(row);
-
-                if (failedIds.Contains(id) && freshRows.Count == 0)
-                {
-                    foreach (var oldItem in oldItems)
-                    {
-                        oldItem.SoLuongCon = 0;
-                        ThemDong(oldItem, false);
-                        DataGridViewRow blocked = dsNhapKho.Rows[dsNhapKho.Rows.Count - 1];
-                        blocked.Cells[CSoLuongNhap].Value = 0;
-                        CapNhatTongDong(blocked);
-                    }
-                    warnings.Add($"Mã Bin ID {id}: không còn dữ liệu hợp lệ, cần kiểm tra lại.");
-                    continue;
-                }
-
-                foreach (var fresh in freshRows)
-                {
-                    ThemDong(fresh, false);
-                    DataGridViewRow newRow = dsNhapKho.Rows[dsNhapKho.Rows.Count - 1];
-                    var key = KhoaChiTiet(fresh);
-                    // Chỉ giữ chỉnh sửa chưa được nhập nếu vẫn còn hợp lệ.
-                    if ((!successIds.Contains(id) || !selectedKeys.Contains(key)) &&
-                        oldByKey.TryGetValue(key, out DataGridViewRow old))
-                    {
-                        int oldQty = ParseNullableInt(old.Cells[CSoLuongNhap].Value) ?? 0;
-                        int validQty = Math.Max(0, Math.Min(oldQty, fresh.SoLuongCon));
-                        newRow.Cells[CSoLuongNhap].Value = validQty;
-                        int? dau = ParseNullableInt(old.Cells[CSoDau].Value);
-                        int? cuoi = ParseNullableInt(old.Cells[CSoCuoi].Value);
-                        if (!fresh.TTLo_ID.HasValue ||
-                            (dau.HasValue && cuoi.HasValue &&
-                             Math.Abs((long)dau.Value - cuoi.Value) == fresh.ChieuDai1Cuon))
-                        {
-                            newRow.Cells[CSoDau].Value = dau;
-                            newRow.Cells[CSoCuoi].Value = cuoi;
-                        }
-                        CapNhatTongDong(newRow);
-                        if (oldQty > fresh.SoLuongCon)
-                            warnings.Add($"Mã Bin ID {id}: số lượng đã sửa vượt số còn, cần kiểm tra lại.");
-                    }
-                }
-                if (freshRows.Count == 0)
-                    _boLocNguonTheoMaBin.Remove(id);
-            }
-            DongBoCbxAllTuGrid();
-            if (warnings.Count > 0)
-                FrmWaiting.ShowGifAlert(string.Join("\n", warnings), "KIỂM TRA LẠI");
+            public string Loi { get; set; } = string.Empty;
+            public bool CoLoi { get; set; }
         }
 
-        private NhapKhoTheoNgayDong CloneDisplay(DataGridViewRow row)
+        private object GiaTriCot(
+            DataGridViewRow row, string tenCot)
         {
-            return new NhapKhoTheoNgayDong
+            return row.Cells[dsNhapKho.Columns[tenCot].Index].Value;
+        }
+
+        private void GanGiaTriCot(
+            DataGridViewRow row, string tenCot, object giaTri)
+        {
+            row.Cells[dsNhapKho.Columns[tenCot].Index].Value = giaTri;
+        }
+
+        private static DataGridViewRow SaoChepDongGrid(
+            DataGridViewRow nguon)
+        {
+            var banSao = (DataGridViewRow)nguon.Clone();
+
+            for (int i = 0; i < nguon.Cells.Count; i++)
+                banSao.Cells[i].Value = nguon.Cells[i].Value;
+
+            return banSao;
+        }
+
+        private DataGridViewRow TaoDongTam(
+            NhapKhoTheoNgayDong item)
+        {
+            var row = new DataGridViewRow();
+            row.CreateCells(dsNhapKho);
+            row.Height = dsNhapKho.RowTemplate.Height;
+
+            GanGiaTriCot(row, CChon, false);
+            GanGiaTriCot(row, CTTThanhPhamId, item.TTThanhPham_ID);
+            GanGiaTriCot(row, CSourceId, item.TTCuonDay_CD_ID);
+            GanGiaTriCot(row, CTTLoId,
+                item.TTLo_ID.HasValue
+                    ? (object)item.TTLo_ID.Value : null);
+            GanGiaTriCot(row, CSnapshot, item.ChieuDaiSauSnapshot);
+            GanGiaTriCot(row, CNgay, item.Ngay);
+            GanGiaTriCot(row, CCa, item.Ca);
+            GanGiaTriCot(row, CMaBin, item.MaBin);
+            GanGiaTriCot(row, CMaSP, item.MaSP);
+            GanGiaTriCot(row, CTenSP, item.TenSP);
+
+            GanGiaTriCot(row, CLoai,
+                item.TTLo_ID.HasValue
+                    ? (string.IsNullOrWhiteSpace(item.KichThuocLo)
+                        ? "Lô" : "Lô " + item.KichThuocLo)
+                    : "Cuộn");
+
+            GanGiaTriCot(row, CSoLuongCon, item.SoLuongCon);
+            GanGiaTriCot(row, CSoLuongNhap, item.SoLuongCon);
+            GanGiaTriCot(row, CChieuDai, item.ChieuDai1Cuon);
+
+            GanGiaTriCot(row, CSoDau,
+                item.SoDau.HasValue ? (object)item.SoDau.Value : null);
+
+            GanGiaTriCot(row, CSoCuoi,
+                item.SoCuoi.HasValue ? (object)item.SoCuoi.Value : null);
+
+            GanGiaTriCot(row, CGhiChu, item.GhiChu ?? string.Empty);
+
+            GanGiaTriCot(row, CTongNhap,
+                (item.SoLuongCon * item.ChieuDai1Cuon)
+                .ToString(CultureInfo.InvariantCulture));
+
+            return row;
+        }
+
+        private async Task RefreshNhomDaXuLyAsync(
+            HashSet<long> successIds,
+            HashSet<long> failedIds,
+            HashSet<Tuple<long, long, int?>> selectedKeys)
+        {
+            var handled = new HashSet<long>(successIds);
+            handled.UnionWith(failedIds);
+
+            if (handled.Count == 0 || IsDisposed)
+                return;
+
+            // 1. Chụp toàn bộ Grid hiện tại.
+            List<DataGridViewRow> oldRows =
+                dsNhapKho.Rows.Cast<DataGridViewRow>().ToList();
+
+            var oldById = oldRows
+                .Where(r => handled.Contains(
+                    ParseLong(r.Cells[CTTThanhPhamId].Value)))
+                .GroupBy(r =>
+                    ParseLong(r.Cells[CTTThanhPhamId].Value))
+                .ToDictionary(g => g.Key, g => g.ToList());
+
+            var requests = handled
+                .Where(oldById.ContainsKey)
+                .Select(id =>
+                    new KeyValuePair<long, BoLocNhapKhoTheoNgay>(
+                        id,
+                        (_boLocNguonTheoMaBin.TryGetValue(
+                            id, out BoLocNhapKhoTheoNgay saved)
+                            ? saved
+                            : (_boLocDaTim ??
+                                new BoLocNhapKhoTheoNgay
+                                { Ca = "Toàn bộ" })).Copy()))
+                .ToList();
+
+            foreach (var request in requests)
+                request.Value.TTThanhPhamId = request.Key;
+
+            // 2. Truy vấn tất cả nhóm trước.
+            // Chưa thay đổi bất kỳ dòng nào trên Grid.
+            List<KetQuaTaiLaiMaBin> queried =
+                await WaitingHelper.RunWithWaiting(
+                    () => Task.Run(() =>
+                    {
+                        var ketQua = new List<KetQuaTaiLaiMaBin>();
+
+                        foreach (var request in requests)
+                        {
+                            var nhom = new KetQuaTaiLaiMaBin
+                            {
+                                MaBinId = request.Key
+                            };
+
+                            try
+                            {
+                                NhapKhoTheoNgaySearchResult fresh =
+                                    TimKiemTheoBoLoc(request.Value);
+
+                                nhom.Items = fresh.Items
+                                    .Where(x =>
+                                        x.TTThanhPham_ID == request.Key)
+                                    .GroupBy(KhoaChiTiet)
+                                    .Select(g => g.First())
+                                    .ToList();
+                            }
+                            catch (Exception ex)
+                            {
+                                nhom.CoLoi = true;
+                                nhom.Loi = ex.Message;
+                            }
+
+                            ketQua.Add(nhom);
+                        }
+
+                        return ketQua;
+                    }),
+                    "ĐANG CẬP NHẬT DANH SÁCH NHẬP KHO...");
+
+            if (IsDisposed)
+                return;
+
+            // 3. Dựng danh sách kết quả trước khi cập nhật UI.
+            var resultById = queried
+                .ToDictionary(x => x.MaBinId);
+
+            var freshById = queried
+                .Where(x => !x.CoLoi)
+                .ToDictionary(
+                    x => x.MaBinId,
+                    x => x.Items.ToDictionary(KhoaChiTiet));
+
+            var lastIndexById = oldRows
+                .Select((row, index) => new { row, index })
+                .Where(x => handled.Contains(
+                    ParseLong(x.row.Cells[CTTThanhPhamId].Value)))
+                .GroupBy(x =>
+                    ParseLong(x.row.Cells[CTTThanhPhamId].Value))
+                .ToDictionary(g => g.Key, g => g.Max(x => x.index));
+
+            var seenKeys =
+                new HashSet<Tuple<long, long, int?>>();
+
+            var plannedRows =
+                new List<DataGridViewRow>(oldRows.Count);
+
+            var warnings = new List<string>();
+            var removeFilterIds = new HashSet<long>();
+
+            foreach (KetQuaTaiLaiMaBin nhom in queried)
             {
-                TTThanhPham_ID = ParseLong(row.Cells[CTTThanhPhamId].Value),
-                Ngay = Convert.ToString(row.Cells[CNgay].Value) ?? string.Empty,
-                Ca = Convert.ToString(row.Cells[CCa].Value) ?? string.Empty,
-                MaBin = Convert.ToString(row.Cells[CMaBin].Value) ?? string.Empty,
-                MaSP = Convert.ToString(row.Cells[CMaSP].Value) ?? string.Empty,
-                TenSP = Convert.ToString(row.Cells[CTenSP].Value) ?? string.Empty,
-                KichThuocLo = (Convert.ToString(row.Cells[CLoai].Value) ?? string.Empty).StartsWith("Lô ")
-                    ? (Convert.ToString(row.Cells[CLoai].Value) ?? string.Empty).Substring(3) : string.Empty,
-                ChieuDaiSauSnapshot = ParseDouble(row.Cells[CSnapshot].Value),
-                TTCuonDay_CD_ID = ParseLong(row.Cells[CSourceId].Value),
-                TTLo_ID = ParseNullableInt(row.Cells[CTTLoId].Value),
-                SoLuongCon = int.TryParse(Convert.ToString(row.Cells[CSoLuongCon].Value), out int sc) ? sc : 0,
-                ChieuDai1Cuon = int.TryParse(Convert.ToString(row.Cells[CChieuDai].Value), out int cd) ? cd : 0,
-                SoDau = ParseNullableInt(row.Cells[CSoDau].Value),
-                SoCuoi = ParseNullableInt(row.Cells[CSoCuoi].Value),
-                GhiChu = Convert.ToString(row.Cells[CGhiChu].Value) ?? string.Empty
-            };
+                if (nhom.CoLoi)
+                {
+                    if (successIds.Contains(nhom.MaBinId))
+                        removeFilterIds.Add(nhom.MaBinId);
+
+                    warnings.Add(
+                        $"Mã Bin ID {nhom.MaBinId}: " +
+                        $"không tải lại được ({nhom.Loi}).");
+                }
+                else if (
+                    failedIds.Contains(nhom.MaBinId) &&
+                    nhom.Items.Count == 0)
+                {
+                    warnings.Add(
+                        $"Mã Bin ID {nhom.MaBinId}: " +
+                        "không còn dữ liệu hợp lệ, cần kiểm tra lại.");
+                }
+                else if (nhom.Items.Count == 0)
+                {
+                    removeFilterIds.Add(nhom.MaBinId);
+                }
+            }
+
+            for (int i = 0; i < oldRows.Count; i++)
+            {
+                DataGridViewRow old = oldRows[i];
+                long id = ParseLong(
+                    old.Cells[CTTThanhPhamId].Value);
+
+                // Nhóm chưa xử lý: giữ nguyên dữ liệu.
+                if (!resultById.TryGetValue(
+                    id, out KetQuaTaiLaiMaBin nhom))
+                {
+                    plannedRows.Add(SaoChepDongGrid(old));
+                    continue;
+                }
+
+                // Truy vấn lỗi sau khi nhập.
+                if (nhom.CoLoi)
+                {
+                    if (failedIds.Contains(id))
+                    {
+                        DataGridViewRow backup =
+                            SaoChepDongGrid(old);
+
+                        GanGiaTriCot(backup, CChon, false);
+                        plannedRows.Add(backup);
+                    }
+
+                    // Nhóm đã ghi kho không được đưa lại
+                    // bằng dữ liệu cũ để tránh nhập trùng.
+                    continue;
+                }
+
+                // Nhóm nhập thất bại và không còn dữ liệu hợp lệ.
+                if (failedIds.Contains(id) &&
+                    nhom.Items.Count == 0)
+                {
+                    DataGridViewRow blocked =
+                        SaoChepDongGrid(old);
+
+                    GanGiaTriCot(blocked, CChon, false);
+                    GanGiaTriCot(blocked, CSoLuongCon, 0);
+                    GanGiaTriCot(blocked, CSoLuongNhap, 0);
+                    GanGiaTriCot(blocked, CTongNhap, "0");
+
+                    plannedRows.Add(blocked);
+                    continue;
+                }
+
+                var oldKey = KhoaChiTiet(old);
+
+                if (freshById[id].TryGetValue(
+                        oldKey, out NhapKhoTheoNgayDong fresh)
+                    && seenKeys.Add(oldKey))
+                {
+                    DataGridViewRow restored = TaoDongTam(fresh);
+
+                    // Giữ chỉnh sửa chưa nhập, nhưng giới hạn
+                    // không vượt số lượng thực tế còn lại.
+                    if (!successIds.Contains(id) ||
+                        !selectedKeys.Contains(oldKey))
+                    {
+                        int oldQty =
+                            ParseNullableInt(
+                                old.Cells[CSoLuongNhap].Value) ?? 0;
+
+                        int validQty =
+                            Math.Max(0,
+                                Math.Min(oldQty, fresh.SoLuongCon));
+
+                        GanGiaTriCot(
+                            restored, CSoLuongNhap, validQty);
+
+                        int? dau =
+                            ParseNullableInt(old.Cells[CSoDau].Value);
+
+                        int? cuoi =
+                            ParseNullableInt(old.Cells[CSoCuoi].Value);
+
+                        if (!fresh.TTLo_ID.HasValue ||
+                            (dau.HasValue && cuoi.HasValue &&
+                             Math.Abs(
+                                 (long)dau.Value - cuoi.Value)
+                             == fresh.ChieuDai1Cuon))
+                        {
+                            GanGiaTriCot(restored, CSoDau,
+                                dau.HasValue
+                                    ? (object)dau.Value : null);
+
+                            GanGiaTriCot(restored, CSoCuoi,
+                                cuoi.HasValue
+                                    ? (object)cuoi.Value : null);
+                        }
+
+                        GanGiaTriCot(restored, CTongNhap,
+                            (validQty * fresh.ChieuDai1Cuon)
+                            .ToString(CultureInfo.InvariantCulture));
+
+                        if (oldQty > fresh.SoLuongCon)
+                        {
+                            warnings.Add(
+                                $"Mã Bin ID {id}: " +
+                                "số lượng đã sửa vượt số còn, " +
+                                "cần kiểm tra lại.");
+                        }
+                    }
+
+                    plannedRows.Add(restored);
+                }
+
+                // Dòng mới của DB được chèn sau vị trí
+                // cuối cùng của nhóm cũ.
+                if (lastIndexById[id] == i)
+                {
+                    foreach (NhapKhoTheoNgayDong item in nhom.Items)
+                    {
+                        if (seenKeys.Add(KhoaChiTiet(item)))
+                            plannedRows.Add(TaoDongTam(item));
+                    }
+                }
+            }
+
+            // 4. Lưu vị trí đang xem.
+            int topIndex =
+                dsNhapKho.FirstDisplayedScrollingRowIndex;
+
+            int currentIndex =
+                dsNhapKho.CurrentCell?.RowIndex ?? -1;
+
+            int currentColumn =
+                dsNhapKho.CurrentCell?.ColumnIndex ?? -1;
+
+            int horizontalScroll =
+                dsNhapKho.HorizontalScrollingOffset;
+
+            var topKey =
+                topIndex >= 0 && topIndex < oldRows.Count
+                    ? KhoaChiTiet(oldRows[topIndex]) : null;
+
+            var currentKey =
+                currentIndex >= 0 && currentIndex < oldRows.Count
+                    ? KhoaChiTiet(oldRows[currentIndex]) : null;
+
+            // 5. Cập nhật đồng loạt, khóa vẽ tạm thời.
+            bool redrawDisabled = false;
+            _dangApDungLamMoi = true;
+            dsNhapKho.SuspendLayout();
+
+            try
+            {
+                if (dsNhapKho.IsHandleCreated)
+                {
+                    SendMessage(
+                        dsNhapKho.Handle,
+                        WM_SETREDRAW,
+                        IntPtr.Zero,
+                        IntPtr.Zero);
+
+                    redrawDisabled = true;
+                }
+
+                dsNhapKho.Rows.Clear();
+
+                if (plannedRows.Count > 0)
+                    dsNhapKho.Rows.AddRange(
+                        plannedRows.ToArray());
+
+                foreach (long id in removeFilterIds)
+                    _boLocNguonTheoMaBin.Remove(id);
+
+                if (dsNhapKho.Rows.Count > 0)
+                {
+                    int wantedCurrent = currentKey == null
+                        ? -1
+                        : plannedRows.FindIndex(r =>
+                            KhoaChiTietTrongDongTam(r)
+                                .Equals(currentKey));
+
+                    if (wantedCurrent < 0 && currentIndex >= 0)
+                        wantedCurrent = Math.Min(
+                            currentIndex,
+                            dsNhapKho.Rows.Count - 1);
+
+                    if (wantedCurrent >= 0 &&
+                        currentColumn >= 0 &&
+                        currentColumn < dsNhapKho.Columns.Count)
+                    {
+                        dsNhapKho.CurrentCell =
+                            dsNhapKho.Rows[wantedCurrent]
+                                .Cells[currentColumn];
+                    }
+
+                    int wantedTop = topKey == null
+                        ? -1
+                        : plannedRows.FindIndex(r =>
+                            KhoaChiTietTrongDongTam(r)
+                                .Equals(topKey));
+
+                    if (wantedTop < 0 && topIndex >= 0)
+                        wantedTop = Math.Min(
+                            topIndex,
+                            dsNhapKho.Rows.Count - 1);
+
+                    if (wantedTop >= 0)
+                    {
+                        try
+                        {
+                            dsNhapKho.FirstDisplayedScrollingRowIndex =
+                                wantedTop;
+                        }
+                        catch (InvalidOperationException)
+                        {
+                        }
+                        catch (ArgumentOutOfRangeException)
+                        {
+                        }
+                    }
+
+                    try
+                    {
+                        dsNhapKho.HorizontalScrollingOffset =
+                            horizontalScroll;
+                    }
+                    catch (ArgumentOutOfRangeException)
+                    {
+                    }
+                }
+                else
+                {
+                    dsNhapKho.ClearSelection();
+                }
+            }
+            finally
+            {
+                dsNhapKho.ResumeLayout(true);
+
+                if (redrawDisabled && !dsNhapKho.IsDisposed)
+                {
+                    SendMessage(
+                        dsNhapKho.Handle,
+                        WM_SETREDRAW,
+                        new IntPtr(1),
+                        IntPtr.Zero);
+
+                    dsNhapKho.Invalidate(true);
+                }
+
+                _dangApDungLamMoi = false;
+            }
+
+            dsNhapKho.Refresh();
+            DongBoCbxAllTuGrid();
+
+            if (warnings.Count > 0)
+            {
+                FrmWaiting.ShowGifAlert(
+                    string.Join("\n", warnings),
+                    "KIỂM TRA LẠI");
+            }
+        }
+
+        private Tuple<long, long, int?> KhoaChiTietTrongDongTam(
+            DataGridViewRow row)
+        {
+            return Tuple.Create(
+                ParseLong(GiaTriCot(row, CTTThanhPhamId)),
+                ParseLong(GiaTriCot(row, CSourceId)),
+                ParseNullableInt(GiaTriCot(row, CTTLoId)));
         }
 
         private static string LayUsernameTuUserContext()

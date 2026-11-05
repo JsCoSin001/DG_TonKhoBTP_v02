@@ -512,6 +512,9 @@
     <Compile Include="UI\Actions\UC_Edit.Designer.cs">
       <DependentUpon>UC_Edit.cs</DependentUpon>
     </Compile>
+    <Compile Include="UI\NghiepVuKhac\SanXuat\Frm_MonthyReportDetail.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="UI\NghiepVuKhac\SanXuat\UC_MonthyReport.cs">
       <SubType>Form</SubType>
     </Compile>

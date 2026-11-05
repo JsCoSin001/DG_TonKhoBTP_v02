@@ -215,7 +215,7 @@
             // 
             this.cbxTimTenSp.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbxTimTenSp.FormattingEnabled = true;
-            this.cbxTimTenSp.Location = new System.Drawing.Point(444, 38);
+            this.cbxTimTenSp.Location = new System.Drawing.Point(444, 40);
             this.cbxTimTenSp.Name = "cbxTimTenSp";
             this.cbxTimTenSp.Size = new System.Drawing.Size(280, 26);
             this.cbxTimTenSp.TabIndex = 3;
@@ -259,7 +259,7 @@
             // 
             this.cbxLOT.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbxLOT.FormattingEnabled = true;
-            this.cbxLOT.Location = new System.Drawing.Point(730, 38);
+            this.cbxLOT.Location = new System.Drawing.Point(730, 40);
             this.cbxLOT.Name = "cbxLOT";
             this.cbxLOT.Size = new System.Drawing.Size(194, 26);
             this.cbxLOT.TabIndex = 3;

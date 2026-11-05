@@ -54,6 +54,8 @@
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
             this.cbxXuatExcel = new System.Windows.Forms.CheckBox();
+            this.label3 = new System.Windows.Forms.Label();
+            this.cbxMay = new System.Windows.Forms.ComboBox();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.groupBox4.SuspendLayout();
@@ -114,24 +116,27 @@
             // 
             // tableLayoutPanel1
             // 
-            this.tableLayoutPanel1.ColumnCount = 6;
+            this.tableLayoutPanel1.ColumnCount = 7;
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 150F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 150F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 141F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 100F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 110F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 286F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 200F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel1.Controls.Add(this.btnTimKiem, 5, 1);
+            this.tableLayoutPanel1.Controls.Add(this.btnTimKiem, 6, 1);
             this.tableLayoutPanel1.Controls.Add(this.label4, 2, 0);
             this.tableLayoutPanel1.Controls.Add(this.dtNgayBD, 0, 1);
             this.tableLayoutPanel1.Controls.Add(this.dtNgayKT, 1, 1);
             this.tableLayoutPanel1.Controls.Add(this.cbxCa, 2, 1);
-            this.tableLayoutPanel1.Controls.Add(this.label5, 3, 0);
-            this.tableLayoutPanel1.Controls.Add(this.cbxTimTenSp, 3, 1);
+            this.tableLayoutPanel1.Controls.Add(this.label5, 4, 0);
+            this.tableLayoutPanel1.Controls.Add(this.cbxTimTenSp, 4, 1);
             this.tableLayoutPanel1.Controls.Add(this.cbxNgayBD, 0, 0);
             this.tableLayoutPanel1.Controls.Add(this.cbxNgayKT, 1, 0);
-            this.tableLayoutPanel1.Controls.Add(this.label2, 4, 0);
-            this.tableLayoutPanel1.Controls.Add(this.cbxLOT, 4, 1);
+            this.tableLayoutPanel1.Controls.Add(this.label2, 5, 0);
+            this.tableLayoutPanel1.Controls.Add(this.cbxLOT, 5, 1);
+            this.tableLayoutPanel1.Controls.Add(this.label3, 3, 0);
+            this.tableLayoutPanel1.Controls.Add(this.cbxMay, 3, 1);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.tableLayoutPanel1.Location = new System.Drawing.Point(3, 19);
@@ -144,9 +149,9 @@
             // 
             // btnTimKiem
             // 
-            this.btnTimKiem.Location = new System.Drawing.Point(930, 31);
+            this.btnTimKiem.Location = new System.Drawing.Point(999, 31);
             this.btnTimKiem.Name = "btnTimKiem";
-            this.btnTimKiem.Size = new System.Drawing.Size(126, 40);
+            this.btnTimKiem.Size = new System.Drawing.Size(113, 40);
             this.btnTimKiem.TabIndex = 1;
             this.btnTimKiem.Text = "Tìm kiếm";
             this.btnTimKiem.UseVisualStyleBackColor = true;
@@ -157,7 +162,7 @@
             this.label4.AutoSize = true;
             this.label4.Location = new System.Drawing.Point(303, 5);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(135, 18);
+            this.label4.Size = new System.Drawing.Size(94, 18);
             this.label4.TabIndex = 0;
             this.label4.Text = "Ca";
             this.label4.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -198,14 +203,14 @@
             "3"});
             this.cbxCa.Location = new System.Drawing.Point(303, 38);
             this.cbxCa.Name = "cbxCa";
-            this.cbxCa.Size = new System.Drawing.Size(135, 26);
+            this.cbxCa.Size = new System.Drawing.Size(94, 26);
             this.cbxCa.TabIndex = 2;
             // 
             // label5
             // 
             this.label5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(444, 5);
+            this.label5.Location = new System.Drawing.Point(513, 5);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(280, 18);
             this.label5.TabIndex = 0;
@@ -215,7 +220,7 @@
             // 
             this.cbxTimTenSp.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbxTimTenSp.FormattingEnabled = true;
-            this.cbxTimTenSp.Location = new System.Drawing.Point(444, 40);
+            this.cbxTimTenSp.Location = new System.Drawing.Point(513, 38);
             this.cbxTimTenSp.Name = "cbxTimTenSp";
             this.cbxTimTenSp.Size = new System.Drawing.Size(280, 26);
             this.cbxTimTenSp.TabIndex = 3;
@@ -248,7 +253,7 @@
             // 
             this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(730, 5);
+            this.label2.Location = new System.Drawing.Point(799, 5);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(194, 18);
             this.label2.TabIndex = 0;
@@ -259,7 +264,7 @@
             // 
             this.cbxLOT.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbxLOT.FormattingEnabled = true;
-            this.cbxLOT.Location = new System.Drawing.Point(730, 40);
+            this.cbxLOT.Location = new System.Drawing.Point(799, 38);
             this.cbxLOT.Name = "cbxLOT";
             this.cbxLOT.Size = new System.Drawing.Size(194, 26);
             this.cbxLOT.TabIndex = 3;
@@ -377,6 +382,28 @@
             this.cbxXuatExcel.Text = "Xuất excel";
             this.cbxXuatExcel.UseVisualStyleBackColor = true;
             // 
+            // label3
+            // 
+            this.label3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(403, 5);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(104, 18);
+            this.label3.TabIndex = 0;
+            this.label3.Text = "Máy";
+            this.label3.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // cbxMay
+            // 
+            this.cbxMay.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.cbxMay.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cbxMay.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cbxMay.FormattingEnabled = true;
+            this.cbxMay.Location = new System.Drawing.Point(403, 38);
+            this.cbxMay.Name = "cbxMay";
+            this.cbxMay.Size = new System.Drawing.Size(104, 26);
+            this.cbxMay.TabIndex = 2;
+            // 
             // Frm_NhapKhoTP_TheoNgay
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 16F);
@@ -435,5 +462,7 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.ComboBox cbxLOT;
         private System.Windows.Forms.CheckBox cbxXuatExcel;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.ComboBox cbxMay;
     }
 }

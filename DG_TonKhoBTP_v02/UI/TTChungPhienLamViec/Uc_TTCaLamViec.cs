@@ -153,10 +153,18 @@ namespace DG_TonKhoBTP_v02.UI
                     CaLamViecPolicy.GioDauCa(cbxCaKT.Text).HasValue;
 
                 // Khi chọn ca kết thúc, tự động lấy giờ hiện tại.
-                if (caThayDoi && dtGioKT.Enabled)
+                if (caThayDoi)
                 {
-                    dtGioKT.Value = DateTime.Now;
-                    dtGioKT.Checked = true;
+                    if (dtGioKT.Enabled)
+                    {
+                        dtGioKT.Value = DateTime.Now;
+                        dtGioKT.Checked = true;
+                    }
+                    else
+                    {
+                        // Bỏ chọn Ca kết thúc cũng hủy xác nhận giờ, tránh giữ giờ cũ.
+                        dtGioKT.Checked = false;
+                    }
                 }
 
                 dtGioKT.ShowCheckBox = !dtGioKT.Checked;
@@ -631,8 +639,9 @@ namespace DG_TonKhoBTP_v02.UI
                 tbxNguoiKT.Clear();
                 cbxCaKT.SelectedIndex = -1;
                 dtGioKT.Enabled = false;
-                dtGioKT.Checked = true;
-                dtGioKT.ShowCheckBox = false;
+                // Chưa chọn Ca kết thúc thì giờ kết thúc cũng phải ở trạng thái chưa chọn.
+                dtGioKT.Checked = false;
+                dtGioKT.ShowCheckBox = true;
                 _loiGioBatDau.SetError(tbNgayKT, string.Empty);
                 _loiGioBatDau.SetError(cbxCaKT, string.Empty);
                 _loiGioBatDau.SetError(dtGioKT, string.Empty);

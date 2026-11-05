@@ -24,7 +24,9 @@ namespace DG_TonKhoBTP_v02.Helper
             if (!CaLamViecPolicy.GioBatDauHopLe(data.Ca, data.GioBatDau))
                 return 5;
 
-            if (!string.IsNullOrEmpty(CaLamViecPolicy.LayLoiKetThuc(data, out _)))
+            // Lưu chính thức yêu cầu đủ bốn thông tin kết thúc; Lưu tạm không dùng validator này.
+            if (LayDanhSachLoiBatBuocKetThuc(data).Count > 0 ||
+                !string.IsNullOrEmpty(CaLamViecPolicy.LayLoiKetThuc(data, out _)))
                 return 6;
 
             return 0;
@@ -34,18 +36,13 @@ namespace DG_TonKhoBTP_v02.Helper
         {
             var result = new List<string>();
 
-            if (data == null || CaLamViecPolicy.LaNgayChuaChon(data.NgayKetThuc))
-                result.Add(EnumStore.ErrorCaLamViec[4]);
+            result.AddRange(LayDanhSachLoiBatBuocKetThuc(data));
 
             if (data == null || string.IsNullOrWhiteSpace(data.May))
                 result.Add(EnumStore.ErrorCaLamViec[1]);
 
             if (data == null || string.IsNullOrWhiteSpace(data.NguoiLam))
                 result.Add(EnumStore.ErrorCaLamViec[2]);
-
-            // BỔ SUNG: Bắt buộc nhập Người kết thúc ca làm việc
-            if (data == null || string.IsNullOrWhiteSpace(data.NguoiKetThuc))
-                result.Add("Vui lòng nhập Người kết thúc ca làm việc.");
 
             string loiGioBatDau = CaLamViecPolicy.LayLoiGioBatDau(data?.Ca, data?.GioBatDau);
             if (!string.IsNullOrEmpty(loiGioBatDau))
@@ -56,6 +53,27 @@ namespace DG_TonKhoBTP_v02.Helper
                 result.Add(loiKetThuc);
 
             return result;
+        }
+
+        // Chỉ áp dụng cho LƯU CHÍNH THỨC, không gọi từ LuuTamValidator.
+        // Trả về từng lỗi riêng để người dùng biết chính xác ô nào còn thiếu.
+        private static List<string> LayDanhSachLoiBatBuocKetThuc(ThongTinCaLamViec data)
+        {
+            var errors = new List<string>();
+
+            if (data == null || CaLamViecPolicy.LaNgayChuaChon(data.NgayKetThuc))
+                errors.Add(EnumStore.ErrorCaLamViec[4]);
+
+            if (data == null || string.IsNullOrWhiteSpace(data.CaKetThuc))
+                errors.Add("Vui lòng chọn Ca kết thúc làm việc.");
+
+            if (data == null || !data.GioKetThuc.HasValue)
+                errors.Add("Vui lòng chọn Giờ kết thúc làm việc.");
+
+            if (data == null || string.IsNullOrWhiteSpace(data.NguoiKetThuc))
+                errors.Add("Vui lòng nhập Người kết thúc ca làm việc.");
+
+            return errors;
         }
 
         public static string TTNVL(
@@ -660,7 +678,7 @@ namespace DG_TonKhoBTP_v02.Helper
 
             bool coHaiNgay = !LaNgayChuaChon(data.NgayBatDau) && !LaNgayChuaChon(data.NgayKetThuc);
             if (coHaiNgay && data.NgayKetThuc.Value.Date < data.NgayBatDau.Value.Date)
-                return "Ngày kết thúc phải nhỏ hơn ngày bắt đầu.";
+                return "Ngày kết thúc không được nhỏ hơn ngày bắt đầu.";
 
             truong = nameof(ThongTinCaLamViec.CaKetThuc);
             bool coCaKetThuc = !string.IsNullOrWhiteSpace(data.CaKetThuc);

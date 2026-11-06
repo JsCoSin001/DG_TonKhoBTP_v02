@@ -44,6 +44,8 @@
             this.cbxNgayKT = new System.Windows.Forms.CheckBox();
             this.label2 = new System.Windows.Forms.Label();
             this.cbxLOT = new System.Windows.Forms.ComboBox();
+            this.label3 = new System.Windows.Forms.Label();
+            this.cbxMay = new System.Windows.Forms.ComboBox();
             this.cbxAll = new System.Windows.Forms.CheckBox();
             this.btnNhapKho = new System.Windows.Forms.Button();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
@@ -54,8 +56,6 @@
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
             this.cbxXuatExcel = new System.Windows.Forms.CheckBox();
-            this.label3 = new System.Windows.Forms.Label();
-            this.cbxMay = new System.Windows.Forms.ComboBox();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.groupBox4.SuspendLayout();
@@ -220,7 +220,7 @@
             // 
             this.cbxTimTenSp.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbxTimTenSp.FormattingEnabled = true;
-            this.cbxTimTenSp.Location = new System.Drawing.Point(513, 38);
+            this.cbxTimTenSp.Location = new System.Drawing.Point(513, 40);
             this.cbxTimTenSp.Name = "cbxTimTenSp";
             this.cbxTimTenSp.Size = new System.Drawing.Size(280, 26);
             this.cbxTimTenSp.TabIndex = 3;
@@ -264,10 +264,32 @@
             // 
             this.cbxLOT.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbxLOT.FormattingEnabled = true;
-            this.cbxLOT.Location = new System.Drawing.Point(799, 38);
+            this.cbxLOT.Location = new System.Drawing.Point(799, 40);
             this.cbxLOT.Name = "cbxLOT";
             this.cbxLOT.Size = new System.Drawing.Size(194, 26);
             this.cbxLOT.TabIndex = 3;
+            // 
+            // label3
+            // 
+            this.label3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(403, 5);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(104, 18);
+            this.label3.TabIndex = 0;
+            this.label3.Text = "Máy";
+            this.label3.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // cbxMay
+            // 
+            this.cbxMay.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.cbxMay.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cbxMay.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cbxMay.FormattingEnabled = true;
+            this.cbxMay.Location = new System.Drawing.Point(403, 38);
+            this.cbxMay.Name = "cbxMay";
+            this.cbxMay.Size = new System.Drawing.Size(104, 26);
+            this.cbxMay.TabIndex = 2;
             // 
             // cbxAll
             // 
@@ -381,28 +403,6 @@
             this.cbxXuatExcel.TabIndex = 2;
             this.cbxXuatExcel.Text = "Xuất excel";
             this.cbxXuatExcel.UseVisualStyleBackColor = true;
-            // 
-            // label3
-            // 
-            this.label3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(403, 5);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(104, 18);
-            this.label3.TabIndex = 0;
-            this.label3.Text = "Máy";
-            this.label3.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // cbxMay
-            // 
-            this.cbxMay.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.cbxMay.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cbxMay.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cbxMay.FormattingEnabled = true;
-            this.cbxMay.Location = new System.Drawing.Point(403, 38);
-            this.cbxMay.Name = "cbxMay";
-            this.cbxMay.Size = new System.Drawing.Size(104, 26);
-            this.cbxMay.TabIndex = 2;
             // 
             // Frm_NhapKhoTP_TheoNgay
             // 

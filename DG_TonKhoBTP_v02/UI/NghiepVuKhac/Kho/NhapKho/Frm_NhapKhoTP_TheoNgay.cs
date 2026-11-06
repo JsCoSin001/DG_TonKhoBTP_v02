@@ -1,5 +1,6 @@
 ﻿using DG_TonKhoBTP_v02.Database.ChatLuong;
 using DG_TonKhoBTP_v02.Models;
+using DG_TonKhoBTP_v02.Models.SanXuat;
 using DG_TonKhoBTP_v02.Helper;
 using DG_TonKhoBTP_v02.UI.Helper;
 using System;
@@ -17,6 +18,9 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
 {
     public partial class Frm_NhapKhoTP_TheoNgay : Form
     {
+        // -1: "Không" (không áp dụng lọc máy); 0: "Toàn bộ" (máy công đoạn 5).
+        private const int KhongLocMayId = -1;
+
         private bool _dangDongBoCbxAll;
 
         private ComboBoxSearchHelper _tenSanPhamSearchHelper;
@@ -55,6 +59,9 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
             public DateTime? NgayKetThuc { get; set; }
             public DateTime? GioiHanHienTai { get; set; }
             public string Ca { get; set; } = string.Empty;
+            // -1 = Không (không lọc máy); null = Toàn bộ máy công đoạn 5;
+            // > 0 = máy cụ thể, chỉ đối chiếu bằng DanhSachMay_ID.
+            public int? DanhSachMayId { get; set; }
             public long? SanPhamId { get; set; }
             public long? TTThanhPhamId { get; set; }
 
@@ -62,6 +69,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
             {
                 NgayBatDau = NgayBatDau, NgayKetThuc = NgayKetThuc,
                 GioiHanHienTai = GioiHanHienTai, Ca = Ca,
+                DanhSachMayId = DanhSachMayId,
                 SanPhamId = SanPhamId, TTThanhPhamId = TTThanhPhamId
             };
         }
@@ -70,7 +78,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
         {
             return NhapKho_DB.TimKiemNhapKhoTheoNgay(
                 boLoc.NgayBatDau, boLoc.NgayKetThuc, boLoc.Ca,
-                boLoc.SanPhamId, boLoc.GioiHanHienTai, boLoc.TTThanhPhamId);
+                boLoc.SanPhamId, boLoc.GioiHanHienTai, boLoc.TTThanhPhamId,
+                boLoc.DanhSachMayId);
         }
 
         private const string CChon = "col_Chon";
@@ -79,6 +88,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
         private const string CTTLoId = "col_TTLo_ID";
         private const string CNgay = "col_Ngay";
         private const string CCa = "col_Ca";
+        private const string CMay = "col_May";
         private const string CMaBin = "col_MaBin";
         private const string CMaSP = "col_MaSP";
         private const string CTenSP = "col_TenSP";
@@ -122,10 +132,35 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
             WindowState = FormWindowState.Maximized;
 
             KhoiTaoGrid();
+            NapDanhSachMay();
             GanSuKien();
             KhoiTaoTimKiemTenSanPham();
             KhoiTaoTimKiemLot();
             ResetMacDinh();
+        }
+
+        // Tái sử dụng danh mục máy đã có trong dự án, không dựa vào tên máy
+        // lưu ở ThongTinCaLamViec để xác định máy của bản ghi.
+        private void NapDanhSachMay()
+        {
+            const int maCongDoanBocVo = 5;
+            var danhSachMay = new List<DanhSachMay_Model>
+            {
+                new DanhSachMay_Model
+                {
+                    Id = KhongLocMayId, MaCongDoan = maCongDoanBocVo, TenMay = "Không"
+                },
+                new DanhSachMay_Model
+                {
+                    Id = 0, MaCongDoan = maCongDoanBocVo, TenMay = "Toàn bộ"
+                }
+            };
+            danhSachMay.AddRange(DanhSachMayHelper.LayTheoMaCongDoan(maCongDoanBocVo));
+
+            cbxMay.DisplayMember = nameof(DanhSachMay_Model.TenMay);
+            cbxMay.ValueMember = nameof(DanhSachMay_Model.Id);
+            cbxMay.DataSource = danhSachMay;
+            cbxMay.SelectedIndex = 0;
         }
 
         private void KhoiTaoTimKiemTenSanPham()
@@ -212,6 +247,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
             dsNhapKho.Columns.Add(Hidden(CSnapshot));
             dsNhapKho.Columns.Add(CreateTextColumn(CNgay, "Ngày", 100));
             dsNhapKho.Columns.Add(CreateTextColumn(CCa, "Ca", 55));
+            dsNhapKho.Columns.Add(CreateTextColumn(CMay, "Máy", 70));
             dsNhapKho.Columns.Add(CreateTextColumn(CMaBin, "Mã Bin", 150));
             dsNhapKho.Columns.Add(CreateTextColumn(CMaSP, "Mã SP", 110));
             dsNhapKho.Columns.Add(CreateTextColumn(CTenSP, "Tên SP", 180));
@@ -255,6 +291,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
                 if (cbxNgayKT.Checked) KhiThayDoiBoLocGoiY();
             };
             cbxCa.SelectedIndexChanged += (s, e) => KhiThayDoiBoLocGoiY();
+            cbxMay.SelectedIndexChanged += (s, e) => KhiThayDoiBoLocGoiY();
             // ComboBox Ca vẫn cho phép nhập text bằng tay.
             cbxCa.TextUpdate += (s, e) => KhiThayDoiBoLocGoiY();
             btnNhapKho.Click += btnNhapKho_Click;
@@ -271,7 +308,9 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
                 ? dtNgayBD.Value.Date.ToString("yyyy-MM-dd") : "*";
             string kt = cbxNgayKT.Checked
                 ? dtNgayKT.Value.Date.ToString("yyyy-MM-dd") : "*";
-            return bd + "|" + kt + "|" + (cbxCa.Text ?? string.Empty).Trim();
+            var may = cbxMay.SelectedItem as DanhSachMay_Model;
+            return bd + "|" + kt + "|" + (cbxCa.Text ?? string.Empty).Trim()
+                + "|" + (may?.Id.ToString(CultureInfo.InvariantCulture) ?? "?");
         }
 
         private void KhiThayDoiBoLocGoiY()
@@ -319,6 +358,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
                 cbxCa.SelectedItem = "Toàn bộ";
                 if (cbxCa.SelectedIndex < 0 && cbxCa.Items.Count > 0)
                     cbxCa.SelectedIndex = 0;
+                if (cbxMay.Items.Count > 0)
+                    cbxMay.SelectedIndex = 0;
                 _dangDongBoCbxAll = true;
                 cbxAll.Checked = false;
                 _dangDongBoCbxAll = false;
@@ -340,6 +381,12 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
             DateTime? kt = cbxNgayKT.Checked ? dtNgayKT.Value.Date : (DateTime?)null;
             boLoc = null;
             loi = null;
+            // Nếu danh mục máy chưa được tải thì không tìm kiếm ngầm như "Toàn bộ".
+            if (!(cbxMay.SelectedItem is DanhSachMay_Model may))
+            {
+                loi = "Danh sách máy bọc vỏ chưa sẵn sàng.";
+                return false;
+            }
             if (bd.HasValue && kt.HasValue && bd.Value > kt.Value)
             {
                 loi = "Ngày bắt đầu không được lớn hơn ngày kết thúc.";
@@ -356,6 +403,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
                 NgayKetThuc = kt,
                 GioiHanHienTai = bd.HasValue && !kt.HasValue ? now : (DateTime?)null,
                 Ca = cbxCa.Text,
+                DanhSachMayId = may.Id == 0 ? (int?)null : may.Id,
                 SanPhamId = sanPhamId,
                 TTThanhPhamId = ttThanhPhamId
             };
@@ -387,7 +435,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
             }
             return NhapKho_DB.TimGoiYTenSanPhamNhapKhoAsync(keyword,
                 boLoc.NgayBatDau, boLoc.NgayKetThuc, boLoc.Ca,
-                boLoc.GioiHanHienTai, ct);
+                boLoc.GioiHanHienTai, boLoc.DanhSachMayId, ct);
         }
 
         private Task<DataTable> TimGoiYLotTheoBoLocAsync(string keyword, CancellationToken ct)
@@ -401,7 +449,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
             }
             return NhapKho_DB.TimGoiYLotNhapKhoAsync(keyword,
                 boLoc.NgayBatDau, boLoc.NgayKetThuc, boLoc.Ca,
-                boLoc.GioiHanHienTai, ct);
+                boLoc.GioiHanHienTai, boLoc.DanhSachMayId, ct);
         }
 
         private void ThongBaoNgayGoiYKhongHopLe(string loi)
@@ -568,6 +616,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
             row.Cells[CSnapshot].Value = item.ChieuDaiSauSnapshot;
             row.Cells[CNgay].Value = item.Ngay;
             row.Cells[CCa].Value = item.Ca;
+            row.Cells[CMay].Value = item.May;
             row.Cells[CMaBin].Value = item.MaBin;
             row.Cells[CMaSP].Value = item.MaSP;
             row.Cells[CTenSP].Value = item.TenSP;
@@ -1067,6 +1116,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.NhapKho
             GanGiaTriCot(row, CSnapshot, item.ChieuDaiSauSnapshot);
             GanGiaTriCot(row, CNgay, item.Ngay);
             GanGiaTriCot(row, CCa, item.Ca);
+            GanGiaTriCot(row, CMay, item.May);
             GanGiaTriCot(row, CMaBin, item.MaBin);
             GanGiaTriCot(row, CMaSP, item.MaSP);
             GanGiaTriCot(row, CTenSP, item.TenSP);

@@ -97,6 +97,21 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                       )
                   )";
 
+        // "Không" (-1) giữ cách tìm theo ngày/ca/sản phẩm/LOT, không xét máy.
+        // "Toàn bộ" (null) chỉ lấy máy có ID hợp lệ thuộc công đoạn 5.
+        // Máy cụ thể (>0) bắt buộc khớp DanhSachMay_ID, không dự phòng tên máy.
+        private const int KhongLocMayId = -1;
+        private const string SqlLocMayBocVo = @"
+                  AND (
+                      @KhongLocMay = 1
+                      OR EXISTS (
+                          SELECT 1 FROM DanhSachMay may
+                          WHERE may.id = clv.DanhSachMay_ID
+                            AND may.DanhSachCongDoan_MaCongDoan = 5
+                            AND (@DanhSachMayId IS NULL OR may.id = @DanhSachMayId)
+                      )
+                  )";
+
         // Một nhóm ca/ngày hợp lệ tương đương với nhóm được phép nhập kho
         // trong truy vấn tổng hợp TimKiemNhapKhoTheoNgay.
         private static readonly string SqlMaBinHopLe = SourceRemainingCte + @",
@@ -110,7 +125,7 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                       AND tp.CongDoan = 5
                       AND tp.ChieuDaiSau > 0
                       AND TRIM(IFNULL(tp.MaBin, '')) <> ''
-            " + SqlLocNgay + @"
+            " + SqlLocNgay + SqlLocMayBocVo + @"
                       AND (@ToanBoCa = 1 OR clv.Ca = @Ca)
                     GROUP BY tp.id, tp.MaBin, sp.Ma, sp.Ten, tp.ChieuDaiSau,
                              clv.NgayKetThuc, clv.Ca
@@ -142,7 +157,7 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
 
         private static void GanThamSoNgayCa(SQLiteCommand cmd,
             DateTime? ngayBatDau, DateTime? ngayKetThuc,
-            string ca, DateTime? gioiHanHienTai)
+            string ca, DateTime? gioiHanHienTai, int? danhSachMayId = null)
         {
             string caFilter = (ca ?? string.Empty).Trim();
             bool toanBoCa = string.IsNullOrWhiteSpace(caFilter) ||
@@ -156,16 +171,26 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                 ? (object)gioiHanHienTai.Value.ToString("yyyy-MM-dd HH:mm:ss") : DBNull.Value);
             cmd.Parameters.AddWithValue("@ToanBoCa", toanBoCa ? 1 : 0);
             cmd.Parameters.AddWithValue("@Ca", caFilter);
+            cmd.Parameters.AddWithValue("@KhongLocMay", danhSachMayId == KhongLocMayId ? 1 : 0);
+            cmd.Parameters.AddWithValue("@DanhSachMayId", danhSachMayId > 0
+                ? (object)danhSachMayId.Value : DBNull.Value);
         }
 
         // Overload cũ vẫn tồn tại để không làm thay đổi các Form khác đang gọi.
         public static Task<DataTable> TimGoiYLotNhapKhoAsync(string keyword, CancellationToken ct)
             => TimGoiYLotNhapKhoAsync(keyword, null, null, "Toàn bộ", null, ct);
 
-        /// <summary>Gợi ý LOT đủ điều kiện nhập kho trong phạm vi ngày/ca.</summary>
+        /// <summary>Giữ API cũ cho những nơi chưa có bộ lọc máy.</summary>
         public static Task<DataTable> TimGoiYLotNhapKhoAsync(string keyword,
             DateTime? ngayBatDau, DateTime? ngayKetThuc, string ca,
             DateTime? gioiHanHienTai, CancellationToken ct)
+            => TimGoiYLotNhapKhoAsync(keyword, ngayBatDau, ngayKetThuc,
+                ca, gioiHanHienTai, null, ct);
+
+        /// <summary>Gợi ý LOT nhập kho theo ngày, ca và mã máy công đoạn 5.</summary>
+        public static Task<DataTable> TimGoiYLotNhapKhoAsync(string keyword,
+            DateTime? ngayBatDau, DateTime? ngayKetThuc, string ca,
+            DateTime? gioiHanHienTai, int? danhSachMayId, CancellationToken ct)
         {
             return Task.Run(() =>
             {
@@ -179,7 +204,8 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                 using var conn = DB_Base.OpenConnection();
                 using var cmd = new SQLiteCommand(SqlMaBinHopLe + SqlGoiYLot, conn);
                 cmd.Parameters.AddWithValue("@keyword", "%" + (keyword ?? string.Empty).Trim() + "%");
-                GanThamSoNgayCa(cmd, ngayBatDau, ngayKetThuc, ca, gioiHanHienTai);
+                GanThamSoNgayCa(cmd, ngayBatDau, ngayKetThuc, ca,
+                    gioiHanHienTai, danhSachMayId);
                 ct.ThrowIfCancellationRequested();
                 using var adapter = new SQLiteDataAdapter(cmd);
                 adapter.Fill(dt);
@@ -222,6 +248,12 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
         public static Task<DataTable> TimGoiYTenSanPhamNhapKhoAsync(string keyword,
             DateTime? ngayBatDau, DateTime? ngayKetThuc, string ca,
             DateTime? gioiHanHienTai, CancellationToken ct)
+            => TimGoiYTenSanPhamNhapKhoAsync(keyword, ngayBatDau, ngayKetThuc,
+                ca, gioiHanHienTai, null, ct);
+
+        public static Task<DataTable> TimGoiYTenSanPhamNhapKhoAsync(string keyword,
+            DateTime? ngayBatDau, DateTime? ngayKetThuc, string ca,
+            DateTime? gioiHanHienTai, int? danhSachMayId, CancellationToken ct)
         {
             return Task.Run(() =>
             {
@@ -237,7 +269,8 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                 using var conn = DB_Base.OpenConnection();
                 using var cmd = new SQLiteCommand(SqlMaBinHopLe + SqlGoiYTenSanPham, conn);
                 cmd.Parameters.AddWithValue("@keyword", "%" + keywordKhongDau + "%");
-                GanThamSoNgayCa(cmd, ngayBatDau, ngayKetThuc, ca, gioiHanHienTai);
+                GanThamSoNgayCa(cmd, ngayBatDau, ngayKetThuc, ca,
+                    gioiHanHienTai, danhSachMayId);
                 ct.ThrowIfCancellationRequested();
                 using var adapter = new SQLiteDataAdapter(cmd);
                 adapter.Fill(dt);
@@ -257,7 +290,8 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
             string ca,
             long? danhSachSpId = null,
             DateTime? gioiHanHienTai = null,
-            long? ttThanhPhamId = null)
+            long? ttThanhPhamId = null,
+            int? danhSachMayId = null)
         {
             if (ngayBatDau.HasValue && ngayKetThuc.HasValue
                 && ngayBatDau.Value.Date > ngayKetThuc.Value.Date)
@@ -302,7 +336,7 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                 WHERE tp.Temp=0
                   AND tp.CongDoan=5
                   AND tp.ChieuDaiSau>0
-" + ngayFilter + @"
+" + ngayFilter + SqlLocMayBocVo + @"
                   AND (@ToanBoCa=1 OR clv.Ca=@Ca)
                   AND (@DanhSachSpId IS NULL OR tp.DanhSachSP_ID = @DanhSachSpId)
                   AND (@TTThanhPhamId IS NULL OR tp.id = @TTThanhPhamId)
@@ -313,7 +347,8 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
             using (var conn = DB_Base.OpenConnection())
             using (var cmd = new SQLiteCommand(summarySql, conn))
             {
-                GanThamSoNgayCa(cmd, ngayBatDau, ngayKetThuc, ca, gioiHanHienTai);
+                GanThamSoNgayCa(cmd, ngayBatDau, ngayKetThuc, ca,
+                    gioiHanHienTai, danhSachMayId);
 
                 cmd.Parameters.AddWithValue(
                     "@DanhSachSpId",
@@ -354,6 +389,7 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                     tp.id AS TTThanhPham_ID,
                     clv.NgayKetThuc AS Ngay,
                     clv.Ca,
+                    COALESCE(NULLIF(TRIM(may.TenMay), ''), NULLIF(TRIM(clv.May), ''), '') AS May,
                     tp.MaBin,
                     sp.Ma AS MaSP,
                     sp.Ten AS TenSP,
@@ -370,10 +406,12 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                 FROM TTThanhPham tp
                 INNER JOIN DanhSachMaSP sp ON sp.id=tp.DanhSachSP_ID
                 INNER JOIN ThongTinCaLamViec clv ON clv.TTThanhPham_id=tp.id
+                LEFT JOIN DanhSachMay may ON may.id=clv.DanhSachMay_ID
+                    AND may.DanhSachCongDoan_MaCongDoan=5
                 INNER JOIN source_remaining sr ON sr.TTThanhPham_ID=tp.id AND sr.SoLuongCon>0
                 WHERE tp.Temp=0
                   AND tp.id IN (" + string.Join(",", paramNames) + @")
-" + ngayFilter + @"
+" + ngayFilter + SqlLocMayBocVo + @"
                   AND (@ToanBoCa=1 OR clv.Ca=@Ca)
                   AND (@DanhSachSpId IS NULL OR tp.DanhSachSP_ID = @DanhSachSpId)
                   AND (@TTThanhPhamId IS NULL OR tp.id = @TTThanhPhamId)
@@ -382,7 +420,8 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
             using (var conn = DB_Base.OpenConnection())
             using (var cmd = new SQLiteCommand(detailSql, conn))
             {
-                GanThamSoNgayCa(cmd, ngayBatDau, ngayKetThuc, ca, gioiHanHienTai);
+                GanThamSoNgayCa(cmd, ngayBatDau, ngayKetThuc, ca,
+                    gioiHanHienTai, danhSachMayId);
 
                 cmd.Parameters.AddWithValue(
                     "@DanhSachSpId",
@@ -405,6 +444,7 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                         TTThanhPham_ID = Convert.ToInt64(reader["TTThanhPham_ID"]),
                         Ngay = Convert.ToString(reader["Ngay"]) ?? string.Empty,
                         Ca = Convert.ToString(reader["Ca"]) ?? string.Empty,
+                        May = Convert.ToString(reader["May"]) ?? string.Empty,
                         MaBin = Convert.ToString(reader["MaBin"]) ?? string.Empty,
                         MaSP = Convert.ToString(reader["MaSP"]) ?? string.Empty,
                         TenSP = Convert.ToString(reader["TenSP"]) ?? string.Empty,

@@ -46,6 +46,7 @@ namespace DG_TonKhoBTP_v02.Models
         public long TTThanhPham_ID { get; set; }
         public string Ngay { get; set; } = string.Empty;
         public string Ca { get; set; } = string.Empty;
+        public string May { get; set; } = string.Empty;
         public string MaBin { get; set; } = string.Empty;
         public string MaSP { get; set; } = string.Empty;
         public string TenSP { get; set; } = string.Empty;

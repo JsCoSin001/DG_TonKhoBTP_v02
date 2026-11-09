@@ -45,7 +45,7 @@
             this.btnLuu.BackColor = System.Drawing.Color.ForestGreen;
             this.btnLuu.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnLuu.ForeColor = System.Drawing.Color.Honeydew;
-            this.btnLuu.Location = new System.Drawing.Point(585, 3);
+            this.btnLuu.Location = new System.Drawing.Point(456, 3);
             this.btnLuu.Name = "btnLuu";
             this.btnLuu.Size = new System.Drawing.Size(124, 46);
             this.btnLuu.TabIndex = 0;
@@ -59,7 +59,7 @@
             this.btnClear.BackColor = System.Drawing.Color.Brown;
             this.btnClear.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnClear.ForeColor = System.Drawing.SystemColors.Control;
-            this.btnClear.Location = new System.Drawing.Point(455, 3);
+            this.btnClear.Location = new System.Drawing.Point(326, 3);
             this.btnClear.Name = "btnClear";
             this.btnClear.Size = new System.Drawing.Size(124, 46);
             this.btnClear.TabIndex = 1;
@@ -74,7 +74,7 @@
             this.cbInTem.Checked = true;
             this.cbInTem.CheckState = System.Windows.Forms.CheckState.Checked;
             this.cbInTem.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cbInTem.Location = new System.Drawing.Point(218, 13);
+            this.cbInTem.Location = new System.Drawing.Point(89, 13);
             this.cbInTem.Name = "cbInTem";
             this.cbInTem.Size = new System.Drawing.Size(95, 20);
             this.cbInTem.TabIndex = 2;
@@ -86,7 +86,7 @@
             this.tableLayoutPanel1.AutoSize = true;
             this.tableLayoutPanel1.ColumnCount = 4;
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 130F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 130F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 130F));
             this.tableLayoutPanel1.Controls.Add(this.btnLuu, 3, 0);
@@ -98,24 +98,26 @@
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 1;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(706, 52);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(583, 52);
             this.tableLayoutPanel1.TabIndex = 4;
             // 
             // flowLayoutPanel1
             // 
+            this.flowLayoutPanel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.flowLayoutPanel1.Controls.Add(this.cbInTem);
             this.flowLayoutPanel1.Controls.Add(this.cbInTemNVL);
+            this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanel1.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
             this.flowLayoutPanel1.Location = new System.Drawing.Point(133, 3);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
             this.flowLayoutPanel1.Padding = new System.Windows.Forms.Padding(0, 10, 0, 0);
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(316, 46);
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(187, 46);
             this.flowLayoutPanel1.TabIndex = 3;
             // 
             // cbInTemNVL
             // 
             this.cbInTemNVL.AutoSize = true;
-            this.cbInTemNVL.Location = new System.Drawing.Point(132, 13);
+            this.cbInTemNVL.Location = new System.Drawing.Point(3, 13);
             this.cbInTemNVL.Name = "cbInTemNVL";
             this.cbInTemNVL.Size = new System.Drawing.Size(80, 17);
             this.cbInTemNVL.TabIndex = 3;
@@ -138,10 +140,11 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoSize = true;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.Controls.Add(this.tableLayoutPanel1);
             this.Name = "UC_SubmitForm";
-            this.Size = new System.Drawing.Size(706, 52);
+            this.Size = new System.Drawing.Size(583, 52);
             this.Load += new System.EventHandler(this.UC_SubmitForm_Load);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.flowLayoutPanel1.ResumeLayout(false);

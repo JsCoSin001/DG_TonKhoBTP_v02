@@ -47,7 +47,6 @@
             // 
             // groupBox1
             // 
-            this.groupBox1.AutoSize = true;
             this.groupBox1.Controls.Add(this.tableLayoutPanel1);
             this.groupBox1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.groupBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -65,7 +64,7 @@
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 100F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 90F));
             this.tableLayoutPanel1.Controls.Add(this.label1, 2, 0);
             this.tableLayoutPanel1.Controls.Add(this.label2, 0, 0);
             this.tableLayoutPanel1.Controls.Add(this.nbrSua, 3, 0);
@@ -87,7 +86,7 @@
             this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(328, 10);
+            this.label1.Location = new System.Drawing.Point(333, 10);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(58, 16);
             this.label1.TabIndex = 6;
@@ -108,14 +107,14 @@
             // 
             this.nbrSua.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.nbrSua.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.nbrSua.Location = new System.Drawing.Point(392, 5);
+            this.nbrSua.Location = new System.Drawing.Point(397, 5);
             this.nbrSua.Maximum = new decimal(new int[] {
             1569325055,
             23283064,
             0,
             0});
             this.nbrSua.Name = "nbrSua";
-            this.nbrSua.Size = new System.Drawing.Size(225, 26);
+            this.nbrSua.Size = new System.Drawing.Size(230, 26);
             this.nbrSua.TabIndex = 0;
             this.nbrSua.Click += new System.EventHandler(this.nbrSua_Click);
             this.nbrSua.KeyDown += new System.Windows.Forms.KeyEventHandler(this.nbrSua_KeyDown);
@@ -131,7 +130,7 @@
             0,
             0});
             this.nbrSaoChep.Name = "nbrSaoChep";
-            this.nbrSaoChep.Size = new System.Drawing.Size(225, 26);
+            this.nbrSaoChep.Size = new System.Drawing.Size(230, 26);
             this.nbrSaoChep.TabIndex = 0;
             this.nbrSaoChep.Click += new System.EventHandler(this.nbrSaoChep_Click);
             this.nbrSaoChep.KeyDown += new System.Windows.Forms.KeyEventHandler(this.nbrSaoChep_KeyDown);
@@ -178,9 +177,9 @@
             // 
             this.btnTim.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.btnTim.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnTim.Location = new System.Drawing.Point(623, 3);
+            this.btnTim.Location = new System.Drawing.Point(633, 3);
             this.btnTim.Name = "btnTim";
-            this.btnTim.Size = new System.Drawing.Size(94, 31);
+            this.btnTim.Size = new System.Drawing.Size(84, 31);
             this.btnTim.TabIndex = 1;
             this.btnTim.Text = "Tìm kiếm";
             this.btnTim.UseVisualStyleBackColor = true;
@@ -204,7 +203,6 @@
             this.tableLayoutPanel2.ResumeLayout(false);
             this.tableLayoutPanel2.PerformLayout();
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 

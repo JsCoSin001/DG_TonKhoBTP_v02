@@ -34,7 +34,6 @@
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.label2 = new System.Windows.Forms.Label();
             this.may = new System.Windows.Forms.ComboBox();
-            this.label15 = new System.Windows.Forms.Label();
             this.maHanhTrinh = new System.Windows.Forms.NumericUpDown();
             this.sttCongDoan = new System.Windows.Forms.ComboBox();
             this.sttLo = new System.Windows.Forms.NumericUpDown();
@@ -52,6 +51,7 @@
             this.label7 = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
             this.btnNhapPhe = new System.Windows.Forms.Button();
+            this.label15 = new System.Windows.Forms.Label();
             this.panel3 = new System.Windows.Forms.Panel();
             this.tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
             this.ten = new System.Windows.Forms.TextBox();
@@ -173,18 +173,6 @@
             this.may.Size = new System.Drawing.Size(74, 28);
             this.may.TabIndex = 2;
             this.may.TextChanged += new System.EventHandler(this.may_TextChanged);
-            // 
-            // label15
-            // 
-            this.label15.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.label15.AutoSize = true;
-            this.label15.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label15.Location = new System.Drawing.Point(923, 1);
-            this.label15.Name = "label15";
-            this.label15.Size = new System.Drawing.Size(57, 16);
-            this.label15.TabIndex = 38;
-            this.label15.Text = "Ghi chú";
-            this.label15.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
             // 
             // maHanhTrinh
             // 
@@ -411,6 +399,18 @@
             this.btnNhapPhe.TabIndex = 39;
             this.btnNhapPhe.Text = "Chưa nhập";
             this.btnNhapPhe.UseVisualStyleBackColor = true;
+            // 
+            // label15
+            // 
+            this.label15.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.label15.AutoSize = true;
+            this.label15.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label15.Location = new System.Drawing.Point(923, 1);
+            this.label15.Name = "label15";
+            this.label15.Size = new System.Drawing.Size(57, 16);
+            this.label15.TabIndex = 38;
+            this.label15.Text = "Ghi chú";
+            this.label15.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
             // 
             // panel3
             // 

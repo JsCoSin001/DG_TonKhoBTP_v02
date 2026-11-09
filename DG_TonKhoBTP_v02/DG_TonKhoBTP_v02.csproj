@@ -374,10 +374,10 @@
     <Compile Include="UI\NghiepVuKhac\KeToan\VatTuKhac\UC_NhapXuatVatTu.Designer.cs">
       <DependentUpon>UC_NhapXuatVatTu.cs</DependentUpon>
     </Compile>
-    <Compile Include="UI\NghiepVuKhac\Kho\UC_NhapKho.cs">
+    <Compile Include="UI\NghiepVuKhac\Kho\NhapKho\UC_NhapKho.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="UI\NghiepVuKhac\Kho\UC_NhapKho.Designer.cs">
+    <Compile Include="UI\NghiepVuKhac\Kho\NhapKho\UC_NhapKho.Designer.cs">
       <DependentUpon>UC_NhapKho.cs</DependentUpon>
     </Compile>
     <Compile Include="UI\NghiepVuKhac\Kho\XuatKho\Frm_CatLeCuonChan.cs">
@@ -689,7 +689,7 @@
     <EmbeddedResource Include="UI\NghiepVuKhac\KeToan\VatTuKhac\UC_NhapXuatVatTu.resx">
       <DependentUpon>UC_NhapXuatVatTu.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="UI\NghiepVuKhac\Kho\UC_NhapKho.resx">
+    <EmbeddedResource Include="UI\NghiepVuKhac\Kho\NhapKho\UC_NhapKho.resx">
       <DependentUpon>UC_NhapKho.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UI\NghiepVuKhac\Kho\XuatKho\Frm_CatLeCuonChan.resx">

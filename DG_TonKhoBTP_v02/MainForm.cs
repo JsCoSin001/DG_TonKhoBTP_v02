@@ -875,25 +875,33 @@ namespace DG_TonKhoBTP_v02
             return pnRight;
         }
 
+
         private Panel UI_Edit_Report(CongDoan cd)
         {
+            // Panel chứa UC_Edit và UC_Report
             Panel pnEdit_Report = new Panel();
-            // Đặt pnEdit_Report lên Top
             pnEdit_Report.Dock = DockStyle.Top;
             pnEdit_Report.Height = 120;
+            pnEdit_Report.AutoSize = false;
 
+            // UC_Edit: tự co giãn theo diện tích còn lại
             UC_Edit uC_Edit = new UC_Edit(cd);
-            // Đặt Form Sửa số liệu bên trái panel pnEdit_Report
-            uC_Edit.Dock = DockStyle.Left;
-            uC_Edit.Width = 570;
+            uC_Edit.AutoSize = false;
+            uC_Edit.Dock = DockStyle.Fill;
 
+            // UC_Report: cố định chiều rộng bên phải
             UC_Report uC_Report = new UC_Report(cd);
-            // Đặt Form báo cáo toàn panel pnEdit_Report
-            uC_Report.Dock = DockStyle.Fill;
+            uC_Report.AutoSize = false;
+            uC_Report.Width = 250;
+            uC_Report.Dock = DockStyle.Right;
 
-            pnEdit_Report.Controls.Add(uC_Report);
+            // Thứ tự thêm Control rất quan trọng
+            // UC_Report lấy 373px bên phải
+            // UC_Edit chiếm toàn bộ phần còn lại
             pnEdit_Report.Controls.Add(uC_Edit);
+            pnEdit_Report.Controls.Add(uC_Report);
 
+            // Giữ nguyên sự kiện xử lý khi chỉnh sửa dữ liệu
             uC_Edit.RequestClearOtherSections += () =>
             {
                 ClearSectionsRecursive(pnShow, uC_Edit);
@@ -901,6 +909,7 @@ namespace DG_TonKhoBTP_v02
 
             return pnEdit_Report;
         }
+
 
         private void ClearSectionsRecursive(Control parent, Control exclude)
         {

@@ -69,13 +69,13 @@ namespace DG_TonKhoBTP_v02.UI
             this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
             this.btnXemTonKho = new System.Windows.Forms.Button();
             this.btnTaoBC_Khach = new System.Windows.Forms.Button();
-            this.label9 = new System.Windows.Forms.Label();
             this.btnTimKiem = new System.Windows.Forms.ComboBox();
             this.cbxKieuTon = new System.Windows.Forms.CheckBox();
             this.panel2 = new System.Windows.Forms.Panel();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.grvShowBaoCao = new System.Windows.Forms.DataGridView();
             this.panel4 = new System.Windows.Forms.Panel();
+            this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.groupBox1.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.klConLai)).BeginInit();
@@ -287,7 +287,7 @@ namespace DG_TonKhoBTP_v02.UI
             // 
             this.cbxTimMaBin.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbxTimMaBin.FormattingEnabled = true;
-            this.cbxTimMaBin.Location = new System.Drawing.Point(103, 9);
+            this.cbxTimMaBin.Location = new System.Drawing.Point(103, 6);
             this.cbxTimMaBin.Name = "cbxTimMaBin";
             this.cbxTimMaBin.Size = new System.Drawing.Size(434, 28);
             this.cbxTimMaBin.TabIndex = 3;
@@ -615,9 +615,9 @@ namespace DG_TonKhoBTP_v02.UI
             this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel3.Controls.Add(this.btnXemTonKho, 2, 1);
             this.tableLayoutPanel3.Controls.Add(this.btnTaoBC_Khach, 1, 1);
-            this.tableLayoutPanel3.Controls.Add(this.label9, 0, 0);
             this.tableLayoutPanel3.Controls.Add(this.btnTimKiem, 1, 0);
             this.tableLayoutPanel3.Controls.Add(this.cbxKieuTon, 3, 0);
+            this.tableLayoutPanel3.Controls.Add(this.comboBox1, 0, 0);
             this.tableLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel3.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.tableLayoutPanel3.Location = new System.Drawing.Point(5, 20);
@@ -652,18 +652,6 @@ namespace DG_TonKhoBTP_v02.UI
             this.btnTaoBC_Khach.Text = "Báo cáo tồn (word)";
             this.btnTaoBC_Khach.UseVisualStyleBackColor = true;
             this.btnTaoBC_Khach.Click += new System.EventHandler(this.btnTaoBC_Khach_Click);
-            // 
-            // label9
-            // 
-            this.label9.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.label9.AutoSize = true;
-            this.label9.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label9.Location = new System.Drawing.Point(3, 7);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(124, 18);
-            this.label9.TabIndex = 14;
-            this.label9.Text = "Tìm kiếm";
-            this.label9.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // btnTimKiem
             // 
@@ -726,6 +714,19 @@ namespace DG_TonKhoBTP_v02.UI
             this.panel4.Padding = new System.Windows.Forms.Padding(5, 0, 5, 0);
             this.panel4.Size = new System.Drawing.Size(549, 740);
             this.panel4.TabIndex = 5;
+            // 
+            // comboBox1
+            // 
+            this.comboBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.comboBox1.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBox1.FormattingEnabled = true;
+            this.comboBox1.Items.AddRange(new object[] {
+            "Tìm theo LOT",
+            "Tìm theo Tên SP"});
+            this.comboBox1.Location = new System.Drawing.Point(6, 3);
+            this.comboBox1.Name = "comboBox1";
+            this.comboBox1.Size = new System.Drawing.Size(121, 26);
+            this.comboBox1.TabIndex = 17;
             // 
             // UC_BCTonKho
             // 
@@ -808,8 +809,8 @@ namespace DG_TonKhoBTP_v02.UI
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel3;
         private System.Windows.Forms.Button btnTaoBC_Khach;
         private System.Windows.Forms.Button btnXemTonKho;
-        private System.Windows.Forms.Label label9;
         private System.Windows.Forms.ComboBox btnTimKiem;
         private System.Windows.Forms.CheckBox cbxKieuTon;
+        private System.Windows.Forms.ComboBox comboBox1;
     }
 }

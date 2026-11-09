@@ -304,14 +304,13 @@ namespace DG_TonKhoBTP_v02.UI
             // 
             // groupBox2
             // 
-            this.groupBox2.AutoSize = true;
             this.groupBox2.Controls.Add(this.tbCheckBox);
             this.groupBox2.Dock = System.Windows.Forms.DockStyle.Top;
             this.groupBox2.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.groupBox2.Location = new System.Drawing.Point(0, 10);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Padding = new System.Windows.Forms.Padding(5);
-            this.groupBox2.Size = new System.Drawing.Size(550, 208);
+            this.groupBox2.Size = new System.Drawing.Size(550, 232);
             this.groupBox2.TabIndex = 1;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Báo cáo BTP";
@@ -339,17 +338,18 @@ namespace DG_TonKhoBTP_v02.UI
             this.tbCheckBox.Controls.Add(this.cbxAllSelected, 0, 3);
             this.tbCheckBox.Controls.Add(this.cbxBaoCaoTon, 0, 4);
             this.tbCheckBox.Controls.Add(this.label8, 0, 5);
+            this.tbCheckBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tbCheckBox.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.tbCheckBox.Location = new System.Drawing.Point(6, 21);
+            this.tbCheckBox.Location = new System.Drawing.Point(5, 20);
             this.tbCheckBox.Name = "tbCheckBox";
             this.tbCheckBox.RowCount = 6;
-            this.tbCheckBox.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tbCheckBox.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tbCheckBox.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
+            this.tbCheckBox.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
             this.tbCheckBox.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 10F));
-            this.tbCheckBox.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 35F));
-            this.tbCheckBox.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 35F));
+            this.tbCheckBox.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
+            this.tbCheckBox.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
             this.tbCheckBox.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tbCheckBox.Size = new System.Drawing.Size(544, 164);
+            this.tbCheckBox.Size = new System.Drawing.Size(540, 207);
             this.tbCheckBox.TabIndex = 2;
             // 
             // cbxBocTP
@@ -357,9 +357,9 @@ namespace DG_TonKhoBTP_v02.UI
             this.cbxBocTP.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbxBocTP.AutoSize = true;
             this.cbxBocTP.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cbxBocTP.Location = new System.Drawing.Point(411, 41);
+            this.cbxBocTP.Location = new System.Drawing.Point(408, 57);
             this.cbxBocTP.Name = "cbxBocTP";
-            this.cbxBocTP.Size = new System.Drawing.Size(130, 23);
+            this.cbxBocTP.Size = new System.Drawing.Size(129, 23);
             this.cbxBocTP.TabIndex = 7;
             this.cbxBocTP.Text = "Bọc TP";
             this.cbxBocTP.UseVisualStyleBackColor = true;
@@ -369,9 +369,9 @@ namespace DG_TonKhoBTP_v02.UI
             this.cbxQuanBang.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbxQuanBang.AutoSize = true;
             this.cbxQuanBang.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cbxQuanBang.Location = new System.Drawing.Point(275, 41);
+            this.cbxQuanBang.Location = new System.Drawing.Point(273, 57);
             this.cbxQuanBang.Name = "cbxQuanBang";
-            this.cbxQuanBang.Size = new System.Drawing.Size(130, 23);
+            this.cbxQuanBang.Size = new System.Drawing.Size(129, 23);
             this.cbxQuanBang.TabIndex = 6;
             this.cbxQuanBang.Text = "Quấn Băng";
             this.cbxQuanBang.UseVisualStyleBackColor = true;
@@ -381,9 +381,9 @@ namespace DG_TonKhoBTP_v02.UI
             this.cbxBocLot.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbxBocLot.AutoSize = true;
             this.cbxBocLot.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cbxBocLot.Location = new System.Drawing.Point(139, 41);
+            this.cbxBocLot.Location = new System.Drawing.Point(138, 57);
             this.cbxBocLot.Name = "cbxBocLot";
-            this.cbxBocLot.Size = new System.Drawing.Size(130, 23);
+            this.cbxBocLot.Size = new System.Drawing.Size(129, 23);
             this.cbxBocLot.TabIndex = 5;
             this.cbxBocLot.Text = "Bọc Lót";
             this.cbxBocLot.UseVisualStyleBackColor = true;
@@ -393,9 +393,9 @@ namespace DG_TonKhoBTP_v02.UI
             this.cbxGhepLoi.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbxGhepLoi.AutoSize = true;
             this.cbxGhepLoi.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cbxGhepLoi.Location = new System.Drawing.Point(3, 41);
+            this.cbxGhepLoi.Location = new System.Drawing.Point(3, 57);
             this.cbxGhepLoi.Name = "cbxGhepLoi";
-            this.cbxGhepLoi.Size = new System.Drawing.Size(130, 23);
+            this.cbxGhepLoi.Size = new System.Drawing.Size(129, 23);
             this.cbxGhepLoi.TabIndex = 4;
             this.cbxGhepLoi.Text = "Ghép Lõi";
             this.cbxGhepLoi.UseVisualStyleBackColor = true;
@@ -405,9 +405,9 @@ namespace DG_TonKhoBTP_v02.UI
             this.cbxBocCachDien.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbxBocCachDien.AutoSize = true;
             this.cbxBocCachDien.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cbxBocCachDien.Location = new System.Drawing.Point(411, 6);
+            this.cbxBocCachDien.Location = new System.Drawing.Point(408, 11);
             this.cbxBocCachDien.Name = "cbxBocCachDien";
-            this.cbxBocCachDien.Size = new System.Drawing.Size(130, 23);
+            this.cbxBocCachDien.Size = new System.Drawing.Size(129, 23);
             this.cbxBocCachDien.TabIndex = 3;
             this.cbxBocCachDien.Text = "Bọc Cách Điện";
             this.cbxBocCachDien.UseVisualStyleBackColor = true;
@@ -417,9 +417,9 @@ namespace DG_TonKhoBTP_v02.UI
             this.cbxQuanMica.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbxQuanMica.AutoSize = true;
             this.cbxQuanMica.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cbxQuanMica.Location = new System.Drawing.Point(275, 6);
+            this.cbxQuanMica.Location = new System.Drawing.Point(273, 11);
             this.cbxQuanMica.Name = "cbxQuanMica";
-            this.cbxQuanMica.Size = new System.Drawing.Size(130, 23);
+            this.cbxQuanMica.Size = new System.Drawing.Size(129, 23);
             this.cbxQuanMica.TabIndex = 2;
             this.cbxQuanMica.Text = "Quấn Mica";
             this.cbxQuanMica.UseVisualStyleBackColor = true;
@@ -429,9 +429,9 @@ namespace DG_TonKhoBTP_v02.UI
             this.cbxBen.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbxBen.AutoSize = true;
             this.cbxBen.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cbxBen.Location = new System.Drawing.Point(139, 6);
+            this.cbxBen.Location = new System.Drawing.Point(138, 11);
             this.cbxBen.Name = "cbxBen";
-            this.cbxBen.Size = new System.Drawing.Size(130, 23);
+            this.cbxBen.Size = new System.Drawing.Size(129, 23);
             this.cbxBen.TabIndex = 1;
             this.cbxBen.Text = "Bện AL-Cu";
             this.cbxBen.UseVisualStyleBackColor = true;
@@ -441,23 +441,23 @@ namespace DG_TonKhoBTP_v02.UI
             this.cbxKeoRut.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbxKeoRut.AutoSize = true;
             this.cbxKeoRut.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cbxKeoRut.Location = new System.Drawing.Point(3, 6);
+            this.cbxKeoRut.Location = new System.Drawing.Point(3, 11);
             this.cbxKeoRut.Name = "cbxKeoRut";
-            this.cbxKeoRut.Size = new System.Drawing.Size(130, 23);
+            this.cbxKeoRut.Size = new System.Drawing.Size(129, 23);
             this.cbxKeoRut.TabIndex = 0;
             this.cbxKeoRut.Text = "Kéo Rút";
             this.cbxKeoRut.UseVisualStyleBackColor = true;
             // 
             // btnBCSX
             // 
+            this.btnBCSX.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.btnBCSX.BackColor = System.Drawing.Color.Brown;
-            this.btnBCSX.Dock = System.Windows.Forms.DockStyle.Fill;
             this.btnBCSX.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnBCSX.ForeColor = System.Drawing.SystemColors.ButtonFace;
-            this.btnBCSX.Location = new System.Drawing.Point(411, 83);
+            this.btnBCSX.Location = new System.Drawing.Point(408, 120);
             this.btnBCSX.Name = "btnBCSX";
             this.tbCheckBox.SetRowSpan(this.btnBCSX, 2);
-            this.btnBCSX.Size = new System.Drawing.Size(130, 64);
+            this.btnBCSX.Size = new System.Drawing.Size(129, 56);
             this.btnBCSX.TabIndex = 8;
             this.btnBCSX.Text = "BC Sản Xuất";
             this.btnBCSX.UseVisualStyleBackColor = false;
@@ -470,9 +470,9 @@ namespace DG_TonKhoBTP_v02.UI
             this.dtBatDau.Enabled = false;
             this.dtBatDau.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.dtBatDau.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
-            this.dtBatDau.Location = new System.Drawing.Point(275, 84);
+            this.dtBatDau.Location = new System.Drawing.Point(273, 112);
             this.dtBatDau.Name = "dtBatDau";
-            this.dtBatDau.Size = new System.Drawing.Size(130, 26);
+            this.dtBatDau.Size = new System.Drawing.Size(129, 26);
             this.dtBatDau.TabIndex = 15;
             // 
             // dtKetThuc
@@ -482,9 +482,9 @@ namespace DG_TonKhoBTP_v02.UI
             this.dtKetThuc.Enabled = false;
             this.dtKetThuc.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.dtKetThuc.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
-            this.dtKetThuc.Location = new System.Drawing.Point(275, 119);
+            this.dtKetThuc.Location = new System.Drawing.Point(273, 158);
             this.dtKetThuc.Name = "dtKetThuc";
-            this.dtKetThuc.Size = new System.Drawing.Size(130, 26);
+            this.dtKetThuc.Size = new System.Drawing.Size(129, 26);
             this.dtKetThuc.TabIndex = 12;
             // 
             // label6
@@ -492,9 +492,9 @@ namespace DG_TonKhoBTP_v02.UI
             this.label6.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.label6.AutoSize = true;
             this.label6.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label6.Location = new System.Drawing.Point(139, 89);
+            this.label6.Location = new System.Drawing.Point(138, 117);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(130, 16);
+            this.label6.Size = new System.Drawing.Size(129, 16);
             this.label6.TabIndex = 13;
             this.label6.Text = "Lấy dữ liệu từ ngày";
             this.label6.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -504,9 +504,9 @@ namespace DG_TonKhoBTP_v02.UI
             this.label7.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.label7.AutoSize = true;
             this.label7.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label7.Location = new System.Drawing.Point(139, 124);
+            this.label7.Location = new System.Drawing.Point(138, 163);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(130, 16);
+            this.label7.Size = new System.Drawing.Size(129, 16);
             this.label7.TabIndex = 14;
             this.label7.Text = "Đến ngày";
             this.label7.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -516,9 +516,9 @@ namespace DG_TonKhoBTP_v02.UI
             this.cbxAllSelected.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cbxAllSelected.AutoSize = true;
             this.cbxAllSelected.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cbxAllSelected.Location = new System.Drawing.Point(3, 87);
+            this.cbxAllSelected.Location = new System.Drawing.Point(3, 115);
             this.cbxAllSelected.Name = "cbxAllSelected";
-            this.cbxAllSelected.Size = new System.Drawing.Size(130, 20);
+            this.cbxAllSelected.Size = new System.Drawing.Size(129, 20);
             this.cbxAllSelected.TabIndex = 10;
             this.cbxAllSelected.Text = "Chọn Toàn Bộ CĐ";
             this.cbxAllSelected.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
@@ -531,9 +531,9 @@ namespace DG_TonKhoBTP_v02.UI
             this.cbxBaoCaoTon.AutoSize = true;
             this.cbxBaoCaoTon.Checked = true;
             this.cbxBaoCaoTon.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.cbxBaoCaoTon.Location = new System.Drawing.Point(3, 123);
+            this.cbxBaoCaoTon.Location = new System.Drawing.Point(3, 162);
             this.cbxBaoCaoTon.Name = "cbxBaoCaoTon";
-            this.cbxBaoCaoTon.Size = new System.Drawing.Size(130, 18);
+            this.cbxBaoCaoTon.Size = new System.Drawing.Size(129, 18);
             this.cbxBaoCaoTon.TabIndex = 16;
             this.cbxBaoCaoTon.Text = "Báo Cáo Tồn Kho";
             this.cbxBaoCaoTon.UseVisualStyleBackColor = true;
@@ -544,7 +544,7 @@ namespace DG_TonKhoBTP_v02.UI
             this.label8.AutoSize = true;
             this.tbCheckBox.SetColumnSpan(this.label8, 4);
             this.label8.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label8.Location = new System.Drawing.Point(3, 150);
+            this.label8.Location = new System.Drawing.Point(3, 194);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(365, 13);
             this.label8.TabIndex = 17;
@@ -588,7 +588,7 @@ namespace DG_TonKhoBTP_v02.UI
             // 
             this.panel5.Controls.Add(this.groupBox3);
             this.panel5.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panel5.Location = new System.Drawing.Point(0, 218);
+            this.panel5.Location = new System.Drawing.Point(0, 242);
             this.panel5.Name = "panel5";
             this.panel5.Size = new System.Drawing.Size(550, 122);
             this.panel5.TabIndex = 2;
@@ -636,7 +636,7 @@ namespace DG_TonKhoBTP_v02.UI
             this.btnXemTonKho.Name = "btnXemTonKho";
             this.btnXemTonKho.Size = new System.Drawing.Size(134, 53);
             this.btnXemTonKho.TabIndex = 0;
-            this.btnXemTonKho.Text = "Báo cáo tồn (Xuất file Excel)";
+            this.btnXemTonKho.Text = "Báo cáo tồn (Bảng)";
             this.btnXemTonKho.TextImageRelation = System.Windows.Forms.TextImageRelation.TextAboveImage;
             this.btnXemTonKho.UseVisualStyleBackColor = true;
             this.btnXemTonKho.Click += new System.EventHandler(this.btnXemTonKho_Click);
@@ -649,7 +649,7 @@ namespace DG_TonKhoBTP_v02.UI
             this.btnTaoBC_Khach.Name = "btnTaoBC_Khach";
             this.btnTaoBC_Khach.Size = new System.Drawing.Size(134, 53);
             this.btnTaoBC_Khach.TabIndex = 0;
-            this.btnTaoBC_Khach.Text = "Báo cáo tồn (Xuất file word)";
+            this.btnTaoBC_Khach.Text = "Báo cáo tồn (word)";
             this.btnTaoBC_Khach.UseVisualStyleBackColor = true;
             this.btnTaoBC_Khach.Click += new System.EventHandler(this.btnTaoBC_Khach_Click);
             // 
@@ -748,7 +748,6 @@ namespace DG_TonKhoBTP_v02.UI
             this.tbCheckBox.PerformLayout();
             this.panel1.ResumeLayout(false);
             this.panel3.ResumeLayout(false);
-            this.panel3.PerformLayout();
             this.panel5.ResumeLayout(false);
             this.groupBox3.ResumeLayout(false);
             this.tableLayoutPanel3.ResumeLayout(false);

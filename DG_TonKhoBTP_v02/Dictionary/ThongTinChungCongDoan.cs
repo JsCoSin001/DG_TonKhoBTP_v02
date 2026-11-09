@@ -131,7 +131,7 @@ namespace DG_TonKhoBTP_v02.Dictionary
             "Bọc lót",
             EnumStore.MayTheoCongDoan["BocLot"],
             BaseColumns(),                         // giống KeoRut: chỉ base
-            new List<string> { "BTP.20105%", "BTP.20205%" },
+            new List<string> { "BTP.20105%", "BTP.20205%"},
             Select_TP_CoCaiDatCDBoc(),
             new Dictionary<string, decimal> { { "klConLai", 5.0m }, { "cdConLai", 5.0m } }
         );
@@ -166,7 +166,7 @@ namespace DG_TonKhoBTP_v02.Dictionary
             Id = 6,
             TenCongDoan = "Ghép lõi",
             DanhSachMay = EnumStore.MayTheoCongDoan["GhepLoi"],
-            ListMa_Accept = new List<string> { "BTP.20104%", "BTP.20204%" }
+            ListMa_Accept = new List<string> { "BTP.20104%", "BTP.20204%"}
         };
 
         public static readonly CongDoan QuanBang = new CongDoan(GhepLoi_QB)

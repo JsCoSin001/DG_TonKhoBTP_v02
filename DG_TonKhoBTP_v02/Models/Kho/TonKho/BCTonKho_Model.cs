@@ -1,4 +1,6 @@
+﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace DG_TonKhoBTP_v02.Models.Kho.TonKho
 {
@@ -47,4 +49,44 @@ namespace DG_TonKhoBTP_v02.Models.Kho.TonKho
         public List<BCTonKho_DongTon> Dong { get; set; } = new List<BCTonKho_DongTon>();
         public bool CoBatThuong { get; set; }
     }
+    /// <summary>
+    /// Dòng tồn kho cho báo cáo mới B1-B2-B3.
+    /// Số cuộn của loại Cuộn: số cuộn nguyên còn sau các thao tác B3, gộp theo sản phẩm + quy cách.
+    /// Số cuộn của loại Lẻ: 1 đối với mỗi TonCuonLe; chiều dài 1 cuộn là chiều dài HIỆN CÒN.
+    /// </summary>
+    internal sealed class BCTonKho_ExcelDong
+    {
+        public long DanhSachMaSPId { get; set; }
+        public long? TonCuonLeId { get; set; }
+        public List<long> TTCuonDayIds { get; } = new List<long>();
+        public long SoCuon { get; set; }
+        public long ChieuDaiMoiCuon { get; set; }
+        public string TenSanPham { get; set; } = string.Empty;
+        public string MaSanPham { get; set; } = string.Empty;
+        public string DonVi { get; set; } = string.Empty;
+        public string MaBinLot { get; set; } = string.Empty;
+        // Cuộn nguyên gộp theo sản phẩm + chiều dài: giữ đầy đủ mã Bin còn tồn,
+        // không thay đổi quy tắc gộp hay nhân đôi số mét.
+        private readonly HashSet<string> _maBinNguon = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        public void ThemMaBin(string maBin)
+        {
+            maBin = (maBin ?? string.Empty).Trim();
+            if (maBin.Length > 0 && _maBinNguon.Add(maBin))
+                MaBinLot = string.Join(" | ", _maBinNguon.OrderBy(x => x, StringComparer.OrdinalIgnoreCase));
+        }
+        public string Loai { get; set; } = string.Empty;
+        // Một công thức duy nhất cho cả Cuộn và Lẻ, tránh cộng trùng số lượng nhập ban đầu.
+        public decimal ChieuDaiTonThucTe => (decimal)SoCuon * ChieuDaiMoiCuon;
+        public decimal ChieuDaiTonDatTruoc { get; set; }
+        public decimal ChieuDaiTonKhaDung => ChieuDaiTonThucTe - ChieuDaiTonDatTruoc;
+        public long? SoDau { get; set; }
+        public long? SoCuoi { get; set; }
+        public string CanhBao { get; private set; } = string.Empty;
+        public bool LaBatThuong => !string.IsNullOrWhiteSpace(CanhBao);
+        public void ThemCanhBao(string noiDung)
+        {
+            CanhBao += (CanhBao.Length == 0 ? "" : "\n") + noiDung;
+        }
+    }
+
 }

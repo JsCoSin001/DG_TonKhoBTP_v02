@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
@@ -91,7 +91,7 @@ JOIN KeHoachCatChiTiet d ON d.KeHoachCatNhom_ID=n.id
 WHERE n.TonCuonLe_ID IS NOT NULL AND k.TrangThai='ACTIVE'
   AND kh.DanhSachMaSP_ID=@productId
   AND NOT EXISTS (SELECT 1 FROM LichSuCat lc WHERE lc.KeHoachCatChiTiet_ID=d.id)
-GROUP BY n.TonCuonLe_ID;";
+GROUP BY n.TonCuonLe_ID, kh.DanhSachMaSP_ID;";
 
         private const string SuggestionSql = @"
 SELECT 1 AS Loai, tp.id AS Id, tp.MaBin AS GiaTri
@@ -367,6 +367,233 @@ WHERE tp.NhapKho=1 AND tp.Temp=0
                     if (meters < 0 || (item.ChieuDaiConLai.HasValue && meters > item.ChieuDaiConLai.Value))
                         item.DanhDauLoi("Đặt chỗ cuộn lẻ vượt chiều dài còn thực tế");
                 }
+        }
+
+        // Báo cáo tồn kho B1 -> kế hoạch -> B3. Đường tính MỚI, độc lập
+        // với LayChiTietTonAsync, TonKhoExcelReport_DB và các báo cáo cũ.
+        // Mọi phép đọc nằm trong cùng một snapshot; tuyệt đối không cập nhật DB.
+        internal static List<BCTonKho_ExcelDong> LayTonKhoExcelMoi()
+        {
+            var cuonTheoQuyCach = new Dictionary<(long SanPhamId, long ChieuDai), BCTonKho_ExcelDong>();
+            var cuonLe = new List<BCTonKho_ExcelDong>();
+            var cuonLeTheoId = new Dictionary<long, BCTonKho_ExcelDong>();
+
+            using (var conn = DB_Base.OpenConnection())
+            using (var tx = conn.BeginTransaction(true))
+            {
+                const string sqlCuon = @"
+SELECT sp.id, COALESCE(sp.Ten_KhongDau,''), COALESCE(sp.Ma,''), COALESCE(sp.DonVi,''),
+       cd.id, cd.SoCuon, cd.ChieuDai_1cuon,
+       COALESCE(tp.MaBin,''),
+       COALESCE((SELECT SUM(ls.SoLuong) FROM LichSuLayCuon ls
+                 WHERE ls.TTCuonDay_ID=cd.id),0),
+       COALESCE((SELECT COUNT(*) FROM LichSuCat ls
+                 JOIN TonCuonLe cl ON cl.id=ls.TonCuonLe_ID
+                 WHERE ls.LoaiNguon='CUON_CHAN' AND cl.TTCuonDay_ID=cd.id),0)
+FROM TTCuonDay cd
+JOIN TTNhapKhoTP nk ON nk.id=cd.ThongTinNhapKho_ID
+JOIN TTThanhPham tp ON tp.id=nk.TTThanhPham_ID
+JOIN DanhSachMaSP sp ON sp.id=tp.DanhSachSP_ID
+WHERE tp.NhapKho=1 AND tp.Temp=0 AND cd.SoDau IS NULL AND cd.SoCuoi IS NULL
+ORDER BY cd.id;";
+                using (var cmd = new SQLiteCommand(sqlCuon, conn, tx))
+                using (var rd = cmd.ExecuteReader())
+                    while (rd.Read())
+                    {
+                        long spId = Convert.ToInt64(rd[0]);
+                        long cdId = Convert.ToInt64(rd[4]);
+                        long soCuon = rd.IsDBNull(5) ? 0 : Convert.ToInt64(rd[5]);
+                        long chieuDai = rd.IsDBNull(6) ? 0L : Convert.ToInt64(rd[6]);
+                        long daLay = Convert.ToInt64(rd[8]);
+                        // B3 ghi LichSuCat.LoaiNguon=CUON_CHAN khi bắt đầu cắt từ cuộn nguyên.
+                        // Không suy đoán mọi TonCuonLe liên kết đều là cuộn nguyên đã chuyển lẻ:
+                        // dữ liệu nhập/migration cũ có thể có SoCuon=0 nhưng vẫn liên kết TonCuonLe.
+                        long daChuyenLe = Convert.ToInt64(rd[9]);
+                        var key = (spId, chieuDai);
+                        if (!cuonTheoQuyCach.TryGetValue(key, out var dong))
+                        {
+                            dong = new BCTonKho_ExcelDong {
+                                DanhSachMaSPId = spId, TenSanPham = Convert.ToString(rd[1]) ?? "",
+                                MaSanPham = Convert.ToString(rd[2]) ?? "",
+                                DonVi = Convert.ToString(rd[3]) ?? "",
+                                Loai = "Cuộn", ChieuDaiMoiCuon = chieuDai
+                            };
+                            cuonTheoQuyCach.Add(key, dong);
+                        }
+                        dong.TTCuonDayIds.Add(cdId);
+                        long con = soCuon - daLay - daChuyenLe;
+                        if (rd.IsDBNull(5) || soCuon < 0 || daLay < 0 || chieuDai <= 0 || con < 0)
+                            dong.ThemCanhBao($"TTCuonDay #{cdId}: nhập {soCuon}, lấy {daLay}, chuyển lẻ {daChuyenLe}, chiều dài {chieuDai}; cần đối soát nguồn.");
+                        // Tích SoCuon * ChieuDaiMoiCuon được tính tại Model, không ghi trực tiếp số mét.
+                        // Không biến số cuộn vật lý thành âm nếu gặp lịch sử bất thường.
+                        if (con > 0 && chieuDai > 0)
+                        {
+                            dong.SoCuon += con;
+                            dong.ThemMaBin(Convert.ToString(rd[7]));
+                        }
+                    }
+
+                const string sqlLe = @"
+SELECT cl.id, sp.id, COALESCE(sp.Ten_KhongDau,''), COALESCE(sp.Ma,''),
+       COALESCE(sp.DonVi,''), cl.SoDau, cl.SoCuoi, COALESCE(cl.TrangThai,''),
+       cl.TTCuonDay_ID, cd.id, nk.id, tpNguon.id, tp.id,
+       cd.SoDau, cd.SoCuoi, COALESCE(cl.MaCuon,''), tpNguon.NhapKho, tpNguon.Temp
+FROM TonCuonLe cl
+JOIN TTThanhPham tp ON tp.id=cl.TTThanhPham_ID
+JOIN DanhSachMaSP sp ON sp.id=tp.DanhSachSP_ID
+LEFT JOIN TTCuonDay cd ON cd.id=cl.TTCuonDay_ID
+LEFT JOIN TTNhapKhoTP nk ON nk.id=cd.ThongTinNhapKho_ID
+LEFT JOIN TTThanhPham tpNguon ON tpNguon.id=nk.TTThanhPham_ID
+WHERE tp.NhapKho=1 AND tp.Temp=0
+ORDER BY cl.id;";
+                using (var cmd = new SQLiteCommand(sqlLe, conn, tx))
+                using (var rd = cmd.ExecuteReader())
+                    while (rd.Read())
+                    {
+                        long id = Convert.ToInt64(rd[0]);
+                        long? dau = rd.IsDBNull(5) ? (long?)null : Convert.ToInt64(rd[5]);
+                        long? cuoi = rd.IsDBNull(6) ? (long?)null : Convert.ToInt64(rd[6]);
+                        var dong = new BCTonKho_ExcelDong {
+                            TonCuonLeId = id, DanhSachMaSPId = Convert.ToInt64(rd[1]),
+                            TenSanPham = Convert.ToString(rd[2]) ?? "",
+                            MaSanPham = Convert.ToString(rd[3]) ?? "",
+                            DonVi = Convert.ToString(rd[4]) ?? "", Loai = "Lẻ",
+                            MaBinLot = Convert.ToString(rd[15]) ?? "",
+                            SoDau = dau, SoCuoi = cuoi,
+                            SoCuon = 1 // Mỗi TonCuonLe là đúng một cuộn lẻ.
+                        };
+                        if (dau.HasValue && cuoi.HasValue)
+                            dong.ChieuDaiMoiCuon = checked((long)Math.Abs((decimal)cuoi.Value - dau.Value));
+                        else
+                            dong.ThemCanhBao($"TonCuonLe #{id}: thiếu số đầu/số cuối, không thể xác định chiều dài thực tế.");
+                        string trangThai = (Convert.ToString(rd[7]) ?? "").Trim().ToUpperInvariant();
+                        if (trangThai != "ACTIVE" && trangThai != "HET")
+                            dong.ThemCanhBao($"TonCuonLe #{id}: trạng thái không hợp lệ ({trangThai}).");
+                        if ((trangThai == "ACTIVE" && dong.ChieuDaiTonThucTe == 0) ||
+                            (trangThai == "HET" && dong.ChieuDaiTonThucTe > 0))
+                            dong.ThemCanhBao($"TonCuonLe #{id}: trạng thái không khớp chiều dài còn lại.");
+                        if (rd.IsDBNull(9) || rd.IsDBNull(10) || rd.IsDBNull(11) ||
+                            Convert.ToInt64(rd[11]) != Convert.ToInt64(rd[12]))
+                            dong.ThemCanhBao($"TonCuonLe #{id}: nguồn nhập kho không tồn tại hoặc khác chủ sở hữu.");
+                        if (!rd.IsDBNull(9) && (rd.IsDBNull(13) != rd.IsDBNull(14)))
+                            dong.ThemCanhBao($"TonCuonLe #{id}: nguồn nhập có một mốc đầu/cuối bị thiếu.");
+                        if (rd.IsDBNull(16) || rd.IsDBNull(17) ||
+                            Convert.ToInt32(rd[16]) != 1 || Convert.ToInt32(rd[17]) != 0)
+                            dong.ThemCanhBao($"TonCuonLe #{id}: nguồn nhập không còn hợp lệ.");
+                        if (string.IsNullOrWhiteSpace(Convert.ToString(rd[15])))
+                            dong.ThemCanhBao($"TonCuonLe #{id}: chưa có mã cuộn.");
+                        cuonLe.Add(dong);
+                        cuonLeTheoId[id] = dong;
+                    }
+
+                // Cuộn lẻ nhập thẳng qua B1 mà bản ghi TonCuonLe bị mất.
+                // Không lấy dấu mốc nhập ban đầu làm tồn hiện tại (vì có thể đã cắt).
+                const string sqlMatLe = @"
+SELECT sp.id, COALESCE(sp.Ten_KhongDau,''), COALESCE(sp.Ma,''), COALESCE(sp.DonVi,''), cd.id, COALESCE(tp.MaBin,'')
+FROM TTCuonDay cd
+JOIN TTNhapKhoTP nk ON nk.id=cd.ThongTinNhapKho_ID
+JOIN TTThanhPham tp ON tp.id=nk.TTThanhPham_ID
+JOIN DanhSachMaSP sp ON sp.id=tp.DanhSachSP_ID
+WHERE tp.NhapKho=1 AND tp.Temp=0
+  AND (cd.SoDau IS NOT NULL OR cd.SoCuoi IS NOT NULL)
+  AND NOT EXISTS (SELECT 1 FROM TonCuonLe cl WHERE cl.TTCuonDay_ID=cd.id);";
+                using (var cmd = new SQLiteCommand(sqlMatLe, conn, tx))
+                using (var rd = cmd.ExecuteReader())
+                    while (rd.Read())
+                    {
+                        var dong = new BCTonKho_ExcelDong {
+                            DanhSachMaSPId = Convert.ToInt64(rd[0]),
+                            TenSanPham = Convert.ToString(rd[1]) ?? "",
+                            MaSanPham = Convert.ToString(rd[2]) ?? "",
+                            DonVi = Convert.ToString(rd[3]) ?? "", Loai = "Lẻ",
+                            MaBinLot = Convert.ToString(rd[5]) ?? ""
+                        };
+                        dong.ThemCanhBao($"TTCuonDay #{Convert.ToInt64(rd[4])}: thiếu TonCuonLe; không đủ dữ liệu xác định tồn thực tế.");
+                        cuonLe.Add(dong);
+                    }
+
+                const string sqlDatCuon = @"
+SELECT kh.DanhSachMaSP_ID, qc.ChieuDai1Cuon,
+       MAX(0, qc.SoLuongCuonCanLay - COALESCE((SELECT SUM(ls.SoLuong)
+           FROM LichSuLayCuon ls WHERE ls.QuyCachCuonChan_ID=qc.id),0))
+       + (SELECT COUNT(*) FROM KeHoachCatNhom n
+          WHERE n.QuyCachCuonChan_ID=qc.id AND n.TonCuonLe_ID IS NULL
+            AND EXISTS (SELECT 1 FROM KeHoachCatChiTiet ct
+                        WHERE ct.KeHoachCatNhom_ID=n.id AND
+                        NOT EXISTS (SELECT 1 FROM LichSuCat ls
+                                    WHERE ls.KeHoachCatChiTiet_ID=ct.id))) AS CanCuon,
+       COALESCE(sp.Ten_KhongDau,''), COALESCE(sp.Ma,''), COALESCE(sp.DonVi,'')
+FROM KeHoachHangQuyCachCuonChan qc
+JOIN KeHoachHang kh ON kh.id=qc.KeHoachHang_ID
+JOIN KeHoach k ON k.id=kh.KeHoach_ID
+JOIN DanhSachMaSP sp ON sp.id=kh.DanhSachMaSP_ID
+WHERE k.TrangThai='ACTIVE';";
+                using (var cmd = new SQLiteCommand(sqlDatCuon, conn, tx))
+                using (var rd = cmd.ExecuteReader())
+                    while (rd.Read())
+                    {
+                        long spId = Convert.ToInt64(rd[0]);
+                        long chieuDai = rd.IsDBNull(1) ? 0L : Convert.ToInt64(rd[1]);
+                        long soCuon = Convert.ToInt64(rd[2]);
+                        var key = (spId, chieuDai);
+                        if (!cuonTheoQuyCach.TryGetValue(key, out var dong))
+                        {
+                            dong = new BCTonKho_ExcelDong {
+                                DanhSachMaSPId = spId,
+                                TenSanPham = Convert.ToString(rd[3]) ?? "",
+                                MaSanPham = Convert.ToString(rd[4]) ?? "",
+                                DonVi = Convert.ToString(rd[5]) ?? "",
+                                Loai = "Cuộn", ChieuDaiMoiCuon = chieuDai
+                            };
+                            cuonTheoQuyCach[key] = dong;
+                        }
+                        if (soCuon < 0 || chieuDai <= 0)
+                            dong.ThemCanhBao($"Kế hoạch cuộn chẵn: số lượng {soCuon}, chiều dài {chieuDai} không hợp lệ.");
+                        if (soCuon > 0 && chieuDai > 0)
+                            dong.ChieuDaiTonDatTruoc += (decimal)soCuon * chieuDai;
+                    }
+
+                const string sqlDatLe = @"
+SELECT n.TonCuonLe_ID, kh.DanhSachMaSP_ID, COALESCE(SUM(ct.ChieuDaiCanCat),0)
+FROM KeHoachCatNhom n
+JOIN KeHoachHang kh ON kh.id=n.KeHoachHang_ID
+JOIN KeHoach k ON k.id=kh.KeHoach_ID
+JOIN KeHoachCatChiTiet ct ON ct.KeHoachCatNhom_ID=n.id
+WHERE n.TonCuonLe_ID IS NOT NULL AND k.TrangThai='ACTIVE'
+  AND NOT EXISTS (SELECT 1 FROM LichSuCat ls
+                  WHERE ls.KeHoachCatChiTiet_ID=ct.id)
+GROUP BY n.TonCuonLe_ID, kh.DanhSachMaSP_ID;";
+                using (var cmd = new SQLiteCommand(sqlDatLe, conn, tx))
+                using (var rd = cmd.ExecuteReader())
+                    while (rd.Read())
+                    {
+                        long clId = Convert.ToInt64(rd[0]);
+                        long spId = Convert.ToInt64(rd[1]);
+                        decimal datTruoc = Convert.ToDecimal(rd[2]);
+                        if (!cuonLeTheoId.TryGetValue(clId, out var dong))
+                            throw new InvalidOperationException($"Kế hoạch còn đặt trước cho TonCuonLe #{clId}, nhưng cuộn không tìm thấy trong nguồn nhập kho hợp lệ.");
+                        if (dong.DanhSachMaSPId != spId)
+                            throw new InvalidOperationException($"TonCuonLe #{clId}: sản phẩm ở kế hoạch không khớp sản phẩm của cuộn.");
+                        dong.ChieuDaiTonDatTruoc += datTruoc;
+                        if (datTruoc < 0)
+                            dong.ThemCanhBao($"TonCuonLe #{clId}: chiều dài đặt trước âm.");
+                    }
+
+                tx.Commit();
+            }
+
+            var ketQua = cuonTheoQuyCach.Values.Concat(cuonLe)
+                .Where(x => x.ChieuDaiTonThucTe != 0 || x.ChieuDaiTonDatTruoc != 0 || x.LaBatThuong)
+                .OrderBy(x => x.TenSanPham, StringComparer.CurrentCultureIgnoreCase)
+                .ThenBy(x => x.MaSanPham, StringComparer.Ordinal)
+                .ThenBy(x => x.Loai, StringComparer.Ordinal)
+                .ThenBy(x => x.ChieuDaiMoiCuon)
+                .ThenBy(x => x.TonCuonLeId)
+                .ToList();
+            foreach (var dong in ketQua)
+                if (dong.ChieuDaiTonKhaDung < 0)
+                    dong.ThemCanhBao("Chiều dài đặt trước lớn hơn chiều dài thực tế.");
+            return ketQua;
         }
 
         private static SQLiteCommand Make(SQLiteConnection c, SQLiteTransaction t, string sql,

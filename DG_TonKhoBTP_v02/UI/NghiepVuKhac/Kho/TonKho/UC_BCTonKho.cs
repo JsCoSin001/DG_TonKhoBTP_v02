@@ -27,6 +27,7 @@ namespace DG_TonKhoBTP_v02.UI
     public partial class UC_BCTonKho : UserControl
     {
 
+        private bool _tonKhoExcelDangTai;
         private CancellationTokenSource _searchCts;
         private ComboBoxSearchHelper _tonKhoSearchHelper;
         private CancellationTokenSource _tonKhoLoadCts;
@@ -158,7 +159,7 @@ namespace DG_TonKhoBTP_v02.UI
             grvShowBaoCao.ReadOnly = true;
             grvShowBaoCao.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.DisplayedCells;
             grvShowBaoCao.Columns.Add("TenSanPham", "Tên sản phẩm");
-            grvShowBaoCao.Columns.Add("MaBinLot", "Mã Bin/LOT");
+            grvShowBaoCao.Columns.Add("MaBinLot", "LOT");
             grvShowBaoCao.Columns.Add("SoLuong", "Số lượng");
             grvShowBaoCao.Columns.Add("Kieu", "Kiểu");
             grvShowBaoCao.Columns.Add("SoDau", "Số đầu");
@@ -576,6 +577,10 @@ namespace DG_TonKhoBTP_v02.UI
 
         private void btnTaoBC_Khach_Click(object sender, EventArgs e)
         {
+            FrmWaiting.ShowGifAlert("Cần thêm dữ liệu để thực hiện chức năng này");
+
+            return;
+
             using var dialog = new SaveFileDialog
             {
                 Filter = "Word Document (*.docx)|*.docx",
@@ -606,7 +611,234 @@ namespace DG_TonKhoBTP_v02.UI
         }
 
 
+        // Hàm mới, không thay đổi chức năng xuất báo cáo đang có.
+        // Có thể nối vào sự kiện nút sau khi thống nhất vị trí kích hoạt.
+        public async Task TonKho_Excel(bool flgExcel = false)
+        {
+            if (_tonKhoExcelDangTai || IsDisposed || Disposing) return;
+            _tonKhoExcelDangTai = true;
+            try
+            {
+                if (!flgExcel)
+                {
+                    // Vô hiệu truy vấn tìm kiếm tồn cũ mà không gọi lại hàm tính tồn cũ.
+                    unchecked { _tonKhoVersion++; }
+                    _tonKhoLoadCts?.Cancel();
+                    _tonKhoSelection = null;
+                }
+                var ds = await WaitingHelper.RunWithWaiting(
+                    () => Task.Run(() =>
+                        BC_TonKho_DB.LayTonKhoExcelMoi()
+                    ),
+                    "ĐANG TÍNH TOÁN DỮ LIỆU TỒN KHO..."
+                );
+                if (IsDisposed || Disposing) return;
+                if (ds.Count == 0)
+                {
+                    MessageBox.Show("Không có dữ liệu tồn kho phù hợp.", "Tồn kho",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
+                if (flgExcel)
+                {
+                    if (!UserContext.IsAuthenticated)
+                    {
+                        MessageBox.Show("Cần đăng nhập để xuất Excel.", "Xuất báo cáo",
+                            MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
+                    }
+                    // Helper đã có của dự án; dữ liệu xuất từ cùng danh sách tính tồn.
+                    var bang = new DataTable();
+                    bang.Columns.Add("Tên sản phẩm", typeof(string));
+                    bang.Columns.Add("Mã sản phẩm", typeof(string));
+                    bang.Columns.Add("Đơn vị", typeof(string));
+                    bang.Columns.Add("LOT", typeof(string));
+                    bang.Columns.Add("Loại", typeof(string));
+                    bang.Columns.Add("Số cuộn", typeof(long));
+                    bang.Columns.Add("Chiều dài 1 C", typeof(long));
+                    bang.Columns.Add("Tồn kho", typeof(decimal));
+                    bang.Columns.Add("Đặt trước", typeof(decimal));
+                    bang.Columns.Add("Tồn khả dụng", typeof(decimal));
+                    bang.Columns.Add("Số đầu", typeof(long));
+                    bang.Columns.Add("Số cuối", typeof(long));
+
+
+                    // Theo phương án 8B: Excel chỉ xuất các cột dữ liệu, KHÔNG có cột button.
+                    foreach (var item in ds)
+                        bang.Rows.Add(item.TenSanPham, item.MaSanPham, item.DonVi,
+                            item.MaBinLot, item.Loai, item.SoCuon, item.ChieuDaiMoiCuon,
+                            item.ChieuDaiTonThucTe, item.ChieuDaiTonDatTruoc,
+                            item.ChieuDaiTonKhaDung,
+                            item.SoDau.HasValue ? (object)item.SoDau.Value : DBNull.Value,
+                            item.SoCuoi.HasValue ? (object)item.SoCuoi.Value : DBNull.Value);
+
+                    // ===== CHỌN VỊ TRÍ LƯU FILE EXCEL =====
+                    string duongDanExcel;
+
+                    using (var dialog = new SaveFileDialog
+                    {
+                        Title = "Xuất báo cáo Excel",
+                        Filter = "Excel Workbook (*.xlsx)|*.xlsx",
+                        FileName = $"TonKho_{DateTime.Now:yyyyMMdd_HHmm}.xlsx",
+                        DefaultExt = "xlsx",
+                        AddExtension = true
+                    })
+                    {
+                        if (dialog.ShowDialog() != DialogResult.OK)
+                            return;
+
+                        duongDanExcel = dialog.FileName;
+                    }
+
+                    // ===== XUẤT EXCEL KÈM WAITING =====
+                    try
+                    {
+                        await WaitingHelper.RunWithWaiting<bool>(
+                            () => Task.Run(() =>
+                            {
+                                ExcelExporter.ExportToPath(bang, duongDanExcel);
+                                return true;
+                            }),
+                            "ĐANG XUẤT FILE EXCEL..."
+                        );
+
+                        // Thông báo sau khi Waiting đã đóng
+                        FrmWaiting.ShowGifAlert(
+                            "XUẤT FILE EXCEL THÀNH CÔNG!",
+                            "THÔNG BÁO",
+                            EnumStore.Icon.Success
+                        );
+                    }
+                    catch (Exception ex)
+                    {
+                        FrmWaiting.ShowGifAlert(
+                            $"Lỗi khi xuất Excel: {ex.Message}",
+                            "LỖI",
+                            EnumStore.Icon.Warning
+                        );
+                    }
+
+                    return;
+
+                }
+
+                // Hủy kết quả tìm kiếm tồn cũ trước khi chuyển sang báo cáo mới.
+                // Dùng bộ trạng thái đang có ở UC, không dùng lại đường tính tồn cũ.
+
+                grvShowBaoCao.DataSource = null;
+                grvShowBaoCao.Rows.Clear();
+                grvShowBaoCao.Columns.Clear();
+                grvShowBaoCao.AutoGenerateColumns = false;
+                grvShowBaoCao.AllowUserToAddRows = false;
+                grvShowBaoCao.ReadOnly = true;
+
+                grvShowBaoCao.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None;
+
+                // ===== CẤU HÌNH CHIỀU CAO DÒNG =====
+
+                // Không tự động điều chỉnh chiều cao dòng
+                grvShowBaoCao.AutoSizeRowsMode =
+                    DataGridViewAutoSizeRowsMode.None;
+
+                // Chiều cao các dòng dữ liệu: 35px
+                grvShowBaoCao.RowTemplate.Height = 35;
+
+                // Không cho tự động thay đổi chiều cao tiêu đề
+                grvShowBaoCao.ColumnHeadersHeightSizeMode =
+                    DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
+
+                // Chiều cao tiêu đề: 40px
+                grvShowBaoCao.ColumnHeadersHeight = 40;
+
+                grvShowBaoCao.Columns.Add("TenSP_ExcelMoi", "Tên sản phẩm");
+                grvShowBaoCao.Columns.Add("MaSP_ExcelMoi", "Mã");
+                grvShowBaoCao.Columns.Add("DonVi_ExcelMoi", "Đvị");
+                grvShowBaoCao.Columns.Add("MaBinLot_ExcelMoi", "LOT");
+                grvShowBaoCao.Columns.Add("Loai_ExcelMoi", "Loại");
+                grvShowBaoCao.Columns.Add("SoCuon_ExcelMoi", "Số cuộn");
+                grvShowBaoCao.Columns.Add("ChieuDai1Cuon_ExcelMoi", "Chiều dài 1c");
+                grvShowBaoCao.Columns.Add("TonThucTe_ExcelMoi", "Tồn kho thực");
+                grvShowBaoCao.Columns.Add("DatTruoc_ExcelMoi", "Đặt trước");
+                grvShowBaoCao.Columns.Add("KhaDung_ExcelMoi", "Tồn khả dụng");
+                grvShowBaoCao.Columns.Add("SoDau_ExcelMoi", "Số đầu");
+                grvShowBaoCao.Columns.Add("SoCuoi_ExcelMoi", "Số cuối");
+                grvShowBaoCao.Columns.Add(new DataGridViewButtonColumn {
+                    Name = "Button_ExcelMoi", HeaderText = "Thao tác", Text = "Xem",
+                    UseColumnTextForButtonValue = true
+                });
+
+
+                // ===== THIẾT LẬP BỀ RỘNG CÁC CỘT =====
+
+                grvShowBaoCao.Columns["TenSP_ExcelMoi"].Width = 250;
+                grvShowBaoCao.Columns["MaSP_ExcelMoi"].Width = 130;
+                grvShowBaoCao.Columns["DonVi_ExcelMoi"].Width = 65;
+                grvShowBaoCao.Columns["MaBinLot_ExcelMoi"].Width = 190;
+                grvShowBaoCao.Columns["Loai_ExcelMoi"].Width = 75;
+
+                grvShowBaoCao.Columns["SoCuon_ExcelMoi"].Width = 85;
+                grvShowBaoCao.Columns["ChieuDai1Cuon_ExcelMoi"].Width = 120;
+
+                grvShowBaoCao.Columns["TonThucTe_ExcelMoi"].Width = 125;
+                grvShowBaoCao.Columns["DatTruoc_ExcelMoi"].Width = 125;
+                grvShowBaoCao.Columns["KhaDung_ExcelMoi"].Width = 125;
+
+                grvShowBaoCao.Columns["SoDau_ExcelMoi"].Width = 90;
+                grvShowBaoCao.Columns["SoCuoi_ExcelMoi"].Width = 90;
+
+                grvShowBaoCao.Columns["Button_ExcelMoi"].Width = 75;
+
+                foreach (var item in ds)
+                {
+                    var i = grvShowBaoCao.Rows.Add(item.TenSanPham, item.MaSanPham, item.DonVi,
+                        item.MaBinLot, item.Loai, item.SoCuon.ToString("N0"), item.ChieuDaiMoiCuon.ToString("N0"),
+                        item.ChieuDaiTonThucTe.ToString("N0"),
+                        item.ChieuDaiTonDatTruoc.ToString("N0"),
+                        item.ChieuDaiTonKhaDung.ToString("N0"),
+                        item.SoDau?.ToString("N0") ?? "", item.SoCuoi?.ToString("N0") ?? "", "Xem");
+                    var row = grvShowBaoCao.Rows[i];
+                    row.Tag = item; // Giữ ID nguồn cho chức năng button ở đợt sau.
+                    if (item.LaBatThuong)
+                    {
+                        row.DefaultCellStyle.BackColor = System.Drawing.Color.MistyRose;
+                        row.DefaultCellStyle.SelectionBackColor = System.Drawing.Color.LightCoral;
+                        foreach (DataGridViewCell cell in row.Cells)
+                            cell.ToolTipText = item.CanhBao;
+                    }
+                }
+                _showingInventory = true;
+            }
+            catch (Exception ex)
+            {
+                if (!IsDisposed && !Disposing)
+                    MessageBox.Show("Không thể lập báo cáo tồn kho: " + ex.Message,
+                        "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                _tonKhoExcelDangTai = false;
+            }
+        }
+
         private async void btnXemTonKho_Click(object sender, EventArgs e)
+        {
+            btnXemTonKho.Enabled = false;
+
+            try
+            {
+                await TonKho_Excel( flgExcel: btnXuatExcel.Checked );
+            }
+            catch (Exception ex)
+            {
+                FrmWaiting.ShowGifAlert( $"Lỗi: {ex.Message}", "LỖI", EnumStore.Icon.Warning );
+            }
+            finally
+            {
+                if (!IsDisposed) btnXemTonKho.Enabled = true;
+            }
+        }
+
+        private async void btnXemTonKho_Click1(object sender, EventArgs e)
         {
             using var dialog = new SaveFileDialog
             {

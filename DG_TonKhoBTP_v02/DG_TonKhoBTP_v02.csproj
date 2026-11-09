@@ -530,10 +530,10 @@
     <Compile Include="UI\Actions\UC_SubmitForm.Designer.cs">
       <DependentUpon>UC_SubmitForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="UI\NghiepVuKhac\Kho\UC_BCTonKho.cs">
+    <Compile Include="UI\NghiepVuKhac\Kho\TonKho\UC_BCTonKho.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="UI\NghiepVuKhac\Kho\UC_BCTonKho.Designer.cs">
+    <Compile Include="UI\NghiepVuKhac\Kho\TonKho\UC_BCTonKho.Designer.cs">
       <DependentUpon>UC_BCTonKho.cs</DependentUpon>
     </Compile>
     <Compile Include="UI\Authentication\FmDangKy.cs">
@@ -763,7 +763,7 @@
     <EmbeddedResource Include="UI\Actions\UC_SubmitForm.resx">
       <DependentUpon>UC_SubmitForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="UI\NghiepVuKhac\Kho\UC_BCTonKho.resx">
+    <EmbeddedResource Include="UI\NghiepVuKhac\Kho\TonKho\UC_BCTonKho.resx">
       <DependentUpon>UC_BCTonKho.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UI\Authentication\FmDangKy.resx">

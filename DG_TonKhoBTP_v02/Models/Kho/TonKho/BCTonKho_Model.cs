@@ -80,19 +80,19 @@ namespace DG_TonKhoBTP_v02.Models.Kho.TonKho
     {
         public long Id { get; set; }
         public long TonCuonLeId { get; set; }
-        public long TTCuonDayId { get; set; }
+        public long? TTCuonDayId { get; set; }
         public string MaCuon { get; set; } = string.Empty;
         public string LoaiNguon { get; set; } = string.Empty;
         public string ThoiGian { get; set; } = string.Empty;
         public string NguoiThucHien { get; set; } = string.Empty;
         public string MaKeHoach { get; set; } = string.Empty;
-        public long ChieuDaiCat { get; set; }
-        public long SoDauTruoc { get; set; }
-        public long SoCuoiTruoc { get; set; }
-        public long SoDauCat { get; set; }
-        public long SoCuoiCat { get; set; }
-        public long SoDauSau { get; set; }
-        public long SoCuoiSau { get; set; }
+        public long? ChieuDaiCat { get; set; }
+        public long? SoDauTruoc { get; set; }
+        public long? SoCuoiTruoc { get; set; }
+        public long? SoDauCat { get; set; }
+        public long? SoCuoiCat { get; set; }
+        public long? SoDauSau { get; set; }
+        public long? SoCuoiSau { get; set; }
     }
 
     internal sealed class BCTonKho_ChiTietDong

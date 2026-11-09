@@ -98,7 +98,7 @@ namespace DG_TonKhoBTP_v02.UI
 
         private static string TaoTongHop(BCTonKho_ExcelDong dong)
         {
-            string donVi = string.IsNullOrWhiteSpace(dong.DonVi) ? "m" : dong.DonVi;
+            string donVi = dong.DonVi;
             string tongHop = $"Sản phẩm  {dong.TenSanPham} ({dong.MaSanPham})    Đơn vị  {donVi}" + Environment.NewLine
                 + $"Loại  {dong.Loai}    LOT  {dong.LotHienThiBang}" + Environment.NewLine
                 + $"Số cuộn  {So(dong.SoCuon)}    Chiều dài mỗi cuộn  {So(dong.ChieuDaiMoiCuon)} {donVi}" + Environment.NewLine
@@ -141,11 +141,12 @@ namespace DG_TonKhoBTP_v02.UI
             var ids = nguonDaChon.Select(x => x.TTCuonDayId).ToHashSet();
             if (!doiChonLot)
             {
-                foreach (var cut in _chiTiet.LichSuCat.Where(x => _dong.Loai == "Lẻ" || ids.Contains(x.TTCuonDayId)))
+                foreach (var cut in _chiTiet.LichSuCat.Where(x =>
+                    _dong.Loai == "Lẻ" || (x.TTCuonDayId.HasValue && ids.Contains(x.TTCuonDayId.Value))))
                 {
                     _lichSu.Rows.Add(cut.ThoiGian, cut.MaCuon,
-                        cut.LoaiNguon == "CUON_CHAN" ? "Chuyển từ cuộn chẵn" : "Cắt tiếp cuộn lẻ",
-                        cut.NguoiThucHien, cut.MaKeHoach, So(cut.ChieuDaiCat),
+                        cut.LoaiNguon == "CUON_CHAN" ? "Chuyển từ cuộn chẵn" : "Cắt cuộn lẻ",
+                        cut.NguoiThucHien, cut.MaKeHoach, SoLichSu(cut.ChieuDaiCat),
                         Moc(cut.SoDauTruoc, cut.SoCuoiTruoc), Moc(cut.SoDauCat, cut.SoCuoiCat), Moc(cut.SoDauSau, cut.SoCuoiSau));
                 }
             }
@@ -171,7 +172,8 @@ namespace DG_TonKhoBTP_v02.UI
         }
 
         private static string So(decimal giaTri) => giaTri.ToString("N0");
-        private static string Moc(long dau, long cuoi) => $"{So(dau)} – {So(cuoi)}";
+        private static string SoLichSu(long? giaTri) => giaTri?.ToString("N0") ?? "—";
+        private static string Moc(long? dau, long? cuoi) => $"{SoLichSu(dau)} – {SoLichSu(cuoi)}";
 
         private static DataGridView TaoBang(string ten, params string[] tieuDe)
         {

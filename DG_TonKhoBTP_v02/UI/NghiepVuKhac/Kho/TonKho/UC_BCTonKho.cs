@@ -618,13 +618,14 @@ namespace DG_TonKhoBTP_v02.UI
         {
             if (_tonKhoExcelDangTai || IsDisposed || Disposing) return;
             _tonKhoExcelDangTai = true;
+            int version = _tonKhoVersion;
             try
             {
                 if (!flgExcel)
                 {
                     // Vô hiệu truy vấn tìm kiếm tồn cũ mà không gọi lại hàm tính tồn cũ.
-                    unchecked { _tonKhoVersion++; }
-                    _tonKhoLoadCts?.Cancel();
+                    CancelTonKhoRequest();
+                    version = _tonKhoVersion;
                     _tonKhoSelection = null;
                 }
                 var ds = await WaitingHelper.RunWithWaiting(
@@ -633,9 +634,10 @@ namespace DG_TonKhoBTP_v02.UI
                     ),
                     "ĐANG TÍNH TOÁN DỮ LIỆU TỒN KHO..."
                 );
-                if (IsDisposed || Disposing) return;
+                if (IsDisposed || Disposing || (!flgExcel && version != _tonKhoVersion)) return;
                 if (ds.Count == 0)
                 {
+                    if (!flgExcel) ClearTonKhoGrid();
                     MessageBox.Show("Không có dữ liệu tồn kho phù hợp.", "Tồn kho",
                         MessageBoxButtons.OK, MessageBoxIcon.Information);
                     return;
@@ -811,7 +813,7 @@ namespace DG_TonKhoBTP_v02.UI
             }
             catch (Exception ex)
             {
-                if (!IsDisposed && !Disposing)
+                if (!IsDisposed && !Disposing && (flgExcel || version == _tonKhoVersion))
                     MessageBox.Show("Không thể lập báo cáo tồn kho: " + ex.Message,
                         "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }

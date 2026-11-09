@@ -523,6 +523,7 @@ WHERE tp.NhapKho=1 AND tp.Temp=0
                     }
 
                 const string sqlDatCuon = @"
+WITH NhuCau AS (
 SELECT kh.DanhSachMaSP_ID, qc.ChieuDai1Cuon,
        MAX(0, qc.SoLuongCuonCanLay - COALESCE((SELECT SUM(ls.SoLuong)
            FROM LichSuLayCuon ls WHERE ls.QuyCachCuonChan_ID=qc.id),0)) AS CanLay,
@@ -538,16 +539,19 @@ SELECT kh.DanhSachMaSP_ID, qc.ChieuDai1Cuon,
 JOIN KeHoachHang kh ON kh.id=qc.KeHoachHang_ID
 JOIN KeHoach k ON k.id=kh.KeHoach_ID
 JOIN DanhSachMaSP sp ON sp.id=kh.DanhSachMaSP_ID
-WHERE k.TrangThai='ACTIVE';";
+WHERE k.TrangThai='ACTIVE'
+)
+SELECT NhuCau.*, CanLay + CanCat FROM NhuCau;";
                 using (var cmd = new SQLiteCommand(sqlDatCuon, conn, tx))
                 using (var rd = cmd.ExecuteReader())
                     while (rd.Read())
                     {
                         long spId = Convert.ToInt64(rd[0]);
                         long chieuDai = rd.IsDBNull(1) ? 0L : Convert.ToInt64(rd[1]);
-                        long canLay = Number(rd, 2);
                         long canCat = Number(rd, 3);
-                        long soCuon = canLay + canCat;
+                        long soCuon = Number(rd, 9);
+                        // Giữ cách báo cáo làm tròn tổng nhu cầu của dữ liệu cũ.
+                        long canLay = soCuon - canCat;
                         var key = (spId, chieuDai);
                         if (!cuonTheoQuyCach.TryGetValue(key, out var dong))
                         {
@@ -635,9 +639,15 @@ GROUP BY n.TonCuonLe_ID, kh.DanhSachMaSP_ID, k.id;";
                 .SelectMany(dong => dong.TTCuonDayIds.Select(id => (Id: id, Dong: dong)))
                 .ToDictionary(x => x.Id, x => x.Dong);
             const string sql = @"
-SELECT ls.id, cl.id, cl.TTCuonDay_ID, cl.MaCuon, ls.LoaiNguon,
-       ls.ThoiGianThucHien, ls.NguoiThucHien, k.MaKeHoach, ls.ChieuDaiCat,
-       ls.SoDauTruoc, ls.SoCuoiTruoc, ls.SoDauCat, ls.SoCuoiCat, ls.SoDauSau, ls.SoCuoiSau
+SELECT ls.id, cl.id, cd.id, cl.MaCuon, ls.LoaiNguon,
+       ls.ThoiGianThucHien, ls.NguoiThucHien, k.MaKeHoach,
+       CASE WHEN typeof(ls.ChieuDaiCat) = 'integer' THEN ls.ChieuDaiCat END,
+       CASE WHEN typeof(ls.SoDauTruoc) = 'integer' THEN ls.SoDauTruoc END,
+       CASE WHEN typeof(ls.SoCuoiTruoc) = 'integer' THEN ls.SoCuoiTruoc END,
+       CASE WHEN typeof(ls.SoDauCat) = 'integer' THEN ls.SoDauCat END,
+       CASE WHEN typeof(ls.SoCuoiCat) = 'integer' THEN ls.SoCuoiCat END,
+       CASE WHEN typeof(ls.SoDauSau) = 'integer' THEN ls.SoDauSau END,
+       CASE WHEN typeof(ls.SoCuoiSau) = 'integer' THEN ls.SoCuoiSau END
 FROM LichSuCat ls
 JOIN TonCuonLe cl ON cl.id=ls.TonCuonLe_ID
 LEFT JOIN TTThanhPham chuCuon ON chuCuon.id=cl.TTThanhPham_ID
@@ -655,8 +665,11 @@ ORDER BY ls.ThoiGianThucHien DESC, ls.id DESC;";
             using var rd = cmd.ExecuteReader();
             while (rd.Read())
             {
-                long cuonId = Number(rd, 1), nguonId = Number(rd, 2);
-                cuonChanTheoNguon.TryGetValue(nguonId, out var dongChan);
+                long cuonId = Number(rd, 1);
+                long? nguonId = NullableInt(rd, 2);
+                BCTonKho_ExcelDong? dongChan = null;
+                if (nguonId.HasValue)
+                    cuonChanTheoNguon.TryGetValue(nguonId.Value, out dongChan);
                 cuonLe.TryGetValue(cuonId, out var dongLe);
                 if (dongChan == null && dongLe == null) continue;
 
@@ -665,10 +678,10 @@ ORDER BY ls.ThoiGianThucHien DESC, ls.id DESC;";
                     Id = Number(rd, 0), TonCuonLeId = cuonId, TTCuonDayId = nguonId,
                     MaCuon = String(rd, 3), LoaiNguon = String(rd, 4),
                     ThoiGian = String(rd, 5), NguoiThucHien = String(rd, 6),
-                    MaKeHoach = String(rd, 7), ChieuDaiCat = Number(rd, 8),
-                    SoDauTruoc = Number(rd, 9), SoCuoiTruoc = Number(rd, 10),
-                    SoDauCat = Number(rd, 11), SoCuoiCat = Number(rd, 12),
-                    SoDauSau = Number(rd, 13), SoCuoiSau = Number(rd, 14)
+                    MaKeHoach = String(rd, 7), ChieuDaiCat = NullableInt(rd, 8),
+                    SoDauTruoc = NullableInt(rd, 9), SoCuoiTruoc = NullableInt(rd, 10),
+                    SoDauCat = NullableInt(rd, 11), SoCuoiCat = NullableInt(rd, 12),
+                    SoDauSau = NullableInt(rd, 13), SoCuoiSau = NullableInt(rd, 14)
                 };
                 dongChan?.ChiTiet?.ThemLanCat(lanCat);
                 dongLe?.ChiTiet?.ThemLanCat(lanCat);

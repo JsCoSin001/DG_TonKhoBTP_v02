@@ -4,6 +4,7 @@
 )
 
 $ErrorActionPreference = 'Stop'
+$script:Failures = 0
 $root = Split-Path $PSScriptRoot -Parent
 $bin = Join-Path $root 'DG_TonKhoBTP_v02/bin/Debug'
 $assembly = [Reflection.Assembly]::LoadFrom((Join-Path $bin 'DG_TonKhoBTP_v02.exe'))
@@ -37,6 +38,9 @@ ALTER TABLE DanhSachMaSP ADD COLUMN Ten_KhongDau TEXT;
 $seed"
         & $Run
         Write-Output "PASS $Name"
+    } catch {
+        $script:Failures++
+        Write-Output "FAIL $Name — $($_.Exception.GetBaseException().Message)"
     } finally {
         [DG_TonKhoBTP_v02.Database.DB_Base]::_connStr = $originalConnection
         [System.Data.SQLite.SQLiteConnection]::ClearAllPools()
@@ -130,6 +134,16 @@ VALUES(209,11,2,200),(210,18,0,200),(211,19,1,200);
         Assert-Equal $planOnly.ChiTiet.LotGop.Count 0 'Plan-only LOT list'
     }
 
+    Test-Fixture 'FractionalLegacyReservationKeepsReportTotal' {
+        Set-WholePlans
+        Invoke-FixtureSql 'UPDATE KeHoachHangQuyCachCuonChan SET SoLuongCuonCanLay=2.5 WHERE id=41;'
+        $whole = Read-Report | Where-Object { $_.MaSanPham -eq 'QA-P1' -and $_.Loai -eq 'Cuộn' -and $_.ChieuDaiMoiCuon -eq 200 }
+        $excel = Read-Report $false | Where-Object { $_.MaSanPham -eq 'QA-P1' -and $_.Loai -eq 'Cuộn' -and $_.ChieuDaiMoiCuon -eq 200 }
+        Assert-Equal $whole.ChieuDaiTonDatTruoc 400 'Round the combined legacy reservation quantity'
+        Assert-Equal $excel.ChieuDaiTonDatTruoc 400 'Excel retains the previous reservation total'
+        Assert-Equal $whole.ChiTiet.DatTruoc[0].SoCuonDanhDeCat 1 'Actual pending cut groups'
+        Assert-Equal $whole.ChiTiet.DatTruoc[0].SoCuonConPhaiLay 1 'Plan explanation reconciles the rounded total'
+    }
     Test-Fixture 'ReportProjectionParity' {
         $columns = 'MaSanPham','Loai','MaBinLot','SoCuon','ChieuDaiMoiCuon','ChieuDaiTonThucTe',
             'ChieuDaiTonDatTruoc','ChieuDaiTonKhaDung','SoDau','SoCuoi','CanhBao'
@@ -173,6 +187,24 @@ UPDATE TonCuonLe SET SoDau=190 WHERE id=302;
         Assert-Equal "$($cut.SoDauTruoc)/$($cut.SoCuoiTruoc)|$($cut.SoDauCat)/$($cut.SoCuoiCat)|$($cut.SoDauSau)/$($cut.SoCuoiSau)" '185/200|185/190|190/200' 'Cut markers'
     }
 
+    Test-Fixture 'InvalidHistoryValuesRemainUnknown' {
+        Invoke-FixtureSql "UPDATE LichSuCat SET SoDauTruoc='unknown', SoCuoiCat=5.75, ChieuDaiCat='bad' WHERE id=81;"
+        $row = Read-Report | Where-Object TonCuonLeId -eq 301
+        $cut = $row.ChiTiet.LichSuCat[0]
+        Assert-Equal $cut.SoDauTruoc $null 'Unknown marker does not become zero'
+        Assert-Equal $cut.SoCuoiCat $null 'Fractional marker does not become an integer'
+        Assert-Equal $cut.ChieuDaiCat $null 'Unreadable cut length remains unavailable'
+        Assert-Equal $cut.SoDauCat 0 'Real zero remains zero'
+    }
+    Test-Fixture 'BrokenSourceIdDoesNotBorrowAnotherLot' {
+        Invoke-FixtureSql 'PRAGMA foreign_keys=OFF; UPDATE TonCuonLe SET TTCuonDay_ID=201.75 WHERE id=301;'
+        $rows = Read-Report
+        $whole = $rows | Where-Object { $_.MaSanPham -eq 'QA-P1' -and $_.Loai -eq 'Cuộn' -and $_.ChieuDaiMoiCuon -eq 200 }
+        $reel = $rows | Where-Object TonCuonLeId -eq 301
+        Assert-Equal ($whole.ChiTiet.LichSuCat.Id -join ',') '82' 'Only history joined to a real source belongs to the whole row'
+        Assert-Equal ($reel.ChiTiet.LichSuCat.Id -join ',') '81' 'History of the physical reel remains available'
+        Assert-Equal $reel.ChiTiet.LichSuCat[0].TTCuonDayId $null 'Broken source link is unavailable'
+    }
     Test-Fixture 'LoadedRowSurvivesDatabaseChange' {
         $loaded = Read-Report | Where-Object TonCuonLeId -eq 302
         Invoke-FixtureSql @"
@@ -250,6 +282,40 @@ function Invoke-RowButton($Grid, $Row, [string]$Column, [scriptblock]$Inspect = 
 
 function Test-ReportUi {
     Add-Type -AssemblyName System.Windows.Forms
+    Add-Type -TypeDefinition @"
+using System;
+using System.Runtime.InteropServices;
+using System.Text;
+
+public static class InventoryReportTestDialogs
+{
+    private delegate bool WindowCallback(IntPtr handle, IntPtr context);
+
+    [DllImport("kernel32.dll")]
+    private static extern uint GetCurrentThreadId();
+
+    [DllImport("user32.dll")]
+    private static extern bool EnumThreadWindows(uint threadId, WindowCallback callback, IntPtr context);
+
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+    private static extern int GetWindowText(IntPtr handle, StringBuilder text, int capacity);
+
+    [DllImport("user32.dll")]
+    private static extern bool PostMessage(IntPtr handle, uint message, IntPtr wParam, IntPtr lParam);
+
+    public static void DismissEmptyReport()
+    {
+        EnumThreadWindows(GetCurrentThreadId(), (handle, context) =>
+        {
+            var title = new StringBuilder(64);
+            GetWindowText(handle, title, title.Capacity);
+            if (title.ToString() == "Tồn kho")
+                PostMessage(handle, 0x0010, IntPtr.Zero, IntPtr.Zero);
+            return true;
+        }, IntPtr.Zero);
+    }
+}
+"@
     Test-Fixture 'ViewButtonExplainsSortedReport' {
         Set-WholePlans
         Set-PartialPlans
@@ -335,6 +401,43 @@ VALUES(212,20,1,180,0,180);
             $null = $render.Invoke($control, [object[]]@($task.GetAwaiter().GetResult()))
             Assert-Equal $grid.Columns.Contains('Button_ExcelMoi') $false 'Switching views replaces report column'
             Assert-Equal (Invoke-RowButton $grid $grid.Rows[0] 'LichSu') $false 'Search result uses its own column'
+            [Threading.SynchronizationContext]::SetSynchronizationContext([Windows.Forms.WindowsFormsSynchronizationContext]::new())
+            $lockConnection = [DG_TonKhoBTP_v02.Database.DB_Base]::OpenConnection()
+            $lockCommand = $lockConnection.CreateCommand()
+            try {
+                $lockCommand.CommandText = 'BEGIN EXCLUSIVE'
+                $null = $lockCommand.ExecuteNonQuery()
+                $lateReport = $control.TonKho_Excel($false)
+                Assert-Equal $lateReport.IsCompleted $false 'Inventory report waits on the database lock'
+                $newerView = [Data.DataTable]::new()
+                $null = $newerView.Columns.Add('NewerReport')
+                $null = $newerView.Rows.Add('Newer result')
+                $showResult = $control.GetType().GetMethod('ShowResult', [Reflection.BindingFlags]'Instance,NonPublic')
+                $null = $showResult.Invoke($control, [object[]](,$newerView))
+                Assert-Equal $grid.Columns.Contains('NewerReport') $true 'Newer report is displayed while the inventory report is pending'
+            } finally {
+                $lockCommand.Dispose()
+                $lockConnection.Dispose()
+            }
+            Wait-Ui { $lateReport.IsCompleted } 'Superseded report did not finish'
+            $newerViewSurvives = $grid.Columns.Contains('NewerReport')
+            Assert-Equal $newerViewSurvives $true 'Superseded inventory report does not replace the newer view'
+            $reloaded = $control.TonKho_Excel($false)
+            Wait-Ui { $reloaded.IsCompleted } 'Report did not restore the test inventory'
+            Assert-Equal $grid.Columns.Contains('Button_ExcelMoi') $true 'Reload restores report mode'
+            Invoke-FixtureSql "UPDATE KeHoach SET TrangThai='HUY'; UPDATE TTThanhPham SET NhapKho=0;"
+            Assert-Equal @(Read-Report).Count 0 'Fixture has no report rows left'
+            [Threading.SynchronizationContext]::SetSynchronizationContext([Windows.Forms.WindowsFormsSynchronizationContext]::new())
+            $timer = [Windows.Forms.Timer]::new()
+            $timer.Interval = 25
+            $timer.add_Tick({ [InventoryReportTestDialogs]::DismissEmptyReport() })
+            try {
+                $timer.Start()
+                $emptyReport = $control.TonKho_Excel($false)
+                Wait-Ui { $emptyReport.IsCompleted } 'Empty report did not finish loading'
+            } finally { $timer.Dispose() }
+            Assert-Equal $grid.Rows.Count 0 'Empty reload removes stale rows and detail buttons'
+
         } finally { $hostForm.Dispose() }
     }
 }
@@ -344,3 +447,4 @@ if ($Suite -ne 'Ui') {
     Test-ReportHistory
 }
 if ($Suite -ne 'Data') { Test-ReportUi }
+if ($script:Failures -gt 0) { exit 1 }

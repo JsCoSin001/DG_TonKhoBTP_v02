@@ -608,6 +608,9 @@ GROUP BY n.TonCuonLe_ID, kh.DanhSachMaSP_ID, k.id;";
                     if (dong.ChieuDaiTonDatTruoc < 0)
                         dong.ThemCanhBao($"TonCuonLe #{dong.TonCuonLeId}: chiều dài đặt trước âm.");
 
+                if (kemChiTiet)
+                    DocLichSuCat(conn, tx, cuonTheoQuyCach.Values, cuonLeTheoId);
+
                 tx.Commit();
             }
 
@@ -623,6 +626,53 @@ GROUP BY n.TonCuonLe_ID, kh.DanhSachMaSP_ID, k.id;";
                 if (dong.ChieuDaiTonKhaDung < 0)
                     dong.ThemCanhBao("Chiều dài đặt trước lớn hơn chiều dài thực tế.");
             return ketQua;
+        }
+
+        private static void DocLichSuCat(SQLiteConnection conn, SQLiteTransaction tx,
+            IEnumerable<BCTonKho_ExcelDong> cuonChan, Dictionary<long, BCTonKho_ExcelDong> cuonLe)
+        {
+            var cuonChanTheoNguon = cuonChan
+                .SelectMany(dong => dong.TTCuonDayIds.Select(id => (Id: id, Dong: dong)))
+                .ToDictionary(x => x.Id, x => x.Dong);
+            const string sql = @"
+SELECT ls.id, cl.id, cl.TTCuonDay_ID, cl.MaCuon, ls.LoaiNguon,
+       ls.ThoiGianThucHien, ls.NguoiThucHien, k.MaKeHoach, ls.ChieuDaiCat,
+       ls.SoDauTruoc, ls.SoCuoiTruoc, ls.SoDauCat, ls.SoCuoiCat, ls.SoDauSau, ls.SoCuoiSau
+FROM LichSuCat ls
+JOIN TonCuonLe cl ON cl.id=ls.TonCuonLe_ID
+LEFT JOIN TTThanhPham chuCuon ON chuCuon.id=cl.TTThanhPham_ID
+LEFT JOIN TTCuonDay cd ON cd.id=cl.TTCuonDay_ID
+LEFT JOIN TTNhapKhoTP nk ON nk.id=cd.ThongTinNhapKho_ID
+LEFT JOIN TTThanhPham nguon ON nguon.id=nk.TTThanhPham_ID
+LEFT JOIN KeHoachCatChiTiet ct ON ct.id=ls.KeHoachCatChiTiet_ID
+LEFT JOIN KeHoachCatNhom n ON n.id=ct.KeHoachCatNhom_ID
+LEFT JOIN KeHoachHang kh ON kh.id=n.KeHoachHang_ID
+LEFT JOIN KeHoach k ON k.id=kh.KeHoach_ID
+WHERE (chuCuon.NhapKho=1 AND chuCuon.Temp=0)
+   OR (nguon.NhapKho=1 AND nguon.Temp=0 AND cd.SoDau IS NULL AND cd.SoCuoi IS NULL)
+ORDER BY ls.ThoiGianThucHien DESC, ls.id DESC;";
+            using var cmd = new SQLiteCommand(sql, conn, tx);
+            using var rd = cmd.ExecuteReader();
+            while (rd.Read())
+            {
+                long cuonId = Number(rd, 1), nguonId = Number(rd, 2);
+                cuonChanTheoNguon.TryGetValue(nguonId, out var dongChan);
+                cuonLe.TryGetValue(cuonId, out var dongLe);
+                if (dongChan == null && dongLe == null) continue;
+
+                var lanCat = new BCTonKho_LanCat
+                {
+                    Id = Number(rd, 0), TonCuonLeId = cuonId, TTCuonDayId = nguonId,
+                    MaCuon = String(rd, 3), LoaiNguon = String(rd, 4),
+                    ThoiGian = String(rd, 5), NguoiThucHien = String(rd, 6),
+                    MaKeHoach = String(rd, 7), ChieuDaiCat = Number(rd, 8),
+                    SoDauTruoc = Number(rd, 9), SoCuoiTruoc = Number(rd, 10),
+                    SoDauCat = Number(rd, 11), SoCuoiCat = Number(rd, 12),
+                    SoDauSau = Number(rd, 13), SoCuoiSau = Number(rd, 14)
+                };
+                dongChan?.ChiTiet?.ThemLanCat(lanCat);
+                dongLe?.ChiTiet?.ThemLanCat(lanCat);
+            }
         }
 
         private static SQLiteCommand Make(SQLiteConnection c, SQLiteTransaction t, string sql,

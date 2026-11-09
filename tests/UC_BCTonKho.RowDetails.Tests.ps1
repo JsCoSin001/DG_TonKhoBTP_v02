@@ -142,5 +142,74 @@ VALUES(209,11,2,200),(210,18,0,200),(211,19,1,200);
     }
 }
 
-if ($Suite -ne 'Ui') { Test-ReportData }
+function Test-ReportHistory {
+    Test-Fixture 'CutHistoryBySourceAndReel' {
+        Invoke-FixtureSql @"
+UPDATE LichSuCat SET ThoiGianThucHien='2026-10-01 08:00:00' WHERE id=81;
+UPDATE LichSuCat SET ThoiGianThucHien='2026-10-01 08:30:00' WHERE id=82;
+INSERT INTO TonCuonLe(id,MaCuon,TTThanhPham_ID,TTCuonDay_ID,SoDau,SoCuoi)
+VALUES(304,'QA-LE-400',101,203,0,390);
+INSERT INTO KeHoachCatNhom(id,KeHoachHang_ID,TonCuonLe_ID,QuyCachCuonChan_ID) VALUES(54,31,304,42);
+INSERT INTO KeHoachCatChiTiet(id,KeHoachCatNhom_ID,ChieuDaiCanCat) VALUES(64,52,5),(65,52,5),(66,54,10);
+INSERT INTO LichSuCat(id,KeHoachCatChiTiet_ID,TonCuonLe_ID,LoaiNguon,ChieuDaiCat,
+  SoDauTruoc,SoCuoiTruoc,SoDauCat,SoCuoiCat,SoDauSau,SoCuoiSau,HeSoChieu,
+  MaQuetThucTe,NguoiThucHien,ThoiGianThucHien) VALUES
+(83,64,302,'CUON_LE',5,180,200,180,185,185,200,1,'QA-LE20','qa','2026-10-01 09:00:00'),
+(84,65,302,'CUON_LE',5,185,200,185,190,190,200,1,'QA-LE20','qa','2026-10-01 09:00:00'),
+(85,66,304,'CUON_CHAN',10,0,400,400,390,0,390,-1,'QA-LE-400','qa','2026-10-01 10:00:00');
+UPDATE TonCuonLe SET SoDau=190 WHERE id=302;
+"@
+        $rows = Read-Report
+        $whole200 = $rows | Where-Object { $_.MaSanPham -eq 'QA-P1' -and $_.Loai -eq 'Cuộn' -and $_.ChieuDaiMoiCuon -eq 200 }
+        $whole400 = $rows | Where-Object { $_.MaSanPham -eq 'QA-P1' -and $_.Loai -eq 'Cuộn' -and $_.ChieuDaiMoiCuon -eq 400 }
+        $partial302 = $rows | Where-Object TonCuonLeId -eq 302
+        $partial303 = $rows | Where-Object TonCuonLeId -eq 303
+        Assert-Equal ($whole200.ChiTiet.LichSuCat.Id -join ',') '84,83,82,81' 'Source history sorted by time then ID'
+        Assert-Equal ($whole400.ChiTiet.LichSuCat.Id -join ',') '85' 'Other specification history'
+        Assert-Equal ($partial302.ChiTiet.LichSuCat.Id -join ',') '84,83,82' 'One physical reel'
+        Assert-Equal $partial303.ChiTiet.LichSuCat.Count 0 'Empty history'
+        $cut = $partial302.ChiTiet.LichSuCat[0]
+        Assert-Equal "$($cut.MaCuon)/$($cut.LoaiNguon)/$($cut.MaKeHoach)/$($cut.NguoiThucHien)" 'QA-LE20/CUON_LE/QA-PLAN/qa' 'Cut identity and plan'
+        Assert-Equal "$($cut.SoDauTruoc)/$($cut.SoCuoiTruoc)|$($cut.SoDauCat)/$($cut.SoCuoiCat)|$($cut.SoDauSau)/$($cut.SoCuoiSau)" '185/200|185/190|190/200' 'Cut markers'
+    }
 
+    Test-Fixture 'LoadedRowSurvivesDatabaseChange' {
+        $loaded = Read-Report | Where-Object TonCuonLeId -eq 302
+        Invoke-FixtureSql @"
+INSERT INTO KeHoachCatChiTiet(id,KeHoachCatNhom_ID,ChieuDaiCanCat) VALUES(64,52,5);
+INSERT INTO LichSuCat(id,KeHoachCatChiTiet_ID,TonCuonLe_ID,LoaiNguon,ChieuDaiCat,
+  SoDauTruoc,SoCuoiTruoc,SoDauCat,SoCuoiCat,SoDauSau,SoCuoiSau,HeSoChieu,
+  MaQuetThucTe,NguoiThucHien)
+VALUES(83,64,302,'CUON_LE',5,180,200,180,185,185,200,1,'QA-LE20','qa');
+UPDATE TonCuonLe SET SoDau=185 WHERE id=302;
+"@
+        $updated = Read-Report | Where-Object TonCuonLeId -eq 302
+        Assert-Equal "$($loaded.SoDau)/$($loaded.ChieuDaiTonThucTe)/$($loaded.ChiTiet.LichSuCat.Id -join ',')" '180/20/82' 'Original report and history remain paired'
+        Assert-Equal "$($updated.SoDau)/$($updated.ChieuDaiTonThucTe)/$($updated.ChiTiet.LichSuCat.Id -join ',')" '185/15/83,82' 'Reloaded report and history'
+    }
+
+    if ($SnapshotPath) {
+        $originalConnection = [DG_TonKhoBTP_v02.Database.DB_Base]::_connStr
+        $resolved = (Resolve-Path -LiteralPath $SnapshotPath).Path
+        $hash = (Get-FileHash -LiteralPath $resolved -Algorithm SHA256).Hash
+        try {
+            [DG_TonKhoBTP_v02.Database.DB_Base]::_connStr = "Data Source=$resolved;Read Only=True;FailIfMissing=True;Version=3;"
+            $rows = Read-Report
+            $whole = $rows | Where-Object { $_.MaBinLot -eq 'E1-265081/5-03-00' -and $_.Loai -eq 'Cuộn' }
+            $reel = $rows | Where-Object TonCuonLeId -eq 6
+            Assert-Equal "$($whole.SoCuon)/$($whole.ChieuDaiTonThucTe)" '6/1200' 'Snapshot totals'
+            Assert-Equal ($whole.ChiTiet.LichSuCat.Id -join ',') '11,10,9,8' 'Snapshot source history'
+            Assert-Equal ($reel.ChiTiet.LichSuCat.Id -join ',') '11,10,9' 'Snapshot physical reel history'
+        } finally {
+            [DG_TonKhoBTP_v02.Database.DB_Base]::_connStr = $originalConnection
+            [System.Data.SQLite.SQLiteConnection]::ClearAllPools()
+        }
+        Assert-Equal (Get-FileHash -LiteralPath $resolved -Algorithm SHA256).Hash $hash 'Snapshot SHA-256'
+        Write-Output 'PASS ConfiguredSnapshot'
+    }
+}
+
+if ($Suite -ne 'Ui') {
+    Test-ReportData
+    Test-ReportHistory
+}

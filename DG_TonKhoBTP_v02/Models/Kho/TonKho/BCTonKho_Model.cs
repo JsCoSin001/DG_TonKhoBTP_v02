@@ -76,9 +76,29 @@ namespace DG_TonKhoBTP_v02.Models.Kho.TonKho
         public decimal SoMet { get; set; }
     }
 
+    internal sealed class BCTonKho_LanCat
+    {
+        public long Id { get; set; }
+        public long TonCuonLeId { get; set; }
+        public long TTCuonDayId { get; set; }
+        public string MaCuon { get; set; } = string.Empty;
+        public string LoaiNguon { get; set; } = string.Empty;
+        public string ThoiGian { get; set; } = string.Empty;
+        public string NguoiThucHien { get; set; } = string.Empty;
+        public string MaKeHoach { get; set; } = string.Empty;
+        public long ChieuDaiCat { get; set; }
+        public long SoDauTruoc { get; set; }
+        public long SoCuoiTruoc { get; set; }
+        public long SoDauCat { get; set; }
+        public long SoCuoiCat { get; set; }
+        public long SoDauSau { get; set; }
+        public long SoCuoiSau { get; set; }
+    }
+
     internal sealed class BCTonKho_ChiTietDong
     {
         private readonly long _chieuDaiMoiCuon;
+        private readonly List<BCTonKho_LanCat> _lichSuCat = new List<BCTonKho_LanCat>();
         private readonly List<BCTonKho_NguonTon> _nguon = new List<BCTonKho_NguonTon>();
         private readonly List<BCTonKho_DatTruocKeHoach> _datTruoc = new List<BCTonKho_DatTruocKeHoach>();
 
@@ -87,6 +107,7 @@ namespace DG_TonKhoBTP_v02.Models.Kho.TonKho
             _chieuDaiMoiCuon = chieuDaiMoiCuon;
         }
 
+        public IReadOnlyList<BCTonKho_LanCat> LichSuCat => _lichSuCat;
         public IReadOnlyList<BCTonKho_NguonTon> Nguon => _nguon;
         public IReadOnlyList<BCTonKho_DatTruocKeHoach> DatTruoc => _datTruoc;
 
@@ -103,6 +124,7 @@ namespace DG_TonKhoBTP_v02.Models.Kho.TonKho
                 };
             }).ToList();
 
+        internal void ThemLanCat(BCTonKho_LanCat lanCat) => _lichSuCat.Add(lanCat);
         internal void ThemNguon(BCTonKho_NguonTon nguon) => _nguon.Add(nguon);
         internal void ThemDatTruoc(BCTonKho_DatTruocKeHoach keHoach) => _datTruoc.Add(keHoach);
     }

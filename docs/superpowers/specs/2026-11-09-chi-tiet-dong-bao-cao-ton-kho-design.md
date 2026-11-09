@@ -1,6 +1,6 @@
 # Thiết kế chi tiết dòng báo cáo tồn kho và lịch sử cắt dây
 
-Ngày 09/11/2026. Trạng thái **Chờ duyệt thiết kế**.
+Ngày 09/11/2026. Trạng thái **Đã được người dùng duyệt**.
 
 ## Mục tiêu và phạm vi
 

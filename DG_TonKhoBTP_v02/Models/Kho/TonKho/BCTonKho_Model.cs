@@ -49,6 +49,64 @@ namespace DG_TonKhoBTP_v02.Models.Kho.TonKho
         public List<BCTonKho_DongTon> Dong { get; set; } = new List<BCTonKho_DongTon>();
         public bool CoBatThuong { get; set; }
     }
+    internal sealed class BCTonKho_NguonTon
+    {
+        public long TTCuonDayId { get; set; }
+        public string MaBin { get; set; } = string.Empty;
+        public long SoCuonNhap { get; set; }
+        public long SoCuonDaLay { get; set; }
+        public long SoCuonChuyenLe { get; set; }
+        public long SoCuonCon => SoCuonNhap - SoCuonDaLay - SoCuonChuyenLe;
+        public long SoCuonGop { get; set; }
+    }
+
+    internal sealed class BCTonKho_LotGop
+    {
+        public string MaBin { get; set; } = string.Empty;
+        public long SoCuon { get; set; }
+        public decimal SoMet { get; set; }
+    }
+
+    internal sealed class BCTonKho_DatTruocKeHoach
+    {
+        public long KeHoachId { get; set; }
+        public string MaKeHoach { get; set; } = string.Empty;
+        public long SoCuonConPhaiLay { get; set; }
+        public long SoCuonDanhDeCat { get; set; }
+        public decimal SoMet { get; set; }
+    }
+
+    internal sealed class BCTonKho_ChiTietDong
+    {
+        private readonly long _chieuDaiMoiCuon;
+        private readonly List<BCTonKho_NguonTon> _nguon = new List<BCTonKho_NguonTon>();
+        private readonly List<BCTonKho_DatTruocKeHoach> _datTruoc = new List<BCTonKho_DatTruocKeHoach>();
+
+        internal BCTonKho_ChiTietDong(long chieuDaiMoiCuon = 0)
+        {
+            _chieuDaiMoiCuon = chieuDaiMoiCuon;
+        }
+
+        public IReadOnlyList<BCTonKho_NguonTon> Nguon => _nguon;
+        public IReadOnlyList<BCTonKho_DatTruocKeHoach> DatTruoc => _datTruoc;
+
+        public IReadOnlyList<BCTonKho_LotGop> LotGop => _nguon
+            .Where(x => x.SoCuonGop > 0 && x.MaBin.Length > 0)
+            .GroupBy(x => x.MaBin, StringComparer.OrdinalIgnoreCase)
+            .OrderBy(x => x.Key, StringComparer.OrdinalIgnoreCase)
+            .Select(x =>
+            {
+                long soCuon = x.Sum(nguon => nguon.SoCuonGop);
+                return new BCTonKho_LotGop
+                {
+                    MaBin = x.Key, SoCuon = soCuon, SoMet = (decimal)soCuon * _chieuDaiMoiCuon
+                };
+            }).ToList();
+
+        internal void ThemNguon(BCTonKho_NguonTon nguon) => _nguon.Add(nguon);
+        internal void ThemDatTruoc(BCTonKho_DatTruocKeHoach keHoach) => _datTruoc.Add(keHoach);
+    }
+
     /// <summary>
     /// Dòng tồn kho cho báo cáo mới B1-B2-B3.
     /// Số cuộn của loại Cuộn: số cuộn nguyên còn sau các thao tác B3, gộp theo sản phẩm + quy cách.
@@ -65,6 +123,8 @@ namespace DG_TonKhoBTP_v02.Models.Kho.TonKho
         public string MaSanPham { get; set; } = string.Empty;
         public string DonVi { get; set; } = string.Empty;
         public string MaBinLot { get; set; } = string.Empty;
+        public BCTonKho_ChiTietDong? ChiTiet { get; set; }
+        public string LotHienThiBang => ChiTiet?.LotGop.Count > 1 ? "Nhiều LOT" : MaBinLot;
         // Cuộn nguyên gộp theo sản phẩm + chiều dài: giữ đầy đủ mã Bin còn tồn,
         // không thay đổi quy tắc gộp hay nhân đôi số mét.
         private readonly HashSet<string> _maBinNguon = new HashSet<string>(StringComparer.OrdinalIgnoreCase);

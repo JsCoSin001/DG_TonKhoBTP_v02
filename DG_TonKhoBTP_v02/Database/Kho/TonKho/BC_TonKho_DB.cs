@@ -372,7 +372,7 @@ WHERE tp.NhapKho=1 AND tp.Temp=0
         // Báo cáo tồn kho B1 -> kế hoạch -> B3. Đường tính MỚI, độc lập
         // với LayChiTietTonAsync, TonKhoExcelReport_DB và các báo cáo cũ.
         // Mọi phép đọc nằm trong cùng một snapshot; tuyệt đối không cập nhật DB.
-        internal static List<BCTonKho_ExcelDong> LayTonKhoExcelMoi()
+        internal static List<BCTonKho_ExcelDong> LayTonKhoExcelMoi(bool kemChiTiet = false)
         {
             var cuonTheoQuyCach = new Dictionary<(long SanPhamId, long ChieuDai), BCTonKho_ExcelDong>();
             var cuonLe = new List<BCTonKho_ExcelDong>();
@@ -416,7 +416,8 @@ ORDER BY cd.id;";
                                 DanhSachMaSPId = spId, TenSanPham = Convert.ToString(rd[1]) ?? "",
                                 MaSanPham = Convert.ToString(rd[2]) ?? "",
                                 DonVi = Convert.ToString(rd[3]) ?? "",
-                                Loai = "Cuộn", ChieuDaiMoiCuon = chieuDai
+                                Loai = "Cuộn", ChieuDaiMoiCuon = chieuDai,
+                                 ChiTiet = kemChiTiet ? new BCTonKho_ChiTietDong(chieuDai) : null
                             };
                             cuonTheoQuyCach.Add(key, dong);
                         }
@@ -426,11 +427,18 @@ ORDER BY cd.id;";
                             dong.ThemCanhBao($"TTCuonDay #{cdId}: nhập {soCuon}, lấy {daLay}, chuyển lẻ {daChuyenLe}, chiều dài {chieuDai}; cần đối soát nguồn.");
                         // Tích SoCuon * ChieuDaiMoiCuon được tính tại Model, không ghi trực tiếp số mét.
                         // Không biến số cuộn vật lý thành âm nếu gặp lịch sử bất thường.
-                        if (con > 0 && chieuDai > 0)
+                        long soCuonGop = con > 0 && chieuDai > 0 ? con : 0;
+                        string maBin = String(rd, 7).Trim();
+                        if (soCuonGop > 0)
                         {
-                            dong.SoCuon += con;
-                            dong.ThemMaBin(Convert.ToString(rd[7]));
+                            dong.SoCuon += soCuonGop;
+                            dong.ThemMaBin(maBin);
                         }
+                        dong.ChiTiet?.ThemNguon(new BCTonKho_NguonTon
+                        {
+                            TTCuonDayId = cdId, MaBin = maBin, SoCuonNhap = soCuon,
+                            SoCuonDaLay = daLay, SoCuonChuyenLe = daChuyenLe, SoCuonGop = soCuonGop
+                        });
                     }
 
                 const string sqlLe = @"
@@ -460,7 +468,8 @@ ORDER BY cl.id;";
                             DonVi = Convert.ToString(rd[4]) ?? "", Loai = "Lẻ",
                             MaBinLot = Convert.ToString(rd[15]) ?? "",
                             SoDau = dau, SoCuoi = cuoi,
-                            SoCuon = 1 // Mỗi TonCuonLe là đúng một cuộn lẻ.
+                            SoCuon = 1, // Mỗi TonCuonLe là đúng một cuộn lẻ.
+                            ChiTiet = kemChiTiet ? new BCTonKho_ChiTietDong() : null
                         };
                         if (dau.HasValue && cuoi.HasValue)
                             dong.ChieuDaiMoiCuon = checked((long)Math.Abs((decimal)cuoi.Value - dau.Value));
@@ -506,7 +515,8 @@ WHERE tp.NhapKho=1 AND tp.Temp=0
                             TenSanPham = Convert.ToString(rd[1]) ?? "",
                             MaSanPham = Convert.ToString(rd[2]) ?? "",
                             DonVi = Convert.ToString(rd[3]) ?? "", Loai = "Lẻ",
-                            MaBinLot = Convert.ToString(rd[5]) ?? ""
+                            MaBinLot = Convert.ToString(rd[5]) ?? "",
+                            ChiTiet = kemChiTiet ? new BCTonKho_ChiTietDong() : null
                         };
                         dong.ThemCanhBao($"TTCuonDay #{Convert.ToInt64(rd[4])}: thiếu TonCuonLe; không đủ dữ liệu xác định tồn thực tế.");
                         cuonLe.Add(dong);
@@ -515,15 +525,16 @@ WHERE tp.NhapKho=1 AND tp.Temp=0
                 const string sqlDatCuon = @"
 SELECT kh.DanhSachMaSP_ID, qc.ChieuDai1Cuon,
        MAX(0, qc.SoLuongCuonCanLay - COALESCE((SELECT SUM(ls.SoLuong)
-           FROM LichSuLayCuon ls WHERE ls.QuyCachCuonChan_ID=qc.id),0))
-       + (SELECT COUNT(*) FROM KeHoachCatNhom n
+           FROM LichSuLayCuon ls WHERE ls.QuyCachCuonChan_ID=qc.id),0)) AS CanLay,
+       (SELECT COUNT(*) FROM KeHoachCatNhom n
           WHERE n.QuyCachCuonChan_ID=qc.id AND n.TonCuonLe_ID IS NULL
             AND EXISTS (SELECT 1 FROM KeHoachCatChiTiet ct
                         WHERE ct.KeHoachCatNhom_ID=n.id AND
                         NOT EXISTS (SELECT 1 FROM LichSuCat ls
-                                    WHERE ls.KeHoachCatChiTiet_ID=ct.id))) AS CanCuon,
-       COALESCE(sp.Ten_KhongDau,''), COALESCE(sp.Ma,''), COALESCE(sp.DonVi,'')
-FROM KeHoachHangQuyCachCuonChan qc
+                                    WHERE ls.KeHoachCatChiTiet_ID=ct.id))) AS CanCat,
+       COALESCE(sp.Ten_KhongDau,''), COALESCE(sp.Ma,''), COALESCE(sp.DonVi,''),
+       k.id, COALESCE(k.MaKeHoach,'')
+ FROM KeHoachHangQuyCachCuonChan qc
 JOIN KeHoachHang kh ON kh.id=qc.KeHoachHang_ID
 JOIN KeHoach k ON k.id=kh.KeHoach_ID
 JOIN DanhSachMaSP sp ON sp.id=kh.DanhSachMaSP_ID
@@ -534,27 +545,38 @@ WHERE k.TrangThai='ACTIVE';";
                     {
                         long spId = Convert.ToInt64(rd[0]);
                         long chieuDai = rd.IsDBNull(1) ? 0L : Convert.ToInt64(rd[1]);
-                        long soCuon = Convert.ToInt64(rd[2]);
+                        long canLay = Number(rd, 2);
+                        long canCat = Number(rd, 3);
+                        long soCuon = canLay + canCat;
                         var key = (spId, chieuDai);
                         if (!cuonTheoQuyCach.TryGetValue(key, out var dong))
                         {
                             dong = new BCTonKho_ExcelDong {
                                 DanhSachMaSPId = spId,
-                                TenSanPham = Convert.ToString(rd[3]) ?? "",
-                                MaSanPham = Convert.ToString(rd[4]) ?? "",
-                                DonVi = Convert.ToString(rd[5]) ?? "",
-                                Loai = "Cuộn", ChieuDaiMoiCuon = chieuDai
+                                TenSanPham = String(rd, 4),
+                                MaSanPham = String(rd, 5), DonVi = String(rd, 6),
+                                Loai = "Cuộn", ChieuDaiMoiCuon = chieuDai,
+                                 ChiTiet = kemChiTiet ? new BCTonKho_ChiTietDong(chieuDai) : null
                             };
                             cuonTheoQuyCach[key] = dong;
                         }
                         if (soCuon < 0 || chieuDai <= 0)
                             dong.ThemCanhBao($"Kế hoạch cuộn chẵn: số lượng {soCuon}, chiều dài {chieuDai} không hợp lệ.");
                         if (soCuon > 0 && chieuDai > 0)
-                            dong.ChieuDaiTonDatTruoc += (decimal)soCuon * chieuDai;
+                        {
+                            decimal soMet = (decimal)soCuon * chieuDai;
+                            dong.ChieuDaiTonDatTruoc += soMet;
+                            dong.ChiTiet?.ThemDatTruoc(new BCTonKho_DatTruocKeHoach
+                            {
+                                KeHoachId = Number(rd, 7), MaKeHoach = String(rd, 8),
+                                SoCuonConPhaiLay = canLay, SoCuonDanhDeCat = canCat, SoMet = soMet
+                            });
+                        }
                     }
 
                 const string sqlDatLe = @"
-SELECT n.TonCuonLe_ID, kh.DanhSachMaSP_ID, COALESCE(SUM(ct.ChieuDaiCanCat),0)
+SELECT n.TonCuonLe_ID, kh.DanhSachMaSP_ID, COALESCE(SUM(ct.ChieuDaiCanCat),0),
+       k.id, COALESCE(k.MaKeHoach,'')
 FROM KeHoachCatNhom n
 JOIN KeHoachHang kh ON kh.id=n.KeHoachHang_ID
 JOIN KeHoach k ON k.id=kh.KeHoach_ID
@@ -562,7 +584,7 @@ JOIN KeHoachCatChiTiet ct ON ct.KeHoachCatNhom_ID=n.id
 WHERE n.TonCuonLe_ID IS NOT NULL AND k.TrangThai='ACTIVE'
   AND NOT EXISTS (SELECT 1 FROM LichSuCat ls
                   WHERE ls.KeHoachCatChiTiet_ID=ct.id)
-GROUP BY n.TonCuonLe_ID, kh.DanhSachMaSP_ID;";
+GROUP BY n.TonCuonLe_ID, kh.DanhSachMaSP_ID, k.id;";
                 using (var cmd = new SQLiteCommand(sqlDatLe, conn, tx))
                 using (var rd = cmd.ExecuteReader())
                     while (rd.Read())
@@ -575,9 +597,16 @@ GROUP BY n.TonCuonLe_ID, kh.DanhSachMaSP_ID;";
                         if (dong.DanhSachMaSPId != spId)
                             throw new InvalidOperationException($"TonCuonLe #{clId}: sản phẩm ở kế hoạch không khớp sản phẩm của cuộn.");
                         dong.ChieuDaiTonDatTruoc += datTruoc;
-                        if (datTruoc < 0)
-                            dong.ThemCanhBao($"TonCuonLe #{clId}: chiều dài đặt trước âm.");
+                        if (datTruoc != 0)
+                            dong.ChiTiet?.ThemDatTruoc(new BCTonKho_DatTruocKeHoach
+                            {
+                                KeHoachId = Number(rd, 3), MaKeHoach = String(rd, 4), SoMet = datTruoc
+                            });
                     }
+
+                foreach (var dong in cuonLeTheoId.Values)
+                    if (dong.ChieuDaiTonDatTruoc < 0)
+                        dong.ThemCanhBao($"TonCuonLe #{dong.TonCuonLeId}: chiều dài đặt trước âm.");
 
                 tx.Commit();
             }

@@ -1,6 +1,6 @@
 # Thiết kế tích hợp tìm kiếm tồn kho
 
-Ngày 09/11/2026. Trạng thái **Chờ duyệt thiết kế**.
+Ngày 09/11/2026. Trạng thái **Đã được người dùng duyệt**.
 
 ## Phạm vi và quyết định
 

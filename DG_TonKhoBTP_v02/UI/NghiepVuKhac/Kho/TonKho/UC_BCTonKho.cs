@@ -38,6 +38,7 @@ namespace DG_TonKhoBTP_v02.UI
         public UC_BCTonKho()
         {
             InitializeComponent();
+            grvShowBaoCao.CellContentClick += OnInventoryReportCellContentClick;
             cbxKeoRut.Tag = ThongTinChungCongDoan.KeoRut;
             cbxBen.Tag = ThongTinChungCongDoan.BenRuot;
             cbxQuanMica.Tag = ThongTinChungCongDoan.Mica;
@@ -628,7 +629,7 @@ namespace DG_TonKhoBTP_v02.UI
                 }
                 var ds = await WaitingHelper.RunWithWaiting(
                     () => Task.Run(() =>
-                        BC_TonKho_DB.LayTonKhoExcelMoi()
+                        BC_TonKho_DB.LayTonKhoExcelMoi(kemChiTiet: !flgExcel)
                     ),
                     "ĐANG TÍNH TOÁN DỮ LIỆU TỒN KHO..."
                 );
@@ -791,13 +792,13 @@ namespace DG_TonKhoBTP_v02.UI
                 foreach (var item in ds)
                 {
                     var i = grvShowBaoCao.Rows.Add(item.TenSanPham, item.MaSanPham, item.DonVi,
-                        item.MaBinLot, item.Loai, item.SoCuon.ToString("N0"), item.ChieuDaiMoiCuon.ToString("N0"),
+                        item.LotHienThiBang, item.Loai, item.SoCuon.ToString("N0"), item.ChieuDaiMoiCuon.ToString("N0"),
                         item.ChieuDaiTonThucTe.ToString("N0"),
                         item.ChieuDaiTonDatTruoc.ToString("N0"),
                         item.ChieuDaiTonKhaDung.ToString("N0"),
                         item.SoDau?.ToString("N0") ?? "", item.SoCuoi?.ToString("N0") ?? "", "Xem");
                     var row = grvShowBaoCao.Rows[i];
-                    row.Tag = item; // Giữ ID nguồn cho chức năng button ở đợt sau.
+                    row.Tag = item;
                     if (item.LaBatThuong)
                     {
                         row.DefaultCellStyle.BackColor = System.Drawing.Color.MistyRose;
@@ -818,6 +819,18 @@ namespace DG_TonKhoBTP_v02.UI
             {
                 _tonKhoExcelDangTai = false;
             }
+        }
+
+        private void OnInventoryReportCellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0 || e.ColumnIndex < 0 ||
+                e.RowIndex >= grvShowBaoCao.Rows.Count || e.ColumnIndex >= grvShowBaoCao.Columns.Count ||
+                grvShowBaoCao.Columns[e.ColumnIndex].Name != "Button_ExcelMoi" ||
+                !(grvShowBaoCao.Rows[e.RowIndex].Tag is BCTonKho_ExcelDong dong) || dong.ChiTiet == null)
+                return;
+
+            using var detail = new Frm_ChiTietDongTonKho(dong);
+            detail.ShowDialog(FindForm());
         }
 
         private async void btnXemTonKho_Click(object sender, EventArgs e)

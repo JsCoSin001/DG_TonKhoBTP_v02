@@ -530,6 +530,9 @@
     <Compile Include="UI\Actions\UC_SubmitForm.Designer.cs">
       <DependentUpon>UC_SubmitForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="UI\NghiepVuKhac\Kho\TonKho\Frm_ChiTietDongTonKho.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="UI\NghiepVuKhac\Kho\TonKho\UC_BCTonKho.cs">
       <SubType>UserControl</SubType>
     </Compile>

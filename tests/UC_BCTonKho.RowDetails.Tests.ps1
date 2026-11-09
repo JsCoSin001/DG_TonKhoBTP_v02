@@ -209,7 +209,138 @@ UPDATE TonCuonLe SET SoDau=185 WHERE id=302;
     }
 }
 
+function Get-UiControl($Parent, [string]$Name) {
+    $found = $Parent.Controls.Find($Name, $true)
+    Assert-Equal $found.Length 1 "Control $Name"
+    return $found[0]
+}
+
+function Wait-Ui([scriptblock]$Condition, [string]$Message) {
+    $deadline = [Diagnostics.Stopwatch]::StartNew()
+    while ($deadline.ElapsedMilliseconds -lt 5000) {
+        [Windows.Forms.Application]::DoEvents()
+        if (& $Condition) { return }
+        Start-Sleep -Milliseconds 20
+    }
+    throw $Message
+}
+
+function Invoke-RowButton($Grid, $Row, [string]$Column, [scriptblock]$Inspect = {}) {
+    $state = [pscustomobject]@{ Opened = $false; Failure = $null }
+    $timer = New-Object Windows.Forms.Timer
+    $timer.Interval = 25
+    $timer.add_Tick({
+        $detail = [Windows.Forms.Application]::OpenForms |
+            Where-Object { $_.GetType().Name -eq 'Frm_ChiTietDongTonKho' } | Select-Object -First 1
+        if ($null -eq $detail) { return }
+        $state.Opened = $true
+        try { $null = $Inspect.Invoke($detail) }
+        catch { $state.Failure = $_.Exception }
+        finally { $detail.Close() }
+    }.GetNewClosure())
+    try {
+        $timer.Start()
+        $event = [Windows.Forms.DataGridViewCellEventArgs]::new($Grid.Columns[$Column].Index, $Row.Index)
+        $click = $Grid.GetType().GetMethod('OnCellContentClick', [Reflection.BindingFlags]'Instance,NonPublic')
+        $null = $click.Invoke($Grid, [object[]]@($event))
+    } finally { $timer.Dispose() }
+    if ($state.Failure) { throw $state.Failure }
+    return $state.Opened
+}
+
+function Test-ReportUi {
+    Add-Type -AssemblyName System.Windows.Forms
+    Test-Fixture 'ViewButtonExplainsSortedReport' {
+        Set-WholePlans
+        Set-PartialPlans
+        Invoke-FixtureSql @"
+INSERT INTO DanhSachMaSP(id,Ten,Ten_KhongDau,Ma) VALUES(9,'Missing reel','Missing reel','QA-MISSING');
+INSERT INTO TTThanhPham(id,DanhSachSP_ID,MaBin) VALUES(110,9,'QA-MISSING');
+INSERT INTO TTNhapKhoTP(id,TTThanhPham_ID) VALUES(20,110);
+INSERT INTO TTCuonDay(id,ThongTinNhapKho_ID,SoCuon,ChieuDai_1cuon,SoDau,SoCuoi)
+VALUES(212,20,1,180,0,180);
+"@
+        $hostForm = New-Object Windows.Forms.Form
+        $hostForm.Width = 1400
+        $hostForm.Height = 850
+        $hostForm.ShowInTaskbar = $false
+        try {
+            $control = [Activator]::CreateInstance($assembly.GetType('DG_TonKhoBTP_v02.UI.UC_BCTonKho', $true))
+            $hostForm.Controls.Add($control)
+            $control.Dock = [Windows.Forms.DockStyle]::Fill
+            $hostForm.Show()
+            $grid = Get-UiControl $control 'grvShowBaoCao'
+            (Get-UiControl $control 'btnXemTonKho').PerformClick()
+            Wait-Ui { $grid.Columns.Contains('Button_ExcelMoi') -and $grid.Rows.Count -gt 0 } 'Report button did not render inventory rows'
+            $grid.Sort($grid.Columns['MaSP_ExcelMoi'], [ComponentModel.ListSortDirection]::Descending)
+            $row = $grid.Rows | Where-Object { $_.Tag.MaSanPham -eq 'QA-P1' -and $_.Tag.Loai -eq 'Cuộn' -and $_.Tag.ChieuDaiMoiCuon -eq 200 }
+            Assert-Equal $row.Cells['MaBinLot_ExcelMoi'].Value 'Nhiều LOT' 'Grouped LOT on the report row'
+            $opened = Invoke-RowButton $grid $row 'Button_ExcelMoi' {
+                param($detail)
+                $summary = Get-UiControl $detail 'txtTongHop'
+                $lots = Get-UiControl $detail 'grvLotGop'
+                $history = Get-UiControl $detail 'grvLichSuCat'
+                $plans = Get-UiControl $detail 'grvDatTruoc'
+                Assert-Equal ($summary.Text -like '*QA-P1*') $true 'Sorted row opens correct product'
+                Assert-Equal $summary.Focused $false 'Summary opens without the text box stealing focus'
+                Assert-Equal ($null -eq $lots.CurrentCell) $true 'Grouped detail awaits an explicit LOT choice'
+                Assert-Equal ($summary.Text -match '1[., ]800.*400.*1[., ]400') $true 'Summary stock, reserve and available'
+                $visibleLots = $lots.Rows | ForEach-Object { $_.Cells[0].Value }
+                Assert-Equal ($visibleLots -join '|') 'E1-265081/5-03-00|QA-B' 'Visible contributors'
+                Assert-Equal (($lots.Rows | ForEach-Object { $_.Cells[1].Value }) -join ',') '6,3' 'Visible contributing counts'
+                $lots.CurrentCell = $lots.Rows[0].Cells[0]
+                Assert-Equal $history.Rows.Count 2 'First source history'
+                Assert-Equal $plans.Rows[0].Cells[3].Value '400' 'Reserve before selecting another LOT'
+                $lots.CurrentCell = $lots.Rows[1].Cells[0]
+                Assert-Equal $history.Rows.Count 0 'Second source history'
+                Assert-Equal $plans.Rows[0].Cells[3].Value '400' 'Reserve belongs to whole report row'
+                Assert-Equal ($summary.Text -match '1[., ]800.*400.*1[., ]400') $true 'Summary remains the report row'
+            }
+            Assert-Equal $opened $true 'Grouped detail window opens'
+
+            $one = $grid.Rows | Where-Object { $_.Tag.MaSanPham -eq 'QA-P1' -and $_.Tag.Loai -eq 'Cuộn' -and $_.Tag.ChieuDaiMoiCuon -eq 400 }
+            Assert-Equal $one.Cells['MaBinLot_ExcelMoi'].Value 'E1-265081/5-03-00' 'Single LOT stays a code'
+            Assert-Equal (Invoke-RowButton $grid $one 'Button_ExcelMoi' {
+                param($detail)
+                Assert-Equal (Get-UiControl $detail 'grvNguon').Rows.Count 1 'Single LOT source opens directly'
+            }) $true 'Single LOT detail window opens'
+
+            $reel = $grid.Rows | Where-Object { $_.Tag.TonCuonLeId -eq 303 }
+            Assert-Equal (Invoke-RowButton $grid $reel 'Button_ExcelMoi' {
+                param($detail)
+                $summary = (Get-UiControl $detail 'txtTongHop').Text
+                Assert-Equal ($summary -match '396.*450.*-54') $true 'Partial totals and negative available'
+                Assert-Equal ($summary -match '996.*600') $true 'Partial markers'
+                Assert-Equal (Get-UiControl $detail 'grvLichSuCat').Rows.Count 0 'Partial has empty history'
+                Assert-Equal ((Get-UiControl $detail 'lblLichSu').Text -eq 'Chưa có lịch sử cắt') $true 'Empty history explained'
+            }) $true 'Partial detail window opens'
+
+            $planOnly = $grid.Rows | Where-Object { $_.Tag.MaSanPham -eq 'QA-PLAN-ONLY' }
+            Assert-Equal (Invoke-RowButton $grid $planOnly 'Button_ExcelMoi' {
+                param($detail)
+                Assert-Equal (Get-UiControl $detail 'grvDatTruoc').Rows[0].Cells[3].Value '200' 'Plan without inventory'
+            }) $true 'Plan-only detail window opens'
+
+            $missing = $grid.Rows | Where-Object { $_.Tag.MaSanPham -eq 'QA-MISSING' }
+            Assert-Equal (Invoke-RowButton $grid $missing 'Button_ExcelMoi' {
+                param($detail)
+                Assert-Equal ((Get-UiControl $detail 'txtTongHop').Text -like '*thiếu TonCuonLe*') $true 'Missing physical reel warning'
+            }) $true 'Missing reel detail window opens'
+
+            $kind = $assembly.GetType('DG_TonKhoBTP_v02.Models.Kho.TonKho.BCTonKho_LoaiTimKiem', $true)
+            $query = $db.GetMethod('LayChiTietTonAsync', [Reflection.BindingFlags]'Static,NonPublic')
+            $task = $query.Invoke($null, [object[]]@([Enum]::ToObject($kind, 1), [long]101,
+                'E1-265081/5-03-00', $true, [Threading.CancellationToken]::None))
+            $render = $control.GetType().GetMethod('RenderTonKho', [Reflection.BindingFlags]'Instance,NonPublic')
+            $null = $render.Invoke($control, [object[]]@($task.GetAwaiter().GetResult()))
+            Assert-Equal $grid.Columns.Contains('Button_ExcelMoi') $false 'Switching views replaces report column'
+            Assert-Equal (Invoke-RowButton $grid $grid.Rows[0] 'LichSu') $false 'Search result uses its own column'
+        } finally { $hostForm.Dispose() }
+    }
+}
+
 if ($Suite -ne 'Ui') {
     Test-ReportData
     Test-ReportHistory
 }
+if ($Suite -ne 'Data') { Test-ReportUi }

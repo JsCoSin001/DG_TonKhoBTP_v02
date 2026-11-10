@@ -96,7 +96,6 @@ namespace DG_TonKhoBTP_v02.Dictionary
             "Kéo rút",
             EnumStore.MayTheoCongDoan["KeoRut"],
             BaseColumns(),                     // chỉ dùng cột base
-            new List<string> { "BTP.20101%", "BTP.20201%" },
             Select_TP_CoKhoiLuong(),
             new Dictionary<string, decimal> { { "klConLai", 5.0m }, { "cdConLai", 5.0m } }
         );
@@ -108,7 +107,6 @@ namespace DG_TonKhoBTP_v02.Dictionary
             BaseColumns(
                 new ColumnDefinition { Name = "DuongKinhSoiDong", DataType = typeof(double), Header = "ĐK sợi đồng" }
             ),
-            new List<string> { "BTP.20102%", "BTP.20202%" },
             Select_TP_CoKhoiLuong(),
             new Dictionary<string, decimal> { { "klConLai", 5.0m }, { "cdConLai", 5.0m } }
         );
@@ -121,7 +119,6 @@ namespace DG_TonKhoBTP_v02.Dictionary
                 new ColumnDefinition { Name = "DuongKinhSoiDong", DataType = typeof(double), Header = "ĐK sợi đồng" },
                 new ColumnDefinition { Name = "SoSoi", DataType = typeof(double), Header = "Số sợi" }
             ),
-            new List<string> { "BTP.20103%", "BTP.20203%" },
             Select_TP_CoCaiDatCDBoc(),
             new Dictionary<string, decimal> { { "klConLai", 5.0m }, { "cdConLai", 5.0m } }
         );
@@ -131,7 +128,6 @@ namespace DG_TonKhoBTP_v02.Dictionary
             "Bọc lót",
             EnumStore.MayTheoCongDoan["BocLot"],
             BaseColumns(),                         // giống KeoRut: chỉ base
-            new List<string> { "BTP.20105%", "BTP.20205%"},
             Select_TP_CoCaiDatCDBoc(),
             new Dictionary<string, decimal> { { "klConLai", 5.0m }, { "cdConLai", 5.0m } }
         );
@@ -143,7 +139,6 @@ namespace DG_TonKhoBTP_v02.Dictionary
             BaseColumns(
                 new ColumnDefinition { Name = "KetCauLoi", DataType = typeof(double), Header = "Kết cấu lõi" }
             ),
-            new List<string> { "TP.%" },
             Select_TP_CoCaiDatCDBoc(),
             new Dictionary<string, decimal> { { "klConLai", 5.0m }, { "cdConLai", 5.0m } }
         );
@@ -156,7 +151,6 @@ namespace DG_TonKhoBTP_v02.Dictionary
                 new ColumnDefinition { Name = "DuongKinhSoiDong", DataType = typeof(double), Header = "ĐK sợi đồng" },
                 new ColumnDefinition { Name = "DuongKinhSoiMach", DataType = typeof(double), Header = "ĐK sợi mạch" }
             ),
-            new List<string> { "BTP.20107%", "BTP.20207%" },
             Select_TP_KhongKhoiLuong(),
             new Dictionary<string, decimal> { { "klConLai", 5.0m }, { "cdConLai", 5.0m } }
         );
@@ -166,7 +160,6 @@ namespace DG_TonKhoBTP_v02.Dictionary
             Id = 6,
             TenCongDoan = "Ghép lõi",
             DanhSachMay = EnumStore.MayTheoCongDoan["GhepLoi"],
-            ListMa_Accept = new List<string> { "BTP.20104%", "BTP.20204%"}
         };
 
         public static readonly CongDoan QuanBang = new CongDoan(GhepLoi_QB)
@@ -174,7 +167,6 @@ namespace DG_TonKhoBTP_v02.Dictionary
             Id = 7,
             TenCongDoan = "Quấn băng thép - đồng - nhôm",
             DanhSachMay = EnumStore.MayTheoCongDoan["QB_AL_Cu"],
-            ListMa_Accept = new List<string> { "BTP.20106%", "BTP.20206%" }
         };
 
         public static readonly CongDoan Mica = new CongDoan(GhepLoi_QB)
@@ -188,7 +180,6 @@ namespace DG_TonKhoBTP_v02.Dictionary
             "Hàn Nối / Ghép bin",
             EnumStore.MayTheoCongDoan["Machine_All"],
             BaseColumns(),
-            new List<string> { "BTP.%", "TP.%" , "NVL.%"},
             Select_TP_CoKhoiLuong(),
             new Dictionary<string, decimal> { { "klConLai", 0.0m }, { "cdConLai", 0.0m } }
         );
@@ -198,7 +189,6 @@ namespace DG_TonKhoBTP_v02.Dictionary
            "Chiếu Xạ",
            EnumStore.MayTheoCongDoan["Chieu_Xa"],
             BaseColumns(),
-           new List<string> { "TP.356%", "GCCX.101%" },
            Select_TP_CoKhoiLuong(),
            new Dictionary<string, decimal> { { "klConLai", 5.0m }, { "cdConLai", 5.0m } }
        );

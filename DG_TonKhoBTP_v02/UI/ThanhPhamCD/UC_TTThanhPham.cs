@@ -274,6 +274,7 @@ namespace DG_TonKhoBTP_v02.UI
             congDoan = cd;
 
             timTenTPCongDoan.KeyDown += timNVL_KeyDown;
+            Disposed += (_, __) => HuyTimSanPham();
             btnNhapPhe.Click += btnNhapPhe_Click;
             UpdatePheLieuButtonState();
         }
@@ -372,7 +373,7 @@ namespace DG_TonKhoBTP_v02.UI
             _giaTriChieuDaiSaoChep = 0m;
             try
             {
-                _searchCts?.Cancel();
+                HuyTimSanPham();
 
                 timTenTPCongDoan.DataSource = null;
                 timTenTPCongDoan.Items.Clear();
@@ -401,63 +402,79 @@ namespace DG_TonKhoBTP_v02.UI
 
         #endregion
 
-        private async void timNVL_TextUpdate(object sender, EventArgs e)
+        private void HuyTimSanPham()
         {
-            if (_suppressTextChange) return;
+            var previous = _searchCts;
+            _searchCts = null;
+            previous?.Cancel();
+            previous?.Dispose();
+        }
 
-            string tenTP = timTenTPCongDoan.Text?.Trim() ?? string.Empty;
-            if (string.IsNullOrWhiteSpace(tenTP))
+        private void XoaGoiYSanPham()
+        {
+            string text = timTenTPCongDoan.Text;
+            int selectionStart = timTenTPCongDoan.SelectionStart;
+            int selectionLength = timTenTPCongDoan.SelectionLength;
+            _suppressTextChange = true;
+            try
             {
                 _userNavigatingSuggestions = false;
                 timTenTPCongDoan.DroppedDown = false;
                 timTenTPCongDoan.DataSource = null;
-                return;
+                timTenTPCongDoan.Items.Clear();
+                timTenTPCongDoan.Text = text;
+                timTenTPCongDoan.SelectionStart = selectionStart;
+                timTenTPCongDoan.SelectionLength = selectionLength;
             }
+            finally
+            {
+                _suppressTextChange = false;
+            }
+        }
 
-            _searchCts?.Cancel();
-            _searchCts?.Dispose();
+        private bool DangTimTrenManHinh(Form host, CancellationToken token)
+        {
+            return !token.IsCancellationRequested && !IsDisposed && !Disposing
+                && !host.IsDisposed && !host.Disposing && ReferenceEquals(FindForm(), host);
+        }
+
+        private async void timNVL_TextUpdate(object sender, EventArgs e)
+        {
+            if (_suppressTextChange || IsDisposed || Disposing) return;
+
+            string tenTP = timTenTPCongDoan.Text.Trim();
+            HuyTimSanPham();
+            XoaGoiYSanPham();
+            var host = FindForm();
+            if (tenTP.Length == 0 || host == null) return;
+
             _searchCts = new CancellationTokenSource();
             var token = _searchCts.Token;
 
             try
             {
                 await Task.Delay(500, token);
-                await ShowDanhSachLuaChon(tenTP, token);
+                if (DangTimTrenManHinh(host, token))
+                    await ShowDanhSachLuaChon(tenTP, host, token);
             }
             catch (OperationCanceledException)
             {
             }
-            catch
+            catch (Exception ex)
             {
+                if (!DangTimTrenManHinh(host, token)) return;
                 timTenTPCongDoan.DroppedDown = false;
+                MessageBox.Show(this, "Không thể tìm sản phẩm: " + ex.Message,
+                    "Lỗi cấu hình tìm kiếm", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
 
-        private async Task ShowDanhSachLuaChon(string keyword, CancellationToken ct)
+        private async Task ShowDanhSachLuaChon(string keyword, Form host, CancellationToken ct)
         {
-            if (string.IsNullOrWhiteSpace(keyword))
-            {
-                timTenTPCongDoan.DroppedDown = false;
-                return;
-            }
-
-            string para = "ten";
-            string likeConditions = string.Join(" OR ", congDoan.ListMa_Accept.Select(m => $"Ma LIKE '{m}'"));
-
-            string query = $@"
-                SELECT id, ten, ma, donvi, chuyenDoi
-                FROM DanhSachMaSP
-                WHERE ten LIKE '%' || @{para} || '%'
-                  AND Active = 1 
-                  AND ({likeConditions});
-            ";
-
             DataTable sp = await Task.Run(() =>
-            {
-                return DatabaseHelper.GetData(query, keyword, para);
-            }, ct);
+                CongDoanTimKiem_DB.TimSanPham(congDoan.Id, keyword), ct);
 
-            ct.ThrowIfCancellationRequested();
+            if (!DangTimTrenManHinh(host, ct)) return;
 
             // Snapshot text tại thời điểm query xong —
             // dùng timNVL.Text thay vì keyword để bắt kịp ký tự user gõ thêm
@@ -512,7 +529,7 @@ namespace DG_TonKhoBTP_v02.UI
                 string textToRestore = currentText;
                 BeginInvoke((MethodInvoker)(() =>
                 {
-                    if (ct.IsCancellationRequested) return;
+                    if (!DangTimTrenManHinh(host, ct)) return;
 
                     _suppressTextChange = true;
                     try
@@ -553,6 +570,7 @@ namespace DG_TonKhoBTP_v02.UI
                 return;
             }
 
+            HuyTimSanPham();
             _dangTaiThanhPham = true;
             try
             {
@@ -675,7 +693,7 @@ namespace DG_TonKhoBTP_v02.UI
 
         private void ClearThanhPhamSelectionForRetry()
         {
-            _searchCts?.Cancel();
+            HuyTimSanPham();
 
             _suppressTextChange = true;
             try

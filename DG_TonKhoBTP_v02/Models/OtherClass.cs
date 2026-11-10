@@ -77,8 +77,6 @@ namespace DG_TonKhoBTP_v02.Models
 
         public List<ColumnDefinition> Columns { get; set; }
 
-        public List<string> ListMa_Accept { get; set; }
-
         public List<string> ListData_Report { get; set; }
 
 
@@ -87,13 +85,12 @@ namespace DG_TonKhoBTP_v02.Models
         public Dictionary<string, decimal> MinReset { get; set; }
 
         // Constructor để khởi tạo tất cả các thuộc tính
-        public CongDoan(int id,string tenCongDoan, List<string> danhSachMay, List<ColumnDefinition> columns, List<string> dsAccept, List<string> dsListData, Dictionary<string, decimal> minReset)
+        public CongDoan(int id,string tenCongDoan, List<string> danhSachMay, List<ColumnDefinition> columns, List<string> dsListData, Dictionary<string, decimal> minReset)
         {
             this.Id = id;
             TenCongDoan = tenCongDoan;
             DanhSachMay = new List<string>(danhSachMay);
             Columns = new List<ColumnDefinition>(columns);
-            ListMa_Accept = dsAccept;
             ListData_Report = dsListData;
             MinReset = minReset;
         }
@@ -105,7 +102,6 @@ namespace DG_TonKhoBTP_v02.Models
             TenCongDoan = other.TenCongDoan;
             DanhSachMay = new List<string>(other.DanhSachMay);
             Columns = new List<ColumnDefinition>(other.Columns);
-            ListMa_Accept = other.ListMa_Accept;
             ListData_Report = other.ListData_Report;
             MinReset = other.MinReset;
         }

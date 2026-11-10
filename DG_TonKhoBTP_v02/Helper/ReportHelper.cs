@@ -57,19 +57,14 @@ namespace DG_TonKhoBTP_v02.Helper
             return set;
         }
 
-        // WHERE theo ListMa_Accept (DanhSachMaSP.Ma LIKE ...)
-        private static string BuildAcceptWhere(List<string> accepts, List<SQLiteParameter> parameters)
+        // Báo cáo phân loại theo công đoạn ĐÃ LƯU, không suy từ tiền tố mã TP.
+        // TTThanhPham.CongDoan là mã nghiệp vụ lưu dạng TEXT (ví dụ "6"),
+        // không phải DanhSachCongDoan.id (ví dụ 7 cho Ghép lõi).
+        private static string BuildAcceptWhere(int maCongDoan, List<SQLiteParameter> parameters)
         {
-            if (accepts == null || accepts.Count == 0) return "WHERE TTThanhPham.Temp = 0";
-
-            var likeClauses = new List<string>();
-            for (int i = 0; i < accepts.Count; i++)
-            {
-                var p = $"@acc{i}";
-                likeClauses.Add($"DanhSachMaSP.Ma LIKE {p}");
-                parameters.Add(new SQLiteParameter(p, accepts[i]));
-            }
-            return $"WHERE TTThanhPham.Temp = 0 AND ({string.Join(" OR ", likeClauses)})";
+            parameters.Add(new SQLiteParameter("@CongDoanId",
+                maCongDoan.ToString(System.Globalization.CultureInfo.InvariantCulture)));
+            return "WHERE TTThanhPham.Temp = 0 AND TTThanhPham.CongDoan = @CongDoanId";
         }
 
         // Tạo SELECT cho 1 công đoạn
@@ -113,7 +108,7 @@ namespace DG_TonKhoBTP_v02.Helper
             foreach (var t in tables.Where(t => !CoreTables.Contains(t)))
                 sb.AppendLine(BuildJoinClause(t));
 
-            var where = BuildAcceptWhere(cd.ListMa_Accept, parametersOut);
+            var where = BuildAcceptWhere(cd.Id, parametersOut);
             if (!string.IsNullOrWhiteSpace(where)) sb.AppendLine(where);
 
             sb.AppendLine("ORDER BY TTThanhPham.id DESC");

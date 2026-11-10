@@ -172,6 +172,7 @@
     <Compile Include="Database\Kho\NhapKhoNVL_DB.cs" />
     <Compile Include="Database\Kho\NhapKho_DB.cs" />
     <Compile Include="Database\DatabaseHelper.cs" />
+    <Compile Include="Database\CongDoanTimKiem_DB.cs" />
     <Compile Include="Database\DB_Base.cs" />
     <Compile Include="Database\DB_KiemKe.cs" />
     <Compile Include="Database\DB_SanXuat.cs" />

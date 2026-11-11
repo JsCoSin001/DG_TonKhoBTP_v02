@@ -32,8 +32,10 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
         {
             var payload = new { r.Query, Versions = r.ExpectedVersions.OrderBy(x => x.Key).ToArray(),
                 Rows = r.RowEdits.OrderBy(x => x.OperationToken).ToArray(), Reels = r.ReelEdits.OrderBy(x => x.ReelId).ToArray() };
+            object fingerprint = r.CutEdits.Count == 0 ? (object)payload : new { payload.Query, payload.Versions,
+                payload.Rows, payload.Reels, Cuts = r.CutEdits.OrderBy(x => x.OperationToken).ToArray() };
             using var hash = SHA256.Create();
-            return BitConverter.ToString(hash.ComputeHash(Encoding.UTF8.GetBytes(ExecutionEditAudit.Json(payload)))).Replace("-", "");
+            return BitConverter.ToString(hash.ComputeHash(Encoding.UTF8.GetBytes(ExecutionEditAudit.Json(fingerprint)))).Replace("-", "");
         }
         internal static void ValidateActor(SQLiteConnection conn, SQLiteTransaction tx)
             => ValidateActor(conn, tx, UserContext.UserId, UserContext.UserName, UserContext.IsAuthenticated);
@@ -56,10 +58,21 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
                 "Kế hoạch đã hủy chỉ được xem." : "Kế hoạch không ở trạng thái cho phép chỉnh sửa.");
             if (!r.ExpectedVersions.TryGetValue("FACTORY", out long version) || version != s.Versions["FACTORY"])
                 throw new ExecutionEditException("version", "Dữ liệu đã thay đổi. Bản nháp được giữ lại; vui lòng đối chiếu dữ liệu mới.", true);
-            if (r.RowEdits.Count == 0 && r.ReelEdits.Count == 0) throw new ExecutionEditException("request", "Chưa có thay đổi để lưu.");
+            if (r.RowEdits.Count == 0 && r.ReelEdits.Count == 0 && r.CutEdits.Count == 0)
+                throw new ExecutionEditException("request", "Chưa có thay đổi để lưu.");
             if (r.RowEdits.Select(x => x.OperationToken).Distinct().Count() != r.RowEdits.Count ||
-                r.ReelEdits.Select(x => x.ReelId).Distinct().Count() != r.ReelEdits.Count)
+                r.ReelEdits.Select(x => x.ReelId).Distinct().Count() != r.ReelEdits.Count ||
+                r.CutEdits.Select(x => x.OperationToken).Distinct().Count() != r.CutEdits.Count)
                 throw new ExecutionEditException("request", "Một đối tượng chỉ có một thay đổi trong lần lưu.");
+            foreach (var edit in r.CutEdits)
+            {
+                var row = s.Rows.SingleOrDefault(x => x.Kind == "CUT" && x.Done && x.OperationToken.Length > 0 && x.OperationToken == edit.OperationToken);
+                if (row?.ReelId == null)
+                    throw new ExecutionEditException(edit.OperationToken, "Lần cắt không còn trong phạm vi đang xem.", true);
+                if (r.ReelEdits.Any(x => x.ReelId == row.ReelId) || s.Rows.Any(x => x.ReelId == row.ReelId &&
+                    r.RowEdits.Any(e => e.Undo && e.OperationToken == x.OperationToken)))
+                    throw new ExecutionEditException(row.RowKey, "Lưu điều chỉnh chiều dài riêng với hoàn tác hoặc sửa mốc tồn của cùng cuộn.");
+            }
             foreach (var edit in r.RowEdits)
             {
                 var row = s.Rows.SingleOrDefault(x => x.Done && x.OperationToken.Length > 0 && x.OperationToken == edit.OperationToken);
@@ -123,12 +136,23 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
                         if (Table(conn, tx, "SELECT MaLanLuu FROM B2DieuChinhKetQua WHERE MaLanLuu=@id", "@id", request.ChangeId.ToString("D")).Rows.Count != 1)
                             throw new ExecutionEditException("audit", "Thiếu kết quả nhật ký của lần lưu; không được suy đoán trạng thái thành công.");
                         var retry = new ExecutionEditResult { Success = true, ChangedPlanIds = new List<long> { request.Query.PlanId } };
-                        try { retry.NewSnapshot = Load(conn, tx, request.Query); } catch (InvalidOperationException) { }
+                        try { retry.NewSnapshot = LoadForEditor(conn, tx, request.Query); } catch (InvalidOperationException) { }
+                        foreach (DataRow changed in Table(conn, tx, @"SELECT DISTINCT o.KeHoach_ID,o.TonCuonLe_ID FROM B2DieuChinhSuKien s
+                            JOIN B3ThaoTac o ON o.MaThaoTac=s.MaThaoTac WHERE s.MaLanLuu=@id AND s.LyDo=@reason",
+                            "@id", request.ChangeId.ToString("D"), "@reason", CutLengthReason).Rows)
+                        {
+                            long planId = N(changed, "KeHoach_ID"), reelId = N(changed, "TonCuonLe_ID");
+                            if (!retry.ChangedPlanIds.Contains(planId)) retry.ChangedPlanIds.Add(planId);
+                            if (!retry.ChangedReelIds.Contains(reelId)) retry.ChangedReelIds.Add(reelId);
+                        }
                         tx.Commit(); return retry;
                     }
                     var s = ValidateRequest(conn, tx, request);
-                    var undoPlan = ExecutionUndoPlanner.Build(request, UndoContext(conn, tx, s));
-                    var effects = CaptureAffectedEntities(conn, tx, request, s, undoPlan);
+                    var context = UndoContext(conn, tx, s);
+                    var undoPlan = ExecutionUndoPlanner.Build(request, context);
+                    var cutPlan = PlanCutLengths(context, request.CutEdits, true);
+                    ValidateCutReservations(conn, tx, cutPlan);
+                    var effects = CaptureAffectedEntities(conn, tx, request, s, undoPlan, cutPlan);
                     Exec(conn, tx, @"INSERT INTO B2DieuChinhLanLuu
                         (MaLanLuu,DauVanTayYeuCau,KeHoach_ID,NguoiSua_ID,NguoiSua,KetQuaJson)
                         VALUES(@id,@hash,@plan,@actorId,@actor,@result)",
@@ -136,15 +160,17 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
                         "@actorId", actorId, "@actor", actorName,
                         "@result", ExecutionEditAudit.Json(new { version = 1, plan_id = request.Query.PlanId, success = true }));
                     ApplyCorrections(conn, tx, request, s);
+                    ApplyCutLengths(conn, tx, request, cutPlan);
                     ApplyUndo(conn, tx, request, undoPlan);
-                    ValidateInventory(conn, tx, s, request, undoPlan);
+                    ValidateInventory(conn, tx, s, request, undoPlan, cutPlan);
                     CompleteBatchAudit(conn, tx, request, s.Versions, effects);
                     // A conversion undo intentionally removes the generated partial's scope.
                     bool removedScope = request.Query.PartialReelId.HasValue && undoPlan.ReelRestores.Any(x =>
                         x.Remove && x.ReelId == request.Query.PartialReelId.Value);
-                    var result = new ExecutionEditResult { Success = true, NewSnapshot = removedScope ? null : Load(conn, tx, request.Query),
-                        ChangedPlanIds = new List<long> { request.Query.PlanId }, ChangedReelIds = request.ReelEdits.Select(x => x.ReelId)
-                            .Concat(undoPlan.ReelRestores.Select(x => x.ReelId)).Distinct().ToList() };
+                    var result = new ExecutionEditResult { Success = true, NewSnapshot = removedScope ? null : LoadForEditor(conn, tx, request.Query),
+                        ChangedPlanIds = cutPlan.Cuts.Select(x => x.Operation.PlanId).Append(request.Query.PlanId).Distinct().ToList(),
+                        ChangedReelIds = request.ReelEdits.Select(x => x.ReelId).Concat(undoPlan.ReelRestores.Select(x => x.ReelId))
+                            .Concat(cutPlan.Remaining.Keys).Distinct().ToList() };
                     tx.Commit(); return result;
                 }
                 catch (ExecutionEditException ex) { return Error(ex.Key, ex.Message, ex.Conflict); }

@@ -23,13 +23,14 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
         private readonly string _productName = "";
         private readonly Dictionary<long, MarkerInput> _markerInputs = new Dictionary<long, MarkerInput>();
         private Timer _previewTimer = null!;
+        private ToolTip _cutLengthTip = null!;
         private Guid _changeId = Guid.NewGuid();
         private int _generation;
         private string _batchImpact = "";
         private bool _binding, _saving, _closing, _allowClose;
         internal ExecutionEditResult? LastSaveResult { get; private set; }
         internal Func<string, MessageBoxButtons, DialogResult>? DialogPrompt { get; set; }
-        private bool HasChanges => _draft.HasChanges || _markerInputs.Count != 0;
+        private bool HasChanges => _draft.HasChanges || _markerInputs.Count != 0 || ChangedCuts().Any();
 
         internal Frm_ChiTietThucHienKeHoach(ExecutionDetailQuery query, string productName)
             : this(query, productName, ExecutionEdit_DB.Load(query)) { }
@@ -50,8 +51,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
             grvDsChiTietCuon.CellValueChanged += StatusChanged;
             grvDsChiTietCuon.DataError += (s, e) => { e.ThrowException = false; ShowError("Giá trị ô không hợp lệ."); };
             cbxNguoiThucHien.SelectedValueChanged += (s, e) => PersonChanged();
-            tbxSoCuoi_Sua.TextChanged += (s, e) => MarkersChanged();
-            cbxChieu.SelectedValueChanged += (s, e) => MarkersChanged();
+            textBox2.TextChanged += (s, e) => CutLengthChanged();
+            cbxChieu.SelectedValueChanged += (s, e) => DirectionChanged();
             rtbLyDoSua.TextChanged += (s, e) => { if (!_binding && !_saving) Changed(); };
             _previewTimer.Tick += async (s, e) => { _previewTimer.Stop(); await PreviewAsync(); };
             btnLuuThayDoi.Click += async (s, e) => await SaveAsync();
@@ -84,12 +85,22 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
             cbxNguoiThucHien.DropDownStyle = cbxChieu.DropDownStyle = ComboBoxStyle.DropDownList;
             dtNgayThucHien.Enabled = false;
             tbxQr.ReadOnly = tbxNguonNhap.ReadOnly = tbxSoDau_Sua.ReadOnly = true;
+            tbxSoCuoi_Sua.ReadOnly = true;
+            textBox2.Enabled = true;
+            _cutLengthTip = new ToolTip(components);
             tbxSoDau_SoCuoi_DB.ReadOnly = tbxSoDau_SoCuoi_DaCat_DB.ReadOnly = tbxSoDau_SoCuoi_ConLai_DB.ReadOnly = true;
             dataGridView2.ReadOnly = true; dataGridView2.AllowUserToAddRows = dataGridView2.AllowUserToDeleteRows = false;
             dataGridView2.AutoGenerateColumns = true; dataGridView2.RowHeadersVisible = false;
-            // Preserve the designed error row; standard Label ellipsis exposes long text on hover.
-            lblTacDong.AutoSize = false; lblTacDong.Dock = DockStyle.Fill; lblTacDong.AutoEllipsis = true;
+            lblTacDong.AutoSize = true;
+            lblTacDong.Dock = DockStyle.Fill;
+            lblTacDong.MinimumSize = new Size(0, lblTacDong.Font.Height);
+            tableLayoutPanel4.RowStyles[0].SizeType = SizeType.AutoSize;
+            tableLayoutPanel4.ClientSizeChanged += (s, e) => FitImpactLabel();
+            FitImpactLabel();
         }
+
+        private void FitImpactLabel() => lblTacDong.MaximumSize = new Size(Math.Max(1,
+            tableLayoutPanel4.ClientSize.Width - tableLayoutPanel4.Padding.Horizontal - lblTacDong.Margin.Horizontal), 0);
 
         private ExecutionDetailRow? SelectedRow() => grvDsChiTietCuon.CurrentRow?.Tag as ExecutionDetailRow;
         private void BindAll()
@@ -98,7 +109,7 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
             try
             {
                 cbxNguoiThucHien.DataSource = _snapshot.Users.ToList(); cbxNguoiThucHien.DisplayMember = "DisplayName"; cbxNguoiThucHien.ValueMember = "Username";
-                cbxChieu.DataSource = new Dictionary<int, string> { [1] = "Tăng (+1)", [-1] = "Giảm (-1)" }.ToList();
+                cbxChieu.DataSource = new Dictionary<int, string> { [1] = "Chiều thuận", [-1] = "chiều nghịch" }.ToList();
                 cbxChieu.DisplayMember = "Value"; cbxChieu.ValueMember = "Key";
                 grvDsChiTietCuon.Rows.Clear();
                 foreach (var row in _snapshot.Rows)
@@ -161,6 +172,12 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
                 tbxNguonNhap.Text = row?.ReelId is long rid && _snapshot.Reels.TryGetValue(rid, out var sourceReel)
                     ? sourceReel.SourceLabel : !string.IsNullOrEmpty(row?.SourceLabel) ? row!.SourceLabel : "—";
                 bool cut = row?.Kind == "CUT" && row.Done;
+                textBox1.Text = row?.ActualCutLength?.ToString(CultureInfo.InvariantCulture) ?? "—";
+                if (!IsCutEditor(row))
+                {
+                    textBox2.Text = row?.Kind == "CUT" ? (row.ActualCutLength ?? row.Length).ToString(CultureInfo.InvariantCulture) : "—";
+                    SetCutLengthReadOnly(true);
+                }
                 tbxSoDau_SoCuoi_DB.Text = cut ? row!.BeforeStart + " → " + row.BeforeEnd : "—";
                 tbxSoDau_SoCuoi_DaCat_DB.Text = cut ? row!.CutStart + " → " + row.CutEnd : "—";
                 tbxSoDau_SoCuoi_ConLai_DB.Text = cut ? row!.AfterStart + " → " + row.AfterEnd : "—";
@@ -169,11 +186,19 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
                 tbxSoCuoi_Sua.Enabled = cbxChieu.Enabled = false;
                 if (hasReel)
                 {
-                    var reel = _snapshot.Reels[row!.ReelId!.Value]; _markerInputs.TryGetValue(reel.ReelId, out var input);
-                    tbxSoCuoi_Sua.Text = input?.End ?? reel.End.ToString(CultureInfo.InvariantCulture); cbxChieu.SelectedValue = input?.Direction ?? reel.Direction;
-                    tbxSoDau_Sua.Text = TryMarker(reel, tbxSoCuoi_Sua.Text, input?.Direction ?? reel.Direction, out _, out long start) ? start.ToString() : "";
+                    var reel = _snapshot.Reels[row!.ReelId!.Value];
                     bool undoing = _draft.RowEdits.Values.Any(x => x.Undo && _snapshot.Rows.Any(r => r.OperationToken == x.OperationToken && r.ReelId == reel.ReelId));
-                    tbxSoCuoi_Sua.Enabled = cbxChieu.Enabled = !_saving && _snapshot.EditingEnabled && reel.Status == "ACTIVE" && reel.Length > 0 && !undoing;
+                    if (IsCutEditor(row)) BindCutEditor(row, undoing);
+                    else
+                    {
+                        _markerInputs.TryGetValue(reel.ReelId, out var input);
+                        tbxSoCuoi_Sua.Text = input?.End ?? reel.End.ToString(CultureInfo.InvariantCulture);
+                        cbxChieu.SelectedValue = input?.Direction ?? reel.Direction;
+                        bool valid = TryMarker(reel, tbxSoCuoi_Sua.Text, input?.Direction ?? reel.Direction, out _, out long start);
+                        tbxSoDau_Sua.Text = valid ? start.ToString(CultureInfo.InvariantCulture) : "";
+                        tbxSoCuoi_Sua.Enabled = true;
+                        cbxChieu.Enabled = valid && !_saving && _snapshot.EditingEnabled && reel.Status == "ACTIVE" && reel.Length > 0 && !undoing;
+                    }
                 }
                 else { tbxSoDau_Sua.Text = tbxSoCuoi_Sua.Text = ""; }
                 rtbLyDoSua.Enabled = !_saving && _snapshot.EditingEnabled;
@@ -208,24 +233,12 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
                 Undo = old?.Undo == true, Reason = old?.Undo == true ? "MISTAKE" : "INFO" });
             Changed();
         }
-        private void MarkersChanged()
-        {
-            if (_binding || _saving || !(SelectedRow()?.ReelId is long id) || !_snapshot.Reels.TryGetValue(id, out var reel)) return;
-            int direction = cbxChieu.SelectedValue is int d ? d : reel.Direction;
-            var input = new MarkerInput { End = tbxSoCuoi_Sua.Text, Direction = direction }; _markerInputs[id] = input;
-            bool valid = TryMarker(reel, input.End, direction, out int end, out long start); tbxSoDau_Sua.Text = valid ? start.ToString() : "";
-            if (valid)
-            {
-                _draft.SetReelEdit(new ReelMarkerEdit { ReelId = id, NewEnd = end, NewDirection = direction, Reason = "MARKERS" });
-                if (end == reel.End && direction == reel.Direction) _markerInputs.Remove(id);
-            }
-            Changed();
-        }
         private ExecutionEditRequest BuildRequest()
         {
             var request = _draft.BuildRequest(_changeId);
             foreach (var edit in request.RowEdits) { edit.Reason = edit.Undo ? "MISTAKE" : "INFO"; edit.Note = rtbLyDoSua.Text; }
             foreach (var edit in request.ReelEdits) { edit.Reason = "MARKERS"; edit.Note = rtbLyDoSua.Text; }
+            request.CutEdits.AddRange(ChangedCuts().Select(CutEdit));
             return request;
         }
         private string InputError()
@@ -234,13 +247,21 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
                 if (!_snapshot.Reels.TryGetValue(pair.Key, out var reel) || !TryMarker(reel, pair.Value.End, pair.Value.Direction, out _, out _))
                     return "Mốc cuộn " + (_snapshot.Reels.TryGetValue(pair.Key, out var r) ? r.Code : pair.Key.ToString()) +
                         " không hợp lệ.";
+            foreach (var row in ChangedCuts())
+                if (!ParseLength(_cutInputs[row.OperationToken].Text, out int length) || length != row.Length)
+                    return "Chiều dài cắt của đoạn #" + row.DetailId + " phải bằng " + row.Length + " m theo kế hoạch.";
             return string.IsNullOrWhiteSpace(rtbLyDoSua.Text) ? "Vui lòng nhập lý do sửa trước khi lưu." : "";
         }
         private void UpdateDraftState()
         {
             btnLuuThayDoi.Enabled = !_saving && _snapshot.EditingEnabled && HasChanges;
             foreach (DataGridViewRow r in grvDsChiTietCuon.Rows)
-                r.DefaultCellStyle.BackColor = _draft.RowEdits.ContainsKey(((ExecutionDetailRow)r.Tag).OperationToken) ? Color.LightGoldenrodYellow : grvDsChiTietCuon.DefaultCellStyle.BackColor;
+            {
+                var row = (ExecutionDetailRow)r.Tag;
+                r.DefaultCellStyle.BackColor = _draft.RowEdits.ContainsKey(row.OperationToken) ||
+                    (_cutInputs.TryGetValue(row.OperationToken, out var input) && CutChanged(row, input)) ?
+                    Color.LightGoldenrodYellow : grvDsChiTietCuon.DefaultCellStyle.BackColor;
+            }
         }
         private void Changed()
         {
@@ -280,7 +301,10 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
         }
         private DialogResult Ask(string text, MessageBoxButtons buttons) => DialogPrompt != null ? DialogPrompt(text, buttons) :
             MessageBox.Show(this, text, Text, buttons, MessageBoxIcon.Question);
-        private void ShowError(string message) { if (!IsDisposed) lblTacDong.Text = message; }
+        private void ShowError(string message)
+        {
+            if (!IsDisposed) lblTacDong.Text = message.Length == 0 && HasCutImpact ? CutImpactMessage : message;
+        }
 
         private async Task<bool> SaveAsync()
         {
@@ -298,8 +322,9 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
                 else
                 {
                     _batchImpact = ConfirmationText(request, preview);
-                    bool confirm = request.ReelEdits.Count > 0 || request.RowEdits.Any(x => x.Undo);
-                    if (!confirm || Ask("Bạn thực sự muốn lưu?",MessageBoxButtons.YesNo) == DialogResult.Yes)
+                    bool confirm = request.CutEdits.Count > 0 || request.ReelEdits.Count > 0 || request.RowEdits.Any(x => x.Undo);
+                    if (!confirm || Ask(_batchImpact + Environment.NewLine + Environment.NewLine + "Bạn thực sự muốn lưu?",
+                        MessageBoxButtons.YesNo) == DialogResult.Yes)
                     {
                         if (generation != _generation) ShowError("Nội dung đã thay đổi. Vui lòng kiểm tra và lưu lại.");
                         else
@@ -307,7 +332,9 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
                             var result = await Task.Run(() => ExecutionEdit_DB.Save(request)); if (IsDisposed) return false;
                             if (result.Success)
                             {
-                                LastSaveResult = result; success = true; _draft.Reset(); _markerInputs.Clear(); rtbLyDoSua.Clear(); _generation++; _changeId = Guid.NewGuid();
+                                LastSaveResult = result; success = true; _draft.Reset(); _markerInputs.Clear();
+                                _cutInputs.Clear(); _cutDirections.Clear(); rtbLyDoSua.Clear(); _generation++; _changeId = Guid.NewGuid();
+                                ShowError("");
                                 if (result.NewSnapshot != null && result.NewSnapshot.Rows.Count == 0)
                                 {
                                     FrmWaiting.ShowGifAlert("Không có dữ liệu");
@@ -341,7 +368,8 @@ namespace DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.XuatKho
             try
             {
                 var latest = ExecutionEdit_DB.Load(_snapshot.Query);
-                if (_draft.RowEdits.Keys.Any(t => !latest.Rows.Any(r => r.Done && r.OperationToken == t)) || _markerInputs.Keys.Any(id => !latest.Reels.ContainsKey(id)))
+                if (_draft.RowEdits.Keys.Concat(ChangedCuts().Select(x => x.OperationToken)).Any(t => !latest.Rows.Any(r => r.Done && r.OperationToken == t)) ||
+                    _markerInputs.Keys.Any(id => !latest.Reels.ContainsKey(id)))
                 { ShowError("Dòng hoặc cuộn đang sửa không còn hiệu lực. Bản nháp vẫn được giữ; đóng không lưu nếu muốn bỏ thay đổi."); return; }
                 if (latest.Rows.Count == 0)
                 {

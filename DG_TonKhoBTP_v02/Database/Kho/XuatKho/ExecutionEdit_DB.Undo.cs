@@ -50,18 +50,31 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
             }
         }
 
-        private static void ValidateInventory(SQLiteConnection conn, SQLiteTransaction tx, ExecutionDetailSnapshot snapshot,
-            ExecutionEditRequest request, ExecutionUndoPlan plan)
+        private static DataTable ReadStockAndReservations(SQLiteConnection conn, SQLiteTransaction tx, long reelId) =>
+            Table(conn, tx, @"SELECT t.*, COALESCE((SELECT SUM(d.ChieuDaiCanCat)
+                FROM KeHoachCatNhom n JOIN KeHoachCatChiTiet d ON d.KeHoachCatNhom_ID=n.id
+                JOIN KeHoachHang h ON h.id=n.KeHoachHang_ID JOIN KeHoach k ON k.id=h.KeHoach_ID
+                WHERE n.TonCuonLe_ID=t.id AND k.TrangThai='ACTIVE' AND NOT EXISTS
+                (SELECT 1 FROM LichSuCat l WHERE l.KeHoachCatChiTiet_ID=d.id)),0) AS Reserved
+                FROM TonCuonLe t WHERE t.id=@id", "@id", reelId);
+
+        private static void ValidateCutReservations(SQLiteConnection conn, SQLiteTransaction tx, CutLengthPlan cuts)
         {
-            if (plan.UndoOperations.Count == 0 && request.ReelEdits.Count == 0) return;
-            foreach (long reelId in request.ReelEdits.Select(x => x.ReelId).Concat(plan.ReelRestores.Where(x => !x.Remove).Select(x => x.ReelId)).Distinct())
+            foreach (var pair in cuts.Remaining)
             {
-                var reel = Table(conn, tx, @"SELECT t.*, COALESCE((SELECT SUM(d.ChieuDaiCanCat)
-                    FROM KeHoachCatNhom n JOIN KeHoachCatChiTiet d ON d.KeHoachCatNhom_ID=n.id
-                    JOIN KeHoachHang h ON h.id=n.KeHoachHang_ID JOIN KeHoach k ON k.id=h.KeHoach_ID
-                    WHERE n.TonCuonLe_ID=t.id AND k.TrangThai='ACTIVE' AND NOT EXISTS
-                    (SELECT 1 FROM LichSuCat l WHERE l.KeHoachCatChiTiet_ID=d.id)),0) AS Reserved
-                    FROM TonCuonLe t WHERE t.id=@id", "@id", reelId);
+                var stock = ReadStockAndReservations(conn, tx, pair.Key);
+                if (stock.Rows.Count != 1 || N(stock.Rows[0], "Reserved") > pair.Value.Length)
+                    throw new ExecutionEditException("REEL:" + pair.Key, "Tồn sau điều chỉnh nhỏ hơn chiều dài đã đặt trước của cuộn.");
+            }
+        }
+
+        private static void ValidateInventory(SQLiteConnection conn, SQLiteTransaction tx, ExecutionDetailSnapshot snapshot,
+            ExecutionEditRequest request, ExecutionUndoPlan plan, CutLengthPlan cuts)
+        {
+            var editedReels = request.ReelEdits.Select(x => x.ReelId).Concat(cuts.Remaining.Keys);
+            foreach (long reelId in editedReels.Concat(plan.ReelRestores.Where(x => !x.Remove).Select(x => x.ReelId)).Distinct())
+            {
+                var reel = ReadStockAndReservations(conn, tx, reelId);
                 if (reel.Rows.Count != 1) throw new ExecutionEditException("REEL:" + reelId, "Cuộn tồn không còn hợp lệ.");
                 var r = reel.Rows[0]; long length = Math.Abs(N(r, "SoCuoi") - N(r, "SoDau"));
                 if (N(r, "SoDau") < 0 || N(r, "SoCuoi") < 0 || length > int.MaxValue || N(r, "Reserved") > length ||
@@ -69,7 +82,7 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
                     throw new ExecutionEditException("REEL:" + reelId, "Tồn/mốc hoặc đặt trước của cuộn không hợp lệ; không lưu thay đổi.");
             }
             var sources = plan.UndoOperations.Select(x => x.SourceId)
-                .Concat(request.ReelEdits.Select(x => snapshot.Reels[x.ReelId].SourceId)).Distinct();
+                .Concat(editedReels.Select(x => snapshot.Reels[x].SourceId)).Distinct();
             foreach (long sourceId in sources)
             {
                 var identity = Table(conn, tx, @"SELECT p.DanhSachSP_ID,c.ChieuDai_1cuon,c.SoDau,c.SoCuoi FROM TTCuonDay c

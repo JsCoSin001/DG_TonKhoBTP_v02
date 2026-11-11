@@ -31,6 +31,7 @@ foreach($name in @('Binding','Input','ReasonSave','MarkerConfirm','MarkerSave','
     try {
         $path=New-ExecutionEditFixture;$null=Add-EETestCut $path
         Invoke-EESql "UPDATE B3TinhNangDuLieu SET ChoPhepSua=1 WHERE Ten='EXECUTION_EDIT';"
+        if($name -eq 'Input'){Invoke-EESql 'UPDATE KeHoachCatChiTiet SET ChieuDaiCanCat=140 WHERE id=60'}
         $q=New-EEObject 'ExecutionDetailQuery' @([long]1,[long]40,$null,[long]70)
         if($name -eq 'Conversion') {
             $converted=Invoke-EEB3 $path cut @{raw_qr='cuontp;MB001;1000;DESIGNED-CONVERT';ke_hoach_id=1;ke_hoach_hang_id=40;group_id=51;detail_id=62;end_value=1000;direction=1;operation_token='44444444-4444-4444-8444-444444444444'}
@@ -65,6 +66,7 @@ foreach($name in @('Binding','Input','ReasonSave','MarkerConfirm','MarkerSave','
         }
         $type.GetProperty('DialogPrompt',$flags).SetValue($form,$prompt)
         $grid=Control 'grvDsChiTietCuon';$person=Control 'cbxNguoiThucHien';$reason=Control 'rtbLyDoSua';$errorLabel=Control 'lblTacDong';$end=Control 'tbxSoCuoi_Sua'
+        $length=Control 'textBox2';$direction=Control 'cbxChieu'
         $executed=@($grid.Rows|Where-Object {$_.Tag.Done})[0];$grid.CurrentCell=$executed.Cells[0]
         if($name -eq 'Binding') {
             Assert-EE ((Control 'lblTenSP').Text -eq 'Actual product') 'Header shows the product passed from the clicked planning row'
@@ -82,19 +84,19 @@ foreach($name in @('Binding','Input','ReasonSave','MarkerConfirm','MarkerSave','
             Assert-EE ((Control 'lblTenSP').Text -eq 'Actual product' -and (Control 'lblThongTinSP').Text -eq $scopeHeader) 'Selecting a segment does not replace the clicked parent row header'
             Assert-EE ($reason.Text -eq 'Shared explanation' -and (Control 'dtNgayThucHien').CustomFormat -eq "'—'") 'Pending row has no invented timestamp and selection keeps explanation'
             $grid.CurrentCell=$grid.Rows[0].Cells[0]
-            Assert-EE ($end.Text -eq '650' -and (Control 'tbxSoDau_SoCuoi_ConLai_DB').Text.Contains('650')) 'Current and historical markers bind independently'
+            Assert-EE ($end.ReadOnly -and $end.Text -eq '800' -and (Control 'tbxSoDau_SoCuoi_ConLai_DB').Text.Contains('650')) 'Cut base and saved historical remainder bind independently'
         }
         elseif($name -eq 'Input') {
             $reason.Text='Check actual marks'
             foreach($invalid in @('','abc','-1','2147483648','10')){
-                $end.Text=$invalid
-                Assert-EE (-not (Save-Form)) ('Invalid marker input refused: '+$invalid)
-                Assert-EE ($errorLabel.Text.Length -gt 0 -and $end.Text -eq $invalid) 'Error is visible and invalid text retained'
+                $length.Text=$invalid
+                Assert-EE (-not (Save-Form)) ('Invalid cut length refused: '+$invalid)
+                Assert-EE ($errorLabel.Text.Contains('140 m') -and $length.Text -eq $invalid) 'The length error takes priority over the warning and preserves the input'
                 Assert-EE ((Get-EEScalar 'SELECT SoCuoi FROM TonCuonLe WHERE id=70') -eq 650) 'Invalid input never writes or reuses an older valid draft'
             }
-            $end.Text='1650';Assert-EE ((Control 'tbxSoDau_Sua').Text -eq '1000') 'Start derives from current remaining 650m'
+            $length.Text='140';Assert-EE ((Control 'tbxSoDau_Sua').Text -eq '0' -and $end.Text -eq '660') 'Cut length changes only the end from the pre-cut range'
             $grid.CurrentCell=$grid.Rows[1].Cells[0];$grid.CurrentCell=$grid.Rows[0].Cells[0]
-            Assert-EE ($end.Text -eq '1650') 'Reel draft survives selecting another segment'
+            Assert-EE ($end.Text -eq '660' -and $length.Text -eq '140') 'Cut draft survives selecting another segment'
         }
         elseif($name -eq 'ReasonSave') {
             $person.SelectedValue='inactive'
@@ -110,10 +112,14 @@ foreach($name in @('Binding','Input','ReasonSave','MarkerConfirm','MarkerSave','
             Assert-EE ($reason.Text.Length -eq 0 -and -not (Control 'btnLuuThayDoi').Enabled) 'Successful save clears only completed detail draft'
         }
         elseif($name -eq 'MarkerConfirm') {
-            $end.Text='1650';$reason.Text='Verify the physical reel';$script:DialogAnswer=[Windows.Forms.DialogResult]::No
+            $grid.CurrentCell=$grid.Rows[1].Cells[0];$direction.SelectedValue=-1
+            $markerWarning=$errorLabel.Text
+            Assert-EE ($markerWarning.Length -gt 0) 'Swapping the current reel markers also warns about the impact'
+            $reason.Text='Verify the physical reel';$script:DialogAnswer=[Windows.Forms.DialogResult]::No
             Assert-EE (-not (Save-Form)) 'Rejecting marker impact confirmation cancels write'
-            Assert-EE ($script:Dialogs.Count -eq 1 -and $script:Dialogs[0].Contains('LE-001') -and $script:Dialogs[0].Contains('1650') -and $script:Dialogs[0].Contains('650')) 'Confirmation identifies reel, new marks and unchanged length'
-            Assert-EE ($reason.Text -eq 'Verify the physical reel' -and $end.Text -eq '1650' -and (Get-EEScalar 'SELECT SoCuoi FROM TonCuonLe WHERE id=70') -eq 650) 'Cancel retains complete draft without writing'
+            Assert-EE ($script:Dialogs.Count -eq 1 -and $script:Dialogs[0].Contains('LE-001') -and $script:Dialogs[0].Contains('650 m')) 'Confirmation identifies reel and unchanged length'
+            Assert-EE ($reason.Text -eq 'Verify the physical reel' -and $end.Text -eq '0' -and (Get-EEScalar 'SELECT SoCuoi FROM TonCuonLe WHERE id=70') -eq 650) 'Cancel retains complete draft without writing'
+            Assert-EE ($errorLabel.Text -eq $markerWarning) 'Canceling save keeps the marker warning visible'
             $script:DialogAnswer=[Windows.Forms.DialogResult]::Yes
             $script:DialogAction={Invoke-EESql "UPDATE B3PhienBanDuLieu SET GiaTri=GiaTri+1 WHERE Khoa='FACTORY';";$script:DialogAction=$null;$script:DialogAnswer=[Windows.Forms.DialogResult]::No}
             Assert-EE (-not (Save-Form)) 'Data changed during confirmation is refused by existing version check'
@@ -132,16 +138,17 @@ foreach($name in @('Binding','Input','ReasonSave','MarkerConfirm','MarkerSave','
             Assert-EE (Save-Form) 'Explicit next Save persists revalidated draft'
         }
         elseif($name -eq 'MarkerSave') {
-            $end.Text='1650';$reason.Text='Real reel marks confirmed'
-            $grid.CurrentCell=$grid.Rows[1].Cells[0];$grid.CurrentCell=$grid.Rows[0].Cells[0]
+            $grid.CurrentCell=$grid.Rows[1].Cells[0];$direction.SelectedValue=-1;$reason.Text='Real reel marks confirmed'
+            $grid.CurrentCell=$grid.Rows[0].Cells[0];$grid.CurrentCell=$grid.Rows[1].Cells[0]
             Assert-EE (Save-Form) 'Confirmed marker correction saves through the new form'
-            Assert-EE ((Get-EEScalar 'SELECT SoDau FROM TonCuonLe WHERE id=70') -eq 1000 -and (Get-EEScalar 'SELECT SoCuoi FROM TonCuonLe WHERE id=70') -eq 1650) 'Marker correction preserves 650m of stock'
+            Assert-EE ((Get-EEScalar 'SELECT SoDau FROM TonCuonLe WHERE id=70') -eq 650 -and (Get-EEScalar 'SELECT SoCuoi FROM TonCuonLe WHERE id=70') -eq 0) 'Swapping current markers preserves 650m of stock'
             Assert-EE ((Get-EEScalar "SELECT COUNT(*) FROM B2DieuChinhSuKien WHERE Loai='DOI_MOC'") -eq 1 -and (Get-EEScalar "SELECT GhiChu FROM B2DieuChinhSuKien WHERE Loai='DOI_MOC'") -eq 'Real reel marks confirmed') 'One physical reel has one audited correction with the typed reason'
+            Assert-EE ($errorLabel.Text -eq '') 'A successful save clears the warning'
         }
         elseif($name -eq 'IdenticalReload') {
-            $end.Text='1650';$reason.Text='Same correction as the other editor'
+            $grid.CurrentCell=$grid.Rows[1].Cells[0];$direction.SelectedValue=-1;$reason.Text='Same correction as the other editor'
             $other=New-EERequest (Invoke-EE 'Load' @($q));$otherMarker=New-EEObject 'ReelMarkerEdit'
-            $otherMarker.ReelId=70;$otherMarker.NewEnd=1650;$otherMarker.NewDirection=1;$otherMarker.Reason='MARKERS';$other.ReelEdits.Add($otherMarker)
+            $otherMarker.ReelId=70;$otherMarker.NewEnd=0;$otherMarker.NewDirection=-1;$otherMarker.Reason='MARKERS';$other.ReelEdits.Add($otherMarker)
             Assert-EE (Invoke-EE 'Save' @($other)).Success 'Another editor already applies the identical marker correction'
             Assert-EE (-not (Save-Form)) 'Conflict reload does not implicitly write'
             Assert-EE (-not (Control 'btnLuuThayDoi').Enabled -and -not $type.GetProperty('HasChanges',$flags).GetValue($form)) 'Identical latest marker values leave no phantom unsaved draft'
@@ -167,7 +174,7 @@ foreach($name in @('Binding','Input','ReasonSave','MarkerConfirm','MarkerSave','
             Assert-EE (-not $closeArgs.Cancel -and (Get-EEScalar 'SELECT NguoiThucHien FROM LichSuCat') -eq 'worker') 'Close without saving replaces discard button and never writes'
         }
         elseif($name -eq 'Conversion') {
-            Assert-EE ($end.Enabled -and $end.Text -eq '800') 'Converted physical reel exposes current remaining 800m'
+            Assert-EE ($end.ReadOnly -and $end.Text -eq '1000' -and (Control 'tbxSoDau_SoCuoi_ConLai_DB').Text.Contains('800')) 'Converted reel exposes its cut base and saved 800m remainder'
             $executed.Cells['colTrangThai'].Value='Chưa thực hiện';$reason.Text='Conversion recorded by mistake'
             Assert-EE (Save-Form) 'Conversion can be undone from generated partial scope'
             Assert-EE ($form.IsDisposed -and (Get-EEScalar "SELECT COUNT(*) FROM TonCuonLe WHERE id=$generatedReel") -eq 0) 'Removing generated scope closes form after a successful atomic save'

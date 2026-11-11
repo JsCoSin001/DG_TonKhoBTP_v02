@@ -50,9 +50,9 @@ foreach($name in @('Conversion','PendingDelete','Orphan','MarkerPreview','Previe
             $id=Convert-ReviewReel $path;$uc=New-ReviewParent;$rows=$ucType.GetField('_rows',$flags).GetValue($uc)
             $orphan=@($rows.Values|Where-Object {$_.TonCuonLe_ID -eq $id})[0];$orphan.ChuoiChieuDaiCat='75'
             $other=$rows.Values|Where-Object {$_.TonCuonLe_ID -eq 70}|Select-Object -First 1;$other.ChuoiChieuDaiCat='33'
-            $source=New-EEObject 'ExecutionDetailQuery' @([long]1,[long]40,[long]80,$null)
+            $source=New-EEObject 'ExecutionDetailQuery' @([long]1,[long]40,$null,$id)
             $s=Invoke-EE 'Load' @($source);$r=New-EERequest $s;Add-EEUndo $r (@($s.Rows|Where-Object Done)[0].OperationToken)
-            $saved=Invoke-EE 'Save' @($r);Assert-EE $saved.Success 'Undo via source specification'
+            $saved=Invoke-EE 'Save' @($r);Assert-EE $saved.Success 'Undo via the generated partial reel'
             $null=$ucType.GetMethod('RefreshExecutionFactsPreservingDraft',$flags).Invoke($uc,@($saved))
             Assert-EE (-not $orphan.DaTonTaiTrongDB -and $orphan.CanDelete -and $orphan.ChuoiChieuDaiCat -eq '75') 'Obsolete dirty row stays visible as a discardable local draft'
             $remove=$ucType.GetMethod('RemovePlanningRow',$flags)
@@ -97,7 +97,7 @@ foreach($name in @('Conversion','PendingDelete','Orphan','MarkerPreview','Previe
         elseif($name -eq 'AuditEffects') {
             $id=Convert-ReviewReel $path
             Assert-EE ((Get-EEScalar "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='B2DieuChinhKetQua'") -eq 1) 'Immutable final audit must retain revisions and complete entity transitions'
-            $source=New-EEObject 'ExecutionDetailQuery' @([long]1,[long]40,[long]80,$null)
+            $source=New-EEObject 'ExecutionDetailQuery' @([long]1,[long]40,$null,$id)
             $s=Invoke-EE 'Load' @($source);$r=New-EERequest $s;Add-EEUndo $r (@($s.Rows|Where-Object Done)[0].OperationToken)
             Invoke-EESql "CREATE TRIGGER ReviewFinalAuditFail BEFORE INSERT ON B2DieuChinhKetQua BEGIN SELECT RAISE(ABORT,'final_audit_failure'); END;"
             Assert-EE (-not (Invoke-EE 'Save' @($r)).Success) 'Final audit error rolls back all undo effects'

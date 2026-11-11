@@ -38,9 +38,10 @@ try {
     $null=$reload.Invoke($form,@())
     Assert-EE ($person.SelectedValue -eq 'inactive') 'Reloading latest facts preserves the intended performer correction'
     $end=$form.Controls.Find('tbxSoCuoi_Sua',$true)[0]
-    $end.Text='1650'
+    $length=$form.Controls.Find('textBox2',$true)[0]
+    $length.Text='140'
     $start=$form.Controls.Find('tbxSoDau_Sua',$true)[0]
-    Assert-EE ($start.Text -eq '1000') 'Current start derives from 650m, independent of history'
+    Assert-EE ($start.Text -eq '0' -and $end.ReadOnly -and $end.Text -eq '660') 'Cut start stays fixed and the calculated end is read-only'
     Assert-EE ((Get-EEScalar 'SELECT SoCuoi FROM TonCuonLe WHERE id=70') -eq 650) 'Editing fields does not write before Save'
     Write-Output 'PASS: direct edits, read-only time/pending, single reel draft and no implicit writes'
 } finally { if($form){$form.Dispose()};Close-ExecutionEditFixture $path }

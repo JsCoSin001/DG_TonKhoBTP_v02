@@ -9,7 +9,7 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
     internal static class ExecutionUndoPlanner
     {
         private static long Number(Dictionary<string, object> row, string key) => ExecutionEditAudit.Number(row, key);
-        private static bool Same(Dictionary<string, object> left, Dictionary<string, object> right, string key) =>
+        internal static bool Same(Dictionary<string, object> left, Dictionary<string, object> right, string key) =>
             left.TryGetValue(key, out object a) && right.TryGetValue(key, out object b) &&
             Convert.ToString(a, CultureInfo.InvariantCulture) == Convert.ToString(b, CultureInfo.InvariantCulture);
         private static void Require(bool condition, string key, string message)
@@ -46,9 +46,8 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
                 var current = context.CurrentReels[reelId];
                 var last = chain.Last();
                 var expected = ExecutionEditAudit.Object(last.After, "reel");
-                var lastMarker = context.MarkerEvents.Where(x => x.ReelId == reelId && x.BasisToken == last.Token).OrderByDescending(x => x.Id).FirstOrDefault();
-                if (lastMarker != null) expected = ExecutionEditAudit.Parse(lastMarker.AfterJson);
                 Require(expected != null, first.Token, "Thiếu trạng thái cuộn sau thực hiện.");
+                expected = ExecutionEdit_DB.ReelWithMarkers(expected!, ExecutionEdit_DB.ReplayMarkerEvents(context, last, CutMarkers.Read(expected!)));
                 foreach (string key in new[] { "id", "SoDau", "SoCuoi", "TrangThai", "MaCuon", "TTCuonDay_ID", "TTThanhPham_ID" })
                     Require(Same(expected!, current, key), first.Token, "Trạng thái cuộn không khớp chuỗi thực hiện và điều chỉnh mốc.");
                 // Every effective history on this physical reel needs its immutable operation record.

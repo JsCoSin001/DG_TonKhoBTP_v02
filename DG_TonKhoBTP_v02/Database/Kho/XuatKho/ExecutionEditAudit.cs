@@ -26,7 +26,7 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
             return rows.Count == 0 ? null : ExecutionEditAudit.Row(rows[0]);
         }
         private static List<ExecutionEntityTransition> CaptureAffectedEntities(SQLiteConnection conn, SQLiteTransaction tx,
-            ExecutionEditRequest request, ExecutionDetailSnapshot snapshot, ExecutionUndoPlan plan)
+            ExecutionEditRequest request, ExecutionDetailSnapshot snapshot, ExecutionUndoPlan plan, CutLengthPlan cuts)
         {
             var entities = new List<ExecutionEntityTransition>();
             void Add(string table, string keyColumn, object key)
@@ -43,8 +43,9 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
                 if (row.GroupId.HasValue) Add("KeHoachCatNhom", "id", row.GroupId.Value);
             }
             foreach (long reel in editedRows.Where(x => x.ReelId.HasValue).Select(x => x.ReelId!.Value)
-                .Concat(request.ReelEdits.Select(x => x.ReelId)).Concat(plan.ReelRestores.Select(x => x.ReelId)).Distinct())
+                .Concat(request.ReelEdits.Select(x => x.ReelId)).Concat(plan.ReelRestores.Select(x => x.ReelId)).Concat(cuts.Remaining.Keys).Distinct())
                 Add("TonCuonLe", "id", reel);
+            foreach (var cut in cuts.Cuts) Add("LichSuCat", "id", cut.Operation.HistoryId);
             foreach (long source in editedRows.Select(x => x.SourceId).Concat(request.ReelEdits.Select(x => snapshot.Reels[x.ReelId].SourceId)).Where(x => x > 0).Distinct())
                 Add("TTCuonDay", "id", source);
             foreach (string qr in editedRows.Select(x => x.RawQr).Concat(plan.UndoOperations.Select(x => x.Qr)).Where(x => x.Length > 0).Distinct())

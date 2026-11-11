@@ -9,7 +9,8 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
 {
     internal static partial class ExecutionEdit_DB
     {
-        internal static ExecutionUndoContext UndoContext(SQLiteConnection conn, SQLiteTransaction tx, ExecutionDetailSnapshot snapshot)
+        internal static ExecutionUndoContext UndoContext(SQLiteConnection conn, SQLiteTransaction tx, ExecutionDetailSnapshot snapshot,
+            bool includeUndoDetails = true)
         {
             var context = new ExecutionUndoContext { Snapshot = snapshot };
             var reels = new HashSet<long>(snapshot.Reels.Keys);
@@ -27,11 +28,19 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
             {
                 var r = Table(conn, tx, "SELECT * FROM TonCuonLe WHERE id=@id", "@id", reel);
                 if (r.Rows.Count == 1) context.CurrentReels.Add(reel, ExecutionEditAudit.Row(r.Rows[0]));
-                foreach (DataRow row in Table(conn, tx, "SELECT * FROM LichSuCat WHERE TonCuonLe_ID=@id", "@id", reel).Rows)
-                    context.LiveCuts.Add(N(row, "id"), ExecutionEditAudit.Row(row));
-                foreach (DataRow row in Table(conn, tx, @"SELECT n.id,h.KeHoach_ID FROM KeHoachCatNhom n
+                foreach (DataRow row in Table(conn, tx, @"SELECT l.*,d.ChieuDaiCanCat AS PlannedLength FROM LichSuCat l
+                    JOIN KeHoachCatChiTiet d ON d.id=l.KeHoachCatChiTiet_ID WHERE l.TonCuonLe_ID=@id", "@id", reel).Rows)
+                {
+                    long id = N(row, "id");
+                    var history = ExecutionEditAudit.Row(row);
+                    history.Remove("PlannedLength");
+                    context.LiveCuts.Add(id, history);
+                    context.PlannedCutLengths.Add(id, checked((int)N(row, "PlannedLength")));
+                }
+                if (includeUndoDetails)
+                    foreach (DataRow row in Table(conn, tx, @"SELECT n.id,h.KeHoach_ID FROM KeHoachCatNhom n
                     JOIN KeHoachHang h ON h.id=n.KeHoachHang_ID WHERE n.TonCuonLe_ID=@id", "@id", reel).Rows)
-                    context.Groups.Add(new ExecutionGroupLink { GroupId = N(row, "id"), PlanId = N(row, "KeHoach_ID"), ReelId = reel });
+                        context.Groups.Add(new ExecutionGroupLink { GroupId = N(row, "id"), PlanId = N(row, "KeHoach_ID"), ReelId = reel });
                 foreach (DataRow row in Table(conn, tx, @"SELECT s.*,b.KeHoach_ID,b.NguoiSua,b.ThoiGianSua,k.MaKeHoach
                     FROM B2DieuChinhSuKien s JOIN B2DieuChinhLanLuu b ON b.MaLanLuu=s.MaLanLuu
                     LEFT JOIN KeHoach k ON k.id=b.KeHoach_ID WHERE s.Loai='DOI_MOC'
@@ -41,6 +50,8 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
                         BasisToken = T(row, "MaThaoTacCoSo"), AfterJson = T(row, "SauJson"), BeforeJson = T(row, "TruocJson"),
                         PlanId = N(row, "KeHoach_ID"), PlanCode = T(row, "MaKeHoach"), Editor = T(row, "NguoiSua"), EditedAt = T(row, "ThoiGianSua") });
             }
+            LoadCutCorrections(conn, tx, context);
+            if (!includeUndoDetails) return context;
             foreach (var op in context.Operations.Where(x => x.Kind == "TAKE"))
             {
                 var r = Table(conn, tx, "SELECT * FROM LichSuLayCuon WHERE id=@id", "@id", op.HistoryId);
@@ -57,7 +68,10 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
                 using var conn = DB_Base.OpenConnection(); using var tx = conn.BeginTransaction(true);
                 ValidateActor(conn, tx);
                 var snapshot = ValidateRequest(conn, tx, request);
-                var plan = ExecutionUndoPlanner.Build(request, UndoContext(conn, tx, snapshot));
+                var context = UndoContext(conn, tx, snapshot);
+                var plan = ExecutionUndoPlanner.Build(request, context);
+                var cuts = PlanCutLengths(context, request.CutEdits, true);
+                ValidateCutReservations(conn, tx, cuts);
                 var preview = new ExecutionEditPreview { Valid = true, UndoPlan = plan };
                 foreach (var restore in plan.ReelRestores)
                 {
@@ -79,12 +93,20 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
                         "Đưa về Chưa thực hiện" + (op.Kind == "TAKE" ? "; hoàn trả 1 cuộn và đồng bộ QR." : "; khôi phục theo chuỗi trên cuộn.");
                 foreach (var edit in request.ReelEdits)
                     preview.ImpactByReelId[edit.ReelId] = "Sửa mốc hiện tại; giữ nguyên tồn " + snapshot.Reels[edit.ReelId].Length + " m.";
+                foreach (var cut in cuts.Cuts)
+                    preview.ImpactByRowKey["CUT:" + ExecutionEditAudit.Number(cut.History, "KeHoachCatChiTiet_ID")] =
+                        "Lần cắt #" + ExecutionEditAudit.Number(cut.History, "KeHoachCatChiTiet_ID") + " · kế hoạch #" + cut.Operation.PlanId +
+                        " · " + ExecutionEditAudit.Number(cut.History, "ChieuDaiCat") + " m · mốc " + cut.BeforeCut + " còn " + cut.Remaining + ".";
+                foreach (var pair in cuts.Remaining)
+                    preview.ImpactByReelId[pair.Key] = "Cuộn " + snapshot.Reels[pair.Key].Code + ": tồn sau điều chỉnh " +
+                        pair.Value + " · " + pair.Value.Length + " m.";
                 tx.Commit(); return preview;
             }
             catch (ExecutionEditException ex) { return new ExecutionEditPreview { ErrorsByKey = new Dictionary<string, string> { [ex.Key] = ex.Message } }; }
             catch (InvalidOperationException ex) { return new ExecutionEditPreview { ErrorsByKey = new Dictionary<string, string> { ["data"] = ex.Message } }; }
             catch (SQLiteException) { return new ExecutionEditPreview { ErrorsByKey = new Dictionary<string, string> { ["database"] = "Không thể kiểm tra dữ liệu mới nhất. Vui lòng thử lại." } }; }
             catch (ArgumentException) { return new ExecutionEditPreview { ErrorsByKey = new Dictionary<string, string> { ["data"] = "Nhật ký nguồn không hợp lệ, không được suy đoán để sửa." } }; }
+            catch (OverflowException) { return new ExecutionEditPreview { ErrorsByKey = new Dictionary<string, string> { ["markers"] = "Mốc số vượt giới hạn cho phép." } }; }
         }
     }
 }

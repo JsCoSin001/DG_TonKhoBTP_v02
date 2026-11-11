@@ -39,23 +39,26 @@
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
-            this.label5 = new System.Windows.Forms.Label();
-            this.label6 = new System.Windows.Forms.Label();
-            this.label7 = new System.Windows.Forms.Label();
-            this.tbxSoDau_SoCuoi_DB = new System.Windows.Forms.TextBox();
-            this.tbxSoDau_SoCuoi_DaCat_DB = new System.Windows.Forms.TextBox();
-            this.cbxChieu = new System.Windows.Forms.ComboBox();
-            this.tbxSoDau_SoCuoi_ConLai_DB = new System.Windows.Forms.TextBox();
             this.label8 = new System.Windows.Forms.Label();
-            this.label9 = new System.Windows.Forms.Label();
-            this.label10 = new System.Windows.Forms.Label();
-            this.label11 = new System.Windows.Forms.Label();
-            this.tbxSoCuoi_Sua = new System.Windows.Forms.TextBox();
-            this.tbxSoDau_Sua = new System.Windows.Forms.TextBox();
             this.label12 = new System.Windows.Forms.Label();
             this.rtbLyDoSua = new System.Windows.Forms.RichTextBox();
             this.label13 = new System.Windows.Forms.Label();
-            this.lblTacDong = new System.Windows.Forms.Label();
+            this.label7 = new System.Windows.Forms.Label();
+            this.tbxSoDau_SoCuoi_ConLai_DB = new System.Windows.Forms.TextBox();
+            this.label6 = new System.Windows.Forms.Label();
+            this.tbxSoDau_SoCuoi_DaCat_DB = new System.Windows.Forms.TextBox();
+            this.label5 = new System.Windows.Forms.Label();
+            this.tbxSoDau_SoCuoi_DB = new System.Windows.Forms.TextBox();
+            this.label14 = new System.Windows.Forms.Label();
+            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.label11 = new System.Windows.Forms.Label();
+            this.cbxChieu = new System.Windows.Forms.ComboBox();
+            this.label10 = new System.Windows.Forms.Label();
+            this.tbxSoCuoi_Sua = new System.Windows.Forms.TextBox();
+            this.label9 = new System.Windows.Forms.Label();
+            this.tbxSoDau_Sua = new System.Windows.Forms.TextBox();
+            this.label15 = new System.Windows.Forms.Label();
+            this.textBox2 = new System.Windows.Forms.TextBox();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
             this.lblTenNhomNghiepVu = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
@@ -69,12 +72,9 @@
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.dataGridView2 = new System.Windows.Forms.DataGridView();
             this.tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
+            this.lblTacDong = new System.Windows.Forms.Label();
             this.btnLuuThayDoi = new System.Windows.Forms.Button();
             this.btnĐóng = new System.Windows.Forms.Button();
-            this.label14 = new System.Windows.Forms.Label();
-            this.textBox1 = new System.Windows.Forms.TextBox();
-            this.label15 = new System.Windows.Forms.Label();
-            this.textBox2 = new System.Windows.Forms.TextBox();
             this.panel1.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -250,79 +250,6 @@
             this.tableLayoutPanel3.Size = new System.Drawing.Size(591, 322);
             this.tableLayoutPanel3.TabIndex = 1;
             // 
-            // label5
-            // 
-            this.label5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(150, 48);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(99, 18);
-            this.label5.TabIndex = 1;
-            this.label5.Text = "Mốc trước cắt";
-            // 
-            // label6
-            // 
-            this.label6.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(297, 48);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(82, 18);
-            this.label6.TabIndex = 1;
-            this.label6.Text = "Mốc đã cắt";
-            // 
-            // label7
-            // 
-            this.label7.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(444, 48);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(80, 18);
-            this.label7.TabIndex = 1;
-            this.label7.Text = "Mốc còn lại";
-            // 
-            // tbxSoDau_SoCuoi_DB
-            // 
-            this.tbxSoDau_SoCuoi_DB.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.tbxSoDau_SoCuoi_DB.Enabled = false;
-            this.tbxSoDau_SoCuoi_DB.Location = new System.Drawing.Point(150, 69);
-            this.tbxSoDau_SoCuoi_DB.Name = "tbxSoDau_SoCuoi_DB";
-            this.tbxSoDau_SoCuoi_DB.Size = new System.Drawing.Size(141, 26);
-            this.tbxSoDau_SoCuoi_DB.TabIndex = 4;
-            // 
-            // tbxSoDau_SoCuoi_DaCat_DB
-            // 
-            this.tbxSoDau_SoCuoi_DaCat_DB.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.tbxSoDau_SoCuoi_DaCat_DB.Enabled = false;
-            this.tbxSoDau_SoCuoi_DaCat_DB.Location = new System.Drawing.Point(297, 69);
-            this.tbxSoDau_SoCuoi_DaCat_DB.Name = "tbxSoDau_SoCuoi_DaCat_DB";
-            this.tbxSoDau_SoCuoi_DaCat_DB.Size = new System.Drawing.Size(141, 26);
-            this.tbxSoDau_SoCuoi_DaCat_DB.TabIndex = 4;
-            // 
-            // cbxChieu
-            // 
-            this.cbxChieu.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.cbxChieu.FormattingEnabled = true;
-            this.cbxChieu.Items.AddRange(new object[] {
-            "Thuận",
-            "Nghịch"});
-            this.cbxChieu.Location = new System.Drawing.Point(444, 166);
-            this.cbxChieu.Name = "cbxChieu";
-            this.cbxChieu.Size = new System.Drawing.Size(144, 26);
-            this.cbxChieu.TabIndex = 2;
-            // 
-            // tbxSoDau_SoCuoi_ConLai_DB
-            // 
-            this.tbxSoDau_SoCuoi_ConLai_DB.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.tbxSoDau_SoCuoi_ConLai_DB.Enabled = false;
-            this.tbxSoDau_SoCuoi_ConLai_DB.Location = new System.Drawing.Point(444, 69);
-            this.tbxSoDau_SoCuoi_ConLai_DB.Name = "tbxSoDau_SoCuoi_ConLai_DB";
-            this.tbxSoDau_SoCuoi_ConLai_DB.Size = new System.Drawing.Size(144, 26);
-            this.tbxSoDau_SoCuoi_ConLai_DB.TabIndex = 4;
-            // 
             // label8
             // 
             this.label8.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
@@ -335,55 +262,6 @@
             this.label8.TabIndex = 1;
             this.label8.Text = "Thông tin sửa chữa";
             this.label8.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
-            // 
-            // label9
-            // 
-            this.label9.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(150, 145);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(54, 18);
-            this.label9.TabIndex = 1;
-            this.label9.Text = "Số đầu";
-            // 
-            // label10
-            // 
-            this.label10.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(297, 145);
-            this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(82, 18);
-            this.label10.TabIndex = 1;
-            this.label10.Text = "Mốc đã cắt";
-            // 
-            // label11
-            // 
-            this.label11.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(444, 145);
-            this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(101, 18);
-            this.label11.TabIndex = 1;
-            this.label11.Text = "Chiều đánh số";
-            // 
-            // tbxSoCuoi_Sua
-            // 
-            this.tbxSoCuoi_Sua.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.tbxSoCuoi_Sua.Location = new System.Drawing.Point(297, 166);
-            this.tbxSoCuoi_Sua.Name = "tbxSoCuoi_Sua";
-            this.tbxSoCuoi_Sua.Size = new System.Drawing.Size(141, 26);
-            this.tbxSoCuoi_Sua.TabIndex = 4;
-            // 
-            // tbxSoDau_Sua
-            // 
-            this.tbxSoDau_Sua.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.tbxSoDau_Sua.Enabled = false;
-            this.tbxSoDau_Sua.Location = new System.Drawing.Point(150, 166);
-            this.tbxSoDau_Sua.Name = "tbxSoDau_Sua";
-            this.tbxSoDau_Sua.Size = new System.Drawing.Size(141, 26);
-            this.tbxSoDau_Sua.TabIndex = 4;
             // 
             // label12
             // 
@@ -417,17 +295,167 @@
             this.label13.TabIndex = 1;
             this.label13.Text = "Thông tin trong hệ thống";
             // 
-            // lblTacDong
+            // label7
             // 
-            this.lblTacDong.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.lblTacDong.AutoSize = true;
-            this.tableLayoutPanel4.SetColumnSpan(this.lblTacDong, 4);
-            this.lblTacDong.ForeColor = System.Drawing.Color.DarkRed;
-            this.lblTacDong.Location = new System.Drawing.Point(3, 10);
-            this.lblTacDong.Name = "lblTacDong";
-            this.lblTacDong.Size = new System.Drawing.Size(68, 16);
-            this.lblTacDong.TabIndex = 1;
-            this.lblTacDong.Text = "Thông báo";
+            this.label7.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(444, 48);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(80, 18);
+            this.label7.TabIndex = 1;
+            this.label7.Text = "Mốc còn lại";
+            // 
+            // tbxSoDau_SoCuoi_ConLai_DB
+            // 
+            this.tbxSoDau_SoCuoi_ConLai_DB.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.tbxSoDau_SoCuoi_ConLai_DB.Enabled = false;
+            this.tbxSoDau_SoCuoi_ConLai_DB.Location = new System.Drawing.Point(444, 69);
+            this.tbxSoDau_SoCuoi_ConLai_DB.Name = "tbxSoDau_SoCuoi_ConLai_DB";
+            this.tbxSoDau_SoCuoi_ConLai_DB.Size = new System.Drawing.Size(144, 26);
+            this.tbxSoDau_SoCuoi_ConLai_DB.TabIndex = 4;
+            // 
+            // label6
+            // 
+            this.label6.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(297, 48);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(82, 18);
+            this.label6.TabIndex = 1;
+            this.label6.Text = "Mốc đã cắt";
+            // 
+            // tbxSoDau_SoCuoi_DaCat_DB
+            // 
+            this.tbxSoDau_SoCuoi_DaCat_DB.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.tbxSoDau_SoCuoi_DaCat_DB.Enabled = false;
+            this.tbxSoDau_SoCuoi_DaCat_DB.Location = new System.Drawing.Point(297, 69);
+            this.tbxSoDau_SoCuoi_DaCat_DB.Name = "tbxSoDau_SoCuoi_DaCat_DB";
+            this.tbxSoDau_SoCuoi_DaCat_DB.Size = new System.Drawing.Size(141, 26);
+            this.tbxSoDau_SoCuoi_DaCat_DB.TabIndex = 4;
+            // 
+            // label5
+            // 
+            this.label5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(150, 48);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(99, 18);
+            this.label5.TabIndex = 1;
+            this.label5.Text = "Mốc trước cắt";
+            // 
+            // tbxSoDau_SoCuoi_DB
+            // 
+            this.tbxSoDau_SoCuoi_DB.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.tbxSoDau_SoCuoi_DB.Enabled = false;
+            this.tbxSoDau_SoCuoi_DB.Location = new System.Drawing.Point(150, 69);
+            this.tbxSoDau_SoCuoi_DB.Name = "tbxSoDau_SoCuoi_DB";
+            this.tbxSoDau_SoCuoi_DB.Size = new System.Drawing.Size(141, 26);
+            this.tbxSoDau_SoCuoi_DB.TabIndex = 4;
+            // 
+            // label14
+            // 
+            this.label14.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.label14.AutoSize = true;
+            this.label14.Location = new System.Drawing.Point(3, 48);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(113, 18);
+            this.label14.TabIndex = 1;
+            this.label14.Text = "Chiều dài đã cắt";
+            // 
+            // textBox1
+            // 
+            this.textBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.textBox1.Enabled = false;
+            this.textBox1.Location = new System.Drawing.Point(3, 69);
+            this.textBox1.Name = "textBox1";
+            this.textBox1.Size = new System.Drawing.Size(141, 26);
+            this.textBox1.TabIndex = 4;
+            // 
+            // label11
+            // 
+            this.label11.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(444, 145);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(101, 18);
+            this.label11.TabIndex = 1;
+            this.label11.Text = "Chiều đánh số";
+            // 
+            // cbxChieu
+            // 
+            this.cbxChieu.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.cbxChieu.FormattingEnabled = true;
+            this.cbxChieu.Items.AddRange(new object[] {
+            "Chiều thuận",
+            "chiều nghịch"});
+            this.cbxChieu.Location = new System.Drawing.Point(444, 166);
+            this.cbxChieu.Name = "cbxChieu";
+            this.cbxChieu.Size = new System.Drawing.Size(144, 26);
+            this.cbxChieu.TabIndex = 2;
+            // 
+            // label10
+            // 
+            this.label10.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.label10.AutoSize = true;
+            this.label10.Location = new System.Drawing.Point(297, 145);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(54, 18);
+            this.label10.TabIndex = 1;
+            this.label10.Text = "Số cuối";
+            // 
+            // tbxSoCuoi_Sua
+            // 
+            this.tbxSoCuoi_Sua.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.tbxSoCuoi_Sua.Location = new System.Drawing.Point(297, 166);
+            this.tbxSoCuoi_Sua.Name = "tbxSoCuoi_Sua";
+            this.tbxSoCuoi_Sua.Size = new System.Drawing.Size(141, 26);
+            this.tbxSoCuoi_Sua.TabIndex = 4;
+            // 
+            // label9
+            // 
+            this.label9.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(150, 145);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(54, 18);
+            this.label9.TabIndex = 1;
+            this.label9.Text = "Số đầu";
+            // 
+            // tbxSoDau_Sua
+            // 
+            this.tbxSoDau_Sua.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.tbxSoDau_Sua.Enabled = false;
+            this.tbxSoDau_Sua.Location = new System.Drawing.Point(150, 166);
+            this.tbxSoDau_Sua.Name = "tbxSoDau_Sua";
+            this.tbxSoDau_Sua.Size = new System.Drawing.Size(141, 26);
+            this.tbxSoDau_Sua.TabIndex = 4;
+            // 
+            // label15
+            // 
+            this.label15.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.label15.AutoSize = true;
+            this.label15.Location = new System.Drawing.Point(3, 145);
+            this.label15.Name = "label15";
+            this.label15.Size = new System.Drawing.Size(91, 18);
+            this.label15.TabIndex = 1;
+            this.label15.Text = "Chiều dài cắt";
+            // 
+            // textBox2
+            // 
+            this.textBox2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.textBox2.Enabled = false;
+            this.textBox2.Location = new System.Drawing.Point(3, 166);
+            this.textBox2.Name = "textBox2";
+            this.textBox2.Size = new System.Drawing.Size(141, 26);
+            this.textBox2.TabIndex = 4;
             // 
             // tableLayoutPanel2
             // 
@@ -465,7 +493,7 @@
             this.lblTenNhomNghiepVu.Name = "lblTenNhomNghiepVu";
             this.lblTenNhomNghiepVu.Size = new System.Drawing.Size(289, 18);
             this.lblTenNhomNghiepVu.TabIndex = 0;
-            this.lblTenNhomNghiepVu.Text = "N01 - Cắt lẻ cuộn lẻ";
+            this.lblTenNhomNghiepVu.Text = "Chi tiết cắt lẻ";
             // 
             // label1
             // 
@@ -570,8 +598,8 @@
             // 
             this.tableLayoutPanel4.ColumnCount = 4;
             this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 120F));
-            this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 120F));
+            this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 133F));
+            this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 107F));
             this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel4.Controls.Add(this.lblTacDong, 0, 0);
             this.tableLayoutPanel4.Controls.Add(this.btnLuuThayDoi, 1, 1);
@@ -585,64 +613,39 @@
             this.tableLayoutPanel4.Size = new System.Drawing.Size(605, 184);
             this.tableLayoutPanel4.TabIndex = 4;
             // 
+            // lblTacDong
+            // 
+            this.lblTacDong.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.lblTacDong.AutoSize = true;
+            this.tableLayoutPanel4.SetColumnSpan(this.lblTacDong, 4);
+            this.lblTacDong.ForeColor = System.Drawing.Color.DarkRed;
+            this.lblTacDong.Location = new System.Drawing.Point(3, 10);
+            this.lblTacDong.Name = "lblTacDong";
+            this.lblTacDong.Size = new System.Drawing.Size(68, 16);
+            this.lblTacDong.TabIndex = 1;
+            this.lblTacDong.Text = "Thông báo";
+            // 
             // btnLuuThayDoi
             // 
             this.btnLuuThayDoi.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnLuuThayDoi.BackColor = System.Drawing.Color.Maroon;
+            this.btnLuuThayDoi.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnLuuThayDoi.ForeColor = System.Drawing.Color.Transparent;
             this.btnLuuThayDoi.Location = new System.Drawing.Point(185, 29);
             this.btnLuuThayDoi.Name = "btnLuuThayDoi";
-            this.btnLuuThayDoi.Size = new System.Drawing.Size(114, 46);
+            this.btnLuuThayDoi.Size = new System.Drawing.Size(127, 54);
             this.btnLuuThayDoi.TabIndex = 6;
-            this.btnLuuThayDoi.Text = "Lưu thay đổi";
-            this.btnLuuThayDoi.UseVisualStyleBackColor = true;
+            this.btnLuuThayDoi.Text = "LƯU THAY ĐỔI";
+            this.btnLuuThayDoi.UseVisualStyleBackColor = false;
             // 
             // btnĐóng
             // 
-            this.btnĐóng.Location = new System.Drawing.Point(305, 29);
+            this.btnĐóng.Location = new System.Drawing.Point(318, 29);
             this.btnĐóng.Name = "btnĐóng";
-            this.btnĐóng.Size = new System.Drawing.Size(114, 46);
+            this.btnĐóng.Size = new System.Drawing.Size(101, 54);
             this.btnĐóng.TabIndex = 6;
             this.btnĐóng.Text = "Đóng";
             this.btnĐóng.UseVisualStyleBackColor = true;
-            // 
-            // label14
-            // 
-            this.label14.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.label14.AutoSize = true;
-            this.label14.Location = new System.Drawing.Point(3, 48);
-            this.label14.Name = "label14";
-            this.label14.Size = new System.Drawing.Size(113, 18);
-            this.label14.TabIndex = 1;
-            this.label14.Text = "Chiều dài đã cắt";
-            // 
-            // textBox1
-            // 
-            this.textBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBox1.Enabled = false;
-            this.textBox1.Location = new System.Drawing.Point(3, 69);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(141, 26);
-            this.textBox1.TabIndex = 4;
-            // 
-            // label15
-            // 
-            this.label15.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.label15.AutoSize = true;
-            this.label15.Location = new System.Drawing.Point(3, 145);
-            this.label15.Name = "label15";
-            this.label15.Size = new System.Drawing.Size(91, 18);
-            this.label15.TabIndex = 1;
-            this.label15.Text = "Chiều dài cắt";
-            // 
-            // textBox2
-            // 
-            this.textBox2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBox2.Enabled = false;
-            this.textBox2.Location = new System.Drawing.Point(3, 166);
-            this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(141, 26);
-            this.textBox2.TabIndex = 4;
             // 
             // Frm_ChiTietThucHienKeHoach
             // 

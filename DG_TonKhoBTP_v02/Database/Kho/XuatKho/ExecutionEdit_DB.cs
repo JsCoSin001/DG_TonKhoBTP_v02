@@ -34,7 +34,13 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
         {
             using var conn = DB_Base.OpenConnection();
             using var tx = conn.BeginTransaction(true);
-            var snapshot = Load(conn, tx, query); tx.Commit(); return snapshot;
+            var snapshot = LoadForEditor(conn, tx, query); tx.Commit(); return snapshot;
+        }
+        private static ExecutionDetailSnapshot LoadForEditor(SQLiteConnection conn, SQLiteTransaction tx, ExecutionDetailQuery query)
+        {
+            var snapshot = Load(conn, tx, query);
+            if (snapshot.Rows.Any(x => x.CutSequence > 0)) snapshot.CutContext = UndoContext(conn, tx, snapshot, false);
+            return snapshot;
         }
         internal static ExecutionDetailSnapshot Load(SQLiteConnection conn, SQLiteTransaction tx, ExecutionDetailQuery query)
         {
@@ -87,7 +93,7 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
             }
 
             var cuts = Table(conn, tx, @"SELECT d.id AS DetailId,n.id AS GroupId,n.TonCuonLe_ID AS PlannedReel,
-                d.ChieuDaiCanCat,h.*,o.MaThaoTac,t.MaCuon
+                d.ChieuDaiCanCat,h.*,o.MaThaoTac,o.ThuTu,t.MaCuon
                 FROM KeHoachCatNhom n JOIN KeHoachCatChiTiet d ON d.KeHoachCatNhom_ID=n.id
                 LEFT JOIN LichSuCat h ON h.KeHoachCatChiTiet_ID=d.id
                 LEFT JOIN B3ThaoTac o ON o.Loai='CUT' AND o.LichSu_ID=h.id AND o.TrangThai='ACTIVE'
@@ -103,6 +109,8 @@ namespace DG_TonKhoBTP_v02.Database.Kho.XuatKho
                 s.Rows.Add(new ExecutionDetailRow { RowKey = "CUT:" + N(r, "DetailId"), Kind = "CUT", Done = done,
                     DetailId = N(r, "DetailId"), GroupId = N(r, "GroupId"), ReelId = reel, HistoryId = done ? N(r, "id") : 0,
                     OperationToken = T(r, "MaThaoTac"), Quantity = 1, Length = checked((int)N(r, "ChieuDaiCanCat")),
+                    ActualCutLength = done ? checked((int)N(r, "ChieuDaiCat")) : (int?)null,
+                    CutSequence = N(r, "ThuTu"), CutDirection = checked((int)N(r, "HeSoChieu")),
                     PerformerUsername = T(r, "NguoiThucHien"), PerformedAt = T(r, "ThoiGianThucHien"),
                     RawQr = done ? T(r, "MaQuetThucTe") : T(r, "MaCuon"), SourceKind = done ? T(r, "LoaiNguon") : reel.HasValue ? "CUON_LE" : "CUON_CHAN",
                     BeforeStart = checked((int)N(r, "SoDauTruoc")), BeforeEnd = checked((int)N(r, "SoCuoiTruoc")),

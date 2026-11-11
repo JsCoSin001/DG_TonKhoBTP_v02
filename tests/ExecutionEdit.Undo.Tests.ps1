@@ -18,9 +18,10 @@ try {
     Invoke-EESql "UPDATE B3TinhNangDuLieu SET ChoPhepSua=1 WHERE Ten='EXECUTION_EDIT';"
     $b3=Invoke-EEB3 $path cut @{raw_qr='cuontp;MB001;1000;CONVERT';ke_hoach_id=1;ke_hoach_hang_id=40;group_id=51;detail_id=62;end_value=1000;direction=1;operation_token='44444444-4444-4444-8444-444444444444'}
     Assert-EE $b3.ok 'Prepare full-to-partial execution'
-    $q=New-EEObject 'ExecutionDetailQuery' @([long]1,[long]40,[long]80,$null)
+    $reelId=[long](Get-EEScalar 'SELECT TonCuonLe_ID FROM KeHoachCatNhom WHERE id=51')
+    $q=New-EEObject 'ExecutionDetailQuery' @([long]1,[long]40,$null,$reelId)
     $s=Invoke-EE 'Load' @($q);$r=New-EERequest $s
-    $done=@($s.Rows|Where-Object Done)[0];$reelId=$done.ReelId;Add-EEUndo $r $done.OperationToken
+    $done=@($s.Rows|Where-Object Done)[0];Add-EEUndo $r $done.OperationToken
     $result=Invoke-EE 'Save' @($r)
     Assert-EE $result.Success "Conversion undo: $($result.Message)"
     Assert-EE ((Get-EEScalar "SELECT COUNT(*) FROM TonCuonLe WHERE id=$reelId") -eq 0) 'Generated partial is removed only when unreferenced'
@@ -31,6 +32,7 @@ try {
     Invoke-EESql "UPDATE B3TinhNangDuLieu SET ChoPhepSua=1 WHERE Ten='EXECUTION_EDIT';"
     $b3=Invoke-EEB3 $path take @{raw_qr='cuontp;MB001;1000;TAKE';ke_hoach_id=1;ke_hoach_hang_id=40;quy_cach_cuon_chan_id=80;operation_token='55555555-5555-4555-8555-555555555555'}
     Assert-EE $b3.ok 'Prepare full take'
+    $q=New-EEObject 'ExecutionDetailQuery' @([long]1,[long]40,[long]80,$null)
     $s=Invoke-EE 'Load' @($q);$r=New-EERequest $s;Add-EEUndo $r (@($s.Rows|Where-Object Done)[0].OperationToken)
     Invoke-EESql "CREATE TRIGGER TestUndoAuditFailure BEFORE INSERT ON B2DieuChinhSuKien BEGIN SELECT RAISE(ABORT,'undo_audit_failure'); END;"
     Assert-EE (-not (Invoke-EE 'Save' @($r)).Success) 'Injected undo error must fail the whole batch'

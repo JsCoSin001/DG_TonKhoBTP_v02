@@ -21,6 +21,7 @@ namespace DG_TonKhoBTP_v02.Models.Kho.XuatKho
         public Dictionary<long, ExecutionReelState> Reels { get; set; } = new Dictionary<long, ExecutionReelState>();
         public Dictionary<string, long> Versions { get; set; } = new Dictionary<string, long>();
         public List<ExecutionPerformer> Users { get; set; } = new List<ExecutionPerformer>();
+        internal ExecutionUndoContext? CutContext { get; set; }
     }
     internal sealed class ExecutionPerformer
     {
@@ -40,6 +41,9 @@ namespace DG_TonKhoBTP_v02.Models.Kho.XuatKho
         public long? ReelId { get; set; }
         public int Quantity { get; set; }
         public int Length { get; set; }
+        public int? ActualCutLength { get; set; }
+        public long CutSequence { get; set; }
+        public int CutDirection { get; set; }
         public bool Done { get; set; }
         public string PerformerUsername { get; set; } = "";
         public string PerformedAt { get; set; } = "";
@@ -92,6 +96,15 @@ namespace DG_TonKhoBTP_v02.Models.Kho.XuatKho
         public Dictionary<string, long> ExpectedVersions { get; set; } = new Dictionary<string, long>();
         public List<ExecutionRowEdit> RowEdits { get; set; } = new List<ExecutionRowEdit>();
         public List<ReelMarkerEdit> ReelEdits { get; set; } = new List<ReelMarkerEdit>();
+        public List<CutLengthEdit> CutEdits { get; set; } = new List<CutLengthEdit>();
+    }
+    internal sealed class CutLengthEdit
+    {
+        public string OperationToken { get; set; } = "";
+        public int Length { get; set; }
+        public int Direction { get; set; }
+        public bool ReverseAfter { get; set; }
+        public string Note { get; set; } = "";
     }
     internal sealed class ExecutionEditResult
     {
@@ -141,6 +154,7 @@ namespace DG_TonKhoBTP_v02.Models.Kho.XuatKho
         public List<ExecutionOperation> Operations { get; set; } = new List<ExecutionOperation>();
         public Dictionary<long, Dictionary<string, object>> CurrentReels { get; set; } = new Dictionary<long, Dictionary<string, object>>();
         public Dictionary<long, Dictionary<string, object>> LiveCuts { get; set; } = new Dictionary<long, Dictionary<string, object>>();
+        public Dictionary<long, int> PlannedCutLengths { get; set; } = new Dictionary<long, int>();
         public Dictionary<long, Dictionary<string, object>> LiveTakes { get; set; } = new Dictionary<long, Dictionary<string, object>>();
         public List<Dictionary<string, object>> QrUsages { get; set; } = new List<Dictionary<string, object>>();
         public List<ExecutionGroupLink> Groups { get; set; } = new List<ExecutionGroupLink>();

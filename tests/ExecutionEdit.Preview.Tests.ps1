@@ -15,7 +15,11 @@ try {
             $r=Invoke-EEB3 $path take @{raw_qr='cuontp;MB001;1000;PREVIEW-TAKE';ke_hoach_id=1;ke_hoach_hang_id=40;quy_cach_cuon_chan_id=80;operation_token='77777777-7777-4777-8777-777777777777'}
             Assert-EE $r.ok 'Whole preview fixture'
         }
-        $q=if($case -eq 'partial'){New-EEObject 'ExecutionDetailQuery' @([long]1,[long]40,$null,[long]70)}else{New-EEObject 'ExecutionDetailQuery' @([long]1,[long]40,[long]80,$null)}
+        $q=switch($case){
+            'partial' {New-EEObject 'ExecutionDetailQuery' @([long]1,[long]40,$null,[long]70)}
+            'convert' {New-EEObject 'ExecutionDetailQuery' @([long]1,[long]40,$null,[long](Get-EEScalar 'SELECT TonCuonLe_ID FROM KeHoachCatNhom WHERE id=51'))}
+            'whole' {New-EEObject 'ExecutionDetailQuery' @([long]1,[long]40,[long]80,$null)}
+        }
         $form=New-EEForm $q ('Cap CV 1x6 - '+$case)
         $form.ShowInTaskbar=$false;$form.StartPosition=[Windows.Forms.FormStartPosition]::Manual
         $form.Location=New-Object Drawing.Point(-30000,-30000);$form.Opacity=0
@@ -28,7 +32,8 @@ try {
         Assert-EE ($person.SelectedValue -eq 'worker') 'Selecting an executed row updates its detail fields even when the first row is pending'
         if($case -eq 'convert') {
             $end=$form.Controls.Find('tbxSoCuoi_Sua',$true)[0]
-            Assert-EE ($end.Visible -and $end.Text -eq '800') 'Converted reel selection exposes its current marker editor'
+            $remaining=$form.Controls.Find('tbxSoDau_SoCuoi_ConLai_DB',$true)[0]
+            Assert-EE ($end.Visible -and $end.ReadOnly -and $end.Text -eq '1000' -and $remaining.Text.Contains('800')) 'Converted reel exposes its cut base and saved remainder'
         }
         $bitmap=New-Object Drawing.Bitmap($form.Width,$form.Height)
         try { $form.DrawToBitmap($bitmap,(New-Object Drawing.Rectangle(0,0,$form.Width,$form.Height)));$bitmap.Save((Join-Path $output ($case+'.png')),[Drawing.Imaging.ImageFormat]::Png) } finally {$bitmap.Dispose()}

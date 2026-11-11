@@ -825,7 +825,7 @@ namespace DG_TonKhoBTP_v02.UI
                 ? tenValue
                 : tenKhongDauInput;
 
-            return NormalizeTenKhongDau(source);
+            return NormalizeTenKhongDau(source).ToUpperInvariant();
         }
 
         private static string ResolveTenKhongDauForDisplay(string tenValue, string tenKhongDauValue)

@@ -1,4 +1,5 @@
 ﻿using System;
+using DG_TonKhoBTP_v02.Database.SanXuat;
 using DG_TonKhoBTP_v02.Models;
 using System.Collections.Generic;
 using System.Data;
@@ -317,6 +318,7 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
 
             string sourceCte = SourceRemainingCte;
 
+            // LOT làm ở Ghép lõi có thể mang mã tồn kho Bọc vỏ mà chưa có nguồn cuộn.
             string summarySql = sourceCte + @"
                 SELECT
                     tp.id AS TTThanhPham_ID,
@@ -336,6 +338,8 @@ namespace DG_TonKhoBTP_v02.Database.ChatLuong
                 WHERE tp.Temp=0
                   AND tp.CongDoan=5
                   AND tp.ChieuDaiSau>0
+                  AND (sr.TTCuonDay_CD_ID IS NOT NULL
+                       OR tp.id NOT IN " + CongDoanThanhPham_DB.DanhSachIdCoChiTietGhepLoiSql + @")
 " + ngayFilter + SqlLocMayBocVo + @"
                   AND (@ToanBoCa=1 OR clv.Ca=@Ca)
                   AND (@DanhSachSpId IS NULL OR tp.DanhSachSP_ID = @DanhSachSpId)

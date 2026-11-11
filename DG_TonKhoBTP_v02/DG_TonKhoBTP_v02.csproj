@@ -183,6 +183,7 @@
     <Compile Include="Database\Kho\XuatKho\LapKeHoachCatDay_DB.cs" />
     <Compile Include="Database\Kho\XuatKho_DB.cs" />
     <Compile Include="Database\SanXuat\LoiDungMay_DB.cs" />
+    <Compile Include="Database\SanXuat\CongDoanThanhPham_DB.cs" />
     <Compile Include="Database\SanXuat\LuuTam_DB.cs" />
     <Compile Include="Database\SanXuat\SubmitForm_DB.cs" />
     <Compile Include="Database\User\PermissionDbHelper.cs" />

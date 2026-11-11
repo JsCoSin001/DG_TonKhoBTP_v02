@@ -345,7 +345,7 @@ namespace DG_TonKhoBTP_v02.Database
         {
             string sqlSelect = CoreHelper.TaoSqL_LayThongTinBaoCaoChung();
             string sqlTenNVL = CoreHelper.TaoSQL_LayDuLieuNVL(selectedCongDoans.Select(cd => cd.Columns).ToArray());
-            var (sqlChiTietCD, loaiCD) = CoreHelper.TaoSQL_LayChiTiet_NhieuCD(selectedCongDoans);
+            var (sqlChiTietCD, loaiCD) = CoreHelper.TaoSQL_LayChiTiet_NhieuCD(selectedCongDoans, locTheoCongDoanThucHien: true);
             string sqlJoin = CoreHelper.TaoSQL_TaoKetNoiCacBang();
             string ngayBD = ngayBatDau.Date.AddHours(5).AddMinutes(59).ToString("yyyy-MM-dd HH:mm:ss");
             string ngayKT = ngayKetThuc.Date.AddDays(1).AddHours(6).ToString("yyyy-MM-dd HH:mm:ss");

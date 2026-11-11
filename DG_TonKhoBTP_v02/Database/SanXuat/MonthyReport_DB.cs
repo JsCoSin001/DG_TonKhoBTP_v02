@@ -30,9 +30,7 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
                 FROM ThongTinCaLamViec c
                 WHERE c.NgayKetThuc >= @start AND c.NgayKetThuc < @end
             ) clv ON clv.TTThanhPham_id = ttp.id AND clv.ShiftOrder = 1
-            LEFT JOIN DanhSachMaSP sp ON sp.id = ttp.DanhSachSP_ID
-            WHERE ttp.CongDoan = @congDoan
-            ORDER BY clv.NgayKetThuc DESC, ttp.id DESC";
+            LEFT JOIN DanhSachMaSP sp ON sp.id = ttp.DanhSachSP_ID";
 
         private const string MaterialSql = @"
             SELECT nvl.id AS Id, nvl.TTThanhPham_ID AS TTThanhPhamId,
@@ -64,13 +62,13 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
             var start = new DateTime(selectedMonth.Year, selectedMonth.Month, 1);
             var end = start.AddMonths(1);
             var result = new List<MonthyReport_Model>();
+            string sql = ReportSql + " WHERE " + CongDoanThanhPham_DB.TaoDieuKienCongDoanThucHien(congDoanId)
+                + " ORDER BY clv.NgayKetThuc DESC, ttp.id DESC";
             using (var conn = DB_Base.OpenConnection())
-            using (var cmd = new SQLiteCommand(ReportSql, conn))
+            using (var cmd = new SQLiteCommand(sql, conn))
             {
                 cmd.Parameters.AddWithValue("@start", start.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
                 cmd.Parameters.AddWithValue("@end", end.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
-                // TTThanhPham.CongDoan có kiểu TEXT trong SQLite hiện tại.
-                cmd.Parameters.AddWithValue("@congDoan", congDoanId.ToString(CultureInfo.InvariantCulture));
                 using (var reader = cmd.ExecuteReader())
                 {
                     while (reader.Read())

@@ -1,5 +1,6 @@
 ﻿
 using DG_TonKhoBTP_v02.Core;
+using DG_TonKhoBTP_v02.Database.SanXuat;
 using DG_TonKhoBTP_v02.Dictionary;
 using DG_TonKhoBTP_v02.DL_Ben;
 using DG_TonKhoBTP_v02.Helper;
@@ -2665,7 +2666,7 @@ namespace DG_TonKhoBTP_v02.Database
 
             string sqlDk1 = " WHERE ttp.Temp = 0 AND date(tclv.NgayKetThuc) = date(@para) ";
 
-            string sqlDk2 = " AND ttp.CongDoan = " + cd.Id;
+            string sqlDk2 = " AND " + CongDoanThanhPham_DB.TaoDieuKienCongDoanThucHien(cd.Id);
 
             string sqlDk3 = " AND tclv.Ca = " + ca;
 
@@ -2698,7 +2699,7 @@ namespace DG_TonKhoBTP_v02.Database
 
             string sqlDk1 = " WHERE strftime('%Y-%m', tclv.NgayBatDau) = strftime('%Y-%m', @para) ";
 
-            string sqlDk2 = " AND ttp.CongDoan = " + cd.Id;
+            string sqlDk2 = " AND " + CongDoanThanhPham_DB.TaoDieuKienCongDoanThucHien(cd.Id);
 
             // 6) ORDER BY
             string sqlOrder = " ORDER BY tclv.NgayBatDau DESC, ttp.id DESC;";
@@ -2761,7 +2762,7 @@ namespace DG_TonKhoBTP_v02.Database
             // Tạo điều kiện lọc theo ID
             string sqlDk1 = " WHERE ttp.id = @id AND ttp.Temp = " + (kieuDL == 3 ? "1" : "0");
 
-            string sqlDk2 = " AND ttp.CongDoan = " + cd.Id;
+            string sqlDk2 = " AND " + CongDoanThanhPham_DB.TaoDieuKienCongDoanThucHien(cd.Id);
 
             string sqlDk3 = kieuDL == 0 ? " AND ( (ds.DonVi = 'M'  AND IFNULL(ttp.ChieuDaiSau, 0) <> 0)  OR (ds.DonVi = 'KG' AND IFNULL(ttp.KhoiLuongSau, 0) <> 0)) " : "";
 
@@ -2856,7 +2857,7 @@ namespace DG_TonKhoBTP_v02.Database
             string sqlTenNVL = CoreHelper.TaoSQL_LayDuLieuNVL(selectedCongDoans.Select(cd => cd.Columns).ToArray());
 
             // Lấy chi tiết công đoạn
-            var (sqlLayChiTietCD, loaiCD) = CoreHelper.TaoSQL_LayChiTiet_NhieuCD(selectedCongDoans);
+            var (sqlLayChiTietCD, loaiCD) = CoreHelper.TaoSQL_LayChiTiet_NhieuCD(selectedCongDoans, locTheoCongDoanThucHien: true);
 
             // Câu nối các bảng
             string sqlJoin = CoreHelper.TaoSQL_TaoKetNoiCacBang();

@@ -142,7 +142,7 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
                         @KhoiLuongSau,
                         @ChieuDaiTruoc,
                         @ChieuDaiSau,
-                        9,
+                        @CongDoan,
                         @GhiChu,
                         1,
                         @DateInsert,
@@ -186,6 +186,9 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
                     cmd.Parameters.AddWithValue(
                         "@ChieuDaiSau",
                         thanhPham.ChieuDaiSau);
+
+                    cmd.Parameters.AddWithValue("@CongDoan",
+                        CongDoanThanhPham_DB.XacDinhMaLuuChinhThuc(conn, tx, 9, thanhPham.DanhSachSP_ID, null));
 
                     cmd.Parameters.AddWithValue(
                         "@GhiChu",
@@ -389,7 +392,7 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
 
                 thanhPham.HanNoi = 1;
 
-                bool giuTonHienTai = ThanhPhamDaDuocSuDung(conn, tx, idEdit, out string maBinCu);
+                bool giuTonHienTai = ThanhPhamDaDuocSuDung(conn, tx, idEdit, out string maBinCu, out _);
                 if (giuTonHienTai && !string.Equals(maBinCu, thanhPham.MaBin, StringComparison.Ordinal))
                     throw new InvalidOperationException("LOT/Mã bin đã được sử dụng, không thể đổi mã.");
 
@@ -663,7 +666,7 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
                 conn = DB_Base.OpenConnection();
                 tx = conn.BeginTransaction();
 
-                long tpId = InsertTTThanhPham(conn, tx, tp, nvl);
+                long tpId = InsertTTThanhPham(conn, tx, tp, chiTietCD.ChiTietCongDoan);
                 SavePheLieu(conn, tx, tpId, tp.PheLieu);
                 InsertThongTinCaLamViec(conn, tx, caLam, tpId);
                 InsertTTNVL(conn, tx, tpId, nvl);
@@ -807,7 +810,7 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
                     }
                 }
 
-                long tpId = InsertTTThanhPham(conn, tx, tp, nvl);
+                long tpId = InsertTTThanhPham(conn, tx, tp, chiTietCD.ChiTietCongDoan);
                 SavePheLieu(conn, tx, tpId, tp.PheLieu);
                 InsertThongTinCaLamViec(conn, tx, caLam, tpId);
                 InsertTTNVL(conn, tx, tpId, nvl);
@@ -924,7 +927,7 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
 
                 BackupThongTinTruocKhiSua(conn, tx, tpId, tp, caLam.NguoiLam);
                 UpdateThongTinCaLamViec(conn, tx, caLam, tpId);
-                UpdateTTThanhPham(conn, tx, tp, tpId, nvl);
+                bool canThemChiTietGhepLoi = UpdateTTThanhPham(conn, tx, tp, tpId, chiTietCD.ChiTietCongDoan);
                 SavePheLieu(conn, tx, tpId, tp.PheLieu);
                 UpdateKhoiLuongConLai_TTThanhPham(conn, tx, nvl, tpId);
                 Del_InsertTTNVL(conn, tx, tpId, nvl);
@@ -947,7 +950,7 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
                         break;
 
                     case CD_GhepLoiQB qb:
-                        UpdateCDGhepLoiQB(conn, tx, tpId, qb);
+                        UpdateCDGhepLoiQB(conn, tx, tpId, qb, canThemChiTietGhepLoi);
                         break;
 
                     case CD_BocMach mach:
@@ -1045,7 +1048,7 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
 
                 BackupThongTinTruocKhiSua(conn, tx, tpId, tp, caLam.NguoiLam);
                 UpdateThongTinCaLamViec(conn, tx, caLam, tpId);
-                UpdateTTThanhPham(conn, tx, tp, tpId, nvl);
+                bool canThemChiTietGhepLoi = UpdateTTThanhPham(conn, tx, tp, tpId, chiTietCD.ChiTietCongDoan);
                 SavePheLieu(conn, tx, tpId, tp.PheLieu);
                 UpdateKhoiLuongConLai_TTThanhPham(conn, tx, nvl, tpId);
                 Del_InsertTTNVL(conn, tx, tpId, nvl);
@@ -1068,7 +1071,7 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
                         break;
 
                     case CD_GhepLoiQB qb:
-                        UpdateCDGhepLoiQB(conn, tx, tpId, qb);
+                        UpdateCDGhepLoiQB(conn, tx, tpId, qb, canThemChiTietGhepLoi);
                         break;
 
                     case CD_BocMach mach:
@@ -1342,10 +1345,10 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
         }
 
         private static bool ThanhPhamDaDuocSuDung(
-            SQLiteConnection conn, SQLiteTransaction tx, long id, out string maBinCu)
+            SQLiteConnection conn, SQLiteTransaction tx, long id, out string maBinCu, out int danhSachSpCu)
         {
             const string sql = @"
-                SELECT tp.MaBin,
+                SELECT tp.MaBin, tp.DanhSachSP_ID,
                        CASE WHEN COALESCE(tp.LastEdit_id, 0) <> 0 OR EXISTS (
                            SELECT 1 FROM TTNVL n
                            JOIN TTThanhPham lanDung ON lanDung.id = n.TTThanhPham_ID
@@ -1358,17 +1361,24 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
             if (!reader.Read())
                 throw new InvalidOperationException("Không tìm thấy thành phẩm cần sửa.");
             maBinCu = Convert.ToString(reader["MaBin"]);
+            danhSachSpCu = Convert.ToInt32(reader["DanhSachSP_ID"]);
             return Convert.ToInt32(reader["DaSuDung"]) != 0;
         }
 
-        private static void UpdateTTThanhPham(SQLiteConnection conn, SQLiteTransaction tx, TTThanhPham m, int thongTinCaLamViecId, List<TTNVL> nvl)
+        private static bool UpdateTTThanhPham(SQLiteConnection conn, SQLiteTransaction tx, TTThanhPham m, int thanhPhamId, object chiTietCongDoan)
         {
-            bool giuTonHienTai = ThanhPhamDaDuocSuDung(conn, tx, thongTinCaLamViecId, out string maBinCu);
+            bool giuTonHienTai = ThanhPhamDaDuocSuDung(conn, tx, thanhPhamId, out string maBinCu, out int danhSachSpCu);
             if (giuTonHienTai && !string.Equals(maBinCu, m.MaBin, StringComparison.Ordinal))
                 throw new InvalidOperationException("LOT/Mã bin đã được sử dụng, không thể đổi mã.");
 
-            string sqlUpdate = @"UPDATE TTThanhPham 
+            int? maCongDoanMoi = null;
+            if (m.CongDoan?.Id == CongDoanThanhPham_DB.MaGhepLoi && m.DanhSachSP_ID != danhSachSpCu)
+                maCongDoanMoi = CongDoanThanhPham_DB.XacDinhMaLuuChinhThuc(
+                    conn, tx, m.CongDoan.Id, m.DanhSachSP_ID, chiTietCongDoan);
+
+            string sqlUpdate = @"UPDATE TTThanhPham
                                 SET DanhSachSP_ID = @DanhSachSP_ID,
+                                    CongDoan = COALESCE(@CongDoanMoi, CongDoan),
                                     MaBin = @MaBin,
                                     KhoiLuongTruoc = @KhoiLuongTruoc,
                                     KhoiLuongSau = CASE WHEN @giuTon = 1 THEN KhoiLuongSau ELSE @KhoiLuongSau END,
@@ -1385,6 +1395,7 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
             {
                 cmd.Parameters.AddWithValue("@giuTon", giuTonHienTai ? 1 : 0);
                 cmd.Parameters.AddWithValue("@DanhSachSP_ID", m.DanhSachSP_ID);
+                cmd.Parameters.AddWithValue("@CongDoanMoi", (object?)maCongDoanMoi ?? DBNull.Value);
                 cmd.Parameters.AddWithValue("@MaBin", m.MaBin);
                 cmd.Parameters.AddWithValue("@KhoiLuongTruoc", m.KhoiLuongTruoc);
                 cmd.Parameters.AddWithValue("@KhoiLuongSau", m.KhoiLuongSau);
@@ -1392,7 +1403,7 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
                 cmd.Parameters.AddWithValue("@ChieuDaiSau", m.ChieuDaiSau);
                 cmd.Parameters.AddWithValue("@HanNoi", m.HanNoi);
                 cmd.Parameters.AddWithValue("@GhiChu", m.GhiChu ?? (object)DBNull.Value);
-                cmd.Parameters.AddWithValue("@id", thongTinCaLamViecId);
+                cmd.Parameters.AddWithValue("@id", thanhPhamId);
 
                 int rowsAffected = cmd.ExecuteNonQuery();
 
@@ -1401,6 +1412,8 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
                     throw new Exception($"Không tìm thấy hoặc không thể update TTThanhPham với id = {m.Id}");
                 }
             }
+
+            return maCongDoanMoi.HasValue && maCongDoanMoi.Value != m.CongDoan.Id;
         }
 
         private static void Del_InsertTTNVL(SQLiteConnection conn, SQLiteTransaction tx, long thongTinSpId, List<TTNVL> items)
@@ -1708,7 +1721,7 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
             }
         }
 
-        private static void UpdateCDGhepLoiQB(SQLiteConnection conn, SQLiteTransaction tx, long thongTinSpId, CD_GhepLoiQB m)
+        private static void UpdateCDGhepLoiQB(SQLiteConnection conn, SQLiteTransaction tx, long thongTinSpId, CD_GhepLoiQB m, bool themNeuThieu)
         {
             //const string sql = @"
             //UPDATE CD_GhepLoiQB
@@ -1735,7 +1748,8 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
             cmd.Parameters.AddWithValue("@DoRongBang", m.DoRongBang);
             cmd.Parameters.AddWithValue("@DoDayBang", m.DoDayBang);
             cmd.Parameters.AddWithValue("@TTThanhPham_ID", thongTinSpId);
-            cmd.ExecuteNonQuery();
+            if (cmd.ExecuteNonQuery() == 0 && themNeuThieu)
+                InsertCDGhepLoiQB(conn, tx, thongTinSpId, m);
         }
 
         private static int? KiemTraKhacBietCongDoanBOM(
@@ -2242,9 +2256,10 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
             return (long)(cmd.ExecuteScalar() ?? 0L);
         }
 
-        private static long InsertTTThanhPham(SQLiteConnection conn, SQLiteTransaction tx, TTThanhPham m, List<TTNVL> nvl)
+        private static long InsertTTThanhPham(SQLiteConnection conn, SQLiteTransaction tx, TTThanhPham m, object chiTietCongDoan)
         {
-
+            int maCongDoan = CongDoanThanhPham_DB.XacDinhMaLuuChinhThuc(
+                conn, tx, m.CongDoan.Id, m.DanhSachSP_ID, chiTietCongDoan);
             const string sql = @"
             INSERT INTO TTThanhPham
                 (DanhSachSP_ID,QC ,  MaBin, KhoiLuongTruoc, KhoiLuongSau, ChieuDaiTruoc, ChieuDaiSau, CongDoan, GhiChu,HanNoi, DateInsert, Temp)
@@ -2261,7 +2276,7 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
             cmd.Parameters.AddWithValue("@KhoiLuongSau", m.KhoiLuongSau);
             cmd.Parameters.AddWithValue("@ChieuDaiTruoc", m.ChieuDaiTruoc);
             cmd.Parameters.AddWithValue("@ChieuDaiSau", m.ChieuDaiSau);
-            cmd.Parameters.AddWithValue("@CongDoan", m.CongDoan.Id);
+            cmd.Parameters.AddWithValue("@CongDoan", maCongDoan);
             cmd.Parameters.AddWithValue("@GhiChu", (object?)m.GhiChu ?? DBNull.Value);
             cmd.Parameters.AddWithValue("@HanNoi", m.HanNoi);
             cmd.Parameters.AddWithValue("@DateInsert", (object?)m.DateInsert ?? DBNull.Value);

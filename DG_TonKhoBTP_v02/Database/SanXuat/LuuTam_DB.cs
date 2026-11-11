@@ -148,8 +148,12 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
                     return false;
                 }
 
-                // Đồng bộ lần cuối dữ liệu người dùng đang nhìn thấy trước khi chuyển chính thức.
-                UpdateDraftHeader(conn, tx, draftId, data.ThongTinThanhPham);
+                // Đồng bộ dữ liệu người dùng và tính mã phân loại khi chốt chính thức.
+                TTThanhPham thanhPham = data.ThongTinThanhPham;
+                int? maLuuChinhThuc = thanhPham.CongDoan == null ? (int?)null
+                    : CongDoanThanhPham_DB.XacDinhMaLuuChinhThuc(
+                        conn, tx, thanhPham.CongDoan.Id, thanhPham.DanhSachSP_ID, data.CongDoan?.ChiTietCongDoan);
+                UpdateDraftHeader(conn, tx, draftId, thanhPham, maLuuChinhThuc);
                 SyncDraftContent(conn, tx, draftId, data);
 
                 ApplyInventoryOnce(conn, tx, draftId, data.NguyenVatLieu);
@@ -202,7 +206,7 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
             return id;
         }
 
-        private static long UpdateDraftHeader(SQLiteConnection conn, SQLiteTransaction tx, long draftId, TTThanhPham m)
+        private static long UpdateDraftHeader(SQLiteConnection conn, SQLiteTransaction tx, long draftId, TTThanhPham m, int? maLuuChinhThuc = null)
         {
             const string sql = @"
                 UPDATE TTThanhPham SET
@@ -213,14 +217,14 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
                     DateInsert=@DateInsert, Active=@Active
                 WHERE id=@Id AND Temp=1 AND MaBin=@MaBin COLLATE NOCASE;";
             using var cmd = new SQLiteCommand(sql, conn, tx);
-            AddThanhPhamParameters(cmd, m);
+            AddThanhPhamParameters(cmd, m, maLuuChinhThuc);
             cmd.Parameters.AddWithValue("@Id", draftId);
             if (cmd.ExecuteNonQuery() != 1)
                 throw new InvalidOperationException("Không cập nhật được draft hoặc MaBin draft đã thay đổi.");
             return draftId;
         }
 
-        private static void AddThanhPhamParameters(SQLiteCommand cmd, TTThanhPham m)
+        private static void AddThanhPhamParameters(SQLiteCommand cmd, TTThanhPham m, int? maLuuChinhThuc = null)
         {
             cmd.Parameters.AddWithValue("@DanhSachSP_ID", m.DanhSachSP_ID);
             cmd.Parameters.AddWithValue("@QC", Db(m.QC));
@@ -229,7 +233,8 @@ namespace DG_TonKhoBTP_v02.Database.SanXuat
             cmd.Parameters.AddWithValue("@KhoiLuongSau", m.KhoiLuongSau);
             cmd.Parameters.AddWithValue("@ChieuDaiTruoc", m.ChieuDaiTruoc);
             cmd.Parameters.AddWithValue("@ChieuDaiSau", m.ChieuDaiSau);
-            cmd.Parameters.AddWithValue("@CongDoan", m.CongDoan == null ? (object)DBNull.Value : m.CongDoan.Id);
+            int? maCongDoan = maLuuChinhThuc ?? m.CongDoan?.Id;
+            cmd.Parameters.AddWithValue("@CongDoan", (object?)maCongDoan ?? DBNull.Value);
             cmd.Parameters.AddWithValue("@GhiChu", Db(m.GhiChu));
             cmd.Parameters.AddWithValue("@HanNoi", m.HanNoi);
             cmd.Parameters.AddWithValue("@DateInsert", Db(m.DateInsert));

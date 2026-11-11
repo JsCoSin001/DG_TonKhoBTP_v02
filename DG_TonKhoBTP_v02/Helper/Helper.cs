@@ -1,4 +1,5 @@
 ﻿using DG_TonKhoBTP_v02.Database;
+using DG_TonKhoBTP_v02.Database.SanXuat;
 using DG_TonKhoBTP_v02.Dictionary;
 using DG_TonKhoBTP_v02.Models;
 using DG_TonKhoBTP_v02.UI;
@@ -487,7 +488,7 @@ namespace DG_TonKhoBTP_v02.Helper
             string sqlSelect = TaoSqL_LayThongTinBaoCaoChung();
 
             // Lấy chi tiết công đoạn
-            var (sqlLayChiTietCD, loaiCD) = TaoSQL_LayChiTiet_NhieuCD(selectedCongDoans);
+            var (sqlLayChiTietCD, loaiCD) = TaoSQL_LayChiTiet_NhieuCD(selectedCongDoans, locTheoCongDoanThucHien: true);
 
 
             // Lấy dữ liệu NVL theo danh sách công đoạn
@@ -502,7 +503,8 @@ namespace DG_TonKhoBTP_v02.Helper
             return (query, loaiCD);
         }
 
-        public static (string Columns, string DieuKien)   TaoSQL_LayChiTiet_NhieuCD(List<CongDoan> selectedCongDoans)
+        public static (string Columns, string DieuKien) TaoSQL_LayChiTiet_NhieuCD(
+            List<CongDoan> selectedCongDoans, bool locTheoCongDoanThucHien = false)
         {
             if (selectedCongDoans == null || selectedCongDoans.Count == 0)
                 return (string.Empty, string.Empty);
@@ -517,8 +519,10 @@ namespace DG_TonKhoBTP_v02.Helper
 
             string columnsSql = string.Join(", ", allCols);
 
-            // Tạo điều kiện WHERE: (ttp.CongDoan = 1 OR ttp.CongDoan = 2 ...)
-            string dieuKienSql = " AND (" + string.Join(" OR ", selectedCongDoans.Select(cd => $"ttp.CongDoan = {cd.Id}")) + ")";
+            var dieuKienTheoCongDoan = selectedCongDoans.Select(cd => locTheoCongDoanThucHien
+                ? CongDoanThanhPham_DB.TaoDieuKienCongDoanThucHien(cd.Id)
+                : $"ttp.CongDoan = {cd.Id}");
+            string dieuKienSql = " AND (" + string.Join(" OR ", dieuKienTheoCongDoan) + ")";
 
             return (columnsSql, dieuKienSql);
         }

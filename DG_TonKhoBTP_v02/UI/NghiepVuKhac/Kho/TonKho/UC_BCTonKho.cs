@@ -4,6 +4,7 @@ using DG_TonKhoBTP_v02.Database.Kho;
 using DG_TonKhoBTP_v02.Database.Kho.TonKho;
 using DG_TonKhoBTP_v02.Models.Kho.TonKho;
 using DG_TonKhoBTP_v02.UI.Helper.AutoSearchWithCombobox;
+using DG_TonKhoBTP_v02.UI.NghiepVuKhac.Kho.TonKho;
 using DG_TonKhoBTP_v02.Dictionary;
 using DG_TonKhoBTP_v02.Helper;
 using DG_TonKhoBTP_v02.Models;
@@ -14,7 +15,10 @@ using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
 using System;
+using System.Collections.Generic;
 using System.Data;
+using System.Globalization;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -26,6 +30,7 @@ namespace DG_TonKhoBTP_v02.UI
 {
     public partial class UC_BCTonKho : UserControl
     {
+        private const string CotXemTonKho = "Button_ExcelMoi";
 
         private bool _tonKhoExcelDangTai;
         private CancellationTokenSource _searchCts;
@@ -153,38 +158,74 @@ namespace DG_TonKhoBTP_v02.UI
 
         private void RenderTonKho(BCTonKho_KetQua result)
         {
+            RenderTonKhoGrid(result.Dong.Select(item => (item.TaoDongBaoCao(), (object)item)));
+        }
+
+        private void RenderTonKhoGrid(IEnumerable<(BCTonKho_ExcelDong Dong, object Nguon)> rows)
+        {
+            const string dinhDangSo = "#,##0.############################";
+            var dinhDangViet = CultureInfo.GetCultureInfo("vi-VN");
             grvShowBaoCao.DataSource = null;
+            grvShowBaoCao.Rows.Clear();
             grvShowBaoCao.Columns.Clear();
             grvShowBaoCao.AutoGenerateColumns = false;
             grvShowBaoCao.AllowUserToAddRows = false;
             grvShowBaoCao.ReadOnly = true;
-            grvShowBaoCao.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.DisplayedCells;
-            grvShowBaoCao.Columns.Add("TenSanPham", "Tên sản phẩm");
-            grvShowBaoCao.Columns.Add("MaBinLot", "LOT");
-            grvShowBaoCao.Columns.Add("SoLuong", "Số lượng");
-            grvShowBaoCao.Columns.Add("Kieu", "Kiểu");
-            grvShowBaoCao.Columns.Add("SoDau", "Số đầu");
-            grvShowBaoCao.Columns.Add("SoCuoi", "Số cuối");
-            grvShowBaoCao.Columns.Add("ChieuDaiBanDau", "Chiều dài ban đầu");
-            grvShowBaoCao.Columns.Add("ChieuDaiConLai", "Chiều dài còn lại");
-            grvShowBaoCao.Columns.Add("DatCho", "Đặt chỗ");
+            grvShowBaoCao.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None;
+            grvShowBaoCao.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.None;
+            grvShowBaoCao.RowTemplate.Height = 35;
+            grvShowBaoCao.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
+            grvShowBaoCao.ColumnHeadersHeight = 40;
+
+            var columns = new (string Name, string Header, int Width, bool Numeric)[]
+            {
+                ("TenSP_ExcelMoi", "Tên sản phẩm", 250, false),
+                ("MaSP_ExcelMoi", "Mã", 130, false),
+                ("DonVi_ExcelMoi", "Đvị", 65, false),
+                ("MaBinLot_ExcelMoi", "LOT / Mã cuộn", 190, false),
+                ("Loai_ExcelMoi", "Loại", 95, false),
+                ("SoCuon_ExcelMoi", "Số cuộn", 85, true),
+                ("ChieuDai1Cuon_ExcelMoi", "Chiều dài 1C", 150, true),
+                ("TonThucTe_ExcelMoi", "Tồn thực tế", 125, true),
+                ("DatTruoc_ExcelMoi", "Đặt trước", 125, true),
+                ("KhaDung_ExcelMoi", "Tồn khả dụng", 125, true),
+                ("SoDau_ExcelMoi", "Số đầu", 90, true),
+                ("SoCuoi_ExcelMoi", "Số cuối", 90, true)
+            };
+            foreach (var (name, header, width, numeric) in columns)
+            {
+                var column = grvShowBaoCao.Columns[grvShowBaoCao.Columns.Add(name, header)];
+                column.Width = width;
+                if (!numeric) continue;
+                column.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+                column.DefaultCellStyle.Format = dinhDangSo;
+                column.DefaultCellStyle.FormatProvider = dinhDangViet;
+            }
             grvShowBaoCao.Columns.Add(new DataGridViewButtonColumn
             {
-                Name = "LichSu", HeaderText = "Lịch sử", Text = "Xem", UseColumnTextForButtonValue = true
+                Name = CotXemTonKho, HeaderText = "Thao tác", Text = "Xem",
+                UseColumnTextForButtonValue = true, Width = 75
             });
-            foreach (var item in result.Dong)
+
+            foreach (var (item, nguon) in rows)
             {
-                var displayReservation = item.DatCho.ToString("N0") + " " + item.DonViDatCho
-                    + (item.DatChoDuKien && item.DatCho != 0 ? " (dự kiến)" : "");
-                int index = grvShowBaoCao.Rows.Add(item.TenSanPham, item.MaHienThi,
-                    item.SoLuong, item.Kieu == BCTonKho_KieuDong.CuonChan ? "Cuộn chẵn" : "Cuộn lẻ",
-                    item.SoDau.HasValue ? item.SoDau.Value.ToString("N0") : "",
-                    item.SoCuoi.HasValue ? item.SoCuoi.Value.ToString("N0") : "",
-                    item.ChieuDaiBanDau.HasValue ? item.ChieuDaiBanDau.Value.ToString("N0") : "",
-                    item.ChieuDaiConLai.HasValue ? item.ChieuDaiConLai.Value.ToString("N0") : "",
-                    displayReservation, "Xem");
+                bool cuonChan = item.Loai == "Cuộn";
+                decimal datTruoc = item.ChieuDaiTonDatTruoc;
+                if (cuonChan)
+                    datTruoc = nguon is BCTonKho_DongTon timKiem
+                        ? timKiem.DatCho
+                        : item.ChieuDaiMoiCuon > 0 ? datTruoc / item.ChieuDaiMoiCuon : 0;
+
+                int index = grvShowBaoCao.Rows.Add(item.TenSanPham, item.MaSanPham, item.DonVi,
+                    item.LotHienThiBang, cuonChan ? "Cuộn chẵn" : "Cuộn lẻ", item.SoCuon,
+                    item.ThieuChieuDaiHienTai ? (long?)null : item.ChieuDaiMoiCuon,
+                    item.ThieuChieuDaiHienTai ? (decimal?)null : item.ChieuDaiTonThucTe,
+                    datTruoc,
+                    item.ThieuChieuDaiHienTai ? (decimal?)null : item.ChieuDaiTonKhaDung,
+                    item.SoDau, item.SoCuoi);
                 var gridRow = grvShowBaoCao.Rows[index];
-                gridRow.Tag = item; // ID nguồn để sau này phát triển nút Xem.
+                gridRow.Tag = nguon;
+                gridRow.Cells["DatTruoc_ExcelMoi"].Style.Format = dinhDangSo + (cuonChan ? "' cuộn'" : "' m'");
                 if (item.LaBatThuong)
                 {
                     var danger = System.Drawing.Color.FromArgb(177, 48, 59);
@@ -192,7 +233,7 @@ namespace DG_TonKhoBTP_v02.UI
                     gridRow.DefaultCellStyle.ForeColor = System.Drawing.Color.White;
                     gridRow.DefaultCellStyle.SelectionBackColor = danger;
                     gridRow.DefaultCellStyle.SelectionForeColor = System.Drawing.Color.White;
-                    foreach (DataGridViewCell cell in gridRow.Cells) cell.ToolTipText = item.LyDoBatThuong;
+                    foreach (DataGridViewCell cell in gridRow.Cells) cell.ToolTipText = item.CanhBao;
                 }
             }
             _showingInventory = true;
@@ -621,13 +662,12 @@ namespace DG_TonKhoBTP_v02.UI
             int version = _tonKhoVersion;
             try
             {
-                if (!flgExcel)
-                {
-                    // Vô hiệu truy vấn tìm kiếm tồn cũ mà không gọi lại hàm tính tồn cũ.
-                    CancelTonKhoRequest();
-                    version = _tonKhoVersion;
-                    _tonKhoSelection = null;
-                }
+                CancelTonKhoRequest();
+                _tonKhoSelection = null;
+                // Giữ bảng hiện tại trong lúc tải báo cáo hoặc xuất Excel.
+                _tonKhoSearchHelper?.Reset(notifyCleared: false);
+                version = _tonKhoVersion;
+
                 var ds = await WaitingHelper.RunWithWaiting(
                     () => Task.Run(() =>
                         BC_TonKho_DB.LayTonKhoExcelMoi(kemChiTiet: !flgExcel)
@@ -725,91 +765,7 @@ namespace DG_TonKhoBTP_v02.UI
 
                 }
 
-                // Hủy kết quả tìm kiếm tồn cũ trước khi chuyển sang báo cáo mới.
-                // Dùng bộ trạng thái đang có ở UC, không dùng lại đường tính tồn cũ.
-
-                grvShowBaoCao.DataSource = null;
-                grvShowBaoCao.Rows.Clear();
-                grvShowBaoCao.Columns.Clear();
-                grvShowBaoCao.AutoGenerateColumns = false;
-                grvShowBaoCao.AllowUserToAddRows = false;
-                grvShowBaoCao.ReadOnly = true;
-
-                grvShowBaoCao.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None;
-
-                // ===== CẤU HÌNH CHIỀU CAO DÒNG =====
-
-                // Không tự động điều chỉnh chiều cao dòng
-                grvShowBaoCao.AutoSizeRowsMode =
-                    DataGridViewAutoSizeRowsMode.None;
-
-                // Chiều cao các dòng dữ liệu: 35px
-                grvShowBaoCao.RowTemplate.Height = 35;
-
-                // Không cho tự động thay đổi chiều cao tiêu đề
-                grvShowBaoCao.ColumnHeadersHeightSizeMode =
-                    DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
-
-                // Chiều cao tiêu đề: 40px
-                grvShowBaoCao.ColumnHeadersHeight = 40;
-
-                grvShowBaoCao.Columns.Add("TenSP_ExcelMoi", "Tên sản phẩm");
-                grvShowBaoCao.Columns.Add("MaSP_ExcelMoi", "Mã");
-                grvShowBaoCao.Columns.Add("DonVi_ExcelMoi", "Đvị");
-                grvShowBaoCao.Columns.Add("MaBinLot_ExcelMoi", "LOT");
-                grvShowBaoCao.Columns.Add("Loai_ExcelMoi", "Loại");
-                grvShowBaoCao.Columns.Add("SoCuon_ExcelMoi", "Số cuộn");
-                grvShowBaoCao.Columns.Add("ChieuDai1Cuon_ExcelMoi", "Chiều dài 1c");
-                grvShowBaoCao.Columns.Add("TonThucTe_ExcelMoi", "Tồn kho thực");
-                grvShowBaoCao.Columns.Add("DatTruoc_ExcelMoi", "Đặt trước");
-                grvShowBaoCao.Columns.Add("KhaDung_ExcelMoi", "Tồn khả dụng");
-                grvShowBaoCao.Columns.Add("SoDau_ExcelMoi", "Số đầu");
-                grvShowBaoCao.Columns.Add("SoCuoi_ExcelMoi", "Số cuối");
-                grvShowBaoCao.Columns.Add(new DataGridViewButtonColumn {
-                    Name = "Button_ExcelMoi", HeaderText = "Thao tác", Text = "Xem",
-                    UseColumnTextForButtonValue = true
-                });
-
-
-                // ===== THIẾT LẬP BỀ RỘNG CÁC CỘT =====
-
-                grvShowBaoCao.Columns["TenSP_ExcelMoi"].Width = 250;
-                grvShowBaoCao.Columns["MaSP_ExcelMoi"].Width = 130;
-                grvShowBaoCao.Columns["DonVi_ExcelMoi"].Width = 65;
-                grvShowBaoCao.Columns["MaBinLot_ExcelMoi"].Width = 190;
-                grvShowBaoCao.Columns["Loai_ExcelMoi"].Width = 75;
-
-                grvShowBaoCao.Columns["SoCuon_ExcelMoi"].Width = 85;
-                grvShowBaoCao.Columns["ChieuDai1Cuon_ExcelMoi"].Width = 120;
-
-                grvShowBaoCao.Columns["TonThucTe_ExcelMoi"].Width = 125;
-                grvShowBaoCao.Columns["DatTruoc_ExcelMoi"].Width = 125;
-                grvShowBaoCao.Columns["KhaDung_ExcelMoi"].Width = 125;
-
-                grvShowBaoCao.Columns["SoDau_ExcelMoi"].Width = 90;
-                grvShowBaoCao.Columns["SoCuoi_ExcelMoi"].Width = 90;
-
-                grvShowBaoCao.Columns["Button_ExcelMoi"].Width = 75;
-
-                foreach (var item in ds)
-                {
-                    var i = grvShowBaoCao.Rows.Add(item.TenSanPham, item.MaSanPham, item.DonVi,
-                        item.LotHienThiBang, item.Loai, item.SoCuon.ToString("N0"), item.ChieuDaiMoiCuon.ToString("N0"),
-                        item.ChieuDaiTonThucTe.ToString("N0"),
-                        item.ChieuDaiTonDatTruoc.ToString("N0"),
-                        item.ChieuDaiTonKhaDung.ToString("N0"),
-                        item.SoDau?.ToString("N0") ?? "", item.SoCuoi?.ToString("N0") ?? "", "Xem");
-                    var row = grvShowBaoCao.Rows[i];
-                    row.Tag = item;
-                    if (item.LaBatThuong)
-                    {
-                        row.DefaultCellStyle.BackColor = System.Drawing.Color.MistyRose;
-                        row.DefaultCellStyle.SelectionBackColor = System.Drawing.Color.LightCoral;
-                        foreach (DataGridViewCell cell in row.Cells)
-                            cell.ToolTipText = item.CanhBao;
-                    }
-                }
-                _showingInventory = true;
+                RenderTonKhoGrid(ds.Select(item => (item, (object)item)));
             }
             catch (Exception ex)
             {
@@ -827,12 +783,24 @@ namespace DG_TonKhoBTP_v02.UI
         {
             if (e.RowIndex < 0 || e.ColumnIndex < 0 ||
                 e.RowIndex >= grvShowBaoCao.Rows.Count || e.ColumnIndex >= grvShowBaoCao.Columns.Count ||
-                grvShowBaoCao.Columns[e.ColumnIndex].Name != "Button_ExcelMoi" ||
-                !(grvShowBaoCao.Rows[e.RowIndex].Tag is BCTonKho_ExcelDong dong) || dong.ChiTiet == null)
+                grvShowBaoCao.Columns[e.ColumnIndex].Name != CotXemTonKho)
                 return;
 
-            using var detail = new Frm_ChiTietDongTonKho(dong);
-            detail.ShowDialog(FindForm());
+            var row = grvShowBaoCao.Rows[e.RowIndex];
+            try
+            {
+                var dong = row.Tag is BCTonKho_DongTon selected
+                    ? BC_TonKho_DB.LayChiTietDongTimKiem(selected)
+                    : row.Tag as BCTonKho_ExcelDong;
+                if (dong?.ChiTiet == null) return;
+                using var detail = new Frm_ChiTietTonKho(dong);
+                detail.ShowDialog(FindForm());
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Không thể mở chi tiết tồn kho: " + ex.Message,
+                    "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private async void btnXemTonKho_Click(object sender, EventArgs e)

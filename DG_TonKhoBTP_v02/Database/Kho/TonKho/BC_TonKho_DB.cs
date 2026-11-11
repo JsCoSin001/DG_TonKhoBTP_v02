@@ -93,6 +93,22 @@ WHERE n.TonCuonLe_ID IS NOT NULL AND k.TrangThai='ACTIVE'
   AND NOT EXISTS (SELECT 1 FROM LichSuCat lc WHERE lc.KeHoachCatChiTiet_ID=d.id)
 GROUP BY n.TonCuonLe_ID, kh.DanhSachMaSP_ID;";
 
+        private const string PendingPartialSegmentsSourceSql = @"
+FROM KeHoachCatNhom n
+JOIN KeHoachHang kh ON kh.id=n.KeHoachHang_ID
+JOIN KeHoach k ON k.id=kh.KeHoach_ID
+JOIN KeHoachCatChiTiet ct ON ct.KeHoachCatNhom_ID=n.id
+WHERE n.TonCuonLe_ID IS NOT NULL AND k.TrangThai='ACTIVE'
+  AND (@cuonId IS NULL OR n.TonCuonLe_ID=@cuonId)
+  AND NOT EXISTS (SELECT 1 FROM LichSuCat ls
+                  WHERE ls.KeHoachCatChiTiet_ID=ct.id)";
+
+        private const string PendingPartialSegmentsSql = @"
+SELECT n.TonCuonLe_ID, kh.DanhSachMaSP_ID,
+       CASE WHEN typeof(ct.ChieuDaiCanCat) IN ('integer','real') THEN ct.ChieuDaiCanCat END,
+       k.id, COALESCE(k.MaKeHoach,''), ct.id" + PendingPartialSegmentsSourceSql + @"
+ORDER BY ct.id;";
+
         private const string SuggestionSql = @"
 SELECT 1 AS Loai, tp.id AS Id, tp.MaBin AS GiaTri
 FROM TTThanhPham tp JOIN TTNhapKhoTP nk ON nk.TTThanhPham_ID=tp.id
@@ -111,7 +127,8 @@ WHERE tp.NhapKho=1 AND tp.Temp=0 AND cl.MaCuon LIKE @pattern ESCAPE '\'
 ORDER BY Loai, GiaTri;";
 
         private const string ProductIdsSql = @"
-SELECT DISTINCT tp.DanhSachSP_ID FROM TTThanhPham tp
+SELECT DISTINCT tp.DanhSachSP_ID, COALESCE(sp.Ten,''), COALESCE(sp.Ma,''), COALESCE(sp.DonVi,'')
+FROM TTThanhPham tp
 JOIN TTNhapKhoTP nk ON nk.TTThanhPham_ID=tp.id
 JOIN DanhSachMaSP sp ON sp.id=tp.DanhSachSP_ID
 WHERE tp.NhapKho=1 AND tp.Temp=0
@@ -206,17 +223,27 @@ WHERE tp.NhapKho=1 AND tp.Temp=0
         {
             if (loai != BCTonKho_LoaiTimKiem.SanPham && !id.HasValue)
                 return new List<BCTonKho_DongTon>();
-            var productIds = new List<long>();
+            var products = new List<(long Id, string Ten, string Ma, string DonVi)>();
             using (var cmd = Make(conn, tx, ProductIdsSql, ("@loai", (int)loai),
                 ("@id", (object)id ?? DBNull.Value), ("@name", giaTri ?? "")))
             using (var rd = cmd.ExecuteReader())
-                while (rd.Read()) { ct.ThrowIfCancellationRequested(); productIds.Add(rd.GetInt64(0)); }
+                while (rd.Read())
+                {
+                    ct.ThrowIfCancellationRequested();
+                    products.Add((rd.GetInt64(0), String(rd, 1), String(rd, 2), String(rd, 3)));
+                }
             var rows = new List<BCTonKho_DongTon>();
-            foreach (var productId in productIds)
+            foreach (var product in products)
             {
                 ct.ThrowIfCancellationRequested();
-                var group = ReadProduct(conn, tx, productId, ct);
-                ApplyReservations(conn, tx, productId, group, ct);
+                var group = ReadProduct(conn, tx, product.Id, ct);
+                ApplyReservations(conn, tx, product.Id, group, ct);
+                foreach (var row in group)
+                {
+                    row.TenSanPham = product.Ten;
+                    row.MaSanPham = product.Ma;
+                    row.DonVi = product.DonVi;
+                }
                 rows.AddRange(group);
             }
             if (loai == BCTonKho_LoaiTimKiem.Bin)
@@ -360,7 +387,8 @@ WHERE tp.NhapKho=1 AND tp.Temp=0
                 while (rd.Read())
                 {
                     ct.ThrowIfCancellationRequested();
-                    long clId = Number(rd, 0), meters = Number(rd, 1);
+                    long clId = Number(rd, 0);
+                    decimal meters = Convert.ToDecimal(rd[1]);
                     var item = rows.FirstOrDefault(x => x.TonCuonLeId == clId);
                     if (item == null) continue;
                     item.DatCho = meters;
@@ -389,7 +417,8 @@ SELECT sp.id, COALESCE(sp.Ten_KhongDau,''), COALESCE(sp.Ma,''), COALESCE(sp.DonV
                  WHERE ls.TTCuonDay_ID=cd.id),0),
        COALESCE((SELECT COUNT(*) FROM LichSuCat ls
                  JOIN TonCuonLe cl ON cl.id=ls.TonCuonLe_ID
-                 WHERE ls.LoaiNguon='CUON_CHAN' AND cl.TTCuonDay_ID=cd.id),0)
+                 WHERE ls.LoaiNguon='CUON_CHAN' AND cl.TTCuonDay_ID=cd.id),0),
+       COALESCE(nk.NgayNhapKho,'')
 FROM TTCuonDay cd
 JOIN TTNhapKhoTP nk ON nk.id=cd.ThongTinNhapKho_ID
 JOIN TTThanhPham tp ON tp.id=nk.TTThanhPham_ID
@@ -436,7 +465,7 @@ ORDER BY cd.id;";
                         }
                         dong.ChiTiet?.ThemNguon(new BCTonKho_NguonTon
                         {
-                            TTCuonDayId = cdId, MaBin = maBin, SoCuonNhap = soCuon,
+                            TTCuonDayId = cdId, MaBin = maBin, NgayNhapKho = String(rd, 10), SoCuonNhap = soCuon,
                             SoCuonDaLay = daLay, SoCuonChuyenLe = daChuyenLe, SoCuonGop = soCuonGop
                         });
                     }
@@ -445,7 +474,8 @@ ORDER BY cd.id;";
 SELECT cl.id, sp.id, COALESCE(sp.Ten_KhongDau,''), COALESCE(sp.Ma,''),
        COALESCE(sp.DonVi,''), cl.SoDau, cl.SoCuoi, COALESCE(cl.TrangThai,''),
        cl.TTCuonDay_ID, cd.id, nk.id, tpNguon.id, tp.id,
-       cd.SoDau, cd.SoCuoi, COALESCE(cl.MaCuon,''), tpNguon.NhapKho, tpNguon.Temp
+       cd.SoDau, cd.SoCuoi, COALESCE(cl.MaCuon,''), tpNguon.NhapKho, tpNguon.Temp,
+       COALESCE(tpNguon.MaBin, tp.MaBin, '')
 FROM TonCuonLe cl
 JOIN TTThanhPham tp ON tp.id=cl.TTThanhPham_ID
 JOIN DanhSachMaSP sp ON sp.id=tp.DanhSachSP_ID
@@ -467,8 +497,10 @@ ORDER BY cl.id;";
                             MaSanPham = Convert.ToString(rd[3]) ?? "",
                             DonVi = Convert.ToString(rd[4]) ?? "", Loai = "Lẻ",
                             MaBinLot = Convert.ToString(rd[15]) ?? "",
+                            LotNguon = String(rd, 18),
                             SoDau = dau, SoCuoi = cuoi,
                             SoCuon = 1, // Mỗi TonCuonLe là đúng một cuộn lẻ.
+                            ThieuChieuDaiHienTai = !dau.HasValue || !cuoi.HasValue,
                             ChiTiet = kemChiTiet ? new BCTonKho_ChiTietDong() : null
                         };
                         if (dau.HasValue && cuoi.HasValue)
@@ -516,6 +548,7 @@ WHERE tp.NhapKho=1 AND tp.Temp=0
                             MaSanPham = Convert.ToString(rd[2]) ?? "",
                             DonVi = Convert.ToString(rd[3]) ?? "", Loai = "Lẻ",
                             MaBinLot = Convert.ToString(rd[5]) ?? "",
+                            ThieuChieuDaiHienTai = true,
                             ChiTiet = kemChiTiet ? new BCTonKho_ChiTietDong() : null
                         };
                         dong.ThemCanhBao($"TTCuonDay #{Convert.ToInt64(rd[4])}: thiếu TonCuonLe; không đủ dữ liệu xác định tồn thực tế.");
@@ -578,42 +611,42 @@ SELECT NhuCau.*, CanLay + CanCat FROM NhuCau;";
                         }
                     }
 
+                // Giữ tổng theo SUM của SQLite cho cả dữ liệu cũ có chiều dài thập phân.
                 const string sqlDatLe = @"
 SELECT n.TonCuonLe_ID, kh.DanhSachMaSP_ID, COALESCE(SUM(ct.ChieuDaiCanCat),0),
-       k.id, COALESCE(k.MaKeHoach,'')
-FROM KeHoachCatNhom n
-JOIN KeHoachHang kh ON kh.id=n.KeHoachHang_ID
-JOIN KeHoach k ON k.id=kh.KeHoach_ID
-JOIN KeHoachCatChiTiet ct ON ct.KeHoachCatNhom_ID=n.id
-WHERE n.TonCuonLe_ID IS NOT NULL AND k.TrangThai='ACTIVE'
-  AND NOT EXISTS (SELECT 1 FROM LichSuCat ls
-                  WHERE ls.KeHoachCatChiTiet_ID=ct.id)
+       k.id, COALESCE(k.MaKeHoach,'')" + PendingPartialSegmentsSourceSql + @"
 GROUP BY n.TonCuonLe_ID, kh.DanhSachMaSP_ID, k.id;";
                 using (var cmd = new SQLiteCommand(sqlDatLe, conn, tx))
-                using (var rd = cmd.ExecuteReader())
-                    while (rd.Read())
-                    {
-                        long clId = Convert.ToInt64(rd[0]);
-                        long spId = Convert.ToInt64(rd[1]);
-                        decimal datTruoc = Convert.ToDecimal(rd[2]);
-                        if (!cuonLeTheoId.TryGetValue(clId, out var dong))
-                            throw new InvalidOperationException($"Kế hoạch còn đặt trước cho TonCuonLe #{clId}, nhưng cuộn không tìm thấy trong nguồn nhập kho hợp lệ.");
-                        if (dong.DanhSachMaSPId != spId)
-                            throw new InvalidOperationException($"TonCuonLe #{clId}: sản phẩm ở kế hoạch không khớp sản phẩm của cuộn.");
-                        dong.ChieuDaiTonDatTruoc += datTruoc;
-                        if (datTruoc != 0)
-                            dong.ChiTiet?.ThemDatTruoc(new BCTonKho_DatTruocKeHoach
-                            {
-                                KeHoachId = Number(rd, 3), MaKeHoach = String(rd, 4), SoMet = datTruoc
-                            });
-                    }
+                {
+                    cmd.Parameters.AddWithValue("@cuonId", DBNull.Value);
+                    using (var rd = cmd.ExecuteReader())
+                        while (rd.Read())
+                        {
+                            long clId = Convert.ToInt64(rd[0]);
+                            long spId = Convert.ToInt64(rd[1]);
+                            decimal datTruoc = Convert.ToDecimal(rd[2]);
+                            if (!cuonLeTheoId.TryGetValue(clId, out var dong))
+                                throw new InvalidOperationException($"Kế hoạch còn đặt trước cho TonCuonLe #{clId}, nhưng cuộn không tìm thấy trong nguồn nhập kho hợp lệ.");
+                            if (dong.DanhSachMaSPId != spId)
+                                throw new InvalidOperationException($"TonCuonLe #{clId}: sản phẩm ở kế hoạch không khớp sản phẩm của cuộn.");
+                            dong.ChieuDaiTonDatTruoc += datTruoc;
+                            if (datTruoc != 0)
+                                dong.ChiTiet?.ThemDatTruoc(new BCTonKho_DatTruocKeHoach
+                                {
+                                    KeHoachId = Number(rd, 3), MaKeHoach = String(rd, 4), SoMet = datTruoc
+                                });
+                        }
+                }
 
                 foreach (var dong in cuonLeTheoId.Values)
                     if (dong.ChieuDaiTonDatTruoc < 0)
                         dong.ThemCanhBao($"TonCuonLe #{dong.TonCuonLeId}: chiều dài đặt trước âm.");
 
                 if (kemChiTiet)
+                {
+                    DocDoanDatTruoc(conn, tx, cuonLeTheoId);
                     DocLichSuCat(conn, tx, cuonTheoQuyCach.Values, cuonLeTheoId);
+                }
 
                 tx.Commit();
             }
@@ -630,6 +663,71 @@ GROUP BY n.TonCuonLe_ID, kh.DanhSachMaSP_ID, k.id;";
                 if (dong.ChieuDaiTonKhaDung < 0)
                     dong.ThemCanhBao("Chiều dài đặt trước lớn hơn chiều dài thực tế.");
             return ketQua;
+        }
+
+        // Dòng tìm kiếm theo LOT/nguồn/1 cuộn có phạm vi khác báo cáo gộp quy cách.
+        // Tái sử dụng các số liệu mà luồng tìm kiếm đã tính, bổ sung lịch sử đúng ID.
+        internal static BCTonKho_ExcelDong LayChiTietDongTimKiem(BCTonKho_DongTon item)
+        {
+            if (item == null) throw new ArgumentNullException(nameof(item));
+            bool cuonChan = item.Kieu == BCTonKho_KieuDong.CuonChan;
+            var dong = item.TaoDongBaoCao();
+            var chiTiet = new BCTonKho_ChiTietDong(cuonChan ? dong.ChieuDaiMoiCuon : 0);
+            dong.ChiTiet = chiTiet;
+            using (var conn = DB_Base.OpenConnection())
+            using (var tx = conn.BeginTransaction(IsolationLevel.ReadCommitted))
+            {
+                if (cuonChan && item.TTCuonDayId.HasValue)
+                {
+                    long sourceId = item.TTCuonDayId.Value;
+                    dong.TTCuonDayIds.Add(sourceId);
+                    using (var cmd = Make(conn, tx, @"
+SELECT COALESCE(cd.SoCuon,0),
+       COALESCE((SELECT SUM(ls.SoLuong) FROM LichSuLayCuon ls WHERE ls.TTCuonDay_ID=cd.id),0),
+       (SELECT COUNT(DISTINCT lc.TonCuonLe_ID) FROM LichSuCat lc
+        JOIN TonCuonLe cl ON cl.id=lc.TonCuonLe_ID
+        WHERE lc.LoaiNguon='CUON_CHAN' AND cl.TTCuonDay_ID=cd.id),
+       COALESCE(nk.NgayNhapKho,'')
+FROM TTCuonDay cd LEFT JOIN TTNhapKhoTP nk ON nk.id=cd.ThongTinNhapKho_ID
+WHERE cd.id=@id;", ("@id", sourceId)))
+                    using (var rd = cmd.ExecuteReader())
+                        if (rd.Read()) chiTiet.ThemNguon(new BCTonKho_NguonTon
+                        {
+                            TTCuonDayId = sourceId, MaBin = item.MaBinGoc,
+                            SoCuonNhap = Number(rd, 0), SoCuonDaLay = Number(rd, 1),
+                            SoCuonChuyenLe = Number(rd, 2), NgayNhapKho = String(rd, 3),
+                            SoCuonGop = Math.Max(0, item.SoLuong)
+                        });
+                }
+                var cuonLeTheoId = new Dictionary<long, BCTonKho_ExcelDong>();
+                if (!cuonChan && item.TonCuonLeId.HasValue)
+                {
+                    cuonLeTheoId.Add(item.TonCuonLeId.Value, dong);
+                    DocDoanDatTruoc(conn, tx, cuonLeTheoId, item.TonCuonLeId);
+                }
+                DocLichSuCat(conn, tx,
+                    cuonChan ? new[] { dong } : Array.Empty<BCTonKho_ExcelDong>(), cuonLeTheoId);
+                tx.Commit();
+            }
+            return dong;
+        }
+
+        private static void DocDoanDatTruoc(SQLiteConnection conn, SQLiteTransaction tx,
+            Dictionary<long, BCTonKho_ExcelDong> cuonLeTheoId, long? cuonId = null)
+        {
+            if (cuonLeTheoId.Count == 0) return;
+            using var cmd = Make(conn, tx, PendingPartialSegmentsSql, ("@cuonId", (object?)cuonId ?? DBNull.Value));
+            using var rd = cmd.ExecuteReader();
+            while (rd.Read())
+            {
+                if (!cuonLeTheoId.TryGetValue(Number(rd, 0), out var dong) || dong.DanhSachMaSPId != Number(rd, 1))
+                    continue;
+                dong.ChiTiet?.ThemDoanDatTruoc(new BCTonKho_DoanDatTruoc
+                {
+                    ChieuDai = rd.IsDBNull(2) ? (decimal?)null : Convert.ToDecimal(rd[2]),
+                    KeHoachId = Number(rd, 3), MaKeHoach = String(rd, 4), KeHoachCatChiTietId = Number(rd, 5)
+                });
+            }
         }
 
         private static void DocLichSuCat(SQLiteConnection conn, SQLiteTransaction tx,

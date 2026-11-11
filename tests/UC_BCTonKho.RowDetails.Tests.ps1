@@ -144,6 +144,28 @@ VALUES(209,11,2,200),(210,18,0,200),(211,19,1,200);
         Assert-Equal $whole.ChiTiet.DatTruoc[0].SoCuonDanhDeCat 1 'Actual pending cut groups'
         Assert-Equal $whole.ChiTiet.DatTruoc[0].SoCuonConPhaiLay 1 'Plan explanation reconciles the rounded total'
     }
+
+    Test-Fixture 'PendingSegmentsPreserveLegacyLengthsAndTotals' {
+        Invoke-FixtureSql @"
+INSERT INTO KeHoachCatChiTiet(id,KeHoachCatNhom_ID,ChieuDaiCanCat)
+VALUES(64,53,10.25),(65,53,20.25),(66,53,'unknown');
+"@
+        $reel = Read-Report | Where-Object TonCuonLeId -eq 303
+        $excel = Read-Report $false | Where-Object TonCuonLeId -eq 303
+        $kind = $assembly.GetType('DG_TonKhoBTP_v02.Models.Kho.TonKho.BCTonKho_LoaiTimKiem', $true)
+        $search = $db.GetMethod('LayChiTietTonAsync', [Reflection.BindingFlags]'Static,NonPublic')
+        $task = $search.Invoke($null, [object[]]@([Enum]::ToObject($kind, 3), [long]303,
+            'QA-DIRECT', $false, [Threading.CancellationToken]::None))
+        $searched = $task.GetAwaiter().GetResult().Dong[0]
+        Assert-Equal $reel.ChieuDaiTonDatTruoc 180.5 'Report keeps the SQLite total'
+        Assert-Equal $excel.ChieuDaiTonDatTruoc 180.5 'Excel keeps the SQLite total'
+        Assert-Equal $searched.DatCho 180.5 'Search keeps the same fractional meter total'
+        $segments = $reel.ChiTiet.DoanDatTruoc
+        Assert-Equal ($segments.KeHoachCatChiTietId -join ',') '63,64,65,66' 'Each pending segment is retained'
+        Assert-Equal $segments[1].ChieuDai 10.25 'First fractional segment'
+        Assert-Equal $segments[2].ChieuDai 20.25 'Second fractional segment'
+        Assert-Equal $segments[3].ChieuDai $null 'Unreadable length stays unknown'
+    }
     Test-Fixture 'ReportProjectionParity' {
         $columns = 'MaSanPham','Loai','MaBinLot','SoCuon','ChieuDaiMoiCuon','ChieuDaiTonThucTe',
             'ChieuDaiTonDatTruoc','ChieuDaiTonKhaDung','SoDau','SoCuoi','CanhBao'
@@ -263,7 +285,7 @@ function Invoke-RowButton($Grid, $Row, [string]$Column, [scriptblock]$Inspect = 
     $timer.Interval = 25
     $timer.add_Tick({
         $detail = [Windows.Forms.Application]::OpenForms |
-            Where-Object { $_.GetType().Name -eq 'Frm_ChiTietDongTonKho' } | Select-Object -First 1
+            Where-Object { $_.GetType().Name -like 'Frm_ChiTiet*TonKho' } | Select-Object -First 1
         if ($null -eq $detail) { return }
         $state.Opened = $true
         try { $null = $Inspect.Invoke($detail) }
@@ -316,6 +338,46 @@ public static class InventoryReportTestDialogs
     }
 }
 "@
+    Test-Fixture 'ReportButtonClearsSearchAndCancelsSuggestions' {
+        $hostForm = [Windows.Forms.Form]::new()
+        $hostForm.ShowInTaskbar = $false
+        try {
+            $control = [Activator]::CreateInstance($assembly.GetType('DG_TonKhoBTP_v02.UI.UC_BCTonKho', $true))
+            $hostForm.Controls.Add($control)
+            $control.Dock = [Windows.Forms.DockStyle]::Fill
+            $hostForm.Show()
+            $grid = Get-UiControl $control 'grvShowBaoCao'
+            $search = Get-UiControl $control 'btnTimKiem'
+            $report = Get-UiControl $control 'btnXemTonKho'
+            $textUpdate = $search.GetType().GetMethod('OnTextUpdate', [Reflection.BindingFlags]'Instance,NonPublic')
+
+            $null = $search.Focus()
+            $search.Text = 'QA-B'
+            $null = $textUpdate.Invoke($search, [object[]]@([EventArgs]::Empty))
+            Wait-Ui { $search.Items.Count -gt 0 } 'Typing should load the first suggestions'
+
+            $search.Text = '265081'
+            $null = $textUpdate.Invoke($search, [object[]]@([EventArgs]::Empty))
+            $report.PerformClick()
+            Assert-Equal $search.Text '' 'Report clears the current search text'
+            Assert-Equal $search.Items.Count 0 'Report clears the existing suggestions'
+            Assert-Equal $search.SelectedIndex -1 'Report clears the selection'
+            Assert-Equal $search.DataSource $null 'Report clears the suggestion source'
+            Assert-Equal $search.DroppedDown $false 'Report closes the dropdown'
+            Wait-Ui { $report.Enabled -and $grid.Rows.Count -gt 0 } 'Report still loads and renders its rows'
+
+            $settle = [Diagnostics.Stopwatch]::StartNew()
+            Wait-Ui { $settle.ElapsedMilliseconds -ge 600 } 'Wait for the earlier suggestion debounce to elapse'
+            Assert-Equal $search.Items.Count 0 'The cancelled search must not restore old suggestions'
+            Assert-Equal $search.DroppedDown $false 'The cancelled search must not reopen the dropdown'
+
+            $null = $search.Focus()
+            $search.Text = 'QA-B'
+            $null = $textUpdate.Invoke($search, [object[]]@([EventArgs]::Empty))
+            Wait-Ui { $search.Items.Count -gt 0 } 'New text still produces suggestions after showing the report'
+        } finally { $hostForm.Dispose() }
+    }
+
     Test-Fixture 'ViewButtonExplainsSortedReport' {
         Set-WholePlans
         Set-PartialPlans
@@ -325,6 +387,7 @@ INSERT INTO TTThanhPham(id,DanhSachSP_ID,MaBin) VALUES(110,9,'QA-MISSING');
 INSERT INTO TTNhapKhoTP(id,TTThanhPham_ID) VALUES(20,110);
 INSERT INTO TTCuonDay(id,ThongTinNhapKho_ID,SoCuon,ChieuDai_1cuon,SoDau,SoCuoi)
 VALUES(212,20,1,180,0,180);
+INSERT INTO KeHoachCatChiTiet(id,KeHoachCatNhom_ID,ChieuDaiCanCat) VALUES(67,52,5),(68,52,7);
 "@
         $hostForm = New-Object Windows.Forms.Form
         $hostForm.Width = 1400
@@ -338,29 +401,26 @@ VALUES(212,20,1,180,0,180);
             $grid = Get-UiControl $control 'grvShowBaoCao'
             (Get-UiControl $control 'btnXemTonKho').PerformClick()
             Wait-Ui { $grid.Columns.Contains('Button_ExcelMoi') -and $grid.Rows.Count -gt 0 } 'Report button did not render inventory rows'
+            $headers = 'Tên sản phẩm|Mã|Đvị|LOT / Mã cuộn|Loại|Số cuộn|Chiều dài 1C|Tồn thực tế|Đặt trước|Tồn khả dụng|Số đầu|Số cuối|Thao tác'
+            Assert-Equal ($grid.Columns.HeaderText -join '|') $headers 'Report uses the agreed columns'
+            $reportWidths = $grid.Columns.Width -join ','
+            $reportHeights = "$($grid.ColumnHeadersHeight)/$($grid.Rows[0].Height)"
             $grid.Sort($grid.Columns['MaSP_ExcelMoi'], [ComponentModel.ListSortDirection]::Descending)
             $row = $grid.Rows | Where-Object { $_.Tag.MaSanPham -eq 'QA-P1' -and $_.Tag.Loai -eq 'Cuộn' -and $_.Tag.ChieuDaiMoiCuon -eq 200 }
             Assert-Equal $row.Cells['MaBinLot_ExcelMoi'].Value 'Nhiều LOT' 'Grouped LOT on the report row'
+            Assert-Equal $row.Cells['DatTruoc_ExcelMoi'].FormattedValue '2 cuộn' 'Report reservation uses whole reel count'
             $opened = Invoke-RowButton $grid $row 'Button_ExcelMoi' {
                 param($detail)
-                $summary = Get-UiControl $detail 'txtTongHop'
-                $lots = Get-UiControl $detail 'grvLotGop'
-                $history = Get-UiControl $detail 'grvLichSuCat'
-                $plans = Get-UiControl $detail 'grvDatTruoc'
-                Assert-Equal ($summary.Text -like '*QA-P1*') $true 'Sorted row opens correct product'
-                Assert-Equal $summary.Focused $false 'Summary opens without the text box stealing focus'
-                Assert-Equal ($null -eq $lots.CurrentCell) $true 'Grouped detail awaits an explicit LOT choice'
-                Assert-Equal ($summary.Text -match '1[., ]800.*400.*1[., ]400') $true 'Summary stock, reserve and available'
+                $lots = Get-UiControl $detail 'dgvChiTiet'
+                Assert-Equal (Get-UiControl $detail 'tbxMaSP').Text 'QA-P1' 'Sorted row opens correct product'
+                Assert-Equal ((Get-UiControl $detail 'tbxTonThucTe').Text -replace '[., ]','') '1800' 'Summary stock'
+                Assert-Equal (Get-UiControl $detail 'tbxDatTruoc').Text '400' 'Summary reservation'
+                Assert-Equal ((Get-UiControl $detail 'tbxTonKhaDung').Text -replace '[., ]','') '1400' 'Summary availability'
                 $visibleLots = $lots.Rows | ForEach-Object { $_.Cells[0].Value }
                 Assert-Equal ($visibleLots -join '|') 'E1-265081/5-03-00|QA-B' 'Visible contributors'
                 Assert-Equal (($lots.Rows | ForEach-Object { $_.Cells[1].Value }) -join ',') '6,3' 'Visible contributing counts'
-                $lots.CurrentCell = $lots.Rows[0].Cells[0]
-                Assert-Equal $history.Rows.Count 2 'First source history'
-                Assert-Equal $plans.Rows[0].Cells[3].Value '400' 'Reserve before selecting another LOT'
-                $lots.CurrentCell = $lots.Rows[1].Cells[0]
-                Assert-Equal $history.Rows.Count 0 'Second source history'
-                Assert-Equal $plans.Rows[0].Cells[3].Value '400' 'Reserve belongs to whole report row'
-                Assert-Equal ($summary.Text -match '1[., ]800.*400.*1[., ]400') $true 'Summary remains the report row'
+                Assert-Equal $lots.Rows[0].Cells[3].Value 'Dự kiến: 2 cuộn' 'FIFO remains provisional in detail'
+                Assert-Equal $lots.Rows[1].Cells[3].Value '' 'Later LOT is unreserved'
             }
             Assert-Equal $opened $true 'Grouped detail window opens'
 
@@ -368,39 +428,75 @@ VALUES(212,20,1,180,0,180);
             Assert-Equal $one.Cells['MaBinLot_ExcelMoi'].Value 'E1-265081/5-03-00' 'Single LOT stays a code'
             Assert-Equal (Invoke-RowButton $grid $one 'Button_ExcelMoi' {
                 param($detail)
-                Assert-Equal (Get-UiControl $detail 'grvNguon').Rows.Count 1 'Single LOT source opens directly'
+                Assert-Equal (Get-UiControl $detail 'dgvChiTiet').Rows.Count 1 'Single LOT source opens directly'
             }) $true 'Single LOT detail window opens'
 
             $reel = $grid.Rows | Where-Object { $_.Tag.TonCuonLeId -eq 303 }
+            Assert-Equal $reel.Cells['DatTruoc_ExcelMoi'].FormattedValue '450 m' 'Report partial reservation uses meters'
             Assert-Equal (Invoke-RowButton $grid $reel 'Button_ExcelMoi' {
                 param($detail)
-                $summary = (Get-UiControl $detail 'txtTongHop').Text
-                Assert-Equal ($summary -match '396.*450.*-54') $true 'Partial totals and negative available'
-                Assert-Equal ($summary -match '996.*600') $true 'Partial markers'
-                Assert-Equal (Get-UiControl $detail 'grvLichSuCat').Rows.Count 0 'Partial has empty history'
-                Assert-Equal ((Get-UiControl $detail 'lblLichSu').Text -eq 'Chưa có lịch sử cắt') $true 'Empty history explained'
+                Assert-Equal (Get-UiControl $detail 'tbxTonThucTe').Text '396' 'Partial stock'
+                Assert-Equal (Get-UiControl $detail 'tbxTonKhaDung').Text '-54' 'Negative availability'
+                Assert-Equal (Get-UiControl $detail 'tbxSoDau').Text '996' 'Partial start'
+                Assert-Equal (Get-UiControl $detail 'tbxSoCuoi').Text '600' 'Partial end'
+                $details = Get-UiControl $detail 'dgvChiTiet'
+                Assert-Equal $details.Rows.Count 1 'Reservation is visible without cut history'
+                Assert-Equal $details.Rows[0].Cells[4].Value '' 'Unknown cut markers are blank'
+                Assert-Equal $details.Columns[1].HeaderText 'CD trước cắt' 'Label for per-cut original length'
+                Assert-Equal $details.Rows[0].Cells[8].Value '150 m; 300 m' 'Separate segments already assigned to this reel'
             }) $true 'Partial detail window opens'
 
             $planOnly = $grid.Rows | Where-Object { $_.Tag.MaSanPham -eq 'QA-PLAN-ONLY' }
             Assert-Equal (Invoke-RowButton $grid $planOnly 'Button_ExcelMoi' {
                 param($detail)
-                Assert-Equal (Get-UiControl $detail 'grvDatTruoc').Rows[0].Cells[3].Value '200' 'Plan without inventory'
+                Assert-Equal (Get-UiControl $detail 'tbxDatTruoc').Text '200' 'Plan without inventory'
+                Assert-Equal (Get-UiControl $detail 'dgvChiTiet').Rows.Count 0 'No LOT to allocate'
             }) $true 'Plan-only detail window opens'
 
             $missing = $grid.Rows | Where-Object { $_.Tag.MaSanPham -eq 'QA-MISSING' }
             Assert-Equal (Invoke-RowButton $grid $missing 'Button_ExcelMoi' {
                 param($detail)
-                Assert-Equal ((Get-UiControl $detail 'txtTongHop').Text -like '*thiếu TonCuonLe*') $true 'Missing physical reel warning'
+                Assert-Equal (Get-UiControl $detail 'tbxTonThucTe').Text '' 'Missing physical reel is not shown as zero'
+                Assert-Equal ((Get-UiControl $detail 'groupBox1').Text -match 'CÓ CẢNH BÁO') $true 'Missing physical reel warning'
             }) $true 'Missing reel detail window opens'
 
-            $kind = $assembly.GetType('DG_TonKhoBTP_v02.Models.Kho.TonKho.BCTonKho_LoaiTimKiem', $true)
-            $query = $db.GetMethod('LayChiTietTonAsync', [Reflection.BindingFlags]'Static,NonPublic')
-            $task = $query.Invoke($null, [object[]]@([Enum]::ToObject($kind, 1), [long]101,
-                'E1-265081/5-03-00', $true, [Threading.CancellationToken]::None))
-            $render = $control.GetType().GetMethod('RenderTonKho', [Reflection.BindingFlags]'Instance,NonPublic')
-            $null = $render.Invoke($control, [object[]]@($task.GetAwaiter().GetResult()))
-            Assert-Equal $grid.Columns.Contains('Button_ExcelMoi') $false 'Switching views replaces report column'
-            Assert-Equal (Invoke-RowButton $grid $grid.Rows[0] 'LichSu') $false 'Search result uses its own column'
+            $choices = [Data.DataTable]::new()
+            $null = $choices.Columns.Add('Loai', [int])
+            $null = $choices.Columns.Add('Id', [long])
+            $null = $choices.Columns.Add('GiaTri', [string])
+            $null = $choices.Rows.Add(1, [long]101, 'E1-265081/5-03-00')
+            $null = $choices.Rows.Add(1, [long]105, 'QA-DEPLETED')
+            $select = $control.GetType().GetMethod('OnTonKhoItemSelected', [Reflection.BindingFlags]'Instance,NonPublic')
+            $null = $select.Invoke($control, [object[]]@($choices.DefaultView[0]))
+            Wait-Ui { @($grid.Rows | Where-Object { $_.Tag.TTThanhPhamId -eq 101 }).Count -gt 0 } 'Search selection did not render inventory rows'
+            Assert-Equal ($grid.Columns.HeaderText -join '|') $headers 'Search uses the same columns and order'
+            Assert-Equal ($grid.Columns.Width -join ',') $reportWidths 'Search uses the same widths'
+            Assert-Equal "$($grid.ColumnHeadersHeight)/$($grid.Rows[0].Height)" $reportHeights 'Search uses the same row and header heights'
+            $searchWhole = $grid.Rows | Where-Object { $_.Tag.TTCuonDayId -eq 201 -and !$_.Tag.TonCuonLeId }
+            Assert-Equal $searchWhole.Cells['MaSP_ExcelMoi'].Value 'QA-P1' 'Search includes product code'
+            Assert-Equal $searchWhole.Cells['DonVi_ExcelMoi'].Value 'm' 'Search includes product unit'
+            Assert-Equal $searchWhole.Cells['TonThucTe_ExcelMoi'].Value 1200 'Search stock stays within the selected source'
+            Assert-Equal $searchWhole.Cells['DatTruoc_ExcelMoi'].FormattedValue '2 cuộn' 'Search reservation uses whole reel count'
+            Assert-Equal $searchWhole.Cells['KhaDung_ExcelMoi'].Value 800 'Availability subtracts 400 meters'
+            $searchReel = $grid.Rows | Where-Object { $_.Tag.TonCuonLeId -eq 302 }
+            Assert-Equal $searchReel.Cells['DatTruoc_ExcelMoi'].FormattedValue '12 m' 'Search partial reservation uses meters'
+            Assert-Equal (Invoke-RowButton $grid $searchReel 'Button_ExcelMoi' {
+                param($detail)
+                Assert-Equal (Get-UiControl $detail 'tbxMaSP').Text 'QA-P1' 'Search fills product code'
+                $details = Get-UiControl $detail 'dgvChiTiet'
+                Assert-Equal $details.Rows.Count 1 'Only selected reel history'
+                Assert-Equal $details.Rows[0].Cells[1].Value '200' 'Length immediately before the cut'
+                Assert-Equal $details.Rows[0].Cells[3].Value '180' 'Length cut'
+                Assert-Equal $details.Rows[0].Cells[8].Value '5 m; 7 m' 'Only pending segments assigned to the reel'
+            }) $true 'Search result opens the selected reel'
+
+            $null = $select.Invoke($control, [object[]]@($choices.DefaultView[1]))
+            Wait-Ui { $grid.Rows.Count -eq 0 } 'Depleted source should be hidden by default'
+            $includeDepleted = Get-UiControl $control 'cbxKieuTon'
+            $includeDepleted.Checked = $true
+            Wait-Ui { $grid.Rows.Count -eq 1 } 'Including depleted stock should display the selected source'
+            Assert-Equal $grid.Rows[0].Cells['SoCuon_ExcelMoi'].Value 0 'Zero stock remains a number'
+
             [Threading.SynchronizationContext]::SetSynchronizationContext([Windows.Forms.WindowsFormsSynchronizationContext]::new())
             $lockConnection = [DG_TonKhoBTP_v02.Database.DB_Base]::OpenConnection()
             $lockCommand = $lockConnection.CreateCommand()

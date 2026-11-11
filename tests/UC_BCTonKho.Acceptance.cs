@@ -230,17 +230,36 @@ COMMIT;");
         return results.Any(r=>r[4]=="FAIL")?1:0;
     }
     static void UiTests() {
-        Test("11-01","Rendered WinForms grid has exact ten columns","Tên sản phẩm|Mã Bin/LOT|Số lượng|Kiểu|Số đầu|Số cuối|Chiều dài ban đầu|Chiều dài còn lại|Đặt chỗ|Lịch sử",()=>{
+        Test("11-01","Search renders the shared inventory columns","Tên sản phẩm|Mã|Đvị|LOT / Mã cuộn|Loại|Số cuộn|Chiều dài 1C|Tồn thực tế|Đặt trước|Tồn khả dụng|Số đầu|Số cuối|Thao tác",()=>{
             UC_BCTonKho uc;using(var host=Host(out uc)){Call(uc,"RenderTonKho",Detail());var grid=(DataGridView)F(uc,"grvShowBaoCao");return string.Join("|",grid.Columns.Cast<DataGridViewColumn>().Select(c=>c.HeaderText));}});
-        Test("11-02","Reservation display, source Tag and Xem button","6 cuộn (dự kiến),True,Xem",()=>{
-            UC_BCTonKho uc;using(var host=Host(out uc)){Call(uc,"RenderTonKho",Detail());var g=(DataGridView)F(uc,"grvShowBaoCao");var r=g.Rows.Cast<DataGridViewRow>().Single(x=>N(x.Tag,"TTCuonDayId")==201&&N(x.Tag,"Kieu")==1);return r.Cells[8].Value+","+(r.Tag!=null)+","+r.Cells[9].FormattedValue;}});
-        Test("11-03","History cell event does not crash or change fixture","True",()=>{
-            UC_BCTonKho uc;using(var host=Host(out uc)){Call(uc,"RenderTonKho",Detail());var g=(DataGridView)F(uc,"grvShowBaoCao");var hash=Hash(fixture);g.GetType().GetMethod("OnCellContentClick",BindingFlags.Instance|BindingFlags.NonPublic).Invoke(g,new object[]{new DataGridViewCellEventArgs(9,0)});return (hash==Hash(fixture)).ToString();}});
+        Test("11-02","Reservation display, source Tag and Xem button","6 cuộn,True,Xem",()=>{
+            UC_BCTonKho uc;using(var host=Host(out uc)){Call(uc,"RenderTonKho",Detail());var g=(DataGridView)F(uc,"grvShowBaoCao");var r=g.Rows.Cast<DataGridViewRow>().Single(x=>N(x.Tag,"TTCuonDayId")==201&&N(x.Tag,"Kieu")==1);return r.Cells["DatTruoc_ExcelMoi"].FormattedValue+","+(r.Tag!=null)+","+r.Cells["Button_ExcelMoi"].FormattedValue;}});
+        Test("11-03","Xem opens the detail without changing the fixture","True",()=>{
+            UC_BCTonKho uc;
+            using(var host=Host(out uc))
+            using(var timer=new System.Windows.Forms.Timer { Interval=25 }) {
+                Call(uc,"RenderTonKho",Detail());
+                var grid=(DataGridView)F(uc,"grvShowBaoCao");
+                var hash=Hash(fixture);
+                bool opened=false;
+                timer.Tick+=(sender,args)=>{
+                    var detail=Application.OpenForms.Cast<Form>().FirstOrDefault(f=>f.GetType().Name=="Frm_ChiTietTonKho");
+                    if(detail==null) return;
+                    opened=true;
+                    detail.Close();
+                };
+                timer.Start();
+                grid.GetType().GetMethod("OnCellContentClick",BindingFlags.Instance|BindingFlags.NonPublic)
+                    .Invoke(grid,new object[]{new DataGridViewCellEventArgs(grid.Columns["Button_ExcelMoi"].Index,0)});
+                return (opened && hash==Hash(fixture)).ToString();
+            }});
         Test("10-11","Danger entire row white text reason tooltip and bitmap","177/48/59,White,True",()=>{
             UC_BCTonKho uc;using(var host=Host(out uc)){Call(uc,"RenderTonKho",Detail(1,106,""));var g=(DataGridView)F(uc,"grvShowBaoCao");var r=g.Rows[0];using(var b=new Bitmap(host.Width,host.Height)){host.DrawToBitmap(b,new Rectangle(0,0,b.Width,b.Height));b.Save(Path.Combine(evidence,"danger-grid.png"));}return r.DefaultCellStyle.BackColor.R+"/"+r.DefaultCellStyle.BackColor.G+"/"+r.DefaultCellStyle.BackColor.B+","+r.DefaultCellStyle.ForeColor.Name+","+r.Cells.Cast<DataGridViewCell>().All(c=>!string.IsNullOrEmpty(c.ToolTipText));}});
         Test("10-16","Rendered history button participates in danger row background","177/48/59",()=>{
             UC_BCTonKho uc;using(var host=Host(out uc)){Call(uc,"RenderTonKho",Detail(1,106,""));var g=(DataGridView)F(uc,"grvShowBaoCao");
-                using(var b=new Bitmap(g.Width,g.Height)){g.DrawToBitmap(b,new Rectangle(0,0,b.Width,b.Height));var rect=g.GetCellDisplayRectangle(9,0,true);var color=b.GetPixel(rect.X+rect.Width/2,rect.Y+4);return color.R+"/"+color.G+"/"+color.B;}}});
+                int viewColumn=g.Columns["Button_ExcelMoi"].Index;
+                g.FirstDisplayedScrollingColumnIndex=viewColumn;
+                using(var b=new Bitmap(g.Width,g.Height)){g.DrawToBitmap(b,new Rectangle(0,0,b.Width,b.Height));var rect=g.GetCellDisplayRectangle(viewColumn,0,true);var color=b.GetPixel(rect.X+rect.Width/2,rect.Y+4);return color.R+"/"+color.G+"/"+color.B;}}});
         Test("03-05","Clear selection removes inventory grid","0,True",()=>{
             UC_BCTonKho uc;using(var host=Host(out uc)){Call(uc,"RenderTonKho",Detail());Call(uc,"OnTonKhoCleared");var g=(DataGridView)F(uc,"grvShowBaoCao");return g.Rows.Count+","+(F(uc,"_tonKhoSelection")==null);}});
         Test("02-12","Helper selecting item preserves single display text","QA-B",()=>{
@@ -250,7 +269,7 @@ COMMIT;");
         Test("09-04","Checkbox refreshes already displayed suggestions","1,0",()=>{
             UC_BCTonKho uc;using(var host=Host(out uc)){var box=(ComboBox)F(uc,"btnTimKiem");((CheckBox)F(uc,"cbxKieuTon")).Checked=true;box.Text="QA-DEPLETED";typeof(ComboBox).GetMethod("OnTextUpdate",BindingFlags.Instance|BindingFlags.NonPublic).Invoke(box,new object[]{EventArgs.Empty});Pump(650);int before=box.Items.Count;((CheckBox)F(uc,"cbxKieuTon")).Checked=false;Pump(650);return before+","+box.Items.Count;}});
         Test("12-03","Rapid selections newest result wins and Waiting closes","QA-DIRECT,0",()=>{
-            UC_BCTonKho uc;using(var host=Host(out uc)){Call(uc,"OnTonKhoItemSelected",Choice(1,102,"QA-B"));Call(uc,"OnTonKhoItemSelected",Choice(3,303,"QA-DIRECT"));Pump(600);var g=(DataGridView)F(uc,"grvShowBaoCao");return g.Rows[0].Cells[1].Value+","+CountWaiting();}});
+            UC_BCTonKho uc;using(var host=Host(out uc)){Call(uc,"OnTonKhoItemSelected",Choice(1,102,"QA-B"));Call(uc,"OnTonKhoItemSelected",Choice(3,303,"QA-DIRECT"));Pump(600);var g=(DataGridView)F(uc,"grvShowBaoCao");return g.Rows[0].Cells["MaBinLot_ExcelMoi"].Value+","+CountWaiting();}});
         Test("12-04","Typing debounces without Waiting form","0,True",()=>{
             UC_BCTonKho uc;using(var host=Host(out uc)){var b=(ComboBox)F(uc,"btnTimKiem");foreach(string s in new[]{"D","Da","Day","Day dien"}){b.Text=s;typeof(ComboBox).GetMethod("OnTextUpdate",BindingFlags.Instance|BindingFlags.NonPublic).Invoke(b,new object[]{EventArgs.Empty});Pump(25);}Pump(600);return CountWaiting()+","+(b.Items.Count>0);}});
         Test("12-05","Dispose during detail load no surviving Waiting","0",()=>{
@@ -269,7 +288,7 @@ COMMIT;");
             SQLiteConnection.Changed+=delay;
             try {UC_BCTonKho uc;using(var host=Host(out uc)){Call(uc,"OnTonKhoItemSelected",Choice(1,105,"QA-DEPLETED"));((CheckBox)F(uc,"cbxKieuTon")).Checked=true;Pump(700);return ((DataGridView)F(uc,"grvShowBaoCao")).Rows.Count+","+CountWaiting();}}
             finally{SQLiteConnection.Changed-=delay;}});
-        Test("13-01","Switch inventory to old report and back clears columns/styles","1,10,False",()=>{
+        Test("13-01","Switch inventory to old report and back clears columns/styles","1,13,False",()=>{
             UC_BCTonKho uc;using(var host=Host(out uc)){Call(uc,"RenderTonKho",Detail(1,106,""));var t=new DataTable();t.Columns.Add("OldReport");t.Rows.Add("legacy");Call(uc,"ShowResult",t);var g=(DataGridView)F(uc,"grvShowBaoCao");int n=g.Columns.Count;Call(uc,"RenderTonKho",Detail(1,102,""));return n+","+g.Columns.Count+","+(g.Rows[0].DefaultCellStyle.ForeColor==Color.White);}});
         Test("13-02","btnTonDong executes actual query after inventory view","1,MaBin,True",()=>{
             Sql(@"BEGIN;ALTER TABLE TTThanhPham ADD COLUMN KhoiLuongTruoc REAL;ALTER TABLE TTThanhPham ADD COLUMN KhoiLuongSau REAL;
@@ -284,7 +303,7 @@ UPDATE DanhSachMaSP SET Ten='C 1.02',DonVi='M' WHERE id=1;UPDATE TTThanhPham SET
                 Call(uc,"RenderTonKho",Detail(1,106,""));UseRealSnapshot();((CheckBox)F(uc,"cbxKeoRut")).Checked=true;
                 ((DateTimePicker)F(uc,"dtBatDau")).Value=new DateTime(2025,1,1);((DateTimePicker)F(uc,"dtKetThuc")).Value=new DateTime(2026,10,29);
                 Call(uc,"btnBCSX_Click",null,EventArgs.Empty);Pump(1200);var g=(DataGridView)F(uc,"grvShowBaoCao");
-                return (g.Rows.Count>0)+","+g.AutoGenerateColumns+","+g.Columns.Contains("LichSu");}});
+                return (g.Rows.Count>0)+","+g.AutoGenerateColumns+","+g.Columns.Contains("Button_ExcelMoi");}});
         Test("13-06","btnBCSX date branch loads real snapshot","True,0",()=>{
             UC_BCTonKho uc;using(var host=Host(out uc)){
                 UseRealSnapshot();((CheckBox)F(uc,"cbxKeoRut")).Checked=true;((CheckBox)F(uc,"cbxBaoCaoTon")).Checked=false;
@@ -293,7 +312,7 @@ UPDATE DanhSachMaSP SET Ten='C 1.02',DonVi='M' WHERE id=1;UPDATE TTThanhPham SET
         Test("11-04","Real sample renders 6 whole and 100m20m partial rows","6,100,20",()=>{
             UC_BCTonKho uc;using(var host=Host(out uc)){UseRealSnapshot();var result=Detail(1,57956,"E1-265081/5-03-00",true);Call(uc,"RenderTonKho",result);
                 using(var b=new Bitmap(host.Width,host.Height)){host.DrawToBitmap(b,new Rectangle(0,0,b.Width,b.Height));b.Save(Path.Combine(evidence,"real-sample-grid.png"));}
-                var g=(DataGridView)F(uc,"grvShowBaoCao");return g.Rows[0].Cells[2].Value+","+g.Rows[1].Cells[7].Value+","+g.Rows[2].Cells[7].Value;}});
+                var g=(DataGridView)F(uc,"grvShowBaoCao");return g.Rows[0].Cells["SoCuon_ExcelMoi"].Value+","+g.Rows[1].Cells["ChieuDai1Cuon_ExcelMoi"].Value+","+g.Rows[2].Cells["ChieuDai1Cuon_ExcelMoi"].Value;}});
     }
     static void UseRealSnapshot() {
         var path=Path.Combine(evidence,"configured-snapshot.db");if(!File.Exists(path))throw new FileNotFoundException("Configured snapshot required",path);

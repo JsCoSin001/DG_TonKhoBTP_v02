@@ -97,7 +97,9 @@ namespace DG_TonKhoBTP_v02.UI.Helper.AutoSearchWithCombobox
         /// Xoá trắng ComboBox và huỷ mọi tìm kiếm đang chờ.
         /// Gọi khi muốn reset form từ bên ngoài.
         /// </summary>
-        public void Reset()
+        public void Reset() => Reset(notifyCleared: true);
+
+        internal void Reset(bool notifyCleared)
         {
             CancelPendingSearch();
 
@@ -115,7 +117,8 @@ namespace DG_TonKhoBTP_v02.UI.Helper.AutoSearchWithCombobox
                 _suppressTextChange = false;
             }
 
-            Cleared?.Invoke();
+            if (notifyCleared)
+                Cleared?.Invoke();
         }
 
         // ── Event handlers ──────────────────────────────────────────────────────

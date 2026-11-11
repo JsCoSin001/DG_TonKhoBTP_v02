@@ -21,6 +21,8 @@ namespace DG_TonKhoBTP_v02.Models.Kho.TonKho
         public long? TTCuonDayId { get; set; }
         public long? TonCuonLeId { get; set; }
         public string TenSanPham { get; set; } = string.Empty;
+        public string MaSanPham { get; set; } = string.Empty;
+        public string DonVi { get; set; } = string.Empty;
         public string MaBinGoc { get; set; } = string.Empty;
         public string MaHienThi { get; set; } = string.Empty;
         public BCTonKho_KieuDong Kieu { get; set; }
@@ -29,7 +31,7 @@ namespace DG_TonKhoBTP_v02.Models.Kho.TonKho
         public long? SoCuoi { get; set; }
         public long? ChieuDaiBanDau { get; set; }
         public long? ChieuDaiConLai { get; set; }
-        public long DatCho { get; set; }
+        public decimal DatCho { get; set; }
         public string DonViDatCho { get; set; } = "cuộn";
         public bool DatChoDuKien { get; set; }
         public bool LaBatThuong { get; set; }
@@ -42,6 +44,31 @@ namespace DG_TonKhoBTP_v02.Models.Kho.TonKho
             LaBatThuong = true;
             LyDoBatThuong += (LyDoBatThuong.Length == 0 ? "" : "; ") + reason;
         }
+
+        internal BCTonKho_ExcelDong TaoDongBaoCao()
+        {
+            bool cuonChan = Kieu == BCTonKho_KieuDong.CuonChan;
+            long chieuDai = ChieuDaiConLai.GetValueOrDefault();
+            var dong = new BCTonKho_ExcelDong
+            {
+                DanhSachMaSPId = SanPhamId,
+                TonCuonLeId = TonCuonLeId,
+                TenSanPham = TenSanPham,
+                MaSanPham = MaSanPham,
+                DonVi = DonVi,
+                MaBinLot = cuonChan ? MaBinGoc : MaHienThi,
+                LotNguon = MaBinGoc,
+                Loai = cuonChan ? "Cuộn" : "Lẻ",
+                SoCuon = SoLuong,
+                ChieuDaiMoiCuon = chieuDai,
+                ThieuChieuDaiHienTai = !ChieuDaiConLai.HasValue,
+                SoDau = SoDau,
+                SoCuoi = SoCuoi,
+                ChieuDaiTonDatTruoc = cuonChan ? DatCho * chieuDai : DatCho
+            };
+            if (LaBatThuong) dong.ThemCanhBao(LyDoBatThuong);
+            return dong;
+        }
     }
 
     internal sealed class BCTonKho_KetQua
@@ -53,6 +80,7 @@ namespace DG_TonKhoBTP_v02.Models.Kho.TonKho
     {
         public long TTCuonDayId { get; set; }
         public string MaBin { get; set; } = string.Empty;
+        public string NgayNhapKho { get; set; } = string.Empty;
         public long SoCuonNhap { get; set; }
         public long SoCuonDaLay { get; set; }
         public long SoCuonChuyenLe { get; set; }
@@ -74,6 +102,15 @@ namespace DG_TonKhoBTP_v02.Models.Kho.TonKho
         public long SoCuonConPhaiLay { get; set; }
         public long SoCuonDanhDeCat { get; set; }
         public decimal SoMet { get; set; }
+    }
+
+    // Một dòng dự kiến cắt chưa có LichSuCat; giữ riêng từng đoạn, không gộp tổng.
+    internal sealed class BCTonKho_DoanDatTruoc
+    {
+        public long KeHoachCatChiTietId { get; set; }
+        public long KeHoachId { get; set; }
+        public string MaKeHoach { get; set; } = string.Empty;
+        public decimal? ChieuDai { get; set; }
     }
 
     internal sealed class BCTonKho_LanCat
@@ -101,6 +138,7 @@ namespace DG_TonKhoBTP_v02.Models.Kho.TonKho
         private readonly List<BCTonKho_LanCat> _lichSuCat = new List<BCTonKho_LanCat>();
         private readonly List<BCTonKho_NguonTon> _nguon = new List<BCTonKho_NguonTon>();
         private readonly List<BCTonKho_DatTruocKeHoach> _datTruoc = new List<BCTonKho_DatTruocKeHoach>();
+        private readonly List<BCTonKho_DoanDatTruoc> _doanDatTruoc = new List<BCTonKho_DoanDatTruoc>();
 
         internal BCTonKho_ChiTietDong(long chieuDaiMoiCuon = 0)
         {
@@ -110,6 +148,7 @@ namespace DG_TonKhoBTP_v02.Models.Kho.TonKho
         public IReadOnlyList<BCTonKho_LanCat> LichSuCat => _lichSuCat;
         public IReadOnlyList<BCTonKho_NguonTon> Nguon => _nguon;
         public IReadOnlyList<BCTonKho_DatTruocKeHoach> DatTruoc => _datTruoc;
+        public IReadOnlyList<BCTonKho_DoanDatTruoc> DoanDatTruoc => _doanDatTruoc;
 
         public IReadOnlyList<BCTonKho_LotGop> LotGop => _nguon
             .Where(x => x.SoCuonGop > 0 && x.MaBin.Length > 0)
@@ -127,6 +166,7 @@ namespace DG_TonKhoBTP_v02.Models.Kho.TonKho
         internal void ThemLanCat(BCTonKho_LanCat lanCat) => _lichSuCat.Add(lanCat);
         internal void ThemNguon(BCTonKho_NguonTon nguon) => _nguon.Add(nguon);
         internal void ThemDatTruoc(BCTonKho_DatTruocKeHoach keHoach) => _datTruoc.Add(keHoach);
+        internal void ThemDoanDatTruoc(BCTonKho_DoanDatTruoc doan) => _doanDatTruoc.Add(doan);
     }
 
     /// <summary>
@@ -141,10 +181,12 @@ namespace DG_TonKhoBTP_v02.Models.Kho.TonKho
         public List<long> TTCuonDayIds { get; } = new List<long>();
         public long SoCuon { get; set; }
         public long ChieuDaiMoiCuon { get; set; }
+        public bool ThieuChieuDaiHienTai { get; set; }
         public string TenSanPham { get; set; } = string.Empty;
         public string MaSanPham { get; set; } = string.Empty;
         public string DonVi { get; set; } = string.Empty;
         public string MaBinLot { get; set; } = string.Empty;
+        public string LotNguon { get; set; } = string.Empty;
         public BCTonKho_ChiTietDong? ChiTiet { get; set; }
         public string LotHienThiBang => ChiTiet?.LotGop.Count > 1 ? "Nhiều LOT" : MaBinLot;
         // Cuộn nguyên gộp theo sản phẩm + chiều dài: giữ đầy đủ mã Bin còn tồn,

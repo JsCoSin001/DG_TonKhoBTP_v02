@@ -344,12 +344,12 @@ namespace DG_TonKhoBTP_v02.Helper
                 tclv.NguoiLam, tclv.ToTruong, tclv.QuanDoc,
                 ttp.KhoiLuongTruoc AS KhoiLuongTruoc, ttp.KhoiLuongSau as KhoiLuongSau,
                 ttp.ChieuDaiTruoc as ChieuDaiTruoc, ttp.ChieuDaiSau as ChieuDaiSau,
-                IFNULL(pl.DayPhe_NL, 0) AS DayPhe_NL,
-                IFNULL(pl.NhuaPhe_NL, 0) AS NhuaPhe_NL,
-                IFNULL(pl.DongPhe_NL, 0) AS DongPhe_NL,
-                IFNULL(pl.DayPhe_TP, 0) AS DayPhe_TP,
-                IFNULL(pl.NhuaPhe_TP, 0) AS NhuaPhe_TP,
-                IFNULL(pl.DongPhe_TP, 0) AS DongPhe_TP,
+                CAST(IFNULL(pl.DayPhe_NL, 0) AS REAL) AS DayPhe_NL,
+                CAST(IFNULL(pl.NhuaPhe_NL, 0) AS REAL) AS NhuaPhe_NL,
+                CAST(IFNULL(pl.DongPhe_NL, 0) AS REAL) AS DongPhe_NL,
+                CAST(IFNULL(pl.DayPhe_TP, 0) AS REAL) AS DayPhe_TP,
+                CAST(IFNULL(pl.NhuaPhe_TP, 0) AS REAL) AS NhuaPhe_TP,
+                CAST(IFNULL(pl.DongPhe_TP, 0) AS REAL) AS DongPhe_TP,
                 ttp.HanNoi as HanNoi, ttp.GhiChu as GhiChu ";
         }
 
